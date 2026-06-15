@@ -54,11 +54,11 @@ credentials are redacted, and (b) two large embedded briefs already saved verbat
 (the lineage thesis → `thinking/thesis-lineage-groups.md`; the experiment-suite spec →
 `Proofs/lineage-group-model/CODING-TRANSCRIPT.md`) are referenced rather than triplicated.
 
-## MISSING — not preserved as raw
+## Previously MISSING — now CLOSED
 
 | Raw artifact | Status | Note |
 |---|---|---|
-| **The original design-dialogue transcript** (first large paste: the Delta Chat/SSB/Signal messaging research session AND the multi-device → social-layer → lineage-fork design conversation, including the voice-note reasoning, "Splinter City," "teenage gossip heaven," the fold/unfold and recombine back-and-forth) | **distilled-only** | This is the richest single seed — where the design reasoning actually happened. It was analyzed into `ANALYSIS.md` and informed `crystallized/`, but the raw conversation was never saved. The produced docs in `seeds/groupdynamics-unpacked/` came from the zip, not from this dialogue. **Recommend the user re-drop the canonical paste so it is preserved verbatim here** (`seeds/transcripts/design-dialogue-2026-06-13-to-14.md`) — a reconstruction from session memory would risk paraphrase and give false confidence for review. |
+| **The original design-dialogue transcript** (Delta Chat/SSB/Signal research + the multi-device → social-layer → scale-axis design conversation, incl. the voice notes, "six tapes," "teenage gossip heaven," fold/unfold, recombine, the two-regime/propagation-geometry material) | **preserved-verbatim** | Re-dropped by the user and filed at `seeds/transcripts/design-dialogue-2026-06-13-to-14.md`. The richest single seed — where the design reasoning happened. Closes the last provenance gap. (Assistant research-phase source citations preserved as they appeared.) |
 
 ## Upstream source of record
 

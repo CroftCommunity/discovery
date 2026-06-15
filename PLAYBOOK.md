@@ -218,5 +218,8 @@ This repo set is reviewed before commit, so commit only on request. When asked:
   encrypted-local-first-atproto (#3). experiments = appview-validation (#6), public-roundtrip
   (#4), android-p2p-app (#7), encrypted-blob-share (#5).
 
-- **Outstanding provenance gap:** the original GroupDynamics design-dialogue transcript is
-  distilled-only, awaiting a verbatim re-drop → `seeds/transcripts/design-dialogue-2026-06-13-to-14.md`.
+- **Provenance:** complete — the GroupDynamics design-dialogue transcript is now filed verbatim
+  at `seeds/transcripts/design-dialogue-2026-06-13-to-14.md`. No known gaps.
+
+- **Agent orientation:** canonical at `discovery/AGENTS.md` (version-controlled); the top-level
+  `CroftC/.claude/CLAUDE.md` imports it.
