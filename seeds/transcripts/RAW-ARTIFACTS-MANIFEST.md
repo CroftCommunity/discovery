@@ -48,6 +48,36 @@ condensed rendering also sits next to each artifact as `CODING-TRANSCRIPT.md`.
 | PR #5 encrypted-blob-share | `seeds/transcripts/raw/pr5-encrypted-blob-share.md` | `experiments/encrypted-blob-share/CODING-TRANSCRIPT.md` |
 | Germ/X Chat design dialogue | `seeds/transcripts/raw/germ-xchat-design-dialogue.md` | distilled → thinking/interaction-tiers.md + principles Tier 3 |
 | Croft crofting research | `seeds/transcripts/raw/croft-crofting-research.md` | distilled → NAMING.md |
+| P2P architecture **origin** dialogue (2026-06-02/03) | `seeds/transcripts/raw/p2p-architecture-origin-dialogue.md` | **preserved-condensed** — earliest seed (stack + economics + coop first reasoned out); verbatim re-drop can replace |
+
+## Session 2026-06-15 (web-research imports — deliverables filed by taxonomy)
+
+Five web-research sessions were imported. Deliverables filed (research = analytical lens;
+thinking = our evolving design); raw dialogues kept where unique, per "file what's unique, keep the
+raw transcripts."
+
+| Deliverable | Filed at | Source dialogue |
+|---|---|---|
+| social-platform-cycle, discord-dominance, public-social-protocols, discord-matrix-groupchat, germ-xchat-features | `research/` | various web sessions (cite tags stripped on import) |
+| group-chat-failure-modes (+ -plain) | `research/` | peer-fracture / failure-modes dialogue |
+| p2p-founder-motivations-adoption | `research/` | founder-motivations web session |
+| model-holds-up-summary, design-notes-addendum, experiment-suite | `thinking/` | peer-fracture / failure-modes dialogue |
+| group-privacy-lanes-design-note, plc-identity-resilience | `thinking/` | realtime-chat & socials-compare sessions |
+| governance-and-survivability, open-considerations | `thinking/` | distilled from the feasibility + governance + design-review dialogue |
+
+Source zips (chainvalidation, socialscompare, realtimechatcompare, peercrypto) were unpacked into
+the repo and deleted from `discovery/` root.
+
+### Still to preserve verbatim (re-drop pattern)
+
+- **Peer-fracture / group-chat-failure-modes design dialogue** — fully distilled into the five docs
+  above; the raw back-and-forth (Merkle-ancestry unification, capabilities-not-rights, the trap
+  door, complementary-vs-contradictory boundary) is **not yet kept verbatim**. Re-drop to save as
+  `seeds/transcripts/raw/peer-fracture-design-dialogue.md`.
+- **Founder-motivations web session** — deliverable filed; dialogue is mostly search logs,
+  distilled-only.
+- **"Maintenance phase" quote research** — minor; finding captured in the origin-dialogue closing
+  note above.
 
 Fidelity note: the raw files reproduce the pastes verbatim, except (a) in-session test
 credentials are redacted, and (b) two large embedded briefs already saved verbatim elsewhere
