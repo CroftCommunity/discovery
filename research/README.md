@@ -29,6 +29,59 @@ not try to merge them into one document; cross-reference instead.
   capability) of Signal, Delta Chat, SSB, Matrix, Briar, Session, WhatsApp/Telegram, mapped
   to our planned stack. The design-lens comparison.
 
+- `social-platform-cycle.md` — commissioned research narrative on the cycle of VC-funded social
+  platforms since the 1990s and the recurring community "rug-pull." Thesis: the cycle is a
+  capital-structure phenomenon (VC exit → extraction imperative) leveraged by lock-in; the
+  antidote couples unsellable governance + portable/user-owned data with the UX the community
+  side historically skipped. Statements labeled Documented history / Analysis / Commissioner's
+  thesis, with `[UNVERIFIED]` inline. Imported from a web-research session; `<cite>` tags
+  stripped on import. Status: draft for review.
+
+- `discord-dominance.md` — commissioned analysis of how Discord came to dominate community chat,
+  including FLOSS communities (e.g. iroh) whose values it doesn't reflect. Finds zero-friction
+  joining the largest single driver (above brand/stability), separates Discord's genuinely-good
+  live-presence core from its genuinely-bad knowledge/search/ownership, and frames the
+  "cohesive product on open foundations" middle path as a real under-occupied position.
+  Documented fact / `[inference]` / `[UNVERIFIED]` flagged throughout. Status: draft for review.
+
+- `public-social-protocols.md` — comparative analysis of public social products and the protocols
+  beneath them (Twitter/X, Bluesky/atproto, Threads, Mastodon/ActivityPub, Pixelfed), assessing
+  what integrating our public side with Bluesky / AT Protocol gives us, costs us, and aligns with
+  vs. the ActivityPub and proprietary alternatives. Keeps protocol-level and product-level facts
+  distinct throughout; `[UNVERIFIED]` flagged. Status: research deliverable. (Its identity-layer
+  follow-on, the DID-method decision, lives at `../thinking/plc-identity-resilience.md`.)
+
+- `discord-matrix-groupchat.md` — feature & UX comparison of Discord (richness benchmark) and
+  Matrix (our decentralized-encrypted cousin) for group chat, with a feature matrix rating each
+  capability's fit against our stack as Natural / Effortful / Hard tied to specific layers (MLS
+  epochs, Automerge, iroh, blind broker, DID, blob path). Headline: privacy-preserving behaviors
+  are our free wins; the features that feel effortless in a centralized app (server-side search,
+  presence, link previews) are exactly what the blind broker makes costly. Includes the
+  private/public lanes analysis and a Bluesky/Germ/Wire-core-crypto feasibility dig. `[UNVERIFIED]`
+  flagged. The design conclusion is written up at `../thinking/group-privacy-lanes-design-note.md`.
+
+- `germ-xchat-features.md` — feature & UX comparison of Germ DM (MLS, atproto-native) vs. X Chat
+  (Juicebox server-held keys), mapped against our stack as Natural / Effortful / Hard. Carries the
+  interaction-tiers model (interactive / quiet-large / broadcast, type-at-creation not switchable
+  mode), multi-device flagged as the primary open problem, and a durable-product design-principles
+  appendix (three-audience settings, LTS-for-interfaces). Raw dialogue:
+  `../seeds/transcripts/raw/germ-xchat-design-dialogue.md`.
+
+- `group-chat-failure-modes.md` — sourced analysis of the field's recurring group-chat failure
+  modes (SSB fusion-identity, Megolm forward-secrecy nuance, MLS ordering/fork unsolved-merge,
+  Keybase's trusted-server answer to per-device ordering), our model graded against each, the
+  ranked case-against, and open questions. Headline: the decentralized-MLS "referee problem" is
+  the consensus-acknowledged wall, not paranoia.
+
+- `group-chat-failure-modes-plain.md` — the same analysis in plain English with examples/analogies
+  (diary-you-can-only-add-pages-to, the train-track-tunnel referee problem, lost-key recovery).
+
+- `p2p-founder-motivations-adoption.md` — research on why founders built 16 P2P/local-first
+  projects (SSB, Briar, Reticulum, Nostr, Veilid, Keet, Matrix, Signal, BitChat, etc.) and whether
+  anyone crossed the chasm. Finds only Signal did; institutional mandate (Matrix) is a possible
+  fourth bridge; the Staltz paradox (building intimacy tools among strangers) is the human warning.
+  Sourced inline; self-reported numbers flagged.
+
 ## Anticipated (different audiences, same underlying research)
 
 The same comparative material will likely be re-cut for different needs — e.g. a

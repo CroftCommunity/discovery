@@ -68,7 +68,20 @@ discovery/
 ├── thinking/                      our design (ours), evolving
 │   ├── thesis-lineage-groups.md
 │   ├── multi-device.md
-│   └── social-layer.md
+│   ├── social-layer.md
+│   ├── interaction-tiers.md
+│   ├── plc-identity-resilience.md   DID-method choice for the MLS root (did:plc/web/webvh)
+│   │                                  + validating PLC read-replica design
+│   ├── group-privacy-lanes-design-note.md   3-lane model: closed MLS / open-join MLS /
+│   │                                  public atproto — routing at compose time, not a flag
+│   ├── governance-and-survivability.md   anti-rug-pull: bankruptcy-remote steward + pre-funded
+│   │                                  static encrypted-archive (graceful-exit, not permanence)
+│   ├── open-considerations.md       7 live design questions the feasibility work surfaced
+│   │                                  (product def, identity recovery, superpeer load-bearing…)
+│   ├── design-notes-addendum.md     roll-ups/checkpoints, two-mode convergence, capabilities-
+│   │                                  not-rights, one-mechanism unification, the trap door
+│   ├── model-holds-up-summary.md    one-page verdict: how our model scores vs. the field
+│   └── experiment-suite.md          test/experiment spec to verify the design end-to-end
 │
 ├── crystallized/                  the distilled spine
 │   ├── principles.md              design + civic principles, extracted
