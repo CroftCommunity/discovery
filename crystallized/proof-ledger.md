@@ -1,0 +1,155 @@
+# Proof & Experiment Ledger
+
+date: 2026-06-15
+
+purpose: one consolidated, trackable list of every falsifiable claim across the
+lineage-groups design — protocol invariants (I), experiments (E), social-layer visibility
+tests (V), safety invariants (S) — with current status and where the proof lives.
+
+repos: code lives in the sibling **`Proofs`** repo (durable) and **`experiments`** repo
+(code-forward). This ledger (in `discovery`) tracks status and links each row to its proof.
+
+- `Proofs/lineage-groups` — Rust validation vs **real openmls 0.8.1** (PR #8). Phases 0–3.
+
+- `Proofs/lineage-group-model` — TypeScript model suite (PR #9). Groups A–H, V. **Real
+  SHA-256 ancestry; modeled MLS/transport.**
+
+status legend: `green-real` = proven with real crypto/transport · `green-model` = proven in
+simulation (modeled MLS/transport) · `spec` = defined, not built · `blocked` = waiting on a
+dependency or decision
+
+> HEADLINE: the Phase 1 crypto-feasibility gate — the make-or-break of the whole thesis —
+> is **GO**. openmls 0.8.1 expresses survivor-epoch re-key with post-compromise security
+> intact (E1.1–E1.4 pass against the real library). Every downstream phase was conditional
+> on this; it held. Phases 0, 2, 2.5, 2.6, 3 also GO. Two real gaps were found and closed
+> by the adversarial passes (see below) — the proofs did their job.
+
+---
+
+## Protocol invariants (I1–I10)
+
+source: thinking/thesis-lineage-groups.md §3. Proven in both the Rust workspace (real MLS)
+and the TS model (logic), as noted.
+
+| ID | Invariant | Status | Proof |
+|---|---|---|---|
+| I1 | Genesis immutability | green-real + green-model | lineage-groups E2.2; lineage-group-model A3/E2 |
+| I2 | Threshold soundness (no under-threshold op enacted) | green-real | lineage-groups E2.1; tightened in Phase 2.6 |
+| I3 | Provenance / standing from signed data alone | green-real + green-model | lineage-groups E2.7; lineage-group-model A1 |
+| I4 | Forward-key linearity (one live epoch) | green-real | lineage-groups E1.1, E1.2, E3.1 |
+| I5 | Deterministic survivor selection | green-real | lineage-groups E2.3; adversarial A2.1 |
+| I6 | No silent membership contradiction (hard-stop) | green-real + green-model | lineage-groups E2.4/E3.2; lineage-group-model C1/C4 |
+| I7 | History never corrupts | green-real + green-model | lineage-groups E2.6; lineage-group-model B/D |
+| I8 | Backfill verifiability | green-real | lineage-groups E2.7 + backfill_adversarial |
+| I9 | Fold/unfold lossless and inert | green-model | lineage-group-model D3 |
+| I10 | Convergence after no-conflict heal | green-real + green-model | lineage-groups E2.3/E3.1; model B3 |
+
+## Phase 0 — Scaffold
+
+| ID | Experiment | Status |
+|---|---|---|
+| P0 | Trivial scenario green + logically reproducible (MLS RNG not seedable — honest finding) | green-real |
+
+## Phase 1 — Crypto/protocol feasibility (THE GATE) — **GO**
+
+real openmls 0.8.1. The external-commit-builder + new-group/re-add path compose; PCS holds.
+
+| ID | Experiment | Asserts | Status |
+|---|---|---|---|
+| E1.1 | Removed member cannot decrypt post-removal traffic (PCS) | I4 | green-real |
+| E1.2 | External commit brings B-member into A's epoch; identical secrets (the survivor primitive) | I4 | green-real |
+| E1.3 | Fresh genesis → clean third epoch; parents dead | mint-a-third | green-real |
+| E1.4 | Queued remove commit applied later still rekeys; removed stays out | broker-carries-revocation | green-real |
+
+## Phase 2 — Data model + merge semantics — **GO**
+
+| ID | Experiment | Asserts | Status |
+|---|---|---|---|
+| E2.1 | Under-threshold remove rejected by all honest clients | I2 | green-real |
+| E2.2 | Adding a member never confers admin standing; forged-genesis op rejected | I1 | green-real |
+| E2.3 | Partition → non-conflicting ops → heal → identical DAG+epoch | I10, I5 | green-real |
+| E2.4 | Contradictory remove/keep → hard-stop, no silent re-admit | I6 | green-real |
+| E2.5 | Rejected conflict-merge leaves two valid groups (resting state) | resting-state | green-real |
+| E2.6 | Forced fresh-genesis inherits both logs read-only; nothing reordered | I7 | green-real |
+| E2.7 | Entitled backfill verifies/imports; forged branch rejected | I8, I3 | green-real |
+| E2.8 | Reconcile produces distinct navigable branches, not a merged scroll | anti-"six tapes" | green-real |
+
+## Phase 2.5 / 2.6 — Adversarial passes (found and closed real gaps)
+
+| ID | Probe | Result |
+|---|---|---|
+| A2.1 | Order-independent convergence under fuzzed delivery (300×4 random orders) | green — no order-dependence |
+| A2.2 | Governance equivocation | **gap found** — "fork-detecting/attributable" needed hardening |
+| A2.4 | Does a removed/departed genesis admin still govern? | **gap found → closed** — authority is now per-epoch |
+| A2.5 | Can a hard-stop be resolved only by explicit threshold-signed decision? | green — `quorum_override`; below threshold the stop stands |
+
+## Multi-device (per-device keys under one lineage)
+
+source: thinking/multi-device.md. Logic proven in lineage-group-model (B1 = INV-LINEAGE-NOT-LEAF);
+the openmls leaf-credential dependency (8.1) is still a real-library item (dependency #2 below).
+
+| ID | Experiment | Status |
+|---|---|---|
+| INV-LINEAGE-NOT-LEAF | N devices in one lineage change no threshold outcome | green-model (lineage-group-model B1) |
+| E2.9–E2.16 | fold, lineage-counted thresholds, revocation, self-sync, leave-one/all, asymmetry, ordering, tier visibility | spec (Rust) / partially green-model |
+
+## Phase 3 — Real iroh thin slice — **GO (with transport caveat)**
+
+| ID | Experiment | Asserts | Status |
+|---|---|---|---|
+| E3.1 | Partition → broker carries missed commit → one live epoch | I10, I4 | green-real |
+| E3.2 | Contradiction hard-stops + escalates; signed op travels opaquely via broker | I6 | green-real |
+| E3.3 | Device-loss → new device for same DID joins via external commit + broker snapshot | recovery (open) | see Phase 3 findings; recovery still the largest residual risk |
+| E3.4 | Broker observes only ciphertext + routing | blind-broker | green-real (IP/timing still observable, as expected) |
+
+## Social-layer visibility tests (V1–V9) — all pass (modeled)
+
+proven in `Proofs/lineage-group-model` (`V_visibility.ts` + `SOCIAL_LAYER_FINDINGS.md`).
+**This discharges the V-prompt seed.** Genesis payload gained regime,
+outward_propagation_depth, inward_visibility, openness_class.
+
+| ID | Test | Status |
+|---|---|---|
+| V1 | Regime born-in and immutable | green-model (fully structural) |
+| V2 | Content carries origin regime (signed) | green-model (fully structural) |
+| V3 | No silent regime crossing | green-model **for automatic crossing only** — see finding |
+| V4 | Republish is a distinct authored act | green-model (fully structural) |
+| V5 | Outward depth enforced by verifier (hostile sender) | green-model (verifier-side) |
+| V6 | Openness caps depth; fully-open = depth 0 | green-model (closed:3/open:1/fully_open:0) |
+| V7 | Inward visibility and outward propagation independent | green-model |
+| V8 | Public membership leaks only membership | green-model (DAG isolation) |
+| V9 | Freeze-by-default across regimes | green-model |
+
+**Highest-value finding (V3):** structural only against *automatic/silent* crossing — the
+protocol cannot stop a human from typing intimate text into a public republish. That is a
+UX-layer control. Must be addressed before shipping republish. (Carried in COHESION.md #2.)
+
+## Social-layer safety invariants (S1–S4)
+
+source: thinking/social-layer.md §4.
+
+| ID | Invariant | Status |
+|---|---|---|
+| S1 | Freeze by default | green-model (lineage-group-model V9) |
+| S2 | Scoped visibility, not opaque structure | spec |
+| S3 | Asymmetric / quiet membership (reachable without being mapped) | spec — **unsolved**, the hard one |
+| S4 | Multi-identity, no forced linkage | spec |
+
+---
+
+## Incoming proofs
+
+- Hashing-tree / Merkle thinking and code (per the dossier's "offline transitive trust via
+  Merkle proofs," §5) — to be added to the `Proofs` repo and linked to I3/I8 and the
+  dossier's trust-graph work.
+
+## Real-library dependencies still to verify
+
+1. ~~openmls external-commit + reinit express survivor re-key with PCS~~ — **CLOSED, Phase 1 GO.**
+
+2. openmls lets a lineage-proving credential ride on the MLS leaf (multi-device 8.1) — still
+   open; the model assumes the leaf↔lineage mapping is available.
+
+3. Automerge change-metadata growth is compactable so snapshots beat SSB's unbounded-log trap
+   — roll-up correctness proven in model (lineage-group-model F/G); real-crypto threshold-signed
+   checkpoint (F2) still modeled.
