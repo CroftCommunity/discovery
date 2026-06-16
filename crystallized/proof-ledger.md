@@ -90,8 +90,9 @@ the openmls leaf-credential dependency (8.1) is still a real-library item (depen
 
 | ID | Experiment | Status |
 |---|---|---|
-| INV-LINEAGE-NOT-LEAF | N devices in one lineage change no threshold outcome | green-model (lineage-group-model B1) |
-| E2.9–E2.16 | fold, lineage-counted thresholds, revocation, self-sync, leave-one/all, asymmetry, ordering, tier visibility | spec (Rust) / partially green-model |
+| INV-LINEAGE-NOT-LEAF | N devices in one lineage change no threshold outcome | green-model (lineage-group-model B1) + **green-real (E2.10, 2026-06-16)** |
+| E2.10 | thresholds count lineages not leaves (own-device quorum manufacture blocked) | **green-real** — `lineage-core` `meets_threshold_by_lineage`; test `e2_10_lineage_thresholds.rs` (the by-DID count is shown unsafe; lineage count rejects it). Rests on T1. |
+| E2.9, E2.11–E2.16 | fold, revocation, self-sync, leave-one/all, asymmetry, ordering, tier visibility | spec (Rust) / partially green-model — next after E2.10 |
 
 ## Phase 3 — Real iroh thin slice — **GO (with transport caveat)**
 
@@ -165,6 +166,35 @@ history exchange is still file-relayed (computation real-multimachine, delivery 
 transport is a small follow-on). MLS key schedule still modeled. Identity/key-recovery (E3.3) remains
 the largest residual risk.
 
+## 2026-06-16 local proof batch (T1 + multi-device + reconcile corpus + adversarial)
+
+Executed on node-4 (Mac) against real openmls 0.8.1 + `lineage-core`. Full workspace **green: 24
+suites / 56 tests, 0 failures**. Tests: `lineage-mls/tests/t1_lineage_credential.rs`,
+`lineage-core/tests/{e2_10_lineage_thresholds,multidevice_adversarial,conflict_corpus}.rs`.
+
+| ID | Claim | Status |
+|---|---|---|
+| T1 | signed lineage claim rides on real openmls leaf; read+verified by another member; forgery rejected; (spike: custom CredentialType accepted too) | green-real |
+| E2.9 / C4 | devices of one lineage fold to one actor; add-vs-add of same person doesn't double-count | green-real |
+| E2.10 | thresholds count lineages not leaves; own-device quorum manufacture blocked (by-DID count shown unsafe) | green-real |
+| E2.15 | a leaf authors its own removal while it has standing, then loses authority | green-real |
+| AR-1 | Sybil / fresh lineages never reach a threshold without authorized admin standing | green-real |
+| AR-6 | a DID cannot be double-counted (sigs keyed by DID); a replayed op does not re-enact (BrokenChain) | green-real |
+| C3 | concurrent identical remove heals (no false hard-stop) | green-real |
+| C7 | dissolve-vs-continue hard-stops (new detector reason `DissolvedThenContinued`; quorum override cannot silently clear it) | green-real |
+| C8 | diamond recombine: standing + shares_lineage hold over a two-parent DAG; outsider has none | green-real |
+| C9 | governance equivocation detected + attributed (exercises `detect_equivocation`, A2.2) | green-real |
+| C10 | ban-evasion: a removed member's new device cannot self-confer standing; re-admit needs a threshold Add | green-real |
+
+Findings: `Proofs/lineage-groups/T1_LINEAGE_CREDENTIAL_FINDINGS.md`.
+
+**Remaining in these tiers (not yet run):** E2.11 (MLS device revocation), E2.12 (explicit
+self-sync-as-backfill — note `LOCAL_FIRST_HISTORY` already proves the mechanism), E2.13
+(leave-one/all — new op kind), E2.14 (same-lineage 1-sig vs cross-lineage threshold — new gov
+rule), E2.16 (tier visibility — transport/UX), T3 (real threshold-signed checkpoint F2), T9
+(Merkle trust-proof). Social-model T5 (S2) / T8 (V3) live in the TS `lineage-group-model`
+(needs node/npm). Node-fabric + hard-gated tiers per `../TEST-PLAN.md`.
+
 ## Incoming proofs
 
 - Hashing-tree / Merkle thinking and code (per the dossier's "offline transitive trust via
@@ -175,8 +205,13 @@ the largest residual risk.
 
 1. ~~openmls external-commit + reinit express survivor re-key with PCS~~ — **CLOSED, Phase 1 GO.**
 
-2. openmls lets a lineage-proving credential ride on the MLS leaf (multi-device 8.1) — still
-   open; the model assumes the leaf↔lineage mapping is available.
+2. ~~openmls lets a lineage-proving credential ride on the MLS leaf (multi-device 8.1)~~ —
+   **CLOSED 2026-06-16 (T1), structured path.** A signed, unforgeable `LineageClaim` rides on the
+   real openmls 0.8.1 leaf, is read off another member's leaf, and verifies from signed data
+   alone; forged claims rejected. Spike-both finding: openmls *also* accepts a custom
+   `CredentialType::Other` at founding (no wall there) — structured-BasicCredential was a choice,
+   not a forced fallback. Proof: `Proofs/lineage-groups/crates/lineage-mls/tests/t1_lineage_credential.rs`
+   + `T1_LINEAGE_CREDENTIAL_FINDINGS.md`. Unblocks E2.9–E2.16.
 
 3. Automerge change-metadata growth is compactable so snapshots beat SSB's unbounded-log trap
    — roll-up correctness proven in model (lineage-group-model F/G); real-crypto threshold-signed

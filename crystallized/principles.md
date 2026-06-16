@@ -152,6 +152,16 @@ seeds/transcripts/raw/germ-xchat-design-dialogue.md).
   collapse). The middle is a curated short list of what's actually worth a normal person's
   attention; the bottom is the unfiltered surface.
 
+  - *Composable-interface note (2026-06-16):* the three-audiences split is likely realized
+    through a **composable interface** — the progression from audience (1) → (2) → (3) is users
+    *reaching up into owning their own experience* and refining it by composition, not by
+    flipping ever-more-obscure toggles. The audiences are not three fixed tiers so much as
+    positions on a ramp of self-authorship: the interface exposes composable units a person
+    assembles as far as they care to. This binds the three-audiences principle to the
+    shapeability/LTS principle below — composability is the *how* of climbing, stability is what
+    keeps the climb masterable rather than extractive. (Filed as a forward note; no proof/spec
+    attached yet — a product-track concern under ROADMAP M2, not a validation-track item.)
+
 - **Shapeability is only valuable paired with stability; constant UI change is quietly
   extractive.** When interfaces shift constantly, people never build a durable mental model
   or reach fluency, and "change it back" friction becomes an engagement lever. An
