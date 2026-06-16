@@ -186,6 +186,7 @@ suites / 56 tests, 0 failures**. Tests: `lineage-mls/tests/t1_lineage_credential
 | E2.14 | same-lineage device op = 1 sig; cross-lineage device op pays the full (lineage-counted) threshold | green-real |
 | E2.15 | a leaf authors its own removal while it has standing, then loses authority | green-real |
 | AR-1 | Sybil / fresh lineages never reach a threshold without authorized admin standing | green-real |
+| AR-2 | malicious blind sequencer: reorder/duplicate can't change the converged state (200 fuzzed seeds); a dropped op leaves a visibly-behind head (not false "current"); an injected/forged op is rejected (can't manufacture membership) | green-real (sim; cross-machine broker is A3 green-real-multimachine) |
 | AR-6 | a DID cannot be double-counted (sigs keyed by DID); a replayed op does not re-enact (BrokenChain) | green-real |
 | C3 | concurrent identical remove heals (no false hard-stop) | green-real |
 | C7 | dissolve-vs-continue hard-stops (new detector reason `DissolvedThenContinued`; quorum override cannot silently clear it) | green-real |
