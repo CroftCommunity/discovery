@@ -236,6 +236,26 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   *detection* across a diamond's two histories); **deep fork chains** (fork-of-a-fork-of-a-fork
   reconciliation). These are the next reconcile tests.
 
+## T9 — offline transitive trust via Merkle proofs
+
+- **Why.** Transitive trust ("I trust what my trusted set vouches for") usually reintroduces a
+  trusted online party to query. The dossier's claim is you can prove set-membership of a trust
+  assertion **offline** with a Merkle proof, against a published root — no authority. Links I3
+  (standing from signed data alone) and I8 (backfill verifiability).
+- **Tells us.** A domain-separated (RFC-6962-style) Merkle root commits to a set of assertions; a
+  compact inclusion proof verifies a specific assertion against the root with a pure, offline
+  function; a forged leaf, a doctored path, or the wrong root all fail; the root is deterministic
+  and order-sensitive.
+- **Means.** The trust-graph primitive holds: a party can publish one root and let anyone verify
+  individual facts offline, without becoming a queryable authority — consistent with the
+  non-extractive, no-trusted-server thesis.
+- **Open edges.** This proves *inclusion* against a known root. It does **not** yet bind the root to
+  an *identity* (who published it — needs a signature over the root, trivial but unproven here), nor
+  prove **non-membership / revocation** (a sparse Merkle tree or an accumulator), nor the
+  *transitive* composition itself (chaining "A trusts B's root which includes C"). Those are the next
+  trust-graph steps. Also: the set is order-sensitive, so a canonical leaf ordering must be defined
+  before two parties can compute the same root from the same facts.
+
 ## T2g/MD-G1 — per-lineage gossip group over the NAT path
 
 - **Why.** The same-VPC capstone never exercised a real NAT'd device in a gossip group; "your phone
