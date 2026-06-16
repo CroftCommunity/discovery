@@ -92,7 +92,8 @@ the openmls leaf-credential dependency (8.1) is still a real-library item (depen
 |---|---|---|
 | INV-LINEAGE-NOT-LEAF | N devices in one lineage change no threshold outcome | green-model (lineage-group-model B1) + **green-real (E2.10, 2026-06-16)** |
 | E2.10 | thresholds count lineages not leaves (own-device quorum manufacture blocked) | **green-real** — `lineage-core` `meets_threshold_by_lineage`; test `e2_10_lineage_thresholds.rs` (the by-DID count is shown unsafe; lineage count rejects it). Rests on T1. |
-| E2.9, E2.11–E2.16 | fold, revocation, self-sync, leave-one/all, asymmetry, ordering, tier visibility | spec (Rust) / partially green-model — next after E2.10 |
+| E2.9, E2.11–E2.15 | fold, revocation, self-sync, leave-one/all, asymmetry, self-removal ordering | **green-real (2026-06-16)** — see local proof batch |
+| E2.16 | tier degradation visibility (forward-send works + stale surfaced without superpeer) | spec — transport/runtime, node-fabric tier |
 
 ## Phase 3 — Real iroh thin slice — **GO (with transport caveat)**
 
@@ -177,6 +178,10 @@ suites / 56 tests, 0 failures**. Tests: `lineage-mls/tests/t1_lineage_credential
 | T1 | signed lineage claim rides on real openmls leaf; read+verified by another member; forgery rejected; (spike: custom CredentialType accepted too) | green-real |
 | E2.9 / C4 | devices of one lineage fold to one actor; add-vs-add of same person doesn't double-count | green-real |
 | E2.10 | thresholds count lineages not leaves; own-device quorum manufacture blocked (by-DID count shown unsafe) | green-real |
+| E2.11 | revoking one device rotates the epoch; the lineage's other devices are unaffected | green-real |
+| E2.12 | self-sync = backfill: two devices of one lineage reconcile via the existing path, no server, branches distinct; foreign lineage refused | green-real |
+| E2.13 | leave-one (single device) vs leave-all-under-lineage (every device of a person) are distinct ops | green-real |
+| E2.14 | same-lineage device op = 1 sig; cross-lineage device op pays the full (lineage-counted) threshold | green-real |
 | E2.15 | a leaf authors its own removal while it has standing, then loses authority | green-real |
 | AR-1 | Sybil / fresh lineages never reach a threshold without authorized admin standing | green-real |
 | AR-6 | a DID cannot be double-counted (sigs keyed by DID); a replayed op does not re-enact (BrokenChain) | green-real |
@@ -188,12 +193,10 @@ suites / 56 tests, 0 failures**. Tests: `lineage-mls/tests/t1_lineage_credential
 
 Findings: `Proofs/lineage-groups/T1_LINEAGE_CREDENTIAL_FINDINGS.md`.
 
-**Remaining in these tiers (not yet run):** E2.11 (MLS device revocation), E2.12 (explicit
-self-sync-as-backfill — note `LOCAL_FIRST_HISTORY` already proves the mechanism), E2.13
-(leave-one/all — new op kind), E2.14 (same-lineage 1-sig vs cross-lineage threshold — new gov
-rule), E2.16 (tier visibility — transport/UX), T3 (real threshold-signed checkpoint F2), T9
-(Merkle trust-proof). Social-model T5 (S2) / T8 (V3) live in the TS `lineage-group-model`
-(needs node/npm). Node-fabric + hard-gated tiers per `../TEST-PLAN.md`.
+**Multi-device data-model tier E2.9–E2.15 is now complete (green-real).** Remaining: E2.16 (tier
+degradation visibility — a transport/runtime concern, belongs to the node fabric), T3 (real
+threshold-signed checkpoint F2), T9 (Merkle trust-proof). Social-model T5 (S2) / T8 (V3) live in
+the TS `lineage-group-model` (needs node/npm). Node-fabric + hard-gated tiers per `../TEST-PLAN.md`.
 
 ## Incoming proofs
 
