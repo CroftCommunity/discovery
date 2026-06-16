@@ -137,6 +137,34 @@ source: thinking/social-layer.md §4.
 
 ---
 
+## Cross-machine validation (2026-06-15, SSH-driven, 3 AWS boxes + 1 NAT'd laptop)
+
+Moves several previously single-process / modeled results onto **genuinely separate machines**
+(AWS us-east-1a/1b/1c + a laptop behind a real NAT). New status tag: `green-real-multimachine` =
+computed independently on ≥3 real hosts. Full detail: `experiments/iroh/TEST-LOG.md`; plain-language
+summary `experiments/iroh/CAPABILITIES.md`; findings `Proofs/lineage-groups/{PART_A_RECONCILE,
+LOCAL_FIRST_HISTORY}_FINDINGS.md`.
+
+| ID | Claim | Result | Status |
+|---|---|---|---|
+| A1/A1b (I5,I6,I10) | Disconnected peers independently compute the same surviving membership state | 3 boxes produced a **byte-identical** reconcile verdict (`5d82a5df…`); contradiction hard-stops with loser preserved+attributed; survivor order-independent across all 4 merge orders | green-real-multimachine |
+| A3/A2 | Superpeer is a **capability, not a right** | durable-queue end-state identical with/without broker; broker-tampered log rejected; contradiction-through-broker verdict == peer verdict (`5f79e073…`); no Mode-1-only outcome | green-real-multimachine |
+| B1 (transport) | iroh-blobs: integrity, resume, multi-source failover, **off-VPC NAT** | 1 GiB BLAKE3-verified; resume from FsStore; failover when a provider is killed mid-transfer; NAT'd laptop fetched via **relay** (the real phone path the same-VPC tests never exercised) | green-real (real iroh + real NAT) |
+| B-gossip | epidemic broadcast: transitive delivery + drop-a-node resilience | mesh formed from one bootstrap node; n1↔n3 delivered without exchanging addrs; survived killing the relaying node mid-run | green-real |
+| B2 | iroh-docs sync behaviour | 0.100.0; eventual sync (8/10 in 60 s); **flat LWW silently overwrites on conflict → too weak** for the hard-stop/preserve governance model (Willow-migration input) | characterized |
+| B3 | pairing bootstrap | NodeAddr (relay URL + pubkey) + 32-byte TopicId, no direct IP in the invite — the Delta Chat pattern, demonstrated by both the blob NAT fix and gossip | green-real (identity/key-recovery still open) |
+| I7/I8/I9 (local-first history) | per-device signed branches; voluntary consensual backfill; **same mechanism for multi-device and group** | 3 boxes each absorbed others as separate navigable branches (no interleave); fold lossless; tampered → `BadSignature`, outsider → `ForeignGenesis` rejected | green-real-multimachine |
+
+| A1 re-formation (trap door) | ejected member re-forms minus removers; legible descent | all 3 boxes → identical reformed genesis `338d8cc8…`; removers excluded from membership but retain lineage standing (history not erased); `shares_lineage_with_original` true | green-real-multimachine |
+| **Capstone: reconcile over live iroh** | the reconcile op-log crosses a real iroh P2P transfer, then reconciles | node-1 served its log via iroh-blobs; node-2 fetched it over real iroh (54 ms, byte-identical sha `7a945964…`) and reconciled to the same contradiction verdict | green-real |
+
+**Honesty boundary (updated):** the Part A reconcile has now been run **over the live iroh transport**
+(the capstone row) — node-2 fetched node-1's op-log via real iroh-blobs and reconciled it — so the
+"file-exchange, not real transport" caveat is **discharged for the 2-way transfer**. The local-first
+history exchange is still file-relayed (computation real-multimachine, delivery via the proven
+transport is a small follow-on). MLS key schedule still modeled. Identity/key-recovery (E3.3) remains
+the largest residual risk.
+
 ## Incoming proofs
 
 - Hashing-tree / Merkle thinking and code (per the dossier's "offline transitive trust via
