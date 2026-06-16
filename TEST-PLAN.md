@@ -15,6 +15,10 @@ failures):** T1, E2.9, E2.10, E2.11, E2.12, E2.13, E2.14, E2.15, AR-1, AR-6, C3,
 C10. The **multi-device data-model tier E2.9–E2.15 is complete.** See `proof-ledger.md` →
 "2026-06-16 local proof batch."
 
+**Box-fabric, started 2026-06-16:** T2g/MD-G1 — per-lineage gossip group proven over the real NAT
+path (node-4 Mac ↔ node-2 box, bidirectional via relay). MD-G2/G3/G4/G5 need the lineage-history
+branch carried over the gossip topic (logic green-real; wiring is the next step). `TEST-LOG.md` §T2g.
+
 **Remaining, by what unblocks it:**
 - *Local Rust (next turns):* E2.16 tier visibility (transport/runtime), T3 F2 checkpoint, T9 Merkle.
 - *TS `lineage-group-model` (needs node/npm):* T5 S2, T8 V3.

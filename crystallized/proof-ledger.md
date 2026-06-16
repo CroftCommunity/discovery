@@ -159,6 +159,7 @@ LOCAL_FIRST_HISTORY}_FINDINGS.md`.
 
 | A1 re-formation (trap door) | ejected member re-forms minus removers; legible descent | all 3 boxes → identical reformed genesis `338d8cc8…`; removers excluded from membership but retain lineage standing (history not erased); `shares_lineage_with_original` true | green-real-multimachine |
 | **Capstone: reconcile over live iroh** | the reconcile op-log crosses a real iroh P2P transfer, then reconciles | node-1 served its log via iroh-blobs; node-2 fetched it over real iroh (54 ms, byte-identical sha `7a945964…`) and reconciled to the same contradiction verdict | green-real |
+| **T2g/MD-G1: per-lineage gossip group over the NAT path (2026-06-16)** | a user's NAT'd device joins its own per-lineage gossip topic and exchanges over the real relay | topic `6eccb47b…` = sha256(lineage genesis); **node-4 (NAT'd Mac) ↔ node-2 (box) bidirectional** via relay `use1-1.relay.n0…`, bootstrap by NodeAddr+TopicId only (no direct IP). The path the same-VPC capstone never exercised. MD-G2/G3/G4/G5 (branch-carry+backfill over transport) still to wire; logic already green-real. `experiments/iroh/TEST-LOG.md` §T2g | green-real (transport foundation) |
 
 **Honesty boundary (updated):** the Part A reconcile has now been run **over the live iroh transport**
 (the capstone row) — node-2 fetched node-1's op-log via real iroh-blobs and reconciled it — so the
