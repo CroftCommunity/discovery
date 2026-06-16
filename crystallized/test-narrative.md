@@ -200,6 +200,25 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
 - **Open edges.** Replay *across a fork/reformation* (an op valid on one branch replayed onto a
   sibling branch) — the genesis/seq/prev anchoring should reject it, but it's not explicitly tested.
 
+## T3 — real threshold-signed compaction checkpoint (F2)
+
+- **Why.** History must be compactable (roll-ups/checkpoints) or it grows unbounded (the SSB trap).
+  The security question is *who finalizes a checkpoint* — if the always-on superpeer could sign one
+  alone, it would be a de-facto finality/ordering authority (the "dirty secret"). The model proved
+  roll-up correctness (F/G); T3 is the real-crypto F2: threshold-signed, not authority-signed.
+- **Tells us.** A checkpoint verifies only with signatures from a threshold of distinct admin
+  *lineages* (lineage-counted, so own-device padding doesn't help); a broker-only or below-threshold
+  checkpoint is rejected; the checkpointed head must match the real log (no tampered summary); and a
+  checkpoint is bound to one branch's head, so two forked branches cannot share one.
+- **Means.** Compaction is legitimate-by-threshold, and the broker is provably **not** a finality
+  authority — it can carry/serve a checkpoint but cannot mint one. This is the concrete answer to
+  "is the superpeer secretly the orderer?": for finality, no. Closes ledger dependency #3.
+- **Open edges.** This proves the *checkpoint's authority + integrity + branch-binding*. It does
+  **not** yet prove the *Automerge-side compaction* (that old change-metadata is actually discarded
+  and a newcomer renders correctly from the checkpoint + tail) over real crypto — that stays
+  model-proven (F/G). Also untested: a checkpoint over a range that *itself* contained a since-healed
+  fork (does the head-binding suffice, or does the checkpoint need to attest the heal?).
+
 ## C3 / C7 / C8 / C9 / C10 — reconcile/merge-split corpus
 
 - **Why.** The original detector knew one conflict reason; the corpus (merge-split-corpus.md)

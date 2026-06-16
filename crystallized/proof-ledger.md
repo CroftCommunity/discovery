@@ -196,6 +196,7 @@ suites / 56 tests, 0 failures**. Tests: `lineage-mls/tests/t1_lineage_credential
 | AR-2 | malicious blind sequencer: reorder/duplicate can't change the converged state (200 fuzzed seeds); a dropped op leaves a visibly-behind head (not false "current"); an injected/forged op is rejected (can't manufacture membership) | green-real (sim; cross-machine broker is A3 green-real-multimachine) |
 | AR-3 | backfill DoS: a foreign-lineage flood (10k msgs) is rejected with ZERO signature verifications (shares_lineage checked first); a forged shared-lineage branch is rejected at the first defect (1 verify call for 5k msgs); 1000 rejections accumulate no state | green-real (sim; cross-host flood measurement is a follow-on) |
 | AR-5 | MLS-tree + rekey scaling under per-device-as-member: with the ratchet-tree extension ON, commits grow ~linearly (1.4 KB@8 → 11 KB@128 leaves); affordable at human scale, **broadcast tier must disable the embedded tree** | green-real (measured, openmls 0.8.1) — **finding: embedded-tree = O(N) commits** |
+| T3 (F2) | threshold-signed compaction checkpoint: a threshold of admin *lineages* must sign (real Ed25519); a single-authority/broker checkpoint rejected; head must match the log; bound to one branch (can't span a fork) | green-real — closes dep #3; the broker is **not** a finality authority |
 | AR-6 | a DID cannot be double-counted (sigs keyed by DID); a replayed op does not re-enact (BrokenChain) | green-real |
 | C3 | concurrent identical remove heals (no false hard-stop) | green-real |
 | C7 | dissolve-vs-continue hard-stops (new detector reason `DissolvedThenContinued`; quorum override cannot silently clear it) | green-real |
@@ -228,6 +229,9 @@ the TS `lineage-group-model` (needs node/npm). Node-fabric + hard-gated tiers pe
    not a forced fallback. Proof: `Proofs/lineage-groups/crates/lineage-mls/tests/t1_lineage_credential.rs`
    + `T1_LINEAGE_CREDENTIAL_FINDINGS.md`. Unblocks E2.9–E2.16.
 
-3. Automerge change-metadata growth is compactable so snapshots beat SSB's unbounded-log trap
-   — roll-up correctness proven in model (lineage-group-model F/G); real-crypto threshold-signed
-   checkpoint (F2) still modeled.
+3. ~~Automerge change-metadata growth is compactable so snapshots beat SSB's unbounded-log trap~~
+   — roll-up correctness proven in model (lineage-group-model F/G); **real-crypto threshold-signed
+   checkpoint (F2/T3) CLOSED 2026-06-16.** `gov::Checkpoint`/`verify_checkpoint`: a checkpoint needs
+   a threshold of admin *lineages* to sign (real Ed25519), a single-authority/broker checkpoint is
+   rejected, the head must match the real log, and it's bound to one branch (can't span a fork).
+   Test: `t3_threshold_checkpoint.rs`. (The Automerge-side compaction itself stays model-proven, F/G.)
