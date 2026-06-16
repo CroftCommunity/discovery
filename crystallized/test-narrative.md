@@ -172,6 +172,25 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   flood — is a follow-on. Also untested: **connection/handshake-level** DoS (many endpoints dialing),
   which is the relay-lab's reconnect-storm driver, still open.
 
+## AR-5 — MLS-tree + rekey scaling under per-device-as-member
+
+- **Why.** Making every device a distinct MLS member multiplies leaves (50 people × 3 devices = 150).
+  multi-device.md flagged this as a possibly-underestimated cost. We measured the real per-add and
+  rekey commit size on openmls 0.8.1 as the tree grows.
+- **Tells us.** With `use_ratchet_tree_extension(true)` (our default, so newcomers join without an
+  out-of-band tree), commit size grows **~linearly**: 1.4 KB @ 8 leaves → 3.5 @ 32 → 6.1 @ 64 →
+  11.4 @ 128 (~1.8× per doubling); a rekey (remove) at ~129 leaves is ~11 KB. It is **not** the
+  ~O(log N) MLS path cost — the embedded tree dominates.
+- **Means.** Per-device-as-member is **affordable at human group scale** (hundreds of leaves → tens
+  of KB per commit), so the multi-device model is fine for interactive/quiet tiers. But the cost is
+  O(N), so the **broadcast tier (1000s) must disable the embedded-tree extension** and ship the tree
+  out-of-band (via the broker snapshot) to recover O(log N). This is a concrete tier-design rule the
+  measurement produced.
+- **Open edges.** Measured commit *size*, not *CPU time* per commit at scale, nor memory of holding a
+  large tree, nor the rekey storm when many devices churn at once. The O(log N) claim for the
+  no-extension mode is asserted by theory, **not yet measured** (a follow-on: re-run with the
+  extension off). Cross-host (node-1 fat box) timing under concurrent adds is unrun.
+
 ## AR-6 — replay / double-count
 
 - **Why.** Can a signature be counted twice, or an old op replayed to re-enact?
