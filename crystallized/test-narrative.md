@@ -244,6 +244,21 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   build friction. So "the *exact* proven code ran on the wire" is not yet true; the *equivalent
   structural checks* did.
 
+## MD-G3 — drop-a-device mid-run
+
+- **Why.** A user's devices (or a group) must keep syncing if one node — especially a relaying/
+  bootstrap node — disappears. The carrier had only been shown in a stable 3-node mesh (T11).
+- **Tells us.** With node-1 + the NAT Mac bootstrapped *only* via node-2, killing node-2 ~14 s in
+  left both survivors holding each other's branch — they had formed a transitive link and it held
+  through the relayer's death.
+- **Means.** The mesh is not dependent on the bootstrap/relaying node's continued presence; drop-a-
+  device resilience holds for the multi-device/group carrier, including a NAT'd survivor.
+- **Open edges.** Absorptions are monotonic and the log is un-timestamped, so this proves "survives
+  the death with state intact," and B-gossip separately proves "*new* delivery continues post-kill"
+  — but a single test that shows **new** branch content propagating between survivors *after* the
+  kill (timestamped) would tie the two together cleanly. Also untested: killing the node that two
+  others depend on *before* they've absorbed each other (kill at t≈2 s, not 14 s).
+
 ## T11 — 3-way local-first history over live iroh
 
 - **Why.** Promote the file-relayed I7/I8/I9 result to live transport, 3-way, and show "same
