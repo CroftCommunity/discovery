@@ -197,6 +197,7 @@ suites / 56 tests, 0 failures**. Tests: `lineage-mls/tests/t1_lineage_credential
 | AR-3 | backfill DoS: a foreign-lineage flood (10k msgs) is rejected with ZERO signature verifications (shares_lineage checked first); a forged shared-lineage branch is rejected at the first defect (1 verify call for 5k msgs); 1000 rejections accumulate no state | green-real (sim; cross-host flood measurement is a follow-on) |
 | AR-5 | MLS-tree + rekey scaling under per-device-as-member: with the ratchet-tree extension ON, commits grow ~linearly (1.4 KB@8 → 11 KB@128 leaves); affordable at human scale, **broadcast tier must disable the embedded tree** | green-real (measured, openmls 0.8.1) — **finding: embedded-tree = O(N) commits** |
 | T3 (F2) | threshold-signed compaction checkpoint: a threshold of admin *lineages* must sign (real Ed25519); a single-authority/broker checkpoint rejected; head must match the log; bound to one branch (can't span a fork) | green-real — closes dep #3; the broker is **not** a finality authority |
+| T9 | offline transitive trust: Merkle root + compact inclusion proofs verify offline against the root; forged leaf / doctored path / wrong root rejected; order-sensitive deterministic root | green-real (`lineage-core::merkle`) — links I3/I8; closes the incoming Merkle proof |
 | AR-6 | a DID cannot be double-counted (sigs keyed by DID); a replayed op does not re-enact (BrokenChain) | green-real |
 | C3 | concurrent identical remove heals (no false hard-stop) | green-real |
 | C7 | dissolve-vs-continue hard-stops (new detector reason `DissolvedThenContinued`; quorum override cannot silently clear it) | green-real |
@@ -213,9 +214,11 @@ the TS `lineage-group-model` (needs node/npm). Node-fabric + hard-gated tiers pe
 
 ## Incoming proofs
 
-- Hashing-tree / Merkle thinking and code (per the dossier's "offline transitive trust via
-  Merkle proofs," §5) — to be added to the `Proofs` repo and linked to I3/I8 and the
-  dossier's trust-graph work.
+- ~~Hashing-tree / Merkle thinking and code (per the dossier's "offline transitive trust via
+  Merkle proofs," §5)~~ — **DONE 2026-06-16 (T9).** `lineage-core::merkle`: domain-separated
+  (RFC-6962-style) Merkle root + compact inclusion proofs that verify **offline** against the root,
+  reject forged leaves / doctored paths / wrong root. Links I3 (provenance from signed data alone)
+  and I8 (backfill verifiability). Test: `t9_merkle_trust_proof.rs`.
 
 ## Real-library dependencies still to verify
 
