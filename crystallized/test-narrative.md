@@ -154,6 +154,24 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   mechanism (how does a peer know it's behind if it never hears from anyone?). This is a real design
   gap → a heartbeat/freshness signal.
 
+## AR-3 — backfill DoS resistance (bounded rejection cost)
+
+- **Why.** Rejection correctness (forged/unauthorized → no) was already green (backfill_adversarial),
+  but a hostile donor could still try resource exhaustion: flood the victim with huge/garbage
+  branches so that *rejecting* them is itself expensive (unbounded crypto, accumulating state).
+- **Tells us.** `backfill_import` checks `shares_lineage` before touching any message, so a 10k-message
+  foreign branch is rejected with **zero** signature verifications (proven by a panic-on-call
+  verifier); a forged branch on a shared lineage is rejected at the **first** defect (1 verify call
+  for a 5k-message payload); 1000 rejected branches leave `branch_count == 0`.
+- **Means.** An attacker cannot convert payload size into victim CPU: cost is bounded by the genesis
+  boundary (foreign) or the first defect (shared), not the attacker's volume. The "fail early, fail
+  cheap" posture holds against a flood.
+- **Open edges.** This is the *application-layer* bound. The **transport/gossip layer** size cap
+  (iroh-gossip per-message max) is cited but not independently tested here, and a **cross-host flood
+  measurement** on the 3.8G box (node-3 as victim, node-1 as flooder) — actual RSS/CPU under sustained
+  flood — is a follow-on. Also untested: **connection/handshake-level** DoS (many endpoints dialing),
+  which is the relay-lab's reconnect-storm driver, still open.
+
 ## AR-6 — replay / double-count
 
 - **Why.** Can a signature be counted twice, or an old op replayed to re-enact?
