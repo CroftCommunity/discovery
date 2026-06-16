@@ -192,6 +192,7 @@ suites / 56 tests, 0 failures**. Tests: `lineage-mls/tests/t1_lineage_credential
 | E2.15 | a leaf authors its own removal while it has standing, then loses authority | green-real |
 | AR-1 | Sybil / fresh lineages never reach a threshold without authorized admin standing | green-real |
 | AR-2 | malicious blind sequencer: reorder/duplicate can't change the converged state (200 fuzzed seeds); a dropped op leaves a visibly-behind head (not false "current"); an injected/forged op is rejected (can't manufacture membership) | green-real (sim; cross-machine broker is A3 green-real-multimachine) |
+| AR-3 | backfill DoS: a foreign-lineage flood (10k msgs) is rejected with ZERO signature verifications (shares_lineage checked first); a forged shared-lineage branch is rejected at the first defect (1 verify call for 5k msgs); 1000 rejections accumulate no state | green-real (sim; cross-host flood measurement is a follow-on) |
 | AR-6 | a DID cannot be double-counted (sigs keyed by DID); a replayed op does not re-enact (BrokenChain) | green-real |
 | C3 | concurrent identical remove heals (no false hard-stop) | green-real |
 | C7 | dissolve-vs-continue hard-stops (new detector reason `DissolvedThenContinued`; quorum override cannot silently clear it) | green-real |
