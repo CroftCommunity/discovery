@@ -9,6 +9,10 @@ tests (V), safety invariants (S) — with current status and where the proof liv
 repos: code lives in the sibling **`Proofs`** repo (durable) and **`experiments`** repo
 (code-forward). This ledger (in `discovery`) tracks status and links each row to its proof.
 
+> **Reasoning layer:** this table is *status*. For **why each test was run, what it tells us, what
+> the outcome means, and the edge cases it surfaces**, see `test-narrative.md` (one entry per test).
+> Every new proof should gain a narrative entry, not just a status row.
+
 - `Proofs/lineage-groups` — Rust validation vs **real openmls 0.8.1** (PR #8). Phases 0–3.
 
 - `Proofs/lineage-group-model` — TypeScript model suite (PR #9). Groups A–H, V. **Real
@@ -161,6 +165,7 @@ LOCAL_FIRST_HISTORY}_FINDINGS.md`.
 | **Capstone: reconcile over live iroh** | the reconcile op-log crosses a real iroh P2P transfer, then reconciles | node-1 served its log via iroh-blobs; node-2 fetched it over real iroh (54 ms, byte-identical sha `7a945964…`) and reconciled to the same contradiction verdict | green-real |
 | **T2g/MD-G1: per-lineage gossip group over the NAT path (2026-06-16)** | a user's NAT'd device joins its own per-lineage gossip topic and exchanges over the real relay | topic = sha256(lineage genesis); **node-4 (NAT'd Mac) ↔ node-2 (box) bidirectional** via relay, bootstrap by NodeAddr+TopicId only (no direct IP). The path the same-VPC capstone never exercised. `experiments/iroh/TEST-LOG.md` §T2g | green-real |
 | **T2g/MD-G2: signed branch carried + verified over the topic (2026-06-16)** | a lineage history branch travels the per-lineage gossip topic, receiver verifies + absorbs distinct, rejects tampered | `altdrive-spike-lineage-sync` (built node-4 + node-2): **bidirectional ABSORB (verified, 3 msgs) + REJECT tampered (broken hash chain)** across the NAT/relay. Transport form of `backfill_import` (E2.12), *structural* half (shared-genesis + contiguity + integrity); Ed25519/standing stays green-real in Proofs. | green-real (transport, structural half) |
+| **T11: 3-way local-first history over live iroh (2026-06-16)** | three devices/members each absorb the other two's branches as distinct + reject tampered, over real iroh incl. NAT | `household-group-v1` topic; node-1 + node-2 + node-4(Mac) each `absorbed={other two}:3 rejected=2`. Promotes the file-relayed I7/I8/I9 result to live transport, 3-way; "same mechanism for multi-device AND group" on the wire. | green-real (live transport, structural half) |
 
 **Honesty boundary (updated):** the Part A reconcile has now been run **over the live iroh transport**
 (the capstone row) — node-2 fetched node-1's op-log via real iroh-blobs and reconciled it — so the

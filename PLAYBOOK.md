@@ -119,6 +119,11 @@ After placing anything, update the cross-repo connective tissue:
 - **`discovery/crystallized/proof-ledger.md`** — add/adjust the I/E/V/S rows and their status
   (`green-real` / `green-model` / `spec` / `blocked`), linking to the proof.
 
+- **`discovery/crystallized/test-narrative.md`** — for every test, add a narrative entry: **Why**
+  we ran it · **Tells us** (the result) · **Means** (implication for the thesis/design) · **Open
+  edges** (edge cases + next testing it surfaces). The ledger is status; this is the reasoning so
+  we never mistake "green" for "done." A proof without a narrative entry is not fully filed.
+
 - **`discovery/COHESION.md`** — the most important step. Ask: *does this material close a
   loose end another doc declared, or does it duplicate/contradict another?* Add a numbered
   entry mapping the loose-end ↔ the work that addresses it, marked CLOSED / OPEN / DRIFT /
