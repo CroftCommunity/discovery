@@ -229,6 +229,25 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   E-series sizes this). **Direct hole-punch** (vs relay fallback) from the NAT'd Mac is still blocked
   on public 3343/3478 ingress (E0-NAT). Metadata leakage at the relay (AR-4) is uncharacterized.
 
+## AR-4 — transport metadata-leak bound (characterization)
+
+- **Why.** Even with content encrypted, a relay or on-path observer learns *metadata* — who talks to
+  whom, when, how much. We need an honest bound on what's exposed, tied to the social-layer S2
+  (topology deanonymization) threat model.
+- **Tells us.** Content is opaque (encrypted QUIC; the relay never sees branch content). The relay is
+  **topic-agnostic** (routes by EndpointId), so it doesn't learn the lineage topic — membership-by-
+  topic is an app-layer exposure (V8), not a relay one. The relay *does* see EndpointId pairs,
+  timing, volume, and egress IP — classic traffic-analysis metadata.
+- **Means.** The blind-broker claim holds for *content* and even for *topic*, but the design does
+  **not** hide who-communicates-with-whom at the transport layer (as expected, and consistent with
+  E3.4's "IP/timing observable"). A surfaced design requirement: **topic = sha256(lineage id), so
+  lineage ids used as topic seeds must be high-entropy/salted** — a guessable handle yields a
+  joinable/observable topic.
+- **Open edges.** This is a *derived* characterization, not a fresh capture — an actual relay-side
+  timing/volume measurement to **quantify** the leak is a follow-on. Mitigations (cover traffic,
+  batching) for who-talks-to-whom are unspecified. A co-op relay's logging policy (redact to
+  endpoint/timing, never content) must be written (cf. the public-path ingester's PII-in-logs flag).
+
 ## MD-G2 — signed branch carried + verified over the topic
 
 - **Why.** MD-G1 carried strings; the real claim is a *history branch* travels and is *verified*
@@ -285,5 +304,11 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
    the real signed `lineage-history` message end-to-end is the remaining faithful step.
 4. **Recovery (T12) shadows several edges** — last-device revocation, stolen-device-same-lineage-1-sig,
    total loss. The anchor is decided (delegation + optional seed); the proof is open.
-5. **Scale/cost untested over transport** — compaction, large member×device trees (AR-5), long
-   histories. All demos so far are small-N.
+5. **Scale/cost untested over transport** — compaction, long histories. All transport demos are
+   small-N. AR-5 measured tree-commit growth (≈linear with the embedded tree) and produced a tier
+   rule: **the broadcast tier must disable the embedded ratchet-tree extension** (ship out-of-band)
+   to keep commits O(log N). Per-device-as-member is affordable only at human group scale otherwise.
+6. **Topic-seed entropy (new, from AR-4).** TopicId = sha256(lineage id), and the relay is
+   topic-agnostic, so topic privacy rests entirely on the lineage id being unguessable. Lineage ids
+   used as gossip-topic seeds must be **high-entropy / salted**, never human-readable handles.
+   *(Promote to the design backlog alongside the staleness signal.)*
