@@ -123,3 +123,101 @@ The lineage credential riding on the MLS leaf (section 3) is the one protocol-le
 ## 9. Gate
 
 Phase 2.5 passes if E2.10 (no quorum manufacture from own devices) and E2.12 (serverless self-sync via existing backfill) hold, with E2.11 and E2.15 confirming clean per-device revocation and ordered self-removal. That set validates the core claim: per-device keys plus lineage-folding deliver individual device management and serverless self-sync without a new subsystem, while preserving availability and administrative clarity.
+
+## 10. Transport realization: the per-lineage gossip group (2026-06-16)
+
+The E2.12 "self-sync as backfill" claim is a *data-model* claim. This section names its
+**transport** realization and the hypothesis behind it: **a user's own endpoints form an iroh
+gossip group scoped to their lineage, epidemic-broadcasting their signed history branches to
+keep in sync, while each device stays local-first.**
+
+Why this is the natural shape, not a new subsystem:
+
+- **It is the group mechanism turned inward.** A user's devices already share a genesis
+  trivially (same lineage), so `shares_lineage` is always true among them and the backfill
+  privacy boundary is satisfied by construction. Self-sync is the group-reconcile path with the
+  membership set narrowed to one person's leaves.
+
+- **The pieces are already green-real.** `B-gossip` proved an iroh-gossip mesh: a mesh formed
+  from one bootstrap node, transitive delivery between peers that never exchanged addresses, and
+  survival of killing the relaying node mid-run. `I7/I8/I9` proved per-device signed branches,
+  consensual backfill, and lossless fold across 3 machines — explicitly "the same mechanism for
+  multi-device and group." `B3` proved pairing bootstrap via `NodeAddr` + `TopicId` with no
+  direct IP in the invite. What is *not* yet proven is these composed as the self-sync path
+  (that is the new work — see cases below).
+
+- **Local-first is preserved.** Each device holds its own Automerge history and can send forward
+  from its own state at any time (the §2 availability non-negotiable). Gossip is how branches
+  *find* each other; backfill is how they are *verified and imported*. A device that is behind
+  looks behind (administrative clarity), never pretends to be current.
+
+```
+        lineage L (the "person")
+   TopicId = derive(genesis_of(L))      ← the gossip topic is the lineage root
+        ┌──────────┬──────────┬──────────┐
+     phone      laptop     browser     (each: own key, own MLS leaf, own Automerge doc)
+        └────── iroh gossip mesh ───────┘   epidemic broadcast of signed branches
+                     │
+            consensual backfill: verify chains-to-shared-genesis → import as navigable branch
+            (never interleaved into one transcript — anti-"six tapes", E2.8)
+```
+
+### 10.1 The key-hierarchy fork — DECIDED 2026-06-16: (a) live + (b) backup-only
+
+**Decision:** logical binding (a) for the live path, with an optional HD seed (b) reserved
+*purely* as a lose-all-devices backup. The live path never uses derivation; the seed is not in
+the normal-operation threat surface. This keeps "keys are not identity" for everything that
+runs day-to-day, and gives the recovery gate (G1) a concrete anchor without making a single
+seed the crown jewel of live operation. It mirrors the COHESION #12 framing ("delegation
+primary + optional trust-minimized backup").
+
+Concretely:
+
+- **Live path (a).** Parent = lineage DID/genesis (identity). Children = *independent* device
+  signing keys. Each child carries a lineage-proving credential **signed by the lineage root
+  key** (`lineage_sig`); that signature is what makes the claim unforgeable (T1). Compromise of
+  one device compromises only that device. No key is derived from another in normal operation.
+- **Recovery backup (b), optional.** An HD seed (mnemonic) can re-derive a fresh *authorized*
+  device when every device is lost. The seed is backup-only — held offline, never used in live
+  ops — so it is not a live single-point-of-compromise. Proving this mechanism is T12; this
+  decision sets its anchor (device-delegation primary + optional seed backup), closing the
+  open part of gate G1 for the multi-device-lineage case.
+
+This is the decision; the two readings it chose between were:
+
+- **(a) Logical binding (current model).** The "parent" is the lineage DID/genesis (identity);
+  "children" are *independent* per-device signing keys, each carrying a lineage-proving
+  credential the parent root key signed (the T1 leaf-credential work). No key is derived from
+  another. Compromise of one device compromises only that device. Total-device-loss = no key
+  survives → recovery is an *external* anchor decision (G1). This is "keys are not identity."
+
+- **(b) Cryptographic derivation.** Children keys are HD-derived from a parent seed. The parent
+  seed *is* a recovery anchor (re-derive children from a mnemonic), which directly addresses G1 —
+  but it reintroduces a single high-value secret whose compromise threatens every child, and it
+  softens "keys are not identity" toward "the parent seed is identity." It is not the SSB
+  shared-key trap (children still hold distinct keys), but the seed is the new crown jewel.
+
+The chosen synthesis is exactly (a) for the running model with an *optional* (b)-style seed as
+the lose-all-devices backup — recorded above. T1's credential design follows (a); T12 proves the
+optional (b) backup.
+
+### 10.2 New proof cases (self-sync over real gossip)
+
+These extend E2.12 from data-model to real transport, and connect to the merge/split corpus
+(`merge-split-corpus.md` S3/M6/C4):
+
+- **MD-G1 — per-lineage gossip topic.** A `TopicId` derived from the lineage genesis admits
+  only that user's device leaves; assert a device joins via `NodeAddr + TopicId` (no direct IP)
+  and the topic is not guessable from public data alone.
+- **MD-G2 — branch broadcast + backfill import over gossip.** Two offline-diverged devices
+  reconcile by gossiping signed branches and importing via the existing backfill path; assert
+  convergence with no server and no special-case code beyond shared-genesis (the live-transport
+  form of E2.12, and the T11 follow-on for the single-user case).
+- **MD-G3 — drop-a-device resilience.** Kill one device mid-sync; assert the remaining devices
+  still converge (the B-gossip drop-a-node result, applied to the self-sync topic).
+- **MD-G4 — add-vs-add fold (corpus C4).** The same person comes online from two devices that
+  both authored while partitioned; assert they fold to one actor and do not double-count toward
+  any lineage-counted threshold (E2.10 interaction — the unmodeled gap C4).
+- **MD-G5 — revoked device cannot rejoin the topic.** After device revocation (E2.11), the
+  revoked leaf cannot re-enter the gossip topic or derive new secrets; assert the epoch rotation
+  and the topic-membership check agree.
