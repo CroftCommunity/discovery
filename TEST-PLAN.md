@@ -10,14 +10,13 @@ executable order. This does.
 
 ## Execution status (2026-06-16)
 
-**Green-real this session (node-4/Mac, real openmls 0.8.1 + lineage-core; 24 suites / 56 tests, 0
-failures):** T1, E2.9, E2.10, E2.11, E2.15, AR-1, AR-6, C3, C4, C7, C8, C9, C10. See
-`proof-ledger.md` → "2026-06-16 local proof batch."
+**Green-real this session (node-4/Mac, real openmls 0.8.1 + lineage-core; 26 suites / 61 tests, 0
+failures):** T1, E2.9, E2.10, E2.11, E2.12, E2.13, E2.14, E2.15, AR-1, AR-6, C3, C4, C7, C8, C9,
+C10. The **multi-device data-model tier E2.9–E2.15 is complete.** See `proof-ledger.md` →
+"2026-06-16 local proof batch."
 
 **Remaining, by what unblocks it:**
-- *Local Rust, needs new op-semantics (next turns):* E2.13 leave-one/all, E2.14 same-lineage-1-sig
-  asymmetry, E2.16 tier visibility, T3 F2 checkpoint, T9 Merkle. (E2.12 self-sync mechanism already
-  proven by `LOCAL_FIRST_HISTORY`; explicit test pending.)
+- *Local Rust (next turns):* E2.16 tier visibility (transport/runtime), T3 F2 checkpoint, T9 Merkle.
 - *TS `lineage-group-model` (needs node/npm):* T5 S2, T8 V3.
 - *AWS box fabric (SSH-driven):* T2g, T11, TI-1/3/4/5, AR-2/3/4/5, relay E5/E6/E7.
 - *Hard-gated on resources only you can provide:* T10 (bsky app-password+egress), T13 (iOS host),
