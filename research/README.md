@@ -82,6 +82,21 @@ not try to merge them into one document; cross-reference instead.
   fourth bridge; the Staltz paradox (building intimacy tools among strangers) is the human warning.
   Sourced inline; self-reported numbers flagged.
 
+- `socialization-and-publication-venues.md` — where to socialize and share the Croft spec: a
+  per-layer venue map (iroh/n0, MLS WG, W3C Credentials CG, atproto WG, Willow/Earthstar, Local-First
+  Conf, etc.), standards bodies (IETF/IRTF/W3C), academic venues (NSDI/USENIX Sec/PoPETs), and
+  defensive-publication channels (IETF I-D, arXiv, IP.com). Two-track framing (prior-art vs. spread)
+  and a prioritized sequence. Current (2026) facts verified; `[UNVERIFIED]` flagged. Pairs with the
+  IP-protection doc below.
+
+- `open-publication-and-ip-protection.md` — IP strategy for protecting the spec when the goal is open
+  sharing: the patent vs. Creative-Commons vs. defensive-publication fork. Decision recorded:
+  **defensive publication** (spread + use + block-others-patenting, no own-patent) — CC-BY 4.0 for the
+  document, Apache-2.0 for the reference implementation (express patent grant), and complete,
+  timestamped, examiner-discoverable prior art (IETF Internet-Draft first, then arXiv) as the actual
+  patent-blocking instrument. Not legal advice; the disclosure caveat is one-directional. Pairs with
+  the venues doc above.
+
 ## Anticipated (different audiences, same underlying research)
 
 The same comparative material will likely be re-cut for different needs — e.g. a
