@@ -97,7 +97,7 @@ the openmls leaf-credential dependency (8.1) is still a real-library item (depen
 | INV-LINEAGE-NOT-LEAF | N devices in one lineage change no threshold outcome | green-model (lineage-group-model B1) + **green-real (E2.10, 2026-06-16)** |
 | E2.10 | thresholds count lineages not leaves (own-device quorum manufacture blocked) | **green-real** — `lineage-core` `meets_threshold_by_lineage`; test `e2_10_lineage_thresholds.rs` (the by-DID count is shown unsafe; lineage count rejects it). Rests on T1. |
 | E2.9, E2.11–E2.15 | fold, revocation, self-sync, leave-one/all, asymmetry, self-removal ordering | **green-real (2026-06-16)** — see local proof batch |
-| E2.16 | tier degradation visibility (forward-send works + stale surfaced without superpeer) | **ready to test (2026-06-16)** — design gap closed by `thinking/freshness-signal.md` (tip beacon + no-false-current). Was "blocked on design gap"; freshness signal now specifies how behind-ness surfaces without a counter-party. |
+| E2.16 | tier degradation visibility (forward-send works + stale surfaced without superpeer) | **green-model (2026-06-16)** — `lineage-group-model` E2.16a/b/c on the freshness model (`core/freshness.ts`). (a) availability: a peer with no superpeer/peers still applies local ops (seq advances). (b) no-false-current: silence → "unverified", a later seen tip → "behind", caught-up+heard → "current"; a peer advancing its own head while hearing no one stays "unverified". (c) tiers degrade visibly: interactive (15s) flips to unverified fast, quiet-large (6h) holds within its horizon, broadcast judges by position — and NO tier shows "current" while behind+stale. Multi-device tier now complete incl. tier visibility. |
 
 ## Phase 3 — Real iroh thin slice — **GO (with transport caveat)**
 
