@@ -317,6 +317,44 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   kill (timestamped) would tie the two together cleanly. Also untested: killing the node that two
   others depend on *before* they've absorbed each other (kill at t≈2 s, not 14 s).
 
+## MD-G4 — multi-device fold over transport
+
+- **Why.** The thesis claim is "one person's many devices are one actor; the *same* mechanism scopes
+  a group." Proofs proved `fold_by_lineage` green-real (E2.9/C4); it had never been shown over the
+  wire. Doing so required moving the gossip topic from per-lineage to per-**group** (so multiple
+  lineages share a topic) and carrying a distinct `device_did` alongside the actor `lineage_id`.
+- **Tells us.** On group `g1` with alice.laptop (node-1) + alice.phone (NAT Mac) + bob.phone
+  (node-2), **all three nodes folded identically** to `folded_actors=2` — alice's two device
+  branches collapse to one actor, bob is a second — over real iroh including the NAT path. Tampered
+  branches were rejected and never entered the fold.
+- **Means.** The "device-count ≠ actor-count" invariant holds on the wire: every peer computes the
+  same actor view from the branches it receives, which is the prerequisite for a consistent member
+  list and lineage-counted thresholds (E2.10) in a live group.
+- **Open edges.** Fold is over hash-chained branches, not the real Ed25519-signed
+  `lineage-history::Message` (same honesty boundary as MD-G2). Each actor here has ≤2 devices and
+  3-msg branches — not a scale test of fold cost. The fold is recomputed from scratch each receive,
+  not incrementally; cost under churn is unmeasured.
+
+## MD-G5 — revoked device can't rejoin over transport
+
+- **Why.** Revocation is governance over the wire: once a device is removed, peers must refuse its
+  later branches, but **must not** retroactively erase the history it contributed (E2.11's
+  standing-≠-membership honesty). Proven green-real in Proofs; never shown over transport.
+- **Tells us.** With alice.laptop broadcasting a MAC'd revoke of carol.tablet, the two survivors
+  showed the two halves cleanly: the **witness** (Mac/bob) that had already absorbed carol **retained**
+  her branch in the fold *and* marked `revoked={carol.tablet}`; the **revoker** that first heard carol
+  *after* the revoke **rejected** the branch `(revoked)`, keeping the device out of the accepted set;
+  the **target** saw a revoke-of-self and could not re-enter.
+- **Means.** Removal is enforceable on the live mesh without a central authority, and it is honest —
+  history contributed before removal is not clawed back. A revoked device is barred from the
+  *accepted set* going forward, which is the membership half of the standing-vs-membership split.
+- **Open edges.** The revoke is integrity-bound by a sha-256 MAC, not a real Ed25519 **authority**
+  signature — *who is allowed to revoke whom* stays green-real in Proofs (E2.11), unverified on the
+  wire. The retain-vs-refuse split is a consequence of iroh-gossip **de-duping identical payloads**
+  (a peer holding carol's byte-identical branch isn't re-delivered the repeats); showing both
+  transitions on one node needs per-round-varying branch bytes. Revoke ordering vs. a racing
+  legitimate branch (revoke and a fresh carol op broadcast in the same round) is untested.
+
 ## T11 — 3-way local-first history over live iroh
 
 - **Why.** Promote the file-relayed I7/I8/I9 result to live transport, 3-way, and show "same
