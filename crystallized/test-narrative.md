@@ -443,6 +443,160 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   hard-stop on reconnect is what catches that. Horizon constants (15s / 6h) are placeholders pending
   calibration on the real fabric.
 
+## E10 — RoQ media over iroh datagrams: the congestion-control unknown, resolved
+
+- **Why.** Real-time voice/video is the one Discord capability the messaging spine doesn't touch, and
+  the whole "keep WebRTC's media engine, throw away its transport" plan rested on a single unproven
+  cell: does iroh's QUIC congestion control *fight* a media bitrate estimator on the datagram path
+  (C1)? Everything else in `realtime-media-over-iroh.md` was "proven shape + known integration"; this
+  was the genuine technical risk. Cheapest possible attack: a synthetic CBR source (no codec, no mic)
+  over the exact `conn.send_datagram` primitive callme ships on, through the same netem rig E6 used.
+- **Tells us.** Two clean regimes. Under **loss and delay** the datagram path is *transparent*: netem
+  loss reaches the app verbatim as sequence gaps (5 %→4.6 %, 30 %→30.9 %), path RTT stays flat (~2 ms)
+  and tracks added delay exactly (100→102 ms), jitter stays sub-millisecond, and `send_datagram` never
+  errors or falls back to a reliable stream — so a media estimator gets accurate loss + RTT + jitter,
+  and audio holds to 30 % loss with *visible* (31 % concealment), never silent, degradation. Under a
+  **source-over-cap** (40 kbit cap below the ~84 kbit wire rate) iroh **queues and paces datagrams in
+  order** instead of dropping to fit: RTT balloons 537→8829 ms and the receiver gets a contiguous,
+  ever-delayed prefix (208/1000 frames, *zero gaps*, ~11 kbps = link rate). `send_datagram` returns
+  `Ok` throughout — when its buffer fills it drops oldest silently, so even an 8 KiB send buffer never
+  errors and RTT inflates identically (the bottleneck queue is the link, faithfully reported by iroh's
+  RTT estimate).
+- **Means.** C1 is resolved: the controllers do **not** fight destructively, but iroh will **not**
+  rate-adapt media for you. The media engine's bitrate estimator must be *authoritative* and must back
+  off on the **path-RTT trend** (plus per-stream sequence loss and arrival jitter) — exactly the
+  proposed C1 solution, now evidenced, with all three required signals confirmed exposed and accurate.
+  The transport is a "dumb measured channel," which is precisely what the fold wants. The audio MVP
+  (L1 / callme line) is de-risked on our real fabric; the path to L2/L3 (str0m) is unchanged.
+  **Follow-up (E10c / TC-CC2): the estimator is now demonstrated, not just required.** A delay-based
+  AIMD controller on iroh's path-RTT, run on a mid-call bandwidth drop, backs off 64→8 kbps in under a
+  second and bounds RTT to ~1 s with a continuous lossless stream, where a fixed-bitrate sender
+  bufferbloats unbounded past 7 s. The RTT signal is actionable. (It rescues the *degradation* case,
+  not the *join-an-already-saturated-link* case; residual RTT ~1 s, not ~50 ms — a real engine would
+  pace down faster / flush.)
+- **Open edges.** (1) Synthetic CBR, not real Opus through a jitter buffer — the transport CC question
+  is answered, but a true mouth-to-ear quality run still wants a real codec on at least the Mac leg.
+  (2) Direct same-VPC path only; the mesh-vs-meer-relayed comparison and a raw-UDP side-baseline (to
+  attribute the bufferbloat purely to the link vs any iroh contribution) remain follow-ons, and the
+  mesh/direct-media case stays gated on E0-NAT hole-punch ingress. (3) Default congestion controller
+  was used; whether a different controller (NewReno vs the default) changes the over-cap pacing is
+  untested. (4) TC-CC3 (media + bulk transfer contending on one connection — datagram/stream
+  isolation) is not yet run.
+
+## E12 — blind media-meer: SFrame-over-MLS (media E2EE through a forwarder that can't read it)
+
+- **Why.** The media end-state (`realtime-media-over-iroh.md`) rests on the same blind-broker guarantee
+  the messaging spine makes: a forwarding meer (the SFU) must carry voice/video without being able to
+  read it, and a revoked member's media must stop decrypting — the media analog of the faithful path's
+  standing check and MD-G5. C3 was the keying unknown: can SFrame keyed off a real MLS group deliver
+  per-sender keys, loss-tolerance, revocation, and a blind forwarder all at once?
+- **Tells us.** Yes — all four TC-KEY cases pass against a **real openmls 0.8.1 group** (`lineage-mls`),
+  not a fixture. The per-sender SFrame base key is HKDF over the group's genuine MLS **exporter secret**
+  bound to `(epoch, leaf)`. (1) Two senders get distinct keys; a non-member has no group secret and so
+  cannot derive any key — the media `UnauthorizedAuthor`, from keyed state alone. (2) Under 10 % loss +
+  intra-window reorder, every surviving frame decrypts **out of order** (90/90) and a replayed stream is
+  rejected (90/90) by a sliding per-sender counter window — loss-tolerant, with **no contiguity
+  requirement** (the key difference from the message hash-chain). (3) Removing a member advances the MLS
+  epoch and **rotates the exporter secret**: the removed sender is stuck at the old epoch, her later
+  frames are rejected (stale epoch + non-member = media **MD-G5**), she can't forge a new-epoch frame,
+  yet a receiver's **pre-revocation frames still decrypt** (history not clawed back) and the group keeps
+  working. (4) The blind SFU routes/selects all 92 frames from the clear `(epoch, leaf, counter)` headers
+  and recovers **zero** plaintext.
+- **Means.** "Media keying = message keying + loss-tolerance" is **real**, not a hand-wave. The DAVE-shape
+  blind SFU is keyed correctly off our already-proven MLS machinery; media revocation IS membership
+  revocation (the MD-G5 mechanism, re-used); and the blind-broker guarantee (E3.4 / AR-4) extends to
+  continuous media. With E10 (the datagram transport/CC) and E12 (the keying) both answered, the two
+  genuine media unknowns the design named are now evidence, not hope — the remaining media work is
+  integration (a real codec, the RFC 9605 SFrame wire header, carrying this over the E10 datagram rig)
+  and the gated items (str0m video maturity; NAT hole-punch for direct/mesh media; the meer binary).
+- **Open edges.** (1) Synthetic frames (string payloads), not real Opus through RTP packetization — the
+  keying is proven; codec/packetization is separate. (2) The SFrame header is modeled `(epoch, leaf,
+  counter)`, not the RFC 9605 wire format. (3) Run locally as pure crypto — a transport-carried version
+  is exactly this keying over the E10 datagram rig, a small follow-on. (4) MLS key-distribution is real
+  here (openmls add/welcome/remove); the separate "key registry over the wire" honesty boundary
+  (Workstream C) concerns the faithful *messaging* crate, not this media path.
+
+## E11 — MoQ broadcast: lazy fan-out, blind relay, and the abuse lever
+
+- **Why.** Broadcast media (stage / watch-party / livestream) is the mass-distribution surface — the one
+  that got Rave pulled (`abuse-resistance-and-the-rave-trap.md`). The design's claim is that a MoQ relay
+  can be **blind** (forwards Tracks it needn't decode) and **lazy** (encodes/sends nothing until a
+  subscriber asks), and — crucially — that the only honest lever against piracy/abuse on a blind relay is
+  **scale + peer restriction enforced from metadata alone**, never content inspection. That last claim is
+  the Croft-specific answer to "how do you moderate a thing you can't read?"
+- **Tells us.** All four hold (relay logic, deterministic): (1) a publisher emits **zero** frames across
+  100 produce-ticks while nobody is watching, and produces the instant a subscriber attaches — the media
+  instance of the interaction-tiers "nothing to fan out if nobody is watching" philosophy. (2) Fan-out
+  cost is exactly linear in audience size (0→0, 1→10, 3→30, 10→100 frames). (3) The relay forwards opaque
+  frames holding **no payload key**; every subscriber decrypts locally. (4) A blind relay enforces a
+  **max-audience cap** and **members-only** from subscribe metadata alone — it refused 3 of 8 over-cap
+  joins and 1 non-member — **reading zero frame bytes**.
+- **Means.** The abuse lever for broadcast is real and honest: a co-op-run blind relay can refuse to
+  *serve at scale* or *serve non-members* without ever inspecting content — scale + peer restriction, not
+  surveillance. Combined with E12 (the conversational SFU keying) the meer's three blind roles (message
+  broker, RoQ SFU, MoQ broadcast relay) are all evidenced in their Croft-novel parts.
+- **Open edges.** Relay logic only — not real moq-rs Tracks, GStreamer/Opus encode, or WebTransport
+  browser reach (the design calls those "mostly assembly, not build", de-risked by n0's iroh-live). The
+  transport-carried form is meer role P5 over the iroh fabric E9/E10 proved. The full AR-4-for-media
+  metadata bound (TC-META1) and CBR-padding to defeat per-stream bitrate inference (TC-META2) are
+  separate measurements not run here.
+
+## meer P0+P1 — the always-on blind superpeer, made real
+
+- **Why.** Every "Discord-feel" feature that assumes an always-present server — history when you rejoin,
+  a channel that stays converged, a livestream that exists when you open it — needs an always-on
+  participant. The relay gives connectivity; the meer gives *presence-of-state*. The whole project's
+  differentiator over Matrix self-hosting (the homeserver sees metadata + plaintext) and Discord
+  (central, can un-blind) is a superpeer that is **provably blind** and a **revocable delegation**, not
+  infrastructure that accrues power. E3.4 modeled the blind broker; the question was whether it runs.
+- **Tells us.** It runs, on the live fabric. A member publishes ChaCha20-Poly1305-encrypted blobs the
+  meer stores keyed by `sha256(ciphertext)`; an offline/behind member syncs through the meer and decrypts
+  all of them **locally** with a key the meer never held — converged 5/5. The meer's own stats report
+  `meer_payload_keys_held=0` and show the only thing it learned is the §3b metadata (digests, lengths,
+  timestamps, the namespace label) — the AR-4 surface, made explicit. The admission gate denies a
+  non-listed peer at connect (`not admitted, code 1`). And the anti-entrenchment guard is real, not just
+  asserted: the meer's **encrypted** store exports, imports into a *replacement* meer, and the member
+  re-homes and converges identically — losing a meer costs availability, never data.
+- **Means.** The headline P1 milestone is reached: "a Tier-0 meer that provably holds no key is 'run your
+  own infrastructure' with a guarantee neither competitor offers" is a running binary, and the
+  "materially reversible delegation" principle (state portability → stand up a replacement) is
+  demonstrated, not promised. Every later meer role (bridge, Tier-1, the media SFU/MoQ roles) builds on
+  this foundation.
+- **Open edges.** (1) Spike harness, not the production-TDD meer crate (Workstream B) — same protocol,
+  to be re-built under TDD + Zeroize + no-prod-unwrap. (2) Range reconciliation is a have-set diff, not
+  the richer Willow-style range reconciliation on (timestamp, digest, path) metadata (P3). (3) The member
+  key is a lab fixture; in product it is the MLS-derived group key (E12) — the point proven is only that
+  the meer LACKS it. (4) Rogue-meer detection over time (a meer that quietly logs more, or upgrades its
+  tier) stays a design open edge. (5) P2 (bridge/cross-namespace = E8), P3 (Tier-1 + no-mirror +
+  reliability-vs-overlap), P4/P5 (media roles), P6 (Tier-2) remain.
+
+## Conformance suite v0.1.0 — the protocol made checkable by a second implementation
+
+- **Why.** "A protocol is only real when a *second*, independent implementation can interoperate." Until
+  now the behavior lived in our Rust/TS spikes; there was no black-box suite an alternate Croft impl must
+  pass. Without it, "Croft the protocol" and "Croft the spike" are indistinguishable.
+- **Tells us.** The green-real/green-model contract is now executable and **derived from the real code,
+  never hand-typed**: an emitter runs the actual `lineage-core`/`lineage-history` API to produce
+  language-neutral JSON vectors, and a runner re-feeds them and diffs — 34 pass / 0 fail across genesis/
+  topic derivations, signed pre-images (with a one-bit-flip that MUST reject), fold + lineage-counted
+  thresholds (incl. the one-lineage-3-device quorum that MUST reject), revocation mechanics, the C1–C10
+  reconcile corpus, and manifest integrity. The must-reject cases pass *because the real API rejects
+  them*, and corrupting a good vector flips the runner to FAIL — the suite has teeth. The honesty
+  boundaries are respected: revoke-**authority** threshold is a declared `PLACEHOLDER` blocked on
+  Workstream C, not faked, and the AR / visibility / freshness categories are recorded as not-yet-emitted.
+- **Means.** Croft now has the beginning of a real interop contract, not just a TEST-PLAN. A second
+  implementation has concrete input→expected-output pairs and must-reject teeth to satisfy.
+- **Open edges. ⚠️ A real spec-vs-code discrepancy surfaced (code is truth):** CROFT-PROTOCOL.md §2
+  specifies **domain-tagged** genesis/topic pre-images (`"croft-lineage-genesis:" ‖ id`, `TopicId =
+  sha256("croft-group-topic:" ‖ id)`), but the Rust workspace computes plain `sha256(canonical_bytes)`
+  for `GenesisId` and tags the gossip topic `"lineage-topic-v1"`. The tagged §2 derivations live in a
+  *different stack* (the iroh `altdrive-spike-lineage-sync` spike) than `lineage-core`. The vectors were
+  derived from what `lineage-core` actually computes, with the divergence recorded — but **whether the
+  two stacks must share the tagged pre-images is a genuine reconciliation item** the suite forced into
+  the open. Also: cats 7/8/9 (AR / visibility-S2 / freshness) await emission (8/9 are green-model in the
+  TS stack); the cat-3 fold is exercised via the lineage-counted-threshold path, not the heavier OpenMLS
+  `fold_by_lineage`.
+
 ## Cross-cutting open surface (what these narratives keep pointing at)
 
 1. **A staleness/freshness signal — DESIGNED (2026-06-16).** AR-2 + multi-device both rely on "stale
