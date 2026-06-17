@@ -104,6 +104,18 @@ source: thinking/thesis-lineage-groups.md, multi-device.md, social-layer.md
 - **Fail early, fail clearly.** Stale must be visible; unavailable and murky are not
   allowed. The no-broker tier is the degraded tier and must say so — never silently.
 
+- **Freshness is a first-class signal; absence-of-news is not evidence of currency.** Every
+  "stale is visible" guarantee was comparative — it needed a peer ahead of you to compare
+  against. A peer that hears from *no one* cannot tell it is behind, and silence must never be
+  rendered as currency. The mechanism is a periodic signed **tip beacon** (head/epoch/seq +
+  routing only — content-free, blind-broker-safe, ties to AR-4) plus a local *time-since-last-
+  heard* clock (liveness is measured locally, never from peers' wall-clocks). The invariant is
+  **no-false-current**: a view may show "current" only if it both matches the best-seen tip *and*
+  was confirmed within the tier's freshness horizon; otherwise it degrades visibly to "behind" or
+  "unverified." Freshness also **gates authority** — do not act on a membership/revocation decision
+  authorized against a group view you cannot prove is current. (See `thinking/freshness-signal.md`;
+  tested by E2.16.)
+
 - **Structural, not runtime, enforcement for safety limits.** A violating share is
   unrepresentable / rejected by every verifier — never merely warned against on the
   sender's client. The safety case is exactly the hostile sender.
