@@ -582,8 +582,12 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   thresholds (incl. the one-lineage-3-device quorum that MUST reject), revocation mechanics, the C1–C10
   reconcile corpus, and manifest integrity. The must-reject cases pass *because the real API rejects
   them*, and corrupting a good vector flips the runner to FAIL — the suite has teeth. The honesty
-  boundaries are respected: revoke-**authority** threshold is a declared `PLACEHOLDER` blocked on
-  Workstream C, not faked, and the AR / visibility / freshness categories are recorded as not-yet-emitted.
+  boundaries are respected: the AR / visibility / freshness categories are recorded as not-yet-emitted.
+  **Update: the revoke-authority row is now a real vector (cat 5b, 38/0 total).** Once we clarified that
+  the k-of-n signature mechanism is already green-real in `gov` (the MAC was only the transport marker),
+  the placeholder became emittable: 4 cases — 2-lineage accept; under-threshold / non-admin-signer /
+  one-lineage-multi-device reject — derived from `gov::meets_threshold_by_lineage`. Only the over-the-
+  wire authority distribution + co-sign-vs-vote ordering remain Workstream C, not the signature itself.
 - **Means.** Croft now has the beginning of a real interop contract, not just a TEST-PLAN. A second
   implementation has concrete input→expected-output pairs and must-reject teeth to satisfy.
 - **Open edges. ⚠️ A real spec-vs-code discrepancy surfaced (code is truth):** CROFT-PROTOCOL.md §2
