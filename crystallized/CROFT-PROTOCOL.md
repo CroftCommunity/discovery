@@ -153,8 +153,11 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_did_bytes ‖
   signature is now **carried as a real k-of-n Ed25519 bundle** and verified on receipt with
   `gov::meets_threshold_by_lineage` over live iroh-gossip — **C-faithful-revoke (2026-06-17, green-real):
   REVOKE-AUTHORIZED (2 admin lineages ≥ 2) accepted, REVOKE-UNDERTHRESHOLD (1 lineage) rejected.** The
-  MD-G5 transport MAC is retired. Still open: the co-sign-vs-vote accumulation **ordering** decision
-  (`revocation-authority.md`) — orthogonal to the now-real signature mechanism.
+  MD-G5 transport MAC is retired. **Order of operations DECIDED (2026-06-17):** the **co-signed op** (A)
+  is canonical — a self-certifying k-of-n bundle validated locally against the current epoch, freshness
+  gated; **proposal+votes** (B) is an optional, opt-in deliberative mode, not built for v0
+  (`revocation-authority.md` "Decision"). Still open only: the membership-op freshness *threshold* and
+  the admin-floor rule.
 
 - **Roles are revocable delegations, never impositions.** A group **MAY** grant a role (admin,
   moderator, a content-gating `geer` §6.1, an always-on `meer` §8) that carries enumerated rights, for

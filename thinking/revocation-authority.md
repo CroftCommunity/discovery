@@ -1,5 +1,51 @@
 # Revocation & membership authority — the threshold dial and its order of operations
 
+date: 2026-06-16 · updated 2026-06-17
+status: **decided** (order-of-operations) — see "Decision" below; freshness coupling stays design input for Job 4
+
+## Decision (2026-06-17) — CO-SIGNED OP is the canonical mechanism; PROPOSAL+VOTES is an optional deliberative mode
+
+For threshold (k>1) membership authority, **pattern (A) the co-signed op is the default and the only
+mechanism v0 must implement; pattern (B) proposal+votes is deferred as an opt-in, per-group
+"deliberative mode," not built until a use case needs in-flight vote visibility.**
+
+**Why A is canonical:**
+1. **It is already green-real over the wire.** C-faithful-revoke (2026-06-17) carries a real
+   `gov::SignedOp` k-of-n bundle over live iroh-gossip and the receiver validates it with
+   `meets_threshold_by_lineage` (AUTHORIZED accept / UNDER-THRESHOLD reject). Pattern A *is* that bundle.
+   Pattern B's vote-accumulation state (expiry, retraction, stale-vote rejection) is explicitly unmodeled
+   (Open edges). Decide for the proven thing; defer the unmodeled thing.
+2. **Self-certifying matches the project's spine.** A removal op carries its own proof (k signatures over
+   a pre-image that names the current epoch); every member validates it locally from signed data alone —
+   the same "authority from signed data, never from assertion or observed side-state" rule the faithful
+   path (I3) rests on. B requires observing accumulated vote state, which is side-state and
+   partition-sensitive.
+3. **One broadcast, no per-group tally state → scales and is partition-tolerant.** The bundle either meets
+   the threshold against the validator's current epoch or it does not; there is no cross-member vote
+   ledger to keep consistent under churn.
+4. **B does not solve the hard case.** The genuine residue — two partitions each gathering a local quorum
+   — is identical for A and B and is resolved by the existing green-real **hard-stop on the
+   `RemovedThenIncluded` contradiction** + **freshness gating** (don't act on a removal authorized against
+   a stale epoch). B's transparency buys nothing there.
+5. **Auditability is not lost.** The co-signs and the resulting op live in the replicated log, so the
+   decision is auditable *after the fact* under A. B's only extra is *real-time* visibility of an
+   in-progress vote — valuable for deliberative/contentious decisions (e.g. admitting a disputed member),
+   not for the common revoke. So B is the right tool *only* when a group opts into deliberation, and it
+   layers on top without changing A.
+
+**Mechanics of A (v0):** the proposer requests co-signs from k authorized signers (each validates the
+proposed op against its **own current-epoch** policy and returns a signature over the epoch-naming
+pre-image), then broadcasts `Remove{sigs[k]}`. A co-sign whose pre-image names a stale epoch is rejected
+on validation — so freshness gates A naturally (cleaner than B, whose accumulated votes may span epochs).
+The MLS Commit that advances the epoch and re-keys without the target is the *membership* half; the
+signature bundle is the *authorization* half. Both are validated independently by each member.
+
+**What this does NOT decide:** the freshness *threshold* for membership ops specifically (stricter than
+content? — Job 4), the admin-floor rule (can't brick/capture a group by removing the last admin), and
+vote-accumulation semantics *if and when* B is ever built. Those stay open below.
+
+---
+
 date: 2026-06-16
 status: thinking (design input for the wire spec's governance section and for Job 4 freshness)
 
