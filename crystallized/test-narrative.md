@@ -355,6 +355,30 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   transitions on one node needs per-round-varying branch bytes. Revoke ordering vs. a racing
   legitimate branch (revoke and a fresh carol op broadcast in the same round) is untested.
 
+## FAITHFUL — real signed message + authority verified over the wire
+
+- **Why.** Every transport spike to date carried a sha-256 hash chain: it proved in-transit integrity
+  and ordering but not *authorship*. A valid chain claiming `device=alice` is forgeable, and the
+  Ed25519 signature + standing/authority checks lived green-real only in `Proofs/`, never on the wire.
+  No single artifact showed the real signed message verified for authority end-to-end. This closes it.
+- **Tells us.** A standalone spike (`altdrive-spike-faithful-sync`) path-deps the real Proofs crates
+  (stable `ed25519-dalek 2.2.0`) alongside iroh rc.1 — they compose despite the pre-release-crypto
+  collision that PHASE_3_FINDINGS hit in the other direction — and runs the **real**
+  `backfill_import` on messages received over live iroh-gossip. Both joiners (node-2 + the NAT Mac)
+  independently reached the same verdict: HONEST member → ACCEPT; FORGED (tampered) → REJECT
+  `BadSignature`; **NONMEMBER with a valid signature but no standing → REJECT `UnauthorizedAuthor`**.
+- **Means.** The same bytes signed-and-authority-checked in the model are now checked on the wire by
+  the same code. The load-bearing result is the NONMEMBER case: a *genuine* signature that *passes*
+  verification is still rejected for lack of standing — the precise attack a hash chain admits. The
+  "who wrote it / may they?" half of the transport claim is now green-real, not promissory.
+- **Open edges.** (1) The verifying-key registry + lineage membership are the agreed group state
+  modelled in the spike; **MLS key-distribution itself is not run over the wire** (green-real in
+  Proofs). (2) **Threshold revocation authority** (who-may-revoke; the k-of-n dial) is the next layer
+  and is not in this spike — `thinking/revocation-authority.md`. (3) node-1-as-origin showed empty
+  verdicts (gossip timing: exited before peer broadcasts meshed back; own broadcasts not echoed) — the
+  two joiners carry the verdict. (4) **What leaks when an op is rejected** (the failed-op observable —
+  leak vs immune-signal vs silent/blackhole) is its own spike — `thinking/failed-op-response.md`.
+
 ## T11 — 3-way local-first history over live iroh
 
 - **Why.** Promote the file-relayed I7/I8/I9 result to live transport, 3-way, and show "same
@@ -377,8 +401,10 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
    requirement. *(New — promote to the design backlog.)*
 2. **Open/public-regime Sybil + quiet membership (S3).** AR-1 only covers permissioned groups; the
    social layer's join-is-the-point model is the harder, unsolved case.
-3. **The Ed25519-over-the-wire gap.** MD-G2/T11 proved the structural half over transport; carrying
-   the real signed `lineage-history` message end-to-end is the remaining faithful step.
+3. **The Ed25519-over-the-wire gap — CLOSED (2026-06-16).** MD-G2/T11 proved the structural half;
+   the FAITHFUL spike now carries the real signed `lineage-history::Message` and verifies signature +
+   standing over live iroh (both joiners incl. NAT Mac). Remaining faithful steps narrowed to: MLS
+   key-distribution over the wire, and threshold revoke-authority (`thinking/revocation-authority.md`).
 4. **Recovery (T12) shadows several edges** — last-device revocation, stolen-device-same-lineage-1-sig,
    total loss. The anchor is decided (delegation + optional seed); the proof is open.
 5. **Scale/cost untested over transport** — compaction, long histories. All transport demos are
