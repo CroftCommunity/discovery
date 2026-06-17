@@ -91,6 +91,35 @@ shortest route to a working voice channel and it's already de-risked — and rea
 we need what RoQ-direct lacks**: a mature adaptive media engine at scale, video, and browser interop
 via the SFU-meer. `iroh-roq` is the common RTP seam, so L1→L2/L3 is an evolution, not a rewrite.
 
+### Media interaction *types* — by use case, like group types (RoQ vs MoQ)
+
+The lines above are all the *conversational* path. But media has the same "type at creation, not a
+mode toggle" shape as the messaging **interaction tiers** (`interaction-tiers.md`), and it lands on
+**two different QUIC media protocols** chosen by use case — confirmed by n0's own apps (see
+`research/iroh-realtime-media-references.md`):
+
+| media type | protocol | shape | topology | reference | maps to tier |
+|---|---|---|---|---|---|
+| **Conversational** (call) | **RoQ** (RTP-over-QUIC) | symmetric, lowest latency | mesh (≤~5) → blind SFU-meer | **`callme`** | interactive |
+| **Broadcast** (stage/watch-party/livestream) | **MoQ** (Media-over-QUIC) | **pub/sub Tracks**, lazy, internet-scale, sub-250 ms | one-to-many fan-out via a **MoQ relay** | **`iroh-live`** (moq-rs + GStreamer) | broadcast |
+| *(quiet-large video — mostly idle small group)* | either, **lazy** | encode only when watched | mesh/SFU | — | quiet-large |
+
+The decisive properties:
+- **MoQ is pub/sub and lazy.** A broadcaster publishes named **Tracks** (video / audio / metadata as
+  separate tracks); viewers **subscribe**; and **nothing is encoded or sent until a subscriber asks**.
+  That lazy property is the *media instance of the interaction-tiers philosophy* — "nothing to fan out
+  if nobody is watching" — and it's the battery/compute/privacy win (no idle broadcast).
+- **The meer gains a broadcast role.** A **MoQ relay** forwards Tracks it needn't decode → **blind**,
+  the media analog of the message blind broker, and it costs nothing until a subscriber appears. So
+  the meer has *three* blind roles: message broker, conversational SFU (RoQ), and broadcast relay
+  (MoQ). Detailed in `thinking/meer-superpeer-design.md`.
+- **Type is chosen at creation, by need**, exactly like interactive-vs-broadcast rooms: a "call" is a
+  RoQ object, a "stage/channel-with-an-audience" is a MoQ object. Live in-place conversion is a
+  create-new-and-redirect, not a mutation (same rule as the messaging tiers).
+
+So "voice/video/stage" is not one feature — it's **conversational (RoQ) + broadcast (MoQ)**, two media
+types under the same iroh transport + MLS keying + blind-meer forwarding, each matched to a need.
+
 ---
 
 ## Challenges → proposed solutions → test cases
@@ -352,6 +381,9 @@ keying investment.
 ## Next experiments (priority order — what each de-risks, what it reuses)
 
 The smallest sequence that converts unknowns into evidence. Each reuses an existing asset where noted.
+**Baked into the testing round** as **E10–E12** in `experiments/iroh/RELAY-PLACEMENT-LAB-SPEC.md §4a**
+(E10 = step 1 RoQ-under-netem; E11 = MoQ broadcast lazy fan-out; E12 = blind media-meer SFrame/MLS);
+the meer build itself is `thinking/meer-superpeer-design.md` (phases P0–P6).
 
 1. **Reproduce + measure callme under netem (audio MVP).** Build/run callme (or a minimal RoQ-direct
    clone) between two of the AWS boxes and the NAT Mac; drive it through the **E6 `tc netem` rig**
