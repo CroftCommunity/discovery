@@ -533,12 +533,15 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   signature meeting the group's replicated threshold, counted by lineage (so a person can't manufacture
   a revoke quorum from their own devices, over the wire too). The §12 honesty boundary closes for the
   signature mechanism.
-- **Open edges.** (1) Part 2 — **MLS key-distribution over the wire for the messaging crate** — remains:
-  the faithful crate still models the verifying-key registry as agreed state. E12 proved the openmls
-  add/welcome/remove keying in-process; carrying an openmls Welcome over iroh is the transport step.
-  (2) The co-sign-vs-vote accumulation **ordering** decision (`revocation-authority.md`) is orthogonal
-  and still open — this proves the signature over the wire, not the gathering policy. (3) Origin shows
-  empty verdicts (the gossip gotcha); the joiner is authoritative.
+- **Open edges.** (1) Part 2 — **MLS key-distribution over the wire** — is now also **DONE (green-real,
+  C-mls-welcome 2026-06-17):** a real openmls Welcome (796 B) crosses a real iroh connection and the
+  joiner derives the *same* MLS exporter secret as the founder (both epoch 1, member_count 2) — the
+  group key is distributed over the transport, not modeled as agreed state. So both of Workstream C's
+  named transport honesty boundaries are addressed. Remaining there: binding the distributed openmls
+  secret to the lineage verifying-key registry (E12 + C-mls-welcome + faithful = the full picture), and
+  a cross-host run (trivial — loopback today). (2) The co-sign-vs-vote accumulation **ordering** decision
+  (`revocation-authority.md`) is orthogonal and still open. (3) Origin shows empty verdicts (the gossip
+  gotcha); the joiner is authoritative.
 
 ## E11 — MoQ broadcast: lazy fan-out, blind relay, and the abuse lever
 
