@@ -99,6 +99,17 @@ because the group *granted the role*.** And it is **when-needed, not every-group
 community elects when it has a reason (app-store reach, scale, a wanted-moderation norm, compliance),
 not a standing fixture.
 
+**Crucially, the group can stand up a *different* geer and elect it instead.** The grant is not bound
+to a particular box or party: because the geer software is open and the role is a re-issuable grant, a
+group that distrusts or wants to replace its content-visible moderator can **stand up a fresh geer
+(different hardware, different party) and elect it in place of the incumbent** — re-issuing the
+moderation key to the new holder and revoking the old. This is the everyday, low-drama check on an
+entrenched or curious geer (distinct from the trap-door fork, which is the adversarial backstop), and
+it is what makes the geer's authority a genuine *delegation* rather than a de-facto office: a
+content-visible role is only as concentrated as the group's inability to replace it, and the group can
+always replace it. (Caveat: a *former* geer at rung 2/3 already *saw* past content — replacement stops
+future visibility, it does not un-see history; rung-1 report-gated geers minimize even that.)
+
 ### Its output is *labels*, not bans — the Bluesky/Ozone intersection
 
 Rather than a geer that *directly* removes/bans, model its output as **labels** — the proven,
