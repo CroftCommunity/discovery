@@ -394,6 +394,30 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
 
 ---
 
+## S2 — scoped visibility, not opaque structure
+
+- **Why.** The social layer's most seductive feature is "show the useful structure but hide the
+  names" — let people see the shape of a community without exposing who is in it. S2 is the claim
+  that this is *unsafe by construction*: graph topology deanonymizes. We needed a proof that the
+  protocol must *refuse* to offer structure-with-hidden-identities, not just warn against it.
+- **Tells us.** Two green-model results (`lineage-group-model` S2a/S2b). S2a models the canonical
+  attack — a town of 4,000 where only one person's connection shape touches both the Henderson family
+  group and the Oak-St school-parents group — and the **anonymity set collapses to 1**: withholding
+  every name does not help, the shape alone re-identifies. So the structure-only share is made
+  *unrepresentable* (the constructor throws, the V1-style idiom). S2b shows the only constructible
+  share is a consented-distance map carrying no topology: a viewer at distance *d* gets exactly the
+  content consented for *d*, and over-reach beyond the horizon returns silence, not anonymized shape.
+- **Means.** An entire class of "anonymized social graph" features is ruled out at the type level —
+  you cannot build the invasive version even if you want to. Distance gates *consented content*,
+  never the graph. This is the honest form of the Kevin-Bacon-distance idea and the highest-value
+  social-layer result so far.
+- **Open edges.** The re-identification is modelled with a synthetic fingerprint (degree + anchor
+  groups); a real deployment needs a calibrated anonymity-set estimator over actual graph features.
+  **S3 (quiet membership) and S4 (multi-identity)** are NOT done — they need design gate G5
+  (`thinking/social-layer.md` §75–77) and a user decision before any test; S3 is where the
+  inside-adversary problem lives. The consent map's *distance metric* itself (who is at distance d,
+  and who decides) is unmodelled — distance is taken as given here.
+
 ## Cross-cutting open surface (what these narratives keep pointing at)
 
 1. **A staleness/freshness signal.** AR-2 + multi-device both rely on "stale is visible," but a peer

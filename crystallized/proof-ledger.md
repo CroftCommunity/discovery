@@ -137,7 +137,7 @@ source: thinking/social-layer.md §4.
 | ID | Invariant | Status |
 |---|---|---|
 | S1 | Freeze by default | green-model (lineage-group-model V9) |
-| S2 | Scoped visibility, not opaque structure | spec |
+| S2 | Scoped visibility, not opaque structure | **green-model (2026-06-16)** — `lineage-group-model` S2a/S2b. S2a: a structure-only share (topology, identities withheld) re-identifies — modelled town of 4,000, target's connection shape has **anonymity set = 1** — so `attemptStructureOnlyShare()` is unrepresentable (throws). S2b: only consented-distance/resolution-scoped sharing is constructible — distance gates *content*, never topology; over-reach yields silence. The highest-value social-layer result: rules out "anonymized graph" features as unsafe-by-construction. |
 | S3 | Asymmetric / quiet membership (reachable without being mapped) | spec — **unsolved**, the hard one |
 | S4 | Multi-identity, no forced linkage | spec |
 
