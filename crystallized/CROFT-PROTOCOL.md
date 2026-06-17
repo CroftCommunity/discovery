@@ -144,6 +144,51 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_did_bytes ‖
   Proof: threshold-signed governance op shape — **T3 / F2** (green-real). The over-the-wire authority
   signature is **not yet carried** (MD-G5's marker is a MAC). *design — see `revocation-authority.md`.*
 
+- **Roles are revocable delegations, never impositions.** A group **MAY** grant a role (admin,
+  moderator, a content-gating `geer` §6.1, an always-on `meer` §8) that carries enumerated rights, for
+  ease and consistency. Every such role **MUST** be a **revocable delegation** from the group's
+  members (granted and withdrawn by the same threshold authority), **MUST** carry only **scoped,
+  enumerated, non-creeping rights**, and **MUST NOT** be immutable, forced, or held by structural
+  right. A role's capability **MUST** be downstream of the grant and revoked with it — no peer holds a
+  right because it merely *can* (capability), only because the group *granted* it (election).
+
+  Proof: revocation mechanics **MD-G5 / E2.11** (green-real); threshold grant shape **T3 / F2**. *design
+  — see `principles.md` "delegated authority, never imposed".*
+
+- **Delegation MUST be *materially* reversible, not just formally.** Because a resourced, always-on,
+  state-holding peer can entrench by circumstance, an implementation **MUST** make replacement real:
+  (a) a meer/geer holds only **encrypted** state and the group holds the keys, so the group **MUST** be
+  able to **re-host on, or migrate to, a different holder** (no data hostage); (b) a group **MUST** be
+  able to **stand up a different meer/geer (different host/party) and elect it in place of the
+  incumbent** — the role is a re-issuable grant, not bound to a box; (c) the **re-formation fork** (§7)
+  remains the adversarial backstop when an election is captured. Routine replacement is the normal
+  check; the fork is the backstop.
+
+  Proof: re-formation backstop **C3 / D-series** (green-real + green-model); state-portability +
+  stand-up-and-elect is *design*. See `meer-superpeer-design.md` (anti-entrenchment).
+
+### 6.1 The geer — opt-in content-visible moderation role
+
+- The default group is **blind** (no peer reads content). A group **MAY** consensually elect a
+  **`geer`**: a disclosed, scoped, revocable role that **MAY decrypt content for moderation only**.
+  A geer **MUST** be (1) **opt-in by the group's threshold authority** — never imposed or default;
+  (2) **disclosed** to all members as a named role (informed consent — not a covert capability);
+  (3) **scoped** to the least-invasive rung that serves the need — **report-gated** (no key; sees only
+  member-disclosed items) **SHOULD** be preferred over **classifier-gated** over **full-key (Tier 2)**;
+  (4) **accountable and revocable** (replaceable per the materially-reversible rule above).
+- A geer **SHOULD** emit **labels** (advisory metadata, the atproto/Ozone model), **not** unilateral
+  enforcement: the geer labels, and **group governance or each member's client decides the action**
+  (hide/warn/remove/ban). Content-level labels **MUST** stay in-group (exporting them leaks private
+  content — §10/S2); account-level labels **MAY** be portable under the shared DID.
+- A geer is **never offered for the most-private lane** (Lane 1 intimate groups stay blind/self-
+  moderated). Ban/block **MUST NOT** require a geer — it is available blind via reports + governance
+  (§11); a geer is justified only for *proactive content* moderation.
+
+  Proof: *design exploration — see `geer-gating-peer.md`.* **Honesty boundary (normative to disclose):**
+  any content-visible role weakens the "cannot comply" property (compellability) — so the system
+  default **MUST** remain blind and the geer **MUST** remain strictly per-group opt-in; a rung-2/3 geer
+  that has seen content cannot un-see it on revocation. Legal review required before shipping.
+
 ---
 
 ## 7. Reconcile and the contradiction hard-stop
@@ -262,7 +307,11 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_did_bytes ‖
 - **Honesty boundaries this spec still carries** (tracked in `open-edges.md`): (1) MLS key-distribution
   is not yet exercised over the wire (the faithful path models the key registry as agreed state);
   (2) threshold revoke-**authority** is not yet a real signature over the wire (§6); (3) freshness is
-  proven in the model, not over live transport; (4) the failed-op leak/immune dial is design-only.
+  proven in the model, not over live transport; (4) the failed-op leak/immune dial is design-only;
+  (5) the **geer** (§6.1) and the role/governance guards (§6) are design — and the geer's
+  **compellability** tradeoff (a content-visible role weakens the system's "cannot comply" property)
+  is an unresolved policy/legal question, not an engineering one. The default-blind posture is the
+  mitigation; legal review gates any geer implementation.
 
 ---
 
