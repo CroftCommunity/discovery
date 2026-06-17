@@ -95,8 +95,15 @@ loss-tolerant and latency-intolerant — the opposite of QUIC's default reliable
 ### C2 — Media-engine maturity (str0m or alternative)
 
 **Challenge.** "Fold over iroh" requires a sans-IO engine (we own the socket). str0m is the Rust
-candidate; its production maturity for audio+video is the gating unknown. libwebrtc is mature but owns
-its own ICE/DTLS transport and fights substitution.
+candidate; its production maturity is the gating unknown. libwebrtc is mature but owns its own ICE/DTLS
+transport and fights substitution.
+
+*Verified (see `research/str0m-production-readiness.md`, 2026-06-16):* str0m's production track record
+is **strongest as a server-side SFU** (Lookback's actual use) and **thinnest in its P2P ICE agent**
+(the maintainers say so). This is favorable for us: Mode B (the SFU-meer) is exactly the tested path,
+and Mode A bypasses str0m's ICE entirely (iroh is the transport) — so the maturity worry is narrower
+than "is str0m ready" in the abstract. webrtc-rs is moving sans-IO (v0.20.0) and is the hedge. [CONFIRM
+the rust-libp2p→str0m migration's current state; it adopted str0m from webrtc-rs ~2023.]
 
 **Proposed solution.**
 1. Define a thin **`MediaEngine` seam** (feed RTP in / get RTP out / report bandwidth estimate / set
@@ -201,7 +208,9 @@ session (it expects SDP/ICE/DTLS to establish SRTP keys):
 - **A2 — full session tunneled:** run str0m's complete WebRTC session *inside* a single iroh datagram
   flow (iroh as one "candidate"/pipe). Simpler to wire, but pays redundant DTLS encryption + carries
   ICE/DTLS machinery we don't need.
-TC-INT3 decides A1 vs A2 empirically.
+TC-INT3 decides A1 vs A2 empirically — but the production-readiness verification
+(`research/str0m-production-readiness.md`) already **biases toward A1**, because A2 would drag in
+str0m's least-tested area (its P2P ICE agent), the exact thing A1 + iroh route around.
 
 ### Mode B — browser ↔ overlay: str0m as a real WebRTC endpoint at the meer (the bridge)
 
