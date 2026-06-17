@@ -117,7 +117,11 @@ stacks disagree. That's exactly what a conformance suite is for.
 - **The "voice/video/stage" end-state is de-risked.** The two real unknowns (transport congestion-control,
   and blind-relay media keying) both resolved favorably. What's left for media is *integration* (a real
   codec, the standard SFrame wire header, carrying it over the transport we've proven) and known *gated*
-  items (browser reach, NAT hole-punching for direct calls) — not invention.
+  items (browser reach, NAT hole-punching for direct calls) — not invention. **One firm design rule fell
+  out of TC-CC3:** real-time media and bulk file transfers **must run on separate connections** — when we
+  put a 20 MB transfer on the *same* iroh connection as a call under a 1 mbit link, the transfer starved
+  the call (RTT 50 ms → 9.5 s). On separate flows the call is untouched. (This is the design's own C1
+  recommendation, now proven mandatory rather than advisory.)
 - **The meer is no longer a paper concept.** Its headline guarantee runs, and the "you can always leave /
   re-host" property that keeps it from becoming a power center is demonstrated, not just promised.
 - **Croft is becoming a protocol, not just a prototype.** There's now a machine-checkable contract a second
