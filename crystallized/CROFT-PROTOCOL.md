@@ -47,15 +47,23 @@ yet pin down.
 
 ## 2. Identifiers and derivations
 
-All derivations are SHA-256 over a tagged pre-image (the tag is the version + domain separator):
+The **wire identity** derivations are SHA-256 over a *tagged* pre-image (tag = version + domain
+separator, so one identifier kind can never collide with another's input). The structural `GenesisId`
+(a hash of a `Genesis` struct's canonical bytes, used internally by governance) is **not** a wire
+identity and is intentionally untagged — it is computed only over already-structured bytes.
 
-| identifier | pre-image | source |
+| identifier | pre-image | source (canonical) |
 |---|---|---|
-| lineage genesis | `"croft-lineage-genesis:" ‖ lineage_id` | `altdrive-spike-lineage-sync` |
-| group genesis | `"croft-group-genesis:" ‖ group_id` | same |
-| group gossip topic | `TopicId = sha256("croft-group-topic:" ‖ group_id)` | same |
-| `GenesisId` | `sha256(canonical_bytes)` | `lineage-core::ids` |
+| lineage genesis | `sha256("croft-lineage-genesis:" ‖ lineage_id)` | `lineage-core::ids::lineage_genesis` |
+| group genesis | `sha256("croft-group-genesis:" ‖ group_id)` | `lineage-core::ids::group_genesis` |
+| group gossip topic | `TopicId = sha256("croft-group-topic:" ‖ group_id)` | `lineage-core::ids::group_topic` |
+| `GenesisId` (structural, untagged) | `sha256(canonical_bytes)` | `lineage-core::ids::GenesisId::from_bytes` |
 | content id | `sha256(json{groupId, regime, authorId, content, timestamp})` | `lineage-group-model` |
+
+*(2026-06-17: the three tagged wire derivations were promoted from the `altdrive-spike-lineage-sync`
+spike into `lineage-core::ids` as canonical, conformance-tested functions — byte-identical to the spike.
+`lineage-iroh::GroupTopic::from_group_id` now uses the §2 `"croft-group-topic:"` form; its old
+`from_seed(u64)` is a test stand-in only, not a wire derivation.)*
 
 - An implementation **MUST** derive these identically; they are the interop anchor. The topic seed
   **MUST** be high-entropy / salted, not a guessable human handle (else an adversary computes the

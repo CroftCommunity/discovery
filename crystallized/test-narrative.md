@@ -590,15 +590,19 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   wire authority distribution + co-sign-vs-vote ordering remain Workstream C, not the signature itself.
 - **Means.** Croft now has the beginning of a real interop contract, not just a TEST-PLAN. A second
   implementation has concrete input→expected-output pairs and must-reject teeth to satisfy.
-- **Open edges. ⚠️ A real spec-vs-code discrepancy surfaced (code is truth):** CROFT-PROTOCOL.md §2
-  specifies **domain-tagged** genesis/topic pre-images (`"croft-lineage-genesis:" ‖ id`, `TopicId =
-  sha256("croft-group-topic:" ‖ id)`), but the Rust workspace computes plain `sha256(canonical_bytes)`
-  for `GenesisId` and tags the gossip topic `"lineage-topic-v1"`. The tagged §2 derivations live in a
-  *different stack* (the iroh `altdrive-spike-lineage-sync` spike) than `lineage-core`. The vectors were
-  derived from what `lineage-core` actually computes, with the divergence recorded — but **whether the
-  two stacks must share the tagged pre-images is a genuine reconciliation item** the suite forced into
-  the open. Also: cats 7/8/9 (AR / visibility-S2 / freshness) await emission (8/9 are green-model in the
-  TS stack); the cat-3 fold is exercised via the lineage-counted-threshold path, not the heavier OpenMLS
+- **Spec-vs-code discrepancy — surfaced AND resolved (2026-06-17).** The suite forced a real question
+  into the open: CROFT-PROTOCOL §2 specifies **domain-tagged** genesis/topic pre-images, but the tagged
+  derivations lived only in the throwaway iroh spike while `lineage-core` had the untagged structural
+  `GenesisId` and `lineage-iroh` tagged the topic `"lineage-topic-v1"`. **Resolution (greenlit, alpha →
+  no backwards-compat cost):** the three tagged wire derivations are now canonical, conformance-tested
+  functions in `lineage-core::ids` (`lineage_genesis`/`group_genesis`/`group_topic`, byte-identical to
+  the spike); `lineage-iroh::GroupTopic::from_group_id` uses the spec `"croft-group-topic:"` form; the
+  structural untagged `GenesisId` is documented in §2 as deliberately *not* a wire identity. cat-1
+  vectors now cover the tagged derivations.
+- **Coverage now broad (66/0).** cat 7 covers adversarial AR-1/2/3/6 (AR-4 metadata-leak + AR-5
+  tree-scaling deferred as honest characterizations); cats 8 (visibility V1–V9+S2) + 9 (freshness E2.16)
+  are emitted from the runnable TS `lineage-group-model` (TS authoritative, Rust structure-validates).
+  The cat-3 fold is exercised via the lineage-counted-threshold path, not the heavier OpenMLS
   `fold_by_lineage`.
 
 ## Cross-cutting open surface (what these narratives keep pointing at)
