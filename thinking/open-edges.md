@@ -28,10 +28,13 @@ This is a review surface, not a plan; promote items to the test plan / refinemen
 >   per-sender keys from a real openmls group's exporter secret via real add/welcome/remove. The open
 >   item below is specifically the **faithful MESSAGING crate's** verifying-key registry over the wire.
 
-- **[doable]** MLS key-distribution over the wire (messaging path). The faithful path models the
-  verifying-key registry + lineage membership as agreed state; the real MLS key-distribution is not yet
-  run end-to-end over iroh in the messaging crate (E12 proved it for media). Next faithful step now that
-  signature+standing travel the wire.
+- **[DONE (transport)]** MLS key-distribution over the wire (messaging path). **C-mls-welcome
+  (2026-06-17, green-real):** a real openmls Welcome (796 B) travels a real iroh connection and the
+  joiner derives the **same 32-byte MLS exporter secret** as the founder (`epoch_proof` match, both at
+  epoch 1, member_count 2) — the group key is distributed over the transport, not modeled as agreed
+  state. Remaining: bind the distributed openmls secret to the lineage verifying-key registry the
+  faithful messaging path uses (E12 + C-mls-welcome + faithful = the full picture); a cross-host run is
+  a trivial follow-on (same code, loopback today).
 - **[DONE (transport) → only the ordering decision remains]** Threshold revoke-**authority** over the
   wire. The real k-of-n Ed25519 bundle is green-real in `gov`, AND it now travels the live faithful
   iroh-gossip wire verified by `meets_threshold_by_lineage` on receipt — **C-faithful-revoke
