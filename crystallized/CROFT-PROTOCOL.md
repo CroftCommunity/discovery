@@ -187,6 +187,21 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_did_bytes ‖
 
   Proof: tiers — `interaction-tiers.md` (design); ratchet-tree O(N) — **AR-5** (measured). *design + green-real.*
 
+- **Real-time media** (voice/video/stage) rides the **same iroh transport** as messaging, but over
+  **QUIC datagrams** (unreliable, no retransmit) rather than reliable streams — carried as **RTP-over-
+  QUIC (RoQ)**. Media frames **MUST** use the datagram flow (latency over reliability); media is
+  E2EE end-to-end via **SFrame keyed off the MLS epoch** (so a forwarding meer stays blind), and a
+  group-scale call **SHOULD** use a **blind SFU-meer** (forwards opaque frames, header-only routing —
+  the E0–E7 shape) rather than full mesh past a handful of peers. MCU-style server mixing is
+  **forbidden** (requires plaintext). Media keying rekeys on membership change exactly as messages do
+  (MD-G5).
+
+  Proof: transport primitive — n0's **`iroh-roq`** sends RTP over `conn.send_datagram(...)` and the
+  **callme** app ships P2P Opus audio over iroh with no WebRTC (verified 2026-06-16). Full design,
+  topologies, the str0m/RoQ engine lines, and the SFrame-over-MLS keying are in
+  `thinking/realtime-media-over-iroh.md`. *transport primitive green-real (external); the Croft media
+  stack is design.*
+
 ---
 
 ## 9. Freshness signal — no-false-current
