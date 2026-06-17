@@ -26,11 +26,14 @@ our architecture already bypasses the weak part.** Details below.
   explicit that the **SFU path is the heavily tested and developed part** (their actual use case), and
   — directly relevant to us — that the **peer-to-peer areas, mainly the ICE agent, have not received as
   much attention or testing.**
-- **rust-libp2p adopted str0m for its WebRTC transport** (switching from webrtc-rs). The maintainers'
-  reasoning: webrtc-rs is a very heavy dependency that bloats the tree, and its async-callback design
-  is not idiomatic Rust; str0m already supported data channels in tests, which made the replacement
-  viable. A meaningful signal given libp2p's reach. **[CONFIRM current state — the switch issue dates
-  to 2023; verify the migration actually landed and its present status.]**
+- **rust-libp2p *proposed* (not adopted) str0m** — corrected by live check 2026-06-16. The switch from
+  webrtc-rs to str0m is GitHub issue **#3659**, opened 2023-03-22 by a maintainer, and it is **still
+  open / unmerged** (labels `help wanted`, `difficulty:hard`; the proposer noted they were not going to
+  do the PR themselves). The reasoning is real and maintainer-endorsed (webrtc-rs is a heavy dependency
+  whose async-callback design isn't idiomatic Rust; str0m already had data channels in tests) — but
+  **rust-libp2p's WebRTC transport still runs on webrtc-rs**, so this is a *credible proposal*, not a
+  production adoption. This is exactly the kind of "adopted" claim that overstates; downgrade it to
+  "seriously proposed, never landed."
 
 ## Caveats on the broader "who uses it" question
 
@@ -41,13 +44,17 @@ our architecture already bypasses the weak part.** Details below.
   but is **not intended for production or heavy load.** So the *building blocks* are production-grade per
   Lookback's own use, but the *reference examples* are not drop-in — budget real integration work.
 
-## Relevant moving target: webrtc-rs is going sans-IO too
+## Relevant moving target: webrtc-rs is going sans-IO too (confirmed, dated)
 
-webrtc-rs is moving toward a **sans-IO architecture in its v0.20.0 work**, with a runtime abstraction
-meant to fix the exact callback/Arc-cloning problems that drove libp2p toward str0m. So the
-architectural gap that made str0m the obvious pick **may narrow over time.** For now, webrtc-rs's own
-guidance is to stay on the **v0.17.x branch for production.** Keep webrtc-rs on the radar as a hedge,
-not as today's choice.
+Confirmed by live check 2026-06-16: webrtc-rs is doing a **ground-up sans-IO rewrite**. The sans-IO
+protocol core is a separate crate, **`rtc`** (v0.3.0, 2026-01-04), and the async wrapper
+**webrtc v0.20.0-alpha.1** (2026-03-01) is built on it with a **runtime abstraction** (AsyncMutex/
+Async channels; Tokio + smol today, more planned) — fixing the exact callback/Arc-cloning problems that
+drove the libp2p str0m proposal. The old **v0.17.x branch is feature-frozen** (2026-01-31) and is the
+**production recommendation until v0.20.0+ stabilizes.** So there is now a *second* mature-lineage
+sans-IO Rust option emerging, and the `rtc` core specifically (protocol without the async/socket
+wrapper) may fit our A1 "media-layer-only over iroh" even more cleanly than str0m — at the cost of being
+alpha today. Keep `rtc`/webrtc-rs as a live hedge, not just a radar item.
 
 ## Implication for Croft — favorable, and it sharpens a sub-decision
 
@@ -69,13 +76,17 @@ better than expected:
 
 ## To confirm / open
 
-- **[CONFIRM]** current state of the rust-libp2p → str0m migration (issue is 2023).
-- **[CONFIRM]** whether the strong/weak boundary is precisely *server-side/ICE-lite (tested)* vs *full
-  P2P ICE hole-punching (under-tested)* — this determines how much the browser-facing SFU leg (which
-  does terminate browser ICE) sits on the tested vs untested side.
-- **[TRACK]** webrtc-rs v0.20.0 sans-IO progress as the hedge option.
-- These feed **TC-ENG0** (the str0m API audit that gates the media work) and **TC-INT3** (the A1-vs-A2
-  native-transport decision), which this note now biases toward A1.
+- **[RESOLVED 2026-06-16]** rust-libp2p → str0m: issue #3659 is **still open / unmerged**; libp2p still
+  uses webrtc-rs. The "adoption" claim is downgraded to "proposal." ✓
+- **[RESOLVED 2026-06-16]** webrtc-rs sans-IO: real and dated — `rtc` v0.3.0 (Jan 2026) + webrtc
+  v0.20.0-alpha.1 (Mar 2026); production stays on v0.17.x. ✓
+- **[OPEN]** whether str0m's strong/weak boundary is precisely *server-side/ICE-lite (tested)* vs *full
+  P2P ICE hole-punching (under-tested)* — determines how exposed the browser-facing SFU leg (which does
+  terminate browser ICE) is. Needs a source/maintainer read or a TC-ENG0 finding.
+- These feed **TC-ENG0** (the engine API audit gating the media work) and **TC-INT3** (the A1-vs-A2
+  native-transport decision), which this note biases toward A1. **New input:** n0's own **callme** app
+  already does P2P audio over iroh with **no WebRTC** (iroh-roq + Opus + cpal) — so a third engine line
+  (RoQ-direct) exists and partly de-risks the whole question; see `thinking/realtime-media-over-iroh.md`.
 
 ## Sources
 
