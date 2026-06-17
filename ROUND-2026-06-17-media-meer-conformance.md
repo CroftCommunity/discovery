@@ -156,8 +156,10 @@ stacks disagree. That's exactly what a conformance suite is for.
 6. **The spec-vs-code derivation mismatch** the conformance suite found needs a decision: do the two
    stacks reconcile to the domain-tagged pre-images, or does the spec get corrected to match the code?
 7. **Conformance coverage gaps:** the adversarial, visibility, and freshness vector categories aren't
-   emitted yet (some live in the TypeScript model stack), and the revoke-authority vector is a declared
-   placeholder pending #5.
+   emitted yet (some live in the TypeScript model stack). **Update:** the revoke-authority placeholder is
+   now a *real* vector (cat 5b, 4 cases) derived from the green-real `gov` k-of-n signature + lineage-
+   counting — 38/0 pass total; only the *over-the-wire* authority distribution + co-sign-vs-vote ordering
+   remain (Workstream C), not the signature mechanism.
 
 ## Where the evidence lives
 
