@@ -153,13 +153,16 @@ stacks disagree. That's exactly what a conformance suite is for.
 5. **Faithful messaging path:** real MLS key-distribution over the wire (proven for *media* in E12, not yet
    for the messaging crate), and carrying the real revoke-authority signature over the wire to retire the
    transport spike's placeholder MAC. Plus the co-sign-vs-vote ordering decision.
-6. **The spec-vs-code derivation mismatch** the conformance suite found needs a decision: do the two
-   stacks reconcile to the domain-tagged pre-images, or does the spec get corrected to match the code?
-7. **Conformance coverage gaps:** the adversarial, visibility, and freshness vector categories aren't
-   emitted yet (some live in the TypeScript model stack). **Update:** the revoke-authority placeholder is
-   now a *real* vector (cat 5b, 4 cases) derived from the green-real `gov` k-of-n signature + lineage-
-   counting — 38/0 pass total; only the *over-the-wire* authority distribution + co-sign-vs-vote ordering
-   remain (Workstream C), not the signature mechanism.
+6. **Spec-vs-code derivation mismatch — RESOLVED.** The §2 tagged wire derivations (lineage/group
+   genesis + `croft-group-topic:`) are now canonical, conformance-tested functions in `lineage-core::ids`
+   (byte-identical to the spike); `lineage-iroh` uses the spec topic form; the structural untagged
+   `GenesisId` is documented as deliberately not-a-wire-identity. No backwards-compat cost (alpha).
+7. **Conformance coverage — now broad (66/0 pass).** revoke-authority is a real vector (cat 5b); cat 1
+   covers the tagged wire derivations; cat 7 covers adversarial AR-1/2/3/6 (AR-4 metadata-leak + AR-5
+   tree-scaling deferred as characterizations, not faked); cats 8 (visibility V1–V9+S2) and 9 (freshness
+   E2.16) are emitted from the runnable TS model (TS is the authoritative runner; the Rust suite
+   structure-validates). Remaining: only the over-the-wire authority distribution + co-sign ordering
+   (Workstream C), not the signature mechanism.
 
 ## Where the evidence lives
 
