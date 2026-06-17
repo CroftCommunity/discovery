@@ -88,3 +88,62 @@ may not need WebRTC's *engine* either for many cases (iroh-live/callme prove it)
 - [Fastly: Media over QUIC — scale and low latency](https://www.fastly.com/blog/media-over-quic-can-streaming-finally-have-both-scale-and-low-latency)
 - [QUIC-based vs WebRTC remote-rendering comparison (arXiv 2505.22132)](https://arxiv.org/html/2505.22132v1) (RoQ best latency; WebRTC/MoQ/RoQ over Wi-Fi/5G)
 - [MWM: Rave watch-party app](https://mwm.ai/apps/app/929775122)
+
+---
+
+## Addendum (2026-06-16) — second reference batch, verified + corrected
+
+A second batch of leads, run through the same confirmed-vs-flagged filter.
+
+### Confirmed
+
+- **`iroh-live` internals.** Real structure (n0-computer/iroh-live, WIP): capture via **firewheel**
+  (audio), **nokwha** (camera), **xcap** (screen); encode/decode **h264 + Opus via ffmpeg**, hardware-
+  accelerated where supported; **`iroh-moq`** adapters run **moq-lite** sessions over iroh; **
+  `web-transport-rs`** implements web-transport traits for iroh connections. Ships **`rooms`** (prints
+  a room ticket → copy to another device → video+audio chat), **`publish`**, and **`watch`** examples.
+  This is the canonical real-time-media-on-iroh reference.
+- **`moq` (moq-dev) has first-class iroh integration — strong, concrete.** `moq-native`/`moq-relay`
+  optionally connect via iroh (off by default, `iroh` feature). URL schemes:
+  **`iroh://<ENDPOINT_ID>`** and **`moql+iroh://`** (moq-lite over raw QUIC), **`moqt+iroh://`** (IETF
+  MoQ over raw QUIC), **`h3+iroh://…`** (WebTransport over HTTP/3). Connections are **P2P by default**
+  with **optional relay bridging to browsers via WebTransport**; each video rendition + audio track is
+  an independent QUIC stream. iroh is framed as "simpler and more powerful than WebRTC data channels."
+- **Secure-camera / IoT / embedded is a real iroh thrust.** Blog **"What if your security camera was
+  secure?"** (2026-03-11) and **"Running iroh on an ESP32"** (2026-03-24) are real posts; there are
+  `/solutions/iot` and `/solutions/rave` pages. The **poll-based** pattern (idle device uses ~no
+  bandwidth; your phone *dials the camera's public key*, NAT-punches, opens an E2EE MoQ tunnel, streams
+  directly) is genuine and on-thesis — and it's the **media instance of "pull from your home node"**
+  from `seeds/transcripts/raw/p2p-architecture-origin-dialogue.md`, tied to the lazy + freshness
+  philosophy. So **ESP32-scale is corroborated** (a dedicated post), upgrading the earlier flag.
+
+### Flagged / corrected (claims that overstate or invent)
+
+- **`callme` is NOT a sub-project of `iroh-live`** — they are separate repos (`n0-computer/callme` vs
+  `n0-computer/iroh-live`). The batch conflated them.
+- **`irl` CLI name unconfirmed** — the verified interface is the `rooms`/`publish`/`watch` *examples*,
+  not an `irl publish`/`irl play` binary. Capability is real; the command name may be invented.
+- **`rusty-codecs` appears invented** — the real Android crate is **`mediacodec`** (Rust bindings to
+  Android MediaCodec). **`moq-media`** unconfirmed as a crate. The **zero-copy EGL `AHardwareBuffer`**
+  rendering detail is plausible technique but unconfirmed for these repos — treat as illustrative.
+- **"Gossiped lateral chunk-sharing P2P mesh"** for moq is embellishment; the confirmed model is
+  **per-track QUIC streams, P2P-by-default over iroh + relay bridging**, not gossip-shared chunks.
+- (Still flagged from batch 1: Rave's "600k conns/relay, 5 regions" specific numbers — unverified;
+  trust our own E-series ceilings.)
+
+### Design refinement this batch forces: **browser reach splits by media type**
+
+`moq`'s `h3+iroh://` (WebTransport over HTTP/3, relay-bridged) is a **cleaner browser path for
+*broadcast* media than str0m**. So the browser-bridge story is type-specific:
+- **Conversational (RoQ):** browser ↔ str0m-meer over classic WebRTC + SFrame via Insertable Streams
+  (Mode B in `realtime-media-over-iroh.md`).
+- **Broadcast (MoQ):** browser subscribes via **WebTransport** through a **moq-relay** (the meer's MoQ
+  role) — no str0m needed on the broadcast leg. This likely makes broadcast browser reach the *easier*
+  of the two.
+
+### Addendum sources
+
+- [n0-computer/iroh-live](https://github.com/n0-computer/iroh-live) (firewheel/nokwha/xcap, iroh-moq, web-transport-rs, rooms/publish/watch)
+- [moq-dev/moq README](https://github.com/moq-dev/moq/blob/main/README.md) (iroh feature, iroh:// / moql+iroh:// / moqt+iroh:// / h3+iroh:// URL schemes, P2P + WebTransport bridging)
+- [iroh blog](https://www.iroh.computer/blog) — "What if your security camera was secure?" (2026-03-11), "Running iroh on an ESP32" (2026-03-24); [/solutions/iot], [/solutions/rave]
+- [mediacodec crate](https://crates.io/crates/mediacodec) (the real Android MediaCodec Rust bindings; "rusty-codecs" not found)
