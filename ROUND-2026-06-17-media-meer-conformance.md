@@ -130,6 +130,37 @@ stacks disagree. That's exactly what a conformance suite is for.
   building is **already real** in our governance code (real k-of-n signatures, counted by person not by
   device). The remaining work there is plumbing it over the wire, not new cryptography.
 
+## The continuation (same day) — we then cleared the rest of the backlog
+
+After the first pass, we kept going and closed nearly everything that was open:
+
+- **The conformance suite is now broad: 66 vectors, 0 failures.** We added the threshold revoke-authority
+  vector (real k-of-n, with the must-reject cases), the adversarial set (AR-1/2/3/6), and — by running
+  the TypeScript model — the visibility (V1–V9 + S2) and freshness vectors. The suite is becoming a real
+  interop contract across both code stacks.
+- **We fixed a real spec-vs-code bug the suite caught.** The protocol said identifiers use domain-tagged
+  hashes; the Rust code didn't. We made the tagged forms canonical in the core library (and pointed the
+  transport at them), so the spec and code now agree. The structural internal id stays untagged on
+  purpose (it's not a wire identity).
+- **The faithful messaging path's two honesty boundaries are both closed (real over the wire):**
+  - *Revocation authority* is now a **real threshold signature carried over the live wire** (not the old
+    placeholder MAC): an authorized 2-of-2 revoke is accepted, an under-threshold one rejected, by the
+    receiver, over real iroh-gossip.
+  - *Key distribution* is now real: a **real MLS Welcome travels a real iroh connection** and the joiner
+    derives the same group key — and, with lineage-tagged members, **the same "who's who" membership/
+    standing** (one person's two devices fold to one actor) — entirely from the wire-delivered message.
+    So the group's key + membership registry is distributed over the transport, not assumed.
+- **We made the one outstanding design decision.** For threshold removals, the **co-signed op** (the
+  proposer gathers k signatures, then broadcasts one self-certifying bundle) is the canonical mechanism;
+  the **proposal-and-votes** style is kept as an optional, opt-in "deliberative mode" for contentious
+  decisions, not built for v0. The co-signed op is already proven over the wire, is self-certifying
+  (no shared vote-tally state to keep consistent under partition), and votes don't solve the hard
+  partition case anyway (the hard-stop + freshness do).
+- **We extended the alpha protocol spec** (`CROFT-PROTOCOL.md`) to fold all of this in: the media
+  congestion-control rules are now normative (estimator must back off on RTT; media and bulk must be on
+  separate flows), there's a meer section (the always-on blind superpeer, proven), and the closed
+  honesty boundaries are marked closed.
+
 ## The open questions (honest list)
 
 1. **Media estimator — now demonstrated (E10c/TC-CC2), one caveat left.** We built a delay-based AIMD
