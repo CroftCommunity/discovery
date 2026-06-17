@@ -420,9 +420,12 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
 
 ## Cross-cutting open surface (what these narratives keep pointing at)
 
-1. **A staleness/freshness signal.** AR-2 + multi-device both rely on "stale is visible," but a peer
-   that hears from no one can't tell it's behind. A heartbeat/freshness mechanism is an undesigned
-   requirement. *(New — promote to the design backlog.)*
+1. **A staleness/freshness signal — DESIGNED (2026-06-16).** AR-2 + multi-device both rely on "stale
+   is visible," but a peer that hears from no one can't tell it's behind. Now designed in
+   `thinking/freshness-signal.md`: a signed content-free **tip beacon** (head/epoch/seq, blind-broker-
+   safe) + a local time-since-heard clock + the **no-false-current** invariant (never render silence
+   as currency), with per-tier horizons and freshness-gates-authority. Principle filed in
+   `principles.md`. This unblocks **E2.16** (tier-degradation visibility), now ready to test.
 2. **Open/public-regime Sybil + quiet membership (S3).** AR-1 only covers permissioned groups; the
    social layer's join-is-the-point model is the harder, unsolved case.
 3. **The Ed25519-over-the-wire gap — CLOSED (2026-06-16).** MD-G2/T11 proved the structural half;
