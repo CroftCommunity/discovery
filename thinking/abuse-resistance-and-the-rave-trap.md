@@ -25,6 +25,51 @@ and peer restrictions, not content surveillance.**
 
 ## Approach
 
+### The two poles — Signal vs Telegram (verified 2026-06-16), and why Croft takes Signal's path
+
+Signal and Telegram are near-opposite poles, and the contrast is the whole argument:
+
+| axis | **Signal** | **Telegram** | **Croft** |
+|---|---|---|---|
+| content visibility | E2EE everywhere (blind) | cloud chats/groups/**channels NOT E2EE** (server-readable) | blind (E2EE + blind meer) |
+| public discovery | none (contact-based) | **yes** (public channels/groups + search) | none (invite/capability) |
+| mass broadcast | no (a messenger) | **yes** (channels, 2 GB file uploads) | capped (tiers) |
+| can it content-moderate? | **no** (refuses to scan) | **yes** (readable) | **no** (blind) |
+| moderation method | report + block + minimal metadata + account accountability | server-side scan + (post-2024) law-enforcement cooperation | report + revocation + standing + scale caps |
+| abuse outcome | low — not a hub | **became the hub → CEO arrested** | designed to stay Signal-shaped |
+
+The two ways to avoid being an abuse hub are **opposite**:
+- **Telegram's way:** be *readable* so you *can* moderate centrally. Telegram is not E2EE by default
+  (only 1:1 "secret chats" are), so it can — and after **Pavel Durov's arrest in France (Aug 2024,
+  charged with complicity incl. CSAM distribution)** it reversed its "never hand over data" stance:
+  on 2024-09-23 it began sharing **IP + phone** on valid warrants, deployed AI moderation, and removed
+  **15.4M groups/channels** in 2024. It *could* do this only because it reads content. Its public
+  channels + 2 GB uploads made it the piracy/CSAM **distribution** surface in the first place.
+- **Signal's way:** don't create the surface. **No public discovery** (contact-based), **no mass
+  broadcast** (it's a messenger), **blind** (E2EE + sealed sender, >80% of traffic hides the sender).
+  It refuses content/client-side scanning on principle; moderation is **report + block + the minimal
+  metadata it holds** (registration + last-connection — almost nothing) + account accountability.
+  WhatsApp (same E2EE model) bans 300k+ accounts/month for CSAM on **metadata + reports, not content**.
+
+**Croft must take Signal's path, because it is blind by design — Telegram's readable-moderation path
+is not even available to us.** So our only viable abuse-resistance is Signal's: **deny the surface
+(no public discovery, scale caps) + accountability (standing/membership) + report/revoke.** This is
+why the rest of this doc is scale/peer levers, not inspection — it is not a preference, it is the only
+path consistent with being blind.
+
+**The trap to name precisely (this is Rave):** the worst combination is **Telegram's surface with
+Signal's blindness** — public/mass broadcast + large media distribution, but blind so you *cannot*
+moderate it. That is exactly what Rave was, and what gets a platform pulled. So the discipline is:
+**do not become Telegram-shaped on the broadcast/media side.** Stay Signal-shaped; cap the broadcast
+tier; never ship public discovery.
+
+**Chat vs media impact (the user's point, confirmed):** Telegram's hub problem is driven by **channels
+(broadcast) + 2 GB file uploads** — the *mass-distribution* combo — far more than by 1:1 chat. So the
+real axis is **conversational vs broadcast-at-scale**, not chat-vs-media: a 1:1 video call is
+low-impact (like a DM); a one-to-many broadcast / large-file distribution is high-impact (like a
+Telegram channel). This maps exactly onto our **media interaction types** — conversational (RoQ,
+low-impact) vs broadcast (MoQ, the high-impact surface to cap).
+
 ### What we explicitly REJECT (the pasted "central hand on the wheel" playbook)
 
 The standard advice — *a central control plane that handles auth/room-metadata/link-filtering/reports,
