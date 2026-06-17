@@ -108,6 +108,47 @@ blind-broker result into a running always-on binary and is the foundation every 
   invisible in relay metrics (a relay drops a packet for an offline peer; a meer answers for it). It
   decides how many meers a co-op must run.
 
+## Anti-entrenchment — a delegated meer must not become a de-facto authority
+
+A meer is a **revocable delegation from equal peers** (see the "delegated authority, never imposed"
+principle), not an office it holds by right. The danger is **entrenchment through sheer circumstance**:
+even with perfect de-jure revocability, a resourced, always-on, state-holding peer can accrue outsized
+weight because it holds the state, it is always present, and few others can run it — so "reversible"
+hollows out when exit or replacement is impractical. De-jure revocability is necessary but not
+sufficient; the design must keep the delegation **materially** reversible:
+
+1. **No state hostage — state portability is the primary guard.** The meer holds **encrypted** state it
+   cannot read; the group holds the keys; the state is replicated/exportable so the group can **re-host
+   on another meer or leave cheaply.** Losing a meer costs *availability*, never *data*. A meer that
+   becomes the sole custodian of recoverable state is the entrenchment failure — design against it.
+2. **Blindness caps the weight.** A blind meer (Tier 0) cannot accrue *content* power; its circumstantial
+   advantage is bounded to availability + the AR-4 metadata. This is *why* the default-blind posture is
+   also an anti-entrenchment property, not only a privacy one. (A geer — content-visible — is the
+   higher-risk case; its label-not-enforce separation and revocability are the corresponding caps,
+   `geer-gating-peer.md`.)
+3. **The trap-door / re-formation backstop is the ultimate exit.** If a meer (or a captured election)
+   entrenches, the group can **fork — re-form the lineage minus the incumbent**, carrying the state it
+   holds and excluding the entrenched party (the proven C3/re-formation result, applied to roles). De-
+   facto entrenchment is therefore never terminal: there is always a clean, attributable exit.
+4. **Scoped, non-creeping rights.** The meer forwards/serves/reconciles; it does **not** govern. Role
+   creep ("it's always there, let it decide") is the entrenchment vector — keep its capabilities
+   downstream of an explicit, minimal, revocable grant.
+5. **Stand up a replacement and elect it — the decisive guard.** The group does not have to *depend on
+   an alternative already existing*; the software is open and the role is a re-issuable grant, so a
+   group of peers can **stand up a fresh meer/geer (different hardware, different party) and elect it in
+   place of the incumbent.** Combined with state portability (#1), the incumbent has **no lock-in**:
+   the group re-hosts its (encrypted) state on the new peer it stood up and re-issues the grant. This is
+   the everyday, low-drama replacement path — and because a *different party's* peer can be elected, it
+   also diversifies away from a curious/entrenched incumbent. **Routine replacement (this) vs the fork
+   (#3) is the key pair:** rotation is the normal check; the trap-door fork is the adversarial backstop.
+   Rotation-friendly governance defaults (multiple holders / periodic re-election) keep it normal.
+6. **Metadata transparency.** The meer sees metadata members don't (AR-4); surface what it sees and keep
+   it minimal (e.g. the content-free freshness beacon), so informational asymmetry isn't a quiet weight.
+
+The ethos: **equal peers delegate revocable authority, and the substrate must make that revocation
+real — not just by allowing exit, but by letting the group *stand up and elect a different holder* —
+so a delegate never hardens into an owner by circumstance.**
+
 ## Open edges
 
 - **Rogue/curious meer** detection: how a group verifies a Tier-0/1 meer's blindness over time (not

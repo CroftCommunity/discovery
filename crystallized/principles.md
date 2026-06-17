@@ -31,6 +31,25 @@ source: SOVEREIGN-COMMONS-DOSSIER.md §2, §3, §7, §8
 - **The enemy is centralization *capture*, not centralization itself.** "It's not central
   resources that are an issue, it's centralization capture and thus control."
 
+- **Delegated authority, never imposed; revocable in fact, not just in form.** Roles in a group
+  (admin, moderator, a content-gating `geer`, an always-on `meer`) are fine — *as long as they are
+  not immutable or forced.* Equal peers may **elect a representative** and grant it rights for ease
+  and consistency; the difference from an imposed authority is that the grant is a **revocable
+  delegation**, reversible by the same peers who made it. That difference is significant in design
+  *and* ethos even when a role is, for practical reasons, de-facto persistent. The hard part is that
+  **de-jure revocability is necessary but not sufficient:** a resourced, always-on peer can accrue
+  *outsized weight through sheer circumstance* (it holds the state, it is always present, few others
+  can run it), so "reversible" hollows out if exit/replacement is impractical. The design must keep
+  delegation **materially** reversible, not just formally — the decisive guard being that **a group can
+  stand up a *different* holder (meer/geer) and elect it in place of the incumbent** (the role is a
+  re-issuable grant, not bound to a box or party), backed by **state portability** (no data hostage:
+  re-host on the new holder cheaply), **blindness** (a blind meer can't accrue *content* power),
+  **label-not-enforce separation** (a geer advises; governance acts), the **trap-door / re-formation
+  backstop** (a captured role can always be forked away from, minus the incumbent), **scoped
+  non-creeping rights**, and **rotation-friendly defaults**. Routine replacement is the normal check;
+  the fork is the adversarial backstop. See
+  `thinking/meer-superpeer-design.md` (anti-entrenchment) and `thinking/geer-gating-peer.md`.
+
 - **Non-extraction is the point, not a missing feature.** The reason a graph-you-hold or a
   civic notice board doesn't already exist is that there's no business model in something
   you can't extract from. The absence of an extraction model is what lets the thing be
