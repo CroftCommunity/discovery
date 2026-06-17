@@ -116,6 +116,12 @@ The decisive properties:
 - **Type is chosen at creation, by need**, exactly like interactive-vs-broadcast rooms: a "call" is a
   RoQ object, a "stage/channel-with-an-audience" is a MoQ object. Live in-place conversion is a
   create-new-and-redirect, not a mutation (same rule as the messaging tiers).
+- **Browser reach splits by type** (verified — `research/iroh-realtime-media-references.md`): broadcast
+  (MoQ) reaches browsers via **WebTransport over HTTP/3** (`h3+iroh://`) through a **moq-relay** — no
+  str0m needed, likely the *easier* browser path; conversational (RoQ) browser reach is the
+  str0m-WebRTC + SFrame-Insertable-Streams bridge (Mode B). `moq` itself has first-class iroh support
+  (`iroh://` / `moqt+iroh://` URL schemes, P2P-by-default + relay bridging), so the broadcast stack is
+  mostly assembly, not build.
 
 So "voice/video/stage" is not one feature — it's **conversational (RoQ) + broadcast (MoQ)**, two media
 types under the same iroh transport + MLS keying + blind-meer forwarding, each matched to a need.
