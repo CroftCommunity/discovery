@@ -139,7 +139,10 @@ stacks disagree. That's exactly what a conformance suite is for.
    *actionable*, not just present. What's left: it does **not** rescue the *join-an-already-saturated-
    link* case (the standing queue never drains); residual RTT is ~1 s not ~50 ms (a production engine
    would pace down faster / flush); and we still haven't run a true microphone-to-ear quality test
-   (synthetic frames throughout) or a raw-UDP side-baseline.
+   (synthetic frames throughout). **Raw-UDP baseline (done):** a non-iroh CBR UDP stream over the same
+   cap bloated identically (750/750 delivered, 0 loss, but spread over 37.75 s for a 15 s send) — so the
+   bufferbloat is the *bottleneck queue*, not an iroh defect, which reinforces "the app must rate-adapt"
+   rather than weakening it.
 2. **Direct (mesh) calls need NAT hole-punching**, which is still gated on opening public ingress. Until
    then all media is relay-routed (the louder-metadata case).
 3. **str0m video maturity** is still unverified — we're audio-first on purpose; video is a later milestone.
