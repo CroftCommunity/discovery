@@ -149,9 +149,14 @@ if "public" always routes to Lane 3.
   media is still a distribution channel; members consented to *join*, not to launder the *content
   distribution*. So the **scale/peer levers still apply at Lane 2** — bounded broadcast fan-out, and the
   blind meer's metadata-only admission/scale policy — independent of how consensual membership is.
-- **"Moderation may be expected" — and it is met by self-governance, not surveillance.** A club is
-  expected to police itself; Croft satisfies that with member/threshold governance + revocation +
-  reports (consent-based, opt-in), never with a central authority or an un-blinding of the meer.
+- **"Moderation may be expected" — met by self-governance by default, or by an opt-in content-visible
+  moderator (`geer`).** A club is expected to police itself; Croft satisfies that with member/threshold
+  governance + revocation + reports (consent-based, opt-in), never a central authority or an un-blinding
+  of the meer. For groups that need *proactive content* moderation (app-store reach, large communities),
+  a group may *consensually admit* a disclosed, scoped, revocable **gating peer that CAN see content for
+  moderation only** — explored in `geer-gating-peer.md`, with the key caveat that any content-visible
+  capability erodes the "we cannot comply" shield (compellability) and so must stay strictly per-group
+  opt-in with the system default firmly blind.
 
 ### The fork reality — bound the blast radius, don't pretend to prevent
 
