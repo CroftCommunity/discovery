@@ -150,7 +150,11 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_did_bytes ‖
   authorized against a **stale** group view **MUST NOT** be acted on (freshness gates authority, §9).
 
   Proof: threshold-signed governance op shape — **T3 / F2** (green-real). The over-the-wire authority
-  signature is **not yet carried** (MD-G5's marker is a MAC). *design — see `revocation-authority.md`.*
+  signature is now **carried as a real k-of-n Ed25519 bundle** and verified on receipt with
+  `gov::meets_threshold_by_lineage` over live iroh-gossip — **C-faithful-revoke (2026-06-17, green-real):
+  REVOKE-AUTHORIZED (2 admin lineages ≥ 2) accepted, REVOKE-UNDERTHRESHOLD (1 lineage) rejected.** The
+  MD-G5 transport MAC is retired. Still open: the co-sign-vs-vote accumulation **ordering** decision
+  (`revocation-authority.md`) — orthogonal to the now-real signature mechanism.
 
 - **Roles are revocable delegations, never impositions.** A group **MAY** grant a role (admin,
   moderator, a content-gating `geer` §6.1, an always-on `meer` §8) that carries enumerated rights, for

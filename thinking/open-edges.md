@@ -32,10 +32,12 @@ This is a review surface, not a plan; promote items to the test plan / refinemen
   verifying-key registry + lineage membership as agreed state; the real MLS key-distribution is not yet
   run end-to-end over iroh in the messaging crate (E12 proved it for media). Next faithful step now that
   signature+standing travel the wire.
-- **[decision → mostly mechanism-done]** Threshold revoke-**authority** over the wire. The real
-  "who-may-revoke" k-of-n Ed25519 bundle is **green-real in `gov`** (above); MD-G5's *transport marker*
-  is still a MAC. Remaining: carry the real `SignedOp` over the faithful wire + the co-sign-vs-vote
-  ordering decision (`revocation-authority.md`).
+- **[DONE (transport) → only the ordering decision remains]** Threshold revoke-**authority** over the
+  wire. The real k-of-n Ed25519 bundle is green-real in `gov`, AND it now travels the live faithful
+  iroh-gossip wire verified by `meets_threshold_by_lineage` on receipt — **C-faithful-revoke
+  (2026-06-17): AUTHORIZED accepted, UNDER-THRESHOLD rejected**. The MD-G5 transport MAC is retired.
+  Only the co-sign-vs-vote accumulation **ordering** decision (`revocation-authority.md`) is still open
+  (orthogonal to the signature mechanism).
 - **[doable]** Real beacon over transport. Freshness (E2.16) is green-model; a signed tip beacon over
   live iroh-gossip + an AR-4-style leak measurement of the beacon is the faithful follow-on.
 - **[doable]** MD-G5 single-node both-transitions. Gossip de-dupes identical payloads, so one survivor
