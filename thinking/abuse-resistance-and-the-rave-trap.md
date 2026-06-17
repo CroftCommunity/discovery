@@ -113,6 +113,46 @@ accountability); that is the precedent we follow, not Discord's.
    content (it can't). Moderation lives at the **client + membership** layer, as it must under E2EE
    (same as Matrix's stated position).
 
+### The "club" question — consented membership is a third category, and routing keeps the dangerous middle from existing
+
+The hard case is the *middle*: a "follow this group" social pattern — public-feeling, possibly large,
+but the meer is blind. Does that fall into the trap? The key realization: **the dangerous variable was
+never "public vs private" — it is the *combination* of (a) anonymous access, (b) stranger-discovery,
+and (c) unbounded broadcast scale.** Consented, opt-in membership removes (a): a **club** is members
+who *joined* (a recorded, attributable, standing-bearing act), not anonymous consumers of a feed. That
+genuinely changes the calculus — clubs/co-ops/associations are a long-recognized, self-governing,
+defensible category. "It's a club" is real.
+
+But consent alone does not remove (b) and (c), so the club must *stay* a club. This maps onto the
+existing **three-lane model** (`group-privacy-lanes-design-note.md`) and resolves the middle by
+**routing**, so the dangerous hybrid never gets built:
+
+- **Lane 2 — open-join MLS = "the club."** Low-friction to join, but joining is a *real membership act*
+  (attributable, with standing), there is **no global stranger-discovery directory** (you arrive by
+  invite/referral/out-of-band), and **moderation is the club's own governance** — members/admins remove
+  bad members and content via the threshold dial + revocation + reports. Consent + opt-in + self-rule,
+  exactly the user's "it's a club." The meer stays blind; the *club* polices itself.
+- **Lane 3 — truly public follow-anyone = atproto, NOT an MLS group.** If it is genuinely "anyone can
+  find and follow," it belongs on the **public atproto lane** (published records), which is public *by
+  construction* and moderatable *as public content* (the public square's norms, not a blind group
+  pretending to be private). It does not run inside MLS.
+
+So the **routing prevents the trap**: a public-follow feed is atproto (public, moderatable); a member
+club is open-join MLS (self-governed); you never get the dangerous middle — *an MLS group acting as a
+public broadcast feed* (Telegram's surface + Signal's blindness). That hybrid is simply unrepresentable
+if "public" always routes to Lane 3.
+
+**Residual cautions (where a "club" drifts back into the trap):**
+- **Hollow consent.** If "join" degrades to one-tap-subscribe to a *globally discoverable* feed, the
+  membership is theater and it is a public broadcast in disguise → route it to Lane 3 instead.
+- **Distribution scale is a liability even with consent.** A 50k-member club broadcasting infringing
+  media is still a distribution channel; members consented to *join*, not to launder the *content
+  distribution*. So the **scale/peer levers still apply at Lane 2** — bounded broadcast fan-out, and the
+  blind meer's metadata-only admission/scale policy — independent of how consensual membership is.
+- **"Moderation may be expected" — and it is met by self-governance, not surveillance.** A club is
+  expected to police itself; Croft satisfies that with member/threshold governance + revocation +
+  reports (consent-based, opt-in), never with a central authority or an un-blinding of the meer.
+
 ### The fork reality — bound the blast radius, don't pretend to prevent
 
 Croft is open; a fork **can** strip the limits and add public discovery + unbounded broadcast. We
