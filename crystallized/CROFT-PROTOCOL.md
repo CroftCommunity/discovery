@@ -1,6 +1,6 @@
 # Croft Protocol — wire specification (with inline proofs)
 
-date: 2026-06-16
+date: 2026-06-16 · extended 2026-06-17 (media CC + meer + Workstream C + conformance 66/0)
 status: DRAFT v0.1 — normative spine, built up from the spikes + TEST-PLAN. Each section pairs the
 normative rule with the proof that demonstrates it (or marks it design-only). This is the document a
 second implementer would build against; the conformance suite (`conformance-suite.md`) is what such
@@ -179,8 +179,11 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_did_bytes ‖
   remains the adversarial backstop when an election is captured. Routine replacement is the normal
   check; the fork is the backstop.
 
-  Proof: re-formation backstop **C3 / D-series** (green-real + green-model); state-portability +
-  stand-up-and-elect is *design*. See `meer-superpeer-design.md` (anti-entrenchment).
+  Proof: re-formation backstop **C3 / D-series** (green-real + green-model); **state-portability +
+  stand-up-and-elect is now green-real** — the meer P0+P1 run exported a meer's *encrypted* store,
+  imported it into a **different** replacement meer, and the member re-homed and converged identically
+  (5/5), so losing a meer costs availability, never data (`relay-lab-runs/E9-meer-tier0-2026-06-17`).
+  See `meer-superpeer-design.md` (anti-entrenchment).
 
 ### 6.1 The geer — opt-in content-visible moderation role
 
@@ -256,11 +259,54 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_did_bytes ‖
   **forbidden** (requires plaintext). Media keying rekeys on membership change exactly as messages do
   (MD-G5).
 
-  Proof: transport primitive — n0's **`iroh-roq`** sends RTP over `conn.send_datagram(...)` and the
-  **callme** app ships P2P Opus audio over iroh with no WebRTC (verified 2026-06-16). Full design,
-  topologies, the str0m/RoQ engine lines, and the SFrame-over-MLS keying are in
-  `thinking/realtime-media-over-iroh.md`. *transport primitive green-real (external); the Croft media
-  stack is design.*
+  Proof: **datagram CC characterized (E10, green-real, 2026-06-17).** Over the iroh datagram path
+  (`conn.send_datagram`, negotiated 1162 B) through the netem rig: under **loss/delay the transport is
+  transparent** — loss passes through as sequence gaps (5 %→4.6 %, 30 %→30.9 %), path-RTT stays flat
+  (~2 ms) and tracks added delay exactly (100→102 ms), sub-ms jitter, no reliable-stream HOL; audio
+  holds to 30 % loss with visible, never silent, degradation. Under an **over-cap source the bottleneck
+  queue bufferbloats** (RTT 537→8829 ms; receiver gets a contiguous, ever-delayed prefix) — and a
+  **raw-UDP baseline bloats identically**, so this is the link queue, not an iroh defect.
+  **SFrame-over-MLS keying (E12, green-real):** per-sender keys from a real openmls group's exporter
+  secret; loss-tolerant out-of-order decrypt + replay reject; revocation rotates the epoch so a removed
+  sender's later frames are undecryptable while pre-revoke frames survive (media MD-G5); a blind SFU
+  routes from headers and recovers **zero** plaintext. **Broadcast (MoQ, E11, characterized):** lazy
+  (no egress until a subscriber attaches), fan-out linear in N, blind relay, and a scale/members-only
+  **admission policy enforced from metadata alone** (the abuse lever, never content). Full design:
+  `thinking/realtime-media-over-iroh.md`; the str0m/video engine and real codec/RTP remain *design*.
+
+- **Two media CC rules are NORMATIVE (from E10/TC-CC2/TC-CC3):**
+  1. The media engine's **bitrate estimator MUST be authoritative** and **MUST back off on the
+     path-RTT trend** (plus per-stream sequence loss + arrival jitter). It **MUST NOT** rely on
+     `send_datagram` back-pressure (iroh silently drops oldest, never errors) nor on receiver-side loss
+     alone (a delayed prefix shows none). *Proof: E10c/TC-CC2 — a delay-based AIMD estimator on a
+     mid-call bandwidth drop backs off 64→8 kbps in <1 s and bounds RTT to ~1 s with a continuous
+     lossless stream, where fixed bitrate diverges past 7 s. green-real.*
+  2. Real-time media datagrams and **bulk reliable transfers MUST run on separate flows/connections** —
+     a bulk transfer co-located on one connection starves the media. *Proof: TC-CC3 — media + a 20 MB
+     transfer on one connection under a 1 mbit cap drove media RTT 50 ms→9.5 s; on separate flows the
+     call is untouched. green-real.*
+
+### 8.1 The meer — the always-on blind superpeer
+
+- A **meer** is an **always-on, governed participant** (a member that never sleeps), **not** anonymous
+  infrastructure. It is admitted and revoked by the group's threshold authority (§6, a role grant), and
+  it has **three blind roles**, one per workload: **message blind broker** (Tier-0), **conversational
+  SFU** (RoQ media), and **broadcast relay** (MoQ). In the default **Tier-0** posture it carries
+  members' **encrypted** payloads + their cleartext **join-metadata** (digest, length, timestamp,
+  namespace) and **MUST hold no payload key** — and **MUST be able to prove it** (assert-and-log
+  `payload_keys_held = 0`). The metadata it sees **is** the AR-4 surface and **MUST** be surfaced, not
+  hidden. Optional richer tiers (1: double-enveloped; 2: semantic/key-holding) are per-group policy and
+  out of scope for the default.
+
+  Proof: **meer P0+P1 (green-real, 2026-06-17, `relay-lab-runs/E9-meer-tier0-2026-06-17`).** An offline
+  member synced through the blind Tier-0 meer and converged (5/5); the meer's stats prove
+  `payload_keys_held = 0` (only §3b metadata observed); admission denied a non-listed peer
+  (`not admitted, code 1`). State portability (export → import into a replacement meer → re-home and
+  converge) is the anti-entrenchment guard (§6). The MLS key-distribution a joiner needs travels the
+  same transport (a real openmls Welcome carried over iroh → joiner derives the same group secret AND
+  the same lineage-folded standing — `C-mls-welcome-2026-06-17`). Full design:
+  `thinking/meer-superpeer-design.md`. *green-real (Tier-0 spike); the production meer crate + tiers
+  1/2 + media SFU/MoQ roles are the build-out.*
 
 ---
 
@@ -316,17 +362,26 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_did_bytes ‖
 
 ## 12. Conformance and honesty boundaries
 
-- A conformant implementation **MUST** pass the vectors and must-reject cases in `conformance-suite.md`
-  (derivations, signed pre-images, fold/revocation invariants, the C1–C10 reconcile corpus, the
-  AR-1…AR-6 adversarial set, the V/S visibility invariants, the freshness no-false-current rule).
-- **Honesty boundaries this spec still carries** (tracked in `open-edges.md`): (1) MLS key-distribution
-  is not yet exercised over the wire (the faithful path models the key registry as agreed state);
-  (2) threshold revoke-**authority** is not yet a real signature over the wire (§6); (3) freshness is
-  proven in the model, not over live transport; (4) the failed-op leak/immune dial is design-only;
-  (5) the **geer** (§6.1) and the role/governance guards (§6) are design — and the geer's
-  **compellability** tradeoff (a content-visible role weakens the system's "cannot comply" property)
-  is an unresolved policy/legal question, not an engineering one. The default-blind posture is the
-  mitigation; legal review gates any geer implementation.
+- A conformant implementation **MUST** pass the vectors and must-reject cases in `conformance-suite.md`.
+  The suite is **built and passing (66/0, 2026-06-17)**, derived by running the real implementation:
+  derivations (incl. the §2 tagged wire forms), signed pre-images, fold + lineage-counted thresholds,
+  revocation mechanics + **revoke-authority** (k-of-n), the C1–C10 reconcile corpus, adversarial
+  AR-1/2/3/6 (AR-4/AR-5 are characterizations, deferred), and visibility V1–V9+S2 + freshness E2.16
+  (emitted from the TS model, which is their authoritative runner). `Proofs/lineage-groups/crates/conformance`.
+- **Honesty boundaries — CLOSED this round (2026-06-17):** (1) **MLS key-distribution over the wire** —
+  a real openmls Welcome carried over iroh distributes the group secret AND the lineage-folded standing
+  (C-mls-welcome); the registry is no longer modeled as agreed state. (2) **Threshold revoke-authority
+  over the wire** — now a real k-of-n Ed25519 bundle verified by `meets_threshold_by_lineage`
+  (C-faithful-revoke); the MD-G5 transport MAC is retired. (3) The **spec-vs-code derivation** mismatch
+  is resolved (§2 tagged forms canonical in `lineage-core`).
+- **Honesty boundaries this spec still carries** (tracked in `open-edges.md`): (a) **freshness** is
+  proven in the model, not yet over live transport; (b) the **failed-op** leak/immune dial is
+  design-only; (c) the **geer** (§6.1) and role/governance guards (§6) are design — and the geer's
+  **compellability** tradeoff (a content-visible role weakens the system's "cannot comply" property) is
+  an unresolved policy/legal question, not an engineering one (legal review gates any geer
+  implementation); (d) the str0m/video media engine and real-codec/RTP path are design (§8); (e) design
+  residue in `revocation-authority.md`: the membership-op **freshness threshold** and the **admin-floor
+  rule** (decided open; the co-sign-vs-vote ordering itself is decided — co-signed op A is canonical).
 
 ---
 
