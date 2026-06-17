@@ -54,6 +54,32 @@ Capability set ≈ Discord's SFU **+** a mesh mode Discord lacks **−** MCU. Th
 *who runs the SFU*: Discord's is centralized and could un-blind; ours is a co-op/peer-run blind meer,
 with a pure-P2P mesh fallback that needs no infrastructure at all.
 
+### Prior art: n0's `callme` already proves the floor — audio over iroh, no WebRTC
+
+Verified 2026-06-16: n0's own **`callme`** is a peer-to-peer audio-call app that uses **`iroh-roq`
+(RTP-over-QUIC)** to carry **Opus**-encoded audio, with **`cpal`** for cross-platform audio I/O and
+**optional echo cancellation** — and **no WebRTC at all**. It's experimental (v0.1.x, 2025) with CLI +
+egui GUI on desktop and Android. This is, in effect, a working instance of our **Milestone 1**
+(2-peer audio over iroh): the "is audio over iroh even viable?" probe is *already answered* by a
+shipping n0 demo, and `iroh-roq` is the RTP-carriage seam. [UNVERIFIED: whether `iroh-roq` carries RTP
+over QUIC **datagrams** (the media-appropriate, unreliable mode RoQ supports) vs streams — confirm in
+the `iroh-roq` source; it bears on C1.]
+
+### This gives us *three* engine lines, not one
+
+`callme` reframes C2 (the str0m question) — it's no longer "str0m or nothing":
+
+| line | what it is | strength | cost |
+|---|---|---|---|
+| **L1 — RoQ-direct (callme-style)** | `iroh-roq` + Opus + cpal, hand-rolled jitter/adaptation | **proven viable** by callme; simplest stack; pure P2P | you build jitter/FEC/congestion/echo yourself (or borrow callme's); audio-first; no browser |
+| **L2 — str0m media engine** | sans-IO WebRTC media over iroh | mature jitter/FEC/congestion + video + browser interop (Mode B) | integration complexity; str0m's weak spot is P2P ICE (which we bypass) |
+| **L3 — webrtc-rs `rtc` (sans-IO)** | the new (2026) sans-IO core + v0.20 wrapper | broader codec lineage; runtime-agnostic; second mature-lineage option | alpha today (production = old v0.17.x callback API) |
+
+The pragmatic path: **start from L1 (callme) for the audio MVP and mesh/small calls** — it's the
+shortest route to a working voice channel and it's already de-risked — and reach for **L2/L3 only when
+we need what RoQ-direct lacks**: a mature adaptive media engine at scale, video, and browser interop
+via the SFU-meer. `iroh-roq` is the common RTP seam, so L1→L2/L3 is an evolution, not a rewrite.
+
 ---
 
 ## Challenges → proposed solutions → test cases
@@ -72,8 +98,9 @@ loss-tolerant and latency-intolerant — the opposite of QUIC's default reliable
 
 **Proposed solution.**
 1. Carry media over **QUIC datagrams** (unreliable, unordered) — never reliable streams — so there is
-   no retransmit and no head-of-line blocking. [UNVERIFIED: iroh's datagram API surface + whether/how
-   QUIC CC applies to datagrams in iroh's stack — confirm first.]
+   no retransmit and no head-of-line blocking. [PARTIAL EVIDENCE: n0's callme already carries RTP audio
+   over iroh via `iroh-roq`, so iroh can carry media; UNVERIFIED whether `iroh-roq` uses QUIC datagrams
+   vs streams and how QUIC CC applies — confirm in `iroh-roq` source first.]
 2. Make the **media engine's estimator authoritative for media bitrate**, and feed it feedback derived
    from the datagram path: loss = gaps in a per-stream sequence number we add; RTT = iroh's own
    path-RTT estimate exposed via the API; jitter = arrival timestamps. Treat iroh's datagram pipe as a
@@ -253,8 +280,9 @@ approach is the standard one].
   TC-ENG0 (str0m API audit, paper)              ── gates everything
      │
      ▼
-  TC-ENG1/2  audio over iroh datagrams (2-peer)  ── MILESTONE 1: "is it physically viable?"
-     │            (also the C1 substrate)
+  TC-ENG1/2  audio over iroh (2-peer)            ── MILESTONE 1: LARGELY ANSWERED by n0's callme
+     │            (also the C1 substrate)             (iroh-roq + Opus + cpal). Our M1 = reproduce/
+     │                                                extend callme and measure it under the netem rig.
      ▼
   TC-CC1/2/3  congestion vs the E6 netem rig     ── MILESTONE 2: "does it survive real networks?"
      │
