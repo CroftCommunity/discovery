@@ -82,6 +82,54 @@ for a content-visible geer to do what governance + reports already do blind.
 - **Never: an imposed, global, default geer.** A geer imposed on all groups by a central party is the
   extractive choke we refuse — that is Telegram, not Croft.
 
+## Refinement (2026-06-17) — an elected *role* (rights, not capability), and a *labeler*, not an enforcer
+
+Two refinements that make the geer markedly more faithful.
+
+### It is an elected role with rights, not a capability of a resourced box
+
+The geer is a **role in the governance/roles layer** (the threshold dial over MLS membership), granted
+by election, the way a club elects an officer. The content-decryption capability is **downstream of the
+granted right** and is **revoked with the role** — it is not inherent to being a beefy peer. In the
+usual case the role *lands on* a **resourced, high-availability peer** (meer-class) because moderation
+wants an always-on adjudicator — but that peer is just the chosen *host*; the **right** is what makes it
+a geer, and any peer the group elects could hold it. This is the line the user drew, and it is the one
+that keeps "rights vs capabilities" honest: **no peer sees content because it *can*; it sees content
+because the group *granted the role*.** And it is **when-needed, not every-group** — a content gate a
+community elects when it has a reason (app-store reach, scale, a wanted-moderation norm, compliance),
+not a standing fixture.
+
+### Its output is *labels*, not bans — the Bluesky/Ozone intersection
+
+Rather than a geer that *directly* removes/bans, model its output as **labels** — the proven,
+composable atproto moderation primitive (Bluesky's **Ozone** + independent **labelers** that publish
+labels via `com.atproto.label.subscribeLabels`; stackable, mix-and-match, advisory metadata clients
+interpret *per user preference*; usable beyond hide/block — for curation and verification too). Casting
+the geer as **a labeler with elected, group-scoped content access** gives three faithful properties:
+
+- **Separation of powers.** The geer *labels* (sees content by elected right, emits a judgment); the
+  **group's governance, or each member's client policy, decides the *action*** (hide / blur / warn /
+  remove / ban / nothing). The geer cannot unilaterally enforce — it advises; enforcement stays with
+  governance. That is a real separation the simple "geer bans" model lacks.
+- **Composable / pluggable, no single all-seer.** A group can elect **multiple** labeler-geers (e.g. a
+  known-bad-hash labeler + a spam labeler + a community-norms labeler), and members can **choose which
+  labels to honor** — moderation as a *market of elected labelers*, not one all-seeing authority. This
+  is exactly Bluesky's stackable model, and it is far more thesis-aligned than a monolithic moderator.
+- **Labels do more than remove.** Curation, verification, content-warnings — the same primitive that
+  gates abuse can *enrich* (the "label layer" from the social-graph design: opt-in labels over a
+  structural layer). A geer is then not only a gate but a curator a community elected.
+
+**Scope across lanes (S2 caution):** *account-level* labels (a judgment about a DID) can be portable —
+shared reputation across the public (Lane 3 atproto) and private worlds, since identity (the DID) is
+shared. *Content-level* labels inside a private group **must stay in-group** — exporting them would
+leak the existence/shape of private content (the S2 structure-leak). So: account labels may travel;
+content labels are group-scoped.
+
+**What this does and does not fix:** it improves separation-of-powers, composability, and aligns with a
+proven non-extractive model — but it does **not** change the compellability calculus for content-visible
+rungs: a labeler at rung 2/3 still *sees* content, so what it sees remains compellable. The report-gated
+rung-1 labeler (no key, sees only disclosed items) is the one that also shrinks the compellable surface.
+
 ## The argument AGAINST (the part that must not be waved away)
 
 The strongest objection is **compellability**, and it is serious:
@@ -135,3 +183,9 @@ should be decided deliberately, ideally with legal input, not resolved by engine
   offered for the most-private lane.
 - **Naming:** "geer" (gating peer) as sibling to "meer" (always-on peer) — keep the meer blind by
   definition; the geer is the explicitly-non-blind role, so the names stay honest.
+- **Labeler composition (Bluesky intersection):** how a private-group geer's labels compose with
+  public atproto labelers under one DID; the label vocabulary; whether members can subscribe to
+  *different* label sets within one group without fragmenting the shared view; and keeping
+  content-level labels from leaking out of the private lane (S2). Bluesky refs:
+  [stackable moderation](https://bsky.social/about/blog/03-12-2024-stackable-moderation),
+  [Ozone](https://github.com/bluesky-social/ozone).
