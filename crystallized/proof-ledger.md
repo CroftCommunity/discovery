@@ -224,6 +224,20 @@ the TS `lineage-group-model` (needs node/npm). Node-fabric + hard-gated tiers pe
 
 ## Incoming proofs
 
+- **Membership freshness + admin floor (DECIDED 2026-06-17; specs in `thinking/experiment-suite.md`
+  groups H/I; status: spec — not yet run).** Decisions: MEMBERSHIP-FRESH (`freshness-signal.md`,
+  CROFT §9) and ADMIN FLOOR (`revocation-authority.md`, CROFT §6). New invariants:
+  INV-MEMBERSHIP-FRESH, INV-THRESHOLD-SATISFIABLE, INV-FLOOR-NO-BRICK, INV-ROLE-REVOCABLE.
+  - **Group H (freshness):** H1 cold-rejoin-clean+corroboration · H2 missed-membership-change · H3
+    stale-co-sign-rejected · H4 single-beacon-insufficiency · H5 fresh-but-wrong-partition→hard-stop ·
+    H6 withholding-fail-safe · H7 stale-flood-fail-safe · H8 partial-chain-sync. *H5/H6/H7 deferred to
+    real transport.*
+  - **Group I (floor/roles):** I1 satisfiability(solo⇒k=1) · I2 genesis-roster-born-matured · I3
+    raise-only-when-n≥new_k · I4 floor-reject+replace-not-remove · I5 no-downgrade-by-shrink · I6
+    legitimate-quorum-accepted(capture≠brick) · I7 role-ladder(creator/admin) · I8
+    ladder-generalizes-to-meer/geer(strip→detach, history+provenance preserved).
+  - First to prove (unrecoverable-if-wrong): **H5** and **I4**.
+
 - ~~Hashing-tree / Merkle thinking and code (per the dossier's "offline transitive trust via
   Merkle proofs," §5)~~ — **DONE 2026-06-16 (T9).** `lineage-core::merkle`: domain-separated
   (RFC-6962-style) Merkle root + compact inclusion proofs that verify **offline** against the root,

@@ -156,8 +156,29 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_did_bytes ‖
   MD-G5 transport MAC is retired. **Order of operations DECIDED (2026-06-17):** the **co-signed op** (A)
   is canonical — a self-certifying k-of-n bundle validated locally against the current epoch, freshness
   gated; **proposal+votes** (B) is an optional, opt-in deliberative mode, not built for v0
-  (`revocation-authority.md` "Decision"). Still open only: the membership-op freshness *threshold* and
-  the admin-floor rule.
+  (`revocation-authority.md` "Decision"). The membership-op freshness *threshold* (MEMBERSHIP-FRESH,
+  §9) and the admin-floor rule (next bullet) are now **DECIDED (2026-06-17)**.
+
+- **The admin floor is derived from the policy, not a separate dial — and a threshold MUST be
+  satisfiable when it takes effect.** A threshold `k_op` (per class: `k_add`, `k_remove`, `k_policy`
+  who-may-change-the-rules) **MUST** be ≤ the eligible signers **by distinct lineage** at the epoch it
+  is set: at genesis `k_op ≤ founding-roster` (solo genesis ⇒ `k_op = 1`; a group **MAY** be born with
+  a large roster and a high bar — "create with 10, need 5"); a later raise is valid only if
+  `n ≥ new_k` (raising above the headcount self-bricks and is **rejected**). Once set, the group
+  **MUST** retain `n ≥ k_op` lineages — a membership op whose post-state breaches the floor is
+  **structurally invalid** (rejected by every verifier from replicated policy alone, regardless of
+  signatures); removing a floor-critical member is valid only as an **atomic replace** preserving
+  `n ≥ k`. `k` is bounded by `n` at set-time going up and held ≤ `n` by the floor going down — it
+  **MUST NOT auto-track `n` downward** (that is a threshold-downgrade attack). Tighten is authorized
+  under the current (lower) bar, loosen under the current (higher) bar. The floor is **anti-brick
+  only**: a legitimate quorum acting within policy (incl. self-capture) is **accepted** — the recourse
+  for an out-voted minority is the §7 re-formation fork, never a structural veto (**capture ≠ brick**).
+  The floor governs *ops*, not *attrition* (drop-below-`k` by device loss is the T12 recovery edge,
+  surfaced via §9, not prevented here).
+
+  Proof: *design — DECIDED 2026-06-17 (`revocation-authority.md` ADMIN FLOOR). Tests specified, not yet
+  run: experiment-suite group I (satisfiability, floor-reject, replace-not-remove, no-downgrade,
+  legitimate-quorum-accepted).*
 
 - **Roles are revocable delegations, never impositions.** A group **MAY** grant a role (admin,
   moderator, a content-gating `geer` §6.1, an always-on `meer` §8) that carries enumerated rights, for
@@ -166,9 +187,22 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_did_bytes ‖
   enumerated, non-creeping rights**, and **MUST NOT** be immutable, forced, or held by structural
   right. A role's capability **MUST** be downstream of the grant and revoked with it — no peer holds a
   right because it merely *can* (capability), only because the group *granted* it (election).
+  A **creator** holds **no** structural superuser right: at creation they are granted a **bootstrap
+  admin role** purely so a one-member group can function (while solo, `k=1`), and that role is a normal
+  **revocable** delegation, special in no other way. The group **MAY** keep the creator (or any peer) as
+  a longer-lived revocable admin delegation (disclosed to members on join — "more management
+  expectations," not unremovable power). **Anti-entrenchment ladder (always-true):** any delegated role
+  — creator, admin, **meer** (§8.1) and **geer** (§6.1) alike — is revocable (1) routinely under
+  `k_policy`, (2) as an always-available backstop by **unanimity of the non-holders** (the *ceiling* on
+  revocation difficulty — a group MAY set an easier bar, never a harder one), and (3) ultimately by the
+  §7 re-formation fork. **No grant may make itself irrevocable.** Stripping a geer/meer operated by a
+  co-op or external authority **detaches** the group from that operator into a differently-shaped group
+  (unpreventable anyway — the operator can always leave); the protocol only **preserves history and
+  provenance** to the detachment and legitimizes/erases nothing retroactively.
 
-  Proof: revocation mechanics **MD-G5 / E2.11** (green-real); threshold grant shape **T3 / F2**. *design
-  — see `principles.md` "delegated authority, never imposed".*
+  Proof: revocation mechanics **MD-G5 / E2.11** (green-real); threshold grant shape **T3 / F2**;
+  role ladder *design — DECIDED 2026-06-17 (`revocation-authority.md` ADMIN FLOOR), tests = suite group
+  I*. *See `principles.md` "delegated authority, never imposed".*
 
 - **Delegation MUST be *materially* reversible, not just formally.** Because a resourced, always-on,
   state-holding peer can entrench by circumstance, an implementation **MUST** make replacement real:
@@ -322,6 +356,20 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_did_bytes ‖
   Proof: **E2.16a/b/c** (green-model): availability without a superpeer; no-false-current (silence →
   unverified, even when the peer advanced its own head); tiers degrade visibly. Design:
   `freshness-signal.md`. *green-model.*
+
+- **Membership/governance acts require strict CURRENT + corroboration (MEMBERSHIP-FRESH).** To
+  **originate or co-sign** an add / remove / policy-change, a peer **MUST** be (a) caught-up (applied
+  head == best-seen head for the relevant lineage tip-set) **and** (b) corroborated-fresh — within the
+  tier horizon, and after any UNVERIFIED lapse, agreement on the same head from **≥k distinct lineages
+  observed stable** (a single beacon is insufficient; for k>1 the co-sign gather supplies this) —
+  re-checked at signing. Ordinary content has **no** such precondition (it MAY be authored from a
+  behind/unverified view, honestly labeled). **Applying** a received op is gated by epoch-chain validity
+  + the §7 hard-stop, **not** by an emit-time bar (applying a valid future-epoch op is how a behind peer
+  catches up). This **narrows — does not close** — the fresh-but-wrong-partition window; that residual
+  is the §7 hard-stop's, by design.
+
+  Proof: *design — DECIDED 2026-06-17 (`freshness-signal.md` MEMBERSHIP-FRESH). Tests specified, not yet
+  run: experiment-suite group H.*
 
 ---
 

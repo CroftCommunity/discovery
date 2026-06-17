@@ -44,8 +44,9 @@ This is a review surface, not a plan; promote items to the test plan / refinemen
   (2026-06-17): AUTHORIZED accepted, UNDER-THRESHOLD rejected**. The MD-G5 transport MAC is retired.
   The co-sign-vs-vote **ordering** decision is now **DECIDED (2026-06-17)**: the co-signed op (A) is
   canonical (self-certifying, freshness-gated), proposal+votes (B) is an optional deferred deliberative
-  mode (`revocation-authority.md` "Decision"). Residual: the membership-op freshness *threshold* (Job 4)
-  + the admin-floor rule.
+  mode (`revocation-authority.md` "Decision"). Residual **now also DECIDED (2026-06-17):** the
+  membership-op freshness *threshold* (MEMBERSHIP-FRESH, §9) and the admin-floor rule (ADMIN FLOOR, §6);
+  tests = experiment-suite groups H/I (specified, not yet run).
 - **[doable]** Real beacon over transport. Freshness (E2.16) is green-model; a signed tip beacon over
   live iroh-gossip + an AR-4-style leak measurement of the beacon is the faithful follow-on.
 - **[doable]** MD-G5 single-node both-transitions. Gossip de-dupes identical payloads, so one survivor
@@ -68,8 +69,10 @@ This is a review surface, not a plan; promote items to the test plan / refinemen
 
 - **[decision]** Vote-accumulation (pattern B) under churn/partition: vote expiry, retraction, stale-
   vote rejection (`revocation-authority.md`).
-- **[decision]** Removing an admin / last-admin / quorum-breaking removals — needs a floor rule so a
-  group can't be bricked or captured. (Shadows T12 last-device-revocation.)
+- **[DECIDED 2026-06-17]** Removing an admin / last-admin / quorum-breaking removals — **ADMIN FLOOR**
+  (`revocation-authority.md`; CROFT §6): floor = threshold-satisfiability + `n ≥ k` (anti-brick only;
+  capture → §7 fork; attrition → recovery), never-irrevocable role ladder (incl. meer/geer). Tests:
+  suite group I. (Still shadows T12 last-device-revocation for the *attrition* case → §4 recovery.)
 - **[doable]** Policy-change races reduce to the reconcile contradiction; confirm the hard-stop covers
   concurrent policy edits.
 - **[doable]** Revoke ordering vs a racing legitimate branch (revoke + a fresh op from the target in
@@ -108,8 +111,11 @@ This is a review surface, not a plan; promote items to the test plan / refinemen
 - **[doable]** Fresh-but-wrong partition: a clique keeps each other "fresh" while collectively behind
   the true tip. Freshness proves liveness, not global currency; the reconcile hard-stop on reconnect is
   what catches it — confirm end-to-end.
-- **[decision]** Freshness threshold for membership ops specifically (a removal may warrant a stricter
-  bar than ordinary content).
+- **[DECIDED 2026-06-17]** Freshness threshold for membership ops — **MEMBERSHIP-FRESH**
+  (`freshness-signal.md`; CROFT §9): originate/co-sign requires strict CURRENT (caught-up +
+  ≥k-lineage corroboration, re-checked at signing); content ungated; apply gated by epoch-chain + §7.
+  Narrows but does not close the fresh-but-wrong partition (that stays the §7 hard-stop's). Tests:
+  suite group H.
 
 ## 8. Hard-gated corpus items (external resources — not attempted this batch)
 
@@ -126,7 +132,9 @@ This is a review surface, not a plan; promote items to the test plan / refinemen
 - **Doable now (no blocker):** MLS-keys-over-wire, real beacon transport, MD-G5 single-node, E6
   goodput/bandwidth, E7 storm, fold-churn cost, policy-change race, revoke-ordering race, S2 estimator,
   metadata-leak-on-failure spike, freshness calibration, fresh-but-wrong confirmation.
-- **Blocked on decision (gates):** threshold revoke-authority, vote-accumulation, admin-floor rule,
-  recovery design, S3, S4, T8, membership freshness bar.
+- **Decided 2026-06-17 (tests spec'd, not yet run):** threshold revoke-authority *ordering* (co-sign
+  canonical), **admin-floor rule** (ADMIN FLOOR §6, suite group I), **membership freshness bar**
+  (MEMBERSHIP-FRESH §9, suite group H).
+- **Blocked on decision (gates):** vote-accumulation (pattern B), recovery design, S3, S4, T8.
 - **Blocked on resource:** relay capacity fleet, reconnect-storm driver, AR-4 capture, T10, T13,
   E0-NAT, E4, E8/E9.
