@@ -150,9 +150,14 @@ stacks disagree. That's exactly what a conformance suite is for.
    reconciliation, the actual media SFU/broadcast roles, and the trusted Tier-2) are still ahead. And
    **rogue-meer detection over time** — proving a meer stays blind and doesn't quietly log more — is an
    open design problem.
-5. **Faithful messaging path:** real MLS key-distribution over the wire (proven for *media* in E12, not yet
-   for the messaging crate), and carrying the real revoke-authority signature over the wire to retire the
-   transport spike's placeholder MAC. Plus the co-sign-vs-vote ordering decision.
+5. **Faithful messaging path — both transport boundaries now CLOSED (green-real).** Workstream C part 1:
+   a real revoke-authority signature (k-of-n Ed25519) is carried over the faithful iroh-gossip wire and
+   verified by `meets_threshold_by_lineage` (AUTHORIZED accept / UNDER-THRESHOLD reject) — the MD-G5
+   transport MAC is retired. Part 2: a real openmls Welcome (796 B) crosses a real iroh connection and
+   the joiner derives the *same* MLS exporter secret as the founder — the "registry as agreed state"
+   boundary is closed for key distribution. Remaining: only the co-sign-vs-vote accumulation *ordering*
+   decision, binding the distributed openmls secret to the lineage registry, and cross-host re-runs
+   (trivial — loopback/2-box today).
 6. **Spec-vs-code derivation mismatch — RESOLVED.** The §2 tagged wire derivations (lineage/group
    genesis + `croft-group-topic:`) are now canonical, conformance-tested functions in `lineage-core::ids`
    (byte-identical to the spike); `lineage-iroh` uses the spec topic form; the structural untagged
