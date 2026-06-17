@@ -516,6 +516,30 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   here (openmls add/welcome/remove); the separate "key registry over the wire" honesty boundary
   (Workstream C) concerns the faithful *messaging* crate, not this media path.
 
+## Workstream C (part 1) — the revoke authority becomes a real signature over the wire
+
+- **Why.** The faithful path proved a real signed message's *authorship and standing* travel the wire,
+  but the MD-G5 revocation marker was a sha-256 **MAC** on the transport — an honesty boundary the wire
+  spec (§12) carried openly. "Who may revoke" should be a real k-of-n threshold *signature*, not a MAC.
+  We'd already clarified the signature mechanism is green-real in `gov` (`meets_threshold_by_lineage`,
+  real Ed25519, lineage-counted); the open piece was carrying it over the live wire.
+- **Tells us.** It carries. The faithful crate now puts a genuine `gov::SignedOp` (a k-of-n Ed25519
+  bundle) on the iroh-gossip topic via a tagged `WireItem`, and the joiner verifies it on receipt with
+  the real `meets_threshold_by_lineage`. Over the live node-1→node-2 wire: **REVOKE-AUTHORIZED** (alice +
+  bob = two distinct admin lineages ≥ threshold 2) → **ACCEPT**; **REVOKE-UNDERTHRESHOLD** (alice alone =
+  one lineage) → **REJECT under-threshold** — adjudicated alongside the existing HONEST/FORGED/NONMEMBER
+  vectors in one run.
+- **Means.** The MD-G5 transport MAC is **retired**: revoke authority over the wire is now a real
+  signature meeting the group's replicated threshold, counted by lineage (so a person can't manufacture
+  a revoke quorum from their own devices, over the wire too). The §12 honesty boundary closes for the
+  signature mechanism.
+- **Open edges.** (1) Part 2 — **MLS key-distribution over the wire for the messaging crate** — remains:
+  the faithful crate still models the verifying-key registry as agreed state. E12 proved the openmls
+  add/welcome/remove keying in-process; carrying an openmls Welcome over iroh is the transport step.
+  (2) The co-sign-vs-vote accumulation **ordering** decision (`revocation-authority.md`) is orthogonal
+  and still open — this proves the signature over the wire, not the gathering policy. (3) Origin shows
+  empty verdicts (the gossip gotcha); the joiner is authoritative.
+
 ## E11 — MoQ broadcast: lazy fan-out, blind relay, and the abuse lever
 
 - **Why.** Broadcast media (stage / watch-party / livestream) is the mass-distribution surface — the one
