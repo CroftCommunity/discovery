@@ -418,6 +418,31 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
   inside-adversary problem lives. The consent map's *distance metric* itself (who is at distance d,
   and who decides) is unmodelled — distance is taken as given here.
 
+## E2.16 — tier-degradation visibility (the freshness signal, tested)
+
+- **Why.** The freshness design (`thinking/freshness-signal.md`) made a claim; E2.16 tests it. The
+  prior gap: without a superpeer a peer might render a confident, current-looking view that is in
+  fact stale, with no way to know. The protocol owes three things — keep working, tell the truth
+  about staleness, and degrade per-tier without ever lying.
+- **Tells us.** Green-model on `core/freshness.ts` (E2.16a/b/c). (a) **Availability:** a peer alone,
+  hearing no one, still applies its own ops locally (seq advances) — forward progress never blocks on
+  connectivity. (b) **No-false-current:** "current" requires *both* caught-up *and* heard-within-
+  horizon; silence yields "unverified", a later-seen tip yields "behind", and — the trap — a peer
+  that advances its *own* head while hearing no one stays "unverified", never falsely current. (c)
+  **Visible tier degradation:** the same 1h silence flips interactive (15s horizon) to unverified
+  promptly, stays "current" for quiet-large (6h horizon, within its eventual contract), and is judged
+  by position for broadcast (no clock); and no tier ever shows "current" while behind and a week stale.
+- **Means.** The multi-device tier is now complete *including tier visibility*: behind-ness is a
+  first-class surfaced state, not merely structurally present. Availability and honesty are
+  decoupled — you keep working offline AND you are told you cannot prove currency. This is the
+  liveness complement to the comparative "stale is visible" results (AR-2, multi-device).
+- **Open edges.** Modelled in the sim (monotonic time, modelled beacon — signature/relay elided; the
+  faithful-path crypto + AR-4 metadata bound are where the real beacon's authenticity/leak live).
+  The **fresh-but-wrong partition** (a clique keeps each other "fresh" while collectively behind the
+  true tip) is out of scope here — freshness proves liveness, not global currency; the reconcile
+  hard-stop on reconnect is what catches that. Horizon constants (15s / 6h) are placeholders pending
+  calibration on the real fabric.
+
 ## Cross-cutting open surface (what these narratives keep pointing at)
 
 1. **A staleness/freshness signal — DESIGNED (2026-06-16).** AR-2 + multi-device both rely on "stale
