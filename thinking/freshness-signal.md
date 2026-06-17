@@ -1,7 +1,52 @@
 # Freshness signal — absence-of-news is not evidence of currency
 
-date: 2026-06-16
-status: thinking (design; unblocks E2.16). Problem / Approach / Reasoning.
+date: 2026-06-16 · updated 2026-06-17
+status: **decided** (MEMBERSHIP-FRESH — see Decision below); the model + Problem/Approach/Reasoning follow.
+
+## Decision (2026-06-17) — MEMBERSHIP-FRESH: an admin act requires strict CURRENT + corroboration
+
+To **originate or co-sign** a membership/governance op (add / remove / policy-change) a peer **MUST**
+be in the strict **CURRENT** state, re-checked at the moment of signing (never inherited from the
+standing freshness clock):
+
+- **(a) caught-up** — applied head == best-seen head for the relevant lineage tip-set; and
+- **(b) corroborated freshness** — within the tier's freshness horizon AND, after any lapse into
+  UNVERIFIED (e.g. a node back from days offline), **agreement on the same head from ≥k distinct
+  lineages, observed stable across a short settling interval** — *not* a single beacon. For any k>1 op
+  the **co-sign gather supplies this for free** (k distinct admin lineages each validating against the
+  same epoch *is* the multi-source corroboration); the explicit settling bar only bites at k=1, the
+  lone-admin case that most needs a second opinion.
+
+**Ordinary content carries no such precondition.** It MAY be authored/read from a BEHIND or UNVERIFIED
+view, with the view honestly labeled (§4/§7 below). Content is recoverable; an admin act on a stale
+view is the dangerous, potentially-unrecoverable case — so the bar is **qualitatively stricter** (a
+stronger *state*, not merely a tighter number). No new constant is introduced: strictness comes from
+the caught-up condition + corroboration + act-time recheck, all of which reuse the tier horizon.
+
+**Applying** a received membership op is **not** gated by an emit-time freshness bar — applying a
+valid future-epoch op is *how* a behind peer catches up. Apply is gated by epoch-chain validation
+(a co-sign naming a stale epoch is rejected — the already-decided gate) plus the §7 reconcile
+hard-stop.
+
+**Tier interaction:** the bar reuses each tier's beacon horizon, so it auto-scales — tight in
+interactive, hours in quiet-large (there, "sync to the meer's tip, then co-sign" is one round-trip for
+a rare deliberate op — acceptable where a per-message bar would not be). **Residue:** the broadcast
+tier has no per-recipient freshness; membership ops there fall back to the quiet-large discipline (you
+cannot co-sign from a pure best-effort reader state).
+
+**Honesty boundary (do not over-claim).** MEMBERSHIP-FRESH *narrows* the stale-action window; it does
+**not** close the **fresh-but-wrong partition** — where author, co-signers and receivers all share the
+same stale epoch, everyone is "fresh" relative to each other, and the op validates. Freshness proves
+liveness, not global currency. That residual is left to the §7 reconcile hard-stop on reconnect, **by
+design** — not papered over in the freshness layer.
+
+This answers "what happens when a node off for 3 days syncs the admin chain but has not seen fresh
+beacons": it MAY immediately **apply** the synced chain, but it MUST NOT **originate/co-sign** an admin
+op until corroborated (≥k-lineage stable agreement, or the co-sign gather itself). Tests: experiment
+suite **group H** (specified, not yet run). Couples to the admin-floor decision
+(`revocation-authority.md` ADMIN FLOOR) and CROFT-PROTOCOL §9.
+
+---
 
 ## Problem
 

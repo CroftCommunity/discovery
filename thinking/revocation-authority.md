@@ -40,9 +40,90 @@ on validation — so freshness gates A naturally (cleaner than B, whose accumula
 The MLS Commit that advances the epoch and re-keys without the target is the *membership* half; the
 signature bundle is the *authorization* half. Both are validated independently by each member.
 
-**What this does NOT decide:** the freshness *threshold* for membership ops specifically (stricter than
-content? — Job 4), the admin-floor rule (can't brick/capture a group by removing the last admin), and
-vote-accumulation semantics *if and when* B is ever built. Those stay open below.
+**What this does NOT decide:** vote-accumulation semantics *if and when* B is ever built. (The
+membership-op freshness *threshold* and the admin-floor rule — listed open here originally — are now
+**decided 2026-06-17**: see the ADMIN FLOOR block immediately below, and `freshness-signal.md`
+MEMBERSHIP-FRESH.)
+
+---
+
+## Decision (2026-06-17) — ADMIN FLOOR = threshold-satisfiability + a never-irrevocable role ladder
+
+The admin floor is **not a separate dial**. It is *derived from the policy*: a group must always
+retain enough authority to satisfy its own current threshold, and a threshold may never be set beyond
+what the group can meet.
+
+**THRESHOLD-SATISFIABILITY (the spine rule).** A threshold `k_op` **MUST** be ≤ the eligible signers
+counted by **distinct lineage** (never device leaves) at the epoch it takes effect.
+- *Genesis:* `k_op ≤ founding-roster size`. A solo genesis ⇒ every `k_op = 1`. A group **MAY** be born
+  with a large roster and a high bar ("create with 10, need 5") — born matured.
+- *Raising later:* an ordinary governance op, valid only if `n ≥ new_k` at the effective epoch.
+  Raising a threshold above the current headcount self-bricks the capability and is **rejected**.
+- This dissolves the bootstrap paradox: a solo founder cannot create a "5-to-add" group and then add
+  under a 1-vote ramp, because solo ⇒ k=1. To get a real 5-to-add group you either declare ≥5 founders
+  at genesis (born matured) **or** raise k once you actually have 5 members. **No provisional phase, no
+  ramp, no maturation lock** — those edge cases are designed out, because requirements must be meetable
+  at the time they are established.
+
+**THE FLOOR (`n ≥ k`), post-set.** Once `k_op` is in force, the group **MUST** retain ≥ `k_op` eligible
+lineages to keep that capability. A membership op whose post-state drops below the floor is
+**structurally invalid** — rejected by every verifier from replicated policy state alone, regardless of
+valid signatures (deterministic, same spine as the §7 hard-stop). Removing a floor-critical member is
+valid only as an **atomic replace** (remove+add) preserving `n ≥ k`. `k` is bounded by `n` at
+*set-time* going up, and held ≤ `n` by the floor going down — it **MUST NOT auto-track `n` downward**
+(auto-tracking would be a threshold-downgrade attack: shrink to lower the bar, then admit a slate).
+
+**Direction asymmetry (safe by construction).** *Tighten is easy* — raising `k` is authorized under the
+current (lower) bar; tightening your own group is not an attack. *Loosen is hard* — lowering `k` needs
+the current (higher) bar; you cannot unilaterally weaken a matured threshold.
+
+**Per-operation-class thresholds.** `k_add`, `k_remove`, and `k_policy` (who may change the rules) are
+separate dials — a design aesthetic and a need. "Who can adjust the vote count" is `k_policy`.
+
+**The floor is ANTI-BRICK ONLY — capture is not structurally blocked.** A legitimate quorum acting
+within policy (A+B remove C under 2-of-3; or A+B raise then strip down to a captured 1-of-1) is
+**accepted** — that is what threshold authority *means*. The recourse for an out-voted minority is the
+§7 **re-formation fork** (vote with your feet), never a structural veto. Capture ≠ brick: even a
+deliberate capture bottoms out at a *governable* (not frozen) group.
+
+**Attrition is out of scope.** The floor governs *ops*, not *attrition*. If members simply lose devices
+below `k` (the T12 shadow), the capability is liveness-stuck; recourse is recovery (T12) +
+materially-reversible re-host (§6) + the fork (§7), surfaced via freshness (§9) — not prevented here.
+Running at exactly `k` is therefore fragile — keep headroom.
+
+**Roles are delegated authority, never irrevocable — including the creator's.** The creator holds **no**
+structural superuser right. At creation they are granted a **bootstrap admin role** purely so a
+one-member group can function (while solo, `k=1`, they act alone); that role is a normal **revocable
+delegation**, special in no other way and strippable by the ladder below. A group **MAY** also
+designate the creator (or any peer) a longer-lived revocable admin delegation — "more management
+expectations," scoped enumerated rights, **disclosed to members on join** — for a parent/kids group, a
+customer-service room, whatever the group chooses. It is never a power that cannot be removed.
+
+**Anti-entrenchment ladder (always-true).** No delegated role can entrench against a united group, even
+if its own grant tried to make itself irrevocable:
+1. **Routine** — revoke under `k_policy`.
+2. **Backstop (always available)** — **unanimity of the non-holders** (all members except the
+   role-holder, by lineage) revokes the role, *regardless of how the grant was configured*. This is the
+   **ceiling** on revocation difficulty: a group MAY set an easier bar, never a harder one. It is the
+   in-group instantiation of §6 "delegation MUST be materially reversible," and it breaks any
+   "you need me to change the rules and I won't let you remove my power" lock.
+3. **Fork (ultimate)** — §7 re-formation: vote with your feet. Always available if even the backstop is
+   gridlocked (non-holders cannot reach unanimity under partition/attrition).
+
+The ladder is **general over every delegated role** — creator, admin, and the content/infrastructure
+roles **meer** (§8.1) and **geer** (§6.1) alike. If all other members vote to strip a meer or geer, it
+is stripped. In the case of a co-op or external authority *operating* a geer/meer, the group then
+**detaches** from that operator and becomes a differently-shaped group — an outcome that could not have
+been prevented anyway (the operator can always leave); the protocol's contribution is narrow and
+specific: it **preserves history and provenance** up to the detachment and legitimizes/erases nothing
+retroactively. This is the in-group expression of §6's "delegation MUST be materially reversible"
+(re-host / stand-up-and-elect a different holder), with the fork as the backstop.
+
+In a 2-person group the non-creator alone *is* "all but the creator," so a single vote strips the role
+— they continue as equals or the group ends. Guiding principle: **sane management must be possible,
+transparent, and rooted in delegated-but-never-irrevocable roles, to the benefit of the group as a
+whole; users can always vote with their feet.** Tests: experiment suite **group I** (specified, not
+yet run).
 
 ---
 
@@ -124,9 +205,11 @@ eventual.
 
 - **Vote-accumulation state (pattern B)** under churn/partition is unmodeled — when do votes expire,
   can a vote be retracted, how is a stale vote rejected?
-- **Removing an admin** (or the last admin / quorum-breaking removals) needs a floor rule so a group
-  can't be bricked or captured. (Cf. T12 last-device-revocation shadow.)
+- ~~**Removing an admin** (last admin / quorum-breaking removals) needs a floor rule.~~ **DECIDED
+  2026-06-17** — ADMIN FLOOR above (threshold-satisfiability + `n ≥ k` floor + never-irrevocable role
+  ladder; anti-brick only, capture → fork). Tests: suite group I.
 - **Policy-change races** (two concurrent policy edits) reduce to the same reconcile contradiction;
-  confirm the hard-stop covers them.
-- **Freshness threshold for membership ops** specifically (stricter than for content?) — a removal
-  may warrant a higher freshness bar than an ordinary message. Open for Job 4.
+  confirm the hard-stop covers them. *(still doable — open-edges §3.)*
+- ~~**Freshness threshold for membership ops** specifically.~~ **DECIDED 2026-06-17** — MEMBERSHIP-FRESH
+  (`freshness-signal.md`; CROFT §9): originate/co-sign requires strict CURRENT + corroboration; content
+  ungated; apply gated by epoch-chain + §7. Tests: suite group H.
