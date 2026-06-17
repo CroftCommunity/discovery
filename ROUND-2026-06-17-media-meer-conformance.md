@@ -155,9 +155,12 @@ stacks disagree. That's exactly what a conformance suite is for.
    verified by `meets_threshold_by_lineage` (AUTHORIZED accept / UNDER-THRESHOLD reject) — the MD-G5
    transport MAC is retired. Part 2: a real openmls Welcome (796 B) crosses a real iroh connection and
    the joiner derives the *same* MLS exporter secret as the founder — the "registry as agreed state"
-   boundary is closed for key distribution. Remaining: only the co-sign-vs-vote accumulation *ordering*
-   decision, binding the distributed openmls secret to the lineage registry, and cross-host re-runs
-   (trivial — loopback/2-box today).
+   boundary is closed for key distribution. **The integration is also done:** with lineage-claim leaves,
+   the joiner derives the *same lineage-folded standing* (alice's 2 devices → 1 actor, E2.9/E2.10) as the
+   founder from the wire-delivered Welcome — so the standing registry is MLS-distributed, not modeled.
+   **The co-sign-vs-vote ordering is decided** (co-signed op A canonical, votes B deferred). Residual:
+   only the membership-op freshness *threshold*, the admin-floor rule, and finer-grained per-author
+   message-key binding — all genuinely future, none blocking.
 6. **Spec-vs-code derivation mismatch — RESOLVED.** The §2 tagged wire derivations (lineage/group
    genesis + `croft-group-topic:`) are now canonical, conformance-tested functions in `lineage-core::ids`
    (byte-identical to the spike); `lineage-iroh` uses the spec topic form; the structural untagged

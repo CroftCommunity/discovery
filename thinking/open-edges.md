@@ -32,9 +32,12 @@ This is a review surface, not a plan; promote items to the test plan / refinemen
   (2026-06-17, green-real):** a real openmls Welcome (796 B) travels a real iroh connection and the
   joiner derives the **same 32-byte MLS exporter secret** as the founder (`epoch_proof` match, both at
   epoch 1, member_count 2) — the group key is distributed over the transport, not modeled as agreed
-  state. Remaining: bind the distributed openmls secret to the lineage verifying-key registry the
-  faithful messaging path uses (E12 + C-mls-welcome + faithful = the full picture); a cross-host run is
-  a trivial follow-on (same code, loopback today).
+  state. **The binding is now DONE too:** with leaves carrying T1 lineage claims, the joiner derives the
+  **same lineage-folded membership/standing** as the founder (alice's 2 devices → 1 actor, E2.9/E2.10)
+  from the wire-delivered Welcome — so the verifying-key/standing registry the faithful path uses is
+  sourced from the real wire-distributed MLS group, not modeled (E12 + C-mls-welcome + faithful, bound).
+  Residual: per-author message-signature verification keyed off the MLS leaf (vs the fold) is a finer
+  step; cross-host is a deployment detail (the iroh transport is already proven node-1↔node-2).
 - **[DONE (transport) → only the ordering decision remains]** Threshold revoke-**authority** over the
   wire. The real k-of-n Ed25519 bundle is green-real in `gov`, AND it now travels the live faithful
   iroh-gossip wire verified by `meets_threshold_by_lineage` on receipt — **C-faithful-revoke
