@@ -5,6 +5,13 @@ status: thinking (design). Problem / Approach / Reasoning, with challenges → p
 test cases. The end-state for voice/video/stage; deliberately deferred behind the messaging spine but
 specified here so the deferral is "integrate an engine," not "invent an architecture."
 
+**Feasibility at a glance (2026-06-16):** the *floor* (P2P audio over iroh, no WebRTC) is **proven
+externally** by n0's callme (iroh-roq datagrams + Opus + cpal). The *ceiling* (group video + browser +
+stage, blind, at scale) is a clear path of "proven shape + known integration" with **two genuine
+technical unknowns** (datagram congestion-control interaction; str0m video maturity) and **two gated
+items** (NAT hole-punch ingress for direct media; the meer binary E8/E9). Metadata cost is a known,
+accepted property, not a risk. See "Feasibility vs unknown" at the bottom.
+
 ## Problem
 
 Voice/video/stage is the one Discord capability our messaging spine does not touch, and the naive
@@ -332,8 +339,8 @@ keying investment.
 
 ## Open edges
 
-- iroh datagram API + its CC behavior is **[UNVERIFIED]** — TC-ENG0/TC-CC1 resolve it; everything
-  downstream assumes datagrams behave as unreliable/uncontrolled-enough.
+- iroh datagram **primitive is CONFIRMED** (iroh-roq `send_datagram`, callme ships on it); what's still
+  open is its **CC behavior** — TC-CC1/2 resolve whether QUIC pacing/CC fights the media estimator.
 - str0m video maturity **[UNVERIFIED]** — audio-first hedges it.
 - DAVE's exact SFrame/MLS internals **[UNVERIFIED]** — we implement to the pattern, not their code.
 - Browser reach is handled by **Mode B** above (str0m-as-bridge at the meer + SFrame via Insertable
@@ -341,3 +348,58 @@ keying investment.
   hop — TC-INT1/2 resolve it.
 - E0-NAT hole-punch (gated on public ingress) is a prerequisite for the mesh/direct-media path; until
   it's open, all media is meer-relayed (the louder-metadata case).
+
+## Next experiments (priority order — what each de-risks, what it reuses)
+
+The smallest sequence that converts unknowns into evidence. Each reuses an existing asset where noted.
+
+1. **Reproduce + measure callme under netem (audio MVP).** Build/run callme (or a minimal RoQ-direct
+   clone) between two of the AWS boxes and the NAT Mac; drive it through the **E6 `tc netem` rig**
+   (delay/loss/bandwidth-cap). *De-risks:* C1 congestion control (the one live technical unknown) and
+   confirms audio quality holds across our real NAT fabric. *Reuses:* callme, the E6 harness, the box
+   fabric. **Highest priority — it attacks the only genuine technical unknown with the most-proven
+   component.**
+2. **TC-ENG0 — engine API audit (paper).** Confirm str0m (and the new webrtc-rs `rtc`) expose the
+   packet-in/out + bandwidth-estimation hooks we need without owning the socket. *De-risks:* C2 engine
+   choice; gates any engine integration spend. *Reuses:* nothing — desk research.
+3. **Blind SFU-meer forwarding (3+ peers).** Stand up a meer that forwards opaque RTP datagrams among
+   3 peers (no decode); measure the active-passthrough throughput/CPU wall (E0's media-rate ceiling).
+   *De-risks:* the meer as a media forwarder + its real cost. *Reuses:* the relay-lab E0/E5 cgroup +
+   metrics machinery.
+4. **TC-KEY1–4 — SFrame-over-MLS.** Per-sender keys from a real MLS group; loss-tolerant decrypt;
+   media revocation = MD-G5; blind-SFU can't read payload. *De-risks:* C3 keying. *Reuses:* the
+   openmls / faithful-path machinery already in `Proofs/lineage-groups`.
+5. **TC-META1–3 — the media metadata bound.** Instrument the SFU-meer; produce the AR-4-for-media
+   characterization; measure padding/mesh mitigations. *De-risks:* nothing technical (it's the honest
+   ceiling) — produces the threat-model bound. *Reuses:* the AR-4 / E3.4 method.
+6. **TC-INT1–3 — browser bridge + Mode-A wiring.** Real browser ↔ str0m-meer; SFrame-through-bridge
+   stays blind; A1-vs-A2 native decision (biased to A1). *De-risks:* browser reach. *Gated soft on*
+   step 2.
+
+Cross-cutting prerequisite for *direct* (mesh) media rather than meer-relayed: **open E0-NAT
+hole-punch ingress** (3343/3478) — currently gated. Until then steps 1/3 run meer-relayed.
+
+## Feasibility vs unknown — where each piece sits (2026-06-16)
+
+```
+  PROVEN ──────────── FEASIBLE (known work) ──────── OPEN (real unknown) ──── GATED (blocked)
+  │                   │                              │                        │
+  P2P audio/iroh      blind SFU-meer forwarding      datagram congestion       NAT hole-punch for
+  (callme: iroh-roq   (= E0–E7 opaque-forward +      control vs media          DIRECT media
+   datagrams+Opus     str0m server-SFU @ Lookback)   estimator (TC-CC1/2)      (E0-NAT, ingress
+   +cpal)                                                                       closed)
+  │                   SFrame-over-MLS keying         str0m VIDEO maturity      the meer BINARY
+  QUIC datagrams      (DAVE pattern + our proven      (audio-first hedges)      (E8/E9 unbuilt)
+  exposed by iroh      MLS fold/revocation/standing)
+  │                   browser bridge Mode B
+  iroh NAT/relay       (str0m WebRTC + SFrame via
+  (MD-G1/E0–E7)        Insertable Streams)
+                      audio media engine
+                       (callme floor + str0m/rtc)
+```
+
+- **Metadata cost is NOT on this scale** — it's a known, unavoidable property (a forwarding meer sees
+  the call graph). Feasible to build; the only "measurement" is how much mesh/padding mitigates it.
+- **Net:** the floor is proven, the ceiling is mostly "known work," and the project's technical risk
+  concentrates in exactly **two cells** (datagram CC; video engine) plus **two gated** items
+  (hole-punch ingress; the meer binary). Step 1 above attacks the first unknown directly.
