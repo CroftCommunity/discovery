@@ -39,8 +39,10 @@ This is a review surface, not a plan; promote items to the test plan / refinemen
   wire. The real k-of-n Ed25519 bundle is green-real in `gov`, AND it now travels the live faithful
   iroh-gossip wire verified by `meets_threshold_by_lineage` on receipt — **C-faithful-revoke
   (2026-06-17): AUTHORIZED accepted, UNDER-THRESHOLD rejected**. The MD-G5 transport MAC is retired.
-  Only the co-sign-vs-vote accumulation **ordering** decision (`revocation-authority.md`) is still open
-  (orthogonal to the signature mechanism).
+  The co-sign-vs-vote **ordering** decision is now **DECIDED (2026-06-17)**: the co-signed op (A) is
+  canonical (self-certifying, freshness-gated), proposal+votes (B) is an optional deferred deliberative
+  mode (`revocation-authority.md` "Decision"). Residual: the membership-op freshness *threshold* (Job 4)
+  + the admin-floor rule.
 - **[doable]** Real beacon over transport. Freshness (E2.16) is green-model; a signed tip beacon over
   live iroh-gossip + an AR-4-style leak measurement of the beacon is the faithful follow-on.
 - **[doable]** MD-G5 single-node both-transitions. Gossip de-dupes identical payloads, so one survivor
