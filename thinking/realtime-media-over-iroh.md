@@ -61,9 +61,13 @@ Verified 2026-06-16: n0's own **`callme`** is a peer-to-peer audio-call app that
 **optional echo cancellation** — and **no WebRTC at all**. It's experimental (v0.1.x, 2025) with CLI +
 egui GUI on desktop and Android. This is, in effect, a working instance of our **Milestone 1**
 (2-peer audio over iroh): the "is audio over iroh even viable?" probe is *already answered* by a
-shipping n0 demo, and `iroh-roq` is the RTP-carriage seam. [UNVERIFIED: whether `iroh-roq` carries RTP
-over QUIC **datagrams** (the media-appropriate, unreliable mode RoQ supports) vs streams — confirm in
-the `iroh-roq` source; it bears on C1.]
+shipping n0 demo, and `iroh-roq` is the RTP-carriage seam. **CONFIRMED from `iroh-roq` source
+(2026-06-16):** it supports **both** RoQ modes — `send_flow.rs::send_rtp()` calls
+`conn.send_datagram(...)` (the **unreliable QUIC-DATAGRAM** media path, with a VarInt flow-ID prepended
+for muxing), and `new_send_stream()` via `open_uni()` for the reliable path. callme carries Opus over
+the **datagram flow** — exactly the media-appropriate, no-retransmit mode, and proof iroh exposes QUIC
+datagrams. This resolves the *transport-primitive* half of C1 (the congestion-control interaction is
+still to test).
 
 ### This gives us *three* engine lines, not one
 
@@ -98,9 +102,10 @@ loss-tolerant and latency-intolerant — the opposite of QUIC's default reliable
 
 **Proposed solution.**
 1. Carry media over **QUIC datagrams** (unreliable, unordered) — never reliable streams — so there is
-   no retransmit and no head-of-line blocking. [PARTIAL EVIDENCE: n0's callme already carries RTP audio
-   over iroh via `iroh-roq`, so iroh can carry media; UNVERIFIED whether `iroh-roq` uses QUIC datagrams
-   vs streams and how QUIC CC applies — confirm in `iroh-roq` source first.]
+   no retransmit and no head-of-line blocking. **CONFIRMED available:** `iroh-roq` already does exactly
+   this (`send_flow.rs::send_rtp` → `conn.send_datagram`), and callme ships on it. The primitive is
+   proven; what remains to test is **how/whether QUIC congestion control + pacing applies to iroh
+   datagrams** and whether it fights the media estimator (TC-CC1/2 below).
 2. Make the **media engine's estimator authoritative for media bitrate**, and feed it feedback derived
    from the datagram path: loss = gaps in a per-stream sequence number we add; RTT = iroh's own
    path-RTT estimate exposed via the API; jitter = arrival timestamps. Treat iroh's datagram pipe as a
