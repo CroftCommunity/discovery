@@ -752,7 +752,8 @@ deepens §18's app body into *what actually fills the garden and how to build it
   XChat (won by being a hard public-or-E2EE binary) is independent proof of *"content is born into a
   visibility regime and cannot silently change it"* and **structural-not-runtime enforcement** — don't
   build a semi-private overlay on a public broadcast plane; make private data *structurally* private.
-  Backport target: `thinking/social-layer.md` (V3 regimes).
+  ✅ **Backported 2026-06-22** → `thinking/social-layer.md` **invariant S5** ("Private must be
+  structural, not a runtime gate — the Twitter Circles lesson").
 
 - **STRATEGIC BACKGROUND (no design change):** **Aggregation Theory** (Thompson) + Bluesky's VC rounds +
   Doctorow's switching-cost enshittification thesis frame Croft's credible-exit / no-data-hostage bet and
