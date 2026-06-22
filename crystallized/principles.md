@@ -24,6 +24,79 @@ This is the thread that ties the civic vision to the protocol design.
 
 ---
 
+## The deeper foundation (2026-06-20): provenance not utility, local-first as the unit
+
+source: the design-imperative dialogue (`seeds/transcripts/raw/croft-architecture-design-dialogue-2026-06-20.md`),
+its essay `narrative/lineage-of-a-design-imperative.md`, and the architecture distillation
+`thinking/local-first-as-design-imperative.md`. These ground the principles below in a cross-field,
+cross-millennium lineage (Socrates → Mill → Peirce/Popper → Hayek → Ostrom → Ashby → Beer → Scott) —
+read as *settled foundation*, the bedrock the other tiers stand on.
+
+- **The razor: compute provenance, never utility.** The system establishes what is *consistent and
+  corroborated* (provenance — a closed, determinate question: does the chain verify); humans supply what
+  is *true and right* (utility — open in principle, living in plural revisable values). A distributed
+  system sees assertions and agreement patterns, never the world the assertions are about, so "is this
+  true" is structurally outside its reach; the only answerable questions are local consistency and
+  alignment, **neither of which is a truth claim**. Any feature that needs the system to judge worth is
+  miscast. The honest mission is not truth but **trustworthy disagreement**. (Generalizes Tier-2 "never
+  algorithmically adjudicate a social dispute.")
+
+- **Local-first state is the generative premise — and the architecture's epistemology.** "The primary
+  copy lives with the unit; the network reconciles" is the *same sentence* as "truth is local and
+  corroborated across peers, never certified from a center." The design earns belief the way it
+  describes belief being earned. Two halves of one theorem: **(1)** respecting humanity *entails*
+  local-first, because the person is the unit of composability (central primary state has already made
+  the person secondary); **(2)** central-truth design is *necessarily* faulty, expressing as permanent
+  **friction**, because by requisite variety the center is always below the variety it governs and must
+  force reality down to fit. **Necessary, not sufficient:** local-first is the required *form* of a
+  humanity-respecting system, not a guarantee of one (the edge can be wrong too — variety preserved ≠
+  humanity served). **Friction is diagnostic:** honest friction (real disagreement between real units)
+  vs. manufactured friction (a center forcing variety it can't hold).
+
+- **Plurality is a survival condition, not a preference (requisite variety).** "Only variety can absorb
+  variety" (Ashby): a regulator that collapses plural perspectives into one certified truth is brittle
+  by formal law and will be overwhelmed by the reality it oversimplified. Preserving plural
+  perspectives, allowing forks, refusing to collapse divergence is requisite variety made architectural.
+  *Plurality is the robustness.* The monoculture-forest failure (Scott) is the cautionary case: optimize
+  for one legible metric (consensus-yield), erase the variety that gave resilience, collapse in the
+  second generation. **The design job is to not be the blight** — variety is generated and selected, not
+  designed; you refrain from collapsing it.
+
+- **Design for the conditions, then get out of the way.** The conditions are knowable and finite even
+  though the variety they permit is unknowable and unbounded — *you can specify the soil without
+  specifying the forest.* The enabling set: secure standing, a real (cheap, dignified) exit, an honest
+  non-equivocating record, accessible resolution that defers judgment, refusal to optimize toward a
+  single legible value. Mostly conditions and restraints, almost no features — **the negative space is
+  the design.** This is also the falsifiability discipline: giving up the authority to decide the
+  outcome means you can be corrected, observably, when the variety dies.
+
+- **No right to remove the rights of others (the one principled boundary).** Variety is permitted in
+  everything except the removal of another's *standing to hold variety* — a fork creates, a clearance
+  destroys. **Rights** (standing: tenure, exit, voice, share — the precondition of a legitimate
+  collective) are not the collective's to remove; **roles** (governed delegation) move freely. The
+  **wolf test:** any action that, generalized, would remove the conditions of its own contestation is
+  illegitimate by nature (the tell is self-cancellation). Rights-removal is the *only self-amplifying
+  move toward collapse* (it lowers the variety available to resist the next removal — the monoculture
+  mechanism in a polity), so the rights-floor is a **consistency requirement and an equality
+  requirement, not a moral overlay** (equal standing is *forced*, not asserted — unequal standing lets
+  some clear others and the system dies). It is the backstop against the system becoming **incestuous**.
+
+- **Inverse-correlation of protection: maximal freedom where exit protects you, maximal protection of
+  rights where exit cannot.** Where contestation is cheap (discussion/fork/merge/lineage), get out of
+  the way — the conditions self-defend, because anyone cleared just forks. Where decisions are
+  **irreversible / singleton-bound**, exit-after-the-fact can't heal them, so that is where
+  constitutional rigidity (highest thresholds, strictest plane, rights-removal prohibited most
+  absolutely) bites hardest. The crofting frame: everything flexible except *tenure*, the irreversible
+  singleton whose loss fork can't heal.
+
+- **Equal in rights, not capabilities — applied to the equal possibility of all shapes.** The
+  collective is the peer primitive at a larger scale, and its internal form is a free variable
+  (household / co-op / foundation / township). Equality of rights *generates* variety of form precisely
+  because it refuses to privilege one form's standing — mandating a single shape would smuggle a
+  monoculture in at the structural level. (Lifts the Tier-1 equal-rights principle to collectives.)
+
+---
+
 ## Tier 1 — Values / civic principles
 
 source: SOVEREIGN-COMMONS-DOSSIER.md §2, §3, §7, §8

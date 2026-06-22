@@ -165,6 +165,37 @@ Notes that bite:
   `json_metadata` / `custom_json` under your own account keys. Bespoke; "validation" = "signed by the
   Hive account key."
 
+## Bridge-doc technical corrections (the "Webvh bluesky bridge" how-to)
+
+A separate verification pass over the draft bridge how-to (the one that proposed a `serialize → sign →
+POST` flow) surfaced concrete errors. Folded here so the how-to is corrected at the distilled layer
+(raw: the appendix of `seeds/transcripts/raw/croft-architecture-design-dialogue-2026-06-20.md`, plus
+the goat request-token→sign→submit flow in `croft-identity-provenance-dialogue-2026-06-20.md`). Some
+points are `[UNVERIFIED]` — the verification session had web search down; confirm against the did:webvh
+spec (identity.foundation) and the did:plc spec before acting.
+
+- **"W3C DID Core *Equivalency Assertion*" is invented terminology.** `alsoKnownAs` is real; DID Core
+  distinguishes it (asserted, not verified) from `equivalentId`/`canonicalId` (method-enforced). The
+  *equivalence ladder* above is the accurate framing.
+- **A did:webvh log line is not a bare DID document.** Each entry wraps `versionId`, `versionTime`,
+  `parameters`, the DID-doc state, and a Data-Integrity proof, chained to the prior entry hash; the
+  proof covers the canonicalized entry. Hand-stripping newlines and appending is not how a conformant
+  log is produced — use reference tooling (didwebvh-rs / didtoolbox). `[UNVERIFIED — entry schema
+  changed across the did:tdw → did:webvh rename; confirm against the current spec.]`
+- **Genesis `prev` must be `null`.** Only updates carry a real `prev` CID; a genesis example showing
+  `prev: bafyrei…` misleads anyone creating a fresh identity.
+- **Cross-system key encodings are not interchangeable.** PLC currently restricts key types to
+  **secp256k1 / p256**; an Ed25519 `z6Mk…` key valid in a did:webvh verificationMethod would **not** be
+  valid as a PLC rotation key. `verificationMethods` values use full `did:key:` encoding (not bare
+  multibase). `[UNVERIFIED — confirm PLC's allowed key types.]`
+- **The PLC submission flow needs the email token** (omitting it is a hard blocker): `goat account plc
+  recommended → edit → request-token → sign → submit`; the PDS signs and forwards. Hand-rolling DAG-CBOR
+  and signing raw bytes is possible but is not the documented path.
+- **"Cannot be faked" is too strong.** `alsoKnownAs` is an unverified assertion unless a validator
+  performs the bidirectional round-trip; security comes from the verifier *choosing* to require both
+  directions, not from the data structure. (Consistent with the equivalence-ladder framing: bidirectional
+  presence is the mechanical validation; absence means *unverified*, not *false*.)
+
 ## did:web vs did:webvh — portability is the whole point
 
 - **Plain did:web is not portable, by design** — the identifier *is* the domain; no migration/recovery

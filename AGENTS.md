@@ -99,5 +99,14 @@ preserve raw verbatim → distill → update connective tissue). The standing in
   (**CroftC PR #10**) — import deferred (the IP/ownership call is the user's; ROADMAP §13). Top
   open risk: infra-sustainability ↔ the cooperative *mechanism* (open-considerations §8).
 
+- **The "why" foundation (2026-06-20): the design-imperative body** — the deepest grounding yet. A
+  cross-field, cross-millennium lineage (Socrates→Mill→Peirce/Popper→Hayek→Ostrom→Ashby→Beer→Scott;
+  `narrative/lineage-of-a-design-imperative.md`) and the protocol-substrate architecture it implies
+  (`thinking/local-first-as-design-imperative.md`), distilled to `crystallized/principles.md` ("The
+  deeper foundation"). The razor: **compute provenance, never utility**; **local-first state is the
+  generative premise** (architecture = epistemology); **no right to remove the rights of others**.
+  Distinct from the *app/client*-layer philosophy in `thinking/app/`. Top open frontier: the
+  centerless-meets-center seam (ROADMAP_TODO D8).
+
 - Provenance: complete — transcripts/PRs filed (see RAW-ARTIFACTS-MANIFEST.md); the app dialogue
   is a content-faithful **cleaned-paste** (no pristine export existed), labeled per PLAYBOOK §4.
