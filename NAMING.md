@@ -65,8 +65,55 @@ posture is to name which parts of the pattern we claim (engineered dependency, c
 tenure, the maintenance burden) and be candid about where the land analogy stops carrying
 weight.
 
+## Vivid grounding (quotable, `[UNVERIFIED]`)
+
+The narrative re-telling at `seeds/transcripts/raw/croft-crofting-narrative.md` adds quotable
+detail useful for the civic-why narrative. These come from tertiary/popular sources (tourism
+and retail blogs, Goodreads) — **weaker** than the scholarship behind the rest of this doc —
+so treat each as `[UNVERIFIED]` until confirmed against a primary or reputable secondary
+source. Read the narrative *alongside*, not instead of, the de-romanticized research file
+(`croft-crofting-research.md`), which flags the heroic "free clan → cleared → won it back" arc
+as a myth needing qualification.
+
+- **The "improvement" justification, in the landlords' own words.** Robert Chambers, *Picture
+  of Scotland* (1827): landlords "have very properly done all they could to substitute a
+  population of sheep for innumerable hordes of useless human beings, who formerly vegetated
+  upon a soil that seemed barren of everything else." This is the enclosure logic stated
+  plainly — the exact register in which collectively-held space is reframed as waste before it
+  is captured.
+
+- **"The lairds' four-footed clansmen."** What the displaced Gaels called the Cheviot sheep
+  that replaced them. Names the substitution: the thing the landlord values displaces the
+  people the land was held for.
+
+- **The Shetland eviction-curse anecdote.** An islander's ancestral memory: tenants "had not
+  left the area before the smoke from their burning homes darkened the sky... one elderly
+  person put a curse on the laird." The speed and the powerlessness, in one image.
+
+- **The modern echo, still live in court.** Theatrical-producer billionaire Sir Cameron
+  Mackintosh tried to impose a tree-planting scheme on common grazing land against the wishes
+  of 81-year-old crofter Donald Cameron; the Scottish Land Court ruled for the crofter. The
+  laird-vs-crofter friction is not history — it still turns on *who decides the use of the
+  commons*, and the protective tenure still holds. The cleanest contemporary illustration of
+  why the name points at an ongoing arrangement, not a settled past.
+
 ## Note
 
 Per the user: further explanation of the name is "mixed in with transcripts." The crofting
-research transcript is the primary source; this doc is the distilled rationale. Connect to
-the civic-why narrative vertical (narrative/verticals/the-civic-why.md).
+research transcript is the primary source for the rigorous rationale; the narrative re-telling
+(`croft-crofting-narrative.md`) is the quotable popular register; this doc is the distilled
+rationale drawing on both. Connect to the civic-why narrative vertical
+(narrative/verticals/the-civic-why.md), which is still to be written.
+
+## App-layer naming (2026-06-22) — product vs umbrella, not yet reconciled
+
+The app design dialogue (`seeds/transcripts/raw/croft-app-design-dialogue-2026-06-20-to-22.md`)
+uses **"Croft" as the product/app name**, **"Croft Group"** as the private chat pond, and
+introduces the **pond / pad** taxonomy (pond = external-ecosystem connection; pad = small
+self-contained in-shell app) plus a brand draft (tagline **"Grow your own"**, the rotating
+completion, "homegrown" as the identity register). This doc pins Croft at the **umbrella** level;
+the product-vs-umbrella relationship (is the umbrella "Croft" and the app also "Croft"? is the app a
+named surface of the umbrella?) is **not yet reconciled**. Per this repo's convention, do not
+propagate unsettled product names into structure. The brand thinking lives in
+`thinking/app/brand-and-voice-notes.md` (explicitly a working draft); reconcile into this doc when
+it settles (ROADMAP §14).

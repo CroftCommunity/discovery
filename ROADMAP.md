@@ -97,6 +97,10 @@ resilience and privacy — the ethical choice and the technical strength are the
 
 ## Next to do (rough — will merge with the transcript that carries this)
 
+> See **`ROADMAP_TODO.md`** for the provenance-indexed backlog — every open item with a
+> back-reference to its origin (`file:line`) and cross-links to open-edges / COHESION. The
+> curated list below is the highest-leverage subset.
+
 Highest-leverage first. To be reconciled with the "next to do" thinking in an incoming transcript.
 
 1. **Decide the MPL-2.0 license gate** (lineage-groups PR #8 / Cycode) — `hpke-rs` is mandatory
@@ -138,3 +142,36 @@ Highest-leverage first. To be reconciled with the "next to do" thinking in an in
 11. **Record the sequencer honestly** — the membership sequencer is load-bearing under
     concurrency (PR #3). Update the broker/superpeer framing: the claim is "minimal, blind,
     not a rights authority," not "no ordering authority." (COHESION.md #4.)
+
+12. **The Croft app (client layer) — a new body of work, intake started 2026-06-22.** A
+    composable "utility garden": one shell hosting **ponds** (Bluesky / Mastodon / Lemmy, kept
+    native — honest seams) and **pads** (small self-contained apps), with the **Croft Group**
+    pond (private chat + later P2P games) on iroh = the lineage-groups work surfaced. Design
+    thinking landed at `thinking/app/` (philosophy, criteria, brand-draft, build-specs); the
+    dialogue at `seeds/transcripts/raw/croft-app-design-dialogue-2026-06-20-to-22.md`. Stack
+    decided: pure Rust functional core (`(state,intent)->(state,effects)`, WASM-clean) +
+    per-shell imperative shells (CLI, web/Leptos, desktop/Tauri); web-first; the Crux *pattern*
+    slim, not the framework. Phases: 0 (core+CLI+harness) **built**, 1 (Leptos web UI), 2
+    (desktop wrap + composable shell + pinning). See `thinking/app/README.md`.
+
+13. **Deferred: import the Croft-app Phase 0 code (CroftC PR #10) into `experiments/`** — and
+    the IP/ownership decision it forces. Phase 0 (functional core + CLI, 20/20 tests green) was
+    built in a **CroftC repo**; bringing it onto chasemp/CroftCommunity infra with a clean
+    paper trail is the deliberate move, but it is the **user's call** (invention-assignment /
+    conflict-of-interest with the Head-of-Product-Security role). Most time-sensitive. Not done
+    this pass per the user ("untangle in this repo as a next step; don't sweat CroftC for now").
+
+14. **Follow-on distillation from the app dialogue** — fold the industry research
+    (iroh-in-browser maturity incl. relay-only browser peers; webxdc/Delta-Chat games + the
+    WebRTC-transport-swap porting recipe; super-apps / W3C MiniApp; atproto appview routing via
+    service-proxy/service-auth + the OpenMeet recipe; Rust client libs ATrium / Jacquard /
+    megalodon-rs / lemmy-client-rs; Crux/FCIS) into `research/` and `ECOSYSTEM.md`, and reconcile
+    the brand naming (Croft-the-product, Croft Group pond, pond/pad taxonomy, "Grow your own")
+    into `NAMING.md` once `thinking/app/brand-and-voice-notes.md` settles.
+
+15. **The sustainability ↔ cooperative *mechanism* question (existential).** The app dialogue
+    surfaced the most important unthought thing: relays (browser peers are permanently relayed),
+    the bridge node, the scoped appview, and push origination are ongoing metered cost. The
+    cooperative is so far a *value*, not yet a *funding/governance mechanism*. Connects to item 8
+    (cooperative charter) — the charter work must make "cooperative" do the sustainability work,
+    not just the ethics. See `thinking/open-considerations.md`.

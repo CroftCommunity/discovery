@@ -24,6 +24,8 @@ the exact paste) · **distilled-only** (analyzed into outputs, raw not kept) · 
 | PR #8 conversation | `Proofs/lineage-groups/PR-CONVERSATION.md` | preserved-verbatim (from gh) |
 | PR #9 conversation | `Proofs/lineage-group-model/PR-CONVERSATION.md` | preserved-verbatim (from gh) |
 | PR #3/#4/#6/#8/#9 full code trees | the `Proofs` and `experiments` repos | preserved-verbatim |
+| Crofting narrative re-telling (pasted 2026-06-22) | `seeds/transcripts/raw/croft-crofting-narrative.md` | preserved-verbatim (quotes/anecdotes `[UNVERIFIED]`; tertiary sources — see COHESION §16) |
+| AT-Proto atmospheric-web / Iroh mobile dialogue (Gemini, pasted 2026-06-22) | `seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-dialogue.md` | preserved-verbatim + **fact-checked** (`...-FACTCHECK.md`, 2026-06-22; 2 REFUTED fabrications, several PARTLY — see COHESION §17) |
 
 ## Code — verbatim confirmed
 
@@ -103,3 +105,20 @@ our imported copies are the preserved record.
 
 2. (Optional) Replace the condensed `CODING-TRANSCRIPT.md` files with the verbatim pastes if
    exact fidelity is wanted for review.
+
+## 2026-06-22 intake — Croft app design dialogue + artifact zip (the app/client layer)
+
+A new body of work: the **application/client layer** ("Croft" the product), distinct from the
+protocol. This intake lands the design thinking; the experiment (code) is deferred (CroftC PR #10).
+
+| Raw artifact | Status | Note |
+|---|---|---|
+| **Croft app design dialogue (2026-06-20→22)** — the full architecture / values / stack / iroh-tiers / appview / ponds-pads / games / super-apps / palette / brand / session-review / Phase-0-1-2 conversation | **preserved-condensed** (cleaned-paste, content-faithful — not a pristine export) | Filed at `seeds/transcripts/raw/croft-app-design-dialogue-2026-06-20-to-22.md`. Per user, no canonical export exists, so this is the best-available raw: UI render chrome stripped, dialogue wording preserved as faithfully as the rendered paste allowed. Header carries the §4 caveat. Two large mid-paste blocks (the CroftC PR #10 page; full re-pastes of the then-current docs) were themselves truncated in the source — represented as bracketed pointers to the frozen artifacts / the PR. |
+| **`multiecosystemapp.zip`** — 6 artifacts (design-philosophy, design-criteria, brand-and-voice-notes, BUILD-SPEC, BUILD-SPEC-PHASE-1-2, games-pond-research-prompt) | **preserved-verbatim** | Unpacked byte-identical to `seeds/multiecosystemapp-unpacked/` (verified). Working copies distilled to `thinking/app/` (+ `build-specs/`) and `seeds/generated-prompts/`. Zip retire pending user authorization (contents preserved). |
+
+Carried-forward: the dialogue's open risks (infra-sustainability ↔ cooperative *mechanism*,
+moderation/safety vs the kid-friendly goal, cold-start for the owned pond, the **CroftC
+IP/ownership entanglement**) → `thinking/open-considerations.md` + `thinking/app/README.md`. The
+embedded industry research (iroh-in-browser, webxdc/Delta-Chat games + the WebRTC-transport-swap
+porting recipe, super-apps / W3C MiniApp, atproto appview routing, Rust client libs, Crux/FCIS) is
+not yet distilled into `research/` / `ECOSYSTEM.md` — flagged as a follow-on in ROADMAP.
