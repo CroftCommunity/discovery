@@ -258,9 +258,14 @@ seeds/transcripts/raw/germ-xchat-design-dialogue.md); the client-architecture AD
   a re-implementation; behavior can't drift across platforms because they share the core verbatim.
   This is local-first/provenance discipline made structural (the core holds state and emits
   effects-as-data; the shell reconciles with the world) and is the same DECISION-1 shape (effects-as-
-  data, not effect-as-function-call). Prior client work (`croft-chat-cli`) adapts to it. *Open and
-  deliberately not yet settled:* one shared core hosting feed-pond + group-pond as planes, vs. two
-  cores sharing only the pattern.
+  data, not effect-as-function-call). Prior client work (`croft-chat-cli`) adapts to it.
+  *Decomposition (resolved 2026-06-22, option C):* **per-pond domain cores (bounded contexts) unified
+  by the shared `shell` composition layer** — not a god-core, not disconnected cores. Per-pond concerns
+  (the group core's MLS/fork-merge/governance planes) live inside that pond's core. **Cross-pond
+  awareness** ("show a Bluesky reply in chat") is read-only composition in the shell (resolve a
+  reference via the other pond's port); **cross-pond interactivity** needs an idiom-translating
+  **broker** between cores, deferred until a concrete action is committed (honest-seams keeps ponds
+  native, not fused).
 
 - **Settings serve three audiences, not two.** Not basic/advanced (which conflates "most
   people never touch this" with "this is simple"). The three are defined by *relationship to

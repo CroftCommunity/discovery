@@ -80,10 +80,26 @@ an existing port, not a refactor** (see `croft-chat-cli` memory + ROADMAP_TODO E
   (declared at intent-to-collaborate)**, and the delegate/governance planes. The *pattern* transfers
   cleanly; the *core content* is substantially more complex, and today's transcripts supply exactly the
   discipline it needs (planes-by-blast-radius, the rights-floor) that the feed core never did.
-- **Open structural question (deferred, not blocking):** **one shared Croft core** hosting feed-pond
-  and group-pond as planes, **or** two cores sharing only the pattern. This ADR settles the
-  *core/shell + per-platform-shell* model; it does **not** yet settle one-core-vs-two. The
-  one-shell-many-ponds architecture leans toward a shared core eventually, but that is a later call.
+- **Structural decomposition — RESOLVED 2026-06-22 (option C):** **per-pond domain cores
+  (bounded contexts) unified by the shared `shell` composition layer** — *not* one god-core (which
+  couples a Bluesky read-model with an MLS group engine), *not* two disconnected cores (which would
+  re-fatten the per-platform shells). The group pond is symmetric to the feed pond: add a `group-core`
+  + a Transport port; the existing `shell` composes both ponds' view models. This is the honest-seams
+  thesis made structural (ponds kept native, not fused) and is what Phase 0 already started
+  (`crates/core` = the feed pond's domain; `crates/shell` = composition; `crates/bluesky` = the pond's
+  port). Per-pond concerns (the group core's MLS epoch state, fork/merge with
+  reconvergence-policy-per-plane, governance/delegate planes) live *inside that pond's core*, never
+  smeared across a shared core.
+
+  **Cross-pond awareness vs. interactivity (the line that keeps C clean):**
+  - **Awareness (expected now, cheap):** read-only surfacing of one pond's content inside another's
+    view — "show a Bluesky reply in the chat." This is **composition in the shell**: the chat message
+    carries a *reference* (the `at://` URI — provenance), the shell resolves it via the feed-core's
+    port to a renderable card, nothing flows back. No core coupling, no idiom translation.
+  - **Interactivity (deferred until wanted):** *acting* in pond A from pond B (reply to Bluesky from
+    chat) needs a **broker** to translate idioms (a chat action → a Bluesky API call). It sits
+    *between* the cores (or as its own adapter), **never inside a pond core**. Out of scope by default
+    per honest-seams; introduce the broker only when a concrete cross-pond action is committed to.
 - **Carry:** the as-built Phase-0 spec and the more-developed `thinking/app/` spec must reconcile on
   graduation (ROADMAP_TODO C7); platform exclusion realities apply (Phase 0 keeps `web` wasm-only and
   `desktop`/Tauri out of the host workspace — a precedent for how per-platform shells stay isolated).

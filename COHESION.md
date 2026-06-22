@@ -524,9 +524,12 @@ deepens §18's app body into *what actually fills the garden and how to build it
   we have; **prior client work adapts to it.** `croft-chat-cli` already has the implementation seam
   (`Transport` port + in-proc fake) but not the core/shell, so adoption is **greenfield growth, not a
   refactor**. Captured as a Tier-3 principle + the ADR; tracked as ROADMAP_TODO E19 (plan not yet
-  drafted — the user's next-step call). Deferred sub-question: one shared core hosting feed+group as
-  planes vs two cores sharing the pattern. DRIFT-to-watch: the `iroh/` experiment is still **not in
-  the `experiments/README` index** — close that gap.
+  drafted — the user's next-step call). **Decomposition RESOLVED 2026-06-22 (option C):** per-pond
+  domain cores (bounded contexts) unified by the shared `shell` composition layer — group-core +
+  Transport port symmetric to feed-core + Bluesky port; cross-pond **awareness** = read-only
+  composition in the shell (resolve an `at://` reference via the other pond's port), cross-pond
+  **interactivity** = a deferred idiom-translating broker between cores (honest-seams). DRIFT-to-watch:
+  the `iroh/` experiment is still **not in the `experiments/README` index** — close that gap.
 
 ---
 
