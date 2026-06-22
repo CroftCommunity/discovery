@@ -146,6 +146,27 @@ source: SOVEREIGN-COMMONS-DOSSIER.md §2, §3, §7, §8
   superpeer; routing server→content-blind mule; ad platform→consumer-side broker;
   compellable operator→cooperative.
 
+- **Non-extraction is anti-fragile, not just ethical.** The VC model is *brittle* — it must grow
+  exponentially or die (churn-and-burn: constant ad spend to replace users fleeing an extractive
+  product). A member-owned utility only needs *growth-pacing* — enough to cover costs — and a
+  revenue dip is leaner spend, not a death spiral. The ethical choice and the durable choice are the
+  same choice (the recurring theme). The cooperative is the *mechanism* that makes non-extraction
+  survivable, not just a value. See `thinking/cooperative-social-union-model.md` (the MO Chapter 351
+  "Social Union" — partially walks the sustainability↔mechanism open item; legal-review gate remains).
+
+- **Pay the keepers — burnout is a failure of governance.** Reliable infrastructure requires reliable
+  compensation; the mission is a *value-add, not a fiscal substitute*. Treat market-rate pay for core
+  builders as a **first-class operational expense**, prioritized above patronage dividends and investor
+  returns — paid in cash for labor (not coerced by mission-guilt or equity-in-lieu). The all-volunteer
+  model is the single biggest long-term risk (the verified Ampled failure). "Just as a city hires
+  engineers to keep the water running, we pay engineers to keep the social commons running."
+
+- **Founder-speed early, democracy by sunset — not Day-One direct democracy.** Shipping a consumer
+  product by unfiltered committee consensus paralyzes execution; pure founder control entrenches. The
+  resolution is **progressive decentralization**: directive founder authority in the build phase that
+  *auto-expires* at hardcoded, externally-ascertainable milestones into one-member-one-vote — the
+  sunset locked so it can't be clawed back. (Resolves the "Day-One Democracy paralysis"; COHESION §33.)
+
   - *Host-untrusted is the deliberate, differentiating choice (2026-06-22).* Croft keeps
     confidentiality in the client/MLS layer so the broker (and any host) stays **blind** — the
     **zero-knowledge** side of the trust line. AT Proto's own (community-led) private-data working

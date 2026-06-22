@@ -814,6 +814,67 @@ deepens §18's app body into *what actually fills the garden and how to build it
 
 ---
 
+## 31. Iroh / QUIC / local-first ecosystem dialogue ↔ the iroh substrate bet
+
+- **CORROBORATES the iroh-substrate choice from the transport up:** the QUIC properties Croft relies on
+  (NAT traversal, no head-of-line blocking, TLS-1.3-by-design, EndpointId=pubkey identity, connection
+  migration/**multipath via noq**, **QAD**, streams+datagrams) are restated and fact-checked accurate.
+  Reinforces `realtime-media-over-iroh.md` and the relay-lab findings.
+- **NEW prior art (ECOSYSTEM §5d) — the Automerge+iroh local-first stack:** **Peat/peat-mesh** (Defense
+  Unicorns — Iroh+Automerge turnkey w/ BLE fallback, also in §25 crypto-wars), CRDT alternatives
+  (iroh-docs / **Loro** / **Y-CRDT** / **Diamond Types**), and a deep app roster (Prime Intellect,
+  Tandemn, Bones/godot-iroh, cross.stream, iroh-ssh, Obsiroh, Hubris, Teamtype, Zeco, Dash Chat,
+  **Holochain rewriting Kitsune2 onto iroh**). Overlaps §30's iroh-games tail (libmarathon/ascii-royale/
+  iroh-lan) — cite, don't redo.
+- **FACTCHECK (Gemini — unusually accurate, no fabrications):** fixes only — ALPN is `iroh/automerge/2`
+  (not `/iroh-automerge/1`); Huitema is a parallel QUIC-draft co-author, **not** an iroh endorser; Peat's
+  ring→aws-lc-rs FIPS detail `[UNVERIFIED]`. iroh source-of-truth unchanged
+  (`atproto-atmospheric-web-iroh-mobile-FACTCHECK.md`: iroh 1.0.0; iroh-docs = range-set reconciliation,
+  not MST). Source: `seeds/transcripts/raw/iroh-quic-localfirst-ecosystem-dialogue-2026-06-22.md` + `-FACTCHECK.md`.
+
+## 32. Open-social protocols & aggregators dialogue ↔ the open-social landscape + the fork-a-client strategy
+
+- **MAPS the competitive/composable landscape** Croft federates into: Nostr (+ **Blossom** media,
+  **Marmot/MLS + White Noise** private groups), Farcaster (Frames, storage rent, **Neynar acq. + $180M
+  return** — the SocialFi→infrastructure pivot), Lens (**Mask stewardship**), thirdweb, and the aggregator
+  field (**Firefly/Bridgy-Fed/Flare/SkyFeed/Mixpost/CrossPoster**). Overlaps §29 sovereign-appview
+  (multi-source AppView, Bridgy Fed) — cite, don't redo.
+- **DIRECTLY feeds the "fork an open client" tactic** in `cooperative-social-union-model.md`: the
+  forkable aggregators carry real license constraints — **Flare AGPL-3.0** (host-as-service → must
+  publish source), **Bridgy Fed CC0** (total freedom), yup-live archive, **SkyFeed EUPL-1.2**. Flag the
+  license in any build plan.
+- **FACTCHECK (Gemini — solid; the suspect acquisitions CONFIRMED real):** fixes — Farcaster rent ~$7/unit
+  not $5; **Clanker = AI token-launchpad, not a "trading tool"**; cumulative rev ~$1.9M peak not $2.8M;
+  Clovyr/thirdweb exact prices `[UNVERIFIED]`. ECOSYSTEM rows from this body flagged dialogue-sourced.
+  Source: `seeds/transcripts/raw/opensocial-nostr-farcaster-aggregators-dialogue-2026-06-22.md` + `-FACTCHECK.md`.
+
+## 33. Cooperative "Social Union" model ↔ the sustainability-mechanism open item (the existential seam)
+
+- **CLOSES (provisionally) the corpus's biggest open economic question:** `open-considerations.md` §8 +
+  ROADMAP_TODO named the **sustainability ↔ cooperative *mechanism*** as existential and unresolved (and
+  §25/§26/§29 only *framed* it). This body supplies a concrete, legally-grounded mechanism — a **Missouri
+  Chapter 351** Limited Cooperative Association ("Social Union") with multi-class membership, **progressive
+  decentralization** (hardcoded founder-sunset), a **capped revenue royalty** (RBF/Demand-Dividend),
+  indivisible reserve + internal credits (the anti-Steemit: no speculative token), a **501(c)(3) tandem**
+  for grant-funded open-source labor, and **labor-as-a-first-class moral good** (the anti-Ampled). Distilled
+  to `thinking/cooperative-social-union-model.md`. Mark OPEN→PARTIALLY-WALKED (legal-review gate remains).
+- **LINKS the economic layer to the technical thesis:** federate on **AT Protocol day-one** (import the
+  Bluesky graph; own PDS+AppView+Lexicons for the private "cozy union"). The private-union channels are
+  exactly where **lineage-groups MLS** (`thesis-lineage-groups.md`) and **group-privacy-lanes** plug in —
+  atproto's own **Private Data WG** does in-transit ACLs, *not* E2EE-at-rest (the gap our MLS proof fills;
+  see §26). Connects to `social-layer.md` (V3 visibility regimes — §29's Twitter-Circles lesson) and
+  `governance-and-survivability.md`.
+- **VERIFIED failure-case lineage hardens principles:** Ello (VC capture), Ampled (volunteer burnout),
+  Steemit (hyper-financialization), Diaspora (architectural naïveté), **Coomappa** (white-label dependency)
+  — all CONFIRMED real — are the anti-patterns the design answers. Feed `crystallized/principles.md`
+  (non-extractive / anti-fragile / non-mimicry-moat / labor-as-first-class razors).
+- **NOT-LEGAL-ADVICE + FACTCHECK:** the MO Chapter 351 framework is real and accurate, but confirmed-wrong
+  specifics must not be relied on without counsel — **§351.1015→§351.1036**, **CA-41 fee $100 not $105**,
+  **name reservation $25 not $20**, **Git/Inkscape are SFC not CS&S**, CHS ~$45.6B, DFA=Kansas City *Kansas*.
+  Source: `seeds/transcripts/raw/cooperative-social-union-governance-dialogue-2026-06-22.md` + `-FACTCHECK.md`.
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the

@@ -208,3 +208,26 @@ lineage-groups MLS rationale (the accepted "unequal peer" = a Delivery Service).
 **"privately beneficial without being publicly detrimental"** standard (CONFIRMED) is a legal
 ancestor of the **"no right to remove the rights of others"** razor. iroh/atproto facts: cite the
 project FACTCHECK; this dialogue does not re-introduce the MST/"Keen" errors.
+
+## 2026-06-22 intake — iroh ecosystem / open-social-aggregators / cooperative "Social Union" (Gemini)
+
+One continuous Gemini dialogue split into topic bodies (filed as raw + per-body FACTCHECK; four
+parallel web-research passes 2026-06-22). A fourth body (atproto-PDS/Germ/private-data) was a
+**duplicate** of the concurrently-filed `croft-atproto-pds-germ-privatedata` set and was **deleted
+after reconciliation** (canonical covered all turns; see note below).
+
+| Raw artifact | Status | Note |
+|---|---|---|
+| **Iroh / QUIC / local-first ecosystem dialogue (Gemini)** — QUIC-for-P2P, noq multipath/QAD, relay-vs-relayless, Automerge + ALPN + CRDT alternatives (Loro/Y-CRDT/Diamond-Types), Peat/peat-mesh, ecosystem apps, Delta Chat/Chatmail/ArcaneChat | **preserved-condensed (cleaned-paste, content-faithful — not a pristine export)** + **fact-checked** | `seeds/transcripts/raw/iroh-quic-localfirst-ecosystem-dialogue-2026-06-22.md` (+`-FACTCHECK.md`). UI citation chips + image captions stripped (§4). **Unusually accurate, no fabrications.** Fixes: ALPN `iroh/automerge/2` not `/iroh-automerge/1`; Huitema = parallel QUIC-draft co-author not endorser; Peat ring→aws-lc-rs `[UNVERIFIED]`. iroh source-of-truth unchanged. COHESION §31. |
+| **Open-social protocols & aggregators dialogue (Gemini)** — Nostr/Blossom/Marmot-MLS, Farcaster (Neynar acq.), Lens (Mask stewardship), thirdweb, Yup, aggregators (Firefly/Bridgy-Fed/Flare/SkyFeed/Mixpost/CrossPoster), Mask + Arbitrum | **preserved-condensed (cleaned-paste, content-faithful — not a pristine export)** + **fact-checked** | `seeds/transcripts/raw/opensocial-nostr-farcaster-aggregators-dialogue-2026-06-22.md` (+`-FACTCHECK.md`). **Solid skeleton; the suspect acquisitions CONFIRMED.** Fixes: Farcaster rent ~$7 not $5; Clanker = token-launchpad; rev ~$1.9M peak not $2.8M; Clovyr/thirdweb exact prices `[UNVERIFIED]`. ECOSYSTEM rows flagged dialogue-sourced. COHESION §32. |
+| **Cooperative "Social Union" governance & economics dialogue (Gemini, user's own design thinking)** — MO Chapter 351 LCA, progressive decentralization, capped royalty/RBF, 501(c)(3) tandem, labor-as-first-class, UX-inertia wall, the verified failure-case lineage, federate-on-AT-Proto, MVC/DBA roadmap, MFA/Hirth history | **preserved-condensed (cleaned-paste, content-faithful — not a pristine export)** + **fact-checked (NOT-LEGAL-ADVICE)** | `seeds/transcripts/raw/cooperative-social-union-governance-dialogue-2026-06-22.md` (+`-FACTCHECK.md`). Distilled → `thinking/cooperative-social-union-model.md`. MO Chapter 351 framework real & accurate; **confirmed-wrong specifics flagged inline** (§351.1015→§351.1036; CA-41 $100 not $105; name-res $25 not $20; Git/Inkscape are SFC; CHS ~$45.6B; DFA=Kansas City *Kansas*). All tax-side + case studies (incl. Coomappa) CONFIRMED. **The major new body** — partially walks ROADMAP_TODO D5 (sustainability ↔ cooperative mechanism). COHESION §33; ROADMAP_TODO E25. |
+
+Reconciliation note (DEDUP): the fourth body, originally filed as
+`atproto-pds-architecture-technical-dialogue-2026-06-22.md` (+FACTCHECK), duplicated the
+concurrently-filed `croft-atproto-pds-germ-privatedata-dialogue-2026-06-22.md` set (same Gemini
+content/snippets). The canonical set covers all turns (Wasabi/Glacier/peers.org/object-store
+pricing); my duplicate was **deleted**. **Fact-check correction carried:** I had flagged the
+"current" Bluesky federation limits (100 accts / 2,600-hr / 21,000-day) as fabricated — that was a
+**false positive** (my research pass checked the PDS `env.ts`, not the rate-limits doc). They are
+**real** (`docs.bsky.app/docs/advanced-guides/rate-limits`); the canonical FACTCHECK correctly marked
+them CONFIRMED.
