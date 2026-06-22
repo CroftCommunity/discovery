@@ -8,6 +8,8 @@
 
 **Status:** Research + design. Crypto is delegated to existing crates rather than hand-rolled. The Rust sketch in the appendix is illustrative and has NOT been compiled (no toolchain in the authoring environment). Items not confirmed against current sources are marked `[UNVERIFIED]`.
 
+**Companion doc:** [`cross-platform-identity-provenance.md`](cross-platform-identity-provenance.md) covers the *cross-platform* role of the did:webvh root — anchoring Bluesky/ActivityPub/Hive spokes via out-of-band attestation (the hub-and-spoke model), the `alsoKnownAs` equivalence ladder, did:webvh portability (`portable` is genesis-only), and the did:plc↔did:webvh convergence bet. This doc is the MLS-root method choice + the PLC read-replica; that doc is "prove one person owns these accounts across networks."
+
 ---
 
 ## Part 1 — DID method choice for the MLS root
