@@ -167,6 +167,11 @@ glance at bundle time). iroh-blobs/docs/gossip themselves are §1.
 | Org/Author | Project | Purpose / relevance | Relationship |
 |---|---|---|---|
 | n0 | sendme | iroh-blobs file-transfer reference (the device-to-device drop pad, near-free) | build-on |
+| sunbeam-stdio | **libmarathon / Marathon** | Offline-first multiplayer framework on **Bevy + iroh + iroh-gossip + CRDTs**; 3D cube-sim demo (macOS/iOS) — the closest "iroh-gossip + CRDT game" prior art | learn↔, build-on [verified: web 2026-06-22 — crates.io/crates/libmarathon] |
+| Chad Fowler | **ascii-royale** | 16-player terminal ASCII battle-royale in Rust over iroh; host prints a ticket, no servers — proves direct-QUIC twitch play | homage, learn↔ [verified: github chad/ascii-royale] |
+| rustonbsd | **iroh-lan** | Hamachi-like encrypted virtual-LAN over iroh → legacy LAN-only games (Minecraft Java, StarCraft, CS 1.6) + **emulator netplay (Snes9x/RetroArch)** over the internet, no port-forwarding | learn↔, build-on (the "tunnel localhost over iroh" pattern) [verified: github rustonbsd/iroh-lan] |
+| community | **godot-iroh** | Godot Asset-Library extension swapping Godot's default multiplayer socket for an iroh endpoint (connect by Node ID, no port-forwarding) | build-on [verified: web 2026-06-22] |
+| vinay-winai / schollz / n0 | **DataBeam** (croc + sendme) | Desktop GUI uniting **croc** (schollz; code-phrase P2P file transfer) convenience with **sendme** (iroh) speed/resumability — convenience-meets-iroh exemplar | learn↔ [verified: croc + sendme real; project live] |
 | adbenitez / ArcaneCircle | webxdc game catalog (chess, wonster word puzzle, many) | the wrappable catalog; mixed licenses (several GPL-3.0; chess piece art CC-BY-SA-3.0 — flagged trap); wonster MIT | wrap (via webxdc-compat shim), homage, learn↔ |
 | rameshvarun | netplayjs | Rollback netcode + WebRTC; host-authoritative state doubles as a hidden-info dealer; swap signaling for iroh | port substrate (confirm license at bundle) |
 | gschup / community | GGRS + matchbox | Rollback netcode in Rust + WebRTC signaling; more architecture-aligned than netplayjs for the Rust core | build-on (twitch-tier games) |
@@ -204,6 +209,30 @@ PDS-wide DBs, local-FS-bound); the alternatives below add Postgres.
 community-edition repo **archived Feb 2026** — Garage/SeaweedFS are the maintained alternatives. And
 atproto **decouples identity from host** (CAR repo export/import → migrate PDS without losing
 followers), which is the structural backstop that makes "no data hostage" real for any of the above.
+
+## 5f. AT Proto AppView / client / bridge tooling (from the 2026-06-22 sovereign-AppView dialogue)
+
+Surfaced and web-verified 2026-06-22 (see
+`seeds/transcripts/raw/croft-atproto-sovereign-appview-open-social-dialogue-2026-06-22-FACTCHECK.md`;
+analysis in `research/atproto-sovereign-appview-club.md`). Relevant because the **AppView-as-private-
+gatekeeper** pattern is a buildable shape of Croft's blind-broker / honest-seams-ponds stance (own the
+read/index layer → private blocking, off-repo feeds, multi-source ingestion). All rows real and correctly
+attributed (Gemini was unusually accurate here).
+
+| Org/Author | Project | Purpose / relevance | Current state | Relationship |
+|---|---|---|---|---|
+| A New Social (Ryan Barrett / "snarfed" + ~2) | **Bridgy Fed** | The main **bi-directional AP↔AT bridge** (Mastodon/Threads ↔ Bluesky); `@bsky.brid.gy` / `@ap.brid.gy` routing | live; `snarfed/bridgy-fed`, **CC0**, Python (Granary + Arroba); ~150k users; cost re-architected $0.15→$0.03/user/mo [verified: web 2026-06-22] | learn↔ (the credible-exit / "people not platforms" cousin), partner |
+| A New Social | **Bounce** | Cross-protocol account **migration / "credible exit"** (move into a native PDS without losing bridged followers) | live [verified: web 2026-06-22] | learn↔ (no-data-hostage instrument) |
+| — | RSS Parrot · Pinhole · Fedisky | Independent narrower bridges (RSS/Atom→Fediverse; Bluesky→AP one-way; AP-extension for Bluesky PDS) | live/niche [verified: web 2026-06-22] | learn↔ |
+| grjte | **Groundmist** | **Private, local-first ATProto layer** — a "Personal Sync Server (PSS)" analogous to a PDS but private; Automerge CRDT sync; WhiteWind-lexicon publish | prototype (sync server ships with **auth disabled** — "private by default" is intent, not yet security) [verified: web 2026-06-22] | learn↔, build-on (closest local-first-private relative to Croft's model) |
+| alnkesq | **AppViewLite** | Lean **AppView** (C#), ~2.2 GB disk/day to index the firehose; Jetstream/Relay; memory-mapped columnar | live [verified: web 2026-06-22] | build-on (lean self-host AppView; inject private-filter logic) |
+| Blacksky | **rsky-wintermute** AppView | TS bsky appview + **Rust** indexer; ~10k records/sec; **"Private Community Posts" scaffolding on the AppView layer** | live [verified: web 2026-06-22] | build-on (closest to Croft's stack; the private-community reference) |
+| zeppelin-social | **bluesky-appview** | Docker-Compose **full reference AppView stack** (bsky, indexer, labelmuncher, palomar search, postgres/redis/opensearch) | live [verified: web 2026-06-22] | build-on (reference clone + custom proxy middleware) |
+| colibri.social | **Colibri** | Discord-like community chat on ATProto; sparked the public-by-default-history debate; `verdverm` building permissioned-DB prototypes | live/experimental [verified: web 2026-06-22] | learn↔ (the permissioned-data debate) |
+| — | **Jetstream** | Official tool converting the binary firehose → compressed filterable JSON (the lightweight ingestion path) | live [verified: web 2026-06-22] | build-on (ingestion) |
+| pdelfan / tunjid / mary-ext / Bluesky | **Ouranos · Heron · atcute · social-app** | Client bases to extend: Ouranos (Next.js web), **Heron** (offline-first Kotlin Multiplatform + Compose/Room — mesh sandbox), atcute (from-scratch TS protocol utils), social-app (official) | live [verified: web 2026-06-22] | build-on (client upstreams) |
+| bluesky-social / pdsmoover | **goat** · **PDS MOOver** | Account-migration tooling (CAR export/import + signed PLC ops); returning-user-only inbound to bsky.social | live [verified: web 2026-06-22] | build-on (migration) |
+| #IndieSky · Eurosky (Modal Foundation) · Free Our Feeds | independent-infra movements | Non-corporate Relays / private-group / localized-moderation infra for the open atproto web | active [verified: web 2026-06-22 — NB "AT Community Fund" is an imprecise name; the real funder is **Free Our Feeds**] | homage, learn↔, partner |
 
 ## 6. P2P / decentralized messengers (the field)
 

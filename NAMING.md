@@ -154,6 +154,16 @@ sub-components, and must **not** be propagated into structure (doc names, code, 
 adopted (same convention as the unsettled app/brand names above). Promote a term out of the reservoir
 only on a fresh, explicit decision recorded here.
 
+**Second reservoir batch — the "opposite of a walled garden" sweep (2026-06-22, background/research).**
+A separate Gemini dialogue (`seeds/transcripts/raw/croft-atproto-sovereign-appview-open-social-dialogue-2026-06-22.md`)
+brainstormed open-ecosystem names. Per the user this is **"mostly background and research" — nothing
+settled.** Candidates, reservoir-only: **Till / Tillage** (explored furthest — an app=*Till* /
+platform=*Tillage* split, "village" echo, agrarian fit; watch the cash-register and no-till-regenerative
+connotations), plus *Commons*, *Agora*, *Bazaar* (Raymond), *Nexus*, *Rhizome* (note: a **stem**, not a
+root), *Rootstock*, *Radix*, *Mycelium*, *Regen*, *Grove*, *Canopy*. *Meadow* is **out** (collides with
+the close project **Willow**). Same rule: not propagated into structure unless promoted by a fresh
+decision here. (Croft remains the umbrella; these would at most name a sub-surface.)
+
 ## App-layer naming (2026-06-22) — product vs umbrella, not yet reconciled
 
 The app design dialogue (`seeds/transcripts/raw/croft-app-design-dialogue-2026-06-20-to-22.md`)
