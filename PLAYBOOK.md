@@ -90,18 +90,29 @@ silently.
 Not everything is a PR. Design dialogues, research write-ups, and dossiers arrive as pasted
 text. For these:
 
-1. **File the verbatim raw** to `discovery/seeds/transcripts/raw/<name>.md` (or
-   `seeds/<name>.md` for a dossier/zip). Redact in-session credentials; reference — don't
-   triplicate — any large brief already saved verbatim elsewhere.
+1. **File the raw** to `discovery/seeds/transcripts/raw/<name>.md` (or `seeds/<name>.md` for a
+   dossier/zip). Redact in-session credentials; reference — don't triplicate — any large brief
+   already saved verbatim elsewhere. Two fidelity cases:
+   - **Verbatim** when you have the exact source (a file, a clean export). Status
+     `preserved-verbatim`.
+   - **Cleaned-paste** when the source is a chat the user *pasted into the session* and no
+     canonical export exists (the common case for claude.ai design dialogues). Reproduce the
+     dialogue **content-faithfully** — strip only UI render chrome ("Searched the web", "Fetched:",
+     "Ran a command", "Document · MD", "Show more", date/time dividers, "Presented N files") and
+     bracket any mid-paste blocks that were themselves truncated, as pointers to the real artifact.
+     The header **MUST** carry the §4 caveat: "content-faithful, not a byte-pristine export." Status
+     `preserved-condensed (cleaned-paste)`. This is the accepted best-available raw when §4's "request
+     the canonical copy" isn't possible because the user has already said the paste is all there is.
 
 2. **Distill** into the right home: a research deliverable → `research/`; new design thinking →
    a `thinking/<topic>.md` and/or new principles in `crystallized/principles.md`; civic/vision →
-   the dossier or a `narrative/verticals/` piece.
+   the dossier or a `narrative/verticals/` piece. For a coherent multi-doc body (e.g. the app/client
+   layer), use a topic subdir (`thinking/app/`, with `build-specs/` and `ponds/` clusters under it).
 
-3. **If a source archive (zip) is provided:** unpack to `seeds/<name>-unpacked/`, and before
-   removing the archive, `diff` every file against the unpacked copies and confirm
-   byte-identical. Only then retire the archive (its contents are preserved). The user must
-   authorize removal.
+3. **If a source archive (zip) is provided:** unpack to `seeds/<name>-unpacked/` as the **frozen
+   verbatim seed**, and place **working copies** in the right `thinking/` home. Before retiring the
+   archive, extract a fresh copy and `diff -rq` it against the frozen seed to confirm **byte-identical**.
+   Only then retire the archive (contents preserved in the seed). **The user must authorize removal.**
 
 4. Then do the same §3 corpus-coherence updates.
 
@@ -130,7 +141,9 @@ After placing anything, update the cross-repo connective tissue:
   DUPLICATION. Backport surfaced findings into the thinking docs they affect.
 
 - **`discovery/ROADMAP.md`** — fold any new "next to do," milestone, or feature-state change
-  into the rough roadmap.
+  into the rough roadmap. **`discovery/ROADMAP_TODO.md`** is the single provenance-indexed
+  **backlog** — add new open items *there* (with origin `file:line` + a durable section header),
+  never start a parallel list; ROADMAP carries the reasoning, ROADMAP_TODO aggregates.
 
 - **The relevant `README.md`** (repo-level) — add the new artifact to its contents list.
 
@@ -138,7 +151,10 @@ After placing anything, update the cross-repo connective tissue:
   in and its preservation status (verbatim / condensed / distilled-only / missing).
 
 - **`ECOSYSTEM.md`** — if the material names a new org/project/tool, add or update its row
-  (org · project · purpose · capabilities · current state · relationship tag).
+  (org · project · purpose · capabilities · current state · relationship tag). Rows distilled from a
+  dialogue but **not independently verified this session** must be flagged dialogue-sourced /
+  pending-verification (see §5c/§5d for the pattern) — don't launder a model's claim into a
+  verified-looking row.
 
 - **`.claude/CLAUDE.md`** (top-level, and per-repo READMEs) — if the structure or the headline
   state changed (a new repo, a resolved gate, a name decision), keep the orientation current so
@@ -176,6 +192,13 @@ This repo set is reviewed before commit, so commit only on request. When asked:
 - **Don't over-claim.** A `green-model` proof is not `green-real`. State what a validation
   does *not* establish.
 
+- **Cite the fact-check, don't re-derive; check for drift.** For atproto / iroh / iOS facts, the
+  source of truth is `seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md` — cite
+  it. When distilling a model-generated dialogue, run a quick drift grep over the new content for
+  known-corrected errors (e.g. `rc.0`, `connect_to_peer`, "merkle search tree", "AT Messaging working
+  group") so a superseded claim isn't reintroduced. Align to the corrections (iroh `1.0.0`; iroh-docs
+  = range-set reconciliation + LWW; no native AT-Proto E2EE — third-party only).
+
 ## 5. Don't, by default
 
 - Don't commit to git unless asked (this repo set is reviewed before commit).
@@ -201,7 +224,7 @@ This repo set is reviewed before commit, so commit only on request. When asked:
 [ ] raw transcript archived + condensed CODING-TRANSCRIPT.md (if provided)
 [ ] proof-ledger.md updated
 [ ] COHESION.md updated (loose-ends / duplication / drift + backport)
-[ ] ROADMAP.md updated
+[ ] ROADMAP.md updated; open items added to ROADMAP_TODO.md (origin file:line, no parallel list)
 [ ] repo README.md updated
 [ ] RAW-ARTIFACTS-MANIFEST.md updated
 [ ] ECOSYSTEM.md updated (if new org/project)
@@ -217,14 +240,26 @@ This repo set is reviewed before commit, so commit only on request. When asked:
 
 - **Headline proof result:** lineage-groups Phase 1 crypto gate is GO on real openmls 0.8.1.
 
-- **Top open problem:** multi-device + total-device-loss recovery (backup-vs-delegation fork).
+- **Top open problem (protocol):** multi-device + total-device-loss recovery
+  (backup-vs-delegation fork).
+
+- **Active body (2026-06-22): the app / client layer** ("Croft" the product) — a composable garden
+  of **ponds** (Bluesky/Mastodon/Lemmy, native) + **pads** (small apps), with the **Croft Group**
+  pond = lineage-groups surfaced on iroh. Lives in `thinking/app/` (core design + `build-specs/` +
+  `ponds/` catalog). Two make-or-break open items (in `ROADMAP_TODO.md`): the **deep-link resolver**
+  (tier-zero: core UX unlock + the only acquisition path) and the **sustainability ↔ cooperative
+  *mechanism*** (existential). Phase 0 (functional core + CLI) was built in **CroftC PR #10** —
+  import deferred, the IP/ownership call is the user's (ROADMAP_TODO A8); surface, don't resolve.
 
 - **Imported so far:** Proofs = lineage-groups (#8), lineage-group-model (#9),
   encrypted-local-first-atproto (#3). experiments = appview-validation (#6), public-roundtrip
   (#4), android-p2p-app (#7), encrypted-blob-share (#5).
 
-- **Provenance:** complete — the GroupDynamics design-dialogue transcript is now filed verbatim
-  at `seeds/transcripts/design-dialogue-2026-06-13-to-14.md`. No known gaps.
+- **Provenance:** complete. The GroupDynamics design dialogue is filed verbatim; the two app/client
+  dialogues (design + ponds/games) and the atproto-atmospheric/crofting material are filed as
+  **cleaned-paste** (content-faithful, §4-labeled — no pristine export existed). Source of truth for
+  atproto/iroh/iOS facts: `seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md`.
+  No known gaps.
 
 - **Agent orientation:** canonical at `discovery/AGENTS.md` (version-controlled); the top-level
   `CroftC/.claude/CLAUDE.md` imports it.
