@@ -1,5 +1,11 @@
 # Fact-check — atproto / Bluesky PDS architecture, Germ, object-storage shims, private data (Gemini)
 
+> **⚠️ DEDUP PENDING.** Companion to a body that duplicates the concurrently-filed
+> `croft-atproto-pds-germ-privatedata-dialogue-2026-06-22.md` set. To be reconciled (merge the verdict
+> deltas below into the canonical set's FACTCHECK, then delete this pair). The highest-value verified
+> finding to carry over: the dialogue's *"current" federation limits are fabricated* (only Feb-2024
+> early-access is real).
+
 date: 2026-06-22 · companion to `atproto-pds-architecture-technical-dialogue-2026-06-22.md`
 
 purpose: AI-generated (Gemini) dialogue, fact-checked at the user's request against atproto.com,
