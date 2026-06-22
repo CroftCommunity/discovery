@@ -25,7 +25,10 @@ Architecture spine: a **pure Rust functional core** (`(state, intent) -> (state,
 I/O, WASM-clean) behind a thin **imperative shell** per platform (CLI, web/Leptos, desktop/Tauri,
 mobile), with effects performed by the host. Hexagonal, effects-as-data — the Crux *pattern*
 adopted slim, not the framework. Web-first; desktop is the wrapped web app; the heavy P2P work is
-isolated in the one pond Croft owns.
+isolated in the one pond Croft owns. **This is now a settled decision** (2026-06-22):
+`client-architecture-adr.md` — one shared core + thin per-platform shells (each supplying its own
+`effects.rs` callout), two callout axes (platform + implementation-behind-a-port). Prior client work
+(`../../../experiments/iroh/crates/croft-chat-cli`) adapts to it (ROADMAP_TODO E19).
 
 ## The discovery / experiment split (the untangle)
 
@@ -34,6 +37,11 @@ isolated in the one pond Croft owns.
 - `design-philosophy.md` — the why: values, the functional-core/imperative-shell spine, honest
   seams, the garden thesis, credit-and-traceability, decision rules, the stack, and a decisions log
   (incl. candidate ponds: OpenMeet read-only, P2P games).
+
+- `client-architecture-adr.md` — the **settled client-architecture decision** (2026-06-22): one
+  shared functional core + thin per-platform shells, two callout axes (platform `effects.rs` +
+  implementation adapters behind a port). The model all client work adapts to. Proven in the Phase-0
+  import.
 
 - `design-criteria.md` — the bar: shared + pond-specific + pad-specific criteria (on a
   WeChat-derived four-principle skeleton, gatekeeper mechanics stripped), and the visual system
@@ -75,12 +83,13 @@ isolated in the one pond Croft owns.
   build *intent* (same role as `../experiment-suite.md` for the protocol). They describe the code,
   not the code.
 
-- **Phase 0 was actually built** (functional core + CLI shell, 20/20 acceptance tests green) — but
-  it lives in a **CroftC repo (PR #10)**, not in our `experiments/`. **Importing it is a deferred,
-  separate step**, gated on the IP/ownership decision the dialogue flagged (built in an employer
-  repo; the clean-paper-trail move is to bring it onto chasemp/CroftCommunity infra, but that is the
-  user's call to make deliberately). Until then, `experiments/` has no Croft-app code — only this
-  intent in discovery. See ROADMAP.
+- **Phase 0 was actually built** (functional core + CLI/web/desktop shells, 20/20 acceptance tests
+  green) in a **CroftC repo (PR #10)**. **IMPORTED 2026-06-22** to
+  `../../../experiments/croft-app-phase0/` (byte-identical), at the user's direction — the A8
+  IP/ownership decision exercised (paper trail in that dir's `PR-CONVERSATION.md`). It is the
+  executable Phase 0 + the proof of the client-architecture ADR. Deferred within it: M6 (live
+  Jacquard adapter). Residual: the CroftC-side PR is still OPEN (A8). See ROADMAP_TODO A8/B11/C7 and
+  COHESION §23.
 
 ## Open risks the dialogue surfaced (not yet resolved)
 

@@ -517,13 +517,16 @@ deepens §18's app body into *what actually fills the garden and how to build it
   the code moves to a project repo. Same license-discipline theme as A1 (MPL-2.0/`hpke-rs`), distinct
   dep.
 
-- **OPEN (the two CLIs question → next-steps discussion):** there are now **two** Croft CLIs — the
-  **iroh/P2P chat CLI** (`experiments/iroh/crates/croft-chat-cli`, the group/messaging substrate, TDD/
-  production-grade, Transport port) and the **Bluesky-pond feed CLI**
-  (`experiments/croft-app-phase0/crates/cli`, the app/client layer). Whether `croft-chat-cli` adopts
-  the Phase-0 functional-core/imperative-shell + planes discipline is the live rework question (see
-  ROADMAP_TODO). DRIFT-to-watch: the `iroh/` experiment is **not yet in the `experiments/README`
-  index** — a pre-existing gap to close.
+- **DECIDED (the two-CLIs question, 2026-06-22):** the client architecture is settled —
+  `thinking/app/client-architecture-adr.md`: **one shared functional core + thin per-platform shells**
+  (each supplying its own `effects.rs` callout), with two orthogonal callout axes (platform +
+  implementation-behind-a-port), proven by the Phase-0 import. The user named it the most mature model
+  we have; **prior client work adapts to it.** `croft-chat-cli` already has the implementation seam
+  (`Transport` port + in-proc fake) but not the core/shell, so adoption is **greenfield growth, not a
+  refactor**. Captured as a Tier-3 principle + the ADR; tracked as ROADMAP_TODO E19 (plan not yet
+  drafted — the user's next-step call). Deferred sub-question: one shared core hosting feed+group as
+  planes vs two cores sharing the pattern. DRIFT-to-watch: the `iroh/` experiment is still **not in
+  the `experiments/README` index** — close that gap.
 
 ---
 
