@@ -122,3 +122,19 @@ IP/ownership entanglement**) → `thinking/open-considerations.md` + `thinking/a
 embedded industry research (iroh-in-browser, webxdc/Delta-Chat games + the WebRTC-transport-swap
 porting recipe, super-apps / W3C MiniApp, atproto appview routing, Rust client libs, Crux/FCIS) is
 not yet distilled into `research/` / `ECOSYSTEM.md` — flagged as a follow-on in ROADMAP.
+
+## 2026-06-22 intake (2) — Croft ponds & pads / games deep-dive + `apps.zip`
+
+Continuation of the app/client-layer body: the deep dive into what fills the garden (games pond,
+utility pads, presence-and-ritual pond) and how to build it. The **run** of the
+`seeds/generated-prompts/games-pond-research-prompt.md`.
+
+| Raw artifact | Status | Note |
+|---|---|---|
+| **Croft ponds/games dialogue (2026-06-20→22)** — games hunt, webxdc security model, the moat-from-not-having-things, maintenance-vs-attention + cooperative economics, utilities + presence/ritual ponds, complexity/UX + deep-linking, on-device-LLM feasibility, build-order, fair-reveal | **preserved-condensed** (cleaned-paste, content-faithful — not a pristine export) | Filed at `seeds/transcripts/raw/croft-app-ponds-games-dialogue-2026-06-20-to-22.md`. Same §4 status as the companion app-design dialogue. The conversational-only threads (the moat analysis, the economic frame, the Presence & Ritual pond, the channel-adaptive deep-link breakdown) are preserved in it since they never became artifacts. |
+| **`apps.zip`** — 8 artifacts (p2p-games-pond-launch-set, webxdc-security-and-competitive-games, games-pond-authoritative-list, apps-pond-utility-list, build-shape-pass, on-device-llm-feasibility, build-order, fair-reveal-primitive-spec) | **preserved-verbatim** | Unpacked byte-identical to `seeds/apps-unpacked/` (verified). Working copies at `thinking/app/ponds/` (indexed in `thinking/app/README.md`). Zip retire pending user authorization (contents preserved). |
+
+Note on verification: unlike intake (1), this dialogue did real in-session web verification (the
+iroh-docs data model, app licenses via the GitHub mirror, on-device-LLM platform APIs, deferred-link
+platform state); those verdicts live in the artifacts. The `ECOSYSTEM.md` §5d rows added from it
+carry the dialogue's own verification status, still worth a final glance at bundle time.

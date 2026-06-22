@@ -353,6 +353,51 @@ product), distinct from the protocol thinking it rides on. Material landed at `t
   appview routing, Rust client libs, Crux/FCIS) is **not yet** distilled into `research/` /
   `ECOSYSTEM.md` rows — flagged OPEN as the follow-on (ROADMAP §14).
 
+## 19. The ponds & pads / games deep-dive ↔ the app body + the substrate
+
+The 2026-06-20→22 ponds/games dialogue (the **run** of `seeds/generated-prompts/games-pond-research-prompt.md`)
+deepens §18's app body into *what actually fills the garden and how to build it*. Material at
+`thinking/app/ponds/` (8 artifacts), seed at
+`seeds/transcripts/raw/croft-app-ponds-games-dialogue-2026-06-20-to-22.md`, frozen at
+`seeds/apps-unpacked/`.
+
+- **CLOSED (rides the substrate, sharpened):** the games/utility/ritual pads sit on **iroh 1.0** —
+  `iroh-gossip` (ephemeral/live), `iroh-docs` (accreting state; LWW per (author,key) forces an
+  **event-sourced** data model — the split-the-check ledger and the guestbook share that shape),
+  `iroh-blobs` (content-addressed files; `sendme` is the reference). One reusable **fair-reveal
+  (commit-reveal)** primitive powers voting + dice + hidden-info games (`fair-reveal-primitive-spec.md`).
+  Inclusion is three pathways: **build-fresh** / **wrap** (a webxdc-compatible shim makes the whole
+  ArcaneCircle catalog wrappable for one layer's cost) / **port** (WebRTC→iroh transport swap).
+
+- **Honest asterisk on "serverless" (record, don't over-claim):** browser iroh peers are
+  **permanently relayed** and direct hole-punch falls back to relays (n0's by default). "No
+  application server" holds; connection-bootstrap leans on relays — self-host if it grows. Folded
+  into `open-considerations.md` §8 (the infra-sustainability point) and ROADMAP_TODO.
+
+- **Security finding (genuinely ours):** the Cure53 webxdc audit shows **CSP alone does not contain a
+  webview** (WebRTC + DNS-prefetch exfiltration). Since iroh QUIC is the transport, **disabling the
+  webview's WebRTC is pure upside** and closes that hole — an action item specific to wrapping our own
+  Tauri webview. Plus: games get a **hard-separate webview context** + an **ephemeral per-match
+  pseudonym** (a game must not read a stable DID). See `webxdc-security-and-competitive-games.md`.
+
+- **Economic frame (backbone for the charter, ties to governance-and-survivability + ROADMAP §8):**
+  **durable maintenance** (bounded by entropy) is categorically different from **extractive
+  attention** (unbounded by appetite → dark patterns on schedule); the cooperative makes the
+  maintenance curve fundable because funder and beneficiary are the same body, so no actor's interest
+  is escalation. The moat is *promises with no expiry date*, structurally impossible for anyone
+  carrying server cost or an extraction mandate. This is conversational-only (preserved in the
+  transcript), the most charter-relevant output of the round.
+
+- **DEFERRED/CONSTRAINT:** the on-device-LLM navigator is a **great-to-have, never a requirement**
+  (hardware coverage; ROADMAP_TODO E10); seamless cold-install deep-linking is **not privately
+  achievable** (Instant Apps/Firebase-Dynamic-Links dead, MMPs need fingerprinting) → claim-code
+  one-more-tap (ROADMAP_TODO).
+
+- **Status: PARTLY DISTILLED (2026-06-22).** Thinking + provenance landed; connective tissue updated
+  (this entry, ROADMAP_TODO E8-E11, ECOSYSTEM §5d, open-considerations §8, manifest, raw index). The
+  build-order is the sequencing home (`thinking/app/ponds/build-order.md`); the games/tooling
+  ECOSYSTEM rows (§5d) still want a final license glance at bundle time.
+
 ---
 
 ## How to use this map

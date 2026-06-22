@@ -100,6 +100,21 @@ charter (ROADMAP §8) and the rug-pull/survivability work (`governance-and-survi
 charter must make "cooperative" do the **sustainability** work (member-funded, credit-union-shaped),
 not only the ethics. Flagged as the most important unthought thing.
 
+*Update (ponds/games dialogue, 2026-06-22):* the economic frame for the charter sharpened into a
+reusable distinction — **durable maintenance** (cost to keep a thing at rest; bounded by entropy and
+a changing world; roughly flat) vs **extractive attention** (cost to keep a thing escalating;
+unbounded by appetite; ends in dark patterns / enshittification *on schedule*). The cooperative is
+what makes the maintenance curve fundable without summoning the capture curve, because the funder and
+the beneficiary are the same body, so no actor's interest is escalation. Paying maintainers
+**materially** is a requirement, not a compromise — "labor of love freely given" collapses into
+burnout, which is deferred abandonment, and the guestbook's custodial obligation makes abandonment a
+real harm. The full reasoning (and the "moat from promises with no expiry date") lives in
+`seeds/transcripts/raw/croft-app-ponds-games-dialogue-2026-06-20-to-22.md`; this is the backbone for
+the ROADMAP §8 charter. A related honesty item: the relay dependency above and the
+**deferred-deep-link** reality (seamless cold-install isn't privately achievable without
+fingerprinting → a claim-code one-more-tap) are the two asterisks on "serverless/frictionless" to
+state plainly rather than paper over (ROADMAP_TODO E11).
+
 ## 9. Moderation / safety / abuse vs the kid-friendly goal (a genuine tension)
 
 E2EE-P2P-relay carries traffic the operator *cannot read* — a privacy feature until it is CSAM or
