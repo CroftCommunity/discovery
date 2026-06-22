@@ -74,10 +74,24 @@ the corporate smell. The strongest tie-in raised so far:
 
 - ⚠️ **Euphoria (HBO) — Rue's line, S1:** *"that's the thing about the internet… sometimes 10
   people can feel like the whole world."* It's an exact match for the **digital-living-room /
-  small-tight-group** value prop. **But it's HBO-copyrighted dialogue** — do **not** put the verbatim
-  quote on a paid listing, ad, or merch without clearance. In-show context is melancholic
-  (isolation); **recontextualize toward closeness/loyalty**, and prefer a **stylistic nod** over the
-  literal line. Branding angles it inspires (✅ ours, derived):
+  small-tight-group** value prop. In-show context is melancholic (isolation); **recontextualize
+  toward closeness/loyalty**.
+  - **Is it fair use? Honestly: maybe — but "maybe" is the problem.** Three things, none legal advice
+    (consult a lawyer before commercial use):
+    1. **Copyright on the phrase itself is weak.** US copyright doesn't protect short phrases, titles,
+       or slogans — a single line this short may not be independently protectable at all. That cuts
+       toward "fine."
+    2. **Fair use is a defense, not a permission, and commercial branding is its *weakest* posture.**
+       The four factors weigh *purpose* (commercial + non-transformative = bad; commentary/criticism/
+       parody = good), *amount*, *nature*, and *market effect*. Using a mood line as a **tagline to
+       sell/brand a product** isn't commentary on the show — it's the least-favored kind of use. You
+       only "win" fair use in court, after being sued; it's never a clean green light up front.
+    3. **The bigger risk isn't copyright — it's trademark / false endorsement.** Putting a recognizable
+       line from a hit show on a product can imply **HBO/Euphoria affiliation or endorsement** (Lanham
+       Act / right-of-publicity), which fair-use-of-copyright does **not** shield against.
+  - **Net:** as *inspiration* or a private/IYKYK nod, low risk. As **verbatim copy on a paid listing,
+    ad, or merch**, it's a "get a quick legal read" — not a confident "yes." The **paraphrases below
+    sidestep all three concerns**, so they're the default. Branding angles it inspires (✅ ours, derived):
   - **"The Ten" / cap-at-10 groups** — *"Because sometimes, ten people are the whole world."*
     (our paraphrase — clears the verbatim-quote risk).
   - **"Small circles, big worlds." / "Find your world."** — abstract, clean, no IP exposure.
