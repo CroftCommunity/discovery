@@ -67,6 +67,15 @@ not try to merge them into one document; cross-reference instead.
   appendix (three-audience settings, LTS-for-interfaces). Raw dialogue:
   `../seeds/transcripts/raw/germ-xchat-design-dialogue.md`.
 
+- `atproto-private-data-architecture.md` — positions Croft's host-untrusted MLS group state + blind
+  broker against where AT Proto's own private/non-public-data work is heading (the real community-led
+  Private Data WG; GitHub #3363 "namespaces/buckets/realms" + #121 encryption). Headline: the atproto
+  core team is choosing the **trusted-PDS** side of the line Croft sits on the other side of (zero-
+  knowledge), so the direction *sharpens* Croft's differentiation. Covers the trusted-PDS-vs-ZK,
+  cheap-self-host, and key-revocation contentions; the Germ "Anchor-Key-in-profile" idiom; and the
+  unverified PDS-as-file-proxy idea (content-blind-mule rhyme). Related projects/tools registered in
+  `../ECOSYSTEM.md` §5e/§6. Web-verified 2026-06-22; raw + FACTCHECK in `../seeds/transcripts/raw/`.
+
 - `group-chat-failure-modes.md` — sourced analysis of the field's recurring group-chat failure
   modes (SSB fusion-identity, Megolm forward-secrecy nuance, MLS ordering/fork unsolved-merge,
   Keybase's trusted-server answer to per-device ordering), our model graded against each, the

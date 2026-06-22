@@ -26,6 +26,9 @@ the exact paste) · **distilled-only** (analyzed into outputs, raw not kept) · 
 | PR #3/#4/#6/#8/#9 full code trees | the `Proofs` and `experiments` repos | preserved-verbatim |
 | Crofting narrative re-telling (pasted 2026-06-22) | `seeds/transcripts/raw/croft-crofting-narrative.md` | preserved-verbatim (quotes/anecdotes `[UNVERIFIED]`; tertiary sources — see COHESION §16) |
 | AT-Proto atmospheric-web / Iroh mobile dialogue (Gemini, pasted 2026-06-22) | `seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-dialogue.md` | preserved-verbatim + **fact-checked** (`...-FACTCHECK.md`, 2026-06-22; 2 REFUTED fabrications, several PARTLY — see COHESION §17) |
+| Drystone protocol-naming dialogue (Gemini, pasted 2026-06-22) | `seeds/transcripts/raw/croft-drystone-protocol-naming-dialogue-2026-06-22.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)** + **fact-checked** (`...-FACTCHECK.md`, 2026-06-22; 1 REFUTED fabrication "Skartsia and Tomi", 4 PARTLY — substance grounded). Decision: P2P protocol named **Drystone** (`NAMING.md`); see COHESION §24 |
+| AT Proto / PDS / Germ / private-data dialogue (Gemini, pasted 2026-06-22) | `seeds/transcripts/raw/croft-atproto-pds-germ-privatedata-dialogue-2026-06-22.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)** + **fact-checked** (`...-FACTCHECK.md`, 2026-06-22; strong — federation numbers + DM date exact, architecture + #3363/#121 confirmed; errors: `ger.mx`, draft name, Vultr 1-click, WG "officially formed", peers.org miss). **Updates the source-of-truth** `atproto-atmospheric-web-iroh-mobile-FACTCHECK.md` (dated addendum: real community-led **Private Data WG**; Germ matured). See COHESION §26 |
+| AT Proto architecture explainer (Gemini, pasted 2026-06-22) | `seeds/transcripts/raw/atproto-architecture-appview-relay-explainer-2026-06-22.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)** + **fact-checked** (`...-FACTCHECK.md`, 2026-06-22; **unusually accurate, mostly restates settled atproto mechanics**). 1 REFUTED (did:plc ≠ "Public Liaison Corporation" → **"Public Ledger of Credentials"**); 1 OUTDATED (relays non-archival since Sync v1.1 — don't store every repo); CONFIRMED-despite-suspicion: current 2 vCPU/12 GB relay (~$34/mo, RPi-capable) + **Tap** (official Go repo-sync tool). **Updates the source-of-truth FACTCHECK** (Addendum 2). See COHESION §27 |
 
 ## Code — verbatim confirmed
 
@@ -181,3 +184,24 @@ not auto-resolved).
 | **`croftc/SecurityPolicy#10` code** — Rust Cargo workspace: `crates/{core,bluesky,cli,design,shell,web,desktop}` + as-built `BUILD-SPEC.md`/`design-philosophy.md` + real recorded Bluesky fixtures + ~20 PNG web snapshots | **preserved-verbatim (code)** | Placed at `experiments/croft-app-phase0/` from head branch `claude/experiments-pcl2ym`; verified **byte-identical** (`diff -rq`, empty). Only the PR's `experiments/` subtree imported; SecurityPolicy root `.github/`/`Publish/`/`README.md` excluded. No secrets/build-artifacts (`.gitignore` excludes `/target`, `crates/web/dist/`). Fixtures are real recorded public `getTimeline` responses (no fabrication). |
 | **PR #10 conversation** — description, milestones, the deliberate fixtures gap, cycode license findings (`webpki-roots` CDLA-Permissive-2.0; `r-efi` tri-licensed, resolved in-PR), 8 CodeRabbit nitpicks | **preserved-verbatim** | Captured at `experiments/croft-app-phase0/PR-CONVERSATION.md`. Carried findings recorded there + COHESION §23. |
 | **coding transcript** | **linked, not separate** | No separate verbatim coding transcript; the design reasoning is the 2026-06-20→22 dialogues already filed (`croft-app-portdecision-review`, `croft-app-design-dialogue`, `croft-architecture-design-dialogue`). Cross-referenced in PR-CONVERSATION.md §"Coding-transcript linkage". |
+
+## 2026-06-22 intake — crypto-wars → mobile-P2P limits → PDS-hosting economics (Gemini dialogue)
+
+A wide three-body Gemini dialogue. Distinct from the companion atproto/atmospheric dialogue (no
+topical overlap with GeoCities/atmospheric-web); confirmed not previously filed (distinctive
+anchors — Hush-A-Phone, Carterfone, BassOmatic, Smarsh, Peat, Zimmermann, AltStore — absent from
+the corpus before this intake).
+
+| Raw artifact | Status | Note |
+|---|---|---|
+| **Crypto-wars → P2P → PDS-economics dialogue (Gemini, 2026-06-22)** — (a) the digital-liberty lineage; (b) the mobile-P2P four-property impossibility + protocol landscape; (c) a PDS-hosting + P2P-blended business model with enterprise-compliance grounding | **preserved-condensed (cleaned-paste, content-faithful — not a pristine export)** + **fact-checked** | Filed at `seeds/transcripts/raw/crypto-wars-to-p2p-pds-economics-dialogue-2026-06-22.md`. No UI render chrome in the source; only the inline citation source-name lines and turn markers handled; user/Gemini typos preserved verbatim. Header carries the §4 caveat. Companion `...-FACTCHECK.md` (2026-06-22): **unusually accurate for Gemini.** 3 REFUTED (a fabricated Zimmermann "Stalin" congressional-testimony quote; "Voskop" as a Matrix protocol; the Meyer-letter exact quote on a real July-1977 event); several historical quote-wordings UNVERIFIABLE (Keane letter, Zuboff/Acquisti/Solove). **Notable CONFIRMED-despite-suspicion:** Proton case-no. `4:25-cv-05450` + Judge Martínez-Olguín + Andy Yen quote; China App-Store 30→25% (Mar 2026); **Peat by Defense Unicorns** (real Rust+iroh+Automerge-CRDT+MLS stack); Deloitte $200k + Velox $1.8M off-channel fines; $3.5B+ aggregate. |
+
+Carried-forward: **Peat/Defense Unicorns → ECOSYSTEM §1** as the strongest prior-art match for
+Croft's exact substrate bet (Rust+iroh+CRDT+MLS, proven in denied/degraded). The **PDS-hosting
+business model + enterprise-compliance demand** (CONFIRMED real) feeds the top open problem
+(**sustainability ↔ the cooperative *mechanism*** — ROADMAP_TODO; surface, don't let the model's
+for-profit framing become Croft's answer). The **four-property impossibility** backs the existing
+lineage-groups MLS rationale (the accepted "unequal peer" = a Delivery Service). The Bazelon
+**"privately beneficial without being publicly detrimental"** standard (CONFIRMED) is a legal
+ancestor of the **"no right to remove the rights of others"** razor. iroh/atproto facts: cite the
+project FACTCHECK; this dialogue does not re-introduce the MST/"Keen" errors.

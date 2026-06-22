@@ -77,6 +77,48 @@ given. For Croft this argues for the **meer/superpeer** as the dependable always
 (the relay lab's co-location thesis), with opportunistic device-to-device sync as a bonus, not the
 backbone.
 
+## The four-property impossibility (why Croft's shape is forced, not chosen)
+
+*Added 2026-06-22 from the fact-checked crypto-wars→P2P→PDS dialogue
+(`seeds/transcripts/raw/crypto-wars-to-p2p-pds-economics-dialogue-2026-06-22.md` + `-FACTCHECK.md`).*
+
+A clean articulation of a constraint Croft already lives inside: **group moderation + multi-device
+sync + Perfect Forward Secrecy + an offline mesh mode cannot all hold at once without an unequal,
+privileged peer.** The two collisions:
+
+- **PFS vs. mesh-healing** — PFS demands old keys be destroyed; healing an offline fork demands a
+  partition catch up, which needs retained keys or a forking DAG. Retain keys to heal → PFS breaks.
+- **Moderation vs. multi-device in a partition** — with no master clock, a "kick" on one side of a
+  split and a post on the other can't be totally ordered; without an arbiter the group can't agree
+  who is "in." Real-time enforceable moderation needs a sequencer.
+
+This is **not Croft dodging the impossibility — it is Croft making the honest trade openly.** MLS
+(RFC 9420, the basis of lineage-groups) *assumes a Delivery Service* for ordering; Croft's
+**meer/superpeer** is exactly that "unequal-but-not-authoritative" peer (different in capability,
+equal in rights — `crystallized/principles.md` Tier 1; the **Princeps Problem** guard, COHESION
+§24). The field map confirms everyone pays the toll somewhere: Briar (no real-time group
+moderation), Cwtch (a host node anchors the group → goes dark if it drops), Keet/Hypercore (no PFS,
+needs an active DHT → not air-gap-capable), Matrix/Megolm (shared ratchet → weaker PCS, forks
+badly in a split). Secondary "dials" worth keeping in view when sizing the protocol: **MLS/TreeKEM
+wire overhead** (kilobyte handshakes hurt on BLE/LoRa MTUs), metadata-privacy-vs-scale (mixnet
+cover traffic kills latency/battery), eviction-lag, log-pruning-vs-late-joiners, Energy-Depletion
+attacks on always-listening nodes, Sybil resistance (PoW melts batteries; invite-chains recreate
+hierarchy), traffic-analysis/fingerprinting, and DHT warm-up lag on cold open. All CONFIRMED as
+real tradeoffs (FACTCHECK Cluster D).
+
+### Prior art that validates the bet: Peat (Defense Unicorns)
+
+The dialogue surfaced — and the fact-check **CONFIRMED as real, despite smelling fabricated** —
+**Peat**, an open-source Rust P2P data-sync middleware built by Defense Unicorns on **exactly
+Croft's substrate stack: iroh transport (QUIC + BLE) + Automerge CRDTs + MLS group security**
+(`peat-gateway` bridges to Okta/Keycloak when a link returns). It runs in *denied/degraded/
+contested* tactical environments (ATAK, drones, edge sensors). It sidesteps the consumer-mobile
+graveyard by deploying on admin-controlled hardware where the OS watchdog is disabled — i.e. it
+proves the stack works when you *remove* the iOS-background constraint, not that the constraint is
+beatable. Takeaway for Croft: the substrate bet is sound and battle-tested off-grid; the unsolved
+part remains the *consumer-mobile* envelope, which is what this doc and the meer design address.
+Registered in `ECOSYSTEM.md` §1; tracked ROADMAP_TODO E21.
+
 ## Open edges
 
 - Background BLE meshing reliability on iOS — needs a real spike before any design leans on it.

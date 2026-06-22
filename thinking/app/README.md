@@ -28,7 +28,7 @@ adopted slim, not the framework. Web-first; desktop is the wrapped web app; the 
 isolated in the one pond Croft owns. **This is now a settled decision** (2026-06-22):
 `client-architecture-adr.md` — one shared core + thin per-platform shells (each supplying its own
 `effects.rs` callout), two callout axes (platform + implementation-behind-a-port). Prior client work
-(`../../../experiments/iroh/crates/croft-chat-cli`) adapts to it (ROADMAP_TODO E19).
+(`../../../experiments/croft-group/crates/croft-chat-cli`) adapts to it (ROADMAP_TODO E19).
 
 ## The discovery / experiment split (the untangle)
 

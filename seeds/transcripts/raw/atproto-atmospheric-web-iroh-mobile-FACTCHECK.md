@@ -30,6 +30,45 @@ codename, product mechanic, governance/standards framing, and exact API before r
 2. **"Keen" as an internal codename for `iroh-docs`.** No primary source links any "Keen" to
    n0/iroh. Almost certainly invented. (`iroh-docs` is simply `iroh-docs`.)
 
+## Addendum 2026-06-22 — refinements from the AT Proto / PDS / private-data dialogue
+
+A later Gemini intake (`croft-atproto-pds-germ-privatedata-dialogue-2026-06-22.md` + its FACTCHECK)
+web-verified two items that **refine but do not contradict** the verdicts below:
+
+1. **A real, community-led ATProto Private Data Working Group now exists** (atproto.wiki +
+   discourse.atprotocol.community, organized by Boris Mann; GitHub discussions #3363 "Namespaces" →
+   later "buckets/realms", and #121 "Encryption for private content"; Paul Frazee participates
+   *informally*). This is **distinct from** the fictional "AT Proto encryption working group
+   standardizing 'AT Messaging' with MLS" still REFUTED in the section below. The real WG is about
+   **access-controlled, PDS-gated private data** (PDS as trusted agent); **true E2EE / zero-knowledge
+   is explicitly the deferred, harder problem.** So **native-in-the-protocol E2EE still does not
+   exist**, and real AT-Proto E2EE remains **third-party** — the headline holds.
+2. **Germ has matured** from beta to *the first native-launched private messenger from a Bluesky
+   profile* (TechCrunch 2026-02-18): cofounder/CTO Mark Xue (ex-Apple iMessage/FaceTime); open-source
+   "Autonomous Communicator (AC) Protocol" on MLS; IETF draft **`draft-xue-distributed-mls`** (IETF
+   124, "TwoMLS", Naval Postgraduate School coauthors); Protocol Labs Cypherpunk Fellowship; identity
+   bound via an **"Anchor Key" published in the atproto profile**. (Gemini errors there: invented
+   `ger.mx`, wrong draft name "distributed-mls-id", unverified `/android-waitlist`.)
+
+## Addendum 2026-06-22 (2) — refinements from the AT Proto architecture explainer
+
+A later Gemini intake (`atproto-architecture-appview-relay-explainer-2026-06-22.md` + its FACTCHECK)
+web-verified three items:
+
+1. **`did:plc` = "Public Ledger of Credentials"** (did-method-plc spec) — the explainer's "Public
+   Liaison Corporation" expansion is a **fabrication**; do not use it. (Mechanics of did:plc are
+   otherwise correct.)
+2. **The relay is now non-archival (Sync v1.1, 2025).** A *current* full-network relay runs on
+   ~**2 vCPU / 12 GB RAM / ~30 Mbps**, costs **~$20–34/month**, and is Raspberry-Pi-capable, *because*
+   relays no longer crawl/store full repos — they keep a configurable **backfill window** (24h ≈ a
+   couple hundred GB). So "the relay holds a full backup of every repo" is the **legacy (BGS)** model,
+   now superseded; full-history backfill pulls from the **PDS** (`getRepo`) or a sync tool. (This
+   refines the "Zeppelin 16 TB full AppView" figure in Cluster 2 and informs ROADMAP_TODO B5.)
+   (src: docs.bsky.app/blog/relay-sync-updates; bnewbold WhiteWind "$34/month relay")
+3. **`Tap`** is a real, **official** Go repo-sync/backfill tool (subscribe-to-relay + auto
+   `getRepo` backfill, then live). Useful prior art for any AppView/indexer Croft builds. (src:
+   atproto.com/blog/introducing-tap)
+
 ## Cluster 1 — AT Proto mechanics & atmospheric-web apps
 
 | Claim | Verdict | Note (src) |

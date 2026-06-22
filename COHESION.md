@@ -531,6 +531,169 @@ deepens §18's app body into *what actually fills the garden and how to build it
   **interactivity** = a deferred idiom-translating broker between cores (honest-seams). DRIFT-to-watch:
   the `iroh/` experiment is still **not in the `experiments/README` index** — close that gap.
 
+## 24. Drystone protocol-naming dialogue ↔ the rights-vs-capability principle + the meer/F5 guards
+
+- **CLOSED (the P2P protocol now has a name):** the user chose the **Drystone P2P Protocol** as the
+  name for Croft's peer-to-peer protocol (the thing `crystallized/CROFT-PROTOCOL.md` specifies).
+  Recorded in `NAMING.md` ("Protocol-layer naming"). A sub-product name under the Croft umbrella, so it
+  **partially closes ROADMAP_TODO A7** (the sub-product name map) at the protocol layer — the app/brand
+  layer (A7/C6) is still open. Source: `seeds/transcripts/raw/croft-drystone-protocol-naming-dialogue-2026-06-22.md`.
+
+- **CONFIRMS (a name for a principle we already hold):** the dialogue's design imperative — *peers
+  equal in rights, not in capability* — is **already** pinned as `principles.md` Tier 1 ("all peers are
+  equal in rights, but not capabilities") and proven by **F5** (availability-as-rights-escalation). The
+  Drystone name doesn't add a principle; it gives the existing one a load-bearing metaphor and a
+  memorable handle. No drift.
+
+- **CLOSES a framing gap (the anti-pattern is now named):** the user flagged the **"Princeps
+  Problem"** — nominal peer equality masking capability asymmetry, so the highest-capacity node fills
+  the vacuum and becomes a de-facto authority — as *the* anti-pattern to guard against in any P2P
+  system. This is exactly what the **meer anti-entrenchment** design (`thinking/meer-superpeer-design.md`,
+  materially-reversible delegation) and **"different, not weaker"** already defend against; the dialogue
+  supplies the name (Jo Freeman's *"The Tyranny of Structurelessness"*, 1970/72, applied to P2P) and
+  the real instances (BitTorrent seeder dependence; PoW/PoS pool/validator concentration). Backport: the
+  capability/rights split in `principles.md` Tier 1 and the meer doc can cite the Princeps Problem by
+  name as the failure they prevent.
+
+- **FACTCHECK (Gemini, heavily verified):** the substance is grounded; isolated provenance drift was
+  caught and is recorded in the `-FACTCHECK.md` companion — fabricated Greek terracing terms ("Skartsia
+  and Tomi" → real: xerolithia/pezoules), "adelphity" as an old English word, Farid's Arabic root, the
+  "musha-gaeshi" gloss, and the non-standard stone terms "builders"/"packing." **None affect the design
+  payload**; flagged so a superseded claim isn't laundered into a published doc.
+
+- **DESIGN-ONLY (don't over-claim the metaphor):** the footings/through-stones/hearting ↔
+  seed/desktop/mobile mapping is design *vocabulary*, not an implemented routing tier. Do not let it
+  harden into a claimed mechanism in `CROFT-PROTOCOL.md` without a proof (status `design`).
+
+---
+
+## 25. Crypto-wars → mobile-P2P → PDS-economics dialogue ↔ the substrate bet, the MLS rationale, the sustainability problem, and the rights razor
+
+- **CONFIRMS the substrate bet has production prior art (build-on / learn↔):** **Peat, by Defense
+  Unicorns** — fact-checked as **real** despite smelling fabricated — is essentially Croft's exact
+  protocol stack (**Rust + iroh transport + Automerge CRDTs + MLS**, plus `peat-gateway`→Okta/Keycloak)
+  proven in *denied/degraded/contested* (ATAK / tactical) conditions. This is the strongest external
+  validation yet that Croft's bet is sound and survivable off-grid. Registered in `ECOSYSTEM.md` §1.
+  Source: `seeds/transcripts/raw/crypto-wars-to-p2p-pds-economics-dialogue-2026-06-22.md` + `-FACTCHECK.md`.
+
+- **CONFIRMS the "unequal peer" we already accept (no drift):** the dialogue's **four-property
+  impossibility** — group moderation + multi-device + PFS + offline-mesh cannot coexist without an
+  unequal/privileged peer — is the same constraint our lineage-groups work already lives inside: MLS
+  (RFC 9420) **assumes a Delivery Service** for ordering. So Croft's design isn't dodging the
+  impossibility, it's making the honest trade openly (a sequencing service for the group plane), which
+  is the `principles.md` Tier-1 stance restated. Backs `thinking/ios-opportunistic-p2p.md` and the
+  protocol spine. The protocol comparison table (Matrix/Briar/Cwtch/Quiet/SimpleX/Keet/Wesh) + the
+  "secondary dials" (MLS wire-overhead, metadata-vs-scale, eviction-lag, log-pruning, Energy-Depletion,
+  Sybil, traffic-analysis, DHT warm-up) are an accurate field map → ECOSYSTEM §6.
+
+- **FEEDS the top open problem (surface, don't resolve):** the **PDS-hosting + P2P-blended business
+  model** (consumer/creator/operator/**enterprise-compliance** tiers) is *real demand* — the compliance
+  cluster (SEC 17a-4 / FINRA 4511 / 2210; $3.5B+ off-channel fines; Deloitte $200k; Velox $1.8M;
+  Smarsh/Global Relay) is **CONFIRMED**. This is direct input to the existential open item
+  (**sustainability ↔ the cooperative *mechanism***, `open-considerations.md` §8 / ROADMAP_TODO). **Open
+  tension to hold:** the dialogue frames this as a for-profit SaaS; Croft's stance is cooperative /
+  non-extractive. Do **not** let the model's framing silently become Croft's answer — it's the user's
+  call. Tracked ROADMAP_TODO E20.
+
+- **CONFIRMS a legal ancestor of the rights razor:** the Bazelon **Hush-A-Phone** standard (1956) —
+  a user's right to use a device "in ways which are **privately beneficial without being publicly
+  detrimental**" (CONFIRMED: Bazelon authored it) — plus the **Carterfone → Ma Bell → Apple** arc is a
+  precise legal lineage for `principles.md`'s **"no right to remove the rights of others"** and the
+  private-benefit/public-detriment line. Reinforces the design-imperative body (§22). The crypto-wars
+  history (PGP/Bernstein/Barlow/Diffie-Hellman) is "why"-grounding for the same body.
+
+- **FACTCHECK (Gemini, heavily verified — better than feared):** isolated drift caught in the
+  `-FACTCHECK.md` companion — a **fabricated Zimmermann "Stalin" quote** (not in his 1993 testimony),
+  **"Voskop"** (no such Matrix term; real = Megolm / Vodozemac), the **Meyer-letter exact quote** (real
+  event, July 1977, quote unsourced), and **Pear** over-described (a dev platform on the *Bare* runtime,
+  not a browser-replacing core; Keet's transport is Hypercore). Several historical quote-wordings are
+  UNVERIFIABLE (Keane letter; Zuboff/Acquisti/Solove). **None affect the design payload.** iroh/atproto
+  facts: cite the project FACTCHECK; this dialogue does not re-introduce the MST/"Keen" errors.
+
+## 26. AT Proto / PDS / Germ / private-data dialogue ↔ the lineage-groups differentiation + the blind-broker line
+
+- **SHARPENS Croft's differentiation (no drift; better-evidenced):** a **real, community-led ATProto
+  Private Data Working Group** now exists (atproto.wiki / discourse.atprotocol.community, Boris Mann;
+  GitHub #3363 "Namespaces"→"buckets/realms", #121 "Encryption for private content"; Paul Frazee
+  *informally*). It is converging on **access-controlled, PDS-gated** private data — the **PDS as a
+  trusted agent (like a browser)** — and explicitly treats **true E2EE / zero-knowledge as the deferred,
+  harder problem.** That is exactly the seam Croft's **lineage-groups MLS proof** occupies: real E2EE
+  group state that *doesn't trust the host*. So the corpus headline "no native AT-Proto E2EE; real E2EE
+  is third-party" **stays true and is now better-evidenced**, and the trusted-PDS-vs-zero-knowledge
+  debate maps onto Croft's **blind-broker / content-blind-mule** stance (Croft sits on the
+  zero-knowledge side the atproto core team is reluctant to take). Source:
+  `seeds/transcripts/raw/croft-atproto-pds-germ-privatedata-dialogue-2026-06-22.md` + `-FACTCHECK.md`.
+
+- **UPDATES the standing source of truth (not a contradiction):** the real private-data WG refines the
+  "no native AT-Proto E2EE / *fictional* 'AT Messaging' working group (REFUTED)" note in
+  `atproto-atmospheric-web-iroh-mobile-FACTCHECK.md` — a **dated addendum was added there** so
+  cite-don't-re-verify stays correct. The refuted thing (a Bluesky-chartered MLS-standardizing
+  "AT Messaging" body) is still fictional; the real WG is community-led and about access control, with
+  E2EE later. **MST confirmed as atproto's structure** (aligns with the prior iroh-conflation correction).
+
+- **UPDATES the Germ ECOSYSTEM row (matured):** Germ graduated from beta to *the first native-launched
+  private messenger from a Bluesky profile* (2026-02-18): Mark Xue (ex-Apple iMessage/FaceTime);
+  open-source **Autonomous Communicator (AC) Protocol** on MLS; IETF **`draft-xue-distributed-mls`**
+  (IETF 124, "TwoMLS", Naval Postgraduate School); Protocol Labs Cypherpunk Fellowship; identity bound
+  via an **"Anchor Key" published in the atproto profile**. The Anchor-Key-in-profile trick rhymes with
+  Croft's cross-platform-identity-provenance work (publishing an anchor in a public profile field).
+  ECOSYSTEM §6 Germ row enriched. Overlaps the §25 crypto-wars intake (Germ as MLS prior art) — same
+  cousin, complementary detail; no duplication.
+
+- **NEW idea for the blind-broker line (explore, not verified):** the **PDS-as-selective-file-proxy**
+  pattern — serve a blob the network believes is PDS-native while the bytes live in your own object
+  store, zero duplication (reverse-proxy `getBlob` interceptor + a blob-row in the PDS DB) — rhymes with
+  Croft's **content-blind mule** and the `encrypted-blob-share` experiment. But it is an unverified,
+  Gemini-self-described-**fragile** recipe (depends on the PDS's internal SQLite schema). Treat as an
+  [explore] prototype, not a recipe. Tracked ROADMAP_TODO.
+
+- **FACTCHECK (Gemini, heavily verified — strong):** federation numbers (100 accts; 2,600/hr, 50/s
+  burst; 21,000/day) and the May-2024 DM date are **exact**; the architecture (PDS/Relay/AppView, MST,
+  CID, public-by-default) and the #3363/#121 design discussions are primary-source-confirmed. Isolated
+  drift in the `-FACTCHECK.md`: invented `ger.mx`, wrong draft name "distributed-mls-id", unverified
+  `/android-waitlist`, the WG over-claimed as "officially formed" (it's community-led), a false **Vultr
+  1-Click PDS app** (the real one is **DigitalOcean**), and a clean Gemini **miss** (peers.org *was* a
+  real, now-wound-down sharing-economy org — mildly relevant to Croft's cooperative lineage). Pricing
+  tables are volatile — not enshrined.
+
+- **DISTILLED (2026-06-22):** analysis at `research/atproto-private-data-architecture.md` (the
+  trusted-PDS-vs-ZK / cheap-self-host / key-revocation contentions, the Germ Anchor-Key-in-profile
+  idiom, the file-proxy idea); related projects/tools registered in `ECOSYSTEM.md` §5e; and the
+  **differentiation framing backported** into `crystallized/principles.md` ("the recurring inversion"
+  now carries the host-untrusted/zero-knowledge note — Croft sits on the ZK side atproto's WG declines).
+  Remaining open work is only the **E23 file-proxy prototype** (unverified idea).
+
+---
+
+## 27. AT Proto architecture explainer ↔ the settled atproto mechanics (restatement) + the relay-economics update
+
+- **MOSTLY RESTATES, doesn't add (low distill yield):** this Gemini explainer (AppView/PDS/Relay,
+  Lexicon=schema, did:web vs did:plc, CAR/DAG-CBOR, rev/seq dedup, `requestCrawl`, feed-gen skeleton
+  vs AppView hydration) is a **teaching pass over facts already settled** in the corpus
+  (`thinking/atproto-atmospheric-web.md`, `plc-identity-resilience.md`,
+  `cross-platform-identity-provenance.md`, and the atproto source-of-truth FACTCHECK). No new design.
+  Filed for provenance, not for distillation. Source:
+  `seeds/transcripts/raw/atproto-architecture-appview-relay-explainer-2026-06-22.md` + `-FACTCHECK.md`.
+
+- **UPDATES the source of truth (Addendum 2):** three web-verified items folded into
+  `atproto-atmospheric-web-iroh-mobile-FACTCHECK.md` — **(1)** `did:plc` = **"Public Ledger of
+  Credentials"** (the explainer's "Public Liaison Corporation" is a **fabrication** — REFUTED);
+  **(2)** the relay is **non-archival since Sync v1.1 (2025)** — a current full-network relay is
+  **~2 vCPU / 12 GB RAM / ~$34-month / Raspberry-Pi-capable** *because* it no longer stores every
+  repo (keeps a configurable backfill window), so "the relay holds a full backup of every repo" is the
+  superseded **legacy (BGS)** model; **(3)** **Tap** is a real official Go repo-sync/backfill tool.
+
+- **INFORMS existing items (no new seam):** the relay-economics fact bears on **ROADMAP_TODO B5**
+  (relay capacity ceilings — the cheap-but-non-archival relay is the current reality) and the
+  **operator-relay tier** in `open-considerations.md` §8 / E20 (running a Croft relay is genuinely
+  ~$34/mo cheap). **Tap** is registered as atproto tooling prior art (ECOSYSTEM §5b) — useful if Croft
+  builds any AppView/indexer/backfill. The relay figure also refines the "Zeppelin 16 TB full AppView"
+  number in the source-of-truth Cluster 2 (a *full AppView* is heavy; a *relay* is now light).
+
+- **FACTCHECK (Gemini — unusually accurate):** beyond the did:plc fabrication and the legacy-relay
+  framing, the mechanics are correct (MST *is* atproto's structure — no drift); `atblueprints/awesome-atproto`
+  exists but the active list is `awesome-atproto/awesome-atproto` (beeman's was archived Jul 2025).
+
 ---
 
 ## How to use this map

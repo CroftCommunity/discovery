@@ -80,6 +80,14 @@ read as *settled foundation*, the bedrock the other tiers stand on.
   mechanism in a polity), so the rights-floor is a **consistency requirement and an equality
   requirement, not a moral overlay** (equal standing is *forced*, not asserted — unequal standing lets
   some clear others and the system dies). It is the backstop against the system becoming **incestuous**.
+  *Legal ancestor (crypto-wars→P2P dialogue, 2026-06-22; CONFIRMED):* the same line is drawn by Judge
+  Bazelon's **Hush-A-Phone** standard (1956) — a user may use a device "in ways which are **privately
+  beneficial without being publicly detrimental**," and the platform owner's control stops there. The
+  **Carterfone (1968) → Ma Bell → Apple/DOJ** arc is this principle fought out repeatedly: private
+  benefit (your tool, your data, your fork) is protected; only *public detriment* (removing others'
+  standing / breaking the shared network) is regulable. The whole crypto-wars lineage
+  (PGP/Zimmermann's "munitions" fight, Bernstein's "code is speech," Barlow, Diffie-Hellman vs. the NSA)
+  is the "why" under the same razor — see COHESION §25.
 
 - **Inverse-correlation of protection: maximal freedom where exit protects you, maximal protection of
   rights where exit cannot.** Where contestation is cheap (discussion/fork/merge/lineage), get out of
@@ -137,6 +145,15 @@ source: SOVEREIGN-COMMONS-DOSSIER.md §2, §3, §7, §8
   than extracts. Applied at five scales: relay→stateless rendezvous; relay→optional
   superpeer; routing server→content-blind mule; ad platform→consumer-side broker;
   compellable operator→cooperative.
+
+  - *Host-untrusted is the deliberate, differentiating choice (2026-06-22).* Croft keeps
+    confidentiality in the client/MLS layer so the broker (and any host) stays **blind** — the
+    **zero-knowledge** side of the trust line. AT Proto's own (community-led) private-data working
+    group is explicitly choosing the **other** side: the PDS as a *trusted agent* (like a browser),
+    with true E2EE/zero-knowledge deferred as the harder problem. So this is not "weaker, just
+    decentralized" — it is the property the trusted-host design declines to make, and it sharpens
+    Croft's lineage-groups differentiation rather than eroding it. (Ties to "different, not weaker"
+    below; analysis in `research/atproto-private-data-architecture.md`, COHESION §26.)
 
 - **Credit union, not a club.** A social utility structured to reinforce, not extract.
   Member-owned, dues-funded, surplus reinvested. The co-op is the maintenance plan.
