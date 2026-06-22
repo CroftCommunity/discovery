@@ -729,6 +729,89 @@ deepens §18's app body into *what actually fills the garden and how to build it
   **exact wording UNVERIFIED** (PDF wouldn't render — not a fabrication); Bluesky "public-by-default
   PDS" is a fair simplification (PARTLY).
 
+## 29. Sovereign PDS/AppView "club" + open-social naming/interop dialogue ↔ the read-layer expression of Croft's principles
+
+- **CONFIRMS a buildable shape of Croft's stance (the user flagged it "esp good"):** owning the
+  **AppView** (read/index) + PDS (data/write) for a small group unlocks **private blocking (inbound =
+  effective + un-scrapable; outbound = structurally impossible → experience-shaping / "local shadow
+  ban")**, off-repo private feeds, encrypted-blob vault, asymmetrical "gated-castle" federation, private
+  cooperative Labelers, multi-source AppView (ATProto + AP + Nostr + RSS), and CAR/MST offline mesh. Each
+  maps to an existing principle — *experience-shaping ≈ social-layer "visibility sink / structural-not-
+  runtime"; off-repo + encrypted blobs ≈ blind-broker / content-blind mule (§26); private Labelers ≈ the
+  **geer**; multi-source ≈ honest-seams **ponds** at the index layer.* Distilled to
+  `research/atproto-sovereign-appview-club.md`. Source:
+  `seeds/transcripts/raw/croft-atproto-sovereign-appview-open-social-dialogue-2026-06-22.md` + `-FACTCHECK.md`.
+
+- **DUPE/FORK consolidation:** the PDS/AppView middle was pasted twice (primary + a re-run that diverged
+  at the tail with net-new open-source-client recs + the Twitter Circles trilogy); filed once as the
+  superset. **Overlaps** §27 (architecture explainer, PDS/Relay/AppView mechanics), §26 (Germ), §25
+  (crypto-wars) — those are cited, not re-derived.
+
+- **CORROBORATES social-layer V3 with a billion-user failure:** **Twitter Circles** (gated public-plane
+  posts → leaked when ranking logic changed → killed) + Communities (killed ~May 2026) vs Group DMs/
+  XChat (won by being a hard public-or-E2EE binary) is independent proof of *"content is born into a
+  visibility regime and cannot silently change it"* and **structural-not-runtime enforcement** — don't
+  build a semi-private overlay on a public broadcast plane; make private data *structurally* private.
+  Backport target: `thinking/social-layer.md` (V3 regimes).
+
+- **STRATEGIC BACKGROUND (no design change):** **Aggregation Theory** (Thompson) + Bluesky's VC rounds +
+  Doctorow's switching-cost enshittification thesis frame Croft's credible-exit / no-data-hostage bet and
+  feed the sustainability↔cooperative-mechanism question (open-considerations §8; §25/§26 PDS-economics).
+
+- **ATTENTION-ECONOMY framing is Croft's verbatim:** the user's "Nielsen rating vs Meta manipulation /
+  community not extraction" = `principles.md` Tier-1 (non-extraction; user-need-first) + Tier-3
+  (shapeability + stability). The dialogue's "calm/dwell-time feed" is the product-layer expression.
+
+- **FACTCHECK (Gemini — unusually accurate):** every named project real and correctly attributed
+  (Bridgy Fed/A New Social, Bounce, Groundmist, AppViewLite, Blacksky/rsky-wintermute, Zeppelin, Colibri,
+  Ouranos/Heron/atcute, goat/PDS MOOver, Jetstream). Minor drift only: "501(c)(3)" (→ "nonprofit"), "AT
+  Community Fund" (→ **Free Our Feeds**), Series B 2025-close/2026-disclose, Communities date ~May 2026,
+  Heron "WriteQueue" unverified, Rhizome=stem-not-root. **Honesty caveats carried:** the offline-mesh
+  unattended-wake inherits the iroh FACTCHECK's "OS kills background P2P" caveat; the **dual-PDS one-
+  identity** is **not native** (sidecar service endpoints / off-repo, not delegate keys); Groundmist's
+  "private by default" is intent, not yet security (sync server ships auth-disabled); the SQLite-schema-
+  dependent **PDS hacks are fragile** (ties E23).
+
+- **REGISTER + RESERVOIR:** projects registered in `ECOSYSTEM.md` §5f (bridge/AppView/client tooling);
+  the open-ecosystem naming sweep (**Till/Tillage** + Commons/Agora/Bazaar/Rhizome/…) filed as a
+  **reservoir** in `NAMING.md` (nothing settled — "mostly background and research").
+
+---
+
+## 30. Groundmist / Hive / identity-chain / iroh-games dialogue ↔ the already-filed bodies + the new marketing/quotes reservoir
+
+- **HEAVY OVERLAP, cite-don't-redo:** this sprawling Gemini dialogue restates bodies already filed
+  and fact-checked in parallel intakes — the **Sun/Steem/Hive/coops** saga (§ cooperative-social-union),
+  **Groundmist/grjte** (§29 sovereign-appview), the **did:webvh↔did:plc identity chain** (`cross-platform-identity-provenance.md`,
+  `plc-identity-resilience.md`), and **iroh voice/video + godot-iroh** (`realtime-media-over-iroh.md`,
+  iroh-quic dialogue). Those FACTCHECKs are the source of truth. Source + net-new verdicts:
+  `seeds/transcripts/raw/groundmist-hive-identity-chain-iroh-games-dialogue-2026-06-22.md` + `-FACTCHECK.md`.
+
+- **NET-NEW corrections (the only things this intake changes):** **(1)** Hard Fork 23 confiscated
+  **~$6.3M / 23.6M STEEM**, not the dialogue's "$5M" (64 accounts + Hive-supporters + Notestein
+  correct) — update `cooperative-social-union-model.md` if it cites a figure. **(2)** **atproto resolves
+  `did:plc` and `did:web` ONLY — NOT `did:key`** (the dialogue lists three); the conclusion holds
+  (did:webvh isn't atproto-resolvable → did:plc + bidirectional `alsoKnownAs` is the workaround;
+  `equivalentId` is a stronger-but-less-supported form) — note in the identity docs. **(3)** the
+  **door-holding "corporation vs person" anecdote** is **attribution-UNVERIFIABLE** (*The Corporation*
+  (2003) / Robert Hare are real; the exact exchange is not sourced) — matters for marketing use.
+
+- **NEW prior art (ECOSYSTEM §5d):** all named iroh games/tools are **real** — **libmarathon**
+  (Bevy+iroh+gossip+CRDT, the closest gossip-game prior art), **ascii-royale**, **iroh-lan** (the
+  "tunnel localhost / emulator-netplay over iroh" pattern), **godot-iroh**, **DataBeam** (croc+sendme).
+  Reinforces the iroh-substrate bet at the *app/game* layer.
+
+- **STARTS the marketing/quotes reservoir (`narrative/messaging-and-quotes.md`, new — per user request
+  2026-06-22):** this dialogue + a **Euphoria** branding idea seeded a standing **marketing/advertising/
+  brand-voice** file with **usage tags** (✅ ours / 📚 cite / ⚠️ clearance / ❓ unverified). Key entries:
+  Croft-original lines (*"foundational layer, not the whole house"; "purism builds manifestos, convenience
+  builds monopolies"; "you can buy the tokens but you can't buy the crowd"*); the crowding-out theme
+  (Gneezy-Rustichini daycare study 📚; Thurlow 1844 ✅PD; the door-holding anecdote ❓; Ariely, Ostrom 📚);
+  and the **Euphoria "10 people can feel like the whole world"** tie-in (⚠️ **HBO IP — inspiration only,
+  not verbatim commercial**; recontextualize toward closeness; "The Ten" / "small circles, big worlds" are
+  our IP-clean paraphrases). Indexed in the discovery README; promote winners into
+  `thinking/app/brand-and-voice-notes.md` when the app brand firms up (ROADMAP_TODO C6/A7).
+
 ---
 
 ## How to use this map

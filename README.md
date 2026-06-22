@@ -106,7 +106,8 @@ discovery/
 └── narrative/                     the story, for humans (drafting)
     ├── verticals/                 standalone topic narratives
     ├── long-form.md               full why→what→how narrative
-    └── short.md                   max-3-page version
+    ├── short.md                   max-3-page version
+    └── messaging-and-quotes.md    marketing/advertising/brand-voice reservoir (usage-tagged)
 ```
 
 Proof/experiment CODE lives in the sibling `Proofs` and `experiments` repos, not here.
