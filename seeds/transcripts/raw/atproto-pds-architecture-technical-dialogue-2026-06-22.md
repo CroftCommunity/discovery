@@ -1,5 +1,16 @@
 # Raw transcript — atproto / Bluesky PDS architecture, Germ, object-storage shims, private data (Gemini)
 
+> **⚠️ DEDUP PENDING — DO NOT treat as canonical.** This body substantially **duplicates** the
+> concurrently-filed `croft-atproto-pds-germ-privatedata-dialogue-2026-06-22.md` (same Gemini
+> material, same `serveFileToBluesky` snippet), which is part of a fuller coordinated set (a deeper
+> `atproto-architecture-appview-relay-explainer-2026-06-22.md` + `research/atproto-private-data-
+> architecture.md`). Committed side-by-side to avoid blocking on a concurrent agent. **TO RECONCILE:**
+> merge any unique turns from here (object-storage pricing / Wasabi / cold-tiers / the `peers.org`
+> turn) + the verified fact-check delta below into the canonical `croft-atproto-pds-germ-privatedata`
+> set, then **delete this file + its FACTCHECK.** Single most important delta to preserve: the
+> dialogue's *"current" federation limits (100 accts / 2,600-hr / 21,000-day) are FABRICATED* — only
+> the Feb-2024 early-access numbers (10 / 1,500 / 10,000) are real.
+
 source: design-exploration dialogue, pasted 2026-06-22 · **cleaned-paste, content-faithful —
 NOT a byte-pristine export** (PLAYBOOK §4). Body 4 of a longer continuous Gemini session; companion
 bodies: `iroh-quic-localfirst-ecosystem-dialogue-2026-06-22.md`,
