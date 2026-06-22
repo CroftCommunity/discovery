@@ -245,7 +245,22 @@ source: thinking/thesis-lineage-groups.md, multi-device.md, social-layer.md
 ## Tier 3 — Product / durability principles
 
 source: the Germ/X Chat durable-product dialogue (thinking/interaction-tiers.md; raw in
-seeds/transcripts/raw/germ-xchat-design-dialogue.md).
+seeds/transcripts/raw/germ-xchat-design-dialogue.md); the client-architecture ADR
+(thinking/app/client-architecture-adr.md).
+
+- **One shared functional core, thin per-platform shells (the Croft client architecture).** Decided
+  2026-06-22 (ADR), proven in the Phase-0 import. Business logic lives once in a pure core
+  (`(state,intent)->(state,effects)`, no I/O/async/clock, WASM-clean); each platform (cli / web /
+  desktop / …) is a thin shell that supplies only its own `effects.rs` (the **platform callout** that
+  performs the core's effects-as-data and feeds results back as intents) plus a render target. Two
+  orthogonal callout axes: **platform** (the per-shell effect-performer) and **implementation**
+  (swappable adapters behind a port — fake/real, in-proc/iroh). A new surface is a new thin shell, not
+  a re-implementation; behavior can't drift across platforms because they share the core verbatim.
+  This is local-first/provenance discipline made structural (the core holds state and emits
+  effects-as-data; the shell reconciles with the world) and is the same DECISION-1 shape (effects-as-
+  data, not effect-as-function-call). Prior client work (`croft-chat-cli`) adapts to it. *Open and
+  deliberately not yet settled:* one shared core hosting feed-pond + group-pond as planes, vs. two
+  cores sharing only the pattern.
 
 - **Settings serve three audiences, not two.** Not basic/advanced (which conflates "most
   people never touch this" with "this is simple"). The three are defined by *relationship to
