@@ -138,6 +138,25 @@ already covered above (§5b, §1).
 | — | kbone · uni-app · Re.Pack/react-native-sandbox | Open mini-app runtimes: web-in-mini-app shim; one-codebase-many-hosts; guest crash-containment/isolation | learn↔ (guest-isolation + permission patterns for pads) |
 | Zed / Excalidraw / Spacedrive | (crafted-app references) | Renderer-spectrum + craft-discipline references; Spacedrive = closest Rust-core-shared-web-UI twin (cautionary: shell-demos-easy, finishing-hard) | learn↔ |
 
+## 5d. Games & app-pond building blocks (from the ponds/games dialogue 2026-06-21)
+
+Surfaced and partly verified in the ponds/games deep-dive (`thinking/app/ponds/`); verification status
+is per the artifacts (licenses checked via GitHub mirror; some Codeberg-hosted licenses want a final
+glance at bundle time). iroh-blobs/docs/gossip themselves are §1.
+
+| Org/Author | Project | Purpose / relevance | Relationship |
+|---|---|---|---|
+| n0 | sendme | iroh-blobs file-transfer reference (the device-to-device drop pad, near-free) | build-on |
+| adbenitez / ArcaneCircle | webxdc game catalog (chess, wonster word puzzle, many) | the wrappable catalog; mixed licenses (several GPL-3.0; chess piece art CC-BY-SA-3.0 — flagged trap); wonster MIT | wrap (via webxdc-compat shim), homage, learn↔ |
+| rameshvarun | netplayjs | Rollback netcode + WebRTC; host-authoritative state doubles as a hidden-info dealer; swap signaling for iroh | port substrate (confirm license at bundle) |
+| gschup / community | GGRS + matchbox | Rollback netcode in Rust + WebRTC signaling; more architecture-aligned than netplayjs for the Rust core | build-on (twitch-tier games) |
+| community | Curvytron (Curve Fever / Achtung die Kurve) | MIT fork base for the standout 2-8p twitch game | port/wrap (MIT) |
+| nicolodavis | boardgame.io | MIT turn-based engine with a transport abstraction; JS/React (architecture-fit tension with the Rust core) | learn↔ (turn-based patterns) |
+| Cure53 / OpenTechFund | webxdc security audit | The audit proving CSP alone doesn't contain a webview (WebRTC + DNS-prefetch exfiltration; FILL500 fix) | learn↔ (security model; **disable webview WebRTC**) |
+| Apple | Foundation Models framework | On-device ~3B model (iOS/macOS 26), guided generation (`@Generable`) constrains output to a real catalog (anti-hallucination); macOS=M-series; needs Swift↔Rust bridge | build-on (optional assistant; macOS target) |
+| Google | Gemini Nano (AICore + ML Kit GenAI) | On-device model; strong privacy isolation but steep device cliff (~flagship-only) + weaker structured output | build-on (optional assistant; Android target, fallback-heavy) |
+| — | Bond Touch (and similar) | The "thinking-of-you" bracelet — built a business/account/cloud-relay around ~50 bytes; the anti-pattern the free perpetual ping rebukes | learn↔ (negative example) |
+
 ## 6. P2P / decentralized messengers (the field)
 
 Detailed competitive analysis lives in `research/messaging-solutions-landscape.md`. Relational summary:

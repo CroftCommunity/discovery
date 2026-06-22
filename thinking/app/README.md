@@ -43,8 +43,31 @@ isolated in the one pond Croft owns.
   two-speed answer to "own what", "homegrown" as identity register, the message funnel. Reconcile
   with `../../NAMING.md` (umbrella Croft) when it settles — currently flagged in ROADMAP.
 
-- `../../seeds/generated-prompts/games-pond-research-prompt.md` — a prompt to fork the games hunt
-  into its own deep session. Not yet run (lives with the other generated prompts).
+- `../../seeds/generated-prompts/games-pond-research-prompt.md` — the prompt that forked the games
+  hunt into its own deep session. **Now run** — it produced the `ponds/` cluster below.
+
+- **`ponds/` — the ponds & pads catalog + build mechanics (2026-06-20→22 games/apps dialogue).** The
+  deep dive into what actually fills the garden and how to build it. Raw dialogue at
+  `../../seeds/transcripts/raw/croft-app-ponds-games-dialogue-2026-06-20-to-22.md`; 8 artifacts
+  frozen at `../../seeds/apps-unpacked/`. Contents:
+  - *Catalog* — `games-pond-authoritative-list.md` (games ranked by fun, by inclusion pathway:
+    build-fresh / wrap-via-webxdc-shim / port-via-WebRTC-swap), `apps-pond-utility-list.md`
+    (utilities by "have you seen this?" energy), `p2p-games-pond-launch-set.md` (the original hunt),
+    `webxdc-security-and-competitive-games.md` (the Cure53-audited webxdc security model + the
+    competitive 2-4p widening).
+  - *Build mechanics* — `build-order.md` (six-phase sequencing; the deep-link resolver is tier-zero
+    because it is both the core UX unlock and the only acquisition path), `fair-reveal-primitive-spec.md`
+    (one shared commit-reveal module powering voting + dice + hidden-info games),
+    `build-shape-pass.md` (license verification, the iroh-docs event-sourced ledger schema, local
+    real-time voting, the ponds/verbs/pinning UX model).
+  - *Feasibility* — `on-device-llm-feasibility.md` (per-platform on-device-LLM assessment for an
+    optional, **never-required**, easily-disabled navigation assistant; Android+macOS are the
+    first-build targets, iOS deferred).
+
+  Substrate note: this all rides **iroh 1.0** — `iroh-gossip` (ephemeral/live), `iroh-docs`
+  (accreting state, LWW per (author,key) → event-sourcing), `iroh-blobs` (content-addressed files).
+  Honest asterisk: browser peers are permanently relayed, and direct hole-punch falls back to relays
+  (n0's by default) — "no application server" is true; connection-bootstrap leans on relays.
 
 **Experiment (code) — lives elsewhere, import deferred:**
 
