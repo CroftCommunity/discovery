@@ -398,6 +398,57 @@ deepens §18's app body into *what actually fills the garden and how to build it
   build-order is the sequencing home (`thinking/app/ponds/build-order.md`); the games/tooling
   ECOSYSTEM rows (§5d) still want a final license glance at bundle time.
 
+## 20. `appframework.zip` ↔ the already-imported app-layer docs (DUPLICATION / superseded)
+
+- **DUPLICATION (superseded):** the 2026-06-22 `appframework.zip` contained earlier snapshots of two
+  docs — `BUILD-SPEC.md` (25,766 B) and `design-philosophy.md` (23,282 B) — that are already imported,
+  in a *more-developed* form, as `thinking/app/build-specs/BUILD-SPEC.md` (27,378 B) and
+  `thinking/app/design-philosophy.md` (37,350 B), byte-identical to the frozen
+  `seeds/multiecosystemapp-unpacked/` seed. Both contain all five locked DECISIONS (1–5); the repo
+  copies add a §3a cursor-invariant *proof*, the §1a garden thesis, and §4a credit/traceability that
+  the zip lacks. Net-new content in the zip vs. repo: **none** (zip-unique lines are only earlier
+  phrasings of text the repo states better).
+
+- **Status: NOT IMPORTED (correctly). The docs were left untouched** — overwriting the more-developed
+  repo copies with the earlier snapshot would have regressed them. What *was* genuinely new and got
+  filed: the **derivation dialogue** that produced the zip (the port-ownership argument; how DECISION
+  1–5 were reached), absent from `croft-app-design-dialogue-2026-06-20-to-22.md`, now at
+  `seeds/transcripts/raw/croft-app-portdecision-review-2026-06-21.md`. The zip itself remains in the
+  workspace root, superseded; recommend deletion at bundle time (the multiecosystemapp seed is the
+  canonical verbatim — discard pending user OK, not deleted unprompted).
+
+## 21. Cross-platform identity provenance ↔ the PLC/identity-resilience work + the sovereignty thesis
+
+- **EXTENDS (new axis):** the 2026-06-20 identity-provenance dialogue
+  (`seeds/transcripts/raw/croft-identity-provenance-dialogue-2026-06-20.md`) opens a distinct axis from
+  `plc-identity-resilience.md`. That doc answers "which DID method roots an MLS identity, and how to
+  build a validating PLC replica." This one answers "how does one person prove ownership of accounts
+  across Bluesky/ActivityPub/Hive." Distilled to `thinking/cross-platform-identity-provenance.md`;
+  the two are cross-linked.
+
+- **CLOSED (the structural answer):** a cross-platform *authority* key is impossible — each network is
+  a closed cryptographic root of trust and won't delegate it. The only real linkage is **out-of-band,
+  mutually-anchored or root-signed provenance attestation** (the hub-and-spoke: did:webvh root as a
+  correlation anchor, *evidentiary not operational*; spokes keep their own native keys). Key lineage is
+  **attestation, not derivation** (pre-rotation vertical chain via `nextKeyHashes`; verification-method
+  horizontal chain — provenance is the signed log entry, not a BIP32 path). This is a clean expression
+  of the sovereignty thesis (identity survives platform change because it never depended on one
+  platform's authority) — flagged as a `crystallized/principles.md` candidate, **not yet inserted**
+  (promotion is the user's call).
+
+- **CONFIRMED / consistent (no drift):** the dialogue's atproto facts align with
+  `plc-identity-resilience.md` (72h recovery window; rotation keys k256/p256; PLC as a self-certifying
+  transparency-log-not-CA; central `plc.directory` run by Bluesky PBC; governance handoff planned, not
+  done). It also independently surfaces the **did:plc↔did:webvh convergence** (#2705 dual-resolvability)
+  as cheap hedge-positioning — keep the did:webvh SCID as anchor even though nothing reads it yet.
+
+- **OPEN (carried, not resolved → ROADMAP_TODO):** the **anchor-URI stability contract** (stable
+  logical URI, mutable payload — not content-addressed/frozen); **PDS-held vs self-controlled did:plc
+  rotation key** (relates A2 recovery-anchor); and the **not-yet-written per-platform trust-model doc**
+  (the dialogue's repeatedly-offered, highest-leverage next artifact). `[UNVERIFIED]` carried forward:
+  native atproto did:webvh support; PLC governance handoff status; whether PDS/PLC tooling preserves
+  extra `alsoKnownAs` entries on write (needs a real test).
+
 ---
 
 ## How to use this map
