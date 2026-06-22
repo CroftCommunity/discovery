@@ -281,6 +281,17 @@ The co-op vertical's lineage (detail in the dossier §3, §8):
 | Mondragon | Worker-owned federation at scale | homage |
 | Credit-union lineage | Schulze-Delitzsch → Raiffeisen → Desjardins → Filene; "not for profit, not for charity, but for service" | homage (institutional model) |
 | Informal Systems (Ethan Buchman), Subvert, Patio.coop, USFWC | Modern tech-worker co-op references / structures (LCA + PBC) | partner, learn↔ |
+| Platform Cooperativism Consortium (Trebor Scholz, The New School, 2018) | The movement + research hub for user/worker-owned platforms; Scholz's 2014 essay "Platform Cooperativism vs. the Sharing Economy" is the founding text | homage, learn↔ [verified 2026-06-22] |
+| Stocksy United (Colorado LCA) | The gold-standard platform co-op: ex-Getty/iStock founders, multi-class membership (founder/staff/artist), profitable, quality-density over scale — the model for progressive-decentralization + multi-class | homage, learn↔ [verified] |
+| The Drivers Cooperative (NYC) | Driver-owned ride-share; drivers keep ~85% (co-op takes ~15%); proves you can out-margin a VC monopoly by paying contributors | homage [verified] |
+| Resonate | Music-streaming co-op; "stream-to-own" micro-payments convert to ownership/governance — a non-token internal-economy precedent | homage, learn↔ [verified] |
+| Social.coop | Member-owned, member-governed Mastodon instance funded by Open Collective dues — the closest living relative to the "Social Union" (single-protocol, no progressive-decentralization sunset) | homage, learn↔ [verified] |
+| The Purpose Foundation / steward-ownership; Haferkater; Start.coop | Revenue-Based Financing / "Demand Dividend" capped-return investor models (financial rights, no governance, stake vanishes at cap) — the seed-capital mechanism | learn↔ [verified] |
+| 501(c)(3) tech fiscal sponsors — SPI, Software Freedom Conservancy, Code for Science & Society | The grant-funded-open-source-labor path for the nonprofit half of a co-op/501(c)(3) tandem (host Debian/Arch/PostgreSQL; Git/Inkscape; public-interest tech). NB Open Collective *Foundation* dissolved end-2024; Open Source Collective is a 501(c)(6) | partner, learn↔ [verified] |
+| Anti-patterns (learn↔, what-not-to-do) — Ello (VC capture), Ampled (volunteer burnout, shut 2023), Steemit (hyper-financialization), Diaspora (architectural naïveté), Coomappa (white-label dependency) | The verified failure lineage the cooperative model is designed to answer — see `thinking/cooperative-social-union-model.md`, COHESION §33 | learn↔ [verified 2026-06-22] |
+
+(Rows above from the 2026-06-22 cooperative "Social Union" dialogue; fact-checked — see
+`seeds/transcripts/raw/cooperative-social-union-governance-dialogue-2026-06-22-FACTCHECK.md`.)
 
 ---
 
