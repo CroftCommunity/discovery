@@ -449,6 +449,45 @@ deepens §18's app body into *what actually fills the garden and how to build it
   native atproto did:webvh support; PLC governance handoff status; whether PDS/PLC tooling preserves
   extra `alsoKnownAs` entries on write (needs a real test).
 
+## 22. The design-imperative / architecture body ↔ the existing principles + lineage-groups + identity work
+
+- **GROUNDS (the deep "why" under everything):** the 2026-06-20 design-imperative dialogue
+  (`seeds/transcripts/raw/croft-architecture-design-dialogue-2026-06-20.md`) supplies the cross-field,
+  cross-millennium lineage (Socrates → Mill → Peirce/Popper → Hayek → Ostrom → Ashby → Beer → Scott)
+  that *grounds* principles the corpus already held as design choices. It turns several from preference
+  into theorem: **equal-in-rights** (a consistency/requisite-variety requirement, not a moral overlay),
+  **forks-are-a-feature** (local-first's native move; "never algorithmically adjudicate a social
+  dispute" generalized to *compute provenance, never utility*), **provenance-is-the-dual-purpose
+  primitive** (the razor). Filed: essay → `narrative/lineage-of-a-design-imperative.md`; architecture →
+  `thinking/local-first-as-design-imperative.md`; deepest principles → `crystallized/principles.md`
+  ("The deeper foundation" section).
+
+- **CLOSED (the Kleppmann reconvergence tension):** the open question of whether Croft's fork/merge
+  contradicts CRDT Strong Eventual Consistency is resolved — **reconvergence policy is per-plane
+  (asset-overridable), declared at intent-to-collaborate, bound into the asset's hash.** SEC auto-merge
+  for incidental concurrency (chat/docs); human-gated reconvergence where divergence is substantive
+  disagreement (governance/action). Kleppmann's model is correct for one class of planes, Croft's for
+  another. Backport target: this is the formal statement behind Tier-2 "forks are a feature" and the
+  "six tapes in a room" no-merge rule.
+
+- **CONFIRMED / consistent (no drift):** the substrate facts align with existing work — MLS epochs as
+  the re-key backstop (Tier-2), blind-broker/superpeer anti-entrenchment (`meer`/`geer`), the
+  freshness/non-equivocation guarantees (`freshness-signal.md`; gossip = CT/CONIKS). The atproto/iroh
+  facts (DID portability, iroh-gossip = HyParView+Plumtree, plc.directory governance) align with the
+  FACTCHECK and `plc-identity-resilience.md`. The trailing bridge-doc verification corrections are
+  folded into `thinking/cross-platform-identity-provenance.md`.
+
+- **OPEN (carried, not resolved → ROADMAP_TODO):** the **centerless-meets-center frontier** (legal
+  entity / money / name registrar / scaling relay — the largest-clothes irreversible-singleton, deferred
+  not solved); **governance-at-scale** (subsidiarity + liquid delegation, concentration the default
+  failure); **the federation/peering PoC** (BGP-autonomy + postal-hierarchy + signed routing; recursive
+  workers over atproto, DNS as swappable resolver); **forward-only revocation under irreversible
+  commitments**; **the duty-of-care re-homing** (durability/recoverability the center carried); and the
+  three new threat-model seams (epoch×fork×offline-grant; the delegate courier-vs-agent unification;
+  content-predicate search-coverage attestation). DRIFT-to-watch: the architecture's "design philosophy"
+  is the *protocol/substrate* layer — distinct from `thinking/app/design-philosophy.md` (the
+  *client/app* layer); keep the two from being conflated.
+
 ---
 
 ## How to use this map

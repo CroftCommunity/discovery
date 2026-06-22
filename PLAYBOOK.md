@@ -251,6 +251,13 @@ This repo set is reviewed before commit, so commit only on request. When asked:
   *mechanism*** (existential). Phase 0 (functional core + CLI) was built in **CroftC PR #10** —
   import deferred, the IP/ownership call is the user's (ROADMAP_TODO A8); surface, don't resolve.
 
+- **The "why" foundation (2026-06-20):** the **design-imperative body** — the cross-field lineage
+  (`narrative/lineage-of-a-design-imperative.md`) + the protocol-substrate architecture
+  (`thinking/local-first-as-design-imperative.md`) + deepest principles (`crystallized/principles.md`
+  "The deeper foundation"). Razor: **compute provenance, never utility**; **local-first as the
+  generative premise**; **no right to remove the rights of others**. Distinct from the app/client
+  philosophy. Top open frontier: centerless-meets-center (ROADMAP_TODO D8).
+
 - **Imported so far:** Proofs = lineage-groups (#8), lineage-group-model (#9),
   encrypted-local-first-atproto (#3). experiments = appview-validation (#6), public-roundtrip
   (#4), android-p2p-app (#7), encrypted-blob-share (#5).

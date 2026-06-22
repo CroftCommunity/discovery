@@ -45,6 +45,8 @@ pins `=1.0.0`; first-party Swift bindings `iroh-ffi` shipped with 1.0 mid-June 2
 | Veilid team | Veilid | Privacy-first P2P with source-address-free routing | Ed25519/x25519/XChaCha20/BLAKE3/Argon2; DHT (small mutable records) | demoted to future metadata-resistant messaging-layer candidate; no large-blob primitive [verified: dossier] | learn↔ (future) |
 | — | Holochain | Agent-centric P2P (no global consensus) | source chains, rrDHT, validation rules, membrane proofs | dropped as substrate (uses iroh transport anyway; mobile-weak) [verified: dossier] | homage (borrow patterns) |
 | Earthstar / Willow team | Willow protocol / willow-rs | Local-first data model with true deletion | 3D data model, Meadowcap capabilities, prefix-pruning | not shippable in 2026; design "Willow-shaped," migrate later [UNVERIFIED current] | homage, build-on (later) |
+| John Day / community | RINA (Recursive InterNetwork Architecture) | Recursive scoped-addressing networking | "networking is one recursive layer repeated at scale"; bounds routing state by recursion, not a flat global table | research/academic [dialogue-sourced 2026-06-20] | learn↔ (the closest formalization of Croft's recursive-federation routing) |
+| — | Named Data Networking / Yggdrasil / cjdns | Hierarchical-name / cryptographic-identity overlay routing | NDN routes on aggregatable hierarchical names; Yggdrasil/cjdns route over crypto-identity trees with no global table, locality-aware | NDN research; Yggdrasil a working small-scale net [dialogue-sourced 2026-06-20] | learn↔, build-on (federation routing PoC prior art; Yggdrasil ≈ the PoC target shape) |
 
 ## 2. Group encryption & crypto primitives
 
@@ -62,6 +64,7 @@ pins `=1.0.0`; first-party Swift bindings `iroh-ffi` shipped with 1.0 mid-June 2
 |---|---|---|---|---|---|
 | Ink & Switch / community | Automerge | CRDT for shared mutable state | multi-writer merge, change history | Automerge 3.0 claimed ~10× (up to 100×) memory reduction vs v2 [UNVERIFIED version] | build-on, learn↔ |
 | Ink & Switch | "Local-first software" (Kleppmann et al. 2019) | The local-first thesis | 7 ideals; single-user value before network effects | foundational essay [verified: dossier] | homage |
+| M. Kleppmann et al. | BFT-CRDTs / Blocklace | The formal underpinning of Croft's fork/merge plane | "Making CRDTs Byzantine Fault Tolerant" (PaPoC 2022); "Byzantine Eventual Consistency…" (2020); Blocklace (2024) — hash-DAG CRDTs immune to tampering/sybil; equivocation is the residual hashes can't catch | papers [dialogue-sourced 2026-06-20, links verified in-session] | build-on, learn↔ (the productive tension: his SEC auto-converges; Croft gates reconvergence per-plane) |
 
 ## 4. Identity, trust & capabilities
 
@@ -78,6 +81,8 @@ pins `=1.0.0`; first-party Swift bindings `iroh-ffi` shipped with 1.0 mid-June 2
 | Bluesky PBC | plc.directory | central did:plc directory/registry | resolve `GET /{did}`; audit log `/{did}/log/audit`; 12M+ ops; self-certifying (transparency-log-not-CA) | live; the known centralization soft spot; governance handoff to a nonprofit planned, **not done** [dialogue-sourced; aligns with `plc-identity-resilience.md`] | build-on (Bluesky spoke), learn↔ |
 | bluesky-social | goat (Go AT CLI) | atproto account/identity CLI | `account plc recommended → edit → request-token → sign → submit` (email-token gated); PDS signs/forwards | named as the real PLC-op flow [dialogue-sourced, pending verification] | build-on |
 | Hive community | Hive | on-chain social blockchain | owner/active/posting/memo key hierarchy; `json_metadata` / `custom_json` arbitrary fields | live; **no DID, no `alsoKnownAs`** — provenance only via signed custom metadata (bespoke) | learn↔ (a spoke; the weakest-linkage case) |
+| Google / academia | Certificate Transparency (RFC 6962) + CT gossip; CONIKS | append-only transparency logs; per-principal monitoring | the equivocation-*detection* model — each principal monitors its own binding, gossip cross-check forces non-equivocation, no trusted center | CT in production; CONIKS research (USENIX Sec 2015) [dialogue-sourced 2026-06-20] | build-on, learn↔ (the four-substrate-guarantees / capture-detection model) |
+| DIF | DIDComm Mediator Coordination / Pickup | hold-and-forward for offline DID controllers | near-exact prior art for the capability-only, offline-principal **delegate** | spec [dialogue-sourced 2026-06-20] | build-on, learn↔ |
 
 ## 5. Social protocols & federation
 
@@ -194,7 +199,10 @@ The co-op vertical's lineage (detail in the dossier §3, §8):
 
 | Example | What it proves | Relationship |
 |---|---|---|
-| Elinor Ostrom's commons work | Communities sustain shared resources for centuries (Törbel, Valencia, Bali Subak, Maine lobster) | homage (governance DNA) |
+| Elinor Ostrom's commons work | Communities sustain shared resources for centuries (Törbel, Valencia, Bali Subak, Maine lobster); polycentric governance + subsidiarity = the scale answer | homage (governance DNA) |
+| Crofting / Crofters' Holdings Act 1886 | Secure tenure + common grazing = the rights-floor + commons made literal; the form that survived the Highland Clearances (the monoculture-by-optimization disaster) | homage (the name is the thesis) |
+| Commons-DAO research (De Filippi, Rozas et al.) | "DAO design for the commons" (Frontiers in Blockchain, 2023): forking as pressure on the powerful; "none is essential"; Ostrom-grounded — vs. the code-is-law / auto-executed-legitimacy mainstream Croft rejects | homage, learn↔ [dialogue-sourced, verified Frontiers DOI 10.3389/fbloc.2023.1287249] |
+| Liquid Feedback / liquid democracy (German Pirate Party; Google Votes) | Instantly-revocable per-topic delegation = "cheap exit at scale"; real-world failure is delegation *concentration* (super-delegates) — the antidotes are decay/caps/bounded-chains/expiry/visibility | learn↔ [dialogue-sourced 2026-06-20] (D9 governance-at-scale) |
 | Green Bay Packers | Only community-owned major US sports team; the model was banned after | homage |
 | Mondragon | Worker-owned federation at scale | homage |
 | Credit-union lineage | Schulze-Delitzsch → Raiffeisen → Desjardins → Filene; "not for profit, not for charity, but for service" | homage (institutional model) |
