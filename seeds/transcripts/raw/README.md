@@ -30,6 +30,17 @@ that canonical copy instead of triplicating it, and preserves the session log ve
 | `pr4-public-roundtrip.md` | #4 | experiments/public-roundtrip | — |
 | `pr3-encrypted-local-first.md` | #3 | Proofs/encrypted-local-first-atproto | — |
 
+### Non-PR narrative / research transcripts
+
+| File | Subject | Distilled into |
+|---|---|---|
+| `croft-crofting-research.md` | Scholarly crofting history + naming argument | `../../NAMING.md` |
+| `croft-crofting-narrative.md` | Popular narrative re-telling of the crofting story (quotes/anecdotes `[UNVERIFIED]`) | `../../NAMING.md` "Vivid grounding"; COHESION §16 |
+| `germ-xchat-design-dialogue.md` | Germ / xChat design dialogue | research/germ-xchat-features.md |
+| `p2p-architecture-origin-dialogue.md` | P2P architecture origin dialogue | ANALYSIS.md / thinking/ |
+| `atproto-atmospheric-web-iroh-mobile-dialogue.md` (+ `...-FACTCHECK.md`) | AT-Proto atmospheric web / Neo-GeoCities / Iroh opportunistic mobile P2P (Gemini; fact-checked 2026-06-22) | COHESION §17; thinking/ + ECOSYSTEM distillation pending |
+| `croft-app-design-dialogue-2026-06-20-to-22.md` | The Croft **app/client layer**: architecture, honest-seams ponds/pads, stack (Rust core + Tauri/Leptos, web-first), iroh transport tiers, atproto appview routing, the games pond, super-apps, palette/brand, session-review, Phase 0-1-2. **Cleaned-paste, content-faithful — not a pristine export** (no canonical export existed; PLAYBOOK §4). | `thinking/app/` (+ artifacts frozen at `../../multiecosystemapp-unpacked/`); COHESION §18; ROADMAP §12-15; research/ECOSYSTEM distillation pending |
+
 ## Still outstanding (see ../RAW-ARTIFACTS-MANIFEST.md)
 
 The original **design-dialogue transcript** (the first large paste — the messaging research

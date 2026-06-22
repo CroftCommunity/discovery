@@ -46,6 +46,13 @@ broker." The dossier's DID/SSI identity is the lineage-groups DID lineage. The d
 "messaging = vault artifacts, Automerge when interactive" is the substrate the lineage-groups
 protocol rides on. The group-messaging work is the most-developed slice of the larger vision.
 
+A **third body opened 2026-06-22: the app / client layer** ("Croft" the product) — a composable
+"utility garden" hosting **ponds** (Bluesky / Mastodon / Lemmy, kept native — honest seams) and
+**pads** (small self-contained apps), with the **Croft Group** pond (private chat + later P2P games)
+= the lineage-groups protocol *surfaced* on iroh. It rides the proven substrate, it does not re-open
+it. Its design lives in `thinking/app/` (see `thinking/app/README.md`); Phase 0 (functional core +
+CLI) was built externally (CroftC PR #10), import deferred (ROADMAP §13).
+
 ## Layout
 
 ```
@@ -53,12 +60,15 @@ discovery/
 ├── SOVEREIGN-COMMONS-DOSSIER.md   umbrella vision (consolidated thinking journey)
 ├── ANALYSIS.md                    corpus map of the GroupDynamics seeds
 ├── ROADMAP.md                     rough milestones + features (organize-now, refine-later)
+├── ROADMAP_TODO.md                provenance-indexed backlog: open items + origin file:line
 ├── ECOSYSTEM.md                   relational register of related open work (homage /
 │                                    integrate / partner / rebroadcast / learn↔)
 │
 ├── seeds/                         raw, immutable source material
 │   ├── groupdynamics-unpacked/    the 4 produced group-messaging docs as delivered
-│   └── generated-prompts/         2 prompts spawned but not yet run/filed
+│   ├── multiecosystemapp-unpacked/  the 6 app-design artifacts as delivered (frozen)
+│   ├── transcripts/               raw design dialogues (incl. the 2026-06-20→22 app dialogue)
+│   └── generated-prompts/         3 prompts spawned but not yet run/filed
 │
 ├── research/                      industry research & comparison (analytical lens)
 │   ├── README.md                  how research/ relates to ECOSYSTEM.md (same projects,
@@ -81,7 +91,10 @@ discovery/
 │   ├── design-notes-addendum.md     roll-ups/checkpoints, two-mode convergence, capabilities-
 │   │                                  not-rights, one-mechanism unification, the trap door
 │   ├── model-holds-up-summary.md    one-page verdict: how our model scores vs. the field
-│   └── experiment-suite.md          test/experiment spec to verify the design end-to-end
+│   ├── experiment-suite.md          test/experiment spec to verify the design end-to-end
+│   └── app/                         THE APP/CLIENT LAYER (new body, 2026-06-22): README +
+│                                      design-philosophy + design-criteria + brand-and-voice-notes
+│                                      (draft) + build-specs/ (Phase 0 built, Phases 1-2 spec'd)
 │
 ├── crystallized/                  the distilled spine
 │   ├── principles.md              design + civic principles, extracted

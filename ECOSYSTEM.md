@@ -27,7 +27,11 @@ not competitive.
 
 current-state legend: facts marked **[verified <source>]** are confirmed from this corpus's
 research or live experiments; **[UNVERIFIED]** needs a refresh pass before external use. The
-dossier's standing correction: iroh is at `1.0.0-rc.0`, not "pre-1.0 / v0.97."
+standing correction (updated 2026-06-22): **iroh is now released at `1.0.0`** (the relay lab
+pins `=1.0.0`; first-party Swift bindings `iroh-ffi` shipped with 1.0 mid-June 2026). Earlier
+"`1.0.0-rc.0`" / "pre-1.0 / v0.97" notes are superseded. Companion crates remain pre-1.0
+(iroh-docs 0.100, iroh-gossip 0.100, iroh-blobs 0.102). The endpoint identity type was renamed
+`NodeId`→`EndpointId` (0.94).
 
 ---
 
@@ -35,7 +39,8 @@ dossier's standing correction: iroh is at `1.0.0-rc.0`, not "pre-1.0 / v0.97."
 
 | Org | Project | Purpose | Capabilities | Current state | Relationship |
 |---|---|---|---|---|---|
-| n0 | iroh | QUIC-first P2P networking (Rust) | NodeId (Ed25519), hole-punching, relays; iroh-gossip, iroh-docs, iroh-blobs (BLAKE3 content-addressed) | `1.0.0-rc.0`; in production in Delta Chat across 100k+ devices [verified: research + dossier] | build-on, partner, learn↔ |
+| n0 | iroh | QUIC-first P2P networking (Rust) | EndpointId (Ed25519), hole-punching, relays (ex-"DERP"), QUIC-multipath migration; iroh-gossip (HyParView/Plumtree), iroh-docs (range-based set reconciliation, LWW), iroh-blobs (BLAKE3); `unstable-custom-transports` (0.97+, ≥1,200-byte datagrams); first-party `iroh-ffi` Swift/Kotlin/Py/JS bindings | **`1.0.0`** (relay lab pins `=1.0.0`, API verified vs source); Swift bindings mid-June 2026; in production in Delta Chat, Nous Research (distributed LLM training), Paycode (POS) [verified: relay-lab + web 2026-06-22] | build-on, partner, learn↔ |
+| community | iroh custom transports | pluggable QUIC-over-anything | `mcginty/iroh-ble-transport` (BLE, community; + `blew` crate, `BlewChat` **unencrypted** demo); `n0-computer/iroh-tor`, `n0-computer/iroh-nym` (metadata privacy); `iroh-pkarr-node-discovery` | early/experimental; BLE is community not core; `iroh-webrtc-transport` claimed but not found [verified: web 2026-06-22] | learn↔ (future off-grid/anonymity transports) |
 | — | libp2p | Modular P2P stack | Transports, pubsub, DHT | mobile-weak vs iroh; rejected as primary [verified: dossier] | homage |
 | Veilid team | Veilid | Privacy-first P2P with source-address-free routing | Ed25519/x25519/XChaCha20/BLAKE3/Argon2; DHT (small mutable records) | demoted to future metadata-resistant messaging-layer candidate; no large-blob primitive [verified: dossier] | learn↔ (future) |
 | — | Holochain | Agent-centric P2P (no global consensus) | source chains, rrDHT, validation rules, membrane proofs | dropped as substrate (uses iroh transport anyway; mobile-weak) [verified: dossier] | homage (borrow patterns) |
@@ -77,6 +82,61 @@ dossier's standing correction: iroh is at `1.0.0-rc.0`, not "pre-1.0 / v0.97."
 | Nostr community | Nostr | Simple relay-based protocol | signed events, relays | federation priority #3 [UNVERIFIED current] | rebroadcast, learn↔ |
 | Ryan Barrett | Bridgy Fed | AP ↔ ATProto bridge | cross-protocol federation | the bridge reference [verified: dossier] | build-on, partner |
 | Matrix.org Foundation | Matrix | Federated E2EE group chat | Olm/Megolm; MLS migration in progress | MLS still in design (MSC4256/4244, arewemlsyet.com); 25+ govt deployments [verified: research] | homage, learn↔ |
+
+## 5b. AT Proto "atmospheric web" apps & Rust tooling
+
+The community term for non-social apps built on AT Proto is the **"atmospheric web"** (per
+atproto.com). All rows below verified via web 2026-06-22 (see
+`seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md`). Relevant because the
+"web of docs / Neo-GeoCities / open-LinkedIn" product vein (see `thinking/atproto-atmospheric-web.md`)
+would build alongside these.
+
+| Org/Author | Project | Purpose | Current state | Relationship |
+|---|---|---|---|---|
+| — | Tangled (tngl.sh / tangled.org) | Decentralized Git collaboration on ATProto | live; `user.tngl.sh` handles, federated PRs, self-host "Knots" [verified: web] | learn↔, build-on (Smoke Signal hosts here) |
+| — | WhiteWind (whtwnd.com) | Markdown blogging, data on PDS | live, OSS [verified: web] | homage, learn↔ |
+| Leaflet team | Standard.site | Long-form publishing lexicon set on PDS | live; block-based, **not** Markdown-only [verified: web] | learn↔ |
+| — | Leaflet (leaflet.pub) | Long-form/social publishing on PDS | live; block editor [verified: web] | learn↔ |
+| — | Semble (semble.so) | Research knowledge network (NOT a Linktree clone) | live, on ATProto [verified: web] | learn↔ |
+| — | Smoke Signal (smokesignal.events) | Decentralized Meetup/Eventbrite | live, MIT OSS, 1yr 2025-07-14 [verified: web] | homage, learn↔ |
+| — | npmx | npm registry browser w/ ATProto sign-in | live [verified: web] | learn↔ |
+| Livepeer-funded | Streamplace | Livestreaming over ATProto | live, OSS [verified: web] | learn↔ |
+| S. Vogelsang | Flashes | Instagram-like photo client on ATProto | live (3rd-party) [verified: web] | homage |
+| Automattic | ATmosphere (WordPress plugin) | Bridges WordPress → ATProto (publishes site.standard.* to PDS) | v1.0.0 May 2026 [verified: web] | rebroadcast, learn↔ |
+| @mozzius | Graysky | Alt Bluesky client; defined `app.graysky.*` | live; the custom-namespace exemplar [verified: web] | homage, learn↔ |
+| Rudy Fraser | Blacksky | Independent ATProto infra (own relay, Ozone, Rust "rsky") | live; AppView in dev [verified: web] | homage, learn↔, partner |
+| zeppelin-social | Zeppelin AppView | Independent full-network Bluesky AppView | ~16 TB / ~$200-mo Hetzner; **decommissioned** Fall 2025 [verified: web] | learn↔ (the full-mirror cost lesson) |
+| sugyan | ATrium (atrium-rs) | Rust AT-Proto framework | live; atrium-lex + atrium-codegen (lexicon→Rust), bsky-sdk [verified: web] | build-on (Rust client path) |
+| @ksk001100 | bsky_tui | Rust TUI Bluesky client (Ratatui+Tokio+atrium) | live [verified: web] | homage (decoupled-presentation proof) |
+
+Private-groups/E2EE on AT Proto are **third-party** (no native "AT Messaging" working group —
+that claim was REFUTED): **Germ DM** (MLS, §6 below) and the **XMTP↔Bluesky bridge** (XMTP Labs
+`bluesky-chat`). This gap is what Croft's lineage-groups MLS proof answers — see COHESION §17.
+
+## 5c. App-layer tooling & clients (from the 2026-06-20→22 app dialogue — pending independent verification)
+
+These surfaced in the Croft app design dialogue and are recorded here so they are not lost. **Not
+independently re-verified this session** — treat as dialogue-sourced `[UNVERIFIED]` until checked
+(ROADMAP §14 follow-on). ATrium, Graysky, Blacksky/rsky, the full-mirror cost lesson, and iroh are
+already covered above (§5b, §1).
+
+| Org/Author | Project | Purpose | Relationship |
+|---|---|---|---|
+| — | Jacquard (jacquard-rs) | Rust AT-Proto crates; zero-copy borrowed deserialization, ergonomic OAuth; the lower-boilerplate alternative to ATrium | build-on (Bluesky module, behind a port) |
+| h3poteto | megalodon-rs | Multi-server fediverse client (Mastodon/Pleroma/Friendica/Firefish/GoToSocial/Pixelfed) one interface; Apache-2.0 | build-on (the "AP" module targets the Mastodon client API, not AP C2S) |
+| LemmyNet | lemmy-client-rs | Official Rust Lemmy client; WASM-aware (browser fetch), manages version skew | build-on (Lemmy pond) |
+| Red Badger | Crux | Hexagonal Rust app framework: side-effect-free core, effects-as-data, WASM+native | homage, learn↔ (adopt the *pattern* slim, not the pre-1.0 framework) |
+| Tauri / WRY | Tauri v2 | Rust shell, web frontend, all 5 platforms incl. Android; webview-per-OS | build-on (the desktop/mobile shell) |
+| — | Leptos | Rust fine-grained-reactive web UI → WASM (same-memory boundary with the core) | build-on (the web shell render path) |
+| — | Dioxus | Rust cross-platform UI (web/desktop/mobile) | homage (the Path-B alternative not chosen) |
+| @cheeaun | Phanpy | Open web Mastodon client; deliberately de-emphasizes engagement actions | homage, learn↔ (closest values-aligned client; multi-column) |
+| — | deck.blue | TweetDeck-style column Bluesky client | homage (per-source column = the composable unit) |
+| Openvibe | Openvibe | Combined-timeline multi-network app (Mastodon/Bluesky/Nostr/Threads) | learn↔ (the *fused-timeline* anti-pattern — confirms honest-seams) |
+| Apps incub. | Fedilab | Fediverse client, simple-by-default + more-on-demand | homage (progressive disclosure shipped) |
+| Merlin (n0/community) | webxdc + Delta Chat mini-apps | Small web-bundle apps over iroh realtime; the topic+ticket handoff; the WebRTC-transport-swap porting recipe | homage, learn↔ (the **pads/games pond** reference) |
+| Tencent / W3C | WeChat mini-programs · W3C MiniApp | Super-app guest-app model; permission scopes; the gatekeeper trap to reject | learn↔ (borrow the grammar, reject the central distribution/observation) |
+| — | kbone · uni-app · Re.Pack/react-native-sandbox | Open mini-app runtimes: web-in-mini-app shim; one-codebase-many-hosts; guest crash-containment/isolation | learn↔ (guest-isolation + permission patterns for pads) |
+| Zed / Excalidraw / Spacedrive | (crafted-app references) | Renderer-spectrum + craft-discipline references; Spacedrive = closest Rust-core-shared-web-UI twin (cautionary: shell-demos-easy, finishing-hard) | learn↔ |
 
 ## 6. P2P / decentralized messengers (the field)
 

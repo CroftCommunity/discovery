@@ -41,6 +41,35 @@ experiments/  Code-forward spikes — "does this work / what's actually true?"
 
 5. `discovery/SOVEREIGN-COMMONS-DOSSIER.md` — the umbrella vision (pre-"Croft" naming).
 
+## Reference indexes, filing & the backlog (where things go)
+
+File new material the same way every time — `PLAYBOOK.md` is the canonical process (classify →
+preserve raw verbatim → distill → update connective tissue). The standing indexes to reach for:
+
+- **`ROADMAP_TODO.md`** — the single **provenance-indexed backlog** of open items (origin
+  `file:line` + a durable section-header key). Add new open items *here* rather than starting a
+  parallel list; `ROADMAP.md` carries the reasoning, this aggregates it. "Roadmap possibles" live
+  here.
+
+- **`ECOSYSTEM.md`** — the relational register of related projects/tools (homage / build-on /
+  partner / rebroadcast / learn↔). Add or update a row whenever new material names an
+  org/project/tool. (§5b atmospheric-web apps; §5c app-layer tooling/clients.)
+
+- **`seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`** + `seeds/transcripts/raw/README.md` — what raw
+  came in and its preservation status (**verbatim** / **cleaned-paste** / condensed / distilled).
+
+- **`COHESION.md`** — the seam-tracker (a loose end ↔ the proof/spike/doc that closes it). Check
+  before declaring anything "unproven."
+
+- **Fact-check sources of truth — cite, do NOT independently re-verify:** atproto / iroh / iOS-P2P
+  facts are settled in `seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md`
+  (~75 claims, verdicts + URLs). Align to its corrections, notably: **iroh is `1.0.0`** (companion
+  crates pre-1.0 — iroh-docs/gossip `0.100`, iroh-blobs `0.102`; `NodeId`→`EndpointId`; relays were
+  formerly "DERP"); iroh-docs uses **range-based set reconciliation + LWW**, not Merkle Search Trees
+  (an AT-Proto structure Gemini conflated); there is **no native AT-Proto E2EE / "AT Messaging"
+  working group** (REFUTED) — real AT-Proto E2EE is third-party (Germ MLS, XMTP↔Bluesky bridge),
+  the gap Croft's lineage-groups MLS proof answers.
+
 ## Working rules
 
 - **Git identity:** chasemp account on all three repos —
@@ -63,4 +92,12 @@ experiments/  Code-forward spikes — "does this work / what's actually true?"
 
 - Biggest open problem: multi-device + total-device-loss recovery (backup-vs-delegation fork).
 
-- Provenance: complete — all transcripts/PRs filed verbatim (see RAW-ARTIFACTS-MANIFEST.md).
+- **New body (2026-06-22): the app / client layer** ("Croft" the product) — a composable
+  garden of **ponds** (Bluesky/Mastodon/Lemmy, native) + **pads** (small apps), with the **Croft
+  Group** pond = lineage-groups surfaced on iroh. Design at `thinking/app/`; dialogue at
+  `seeds/transcripts/raw/croft-app-design-dialogue-2026-06-20-to-22.md`. Phase 0 built externally
+  (**CroftC PR #10**) — import deferred (the IP/ownership call is the user's; ROADMAP §13). Top
+  open risk: infra-sustainability ↔ the cooperative *mechanism* (open-considerations §8).
+
+- Provenance: complete — transcripts/PRs filed (see RAW-ARTIFACTS-MANIFEST.md); the app dialogue
+  is a content-faithful **cleaned-paste** (no pristine export existed), labeled per PLAYBOOK §4.

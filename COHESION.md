@@ -256,6 +256,103 @@ repos: `discovery` (thinking/synthesis) · `experiments` (code: proofs/ + spikes
 - **Status: reconcile.** crystallized/principles.md uses the refined wording; the dossier's
   phrasing is the ancestor.
 
+## 16. Crofting narrative re-telling ↔ the crofting research (same subject, two registers)
+
+- **The seam:** a narrative re-telling of the crofting story
+  (`seeds/transcripts/raw/croft-crofting-narrative.md`, pasted 2026-06-22) covers the **same
+  subject** as the scholarly research file (`croft-crofting-research.md`) but in a popular,
+  quotable register.
+
+- **Status: DUPLICATION + DRIFT (both intentional, both kept).** *Duplication:* the arc, the
+  1886 Act, "Magna Carta of Gaeldom," common grazing, and the modern legacy are already in the
+  research file and distilled in `NAMING.md`. *Drift:* the narrative leans on the heroic "free
+  clan → cleared → fought back → won" arc that the research file explicitly flags as the myth
+  needing qualification (crofting was largely *invented* by the clearing landlords; 1886
+  secured tenancy, not land). The raw file is headed with that caveat, so the de-romanticized
+  ground truth is not lost.
+
+- **What it adds (promoted):** five vivid, `[UNVERIFIED]` quotable items — Chambers' 1827
+  "useless human beings"; "the lairds' four-footed clansmen"; the Shetland eviction-curse
+  anecdote; the Bernera Riot (1874); and the modern Mackintosh-v-Cameron land-court echo.
+  These are distilled into a "Vivid grounding" subsection in `NAMING.md` and are seed material
+  for the still-unwritten `narrative/verticals/the-civic-why.md` (the loose end in §14).
+
+- **Source-quality flag:** the narrative's citations are tertiary (tourism/retail blogs,
+  Goodreads), weaker than the research file's secondary scholarship — verify before any
+  external use.
+
+## 17. AT-Proto atmospheric-web / Iroh mobile dialogue ↔ the existing Iroh + lineage-groups work
+
+- **The seam:** a Gemini design dialogue (`seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-dialogue.md`,
+  fact-checked in `...-FACTCHECK.md`) explores an AT-Proto "atmospheric web" / Neo-GeoCities /
+  open-LinkedIn product vein and an iOS opportunistic-mobile-P2P-over-Iroh vein. Both touch
+  ground the corpus already holds.
+
+- **CLOSED / CONFIRMED (Iroh):** the dialogue's Iroh substance was checked against this project's
+  own pinned-`=1.0.0` verified source (`experiments/iroh/relay-lab-runs/IROH-1.0.0-API-VERIFIED.md`)
+  and the relay-lab spikes (iroh-docs 0.100 / gossip 0.100 / blobs 0.102). Range-based set
+  reconciliation, HyParView/Plumtree gossip, `unstable-custom-transports`, QUIC-multipath
+  migration, and BLAKE3 all confirmed — consistent with `thinking/realtime-media-over-iroh.md`
+  and the [[croft-relay-lab-2026-06-16]] findings.
+
+- **DRIFT / corrected:** the dialogue claims **iroh-docs uses Merkle Search Trees** — REFUTED, it
+  uses range-based set reconciliation (MSTs are AT Proto's structure). Don't let this conflation
+  into any thinking doc. The Rust snippets use a non-existent `connect_to_peer` API.
+
+- **CLOSED — the private-groups gap is *our* thesis.** The dialogue's claim of an official
+  "AT Messaging" MLS working group is REFUTED; real AT-Proto E2EE/groups are third-party today
+  (**Germ Network**/MLS — already in corpus via `germ-xchat-design-dialogue.md` /
+  `research/germ-xchat-features.md` — and the XMTP bridge). This is exactly the gap Croft's
+  **lineage-groups Phase-1 MLS proof** (GO on openmls 0.8.1) answers. Link: the atmospheric-web
+  product vein needs private groups; Croft already proved the crypto for them.
+
+- **OPEN / flagged:** the "opportunistic mobile scavenger mesh" (two locked phones auto-waking
+  over BLE and gossiping) is shakier than the dialogue implies — CoreBluetooth restoration does
+  NOT relaunch on new-advertiser discovery, and Berty reports background P2P dies within seconds.
+  Treat as aspirational. Relates to `thinking/multi-device.md` and the meer/superpeer model.
+
+- **Status: DISTILLED (2026-06-22).** Two thinking docs written —
+  `thinking/atproto-atmospheric-web.md` (product vein) and `thinking/ios-opportunistic-p2p.md`
+  (mobile vein), carrying only CONFIRMED/PARTLY claims with verdict flags. `ECOSYSTEM.md` updated:
+  iroh row corrected to `1.0.0` (+ EndpointId/custom-transports/iroh-ffi), new community-transports
+  row, and new **§5b** (atmospheric-web apps + Rust tooling). Germ DM (§6) is the standing
+  atproto+MLS link; the private-groups gap ↔ Croft lineage-groups is recorded in both thinking
+  docs. The mobile-scavenger-mesh caution is flagged OPEN (needs a real spike).
+
+## 18. The Croft app (client layer) ↔ the proven lineage-groups substrate + open risks
+
+The 2026-06-20→22 design dialogue opened a **new body of work**: the app/client layer ("Croft" the
+product), distinct from the protocol thinking it rides on. Material landed at `thinking/app/`
+(README + philosophy + criteria + brand-draft + build-specs), seed at
+`seeds/transcripts/raw/croft-app-design-dialogue-2026-06-20-to-22.md`, frozen artifacts at
+`seeds/multiecosystemapp-unpacked/`.
+
+- **CLOSED (rides the substrate):** the **Croft Group** pond *is* the lineage-groups work surfaced
+  — its iroh transport tiers (Tier-1 public bridge / Tier-2 browser-as-peer relay-only-but-E2EE /
+  Tier-3 native full peer) sit directly on the iroh substrate (`ECOSYSTEM.md` §1, the 1.0 row) and
+  the meer/blind-broker model (`thinking/meer-superpeer-design.md`). The app's **scoped appview** (custom lexicons + private block-lists/stats
+  via service-proxy/service-auth) is the same shape as the atproto extension work (§5b, COHESION
+  #8). So the app does **not** re-open the protocol — it consumes it. That it slots on with no
+  protocol change is itself evidence the substrate decisions hold.
+
+- **OPEN (carried, not resolved):** the app surfaced four risks now tracked in
+  `thinking/open-considerations.md` §8-10 + `thinking/app/README.md`: infra-sustainability ↔ the
+  cooperative *mechanism* (existential; links to ROADMAP §8 charter + `governance-and-survivability.md`);
+  moderation/safety vs the kid-friendly goal (links to `geer-gating-peer.md`); cold-start for the
+  owned pond; and the **CroftC IP/ownership entanglement** (Phase 0 code in CroftC PR #10 — import
+  deferred, ROADMAP §13, the user's decision).
+
+- **DRIFT to watch:** the app's brand work introduces "Croft" as the *product* name and "Croft
+  Group" as the chat pond (plus the pond/pad taxonomy + "Grow your own"). `NAMING.md` pinned Croft at
+  the *umbrella* level; reconcile product-vs-umbrella naming when `brand-and-voice-notes.md` settles
+  (ROADMAP §14). Per the README convention, do not propagate unsettled product names into structure.
+
+- **Status: PARTLY DISTILLED (2026-06-22).** Thinking + provenance landed and connective tissue
+  updated (this entry, ROADMAP §12-15, open-considerations §8-10, RAW-ARTIFACTS-MANIFEST). The
+  embedded industry research (iroh-in-browser, webxdc/Delta-Chat games, super-apps/W3C-MiniApp,
+  appview routing, Rust client libs, Crux/FCIS) is **not yet** distilled into `research/` /
+  `ECOSYSTEM.md` rows — flagged OPEN as the follow-on (ROADMAP §14).
+
 ---
 
 ## How to use this map

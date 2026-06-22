@@ -86,6 +86,43 @@ funding (which was costed on small archives). Media changes that math. See
 
 ---
 
+## 8. Infrastructure sustainability ↔ the cooperative as a *mechanism* (the app layer's existential question)
+
+Surfaced by the 2026-06-20→22 app dialogue (`seeds/transcripts/raw/croft-app-design-dialogue-2026-06-20-to-22.md`).
+The Croft app needs ongoing, metered, user-scaling infrastructure: **relays** (browser iroh peers
+are *permanently* relayed — the relay carries the whole session, still E2EE but load-bearing), the
+**public-bridge** node, the **scoped appview** (custom lexicons + private state), and **push
+origination** to FCM/APNs. The client is non-extractive by design — but how the *infrastructure*
+sustains itself without becoming the extractive thing is undecided, and this has killed more
+values-driven decentralized projects than any technical problem. The cooperative is so far a
+*value*, not yet a *funding/governance mechanism*. This is the same thread as the cooperative
+charter (ROADMAP §8) and the rug-pull/survivability work (`governance-and-survivability.md`) — the
+charter must make "cooperative" do the **sustainability** work (member-funded, credit-union-shaped),
+not only the ethics. Flagged as the most important unthought thing.
+
+## 9. Moderation / safety / abuse vs the kid-friendly goal (a genuine tension)
+
+E2EE-P2P-relay carries traffic the operator *cannot read* — a privacy feature until it is CSAM or
+coordinated harm flowing through Croft's own relays, where "I can't see it" becomes a legal/moral
+problem, not a win. The public bridge exposes group content (doxxing/harassment amplification
+vector). Chat and the games pond connect strangers. And the product explicitly courts **"gen alpha
+/ kid-friendly"** use — which runs straight into the E2EE-P2P-relay architecture. This tension must
+be squared deliberately before launch, not after an incident. Relates to the geer/labeler thinking
+(`geer-gating-peer.md`) and the social-layer safety trade-offs (`social-layer.md`).
+
+## 10. Cold-start for the owned pond + "is composability a user want or a builder's elegance"
+
+Aggregator ponds (Bluesky/Mastodon/Lemmy) inherit other networks' populations, sidestepping
+cold-start. **Croft Group** (the one pond Croft owns) has the classic empty-room problem; the games
+hook is currently the *only* answer and games is a *candidate* pond, not committed — which suggests
+the games-and-chat hook may be more central to strategy than its candidate status implies (the wedge;
+principles are the retention). Adjacent: composability may be a power-user delight the
+grandma/gen-alpha audience never touches, so the **default, ignore-everything experience must be
+compelling on its own**. (The CroftC IP/ownership entanglement — the most time-sensitive item — is
+tracked in ROADMAP §13 and `thinking/app/README.md`, not duplicated here.)
+
+---
+
 ## Priority
 
 Act on **(1) product definition first** — every other decision (how much CRDT, how reliable the
