@@ -12,7 +12,7 @@ mature model we have and the one prior client work should adapt to.
 
 We are accumulating more than one Croft client surface: the **Bluesky-pond feed CLI**
 (`experiments/croft-app-phase0/crates/cli`), a **web** shell (Leptos/WASM), a **desktop** shell
-(Tauri), and the separate **iroh/P2P group-chat CLI** (`experiments/iroh/crates/croft-chat-cli`).
+(Tauri), and the separate **iroh/P2P group-chat CLI** (`experiments/croft-group/crates/croft-chat-cli`).
 Without a shared discipline, each surface re-implements feed/group logic, multiplying maintenance and
 letting behavior drift between platforms. The design-imperative dialogues
 (`local-first-as-design-imperative.md`) and the app design-philosophy already pointed at a Crux-style
@@ -109,5 +109,5 @@ an existing port, not a refactor** (see `croft-chat-cli` memory + ROADMAP_TODO E
 - Demonstrated: `experiments/croft-app-phase0/` (core/shell/design/cli/web/desktop/bluesky).
 - Pattern + derivation: `thinking/local-first-as-design-imperative.md`,
   `thinking/app/design-philosophy.md`, `seeds/transcripts/raw/croft-app-portdecision-review-2026-06-21.md`.
-- Prior work to adapt: `experiments/iroh/crates/croft-chat-cli` (ROADMAP_TODO E19).
+- Prior work to adapt: `experiments/croft-group/crates/croft-chat-cli` (ROADMAP_TODO E19).
 - Principle: `crystallized/principles.md` (Tier 3).

@@ -41,6 +41,7 @@ pins `=1.0.0`; first-party Swift bindings `iroh-ffi` shipped with 1.0 mid-June 2
 |---|---|---|---|---|---|
 | n0 | iroh | QUIC-first P2P networking (Rust) | EndpointId (Ed25519), hole-punching, relays (ex-"DERP"), QUIC-multipath migration; iroh-gossip (HyParView/Plumtree), iroh-docs (range-based set reconciliation, LWW), iroh-blobs (BLAKE3); `unstable-custom-transports` (0.97+, ≥1,200-byte datagrams); first-party `iroh-ffi` Swift/Kotlin/Py/JS bindings | **`1.0.0`** (relay lab pins `=1.0.0`, API verified vs source); Swift bindings mid-June 2026; in production in Delta Chat, Nous Research (distributed LLM training), Paycode (POS) [verified: relay-lab + web 2026-06-22] | build-on, partner, learn↔ |
 | community | iroh custom transports | pluggable QUIC-over-anything | `mcginty/iroh-ble-transport` (BLE, community; + `blew` crate, `BlewChat` **unencrypted** demo); `n0-computer/iroh-tor`, `n0-computer/iroh-nym` (metadata privacy); `iroh-pkarr-node-discovery` | early/experimental; BLE is community not core; `iroh-webrtc-transport` claimed but not found [verified: web 2026-06-22] | learn↔ (future off-grid/anonymity transports) |
+| Defense Unicorns | **Peat** (+ `peat-gateway`) | Off-grid/denied-environment P2P data-sync middleware (Rust) | **Iroh** transport (QUIC/BLE) + **Automerge** CRDTs + **MLS** group security; stitches servers/Android/RPi/drones/ESP32 into a self-healing mesh; ATAK integration; `peat-gateway`→Okta/Keycloak when a link returns | active open-source; production defense/disaster/industrial use [verified: web 2026-06-22 — github.com/defenseunicorns/peat] | **build-on, learn↔ — strongest prior art for Croft's exact substrate bet (Rust+iroh+CRDT+MLS), proven in denied/degraded** |
 | — | libp2p | Modular P2P stack | Transports, pubsub, DHT | mobile-weak vs iroh; rejected as primary [verified: dossier] | homage |
 | Veilid team | Veilid | Privacy-first P2P with source-address-free routing | Ed25519/x25519/XChaCha20/BLAKE3/Argon2; DHT (small mutable records) | demoted to future metadata-resistant messaging-layer candidate; no large-blob primitive [verified: dossier] | learn↔ (future) |
 | — | Holochain | Agent-centric P2P (no global consensus) | source chains, rrDHT, validation rules, membrane proofs | dropped as substrate (uses iroh transport anyway; mobile-weak) [verified: dossier] | homage (borrow patterns) |
@@ -118,10 +119,17 @@ would build alongside these.
 | zeppelin-social | Zeppelin AppView | Independent full-network Bluesky AppView | ~16 TB / ~$200-mo Hetzner; **decommissioned** Fall 2025 [verified: web] | learn↔ (the full-mirror cost lesson) |
 | sugyan | ATrium (atrium-rs) | Rust AT-Proto framework | live; atrium-lex + atrium-codegen (lexicon→Rust), bsky-sdk [verified: web] | build-on (Rust client path) |
 | @ksk001100 | bsky_tui | Rust TUI Bluesky client (Ratatui+Tokio+atrium) | live [verified: web] | homage (decoupled-presentation proof) |
+| Bluesky / community | Tap | Official Go repo-sync/backfill tool: subscribe to a Relay + auto `getRepo` backfill (events marked `live:false` → live), SQLite/Postgres | live, OSS [verified: web 2026-06-22 — atproto.com/blog/introducing-tap] | build-on (if Croft builds any AppView/indexer/backfill) |
 
-Private-groups/E2EE on AT Proto are **third-party** (no native "AT Messaging" working group —
-that claim was REFUTED): **Germ DM** (MLS, §6 below) and the **XMTP↔Bluesky bridge** (XMTP Labs
-`bluesky-chat`). This gap is what Croft's lineage-groups MLS proof answers — see COHESION §17.
+Private-groups/E2EE on AT Proto are **third-party**: **Germ DM** (MLS, §6 below) and the
+**XMTP↔Bluesky bridge** (XMTP Labs `bluesky-chat`). This gap is what Croft's lineage-groups MLS proof
+answers — see COHESION §17. **Nuance (2026-06-22, COHESION §26):** the *fictional* "AT Messaging /
+MLS-standardizing working group" remains REFUTED, but a **real, community-led ATProto Private Data
+Working Group** does exist (atproto.wiki / discourse.atprotocol.community, Boris Mann; GitHub #3363
+"Namespaces"→"buckets/realms", #121 "Encryption for private content"; Paul Frazee *informally*). It is
+converging on **access-controlled, PDS-gated** private data (PDS as a trusted agent); **true E2EE /
+zero-knowledge is explicitly deferred** — so native-in-protocol E2EE still doesn't exist, and Croft's
+host-untrusted MLS answer is *more* differentiated, not less.
 
 ## 5c. App-layer tooling & clients (from the 2026-06-20→22 app dialogue — pending independent verification)
 
@@ -167,6 +175,34 @@ glance at bundle time). iroh-blobs/docs/gossip themselves are §1.
 | Google | Gemini Nano (AICore + ML Kit GenAI) | On-device model; strong privacy isolation but steep device cliff (~flagship-only) + weaker structured output | build-on (optional assistant; Android target, fallback-heavy) |
 | — | Bond Touch (and similar) | The "thinking-of-you" bracelet — built a business/account/cloud-relay around ~50 bytes; the anti-pattern the free perpetual ping rebukes | learn↔ (negative example) |
 
+## 5e. AT Proto PDS self-hosting: implementations, hosts & blob-storage backends (from the 2026-06-22 atproto/PDS dialogue)
+
+Surfaced and web-verified 2026-06-22 (see
+`seeds/transcripts/raw/croft-atproto-pds-germ-privatedata-dialogue-2026-06-22-FACTCHECK.md`).
+Relevant because Croft's substrate stance ("must survive as small self-hosted nodes," the cooperative
+/ non-extractive hosting question — ROADMAP_TODO E20/E22) is exactly the choice these projects answer.
+**Pricing is point-in-time/volatile — treat $ figures as illustrative, not current.** The official
+reference PDS (`@atproto/pds`, TypeScript) is **single-tenant SQLite** (per-user `.sqlite` repos +
+PDS-wide DBs, local-FS-bound); the alternatives below add Postgres.
+
+| Org/Author | Project | Purpose / relevance | Current state | Relationship |
+|---|---|---|---|---|
+| haileyok | Cocoon | Alternative PDS in **Go** with a **PostgreSQL** backend (shares an existing DB cluster, unlike official SQLite) | live; self-described "highly experimental, not production-ready" [verified: web 2026-06-22] | learn↔ (the Postgres-PDS path) |
+| Blacksky (Rudy Fraser) | rsky-pds | Alternative PDS in **Rust** (Postgres + S3 blobs + Mailgun); part of the `rsky` workspace (§5b Blacksky row) | live [verified: web 2026-06-22] | build-on, learn↔ (Rust-PDS path; closest to Croft's stack) |
+| ElfHosted | Managed Bluesky PDS | Fully-managed PDS hosting (provision/HTTPS/updates; point your domain) | live; ~$9/mo cited but store shows a $1/7-day intro trial — **price unconfirmed** [verified: web 2026-06-22] | learn↔ (the managed-host model; cooperative-vs-SaaS tension, E20) |
+| DigitalOcean | BlueSky Social PDS 1-Click app | Official Marketplace 1-Click PDS droplet (bundles Caddy); the **genuine** 1-click PDS host | live (slug `blueskysocialpds`); droplet ~$4-6/mo (volatile) [verified: web 2026-06-22] | learn↔ |
+| Hostinger | Bluesky PDS VPS template | One-click Docker VPS template w/ the official PDS image | live; ~$6.49/mo (volatile) [verified: web 2026-06-22] | learn↔ |
+| Vultr | (PDS installer target — **not** a Marketplace app) | Supported VPS target for the official `bluesky-social/pds` installer (`pdsadmin` works); Gemini's "1-Click Marketplace PDS app" claim was **REFUTED** | n/a (no marketplace app) [verified: web 2026-06-22] | note (correction, not a partner) |
+| Backblaze | B2 (+ Cloudflare Bandwidth Alliance) | S3-compatible blob backend; ~$6/TB, **free egress** when served via Cloudflare — strong PDS blob store | live [verified: web 2026-06-22; price volatile] | build-on (blob backend) |
+| Cloudflare | R2 | S3-compatible, **zero egress fees** (~$15/TB); best for high-traffic public media | live [verified: web 2026-06-22; price volatile] | build-on (blob backend) |
+| iDrive / Hetzner / Wasabi | e2 / Object Storage / Hot Cloud | Low-cost S3-compatible backends (iDrive e2 ~$4/TB; Hetzner ~$5.99/TB; Wasabi ~$6.99→7.99/TB flat, **90-day min-retention trap**) | live [verified: web 2026-06-22; prices volatile] | build-on (blob backend) |
+| AWS / Azure / GCP | Glacier Deep Archive / Blob Archive / Archive | Deep-cold tiers (~$1/TB) for rarely-touched data; steep retrieval + egress penalties — *not* for active blobs | live [verified: web 2026-06-22; prices volatile] | learn↔ (cold-tier economics; the retrieval-penalty trap) |
+
+**Two corrections worth keeping visible:** MinIO (often cited as the self-host S3 backend) had its
+community-edition repo **archived Feb 2026** — Garage/SeaweedFS are the maintained alternatives. And
+atproto **decouples identity from host** (CAR repo export/import → migrate PDS without losing
+followers), which is the structural backstop that makes "no data hostage" real for any of the above.
+
 ## 6. P2P / decentralized messengers (the field)
 
 Detailed competitive analysis lives in `research/messaging-solutions-landscape.md`. Relational summary:
@@ -177,9 +213,14 @@ Detailed competitive analysis lives in `research/messaging-solutions-landscape.m
 | Merlin / community | Delta Chat | E2EE over email + iroh | Rust core, chatmail, iroh realtime + Add-Second-Device; multi-device = transfer-then-diverge [verified: research] | homage, learn↔ (closest Rust+iroh cousin), partner |
 | Briar Project | Briar | Tor-based P2P, high-risk threat model | no multi-device, no recovery (by design); Mailbox async relay [verified: research] | homage, learn↔ |
 | Session / OPTF→Swiss foundation | Session (Oxen) | No-phone decentralized messaging | Protocol V2 (Dec 2025) re-added PFS + ML-KEM; mnemonic recovery [verified: research] | homage, learn↔ |
-| — | Cwtch / SimpleX / Tox | Metadata-resistant / no-identifier messaging | SimpleX "no persistent identifiers" lesson [UNVERIFIED current] | learn↔ |
+| Open Privacy Research Society | Cwtch | Metadata-resistant group chat over Tor onion services | needs an (untrusted) server/host node to anchor group state — if the host drops, the group goes dark (the "unequal peer" made explicit) [verified: web 2026-06-22] | learn↔ |
+| SimpleX Chat Ltd | SimpleX Chat | No-identifier messaging (no user IDs / phone #s) | unidirectional message queues on relay servers (server-mediated, not pure P2P); QR-code contact setup; closest "honest hybrid" attempt [verified: web 2026-06-22] | learn↔ (the no-persistent-identifier + honest-server-mediation lesson) |
+| Holepunch (Tether-backed, El Salvador) | Keet / Pear / Hypercore | Mass-market P2P calls & file transfer; `Pear` P2P dev platform on the `Bare` runtime | Keet uses **Hypercore** (append-only feeds); fast, no file-size limits, **no PFS**, **needs an active internet DHT** so it's not air-gap-capable [verified: web 2026-06-22] | learn↔ (the perf-first camp; the "DHT dependency" limit) |
+| Berty / Weshnet (French non-profit) | Berty / **Wesh** protocol | Mobile-first pure-P2P w/ offline BLE mesh | Wesh on libp2p+IPFS, Go core + React Native UI; the "adaptive online/offline" attempt that **stalled** under the Go-daemon/RN-bridge weight + Apple watchdog churn [verified: web 2026-06-22] | learn↔ (cautionary: ideological purity → too heavy for consumer phones) |
+| Matrix.org Foundation | Matrix (Olm / Megolm) | Federated E2EE messaging | Olm (1:1, Double-Ratchet) + Megolm (group, shared ratchet → weaker PCS); DAG room state forks badly in a split mesh; Rust crypto lib = **Vodozemac** (note: "Voskop" is a Gemini fabrication) [verified: web 2026-06-22] | homage, learn↔ |
+| Defense Unicorns | Peat | (off-grid Rust+iroh+CRDT+MLS data-sync — see §1) | the protocol-toolkit answer to the consumer-app graveyard: ship the substrate, not a "P2P WhatsApp" | build-on, learn↔ |
 | — | XMTP / Keybase teams | web3 messaging / team key management | per-device-as-member prior art (Keybase) [UNVERIFIED current] | learn↔ |
-| Germ Network | Germ DM | MLS E2EE messenger on atproto identity; launches from Bluesky profiles | iOS public beta; MLS, 1:1 text today, multi-identity ("cards"), no-phone; small (~4-person) team [verified: research/germ-xchat-features.md] | homage, learn↔ (closest atproto+MLS cousin), partner |
+| Germ Network | Germ DM | MLS E2EE messenger on atproto identity; launches from Bluesky profiles | **First native-launched private messenger from a Bluesky profile (2026-02-18)**; iOS; MLS, multi-identity ("cards"/burner cards), no-phone; cofounder/CTO **Mark Xue** (ex-Apple iMessage/FaceTime). Open-source **Autonomous Communicator (AC) Protocol** on MLS (MIT); IETF **`draft-xue-distributed-mls`** (IETF 124, "TwoMLS", Naval Postgraduate School); Protocol Labs **Cypherpunk Fellowship**; identity bound via an **"Anchor Key" published in the atproto profile**; external **mailbox services**; Germ Inc. runs routing (no self-host server yet). [verified: web 2026-06-22 — Gemini drift: `ger.mx`, `/android-waitlist`, draft name "distributed-mls-id" all wrong/unverified; see `croft-atproto-pds-germ-privatedata-dialogue-2026-06-22-FACTCHECK.md`] | homage, learn↔ (closest atproto+MLS cousin), partner |
 | X (Twitter) | X Chat / XChat | Mass-market messaging with server-held keys | Juicebox PIN-recoverable server-held keys; **no forward secrecy** (X's own admission); E2EE claims disputed by cryptographers; seamless multi-device is the headline [verified: research] | learn↔ (the anti-pattern: convenience bought with encryption integrity; the multi-device bar) |
 | Bluesky PBC | Bluesky native DMs / group chats | Built-in messaging, not E2EE | native group chats launched 2026-06-11, up to 50, no media at launch; distinct from Germ [verified: research] | homage (expectation-setter) |
 | Juicebox | Juicebox protocol | PIN-recoverable distributed key storage | the mechanism X Chat uses for server-held key recovery; relevant to our recovery-anchor decision | learn↔ |

@@ -115,6 +115,32 @@ the ROADMAP §8 charter. A related honesty item: the relay dependency above and 
 fingerprinting → a claim-code one-more-tap) are the two asterisks on "serverless/frictionless" to
 state plainly rather than paper over (ROADMAP_TODO E11).
 
+*Update (crypto-wars→P2P→PDS dialogue, 2026-06-22; `seeds/transcripts/raw/crypto-wars-to-p2p-pds-economics-dialogue-2026-06-22.md` + `-FACTCHECK.md`):*
+the dialogue proposed a concrete **revenue surface** for the very infrastructure named above — a
+**managed Bluesky-PDS host** as the predictable utility anchor (~$5-10/mo: identity/DID + social
+graph + backup), with value-add tiers stacked on the same append-only-store infrastructure:
+*consumer* (one-click custom domains, an E2EE "Vault" for non-social files, server-side cross-post
+relays to Mastodon/Nostr/Threads), *creator* (firehose analytics — genuinely lacking on Bluesky
+today; no-code feed hosting; a one-click CAR "escape hatch"), *operator/P2P* (always-on iroh
+relays = the relay dependency above, now a *line item* rather than a pure cost; headless PDS for
+other devs), and an *enterprise-compliance* tier. The permissioned-data gap is handled by
+**partitioning** (public PDS repo for social + an E2EE iroh-doc private vault), and the explicit
+stance is **augment Proton, don't clone it.** Two things make this more than speculation, and one
+caution:
+- **The enterprise-compliance demand is CONFIRMED real** (FACTCHECK Cluster E): SEC 17a-4 /
+  FINRA 4511 / 2210 mandate tamper-proof WORM retention; **$3.5B+** in off-channel-comms fines
+  2021-26 (Deloitte $200k over un-archived iMessage; Velox Clearing $1.8M over WeChat);
+  Smarsh/Global Relay are the incumbents, and they are *blind* to decentralized protocols because
+  they scrape closed APIs — whereas a PDS host *is* the signed source of truth. That is a real,
+  high-margin wedge ($10-150+/seat/mo) that could fund the maintenance curve.
+- **It fits the durable-maintenance vs. extractive-attention frame** above: compliance and hosting
+  are *maintenance* revenue (flat, contractual, no escalation appetite), not attention-extraction.
+- **Caution (decision, not conclusion):** the dialogue frames the whole thing as a **for-profit
+  SaaS**. Croft's stance is **cooperative / non-extractive** — so this is *input* to the §8 charter
+  question (can the cooperative *mechanism* capture this revenue member-owned, credit-union-shaped,
+  so the funder and beneficiary stay the same body?), **not** a decision that Croft becomes a SaaS
+  landlord. Surfaced, not resolved; the user's call. Tracked ROADMAP_TODO E20.
+
 ## 9. Moderation / safety / abuse vs the kid-friendly goal (a genuine tension)
 
 E2EE-P2P-relay carries traffic the operator *cannot read* — a privacy feature until it is CSAM or

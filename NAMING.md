@@ -105,6 +105,55 @@ research transcript is the primary source for the rigorous rationale; the narrat
 rationale drawing on both. Connect to the civic-why narrative vertical
 (narrative/verticals/the-civic-why.md), which is still to be written.
 
+## Protocol-layer naming (2026-06-22): the P2P protocol is **Drystone**
+
+decision: the peer-to-peer protocol underneath Croft is named the **Drystone P2P Protocol**
+(source dialogue: `seeds/transcripts/raw/croft-drystone-protocol-naming-dialogue-2026-06-22.md`,
+fact-checked in its `-FACTCHECK.md` companion). This is a **sub-product** name under the Croft
+umbrella, so it partially exercises ROADMAP_TODO A7 (the sub-product name map). The wire spec
+(`crystallized/CROFT-PROTOCOL.md`) is the thing Drystone names.
+
+**The design imperative the name encodes:** *peers are equal in rights, not in capability* — the
+same split already pinned in `crystallized/principles.md` Tier 1 ("all peers are equal in rights,
+but not capabilities"), proven by **F5** (availability-as-rights-escalation: no governance right is
+escrowed to a superpeer's presence).
+
+**Why "Drystone" earns it (and why it beats the runner-up "Pares").** A dry stone wall (a Scottish
+*dyke*) is built without mortar: it holds by gravity and friction, and it is sturdy **because of**
+the variation in its stones, not in spite of it. Huge footing boulders, full-width through-stones,
+and tiny hand-packed *hearting* stones have completely different capabilities but are equal in
+importance — remove the small stones and the big ones shift and the wall falls. That is the precise
+shape of a heterogeneous P2P network: a data-center seed, a desktop peer, and a phone do different
+structural work, yet the protocol locks their *rights* at 1:1.
+
+The deciding move is that Drystone **brings capability asymmetry into the light and encodes it
+structurally**, rather than masking it. This is the answer to the anti-pattern the user named as the
+one to guard against in any P2P system — **the "Princeps Problem"** (our/Gemini's coinage; the
+underlying concept is Jo Freeman's *"The Tyranny of Structurelessness"*, 1970/72): when a protocol
+*pretends* all peers are identical, the highest-capacity node fills the resulting vacuum and becomes
+a de-facto authority "wearing the cryptographic skin of a humble peer." Real instances:
+BitTorrent's seeder dependence and PoW/PoS pool/validator concentration. The runner-up **Pares**
+(Latin *pār*, "equal"; *primus inter pares*) names the *ideal* — but its own history is the trap:
+Augustus styled himself *Princeps* / "first among equals" while wielding the whole empire. The
+chosen name points at the structural defense; the rejected one names the mask. (Croft's existing
+guards against this: the **meer** anti-entrenchment design — materially-reversible delegation — and
+**"different, not weaker."**)
+
+**Honest scope of the metaphor.** The footings/through-stones/hearting ↔ seed/desktop/mobile mapping
+is **design vocabulary, not an implemented routing tier.** Do not let it harden into a claimed
+mechanism in `CROFT-PROTOCOL.md` without a proof; status `design`. And per the FACTCHECK, use the
+corrected stone-craft terms in any published copy (face/facing stones, hearting, pinning — not
+Gemini's "builders"/"packing").
+
+**Scope of this decision: only "Drystone" is settled.** Per the user (2026-06-22), the rest of the
+dialogue's candidate sweep — *Pares*, the crofting/land terms (*souming*, *runrig*, *commonage*,
+*gavelkind*, *allod/allodial*), the classical/community terms (*isonomy*, *koinonia*, *ubuntu*,
+*satsang*, *rafiq*), and the physics metaphors (*isotope*, *allometry*) — is **vocabulary to
+consider, not integrated.** It is preserved in the source transcript as a reservoir for naming future
+sub-components, and must **not** be propagated into structure (doc names, code, the spec) as if
+adopted (same convention as the unsettled app/brand names above). Promote a term out of the reservoir
+only on a fresh, explicit decision recorded here.
+
 ## App-layer naming (2026-06-22) — product vs umbrella, not yet reconciled
 
 The app design dialogue (`seeds/transcripts/raw/croft-app-design-dialogue-2026-06-20-to-22.md`)
