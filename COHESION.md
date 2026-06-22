@@ -696,6 +696,41 @@ deepens §18's app body into *what actually fills the garden and how to build it
 
 ---
 
+## 28. Solid / WebID / Scaling-Trust / DSNP dialogue ↔ the ecosystem register + Croft's positioning between the poles
+
+- **LANDSCAPE, not design (register, don't distill):** this Gemini explainer compares **Solid**
+  (Berners-Lee Pods/WebID/Solid-OIDC) and **DSNP** (Project Liberty's blockchain social-graph) to the
+  Bluesky PDS, plus the Atlantic Council **"Scaling Trust on the Web"** report. All real, all
+  accurately described (FACTCHECK: no fabrications). Filed for the ecosystem register, not for a
+  thinking doc. Source: `seeds/transcripts/raw/solid-pds-webid-scalingtrust-dsnp-dialogue-2026-06-22.md` + `-FACTCHECK.md`.
+
+- **SHARPENS Croft's positioning (no drift):** three poles of "own your social data" — **Solid** =
+  private-by-default, *direct app↔Pod access*, RDF; **atproto/PDS** = public-by-default, *indexed
+  pipeline* (Relay→AppView), Lexicons; **DSNP** = *blockchain consensus layer* holding the graph.
+  Croft is **none of them and borrows from each**: it rides atproto for public social but adds an
+  **E2EE private layer** (lineage-groups MLS) that Solid does with app-mediated ACLs and atproto
+  doesn't do natively, and it **rejects the chain** DSNP requires while sharing DSNP's *unbundle the
+  social web* + *delegation-without-surrendering-keys* goals (the latter rhymes with Croft's
+  capability-delegate primitive). Registered in `ECOSYSTEM.md` §5 (Solid, DSNP rows).
+
+- **"Middleware" ↔ composable moderation (confirms an existing stance):** the Scaling-Trust report's
+  **middleware** recommendation (user-chosen third-party moderation/feeds, Fukuyama-style) is the same
+  shape as atproto's composable labelers/feed-generators and Croft's **"compute provenance, never
+  utility" / moderation-as-a-chosen-lane** principle. No new design — it's external corroboration that
+  the chosen-lane approach is where T&S policy thinking is heading. ECOSYSTEM §7 row added.
+
+- **C2PA = media-provenance complement (note, not adopt):** C2PA (Content Credentials) answers
+  *"is this asset synthetic?"* at the media layer — **orthogonal** to Croft's *authorship*-provenance
+  (who signed this record). Relevant only if Croft ever renders external media; registered ECOSYSTEM §7.
+
+- **FACTCHECK (Gemini — clean):** Solid/WebID/Solid-OIDC/DPoP(RFC 9449)/Inrupt and DSNP (token-free
+  core, delegation) all CONFIRMED; **DSNP's reference chain = Frequency (Polkadot)** added (Gemini
+  omitted it); "Scaling Trust" date/publisher CONFIRMED, the five recommendations on-topic but
+  **exact wording UNVERIFIED** (PDF wouldn't render — not a fabrication); Bluesky "public-by-default
+  PDS" is a fair simplification (PARTLY).
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the

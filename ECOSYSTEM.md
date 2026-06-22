@@ -93,6 +93,8 @@ pins `=1.0.0`; first-party Swift bindings `iroh-ffi` shipped with 1.0 mid-June 2
 | Nostr community | Nostr | Simple relay-based protocol | signed events, relays | federation priority #3 [UNVERIFIED current] | rebroadcast, learn↔ |
 | Ryan Barrett | Bridgy Fed | AP ↔ ATProto bridge | cross-protocol federation | the bridge reference [verified: dossier] | build-on, partner |
 | Matrix.org Foundation | Matrix | Federated E2EE group chat | Olm/Megolm; MLS migration in progress | MLS still in design (MSC4256/4244, arewemlsyet.com); 25+ govt deployments [verified: research] | homage, learn↔ |
+| Solid / Inrupt (Berners-Lee) | Solid + WebID + Solid-OIDC | User-owned **Pods** (general-purpose web storage); apps read/write **directly** to the Pod | RDF/Turtle/JSON-LD over HTTP; **WebID** profile URL; **Solid-OIDC** (issuer discovery from the WebID, `solid:oidcIssuer`) + **DPoP** (RFC 9449) token binding; granular per-file ACLs; private-by-default | live; W3C-standards-based; Inrupt commercializes [verified: web 2026-06-22] | homage, learn↔ (the *private-by-default, direct-access* pole vs atproto's public indexed pipeline — Croft sits between, w/ an E2EE private layer that is neither) |
+| Project Liberty (F. McCourt) | DSNP + Frequency | Social graph as a **public utility** (decouple graph/data from app layer) | identity = keypair (platform-unrevokable); social graph = portable on-chain events; content = on-chain announcements → off-chain media; **no built-in crypto token in the core protocol**; **delegation** to user-agents w/o surrendering master keys; reference chain = **Frequency** (Polkadot parachain, capacity/staking not per-tx fees) | live; whitepaper + Frequency parachain [verified: web 2026-06-22 — dsnp.org, CoinDesk] | homage, learn↔ (the *blockchain-consensus-layer* social-graph pole; Croft rejects the chain but shares the unbundle-the-social-web + delegation goals) |
 
 ## 5b. AT Proto "atmospheric web" apps & Rust tooling
 
@@ -233,6 +235,8 @@ Detailed competitive analysis lives in `research/messaging-solutions-landscape.m
 | IETF MLS WG / W3C | Standards we conform to (MLS, DIDs, VCs, ActivityPub) | homage, build-on |
 | Mike Masnick | "Protocols, Not Platforms" (2019) | homage (framing) |
 | Jay Graber / Bluesky | "Mundus sine caesaribus" | homage, learn↔ |
+| C2PA (Adobe/Arm/BBC/Intel/Microsoft/Truepic et al.) | Content Credentials — cryptographic media-provenance standard (is-this-synthetic at the asset layer) | learn↔ (media-provenance complement to Croft's authorship-provenance; relevant only if Croft renders external media) [verified: web 2026-06-22] |
+| Atlantic Council DFRLab | "Scaling Trust on the Web" (Task Force for a Trustworthy Future Web, Jun 2023) — T&S as public infrastructure; **middleware** (user-chosen moderation); C2PA provenance | homage, learn↔ (the "middleware" rec rhymes w/ atproto composable labelers + Croft's moderation-as-a-chosen-lane) [verified: date/publisher; exact recs UNVERIFIED] |
 
 ## 8. Cooperative / governance prior art
 
