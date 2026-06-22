@@ -63,11 +63,12 @@ mentally fill the blank, which provokes "own what?" and whose honest answer is
 most elegant static lockup (logo, favicon, merch) precisely because it cannot
 rotate but still carries the invitation.
 
-A first wordmark exploration lives at `../../assets/croft-wordmark-pastoral.png` (see
-`../../assets/README.md`): "CROFT" with a pastoral crofting scene — grass, wildflowers, a
-winding stream and footpath — rendered inside the letterforms. It puts the crofting metaphor
-(tended smallholding, local-first, "grow your own") directly in the type. A draft direction to
-refine, not a settled mark.
+Two wordmark explorations live in `../../assets/` (see `../../assets/README.md`):
+`croft-wordmark-pastoral.png` (the fuller landscape — grass, a winding stream and footpath inside
+the letters) and `croft-wordmark-wildflower-kraft.png` (a drier, kraft-paper/handmade take —
+wildflowers along the base of each letter, no water). Both put the crofting metaphor (tended
+smallholding, local-first, "grow your own") directly in the type. Draft directions to refine, not a
+settled mark.
 
 ### The dynamic / rotating form
 
