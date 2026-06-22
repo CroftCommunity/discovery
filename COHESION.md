@@ -488,6 +488,43 @@ deepens §18's app body into *what actually fills the garden and how to build it
   is the *protocol/substrate* layer — distinct from `thinking/app/design-philosophy.md` (the
   *client/app* layer); keep the two from being conflated.
 
+## 23. Croft-app Phase 0 code (CroftC PR #10) ↔ the app body + the design-imperative spine
+
+- **CLOSED (the deferred import landed):** the Phase-0 functional core + shell stack built externally
+  (CroftC PR #10) is imported to `experiments/croft-app-phase0/` (byte-identical, 87 files), at the
+  user's direction — exercising the **A8 IP/ownership decision** (surfaced, not auto-resolved). This
+  closes the long-standing "Phase 0 built, import deferred" loose end (was AGENTS.md headline + A8).
+
+- **CLOSED (the code is the dialogues' executable Phase 0):** the import is the running proof that the
+  app-design DECISIONS held — DECISION 1 (async port in `bluesky`, consumed by the shell, never the
+  core), DECISION 2 (native post type in the model), DECISION 4 (cursor-bearing states carry the
+  cursor), and the **no-fabricated-fixtures** rule (real recorded `getTimeline` responses present; M6
+  live adapter deferred). 20 acceptance tests green (A1–D2, P1–P7). The derivation lives in
+  `seeds/transcripts/raw/croft-app-portdecision-review-2026-06-21.md` + the app/design-imperative
+  dialogues; this is its code.
+
+- **DRIFT (as-built spec vs. thinking/app):** the PR's `BUILD-SPEC.md` / `design-philosophy.md` are
+  the spec the code was *actually written to* and differ from the more-developed
+  `discovery/thinking/app/` copies (design-philosophy 550 vs 765 lines; BUILD-SPEC ~14 lines diff —
+  thinking/app has §3a cursor-invariant proof, §1a garden thesis, §4a). Both kept on purpose: the
+  experiment carries its as-built spec verbatim; thinking/app is the evolved design. Backport target:
+  when the code graduates, reconcile to the thinking/app spec (and address the CodeRabbit doc nits —
+  "written-down shortcut" undefined; DECISION-5 burden on the CLI fake).
+
+- **Carried findings (license discipline):** cycode flagged `webpki-roots` (CDLA-Permissive-2.0 — *is*
+  permissive) and `r-efi` (tri-licensed, used under MIT/Apache, UEFI-only transitive, resolved in-PR).
+  CroftC-policy-scoped; on chasemp infra no gate blocks, but re-check under the destination policy if
+  the code moves to a project repo. Same license-discipline theme as A1 (MPL-2.0/`hpke-rs`), distinct
+  dep.
+
+- **OPEN (the two CLIs question → next-steps discussion):** there are now **two** Croft CLIs — the
+  **iroh/P2P chat CLI** (`experiments/iroh/crates/croft-chat-cli`, the group/messaging substrate, TDD/
+  production-grade, Transport port) and the **Bluesky-pond feed CLI**
+  (`experiments/croft-app-phase0/crates/cli`, the app/client layer). Whether `croft-chat-cli` adopts
+  the Phase-0 functional-core/imperative-shell + planes discipline is the live rework question (see
+  ROADMAP_TODO). DRIFT-to-watch: the `iroh/` experiment is **not yet in the `experiments/README`
+  index** — a pre-existing gap to close.
+
 ---
 
 ## How to use this map
