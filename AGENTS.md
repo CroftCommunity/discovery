@@ -8,38 +8,58 @@ auto-loads it when working anywhere under `CroftC/`.
 thinking, proofs, and experiments behind **Croft** — an open, sovereign, peer-to-peer,
 local-first social/messaging platform meant to be run as a cooperative (non-extractive
 infrastructure). "Croft" is the name center of gravity; the GitHub org is `CroftCommunity`.
-See `discovery/NAMING.md` for why.
+See `discovery/alpha/NAMING.md` for why.
+
+## Maturity stages (alpha → beta → rc → publish)
+
+As of 2026-06-24 each repo is organized as a **maturity lifecycle**: `alpha → beta → rc → publish`.
+Each stage is a self-contained tree with its own linear git history; stages cohabit, and material
+matures upward (alpha = first-pass, concurrently-discovered thinking → beta = resolved synthesis +
+real validation → rc → publish). New material can still land in any stage, but the **current working
+corpus is `alpha/`**. (Beta is built next from alpha using
+`alpha/plans/2026-06-22-narrative-architecture-refactor-proposal.md` as the blueprint and
+`alpha/COHESION.md` as the resolve-the-contradictions worklist.)
+
+**Path convention for this file and `PLAYBOOK.md`:** any path that names *corpus* content (`seeds/…`,
+`research/…`, `thinking/…`, `crystallized/…`, `narrative/…`, `plans/…`, `COHESION.md`,
+`ECOSYSTEM.md`, `ROADMAP*.md`, `NAMING.md`, `ANALYSIS.md`, the dossier, the raw archive) is under the
+**current stage dir** — i.e. `discovery/alpha/<path>`. Only **`AGENTS.md`** (this file),
+**`PLAYBOOK.md`**, and a thin stage-pointer **`README.md`** live at the repo **root**: they describe
+*how we work*, not the project, so they span stages. `Proofs/` and `experiments/` are staged
+identically and aligned stage-for-stage (`Proofs/alpha/…`, `experiments/alpha/…`).
 
 ## The three repos
 
 ```
-discovery/    Thinking & synthesis. The map of everything.
-                seeds/ (raw source incl. transcripts/raw verbatim archive) · research/
-                (industry comparison) · thinking/ (our design) · crystallized/ (principles +
-                proof-ledger) · narrative/ · ECOSYSTEM.md · COHESION.md · ROADMAP.md ·
-                NAMING.md · ANALYSIS.md · PLAYBOOK.md · AGENTS.md (this file) · the dossier
-Proofs/       Durable proofs — verify an invariant that becomes a design principle.
-                lineage-groups (real openmls) · lineage-group-model (TS) ·
-                encrypted-local-first-atproto
-experiments/  Code-forward spikes — "does this work / what's actually true?"
-                appview-validation · public-roundtrip · android-p2p-app · encrypted-blob-share
+discovery/    Thinking & synthesis. The map of everything.   root: AGENTS.md · PLAYBOOK.md · README.md
+                alpha/  seeds/ (raw source incl. transcripts/raw verbatim archive) · research/
+                  (industry comparison) · thinking/ (our design) · crystallized/ (principles +
+                  proof-ledger) · narrative/ · plans/ · ECOSYSTEM.md · COHESION.md · ROADMAP.md ·
+                  ROADMAP_TODO.md · NAMING.md · ANALYSIS.md · the dossier
+                beta/   (next stage — resolved synthesis; not yet created)
+Proofs/       Durable proofs — verify an invariant that becomes a design principle.   root: LICENSE · README.md
+                alpha/  lineage-groups (real openmls) · lineage-group-model (TS) ·
+                  encrypted-local-first-atproto
+experiments/  Code-forward spikes — "does this work / what's actually true?"   root: README.md
+                alpha/  appview-validation · public-roundtrip · android-p2p-app · encrypted-blob-share ·
+                  croft-app-phase0 · croft-group · iroh · automerge-partial-reconstruction
 ```
 
 ## Start here (in this order)
 
-1. `discovery/README.md` — the repo map.
+1. `discovery/alpha/README.md` — the corpus map (the root `README.md` covers only the stage layout).
 
-2. `discovery/PLAYBOOK.md` — **how we process incoming narrative, experiments, and proofs.**
+2. `discovery/PLAYBOOK.md` (root) — **how we process incoming narrative, experiments, and proofs.**
    Follow it every time new material arrives (classify → place → verify verbatim → capture
    conversation + raw transcript → update ledger/cohesion/roadmap/manifest). Canonical process.
 
-3. `discovery/COHESION.md` — where one document's loose end is closed (or duplicated) by
+3. `discovery/alpha/COHESION.md` — where one document's loose end is closed (or duplicated) by
    another's proof. Read before concluding anything is "unproven."
 
-4. `discovery/crystallized/` — `principles.md` (design + civic + product) and
+4. `discovery/alpha/crystallized/` — `principles.md` (design + civic + product) and
    `proof-ledger.md` (every invariant/experiment with status + link to its proof).
 
-5. `discovery/SOVEREIGN-COMMONS-DOSSIER.md` — the umbrella vision (pre-"Croft" naming).
+5. `discovery/alpha/SOVEREIGN-COMMONS-DOSSIER.md` — the umbrella vision (pre-"Croft" naming).
 
 ## Reference indexes, filing & the backlog (where things go)
 
