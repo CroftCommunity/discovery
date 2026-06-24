@@ -27,7 +27,8 @@ user-respecting value: a stance, not a feature.
 The garden has two kinds of unit. A **pond** is a connection to an existing social ecosystem, kept native
 end-to-end with **honest seams** (no fused timeline, no normalized cross-pond model); a **pad** is a small
 self-contained app (a game, a tool) that floats in the garden, sandboxed and permission-scoped. The one pond
-Croft fully owns is **Croft Group** — private group chat (and later P2P social games) on iroh — which is the
+Croft fully owns is **Croft Group** [working name, pending brand reconciliation — see the decision-gated
+banner] — private group chat (and later P2P social games) on iroh — which is the
 lineage-groups work surfaced. That it slots in with no protocol change is itself evidence the substrate
 decisions hold.
 

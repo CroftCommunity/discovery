@@ -121,14 +121,14 @@ reputable secondary sources via web. Results drove the exact replacement strings
 
 ---
 
-## Deferred for the user's decision (NOT changed)
+## Resolved by the user's ruling
 
-- **`beta/08:30` (and `:24,:56,:62,:207`) — "Croft Group" / "Croft the product" working handles.**
-  Flagged do-not-carry brand DRIFT in `BETA-ROLLUP.md:229-231` / COHESION §18, but the doc loudly
-  disclaims them (decision-gated banner + `08:213-214` "do not propagate unsettled names into
-  structure") and the alpha sources themselves use "Croft Group" as a working label. Left unchanged
-  pending the user's ruling on whether disclaimed working-handles are acceptable at beta stage (if the
-  rule is zero-tolerance, these become a BLOCKER and need a rename pass).
+- **`beta/08:30` — "Croft Group" / "Croft the product" working handles.** User ruling (2026-06-24):
+  **keep + add an explicit placeholder tag.** Applied: the first use of "Croft Group" (`08:30`) now
+  reads "**Croft Group** [working name, pending brand reconciliation — see the decision-gated banner]"
+  so a reader cannot mistake it for a settled brand decision. The names are retained as provisional
+  working handles (consistent with the alpha sources and the decision-gated banner + `08:213-214`
+  disclaimer); the brand DRIFT reconciliation against `NAMING.md` remains a surfaced gate, not resolved.
 
 ## Intentionally not changed (graded acceptable in the report)
 

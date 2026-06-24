@@ -9,7 +9,11 @@ and the standing indexes. Status notes whether the prompt has been run.
   README), `alpha/BETA-ROLLUP.md`, `../../../MATURITY-ROLLUP.md`.
 - [`beta-factcheck-prompt.md`](beta-factcheck-prompt.md) — adversarially fact-check the beta first pass
   (quote fidelity, verification flags, do-not-carry absence, ledger accuracy) on the highest-capability
-  model. **Not yet run.**
+  model. **Run (2026-06-24)** → `alpha/plans/2026-06-24-beta-factcheck-report.md` (0 blockers, 6 majors,
+  16 minors); corrections applied + logged in `alpha/plans/2026-06-24-beta-factcheck-corrections-log.md`.
+- [`beta-factcheck-pass2-prompt.md`](beta-factcheck-pass2-prompt.md) — second clean fact-check pass after
+  the pass-1 corrections: re-verify each correction landed and is itself right (REGRESSION-first), plus a
+  full fresh adversarial sweep. **Not yet run.**
 - [`file-transcripts-prompt.md`](file-transcripts-prompt.md) — file incoming transcripts/dossiers per
   `PLAYBOOK.md` (classify → preserve raw → distill → update connective tissue). Reusable.
 - [`games-pond-research-prompt.md`](games-pond-research-prompt.md) — the ponds/pads + P2P-games research
