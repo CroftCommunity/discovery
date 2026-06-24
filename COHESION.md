@@ -876,6 +876,35 @@ deepens §18's app body into *what actually fills the garden and how to build it
 
 ---
 
+## 34. Croft etymology + commons-rebellion tradition ↔ the naming rationale (the trap-vs-balance refinement)
+
+- **DEEPENS, does not duplicate, the two earlier crofting files.** `croft-crofting-research.md`
+  (de-romanticized Clearances scholarship + the naming argument) and `croft-crofting-narrative.md`
+  (the popular re-telling) are Clearances-and-1886 focused. The new dialogue
+  (`seeds/transcripts/raw/croft-etymology-enclosure-tradition-dialogue-2026-06-23.md`) is the
+  **etymological + commons-pattern** register: the word is Old English and names a *concept* (enclosed
+  ground put to use), proven by the MED's four-way sense split + the West Germanic cognates + the
+  surname/place-name dominance — *ubiquity, not sole meaning*. Distilled to
+  `narrative/verticals/croft-the-name-and-the-commons.md`.
+- **REFINES `NAMING.md` (the seam worth logging — both faces are true):** `NAMING.md` foregrounds the
+  croft-as-**trap** (engineered undersized holdings → labour sold back to the landlord = the platform
+  relationship). The new material foregrounds the croft-as-**balance** (a secure private plot *coupled to
+  a retained common grazing* — the inversion of historical Enclosure, which dissolved the common). Held
+  together: trap at origin (runrig → clearance), balance at the 1886 settlement (the freeze). The balance
+  reading is the *positive* shape the name points at — local-first plot + cooperative commons — and maps
+  to `crystallized/principles.md` ("equal in rights, not capabilities"; "no right to remove the rights of
+  others") and to **Drystone** (`NAMING.md`). NAMING.md updated with an "Etymology deepens the rationale"
+  section pointing here. Status: **CLOSED** (refinement backported).
+- **FEEDS the still-unwritten `the-civic-why.md` (verticals #5).** The global-enclosure pattern (Rome,
+  Bengal, Stolypin's Russia, Mexico's ejido, the American West) + Ostrom-not-Hardin are exactly that
+  vertical's planned spine; this vertical is its etymological front half.
+- **Provenance / honesty:** cleaned-paste (§4); historical/lexicographic sources (no atproto/iroh claims,
+  so the FACTCHECK source-of-truth doesn't bear). Open `[UNVERIFIED]` items carried to ROADMAP_TODO: the
+  exact 1772 Manchester Directory wording (bleaching-vs-farming sense), and two scholarly anchors to read
+  (Greer, *Property and Dispossession* 2018; Ostrom, *Governing the Commons* 1990).
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
