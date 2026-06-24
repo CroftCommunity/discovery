@@ -19,10 +19,19 @@ who cares only about that topic, while cross-linking to the others. Planned set 
    royalty, enshittification-proof clauses; the co-op as the maintenance plan.
 
 5. `the-civic-why.md` — commons (Ostrom, not Hardin); the recurring inversion; linear vs
-   cyclical; renting-our-relationships-back.
+   cyclical; renting-our-relationships-back. **(Front half drafted as `croft-the-name-and-the-commons.md`
+   — see #7 — which carries the etymology + the enclosure-inversion + the global-pattern spine this
+   vertical will build on.)**
 
 6. `substrate-and-economics.md` — the vault, the iroh stack, the realtime/durable split;
    consumer-pull ad inversion.
+
+7. `croft-the-name-and-the-commons.md` — **drafted** — the etymology (the word as a *concept*, not a
+   Scottish-legal referent; western ubiquity), the croft as the *inversion* of historical Enclosure
+   (private plot + retained common), the commons-rebellion tradition, the global enclosure pattern, and
+   how all of it aligns with Croft the project. Feeds #5. Source:
+   `../../seeds/transcripts/raw/croft-etymology-enclosure-tradition-dialogue-2026-06-23.md`; alignment in
+   `../../NAMING.md`.
 
 Source material: the dossier (`../../SOVEREIGN-COMMONS-DOSSIER.md`), the thinking docs
 (`../../thinking/`), the principles (`../../crystallized/principles.md`), and the proofs.

@@ -105,6 +105,38 @@ research transcript is the primary source for the rigorous rationale; the narrat
 rationale drawing on both. Connect to the civic-why narrative vertical
 (narrative/verticals/the-civic-why.md), which is still to be written.
 
+## Etymology deepens the rationale (2026-06-23): the word names a concept, and the croft is the *inversion* of enclosure
+
+A later research dive (raw:
+`seeds/transcripts/raw/croft-etymology-enclosure-tradition-dialogue-2026-06-23.md`; distilled narrative:
+`narrative/verticals/croft-the-name-and-the-commons.md`) adds a layer *underneath* the trap reading above
+— complementary, not contradictory. Two findings strengthen the name:
+
+- **The word is a concept, not a fixed referent.** "Croft" is Old English, ~8 centuries older than the
+  1886 tenure, and fossilized across English place-names and surnames long before any statute. The Middle
+  English Dictionary's own sense-split (a field of oats / a tournament arena / hell-as-an-enclosure / a
+  surname, all within the same century) plus the West Germanic cognates (Dutch *krocht*, Low German
+  *kroch*) show it always named a *use-shape* — enclosed ground put to use — never one meaning. This is
+  the user's original thesis confirmed: **western ubiquity, not a conclusion on sole meaning.** A
+  *substrate* (many ponds/pads, no enshrined function) is named accurately by a word that has always been
+  a concept. (The verb "crofting" is first attested 1772 in Lancashire *cloth-bleaching*, not farming —
+  same concept, different industry.)
+
+- **The croft is the inversion of historical Enclosure — the positive shape the name points at.** Where
+  the Enclosure *movement* dissolved the common into private plots, the crofting *system* paired a secure
+  individual plot with a **retained common grazing**. That coupling (private plot + surviving common) is
+  the social shape of Croft's architecture: you hold your own data/space, coupled by design to a
+  community-held commons (the co-op / federation). The crofting settlement of 1886 is the rare case where
+  the millennia-long, near-universal enclosure pattern (Rome → Bengal → Stolypin's Russia → Mexico's
+  ejido → the American West's Dawes Act) was halted and a balance written into law.
+
+**The trap and the balance are one lesson.** The trap reading (engineered dependency) and the balance
+reading (secured plot + living common) held together give the design instruction: *securing the commons
+is the start of the maintenance problem, not the end*, and the meaningful unit is the community holding
+the commons together (Assynt/Eigg), not each user's atomised plot. The 1886 win was real but partial
+(tenancy, not the land returned) — humility built into the name. See COHESION §34; the honest land↔
+virtual-space disanalogy is preserved in the narrative vertical.
+
 ## Protocol-layer naming (2026-06-22): the P2P protocol is **Drystone**
 
 decision: the peer-to-peer protocol underneath Croft is named the **Drystone P2P Protocol**
