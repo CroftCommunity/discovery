@@ -212,9 +212,12 @@ Carried open items:
 - **Broadcast tier must disable the embedded MLS ratchet-tree** — with it on, commits grow ~linearly in
   member count (1.4 KB @ 8 → 11 KB @ 128 leaves; AR-5, measured on openmls 0.8.1). Affordable at human
   scale, not at broadcast scale.
-- **Spec-vs-code reconciliation (real item).** `CROFT-PROTOCOL.md` §2's domain-tagged genesis/topic
-  pre-images and `lineage-core`'s plain `sha256` + `"lineage-topic-v1"` topic tag diverge; the tagged
-  pre-images are now canonical in `lineage-core::ids`, but the spec text needs to be reconciled to match.
+- **Spec-vs-code reconciliation — surfaced AND resolved (2026-06-17).** The earlier divergence between
+  `CROFT-PROTOCOL.md` §2's domain-tagged genesis/topic pre-images and `lineage-core`'s plain `sha256` +
+  `"lineage-topic-v1"` topic tag was closed: the tagged pre-images are now canonical in both the spec
+  (`CROFT-PROTOCOL.md` §2, incl. the 2026-06-17 addendum) and the code (`lineage-core::ids`), and the
+  derivations are byte-identical (`proof-ledger.md`: "RESOLVED"; `test-narrative.md`: "surfaced and
+  resolved"). No live spec/code divergence remains; this is no longer an open item.
 
 ---
 

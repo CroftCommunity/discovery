@@ -124,7 +124,7 @@ weaker," and atproto's own deferral of E2EE sharpens it.
 | `thinking/atproto-atmospheric-web.md` | U | **synthesized** (demand-side argument for Croft's crypto) | §6 (supporting) |
 | `thinking/ios-opportunistic-p2p.md` | U | **harvested** (four-property impossibility; Peat prior art); **collapses §25** | §1, §9 |
 | `seeds/.../atproto-atmospheric-web-iroh-mobile-FACTCHECK.md` | INDEX | **carried as source of truth** (cite, don't re-verify) | §3, §4, §6, §8 |
-| `COHESION.md` §17, §25, §26, §28, §29, §31, §32 | — | **collapsed/harvested** (atmospheric-web↔lineage-groups; three poles; sovereign-appview; iroh corroboration; open-social landscape) | §1, §3, §6, §8 |
+| `COHESION.md` §3, §8, §9, §11, §13, §17, §25, §26, §28, §29, §31, §32 | — | **collapsed/harvested** (messaging-landscape seams: SSB cautionary tale → bounded broadcast tier, media path; live dual-use identity evidence; atmospheric-web↔lineage-groups; three poles; sovereign-appview; iroh corroboration; open-social landscape) | §1, §2, §3, §4, §6, §8 |
 
 **Excluded (do-not-carry):** iroh-docs "Merkle Search Trees" (REFUTED — range-set reconciliation; MST is
 atproto's); the fictional "AT Messaging working group" (REFUTED); `did:key` atproto-resolvability (REFUTED);

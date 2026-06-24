@@ -200,10 +200,13 @@ cross-platform `did:webvh` root (§5/§6) is the same object as the MLS root met
 replica (§4) is the verifier for the Bluesky half of any provenance graph (§5). This is what makes "identity
 you carry across platforms" one theme rather than two.
 
-**Precise atproto facts (cite FACTCHECK SoT):** `did:plc` and `did:web` are atproto's two blessed methods
-(`did:plc` = "Public Ledger of Credentials"); `did:plc` has a 72h recovery window where a higher-priority
-rotation key overrides; rotation keys must be k256 or p256; `plc.directory` is run by Bluesky PBC as a
-transparency log (not an authority over keys), with a governance handoff planned, not done.
+**Precise atproto facts.** `did:plc` and `did:web` are atproto's two blessed methods, and `did:plc` =
+"Public Ledger of Credentials" (*cite FACTCHECK SoT*). The mechanism specifics are sourced to the
+identity-resilience analysis, not the FACTCHECK: `did:plc` has a 72h recovery window where a
+higher-priority rotation key overrides, and rotation keys must be k256 or p256
+(`../alpha/thinking/plc-identity-resilience.md`); `plc.directory` is run by Bluesky PBC as a transparency
+log (not an authority over keys), with a governance handoff planned, not done
+(`../alpha/seeds/transcripts/raw/croft-identity-provenance-dialogue-2026-06-20.md`; COHESION §21).
 
 ---
 

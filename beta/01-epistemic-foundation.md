@@ -111,9 +111,9 @@ Socrates diagnoses the exact error of a truth-certifying system — *supposing y
 > "For I was conscious that I knew practically nothing."
 > — Plato, *Apology* 22d (Fowler trans.)
 
-> "he supposes he knows something when he does not know, while I, just as I do not know, do not even
-> suppose that I do."
-> — Plato, *Apology* (21d–22d)
+> "this man thinks he knows something when he does not, whereas I, as I do not know anything, do not
+> think I do either."
+> — Plato, *Apology* 21d (Fowler trans., Loeb)
 
 *Verification:* **Verified** (the popular "I know that I know nothing" is a paraphrase not in Plato; the
 verified text is 21d–22d). *Grounds:* the system must surface contradiction, not impose answers — a
@@ -127,7 +127,7 @@ Mill names the cost of silencing the dissenter:
 > be justified in silencing mankind."
 > — J. S. Mill, *On Liberty* (1859)
 
-> "If the opinion is right, they are deprived of the opportunity of exchanging error for truth; if
+> "If the opinion is right, they are deprived of the opportunity of exchanging error for truth: if
 > wrong, they lose, what is almost as great a benefit, the clearer perception and livelier impression of
 > truth, produced by its collision with error."
 > — J. S. Mill, *On Liberty* (1859)
@@ -139,18 +139,20 @@ social dispute and `06` refuses moderation-as-surveillance.
 
 ### 2.2 Epistemology — certainty is unreachable
 
-> "block the road of inquiry"
-> — C. S. Peirce (his cardinal sin of reasoning; phrasing varies across essays)
+> "Do not block the way of inquiry."
+> — C. S. Peirce, "The First Rule of Reason," *Collected Papers* CP 1.135 (c. 1899)
 
-*Verification:* **attribution sound, exact wording varies by essay — confirm before quoting.**
+*Verification:* **Verified** (CP 1.135; the canonical wording is "way of inquiry" — the prior "road of
+inquiry" variant was corrected 2026-06-24).
 *Grounds:* truth is what a community of inquiry converges toward over unlimited time — approached, never
 possessed. Gossip-convergence with humility built into the math; the system must never foreclose
 revision.
 
-> "Our knowledge can only be finite, while our ignorance must necessarily be infinite."
-> — K. Popper, *Conjectures and Refutations* (1963)
+> "Our knowledge can be only finite, while our ignorance must necessarily be infinite."
+> — K. Popper, *Conjectures and Refutations* (1963), "On the Sources of Knowledge and of Ignorance," §XVII (p. 30)
 
-*Verification:* **widely attributed — confirm exact wording/edition before publishing.** *Grounds:*
+*Verification:* **Verified** (C&R p. 30; word order corrected from "can only be" → "can be only"
+2026-06-24). *Grounds:*
 theories are never verified, only corroborated by surviving refutation; a peer's history is a
 conjecture, agreement is corroboration, a claim is only ever "not-yet-overturned." Provenance (the
 survivable record) is exactly what a never-verified-only-corroborated epistemology can honestly compute.
@@ -183,18 +185,20 @@ inevitable tragedy. The capstone, the subsidiarity principle:
 the **recognized right to self-organize**) are verified against secondary academic summaries; the
 subsidiarity passage is from the 2013 generalization, **not** *Governing the Commons* itself — **confirm
 against the primary text before direct citation.** *Grounds:* keep governance local where consent is
-cheap; federate only the irreducible minimum (the federation design in `01`§6 and `07`).
+cheap; federate only the irreducible minimum (the federation design in §6 and `07`).
 
 ### 2.5 Systems science — plurality is a survival condition, not a preference
 
-> "Only variety can absorb variety."
-> — W. R. Ashby, *An Introduction to Cybernetics* (1956)
+> "Only variety can destroy variety."
+> — W. R. Ashby, *An Introduction to Cybernetics* (1956), p. 207 (the Law of Requisite Variety)
 
-> "When the variety or complexity of the environment exceeds the capacity of a system (natural or
-> artificial) the environment will dominate and ultimately destroy that system."
-> — W. R. Ashby (the Law of Requisite Variety, as a survival condition)
+> When the variety or complexity of the environment exceeds the capacity of a system (natural or
+> artificial), the environment will dominate and ultimately destroy that system.
+> — paraphrasing W. R. Ashby's Law of Requisite Variety as a survival condition (a gloss, not a verbatim line)
 
-*Verification:* **Verified.** *Grounds:* a regulator that collapses plural perspectives into one
+*Verification:* **Verified** (the requisite-variety line, *Introduction to Cybernetics* p. 207;
+"absorb" → "destroy" corrected 2026-06-24); the survival-condition restatement is a paraphrase/gloss,
+not a verbatim Ashby line. *Grounds:* a regulator that collapses plural perspectives into one
 certified truth is **brittle by formal law** (V(C) ≥ V(D)) and will be overwhelmed by the reality it
 oversimplified. Preserving plural perspectives — allowing forks, refusing to collapse divergence — is
 requisite variety made architectural. *Plurality is the robustness.*
@@ -202,12 +206,14 @@ requisite variety made architectural. *Plurality is the robustness.*
 Beer turns the law into a blueprint (attenuate / amplify; the **algedonic signal** = escalate the hard
 case to a human), holding the line:
 
-> treat computers, dashboards, simulations "as aids to human viability, not as excuses for automatic
-> command."
-> — S. Beer, *Brain of the Firm* (1972)
+> Beer held that computers, dashboards, and simulations should serve as aids to human viability, not as
+> excuses for automatic command — technology in service of human autonomy, not technocratic control.
+> — paraphrasing S. Beer, *Brain of the Firm* (1972), on humane management cybernetics
 
-*Verification:* **Verified** (incl. the Cybersyn–OGAS contrast: the variety-preserving design survived;
-the centralizing one could not be built). *Grounds:* the formal version of *escalate to human judgment*
+*Verification:* **paraphrase** — the wording is a gloss of Beer's position, not a verbatim line (it
+traces to a secondary characterization, not the 1972 text; corrected 2026-06-24). The Cybersyn–OGAS
+contrast is verified: the variety-preserving design functioned until destroyed from outside (the 1973
+coup); the centralizing OGAS could not be built. *Grounds:* the formal version of *escalate to human judgment*
 — Croft's hard-stop-and-escalate (`04`) and label-not-enforce (`06`) are algedonic channels, not
 automatic command.
 
