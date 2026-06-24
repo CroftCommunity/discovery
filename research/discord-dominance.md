@@ -230,6 +230,52 @@ The realistic path is not displacement. It is the same path Discord took: own a 
 
 **The single biggest thing to get right:** Make the joiner's first ten seconds as effortless as a Discord invite, with no client choice, no instance choice, and no account-on-some-server step, while keeping the open and portable substrate completely invisible at that moment. Every other advantage is wasted if the newcomer bounces in the first ten seconds. This is also the hardest thing to do on a decentralized stack, which is exactly why it is the whole game.
 
+## Update 2026-06-22 — monetization detail, IPO figures, and moderator labor as captured value
+
+Source: `seeds/transcripts/raw/croft-discord-money-ipo-onboarding-dialogue-2026-06-22.md`. Discord is
+private with no audited financials, so every figure here is a **third-party estimate and sources
+disagree** — treat as approximate `[UNVERIFIED]`.
+
+**Monetization breakdown (freemium):** **Nitro** subscriptions ($2.99/$9.99/mo) are the largest stream
+(~$207M in 2023, ~36% of revenue; est. ~$280M by 2025); **Server Boosts** (~$4.99/mo each); **Quests**
+opt-in reward-ads (launched 2024, mobile mid-2025) — the newer engine Discord wants to eventually
+**rival Nitro**; a **10% cut** on game sales/IAP (vs Steam's 30%); creator server subscriptions; merch.
+Discord **does not sell user data** (trust positioning). Sacra est. **~$725M ARR end-2024** with
+**positive adjusted EBITDA for five consecutive quarters** (operating-level profitability; not the same
+as net-profitable).
+
+**IPO status:** **confidential S-1 filed Jan 6 2026** (Goldman Sachs + JPMorgan). It's a confidential
+draft — real financials stay sealed until a public S-1 ~3–4 wks pre-roadshow. The **$15B target**
+(= its 2021 valuation) and a March-2026 debut slipped; public S-1 expected H1–H2 2026. Circulating
+estimates: >200M MAU; revenue/ARR ~$725M vs ~$550M (ARR-vs-total definitional gap); secondary-market
+valuation ~$7B (a real uncertainty signal) vs the $15B anchor.
+
+**Moderator/contributor labor as captured enterprise value (the cooperative-thesis hook).** Discord's
+moderators, bot developers, and community builders hold **no equity and receive no IPO payout** — value
+flows to employees-with-stock, VCs (Dragoneer, Fidelity), and founders. Discord avoids algorithmic-feed
+moderation costs by organizing around user-created servers with **volunteer community moderation** — a
+direct cost it doesn't pay because volunteers absorb it; the saving becomes margin, the margin becomes
+valuation. So **volunteer moderator labor is literally embedded in the number bankers are pricing, while
+moderators are external to the cap table.** Post-IPO, the monetization-sensitive demographic is the same
+group that built the value, and it has **no governance voice** to defend the conditions that made
+contributing worthwhile. Discord is thus the **clean illustration of the default extractive
+arrangement** (contribution and ownership fully decoupled) that Croft's member-owned cooperative model
+is designed to invert — see `thinking/cooperative-social-union-model.md`,
+`thinking/foundation-and-ip-stewardship.md`, and the access-vs-ownership distinction in
+`thinking/membership-vs-access-the-public-door.md`. (Discord's own contributor monetization — server
+subs, the 10% rev-share — is **revenue from a creator's members, not a stake in Discord itself**: "a
+tenant who can sublet, not an owner.")
+
+**Onboarding: the ten-second door is the default; the friction is admin-chosen.** The fast flow (click
+invite → pick username → in the room) is the genuine default; spam-expecting admins layer optional gates
+(**Membership Screening**, **verification levels** incl. phone — which breaks anonymity — and
+**onboarding** forced selection). Confirms this doc's core thesis: **frictionless onboarding and Sybil
+resistance are in direct tension**, resolved per-server. Direction: IPO + regulatory pressure (age
+verification to 2026, KYC-adjacent, spam-driven phone gating) pushes toward **more** identity friction —
+eroding exactly the anonymous-fast-door property that made "just chat on Discord" the default answer.
+This is the competitive grounding for why Croft's **tier-zero deep-link resolver** (ROADMAP_TODO E11) is
+the whole game, and for the membership-vs-access design note.
+
 ## Sourcing and confidence notes
 
 Documented fact with strong sourcing: Discord's founding and 2015 launch; the latency/RAM comparison with TeamSpeak; the 2017 user numbers and $50M raise; the 2026 confidential S-1 and IPO target; the 2025 ads rollout; the October 2025 third-party breach and ~70,000 government IDs; the age-verification delay to H2 2026; the iroh-uses-Discord example; the Discourse 95%-migration anecdote (sourced to the founder's own account); Matrix v2/Element X and the UN/ICC institutional adoptions.

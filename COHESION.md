@@ -939,6 +939,36 @@ deepens §18's app body into *what actually fills the garden and how to build it
 
 ---
 
+## 36. Discord money/IPO/onboarding dialogue ↔ the ten-second door (E11), the cooperative extraction-inversion, and membership-vs-access
+
+- **REINFORCES `research/discord-dominance.md` (no drift).** The 2026-06-22 dialogue
+  (`seeds/transcripts/raw/croft-discord-money-ipo-onboarding-dialogue-2026-06-22.md`) restates that
+  doc's core thesis — **zero-friction "ten-second" joining** is Discord's single biggest advantage, and
+  frictionless onboarding vs Sybil resistance is a real tension resolved per-server. Filed as a **dated
+  Update** in that doc (don't start a parallel Discord doc), adding net-new IPO figures (confidential
+  S-1 Jan 6 2026; ~$725M ARR; $15B target slipping; positive adj-EBITDA) — all **third-party estimates,
+  `[UNVERIFIED]`** (Discord is private).
+- **FEEDS the cooperative thesis (D5/E25) with a clean counter-illustration.** Net-new framing: Discord's
+  **volunteer moderator/contributor labor is uncompensated enterprise value embedded in the IPO
+  valuation** (they hold no equity, no governance voice) — the clean illustration of the
+  contribution/ownership-decoupled default that the member-owned model
+  (`cooperative-social-union-model.md`, `foundation-and-ip-stewardship.md`) inverts. Backs
+  `crystallized/principles.md` (non-extractive / labor-as-first-class).
+- **GROUNDS the tier-zero deep-link resolver (E11) and adds the membership-model half.** New design note
+  `thinking/membership-vs-access-the-public-door.md` decouples **two axes Discord conflates** — *who
+  holds a stake* (membership/governance = the pond/infra layer) vs *who can walk in* (access = the
+  pad/room layer). A stakeholder can hold open a **public/anonymous door** into a pad while the pond stays
+  member-governed; the guest carries **no governance weight → Sybil softens** (spam in a guest room can't
+  capture the co-op). This is the access-layer expression of **D9** ("member ≠ governance-constituent")
+  and composes with **S3 quiet membership** (`social-layer.md`) and the **geer** (`geer-gating-peer.md`).
+  The unsolved protocol question (anonymous guest's first iroh-pad entry as fast as a Discord invite) is
+  **E11**; this note fixes the membership *semantics* around it. Status: **CLOSED** (filed; E11/D9 remain
+  the open engineering/governance edges).
+- **Provenance:** cleaned-paste (§4); no atproto/iroh claims → FACTCHECK doesn't bear. Tracked
+  ROADMAP_TODO **E29**.
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
