@@ -438,7 +438,9 @@ background. The power is the specificity: he grieves particular trees and nooks 
 individuals.
 
 Full texts are public domain (Clare died 1864) and available via the Poetry Foundation and standard
-Clare editions. Not reproduced here.
+Clare editions. Not reproduced here. [Later companion: the full public-domain texts of *The Mores*,
+*Remembrances*, and *To a Fallen Elm* were supplied 2026-06-23 and filed at
+`croft-clare-enclosure-poems-2026-06-23.md`.]
 
 #### 1867: The theoretical capstone
 

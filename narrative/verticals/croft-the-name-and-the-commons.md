@@ -81,6 +81,14 @@ span…"), Kett tearing down the hedges (1549), Captain Pouch and the Newton reb
 within a year), John Clare's elegy for his own enclosed parish, Marx naming it "primitive accumulation"
 (1867). The verse that survives is mostly lament; the risings mostly ended in a scaffold or a dispersal.
 
+Clare is the interior witness — an actual Helpston labourer who watched his own parish enclosed (award
+1820). His *The Mores* names enclosure as conquest ("Inclosure came and trampled on the grave / Of
+labour's rights and left the poor a slave"; the "no road here" boards where "earth glows no more
+divine"); *Remembrances* mourns named places lost; *To a Fallen Elm* turns on the bitter cant of
+*freedom* in the enclosers' mouths ("Self interest saw thee stand in freedoms ways / So thy old shadow
+must a tyrant be"). Full public-domain texts + provenance:
+`../../seeds/transcripts/raw/croft-clare-enclosure-poems-2026-06-23.md`.
+
 The Highland croft is the exception. The Crofters' War of the 1880s — rent strikes and land-raids onto
 the **common grazings** at the Braes (1882) and Glendale (1883) — produced not hangings but the Napier
 Commission and the **1886 Act**: security of tenure, heritability, fair rents, and protection of the
@@ -162,6 +170,7 @@ maintenance burden as permanent) and is candid about where the land analogy stop
 - De-romanticized Clearances scholarship: `../../seeds/transcripts/raw/croft-crofting-research.md`
 - Popular re-telling (quotable, `[UNVERIFIED]`): `../../seeds/transcripts/raw/croft-crofting-narrative.md`
 - Full primary-source reference + dialogue: `../../seeds/transcripts/raw/croft-etymology-enclosure-tradition-dialogue-2026-06-23.md`
+- John Clare's enclosure poems (public-domain full texts + sources): `../../seeds/transcripts/raw/croft-clare-enclosure-poems-2026-06-23.md`
 - Substrate / design imperative: `../../thinking/local-first-as-design-imperative.md`; `../../crystallized/principles.md`
 - Seam log: `../../COHESION.md` §30
 - Feeds: `the-civic-why.md` (verticals #5 — commons, Ostrom-not-Hardin, the recurring inversion)
