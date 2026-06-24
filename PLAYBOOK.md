@@ -8,6 +8,13 @@ lost. Follow this whenever a new transcript, dossier, PR, or piece of research a
 
 This codifies what has been done by hand so far; keep it current as the process evolves.
 
+> **Stage convention (2026-06-24).** Each repo is staged `alpha → beta → rc → publish` (see
+> `AGENTS.md` → "Maturity stages"). This file lives at the repo **root** (cross-stage), but every
+> corpus path below — `seeds/…`, `thinking/…`, `crystallized/…`, `research/…`, `narrative/…`,
+> `COHESION.md`, `ECOSYSTEM.md`, `ROADMAP*.md`, `NAMING.md`, the manifest — is under the **current
+> stage dir**, i.e. `discovery/alpha/<path>`. New material currently lands in `alpha/`. The same
+> holds for `Proofs/alpha/…` and `experiments/alpha/…`.
+
 ---
 
 ## 0. The repo set (where things live)
