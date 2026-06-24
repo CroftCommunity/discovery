@@ -288,10 +288,16 @@ The co-op vertical's lineage (detail in the dossier §3, §8):
 | Social.coop | Member-owned, member-governed Mastodon instance funded by Open Collective dues — the closest living relative to the "Social Union" (single-protocol, no progressive-decentralization sunset) | homage, learn↔ [verified] |
 | The Purpose Foundation / steward-ownership; Haferkater; Start.coop | Revenue-Based Financing / "Demand Dividend" capped-return investor models (financial rights, no governance, stake vanishes at cap) — the seed-capital mechanism | learn↔ [verified] |
 | 501(c)(3) tech fiscal sponsors — SPI, Software Freedom Conservancy, Code for Science & Society | The grant-funded-open-source-labor path for the nonprofit half of a co-op/501(c)(3) tandem (host Debian/Arch/PostgreSQL; Git/Inkscape; public-interest tech). NB Open Collective *Foundation* dissolved end-2024; Open Source Collective is a 501(c)(6) | partner, learn↔ [verified] |
+| **Software in the Public Interest (SPI)** — the trademark-stewardship proof-of-concept for Croft's exact plan | SPI *owns* the Debian trademark (registered US mark), *managed by* the Debian project, and has licensed it to outside orgs; also holds ArduPilot's mark. The asset-holding-shell / community-runs-it model = exactly Croft's foundation-holds-marks/coop-operates intent. Best long-term asset-holding match. See `thinking/foundation-and-ip-stewardship.md` | build-on, learn↔ [dialogue-sourced 2026-06-23] |
+| **Software Freedom Conservancy** — permanent neutral mark-holder (FOSS-purist) | 501(c)(3); can hold copyrights, trademarks, domains + provides trademark registration/policy/licensing/enforcement (word-for-word Croft's plan), plus GPL-enforcement legal muscle (Vizio). Strict OSI/DFSG bar, slow rolling review, "not a service provider". The Phase-2+ permanent home if Croft becomes a major FOSS effort | learn↔, partner [dialogue-sourced 2026-06-23] |
+| **Aspiration** — Croft's recommended **interim foundation** (Phase 1) | 501(c)(3) fiscal sponsor; short-term (1–2 yr) **grantor/grantee** model → project keeps its own board + IP (friendly to holding your own marks + graduating to your own 501(c)(3)). Sponsors "mission-aligned technology, data, and digital-rights projects, focusing on open/equitable community, governance, and IP" — near-exact fit; fees 5–15%; $150 + 30-min interview. Open item: verify it sponsors a *coop-operated* project. Projects incl. Coko, Tahoe-LAFS, Open Referral | partner, learn↔ [dialogue-sourced 2026-06-23] |
 | Anti-patterns (learn↔, what-not-to-do) — Ello (VC capture), Ampled (volunteer burnout, shut 2023), Steemit (hyper-financialization), Diaspora (architectural naïveté), Coomappa (white-label dependency) | The verified failure lineage the cooperative model is designed to answer — see `thinking/cooperative-social-union-model.md`, COHESION §33 | learn↔ [verified 2026-06-22] |
 
-(Rows above from the 2026-06-22 cooperative "Social Union" dialogue; fact-checked — see
-`seeds/transcripts/raw/cooperative-social-union-governance-dialogue-2026-06-22-FACTCHECK.md`.)
+(Most rows above from the 2026-06-22 cooperative "Social Union" dialogue; fact-checked — see
+`seeds/transcripts/raw/cooperative-social-union-governance-dialogue-2026-06-22-FACTCHECK.md`. The
+SPI/SFC/Aspiration rows are enriched from the 2026-06-23 foundation/IP dialogue —
+`seeds/transcripts/raw/croft-foundation-coop-ip-naming-dialogue-2026-06-23.md`, **dialogue-sourced,
+verify before reliance** — see COHESION §35.)
 
 ---
 

@@ -196,6 +196,88 @@ root), *Rootstock*, *Radix*, *Mycelium*, *Regen*, *Grove*, *Canopy*. *Meadow* is
 the close project **Willow**). Same rule: not propagated into structure unless promoted by a fresh
 decision here. (Croft remains the umbrella; these would at most name a sub-surface.)
 
+## Foundation-layer naming (2026-06-23): **Noria** is the leading *candidate* — PENDING LEGAL CLEARANCE, not decided
+
+decision-status: **CANDIDATE, not settled.** Per the user (2026-06-23): "Likely one of these
+[The Noria Foundation / Noria Commons Foundation], **which I would want legal advice.**" Do **not**
+propagate "Noria" into structure (doc names, code, the spec, the org) as if adopted — same reservoir
+convention as the unsettled app/brand names below. **Settled names remain Croft (umbrella/app) and
+Drystone (protocol).** Source dialogue:
+`seeds/transcripts/raw/croft-foundation-coop-ip-naming-dialogue-2026-06-23.md`; structure distilled to
+`thinking/foundation-and-ip-stewardship.md`. This exercises ROADMAP_TODO A7 (sub-product name map) at
+the foundation layer.
+
+**Why the foundation needs its own mission-flavored name (not "Croft …").** The foundation's job is to
+hold the marks *neutrally* so the protocol stays plural and many coops operate on even footing
+(`thinking/foundation-and-ip-stewardship.md`). A steward named after one of its assets ("Techne Croft
+Foundation", "the Croft Foundation") undercuts that neutrality the moment it stewards non-Croft things
+(Drystone governance, future projects) — and it fails the three-years-out test (advocacy reads as
+self-interested). So the foundation name is deliberately **mission-flavored, kin to but not fused with**
+Croft/Drystone. (This retires the earlier "Techne Croft Foundation" idea.)
+
+**The leading candidate: Noria** — a hydropowered scoop/bucket wheel turned by a river's own current
+that lifts water into a channel to irrigate the fields. Why it earns it:
+- **Non-extraction, made mechanical.** The wheel takes only the river's *motion*, depletes nothing, and
+  lifts the life-giving water to where things grow — and, unlike a watermill, provides **no mechanical
+  power to any other process**. Its sole job is to bring the sustaining resource to the community. That
+  is the foundation's sole job, almost literally.
+- **Built, like Croft and Drystone.** One coherent rural-built landscape: Croft (the holding) / Drystone
+  (the unmortared wall) / Noria (the wheel that lifts the river's water to feed the holding). It signals
+  *technology* through the image without the ham-fisted word "Technology" in the name.
+- **Resilient + communal.** Some norias have turned for ~1,000 years (Hama, Syria; ~20 m, 120 boxes) —
+  an early renewable-energy example. Multiple norias share one low dam, excess flowing over: a quiet
+  rhyme with many-coops-on-even-footing. Etymology: via Spanish from Arabic *nā‘ūra* ("the growler" —
+  named for the song it makes as it works). Full etymology/use in the raw + the Clare-style source notes.
+- **Sound/ownability:** two syllables ("NOR-ee-uh"), warm, distinctive, and far less crowded than the
+  rejected front-runner (below).
+
+**Collision status (verify with counsel — do NOT rely on this):** the only real namesake found is
+**Noria Corporation** (~1998, machinerylubrication.com) — a niche B2B industrial-machinery-lubrication/
+reliability company, a different universe from a cooperative digital-rights foundation; near-zero
+tech-audience mindshare overlap (far milder than the Watershed collision below). `noria.com` likely
+held → plan on `noria.org` / `noriacommons.org` (`.org` is the right TLD for a foundation anyway). A
+real trademark clearance in the relevant classes is the gating step before any commitment.
+
+**Form:** leaning **Noria Commons Foundation** ("Commons" names the cooperative-governance tradition —
+Ostrom, knowledge/digital commons — without constraining, and is native to the crofting landscape's
+*common grazing*; distinctiveness lives in "Noria", orientation in "Commons"), with **The Noria
+Foundation** the plainer alternative and **Noria** the everyday short name. The form choice can wait for
+counsel (clearance may come back cleaner for one form).
+
+**Why "Watershed" was rejected (recorded so it isn't reconsidered).** Watershed was the long-running
+front-runner (it fuses the user's two instincts — a *ridge* high-dividing-line + life-giving water —
+and "watershed moment" carries the ideology; the whole shared catchment = the commons). It was dropped
+on clearance: "Watershed" saturates literal water-conservation nonprofits (adjacent-field misread), and
+— fatally — **Watershed Technology, Inc.** is a ~$1.8B venture-backed enterprise-climate-software
+unicorn (holds `watershed.com`, customers incl. BlackRock/Stripe/Walmart): a direct mindshare competitor
+*in the same medium*, undercutting the clean-trust-anchor thesis (and faintly ironic for an
+anti-extraction project). **Wellspring** was also dropped (crowded in the nonprofit world + the
+prominent billionaire-backed "Wellspring Philanthropic Fund" = the worst-possible association for a
+transparency-first project). The water-cycle *concept* survived the words; the *built water
+infrastructure* register (aqueduct → the river-turned wheel) is what finally landed.
+
+**Reservoir (rejected/considered, not adopted — do not propagate):** Commonage, Cairn (pronunciation
+trap), Keystone (known OSS project + crowded), Trellis, Keel, Foothold, Basin, Artesian, Confluence
+(Atlassian collision), Headwater, Upwell, Weir (the runner-up to Noria — a gentle built shaper of flow),
+Mill, and the earlier "Techne Croft Foundation."
+
+## Domains & the Croft collision-check (2026-06-23)
+
+- **`croft.ing`** is the leading app/project domain (reads "crofting"). Caveats: `.ing` is a newer
+  Google TLD, often premium-priced — **verify the renewal price, not just year-one** — and slightly less
+  familiar to non-technical users; grab a plain fallback (e.g. a `.org`) that redirects, for the
+  trust-anchor reasons.
+- **`.coop`** is gated/verified (cooperative-only) and becomes available to the **coop** once it legally
+  exists (Phase 2) — itself a verified trust signal; timing lines up with the entity phasing.
+- **Croft (the app) collision-check:** beyond "Lara Croft", there is real software-space "Croft"
+  activity — a Rust terminal IDE `vitali87/croft` (Codeberg, `docs.croft.software`), a scraper SaaS
+  `croft.so`, an H-2A ag-compliance SaaS `withcroft.com` (Croft Technology, Inc.), a UK IT shop
+  `croft-it.com`. **None is an obvious legal block** (different goods/classes), but the name is not
+  "clean" in the dev/software mindshare. Per the user (2026-06-23) the software-project collision is
+  **small and acceptable — their call to carry the risk**; a proper USPTO/TESS clearance in the relevant
+  classes (9, 42, 38, 45) remains the gating step before the name carries weight. Do the artist's logo
+  **copyright assignment in writing** in Phase 0 regardless (see `thinking/foundation-and-ip-stewardship.md`).
+
 ## App-layer naming (2026-06-22) — product vs umbrella, not yet reconciled
 
 The app design dialogue (`seeds/transcripts/raw/croft-app-design-dialogue-2026-06-20-to-22.md`)
