@@ -133,7 +133,7 @@ HISTORICAL ENCLOSURE              THE CROFT (the rare settlement)
 The croft is not a pristine survival from before enclosure; it is the **settlement point where the
 pendulum stopped** — the honest sequence is communal *runrig* townships → the Clearances broke them for
 sheep (Highland enclosure in all but name) → the croft as a negotiated re-balancing that locked in a
-private plot *plus* a surviving common. *(Collapses COHESION §30/§34: the trap-reading and the
+private plot *plus* a surviving common. *(Collapses COHESION §34: the trap-reading and the
 balance-reading reconciled as one lesson.)*
 
 ## 3. The trap: engineered dependency dressed as tenure
@@ -164,7 +164,7 @@ The 1880s resistance produced a statute, not a scaffold. The Battle of the Braes
 
 > the crowd, many women and children among them, "attacked us furiously first with curses, and then with
 > sticks, stones and other missiles"
-> — Sheriff William Ivory of Inverness-shire, on the Battle of the Braes (NRS, GD1/36/1/3/52)
+> — the Sheriff of Inverness-shire, William Ivory, on the Battle of the Braes (NRS, GD1/36/1/3/52)
 
 *Verification:* **documented history** (primary government record).
 

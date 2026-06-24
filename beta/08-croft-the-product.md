@@ -190,7 +190,9 @@ entry hitting the ten-second bar — is the open E11 engineering question.
 ## 9. The honest "serverless" asterisk, and the tier-zero door
 
 "No application server" holds, but browser iroh peers are **permanently relayed** and direct hole-punch
-**falls back to relays** (n0's by default) — connection-bootstrap leans on relays (cite FACTCHECK SoT). Record
+**falls back to relays** (n0's by default) — connection-bootstrap leans on relays
+(`../alpha/thinking/app/README.md`; COHESION §19. iroh `1.0.0` / DERP→relays rename / Tauri native
+WebView: cite FACTCHECK SoT). Record
 it, do not over-claim; this metered infra cost feeds the `07` sustainability question. And the **deep-link
 resolver / ten-second door (E11)** is the single most strategically important component, because it is
 simultaneously the core navigation UX and the *entire* acquisition model (there is no public discovery by

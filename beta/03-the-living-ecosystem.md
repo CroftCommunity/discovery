@@ -101,8 +101,8 @@ distributed-topology unsolved); Briar (best metadata protection via Tor, *refuse
 by design); Delta Chat (the closest Rust+iroh cousin — validated the realtime-P2P / durable-store-and-forward
 split, but transfer-then-diverge multi-device + email metadata leak); Session (no-phone keypair + mnemonic
 recovery; dropped then restored PFS — the cautionary "don't trade away forward secrecy"). *(Collapses
-COHESION §3 — SSB log-growth designed forward as the bounded broadcast tier, §11 — and §13 — the media path
-proven, PR #5.)*
+COHESION §3 — the SSB unbounded-log-growth cautionary tale, §11 — SSB's lesson applied forward as the
+bounded broadcast tier — and §13 — the media path proven, PR #5.)*
 
 ## 3. The public-social field map and the three "own-your-data" poles
 
@@ -164,7 +164,8 @@ WG is a distinct, modest thing — and real atproto E2EE remains third-party. Ge
 > the first native-launched private messenger from a Bluesky profile (2026-02-18); cofounder/CTO Mark Xue
 > (ex-Apple iMessage/FaceTime); MLS via the open AC Protocol (IETF `draft-xue-distributed-mls`); identity
 > bound via an "Anchor Key" published in the atproto profile.
-> — `research/germ-xchat-features.md` / ECOSYSTEM §6
+> — `ECOSYSTEM.md` §6 + FACTCHECK addendum (the maturation facts; `research/germ-xchat-features.md`
+> predates these and supplies only the privacy-free/convenience-effortful inversion)
 
 *Verification:* **CONFIRMED** (cite FACTCHECK SoT). A shipped "atproto for discovery, E2EE off-repo" idiom
 that rhymes precisely with Croft's design.
@@ -246,4 +247,4 @@ Corporation" fabrication, the false Vultr 1-Click PDS app).
   `../alpha/research/atproto-sovereign-appview-club.md` **[S]** · `../alpha/research/germ-xchat-features.md` **[U]**
 - `../alpha/thinking/atproto-atmospheric-web.md` **[U]** · `../alpha/thinking/ios-opportunistic-p2p.md` **[U]**
 - `../alpha/seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md` **[INDEX — source of truth]**
-- `../alpha/COHESION.md` §17, §25, §26, §28, §29, §31, §32
+- `../alpha/COHESION.md` §3, §8, §9, §11, §13, §17, §25, §26, §28, §29, §31, §32

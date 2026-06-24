@@ -87,7 +87,7 @@ authority are stated there as crypto facts; here they are reasoned as social/adv
 > not even available to us."
 > — `thinking/abuse-resistance-and-the-rave-trap.md`
 
-*Verification:* design; the Tier-0 blind broker is green-model (E3.4), and the running blind meer binary is
+*Verification:* design; the Tier-0 blind broker is green-real (E3.4), and the running blind meer binary is
 green-real (E9). *Grounds:* the meer holds no payload key, so content moderation at the transport layer is
 structurally unavailable. The question is not whether to inspect, but how to stay safe without it.
 
@@ -194,8 +194,8 @@ backstop → fork). The floor is **anti-brick only**:
 > hardens into an owner by circumstance."
 > — `thinking/meer-superpeer-design.md`
 
-*Verification:* the re-formation / state-portability result is green-real (C3, re-formation; meer
-export→import to a replacement, E9), applied to roles by design. *Grounds:* de-jure revocability is necessary
+*Verification:* the re-formation / state-portability result is green-real-multimachine (A1 re-formation
+(trap door) in the proof ledger; meer export→import to a replacement, E9), applied to roles by design. *Grounds:* de-jure revocability is necessary
 but not sufficient — a resourced always-on state-holder can entrench by *circumstance*. The guards: no state
 hostage (encrypted, exportable state → re-host cheaply); blindness caps the weight; stand-up-a-replacement-
 and-elect-it (the decisive everyday guard, distinct from the adversarial fork backstop); scoped non-creeping

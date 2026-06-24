@@ -35,7 +35,7 @@ decentralization with a hardcoded, externally-ascertainable founder-sunset; a cl
 internal economy (dues, a capped royalty, donations through a parallel charitable entity); and labor treated
 as a first-class moral good, because burnout is a failure of governance. Against this stands the verified
 failure lineage — Ello, Ampled, Steemit, Diaspora, Coomappa — and Discord, where uncompensated volunteer-
-moderator labor is literally embedded in the valuation bankers are pricing.
+moderator labor is literally embedded in the number bankers are pricing.
 
 The second pillar answers a different question: who holds the brand and the code, and how, so the ecosystem
 stays plural and capture is *structurally impossible* rather than merely promised. The answer is three
