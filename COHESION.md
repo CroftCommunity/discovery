@@ -902,6 +902,12 @@ deepens §18's app body into *what actually fills the garden and how to build it
   so the FACTCHECK source-of-truth doesn't bear). Open `[UNVERIFIED]` items carried to ROADMAP_TODO: the
   exact 1772 Manchester Directory wording (bleaching-vs-farming sense), and two scholarly anchors to read
   (Greer, *Property and Dispossession* 2018; Ostrom, *Governing the Commons* 1990).
+- **Companion source added 2026-06-23:** the full public-domain texts of John Clare's enclosure poems
+  (*The Mores* / *Remembrances* / *To a Fallen Elm*) — the interior witness the dialogue deferred — filed
+  at `seeds/transcripts/raw/croft-clare-enclosure-poems-2026-06-23.md` (separate from the cleaned-paste
+  raw, to keep that faithful to its session). Texts editor-dependent; Featherstone background attributed
+  not reproduced (copyrighted). *To a Fallen Elm*'s "freedom"-as-enclosers'-cant turn is the tightest
+  poetic statement of the inversion this body turns on.
 
 ---
 
