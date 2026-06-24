@@ -911,6 +911,34 @@ deepens §18's app body into *what actually fills the garden and how to build it
 
 ---
 
+## 35. Foundation + IP-stewardship layer + the foundation name ↔ the cooperative mechanism (the IP half of D5/D8)
+
+- **COMPLEMENTS `cooperative-social-union-model.md` (§33) — the two halves of the sustainability answer.**
+  That doc is the *economic/governance* mechanism (MO Chapter 351 LCA); the 2026-06-23 dialogue
+  (`seeds/transcripts/raw/croft-foundation-coop-ip-naming-dialogue-2026-06-23.md`) supplies the
+  *IP-stewardship + foundation* layer: a three-layer **code (AGPL-3.0-or-later + DCO) / brand (mark held
+  by a neutral foundation) / coop (free, conditioned mark license; repeatable for many coops)**
+  architecture + entity **phasing** (Aspiration as the interim foundation) + **assignment-with-goodwill**
+  transfer. Distilled → `thinking/foundation-and-ip-stewardship.md`. Together they answer the
+  existential **D5** and partially walk **D8** (the centerless-meets-center seam: legal entity / name
+  registrar / the money). Status: **D5 PARTIALLY-WALKED further; D8 PARTIALLY-WALKED** (legal-review +
+  entity gates remain, the user's).
+- **CLOSES the IP-layer expression of the principles.** The DCO/AGPL lock (no party — incl. a future
+  founder/captured board — can relicense or close the source), the foundation-held-mark-licensed-to-coops
+  (un-hoardable brand), and the foundation-separate-from-and-named-independently-of the first coop are
+  the IP-layer form of `crystallized/principles.md` Tier 1 ("equal in rights, not capabilities"; "no
+  right to remove the rights of others") and the candidate non-negotiable "neutral trust anchor."
+- **NAMING (decision surfaced, NOT resolved).** Foundation-name leading candidate **Noria** is recorded
+  in `NAMING.md` as a **CANDIDATE pending legal clearance, not a decision** ("Watershed" rejected on the
+  $1.8B Watershed Technology collision; "Wellspring" on crowding + the billionaire-fund association).
+  **Croft (umbrella/app) and Drystone (protocol) remain settled.** The foundation name is deliberately
+  mission-flavored, not flagship-fused, to preserve the even-footing neutrality. Exercises A7.
+- **Provenance / honesty:** cleaned-paste (§4); **NOT-LEGAL-ADVICE** — all legal/financial specifics are
+  dialogue-sourced from web search and require counsel (the user flagged the whole area "pending legal
+  advice"). ECOSYSTEM SPI/SFC/Aspiration rows flagged dialogue-sourced. Tracked ROADMAP_TODO **E28**.
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
