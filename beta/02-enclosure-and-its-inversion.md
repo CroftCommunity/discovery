@@ -37,7 +37,8 @@ labour back to the same landlord who controlled the land (kelp, fishing). That i
 user's relationship to a platform — just enough space to be present, never enough to be independent, the
 deficit filled by working for the landlord (attention, content, data as the kelp). The 1880s resistance
 (the Battle of the Braes, Glendale, the Napier Commission) won the Crofters' Holdings (Scotland) Act 1886
-— "the Magna Carta of the Highlands and Islands" — but the win was real *and* partial: it secured
+— "the Magna Carta of the Highlands and Islands" (attribution `[UNVERIFIED]`; see §4) — but the win was
+real *and* partial: it secured
 tenancy, fair rents, heritability, and protection of the common grazing, and it pointedly refused to
 return the cleared land.
 

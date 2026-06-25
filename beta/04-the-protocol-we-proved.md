@@ -48,8 +48,9 @@ broadcast admission, a running blind `meer`).
 
 The theme closes honestly: what a validation does *and does not* establish, and the carried-open risks —
 **total-device-loss recovery** (the largest residual), V3's automatic-only guarantee, S3 quiet
-membership still unsolved, the broadcast-tier ratchet-tree cost, and the spec-vs-code reconciliation
-item. The reader leaves knowing the protocol is real, not a sketch — and exactly where the edges are.
+membership still unsolved, and the broadcast-tier ratchet-tree cost. (The spec-vs-code reconciliation
+item, carried-open at first-pass, was surfaced and resolved 2026-06-17 — see §5.) The reader leaves
+knowing the protocol is real, not a sketch — and exactly where the edges are.
 
 ## Charter — what this theme covers
 
@@ -234,7 +235,7 @@ is the reader's pointer; the ledger is the auditable record.
 - `../alpha/thinking/merge-split-corpus.md` — the three-tree taxonomy (split/merge/conflict corpus) that
   feeds conformance. **[U]**
 - `../alpha/crystallized/CROFT-PROTOCOL.md` — the normative wire spec (the thing **Drystone** names);
-  proof status inline. **[S]** — *reconcile §2 pre-images (see §5).*
+  proof status inline. **[S]** — *§2 pre-images reconciled 2026-06-17 (see §5).*
 - `../alpha/crystallized/proof-ledger.md` — every I/E/V/S claim + status (Phase 1 GO; adversarial gaps
   closed; cross-machine; conformance 66/0; media round E10/E12/E11/meer). **[S]**
 - `../alpha/crystallized/test-narrative.md` — why each test, what it tells us, what stays open. **[S]**
