@@ -235,3 +235,23 @@ pricing); my duplicate was **deleted**. **Fact-check correction carried:** I had
 **false positive** (my research pass checked the PDS `env.ts`, not the rate-limits doc). They are
 **real** (`docs.bsky.app/docs/advanced-guides/rate-limits`); the canonical FACTCHECK correctly marked
 them CONFIRMED.
+
+## 2026-06-24 intake — Drystone peers/rights/governance + Matrix-contrast dialogue (+ §2/§X spec drafts)
+
+A single claude.ai design dialogue (content-dated 2026-06-24, filed 2026-06-25) that diagnosed the
+group-chat landscape, ran a deep **Matrix architecture-and-UX contrast**, and produced two Drystone
+spec sections (§2 Peers/Rights/Capabilities/PeerSets, §X Concurrent & Conflicting Governance Changes).
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| Drystone peers/rights/governance + Matrix-contrast dialogue (claude.ai) | `seeds/transcripts/raw/drystone-peers-rights-governance-matrix-dialogue-2026-06-24.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)**. UI chrome stripped; inline source-domain citations kept. **Self-correction preserved:** the assistant's false "Matrix E2EE is bilaterally disable-able" claim, corrected to the spec's **one-way encryption latch**. |
+| §2 final spec draft (canonical; the §2 pasted at the top of the session was an earlier **dupe**, not re-filed) | `thinking/drystone-spec/section-2-peers-rights-capabilities.md` | **preserved-verbatim** (working DRAFT) |
+| §X final consolidated spec draft | `thinking/drystone-spec/section-x-governance-conflicts.md` | **preserved-verbatim** (working DRAFT / ENABLING) |
+
+**Provenance / verification note (NEW facts, not yet in the FACTCHECK SoT):** this dialogue adds a large
+body of **Matrix / Willow / Meadowcap / Keyhive** claims web-verified *in-session only* — confirm the
+load-bearing ones (CVE-2025-49090; room v12 / MSC4289; Megolm/UTD; Seshat desktop-only encrypted search;
+Meadowcap "no native revocation"; Willow unenforceable plaintext U64 timestamp + `is_authorised_write`;
+matrix.org Postgres-corruption postmortem; Karlsruhe SACMAT 2020; Element X vs Classic) before they
+harden into beta. iroh consistent with SoT (`1.0.0`); no drift markers. COHESION §37; ROADMAP_TODO
+A11/A12/A13 + E30. Beta integration is a **separate pass** (not done in this intake).
