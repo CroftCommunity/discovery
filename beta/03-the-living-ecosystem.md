@@ -115,6 +115,14 @@ Croft is **none and borrows from each**: it rides atproto for public social, add
 **rejects the chain** DSNP requires while sharing DSNP's unbundle-the-social-web + delegation-without-
 surrendering-keys goals. Solid/WebID/Solid-OIDC/DPoP RFC 9449 and DSNP are CONFIRMED, verified-dialogue.
 
+The test 03 applies to every pole here is the **"credibly decentralized but operationally centralized"
+trap** — cryptographic portability that is technically real but economically meaningless because
+aggregation re-centralizes, so the data is portable on paper while the network that gives it value is not.
+(The principle itself is derived in `01`; this theme only uses it as the yardstick.) Atproto is the clearest
+case to hold to it: DIDs and self-authenticating repos make identity genuinely portable, yet if relays,
+AppViews, and defaults concentrate, the portability buys little in practice. A pole passes only if it
+**survives as small self-hosted nodes** — that is the line between credible decentralization and the trap.
+
 ## 4. The anchor reason — dual-use identity — and why the split is forced
 
 The atproto DID is the *same* host-independent, user-held identity primitive on both the public and private
@@ -140,6 +148,23 @@ private boundary (not leaked-at, à la Twitter Circles); CRDT conflict-free conc
 competitor offers a shared concurrently-editable group document); true serverless when co-present without
 SSB's UX cliff; and user-run, blind, self-hostable infrastructure. *(Harvests the germ-xchat inversion: the
 privacy-preserving behaviour is the free one; the convenience behaviour is the effortful one.)*
+
+"Different, not weaker" is a claim that can rot into an excuse, so it carries an obligation: it must be
+*backed by a per-tier security properties matrix* — forward secrecy, post-compromise security, metadata
+protection, offline capability, and central-compulsion-resistance, evaluated across the tiers (baseline /
+standard / high). The matrix is the discipline, not a slogan: read down each tier and the trades are
+explicit, so "different" can never quietly rationalize "weaker." The artifact itself need not be drawn here
+to make the point; what matters is that the obligation is named — every tier owes an honest row, and a tier
+that drops a property has to say which one and why.
+
+Two of those properties are ones the centralized field structurally *cannot* match, and they are worth
+claiming explicitly rather than burying in the matrix. The first is **transparent offline**: two phones can
+sync with zero internet — co-present devices reconcile directly, no server in the loop — which a
+phone-and-datacentre architecture cannot do by construction. The second is **no central operator to
+compel**: a centralized messenger's strongest weakness is organizational, not cryptographic — one throat to
+choke. Croft has no such throat. These are not "decentralized, therefore weaker" concessions; they are
+positive properties the trusted-host designs decline to offer, and they are exactly where the matrix shows
+Croft *ahead* rather than even.
 
 ## 6. The field's own direction sharpens the differentiation
 

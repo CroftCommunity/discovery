@@ -315,6 +315,86 @@ recurses: no peer clears a peer, no collective clears a member's exit, no federa
 member-collective's fork. This is the seam where the epistemic foundation hands off to the cooperative
 and federation thinking in `07`.
 
+### 6.1 Capabilities, not rights — and the plane that separates them
+
+The principle the previous section lifts to collectives is, at the peer level, a single load-bearing
+sentence: **peers differ in *capability*, never in *rights*.** A bigger peer can do more — store more,
+stay online longer, push more throughput — but it cannot *decide* more. The moment a capability
+difference becomes a rights difference, the design has leaked.
+
+What makes this more than a slogan is the seam it names. Rights and capabilities live on different
+planes:
+
+```
+  DATA PLANE       moving, storing, relaying, accelerating   →  capabilities
+  CONTROL PLANE    deciding, authorizing, ordering           →  rights
+```
+
+A bigger peer may do more in the data plane; it acquires nothing in the control plane by doing so.
+This is the sharpest form of the conformance question every always-on helper must answer: *does this
+feature exercise a capability, or a right?* Sweeping the settled log faster is capability. Being the
+peer whose signature settles who is in the group is a right. The first is welcome; the second is
+forbidden. The named failures across the field were almost all the same drift — a data-plane actor
+(an aggregating pub, a home server, a delivery service) quietly accreting control-plane authority
+because it was convenient. The split is a precommitment against exactly that drift, and it is why a
+content-blind helper is coherent rather than a nicety: a peer that holds only capabilities can be
+blinded without being crippled, because you never needed it to *read* in order to *relay* (`04`, `06`).
+
+**The seam to guard — availability masquerading as a right.** The subtle leak is not seizure but
+escrow. If one peer is the only body reliably online, and a governance action needs *someone* online
+to carry it, then that peer becomes the de-facto authorizer — not because it holds the right, but
+because it is the only presence through which everyone else's rights can be exercised. It did not take
+a right; it absorbed one through presence. So the test of equal rights is material, not formal: **a
+right that can be exercised only through one peer's presence is not held equally — it is escrowed to
+that peer.** The defense is to keep the no-helper path exercised, so the collective never structurally
+depends on a single peer being present to act. Availability is the back door through which capability
+tries to become authority, and closing it is what keeps rights actually distributed rather than
+nominally so.
+
+### 6.2 The recurring inversion — one move at five scales
+
+Equal-in-rights-not-capabilities is not only a constraint; it is a *generator*. Once you refuse to let
+any peer's capability harden into authority, the same design move falls out everywhere a tempting
+intermediary appears. Take an extractive **stateful intermediary**, reduce it to **stateless /
+content-blind / optional**, then wrap it in an **institution that reinforces rather than extracts**.
+The project makes that one move five times:
+
+```
+  extractive intermediary        →  reduced to              →  reinforcing institution
+  ──────────────────────────────────────────────────────────────────────────────────
+  1. relay                       →  stateless rendezvous
+  2. relay                       →  optional superpeer
+  3. routing server              →  content-blind mule
+  4. ad platform                 →  consumer-side broker
+  5. compellable operator        →  cooperative
+```
+
+Read top to bottom, these look like five unrelated features. They are one pattern applied five times.
+The blind helper, the optional broker, the consumer-side inversion of advertising (`07`), and the
+cooperative itself (`07`) are *the same idea* — each strips an intermediary of the state and the
+content-sight that let it extract, makes it skippable so it can never become a chokepoint, and then,
+where a standing body is genuinely needed, replaces the extractive owner with one that is structurally
+obliged to reinforce. The inversion is what the capabilities-not-rights line *does* once you let it
+design.
+
+### 6.3 The enemy is centralization *capture*, not centralization
+
+The inversion is honest only because of a prior distinction that the whole project judges against:
+**the enemy is centralization *capture* — capture-and-control — not central *resources*.** Central
+resources are not the problem; central control is. This is the permission slip that lets the system
+*have* a meer, a relay, an indexer, or a cooperatively-run instance at all, without contradiction. A
+shared helper is not a betrayal of decentralization so long as it holds capabilities and not rights,
+stays blind and skippable, and answers to an institution that cannot extract through it. Concentration
+of *capacity* is fine; concentration of *authority* is the thing refused.
+
+The paired criterion guards the other failure mode — the trap of being **credibly decentralized but
+operationally centralized.** Cryptographic portability that is technically real but economically
+meaningless, because aggregation re-centralizes the moment it matters, fails this principle as surely
+as an explicit central authority does. A right you can carry but never afford to exercise elsewhere is
+not a right you hold. The system must therefore survive as small, self-hosted nodes — not merely permit
+them in theory. This is the exact criterion the present-day field comparison in `03` measures rival
+designs against: not "is there a server," but "can capability re-centralize into control."
+
 ---
 
 ## What this theme establishes (and does not)

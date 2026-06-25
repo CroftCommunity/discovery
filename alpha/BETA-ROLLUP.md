@@ -273,14 +273,15 @@ Closing this list to zero (or to an explicit "retired as alpha-only") is the rem
 ## Settled conclusions not yet folded (2026-06-25 completeness audit)
 
 A content-level audit (reading `crystallized/`, `thinking/`, `narrative/`+dossier, `research/` against
-the eight themes) found **settled** conclusions walked out in alpha that never landed in beta. Unlike the
-`OPEN-THREADS` (which are *unsettled*), these are **promotion-ready coverage gaps** — they belong *in* a
-theme and just weren't folded. **Correction to this ledger:** the per-theme tables above tag
-`crystallized/principles.md` Tier 1 as "synthesized" into 01/07, but the items below show Tier-1 coverage
-was **overstated** — several Tier-1 principles (and one green-real proof) did not actually cross. Folding
-these is the next maturation pass; until then they are tracked here so they are not lost.
+the eight themes) found **settled** conclusions walked out in alpha that had not landed in beta. Unlike the
+`OPEN-THREADS` (which are *unsettled*), these were **promotion-ready coverage gaps** — they belonged *in* a
+theme and simply hadn't been folded. **These were folded into the themes on 2026-06-25** (landings in the
+"Folded into" column); the table is retained as the record of the gap and its closure. **Ledger correction,
+now resolved:** the per-theme tables above had tagged `crystallized/principles.md` Tier 1 as fully
+"synthesized" into 01/07, but it was **overstated** — several Tier-1 principles (and one green-real proof)
+had not crossed. With K1–K12 folded, `principles.md` Tier 1 is now drained into beta.
 
-| # | Settled conclusion (not in beta) | Lands in | Alpha provenance |
+| # | Settled conclusion (folded 2026-06-25) | Folded into | Alpha provenance |
 |---|---|---|---|
 | K1 | **Governance-log roll-up / threshold-signed checkpoint** — settled-history compaction so a client need not replay the whole log; threshold-signed (never authority/broker), can't span a fork. **green-real, CLOSED 2026-06-16** (`gov::Checkpoint`/`verify_checkpoint`). The direct answer to the SSB unbounded-log death. **Highest — it is proven and unrepresented.** | 04 §3/§5 | `thinking/design-notes-addendum.md`; `crystallized/proof-ledger.md`; `COHESION.md` §3 |
 | K2 | **The "recurring inversion"** — the named five-scale generator (extractive stateful intermediary → stateless/content-blind/optional → wrapped in a reinforcing institution); ties the protocol moves (04/06) to the economic ones (07) as one idea. Each instance is in beta; the unifying pattern is nowhere. | 01 §3/§6 or 07 | `crystallized/principles.md` Tier 1; `SOVEREIGN-COMMONS-DOSSIER.md` |
@@ -299,6 +300,10 @@ Lower-priority / borderline (noted, not yet listed as gaps): the **user-need-fir
 (largely implied by 08/01); the **"type at creation, not a runtime toggle"** MLS-coherence *rationale*
 (the headline is already in 08 §5, only the reason was flattened).
 
-**Disposition:** folding K1–K12 into their target themes is a deliberate next pass (it edits the resolved
-synthesis), sequenced and reviewed — not a silent rewrite. `crystallized/principles.md` is **not yet fully
-drained into beta**; K1–K12 are the unfinished drainage.
+**Disposition (done 2026-06-25):** K1–K12 were folded into the themes via a per-theme pass (clean beta
+narrative, no prior-tier links). Exact landings: **K1** → 04 §3 (proof row) + §5; **K2** → 01 §6.2; **K3**
+→ 01 §6.3 (+ the field-criterion in 03 §3); **K4** → 06 §7; **K5** → 03 §5; **K6** → 01 §6.1; **K7** → 04
+(substrate-model subsection between §2 and §3); **K8** → 06 §1; **K9** → 07 Pillar C; **K10** → 08 Charter
+(the access floor); **K11** → 07 A2b; **K12** → 08 §10. `crystallized/principles.md` Tier 1 is now drained
+into beta. The two lower-priority items noted above (user-need-first / Google+; the "type at creation"
+MLS-coherence rationale) remain optional and unfolded.

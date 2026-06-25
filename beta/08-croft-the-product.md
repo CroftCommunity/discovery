@@ -65,6 +65,14 @@ are all surfaced-but-unresolved.
 - The cooperative / sustainability mechanism → `07` (this theme states the product-layer dependency only).
 - Cross-platform identity provenance and the ephemeral-vs-durable identity split → `05`.
 
+**The access floor (a charter line, not a feature).** Participation must be possible on a bare phone —
+CPU, memory, storage, and an internet connection — with **no purchased infrastructure and no always-on
+node required**. This is a refusal, and it constrains the product rather than decorating it: the
+optional-broker and degraded-no-broker tiers exist partly to honor it, so that a user who buys nothing
+still has standing, only a more visibly degraded experience — graceful degradation, never loss of
+standing. Every pond and pad in the garden inherits this floor; anything that *requires* paid infra to
+have standing fails it.
+
 **Boundary calls.**
 
 - **Awareness vs interactivity** is the line that keeps the architecture clean and is *inside* this theme:
@@ -193,6 +201,27 @@ shareable at three depths; but cold-install deep-linking is **not privately achi
 Firebase Dynamic Links dead; MMPs need fingerprinting) → it resolves to a claim-code "one-more-tap," framed as
 a feature.
 
+## 10. The on-device assistant is strictly optional — and that is what protects the navigation spine
+
+A natural-language assistant ("any travel games?" → ranked internal deep-links plus a one-line orientation)
+is an attractive front-end onto the same resolver §9 already builds — intent text in, real catalog links
+out, one resolver and one manifest consumed by two front-ends (links others send, language you type). But it
+rides on an on-device model, and **there is no single on-device model that can be assumed present** — coverage
+is a patchwork (strong on capable Apple devices, narrow on Android flagships, desktop-only and flag-gated in
+Chrome, absent in Firefox and mobile web). That coverage reality forces the invariant, and the invariant is
+exactly the rule that keeps §9 honest:
+
+- **Detect availability first, on every platform** — and when the model is absent, the assistant simply
+  isn't offered. No dead ends, no degraded-but-broken state.
+- **Strictly optional and gracefully absent.** It is an accelerant, trivially disabled, never load-bearing.
+- **Accelerate but never gate.** **Every path the assistant offers must also be reachable without it** — so
+  the menus, verbs, pins, and deep-links of §9 must be a *complete* navigation system on their own. The
+  assistant only ranks intent onto links that already exist; it adds no navigation plumbing.
+
+Held this way, uneven model coverage stops being a problem and becomes a bonus on devices that have it. The
+deep-link grammar is the spine; the assistant is one optional language adapter onto it, never a second,
+privileged way in.
+
 ---
 
 ## What this theme establishes (and does not)
@@ -200,8 +229,11 @@ a feature.
 **Establishes:** the product is a composable garden of ponds + pads on one proven spine — the
 shared-core/thin-shell client architecture is green-real (Phase 0, 20/20); the Croft Group pond is
 lineage-groups surfaced with no protocol change (evidence the substrate holds); interaction tiers, the quality
-bar, and the build pathways are settled design; and the webxdc security finding turns iroh-as-transport into a
-free containment win.
+bar, and the build pathways are settled design; the webxdc security finding turns iroh-as-transport into a
+free containment win; the free-tier access floor (a bare phone, no purchased infra, no always-on node) is a
+charter-level refusal the tiers exist to honor; and the on-device assistant is strictly optional — detect-
+first, accelerate-never-gate, every path reachable without it — which is precisely what keeps the deep-link
+navigation spine complete on its own.
 
 **Does not establish (decision-gated):** the CroftC Phase-0 IP/ownership status (the user's call; the
 CroftC-side PR remains open); the product/brand names (brand DRIFT vs `NAMING.md` must be reconciled before
