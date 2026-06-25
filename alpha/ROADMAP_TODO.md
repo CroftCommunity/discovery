@@ -121,3 +121,12 @@ When an item closes, mark it here and in its origin doc, and add the COHESION ro
 seam. When a new open edge is surfaced (in a transcript, proof, or review), add a row with its
 origin `file:line` so this stays the single place to scan "what's up for consideration." Re-anchor
 line numbers opportunistically — section headers are the durable key.
+
+**Beta-staging view (2026-06-25).** The subset of these items that is *beta-bound but not yet settled*
+is staged at the beta gate in `../beta/OPEN-THREADS.md` (with a promotion target + gates per thread), so
+it is tracked toward beta without polluting the resolved themes: T1 = Drystone governance/peer model
+(E30); T2 = governance at scale (D9/D8/E16); T3 = moderation/abuse design body (D3/D6/E18); T4 = brand
+chapter (C6/A7); T5 = protocol-at-scale / group-chat failure modes; T6 = per-platform trust-model doc
+(E13); T7 = atproto private-data watch-item; T8 = forward-only revocation under irreversible commitments
+(D10); T9 = 01/02 primary-source publication pass; T10 = media-layer hardening. This list is the general
+backlog (any stage); OPEN-THREADS is the beta-gate lens on the beta-bound slice.
