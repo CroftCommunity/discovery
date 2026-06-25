@@ -23,11 +23,23 @@ transition rather than re-deriving the process.
    deleted (PLAYBOOK §4). The *only* additive file permitted in the prior stage is the **rollup ledger**
    (below). Raw stays frozen forever.
 
-3. **The audit trail lives at the prior level, not the higher one.** The detailed source-by-source
-   trace — what was lifted, how it was treated, where it landed — lives in the prior stage's rollup
-   ledger so the higher stage stays a clean forward narrative. The higher-stage docs carry only a
-   concise sources footer + a one-line pointer to the ledger. **Do not pollute the higher tier with
-   provenance machinery.**
+3. **No prior-tier references inside a higher-stage doc.** A matured-tier doc reads clean at its own
+   maturity level: it carries **no links back to the prior stage at all** — no sources footer, no
+   provenance-trace line, no inline prior-stage file-path quote attributions, no seam-map (`COHESION §`)
+   or rollup-ledger pointers, no relative paths into the prior stage. The entire source-by-source trace —
+   what was lifted, how it was treated, where it landed — lives **only** in the prior stage's rollup
+   ledger (the handoff doc), so the two tiers can be laid side by side without the matured tier carrying
+   the trail. **Do not pollute the higher tier with provenance machinery.** The one exception is the
+   open-threads ledger (§3b): an unsettled thread keeps its prior-stage connective tissue there until it
+   lands, at which point the content goes into the (clean) higher-stage doc and its mapping moves into the
+   rollup ledger.
+
+3a. **The discipline tightens with maturity.** Each stage carries fewer prior-tier traces than the one
+   before; by `rc` and `publish` the documents are clean of prior-tier references *entirely*. Even the
+   backward-pointing markers a mid-stage doc still carries — the `cite FACTCHECK SoT` pointer and the
+   per-claim verification flags (principle 5) — resolve as facts harden into settled statements, so the
+   most mature tiers read as finished prose with nothing pointing backward. Apply the floor at every
+   transition; the ceiling rises as you go up.
 
 4. **"Do not carry forward" means absent, not annotated.** Material excluded from the higher stage
    simply does not appear there — that is what not carrying it forward *means*. *What* was excluded and
@@ -50,12 +62,13 @@ transition rather than re-deriving the process.
 2. **Theme narrative (overview)** — prose summary of the whole doc and the arc it walks, before sections.
 3. **Charter** — explicit *in scope* / *out of scope (and where it lives)* / *boundary calls* vs. adjacent docs.
 4. **Body** — the resolved synthesis; verbatim quotes preserved whole and tied to conclusions.
-5. **What this establishes (and does not).**
-6. **Provenance trace** — one-line pointer to this doc's section in the prior-level rollup ledger.
-7. **Sources (prior stage)** — concise footer.
+5. **What this establishes (and does not).** ← the doc ends here.
 
-No "do not carry forward" list and no detailed rollup table inside a higher-stage doc — both live in the
-ledger.
+No provenance-trace line, no sources footer, no "do not carry forward" list, and no detailed rollup table
+inside a higher-stage doc — all of it lives in the prior-level rollup ledger (principle 3). A higher-stage
+doc ends on "What this establishes (and does not)." The backward-pointing markers it still carries are
+only the maturity-appropriate ones from principle 5 (external-source citations, verification flags, the
+`cite FACTCHECK SoT` marker) — and even those shed by `rc`/`publish` per principle 3a.
 
 ## 3. The rollup ledger (the trace, at the prior level)
 

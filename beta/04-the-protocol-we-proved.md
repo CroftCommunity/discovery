@@ -214,42 +214,11 @@ Carried open items:
   member count (1.4 KB @ 8 → 11 KB @ 128 leaves; AR-5, measured on openmls 0.8.1). Affordable at human
   scale, not at broadcast scale.
 - **Spec-vs-code reconciliation — surfaced AND resolved (2026-06-17).** The earlier divergence between
-  `CROFT-PROTOCOL.md` §2's domain-tagged genesis/topic pre-images and `lineage-core`'s plain `sha256` +
+  the spec's §2 domain-tagged genesis/topic pre-images and the code's plain `sha256` +
   `"lineage-topic-v1"` topic tag was closed: the tagged pre-images are now canonical in both the spec
-  (`CROFT-PROTOCOL.md` §2, incl. the 2026-06-17 addendum) and the code (`lineage-core::ids`), and the
-  derivations are byte-identical (`proof-ledger.md`: "RESOLVED"; `test-narrative.md`: "surfaced and
+  (§2, incl. the 2026-06-17 addendum) and the code, and the
+  derivations are byte-identical (proof ledger: "RESOLVED"; test narrative: "surfaced and
   resolved"). No live spec/code divergence remains; this is no longer an open item.
 
----
-
-## Provenance trace
-
-The detailed source-by-source rollup (what was lifted, how it was treated, where it landed) lives at the
-prior level, in `../alpha/BETA-ROLLUP.md` (theme 04 section). The concise `Sources (alpha)` footer below
-is the reader's pointer; the ledger is the auditable record.
-
-## Sources (alpha)
-
-- `../alpha/thinking/thesis-lineage-groups.md` — the thesis, the two-tree model, reconnect/survivor
-  semantics, invariants I1–I10, the phased plan and honesty boundaries. **[S]**
-- `../alpha/thinking/merge-split-corpus.md` — the three-tree taxonomy (split/merge/conflict corpus) that
-  feeds conformance. **[U]**
-- `../alpha/crystallized/CROFT-PROTOCOL.md` — the normative wire spec (the thing **Drystone** names);
-  proof status inline. **[S]** — *§2 pre-images reconciled 2026-06-17 (see §5).*
-- `../alpha/crystallized/proof-ledger.md` — every I/E/V/S claim + status (Phase 1 GO; adversarial gaps
-  closed; cross-machine; conformance 66/0; media round E10/E12/E11/meer). **[S]**
-- `../alpha/crystallized/test-narrative.md` — why each test, what it tells us, what stays open. **[S]**
-- `../alpha/crystallized/conformance-suite.md`, `../alpha/crystallized/TEST-CORPUS.md` — what a
-  conformant impl must pass; the catalog. **[S/U]**
-- `../alpha/thinking/realtime-media-over-iroh.md` — the media-layer design (str0m/RoQ/MoQ, blind SFU
-  meer). **[S]**
-- `../alpha/ROUND-2026-06-17-media-meer-conformance.md` — plain-language summary of the media/meer/
-  conformance round. **[U]**
-- `../alpha/seeds/transcripts/design-dialogue-2026-06-13-to-14.md` — the richest single seed, where the
-  design reasoning happened (preserved-verbatim). **[R]**
-- Seam context: `../alpha/COHESION.md` §1 (the crypto gate), §2 (V3 limitation), §3–5 (roll-up / blind
-  broker / public-path), §12 (recovery is THE open problem).
-
-**Verification note:** for iroh facts cite the source-of-truth FACTCHECK
-(`../alpha/seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md`) — iroh `1.0.0`;
-iroh-docs uses range-based set reconciliation + LWW, not Merkle Search Trees. Do not re-verify.
+**Verification note:** for iroh facts cite the FACTCHECK SoT — iroh `1.0.0`; iroh-docs uses range-based
+set reconciliation + LWW, not Merkle Search Trees. Do not re-verify.

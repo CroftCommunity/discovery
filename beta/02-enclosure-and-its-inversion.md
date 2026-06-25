@@ -80,7 +80,7 @@ exit — so the theme names which parts of the pattern it claims and where the a
 
 **Boundary calls.**
 
-- `research/social-platform-cycle.md` is dual-use: this theme harvests its *historical lineage* half
+- The social-platform-cycle material is dual-use: this theme harvests its *historical lineage* half
   (enclosure recurs into the digital era); `07` harvests its *prescriptive* half (how survivors solved
   funding). The "maintenance phase" insight is *named* here as the design instruction the croft teaches;
   its *mechanism* (the co-op) lives in `07`. Drystone's naming is in scope as *story*; the protocol's
@@ -99,7 +99,6 @@ English Dictionary's own sense-split is the tell:
 
 > "A word that can mean a field of oats, a tournament arena, and hell-as-an-enclosure within the same
 > century is a spatial concept, not a definition."
-> — the etymology reference document (Section A)
 
 *Verification:* the MED is **open-access and directly checkable**; the analytic conclusion follows from
 it. *Grounds:* a substrate with no enshrined function is named accurately by a word that has always been a
@@ -134,8 +133,7 @@ HISTORICAL ENCLOSURE              THE CROFT (the rare settlement)
 The croft is not a pristine survival from before enclosure; it is the **settlement point where the
 pendulum stopped** — the honest sequence is communal *runrig* townships → the Clearances broke them for
 sheep (Highland enclosure in all but name) → the croft as a negotiated re-balancing that locked in a
-private plot *plus* a surviving common. *(Collapses COHESION §34: the trap-reading and the
-balance-reading reconciled as one lesson.)*
+private plot *plus* a surviving common.
 
 ## 3. The trap: engineered dependency dressed as tenure
 
@@ -170,7 +168,7 @@ The 1880s resistance produced a statute, not a scaffold. The Battle of the Braes
 *Verification:* **documented history** (primary government record).
 
 > the first witness was Angus Stewart of Braes, in Gaelic, asking simply to "give us land."
-> — Napier Commission evidence, 8 May 1883 (`croft-crofting-research.md`)
+> — Napier Commission evidence, 8 May 1883
 
 *Verification:* **documented history** (the de-romanticized, scholarship-cited register).
 
@@ -180,11 +178,10 @@ refused to return the cleared land. It is remembered grandly:
 > described as nothing less than "the Magna Carta of the Highlands and Islands."
 > — attributed to historian John Lorne Campbell
 
-*Verification:* the *attribution* is `[UNVERIFIED]` (two phrasings appear across sources — "of Gaeldom" in
-the research file, "of the Highlands and Islands" in the narrative/etymology files). *Grounds:* the name
+*Verification:* the *attribution* is `[UNVERIFIED]` (two phrasings appear across sources — "of Gaeldom"
+and "of the Highlands and Islands"). *Grounds:* the name
 carries built-in humility — a charter against arbitrary eviction is not the same as owning the commons,
-and the difference is where the next fight lives. *(Collapses COHESION §16: scholarship is the truth,
-the narrative re-telling is colour.)*
+and the difference is where the next fight lives.
 
 ## 5. The commons-rebellion tradition — and the global pattern
 
@@ -224,8 +221,7 @@ The platform cycle (Usenet/GeoCities → MySpace → Digg → Reddit → Twitter
 move in a new medium: collectively created value, privately captured, then extracted or erased.
 Enshittification (Doctorow) is the *behavior*; the *cause* is the capital-structure extraction imperative,
 and lock-in is the leverage. Enclosure of physical commons → IP enclosure → platform enclosure of
-social/informational space. *(Collapses COHESION §14: the Croft name ↔ the commons/Ostrom/enclosure
-material.)* This theme carries only the historical framing; the *prescriptive* answer — the cooperative as
+social/informational space. This theme carries only the historical framing; the *prescriptive* answer — the cooperative as
 the maintenance plan — is `07`.
 
 ## 7. The architecture restated in land, and the two settled names
@@ -240,7 +236,7 @@ common grazing). Two settled names carry this:
 - **Drystone** (the P2P protocol) names the structure: a dry-stone wall holds *because of* the variation in
   its stones, not in spite of it — huge footing boulders, full-width through-stones, and tiny hearting
   stones do different work but are equal in importance. That is a heterogeneous P2P network whose protocol
-  locks peers' *rights* at 1:1 while their *capabilities* differ. *(Collapses COHESION §24.)* The name
+  locks peers' *rights* at 1:1 while their *capabilities* differ. The name
   encodes the defense against the **Princeps Problem** — when a protocol *pretends* all peers are
   identical, the highest-capacity node fills the vacuum and becomes a de-facto authority "wearing the
   cryptographic skin of a humble peer" (the underlying concept is Jo Freeman's *The Tyranny of
@@ -267,21 +263,3 @@ is the rare documented halt; the social platform is its latest instance.
 exit is cheap); nor that the colour quotes (Chambers, the four-footed clansmen, the Shetland curse, the
 "Magna Carta" attribution) are publication-ready — they are tertiary-source `[UNVERIFIED]` and must stay
 flagged until a primary-source pass.
-
----
-
-## Provenance trace
-
-The detailed source-by-source rollup lives at the prior level, in `../alpha/BETA-ROLLUP.md` (theme 02
-section): treatments, the excluded "ancient free clan" myth and the Hard-Fork-23 ≈ $6.3M carried-flag
-correction, and the surfaced `[UNVERIFIED]` items.
-
-## Sources (alpha)
-
-- `../alpha/narrative/verticals/croft-the-name-and-the-commons.md` **[S]** · `../alpha/NAMING.md` **[S]**
-- `../alpha/seeds/transcripts/raw/croft-crofting-research.md` **[S]** (de-romanticized truth) ·
-  `../alpha/seeds/transcripts/raw/croft-crofting-narrative.md` **[R]** (colour, `[UNVERIFIED]`)
-- `../alpha/seeds/transcripts/raw/croft-clare-enclosure-poems-2026-06-23.md` **[R]** (public-domain texts) ·
-  `../alpha/seeds/transcripts/raw/croft-etymology-enclosure-tradition-dialogue-2026-06-23.md` **[S]**
-- `../alpha/research/social-platform-cycle.md` **[U]** (historical half; prescriptive half → `07`)
-- `../alpha/COHESION.md` §14, §16, §24, §30, §34

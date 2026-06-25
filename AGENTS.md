@@ -28,6 +28,14 @@ corpus is `alpha/`**. (Beta is built next from alpha using
 *how we work*, not the project, so they span stages. `Proofs/` and `experiments/` are staged
 identically and aligned stage-for-stage (`Proofs/alpha/…`, `experiments/alpha/…`).
 
+**Tier cleanliness (matured docs read clean).** A doc at a given stage carries **no references back to a
+prior stage** — no sources footer, no provenance trace, no prior-stage file paths or seam-map pointers
+inside it. The full "what was pulled, how it was treated, where it landed" map lives **only** in the prior
+stage's rollup ledger (e.g. `alpha/BETA-ROLLUP.md`); unsettled threads wait in that stage's
+`OPEN-THREADS.md` (with their connective tissue) until they land, then the content moves up clean and the
+mapping moves into the rollup. The discipline tightens upward — `rc`/`publish` are clean of prior-tier
+traces entirely. Full method in `MATURITY-ROLLUP.md` (§1, §3, §3a, §3b).
+
 ## The three repos
 
 ```
@@ -36,7 +44,7 @@ discovery/    Thinking & synthesis. The map of everything.   root: AGENTS.md · 
                   (industry comparison) · thinking/ (our design) · crystallized/ (principles +
                   proof-ledger) · narrative/ · plans/ · ECOSYSTEM.md · COHESION.md · ROADMAP.md ·
                   ROADMAP_TODO.md · NAMING.md · ANALYSIS.md · the dossier
-                beta/   (next stage — resolved synthesis; not yet created)
+                beta/   (resolved synthesis — eight themes + OPEN-THREADS staging ledger)
 Proofs/       Durable proofs — verify an invariant that becomes a design principle.   root: LICENSE · README.md
                 alpha/  lineage-groups (real openmls) · lineage-group-model (TS) ·
                   encrypted-local-first-atproto

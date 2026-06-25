@@ -4,10 +4,9 @@ date: 2026-06-24
 
 status: synthesis (spine-complete).
 
-verification: for atproto / iroh / iOS facts the source of truth is
-`../alpha/seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md` — those facts are cited,
-not re-verified. Figures for private companies (Discord, Bluesky valuations) are third-party estimates,
-carried `[UNVERIFIED]`. Dialogue-sourced ECOSYSTEM rows are flagged as such.
+verification: for atproto / iroh / iOS facts the source of truth is the FACTCHECK SoT — those facts are
+cited, not re-verified. Figures for private companies (Discord, Bluesky valuations) are third-party
+estimates, carried `[UNVERIFIED]`. Dialogue-sourced rows are flagged as such.
 
 ---
 
@@ -81,16 +80,13 @@ without leaving the global network — and almost every one is a direct expressi
 ## 1. The universal trade (the lens for the whole theme)
 
 > "no system in the field delivers usability, decentralization, and metadata protection simultaneously"
-> — `research/messaging-solutions-landscape.md` (executive summary)
 
 *Verification:* **CONFIRMED** (corpus synthesis). The field's failures are real and instructive, not a foil
 — "you must beat what is actually good." The deeper version, from the iOS work, is a **four-property
 impossibility**: group moderation + multi-device + PFS + offline-mesh cannot coexist without an unequal,
 privileged peer (PFS vs mesh-healing; moderation vs multi-device in a partition). MLS (RFC 9420) *assumes* a
 Delivery Service for ordering; Croft's meer/superpeer is exactly that "unequal-in-capability, equal-in-
-rights" sequencer. *(Collapses COHESION §25 + the iOS-doc seam — "is the blind broker secretly the ordering
-authority?": the honest partial yes is that a membership sequencer is load-bearing, but it is minimal,
-blind, and not a rights authority, per F5.)*
+rights" sequencer.
 
 ## 2. The messaging field map
 
@@ -100,9 +96,7 @@ decentralized-encrypted group chat, but Megolm metadata leak + federation-graph 
 distributed-topology unsolved); Briar (best metadata protection via Tor, *refuses* multi-device and recovery
 by design); Delta Chat (the closest Rust+iroh cousin — validated the realtime-P2P / durable-store-and-forward
 split, but transfer-then-diverge multi-device + email metadata leak); Session (no-phone keypair + mnemonic
-recovery; dropped then restored PFS — the cautionary "don't trade away forward secrecy"). *(Collapses
-COHESION §3 — the SSB unbounded-log-growth cautionary tale, §11 — SSB's lesson applied forward as the
-bounded broadcast tier — and §13 — the media path proven, PR #5.)*
+recovery; dropped then restored PFS — the cautionary "don't trade away forward secrecy").
 
 ## 3. The public-social field map and the three "own-your-data" poles
 
@@ -119,8 +113,7 @@ non-portable identity). The three "own your social data" poles, and Croft betwee
 Croft is **none and borrows from each**: it rides atproto for public social, adds an E2EE private layer
 (lineage-groups MLS) that neither Solid (app-mediated ACLs only) nor atproto (not native) provides, and
 **rejects the chain** DSNP requires while sharing DSNP's unbundle-the-social-web + delegation-without-
-surrendering-keys goals. *(Harvests COHESION §28.* Solid/WebID/Solid-OIDC/DPoP RFC 9449 and DSNP are
-CONFIRMED, verified-dialogue.)
+surrendering-keys goals. Solid/WebID/Solid-OIDC/DPoP RFC 9449 and DSNP are CONFIRMED, verified-dialogue.
 
 ## 4. The anchor reason — dual-use identity — and why the split is forced
 
@@ -131,10 +124,9 @@ the architecture is *forced* by atproto's design:
 
 > "All atproto repo data is public by design today." — and the spec warns against "bolting on" encryption to
 > the public content-addressed tree.
-> — `research/public-social-protocols.md`
 
 *Verification:* **CONFIRMED** (cite FACTCHECK SoT — MST is atproto's structure). So public → atproto, private
-→ encrypted P2P path, identity → the shared DID. Live evidence sharpens it (COHESION §8/§9): custom NSIDs
+→ encrypted P2P path, identity → the shared DID. Live evidence sharpens it: custom NSIDs
 propagate on Jetstream with no pre-registration, and the full DID→signing-key→signed-commit→MST-root→CID→
 bytes chain verifies with zero trust in the PDS/relay — **atproto gives cryptographic trust for free, zero
 semantic trust** (own your schema, threading, moderation policy).
@@ -155,17 +147,14 @@ privacy-preserving behaviour is the free one; the convenience behaviour is the e
 > "buckets/realms", #121 "Encryption for private content"; Paul Frazee *informally*) is converging on
 > access-controlled, PDS-gated private data (PDS as trusted agent) and **explicitly defers true E2EE /
 > zero-knowledge**.
-> — `research/atproto-private-data-architecture.md`
 
 *Verification:* **CONFIRMED** (cite FACTCHECK SoT addendum). Croft already sits on the harder ZK side of that
-exact line. *(Collapses COHESION §26.)* The *fictional* "AT Messaging working group" stays REFUTED; this real
+exact line. The *fictional* "AT Messaging working group" stays REFUTED; this real
 WG is a distinct, modest thing — and real atproto E2EE remains third-party. Germ is the closest living cousin:
 
 > the first native-launched private messenger from a Bluesky profile (2026-02-18); cofounder/CTO Mark Xue
 > (ex-Apple iMessage/FaceTime); MLS via the open AC Protocol (IETF `draft-xue-distributed-mls`); identity
 > bound via an "Anchor Key" published in the atproto profile.
-> — `ECOSYSTEM.md` §6 + FACTCHECK addendum (the maturation facts; `research/germ-xchat-features.md`
-> predates these and supplies only the privacy-free/convenience-effortful inversion)
 
 *Verification:* **CONFIRMED** (cite FACTCHECK SoT). A shipped "atproto for discovery, E2EE off-repo" idiom
 that rhymes precisely with Croft's design.
@@ -179,12 +168,12 @@ target slipping; ads after nine years; an Oct 2025 breach exposing roughly 70,00
 third-party vendor). The founder anecdote that captures the UX gap:
 
 > "over 95% of people stopped using the Matrix channels within a month" and moved to Discord.
-> — the Discourse founder, on running both for over a year (`research/discord-dominance.md`)
+> — the Discourse founder, on running both for over a year
 
 *Verification:* **CONFIRMED** (founder's own account); the IPO/valuation figures are third-party
 `[UNVERIFIED]` (Discord is private). The wedge: be the durable, searchable, ownable system of record + match
 the live-presence core, and tell a longevity/ownership brand Discord can't. This grounds the tier-zero
-deep-link resolver (E11) and the membership-vs-access split (COHESION §36; developed in `06`/`08`).
+deep-link resolver (E11) and the membership-vs-access split (developed in `06`/`08`).
 
 ## 8. The sovereign-AppView "club" — the read-side expression
 
@@ -197,9 +186,8 @@ to a held Croft principle. The cautionary proof that backs it:
 
 > Twitter Circles (Aug 2022 → Oct 31 2023): private posts **leaked** to strangers' "For You" feeds when
 > ranking logic changed, then died.
-> — `research/atproto-sovereign-appview-club.md` (dialogue-sourced, verified)
 
-*Verification:* **dialogue-sourced, verified** (COHESION §29). *Grounds:* backported as social-layer
+*Verification:* **dialogue-sourced, verified**. *Grounds:* backported as social-layer
 invariant **S5** — private must be structural, not a runtime gate (`06`). *Honesty caveats:* offline-mesh
 unattended-wake inherits the "OS kills background P2P" caveat (cite FACTCHECK SoT); dual-PDS "one identity,
 two servers" is *not native* (sidecar service endpoints / off-repo, not delegate keys).
@@ -210,14 +198,10 @@ The iroh+Automerge+MLS stack is not a lone bet:
 
 > Peat (Defense Unicorns) = Croft's exact substrate (Rust + iroh QUIC/BLE + Automerge CRDTs + MLS), proven
 > in denied/degraded/contested tactical conditions.
-> — ECOSYSTEM §1 / `thinking/ios-opportunistic-p2p.md`
 
 *Verification:* **CONFIRMED** ("real despite smelling fabricated"). The strongest external validation that
-the substrate bet is sound and survivable off-grid. Dialogue-sourced ECOSYSTEM rows (the §5c app-layer
-tooling, the federation-routing rows, the games rows) are flagged dialogue-sourced; the §5d/§5e/§5f and
-Solid/DSNP rows are dialogue-surfaced but web-verified in their FACTCHECK companions. *(Collapses COHESION
-§17 and §31 — iroh substrate corroboration from the field — and §32 — the open-social landscape these
-rows survey.)*
+the substrate bet is sound and survivable off-grid. Some corroborating rows are flagged dialogue-sourced;
+others are dialogue-surfaced but web-verified in their FACTCHECK companions.
 
 ---
 
@@ -231,22 +215,3 @@ Germ is the shipped proof-of-shape and Discord the UX bar to clear.
 **Does not establish:** the private-company figures (Discord/Bluesky valuations, DAU) as anything but
 third-party estimates; nor a settled outcome for atproto's Permissioned Data work — the single most
 important external development to track, which could narrow or complement Croft's private path.
-
----
-
-## Provenance trace
-
-The detailed source-by-source rollup lives at the prior level, in `../alpha/BETA-ROLLUP.md` (theme 03
-section): treatments, the FACTCHECK-SoT citations, the dialogue-sourced flags, and the excluded refuted
-items (MST conflation, fictional "AT Messaging WG", did:key resolvability, the did:plc "Public Liaison
-Corporation" fabrication, the false Vultr 1-Click PDS app).
-
-## Sources (alpha)
-
-- `../alpha/ECOSYSTEM.md` **[S/INDEX]** · `../alpha/research/messaging-solutions-landscape.md` **[S]** ·
-  `../alpha/research/discord-dominance.md` **[S]** · `../alpha/research/public-social-protocols.md` **[S]**
-- `../alpha/research/atproto-private-data-architecture.md` **[S]** ·
-  `../alpha/research/atproto-sovereign-appview-club.md` **[S]** · `../alpha/research/germ-xchat-features.md` **[U]**
-- `../alpha/thinking/atproto-atmospheric-web.md` **[U]** · `../alpha/thinking/ios-opportunistic-p2p.md` **[U]**
-- `../alpha/seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md` **[INDEX — source of truth]**
-- `../alpha/COHESION.md` §3, §8, §9, §11, §13, §17, §25, §26, §28, §29, §31, §32
