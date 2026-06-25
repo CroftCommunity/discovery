@@ -1030,10 +1030,11 @@ The 2026-06-24 publication/defensive-disclosure dialogue
   rights), a possible later destination only; arXiv is gatekept, Zenodo the better fit. The user confirmed
   Zenodo is the correct conclusion → **folded into `07` C3 + narrative/charter 2026-06-25**; trace in
   `BETA-ROLLUP.md` K-table. Status: **CLOSED (beta refined)**.
-- **OPEN → A14 (the user's call).** The *text-license* half is **not** resolved: this dialogue leans **CC0**
-  (maximal "no one can claim or restrict the idea"); `07` C2 currently records **CC-BY 4.0**. Left as a
-  surfaced gate (intersects the A1 MPL/AGPL posture; **NOT-LEGAL-ADVICE** — attorney review of the
-  patent-non-assertion paragraph). `07` C2 **not** edited. Status: **OPEN**.
+- **RESOLVED → CC0 (A14, 2026-06-25).** The *text-license* half is now decided (user-approved): the
+  specification text is **CC0 1.0** (over attribution-only CC-BY 4.0 — maximal "no one can claim or restrict
+  the idea"). Folded into `07` **C2** + narrative/charter/banner; Apache-2.0 reference-code license
+  unchanged. Intersects but does not resolve A1 (MPL/AGPL substrate); **NOT-LEGAL-ADVICE** (attorney review
+  of the patent-non-assertion paragraph still advised). Status: **CLOSED (beta updated)**.
 - **LINKS `thinking/drystone-spec/` (T1).** The generated **spec v0.1 skeleton** is the overall document
   scaffold the §2/§X deep drafts (E30/T1) slot into, structured **principles-up-front → mechanics-as-outcome**.
   The defensive disclosure is only *enabling* once **§7 Synchronization** is field-by-field — that gates
@@ -1054,8 +1055,9 @@ define**:
   until "right" vs "capability" is sharp. The **discriminating test** — a *right* is standing whose removal
   cancels the conditions of its own contestation; a *capability*'s removal leaves contestation intact — is
   the standing-side companion to **01 §6.1**'s already-folded data-plane(capabilities)/control-plane(rights)
-  cut (K6). **Fold candidate for 01 §5 (the framing paragraph): OPEN — surfaced, not folded** (changes a
-  settled doc; depends on the two checks below). Status: **OPEN (fold candidate)**.
+  cut (K6). **Folded into 01 §5 2026-06-25 (user-approved, K17)** — a tier-clean paragraph after the boundary
+  bullets (discriminating test + four-rights-by-removal + the voice-vs-amplification cut); the two open
+  checks below were deliberately left out of the beta narrative. Status: **CLOSED (beta grounded)**.
 - **LINKS `beta/05` (rights-floor) / `beta/06` (label-not-enforce) / `beta/04` (survivor re-key).** Tenure =
   the 05 rights-floor (you cannot be cleared because your standing is not held elsewhere). The
   voice-vs-amplification edge case resolves *into* 06's label-not-enforce (declining to relay = a peer's own

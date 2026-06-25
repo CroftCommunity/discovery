@@ -55,10 +55,10 @@ candidate) precisely so its neutrality survives stewarding non-Croft things.
 A third pillar extends the IP story outward. Where the second pillar keeps the *operating* ecosystem
 uncapturable from the inside, the third governs how the *specification itself* enters the world so a third
 party cannot patent the design out from under everyone — a settled defensive-publication posture: claim no
-patent, license the reference code Apache-2.0 (the spec text's CC0-vs-CC-BY license is the one open
-sub-decision), and establish patent-blocking prior art with a third-party-witnessed DOI'd archive (Zenodo)
-plus a cryptographic timestamp first — an IETF Internet-Draft only as a later, more-encumbered destination —
-socializing each layer where its experts already are.
+patent, license the specification document CC0 1.0 and the reference code Apache-2.0, and establish
+patent-blocking prior art with a third-party-witnessed DOI'd archive (Zenodo) plus a cryptographic timestamp
+first — an IETF Internet-Draft only as a later, more-encumbered destination — socializing each layer where
+its experts already are.
 The through-line across all three: the ethical choice and the durable choice keep turning out to be the same
 choice — and each guard is a *structural property*, not a behavioral promise.
 
@@ -74,9 +74,9 @@ choice — and each guard is a *structural property*, not a behavioral promise.
 - The anti-rug-pull guarantee: bankruptcy-remote steward + pre-funded static archive + graceful-exit runway.
 - The three-layer IP-stewardship structure (code/brand/coop), the AGPL+DCO lock, the foundation-held mark,
   the compatibility badge, entity phasing, assignment-with-goodwill.
-- The external IP twin: the defensive spec-publication posture (Apache-2.0 reference code; the spec text's
-  CC0-vs-CC-BY license open), prior art via a third-party-witnessed DOI'd archive (Zenodo) plus a
-  cryptographic timestamp first — an IETF Internet-Draft only later — and the per-layer socialization/venue map.
+- The external IP twin: the defensive spec-publication posture (CC0 1.0 specification document, Apache-2.0
+  reference code), prior art via a third-party-witnessed DOI'd archive (Zenodo) plus a cryptographic timestamp
+  first — an IETF Internet-Draft only later — and the per-layer socialization/venue map.
 - **The Noria foundation-name *candidate*** (surfaced as pending, not decided).
 
 **Out of scope (and where it lives).**
@@ -323,15 +323,19 @@ A license protects the *prose* of a spec; it does nothing about the *ideas*. Any
 spec and build the protocol regardless of the license, so the license alone never touches the patent threat —
 only a patent, or prior art that blocks patents, reaches the ideas. The settled instruments split accordingly:
 
-- **Specification document → CC-BY 4.0.** Attribution-only, matching how standards-adjacent specs travel:
-  anyone may redistribute and implement while authorship stays attached.
+- **Specification document → CC0 1.0.** A public-domain dedication — the text pushed as close to the public
+  domain as the law allows, so the goal ("no one can later claim or restrict the idea") holds for the prose
+  with no attribution string anyone must satisfy to redistribute or implement. (Chosen over attribution-only
+  CC-BY 4.0: for a spec written to be a freely-buildable standard, maximal openness beats keeping authorship
+  bound to the text.)
 - **Reference implementation → Apache-2.0** (not MIT/BSD). Apache-2.0 carries an **express patent grant** plus
   a retaliation clause; the permissive-but-patent-silent licenses do not. For a protocol, that grant is the
   load-bearing part.
 
-*Verification:* **settled posture** (general IP practice, not a filing). *Grounds:* the document license and
-the code license are doing two different jobs — CC-BY makes the writing travel; Apache-2.0 makes the patent
-grant ride along with the implementation. Neither, by itself, blocks a third-party patent; that is what
+*Verification:* **settled posture** (general IP practice, not a filing; NOT-LEGAL-ADVICE). *Grounds:* the
+document license and the code license are doing two different jobs — CC0 makes the writing maximally free to
+travel and reuse; Apache-2.0 makes the patent grant ride along with the implementation. Neither, by itself,
+blocks a third-party patent; that is what
 Pillar C's prior-art move is for.
 
 ### C3. The load-bearing instrument is timestamped, examiner-discoverable prior art
@@ -397,9 +401,8 @@ cryptographic timestamp) double as a stable citation and reach, so the prior-art
 are run together rather than as separate efforts.
 
 > **NOT-LEGAL-ADVICE (carried).** The *posture* above is settled — defensive, a DOI'd third-party-witnessed
-> archive (Zenodo) plus a cryptographic timestamp first, Apache-2.0 for the reference code. (The spec *text*
-> license — CC0 vs CC-BY 4.0 — is the one open sub-decision, the author's call.) The statutory specifics
-> behind it (disclosure-bar grace
+> archive (Zenodo) plus a cryptographic timestamp first, **CC0 1.0 for the specification text**, Apache-2.0
+> for the reference code. The statutory specifics behind it (disclosure-bar grace
 > periods, absolute-novelty rules, the legal weight of any given timestamp as patent prior art) are
 > jurisdiction-dependent and **require a patent attorney before any reliance or any disclosure where a patent
 > option is to be preserved.** This pillar carries the reasoning and the sequence, not the statute citations.

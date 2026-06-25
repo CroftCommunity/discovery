@@ -294,6 +294,22 @@ collective's to remove; **roles** (governed delegation) move freely.
   rights where exit cannot.** Where contestation is cheap, get out of the way; where decisions are
   irreversible or singleton-bound, constitutional rigidity bites hardest.
 
+What separates a right from a capability is a **property, not a list.** A right is standing that must
+survive for any dispute about it to stay contestable — remove it and the holder loses the very means to
+object. A capability — a role, a delegated authority, a moderation power, write-access, a vote weighting — is
+a power whose removal leaves the holder's standing to object intact: lose admin on a collective and you can
+still contest the loss through tenure, voice, and exit, and that is the tell it was a capability. This is the
+same cut as §3 (rights are local-first state the person holds and cannot be reached into; capabilities are
+mediated through roles and relationships and so move) and the standing-side face of §6.1's data-plane /
+control-plane split. The four rights are each fixed by what their removal would *foreclose*: **tenure**
+(standing to remain a peer — remove it and the unit is erased), **exit** (the right to fork — remove it and
+the dissenter has nowhere to go), **voice** (standing to assert into the record and be corroborated or
+refuted — remove it and assertion itself goes invisible), and **share** (a claim on the collective's commons
+— remove it and it is expropriation). Voice is the subtle one: it is the right to assert into your own record
+and reach willing peers, *not* a right to compel any peer to carry or amplify you — a peer declining to relay
+exercises its own standing rather than removing yours, which is exactly where content-blind safety (`06`'s
+label-not-enforce) stays legitimate.
+
 A confirmed legal ancestor sharpens the line:
 
 > a user may use a device "in ways which are privately beneficial without being publicly detrimental."

@@ -331,9 +331,25 @@ already-folded** conclusion. New alpha intake — the 2026-06-24 publication/def
 |---|---|---|---|
 | K9 / 07 C3 | prior art via **IETF Internet-Draft first, then arXiv** | prior art via a **third-party-witnessed DOI'd archive (Zenodo) + an OpenTimestamps cryptographic timestamp + a public Git release** *first*; an IETF I-D is a later, *more-encumbered* destination (IETF Trust holds reuse rights; needs 2 interop impls); arXiv gatekept. Disclosure only *enabling* once the sync wire format is field-by-field — that gates minting the v0.1 DOI. | **07 C3** (rewritten) + narrative overview + charter + C4 *Grounds* + the NOT-LEGAL-ADVICE banner |
 
-**Left open (NOT folded):** the spec-text license **CC0 vs CC-BY 4.0** (07 C2 still records CC-BY). The
-dialogue leans CC0; this is the user's call (ROADMAP_TODO **A14**; intersects the A1 MPL/AGPL gate;
-NOT-LEGAL-ADVICE). 07 C2 was deliberately left unedited. Seam: COHESION §38.
+**License sub-decision — resolved 2026-06-25 (user-approved).** The spec-text license is **CC0 1.0** (over
+attribution-only CC-BY 4.0): for a spec written to be a freely-buildable standard, maximal openness serves
+the "no one can claim or restrict the idea" goal better than keeping authorship bound to the text. Folded
+into **07 C2** + the narrative overview, charter, and C3 NOT-LEGAL-ADVICE banner; the Apache-2.0 reference-code
+license is unchanged. (ROADMAP_TODO **A14** closed; intersects A1's MPL/AGPL substrate posture but does not
+resolve it. NOT-LEGAL-ADVICE — attorney review of the patent-non-assertion paragraph still advised.) Seam:
+COHESION §38.
+
+## Beta grounding (2026-06-24 rights-vs-capabilities dialogue): 01 §5
+
+| ref | What | Folded into |
+|---|---|---|
+| K17 | **Rights-vs-capability discriminating test** grounding 01's boundary — a *right* is standing that must survive for any dispute about it to stay contestable; a *capability* (role / delegation / moderation power / write-access / vote weight) has its removal leave standing-to-object intact. The four rights fixed by what removal forecloses (tenure/exit/voice/share); the voice-vs-amplification cut (assert + reach willing peers ≠ compel amplification → keeps 06's label-not-enforce legitimate). The standing-side face of 01 §6.1's data-plane/control-plane split (K6). | **01 §5** (new paragraph after the boundary bullets) |
+
+Provenance: `thinking/rights-vs-capabilities-definitions.md` (the cite-able block) ←
+`seeds/transcripts/raw/rights-vs-capabilities-definitions-dialogue-2026-06-24.md`. **Two checks left open**
+(do NOT harden the four-rights *closed set* into the normative spec until clear): is `share` fully a right or
+partly a membership-class capability (→ 07); does the 04 survivor re-key strand `tenure` (→ 04). Tracked
+ROADMAP_TODO **E32 (b)/(c)**; seam COHESION §39.
 
 ## Settled conclusions not yet folded (2026-06-25 completeness audit)
 
