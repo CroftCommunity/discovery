@@ -1015,6 +1015,60 @@ distilled two Drystone spec sections (`thinking/drystone-spec/section-2-*.md`, `
   gates clear (DRAFT status, A11/A12/A13, fact-confirmation, the unwritten `P-*` principles), then
   promoted into a theme + a `BETA-ROLLUP.md` row. Tracked ROADMAP_TODO **E30** (+ A11/A12/A13).
 
+## 38. Drystone publication & defensive disclosure ↔ beta 07 Pillar C (the prior-art-vehicle DRIFT) + T1 spec
+
+The 2026-06-24 publication/defensive-disclosure dialogue
+(`seeds/transcripts/raw/drystone-publication-defensive-disclosure-dialogue-2026-06-24.md` →
+`thinking/drystone-publication-and-defensive-disclosure.md` + the spec scaffold
+`thinking/drystone-spec/drystone-spec-v0.1-skeleton.md`) settled *how Drystone goes public* and, in doing so,
+**refined a previously-settled beta conclusion**:
+
+- **DRIFT → resolved (beta `07` Pillar C / K9).** `07` C3 recorded the settled prior-art posture as **"IETF
+  Internet-Draft first then arXiv."** This dialogue concludes the opposite is correct: the load-bearing
+  vehicle is a **Zenodo DOI (CERN-witnessed, third-party custody) + an OpenTimestamps anchor + a public Git
+  release**; an **IETF draft is the wrong *first* move and is *more* encumbered** (IETF Trust holds reuse
+  rights), a possible later destination only; arXiv is gatekept, Zenodo the better fit. The user confirmed
+  Zenodo is the correct conclusion → **folded into `07` C3 + narrative/charter 2026-06-25**; trace in
+  `BETA-ROLLUP.md` K-table. Status: **CLOSED (beta refined)**.
+- **OPEN → A14 (the user's call).** The *text-license* half is **not** resolved: this dialogue leans **CC0**
+  (maximal "no one can claim or restrict the idea"); `07` C2 currently records **CC-BY 4.0**. Left as a
+  surfaced gate (intersects the A1 MPL/AGPL posture; **NOT-LEGAL-ADVICE** — attorney review of the
+  patent-non-assertion paragraph). `07` C2 **not** edited. Status: **OPEN**.
+- **LINKS `thinking/drystone-spec/` (T1).** The generated **spec v0.1 skeleton** is the overall document
+  scaffold the §2/§X deep drafts (E30/T1) slot into, structured **principles-up-front → mechanics-as-outcome**.
+  The defensive disclosure is only *enabling* once **§7 Synchronization** is field-by-field — that gates
+  minting the v0.1 DOI (do not freeze off the skeleton). Status: **OPEN-as-design** (tracked ROADMAP_TODO E31).
+- **Provenance / DRIFT-WATCH:** cleaned-paste (§4). The IETF/RFC/Zenodo/OpenTimestamps/arXiv/IETF-Trust facts
+  were **dialogue/web-sourced 2026-06-24, NOT re-verified** — `[UNVERIFIED]`, confirm before they harden
+  (manifest 2026-06-24 publication-intake note). iroh consistent with SoT (`1.0.0`). New ECOSYSTEM rows
+  (Zenodo, OpenTimestamps, IETF, Malleable Systems §9; p2panda, iroh-rings §1) flagged dialogue-sourced.
+
+## 39. Rights-vs-capabilities definitions ↔ 01 §5 boundary + 01 §6.1 (K6) + the rights-floor / label-not-enforce / survivor re-key
+
+The 2026-06-24 rights-vs-capabilities dialogue
+(`seeds/transcripts/raw/rights-vs-capabilities-definitions-dialogue-2026-06-24.md` →
+`thinking/rights-vs-capabilities-definitions.md`) **grounds a boundary beta `01` asserts but does not
+define**:
+
+- **GROUNDS `beta/01` §5 ("no right to remove the rights of others").** The boundary can't be load-bearing
+  until "right" vs "capability" is sharp. The **discriminating test** — a *right* is standing whose removal
+  cancels the conditions of its own contestation; a *capability*'s removal leaves contestation intact — is
+  the standing-side companion to **01 §6.1**'s already-folded data-plane(capabilities)/control-plane(rights)
+  cut (K6). **Fold candidate for 01 §5 (the framing paragraph): OPEN — surfaced, not folded** (changes a
+  settled doc; depends on the two checks below). Status: **OPEN (fold candidate)**.
+- **LINKS `beta/05` (rights-floor) / `beta/06` (label-not-enforce) / `beta/04` (survivor re-key).** Tenure =
+  the 05 rights-floor (you cannot be cleared because your standing is not held elsewhere). The
+  voice-vs-amplification edge case resolves *into* 06's label-not-enforce (declining to relay = a peer's own
+  standing, not a voice removal). Two **verify-before-hardening** seams: (1) **is `share` a right or a
+  membership-class capability** (→ 07 / cooperative model — name the inviolable floor); (2) **does the 04
+  survivor re-key strand `tenure`** (→ name tenure's implementation exception if so). Status: **OPEN**
+  (ROADMAP_TODO E32).
+- **LINKS `thinking/drystone-spec/` (T1).** Roles decompose as `floor + [capabilities]` (§2 draft); this
+  block is the definitional backing the spec's §2.3/§5 cite. The unwritten `P-Peer-Equality` /
+  `P-Durable-Enablement` principles (E30/T1) realize the same cut.
+- **Provenance:** cleaned-paste (§4); the user's own design reasoning — **no external facts to fact-check**.
+  New thinking artifact; no drift. Tracked ROADMAP_TODO **E32**; manifest 2026-06-24 rights-intake note.
+
 ---
 
 ## How to use this map

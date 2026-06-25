@@ -55,8 +55,10 @@ candidate) precisely so its neutrality survives stewarding non-Croft things.
 A third pillar extends the IP story outward. Where the second pillar keeps the *operating* ecosystem
 uncapturable from the inside, the third governs how the *specification itself* enters the world so a third
 party cannot patent the design out from under everyone — a settled defensive-publication posture: claim no
-patent, license the document CC-BY 4.0 and the reference code Apache-2.0, and establish patent-blocking prior
-art with an IETF Internet-Draft first and then arXiv, socializing each layer where its experts already are.
+patent, license the reference code Apache-2.0 (the spec text's CC0-vs-CC-BY license is the one open
+sub-decision), and establish patent-blocking prior art with a third-party-witnessed DOI'd archive (Zenodo)
+plus a cryptographic timestamp first — an IETF Internet-Draft only as a later, more-encumbered destination —
+socializing each layer where its experts already are.
 The through-line across all three: the ethical choice and the durable choice keep turning out to be the same
 choice — and each guard is a *structural property*, not a behavioral promise.
 
@@ -72,8 +74,9 @@ choice — and each guard is a *structural property*, not a behavioral promise.
 - The anti-rug-pull guarantee: bankruptcy-remote steward + pre-funded static archive + graceful-exit runway.
 - The three-layer IP-stewardship structure (code/brand/coop), the AGPL+DCO lock, the foundation-held mark,
   the compatibility badge, entity phasing, assignment-with-goodwill.
-- The external IP twin: the defensive spec-publication posture (CC-BY 4.0 document, Apache-2.0 reference code),
-  prior art via an IETF Internet-Draft first then arXiv, and the per-layer socialization/venue map.
+- The external IP twin: the defensive spec-publication posture (Apache-2.0 reference code; the spec text's
+  CC0-vs-CC-BY license open), prior art via a third-party-witnessed DOI'd archive (Zenodo) plus a
+  cryptographic timestamp first — an IETF Internet-Draft only later — and the per-layer socialization/venue map.
 - **The Noria foundation-name *candidate*** (surfaced as pending, not decided).
 
 **Out of scope (and where it lives).**
@@ -93,6 +96,18 @@ choice — and each guard is a *structural property*, not a behavioral promise.
   "is the badge where principles get teeth" question sits at the seam with `01` — surfaced, not resolved.
 
 ## Pillar A — the economic / governance mechanism
+
+### A0. Two operating systems — the values contrast under the mechanism
+
+The mechanism in this pillar is the operational expression of a choice between two operating systems. The
+**linear / extractive** one reads time as a line toward an end-state, nature as a resource to subdue, people
+as expendable and tethered to net worth, and waste as the natural by-product of growth — a fixation on
+infinite growth that runs as a kind of social virus. The **cyclical / relational** one reads time as
+continuous renewal, value as inherent to a person rather than indexed to labor, and waste as a design
+failure ("no such thing as waste"). Non-extraction is not a tax levied on the first system; it is the second
+system made structural. The pillars that follow — anti-fragile economics, paid keepers, a steward that
+cannot be captured — are what the cyclical operating system looks like when it is *built* rather than merely
+professed.
 
 ### A1. The rug-pull is a capital-structure phenomenon
 
@@ -181,6 +196,20 @@ producers* (users), not to a business licensee — the novelty over standard sof
 conclusion:* the fund need only keep a static bucket readable — the difference between an impossible promise
 (permanence) and a trivial one (a finite, pre-fundable graceful exit). *(The technical archive mechanics are
 cross-referenced, not resolved here.)*
+
+### A9. The non-mimicry moat — a feature class only non-extraction can ship
+
+Anti-fragility (A2) is the *defensive* case for non-extraction; the **non-mimicry moat** is the affirmative
+one. A cooperative capital structure makes a class of features *possible* that an extractive competitor
+cannot copy without unwinding its own business model: protocol-level ad-blocking; transparency-as-a-feature
+(an open-book financial dashboard); a member-voted micro-grant treasury; non-algorithmic, human-choice feeds;
+maintenance-first budgeting (a majority of spend to tech-debt and security rather than growth); user-
+controlled data TTL — the "digital living room," which also *lowers* hosting cost; a community-jury
+moderation model; digital-legacy and estate trusts; and a "right-to-repair" forkability promise. None of
+these are features an ad-funded, growth-capitalized platform can mimic, because each one removes a lever that
+model depends on. The moat is not a better version of what competitors do — it is the set of things they are
+structurally unable to do. *(Individual items are product-roadmap-grade; the load-bearing conclusion is the
+unifying claim that non-extraction is a feature generator, not only a cost.)*
 
 ## Pillar B — the IP-stewardship structure
 
@@ -313,19 +342,29 @@ examiner-discoverable prior art**. A disclosure defeats a later patent claim onl
 **completeness** (each non-obvious mechanism described well enough to build; a mechanism not specifically
 disclosed can still be patented around the project, which makes the thoroughness of the spec *itself* the
 defense) and **a third-party-provable date** (an external, tamper-evident timestamp, not just our own commit
-log). The settled sequence:
+log — a self-hosted repository's dates are self-asserted and can be disputed). The settled sequence:
 
-- **IETF Internet-Draft first** (`draft-<name>-croft-architecture`) — free, self-serve, no membership or
-  working-group sponsorship; produces a dated, examiner-known, publicly archived disclosure that persists
-  after its expiry and doubles as a standards-engagement signal. The single highest-leverage first move.
-- **then arXiv preprint** (cs.NI primary; cross-listed cs.CR, cs.DC) — the strongest combined prior-art +
-  reach + credibility, once a runnable demo exists. Endorsement is the friction for an independent author; an
-  academic co-author solves it and unlocks the peer-reviewed venues.
-- **(optional) a formal defensive-publication registry** if blocking competitor patents is an explicit goal
-  beyond what the I-D and arXiv timestamps already establish.
+- **A third-party-witnessed archive with a DOI, first — Zenodo.** Run by CERN, it mints a permanent DOI and
+  an archived, timestamped copy held in custody the author does not control and cannot backdate — the
+  external witness a self-hosted commit log cannot be. It carries a Concept DOI over the evolving spec with a
+  version DOI per draft, integrates with a public Git release so the tagged snapshot is archived
+  automatically, and forces an explicit license choice at upload. The single highest-leverage first move.
+- **plus a cryptographic timestamp — OpenTimestamps.** Anchoring the document hash into a public blockchain
+  yields a tamper-evident existence-by-date proof that pairs with the DOI for the narrow "cannot be
+  backdated" property (it proves existence-by-a-date, nothing about authorship or content).
+- **then the per-layer socialization venues (C4)** carry the disclosure to the experts who would otherwise
+  never find it.
+- **an IETF Internet-Draft is a possible later destination, not the first move.** It timestamps no better
+  than a public Git commit and is *more* encumbered — the IETF Trust holds reuse rights and a draft may not
+  be cited other than as work in progress — and the IETF expects two interoperable implementations plus rough
+  consensus before a solo spec carries weight there. arXiv is the academic analogue but is gatekept (requires
+  endorsement) and paper-oriented, so it is a secondary, post-implementation option rather than the
+  foundation.
 
-Revisions re-publish the same way — each substantive version needs its own dated record, or a mechanism added
-later carries no early date.
+Revisions re-publish the same way — each substantive version needs its own dated record (a new version DOI
+under the Concept DOI), or a mechanism added later carries no early date. The disclosure only functions once
+it is *enabling* — for Croft that means the synchronization wire format is specified field-by-field, which is
+the gate on minting the first version DOI rather than freezing a scaffold.
 
 *Verification:* **settled posture.** *Grounds:* prior art that nobody can find does not function as prior art,
 so discoverability (searchable terminology, a stable title/URL, cross-linked spec and implementation) is part
@@ -353,12 +392,14 @@ layer where its experts already are, and sequence so the foundations are validat
   atproto almost exactly.
 
 *Verification:* **settled posture**, with specific venue dates and editions flagged `[UNVERIFIED]` where they
-turn on a calendar. *Grounds:* the strongest prior-art vehicles (the Internet-Draft, the arXiv preprint)
-double as credibility and reach, so the prior-art track and the spread track are run together rather than as
-separate efforts.
+turn on a calendar. *Grounds:* the strongest prior-art vehicles (the DOI'd third-party-witnessed archive, the
+cryptographic timestamp) double as a stable citation and reach, so the prior-art track and the spread track
+are run together rather than as separate efforts.
 
-> **NOT-LEGAL-ADVICE (carried).** The *posture* above is settled — defensive, CC-BY for the document,
-> Apache-2.0 for the code, Internet-Draft first. The statutory specifics behind it (disclosure-bar grace
+> **NOT-LEGAL-ADVICE (carried).** The *posture* above is settled — defensive, a DOI'd third-party-witnessed
+> archive (Zenodo) plus a cryptographic timestamp first, Apache-2.0 for the reference code. (The spec *text*
+> license — CC0 vs CC-BY 4.0 — is the one open sub-decision, the author's call.) The statutory specifics
+> behind it (disclosure-bar grace
 > periods, absolute-novelty rules, the legal weight of any given timestamp as patent prior art) are
 > jurisdiction-dependent and **require a patent attorney before any reliance or any disclosure where a patent
 > option is to be preserved.** This pillar carries the reasoning and the sequence, not the statute citations.

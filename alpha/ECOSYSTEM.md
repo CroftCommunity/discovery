@@ -48,6 +48,8 @@ pins `=1.0.0`; first-party Swift bindings `iroh-ffi` shipped with 1.0 mid-June 2
 | Earthstar / Willow team | Willow protocol / willow-rs | Local-first data model with true deletion | 3D data model, Meadowcap capabilities, prefix-pruning | not shippable in 2026; design "Willow-shaped," migrate later [UNVERIFIED current] | homage, build-on (later) |
 | John Day / community | RINA (Recursive InterNetwork Architecture) | Recursive scoped-addressing networking | "networking is one recursive layer repeated at scale"; bounds routing state by recursion, not a flat global table | research/academic [dialogue-sourced 2026-06-20] | learn↔ (the closest formalization of Croft's recursive-federation routing) |
 | — | Named Data Networking / Yggdrasil / cjdns | Hierarchical-name / cryptographic-identity overlay routing | NDN routes on aggregatable hierarchical names; Yggdrasil/cjdns route over crypto-identity trees with no global table, locality-aware | NDN research; Yggdrasil a working small-scale net [dialogue-sourced 2026-06-20] | learn↔, build-on (federation routing PoC prior art; Yggdrasil ≈ the PoC target shape) |
+| community | **p2panda** | Building blocks for peer-to-peer applications | local-first app primitives over a p2p substrate; listed in `awesome-iroh` as a conceptual neighbor | [dialogue-sourced 2026-06-24, pending verification] | learn↔ (closest "p2p app building blocks" neighbor; read its peer-equality framing) |
+| community | **iroh-rings** | Relationship-based access control for resources over iroh | RBAC-shaped capability/relationship layer on the iroh substrate | [dialogue-sourced 2026-06-24, pending verification] | learn↔ (direct neighbor to Drystone's peer-equality / capability layer — compare before §5 hardens) |
 
 ## 2. Group encryption & crypto primitives
 
@@ -300,6 +302,23 @@ The co-op vertical's lineage (detail in the dossier §3, §8):
 SPI/SFC/Aspiration rows are enriched from the 2026-06-23 foundation/IP dialogue —
 `seeds/transcripts/raw/croft-foundation-coop-ip-naming-dialogue-2026-06-23.md`, **dialogue-sourced,
 verify before reliance** — see COHESION §35.)
+
+## 9. Publication, preservation & prior-art infrastructure
+
+The vehicles for putting the Drystone spec out as a defensive publication (the *external* IP twin of §8's
+internal stewardship; detail in `thinking/drystone-publication-and-defensive-disclosure.md`). **All rows
+dialogue/web-sourced 2026-06-24, NOT independently re-verified — verify before reliance.**
+
+| Org | Project | Purpose | Capabilities | Relationship |
+|---|---|---|---|---|
+| CERN | **Zenodo** | Free open-access repository that mints permanent **DOIs** | third-party (CERN) custody + timestamp; Concept-DOI vs version-DOI; mandatory per-upload license; GitHub-release auto-archive (`.zenodo.json`); reserve-DOI-before-publish; ~30-day post-publish file-edit window then new version; 50GB/100-file caps | **build-on — the chosen priority/prior-art vehicle** for the Drystone spec (CERN-witnessed beats a fakeable local repo; better fit than gatekept arXiv). [dialogue-sourced 2026-06-24] |
+| OpenTimestamps | **OpenTimestamps** | Cryptographic existence-by-date proof | hashes a document, anchors the hash into the Bitcoin blockchain; proves existence-before-a-block (nothing about authorship/content); free | **build-on — pairs with Zenodo** as the strongest "this exact text existed by this date" anchor. [dialogue-sourced 2026-06-24] |
+| IETF / IETF Trust | Internet-Draft process | Standards-track spec input format | draft→RFC lifecycle; rough-consensus + 2-interop-impls culture; **drafts are IETF-Trust-encumbered** (reuse-restricted, "cite only as work in progress") | learn↔ / **later destination, not first** — wrong first venue and *more* encumbered than a self-licensed repo for timestamping. [dialogue-sourced 2026-06-24] |
+| Malleable Systems | Malleable Systems community / forum | User-controlled, independent digital-spaces movement | low-rigor, philosophy-tolerant feedback venue (Willow was discussed there on release) | learn↔ — soft early-shaping venue for the design-principles layer. [dialogue-sourced 2026-06-24] |
+
+(iroh GitHub Discussions/Discord, the Willow maintainers, and the local-first community are the primary
+*feedback* venues — see `thinking/drystone-publication-and-defensive-disclosure.md` §3; iroh/Willow already
+registered in §1/§3. This refines beta `07` Pillar C's prior-art-vehicle posture — COHESION §38.)
 
 ---
 

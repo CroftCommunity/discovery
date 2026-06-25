@@ -144,8 +144,11 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 - **Gates:** brand/product-name **DRIFT reconciled vs `NAMING.md`** (the 08/07 dependency — 08 says "must
   be reconciled before any brand chapter"); CLEARANCE items (Euphoria line) cleared with counsel;
   `[UNVERIFIED]` anecdotes confirmed or dropped.
-- **Alpha provenance:** `../alpha/narrative/messaging-and-quotes.md`; `../alpha/BETA-ROLLUP.md`
-  coverage view ("likely feeds a future brand chapter"); `../alpha/ROADMAP_TODO.md` C6 / A7.
+- **Alpha provenance:** `../alpha/narrative/messaging-and-quotes.md`; the **app-side half of the same brand
+  DRIFT** — `../alpha/thinking/app/brand-and-voice-notes.md` (taglines, two-speed answer, "Grow your own",
+  message funnel) and `../alpha/assets/README.md` (draft wordmarks, license-gated) [added 2026-06-25
+  per-file audit]; `../alpha/BETA-ROLLUP.md` coverage view ("likely feeds a future brand chapter");
+  `../alpha/ROADMAP_TODO.md` C6 / A7.
 
 ### T5 — Protocol behavior at scale / group-chat failure modes
 
@@ -294,6 +297,63 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 - **Promotion target:** **08**.
 - **Gates:** the composable-interface ramp has no proof/spec yet (a product-track concern).
 - **Alpha provenance:** `../alpha/crystallized/principles.md` (three-audiences + composable-interface note).
+
+> **T18–T20 added 2026-06-25** from the per-file alpha→beta coverage audit
+> (`../alpha/plans/2026-06-25-beta-coverage-per-file-audit.md`) — the long-tail unsettled finds a
+> grouped sweep missed: a settled-stance principle and two unbuilt design surfaces that beta correctly
+> dropped (because unsettled/unbuilt) and that had no home in T1–T17.
+
+### T18 — LTS-for-interfaces / shapeability-paired-with-stability
+
+- **Status:** `surfaced`.
+- **What it is:** `principles.md` Tier 3 carries a settled-*stance* principle absent from beta:
+  "**shapeability is only valuable paired with stability; constant UI change is quietly extractive**" —
+  with a concrete **LTS-for-interfaces** mechanism (alpha/beta/stable channels, ~3yr stable window, opt-in
+  change "trains" on a ~6mo cadence, the *learned surface* held stable, security changes the
+  over-communicated exception, multiple live UI generations carrying an honest documentation/support cost).
+  The product-layer twin of the non-extraction thesis: composability without stability *is* the extraction
+  lever ("change-it-back friction becomes an engagement lever").
+- **Promotion target:** **08** (a stability/shapeability product principle, paired with the composability
+  stance it already carries); seam to **07** (anti-extraction). **Distinct from T17** — T17 scopes the
+  three-audiences settings model + composable-interface ramp; this is the separate stability principle.
+- **Gates:** decide the LTS channel/cadence model as a product *commitment* vs aspiration ("name the
+  documentation/support cost or the principle dies in year two").
+- **Alpha provenance:** `../alpha/crystallized/principles.md` Tier 3.
+
+### T19 — Blind-peer encrypted-search / coverage-attestation substrate
+
+- **Status:** `gated`.
+- **What it is:** a substantial *unbuilt* design surface — blind peers expose the **hash-tree skeleton**
+  (not payload); search is a bounded subtree scan where **the hash tree is the shard map** and the gather is
+  **cryptographically attestable** (each worker returns matches + subtree root hash; coverage is a checkable
+  set-cover over hashes); the two offload "animals" (HA-search-member with own copy = safe vs pure
+  search-mediator that must be enrolled with decryption = crown-jewel target); and encrypted-search **leakage
+  profiles** (deterministic leaks equality / SSE leaks access patterns — "you pick a leakage profile, not
+  avoid one"). The author flags **content-predicate search-coverage attestation** as a genuinely-new seam
+  wanting its own threat model before code.
+- **Promotion target:** **04** (a substrate capability) or a dedicated search/discovery theme; couples to
+  the meer roles (06).
+- **Gates:** write the threat model; the honest-plaintext-evaluation half ("didn't skip matches after
+  decrypting") is the hard, possibly-defer-able piece.
+- **Alpha provenance:** `../alpha/thinking/local-first-as-design-imperative.md` (storage-substrate /
+  discovery-fulfillment / "what's new" sections).
+
+### T20 — Conflict-reason corpus gaps (C4 / C7 / C8 / C9 / C10)
+
+- **Status:** `gated`.
+- **What it is:** `merge-split-corpus.md` §4 enumerates the full conflict-reason space and surfaces five
+  real, **unmodeled/partial reconcile-semantics gaps**: **C4** add-vs-add of the same person on different
+  device keys across a partition (must fold by lineage, not double-count — interacts with multi-device
+  E2.10); **C7** dissolve-vs-continue (hard-stop or resting-state, *undefined*); **C8** diamond-recombine
+  conflict over a multi-parent DAG (topology proven, conflict-detection untested); **C9** equivocation
+  hardening (A2.2 partial); **C10** ban-evasion re-add via a new device leaf (must not silently re-confer
+  standing — the moderation surface).
+- **Promotion target:** **04** (widens "what was proved" toward the full conflict space). **Overlaps T5**
+  (scale/churn) but is a distinct surface (reconcile *semantics*, not scale) — confirm and fold where
+  subsumed by T5.
+- **Gates:** define C7's intended resolution; extend `detect` to multi-parent ancestry (C8); harden
+  equivocation attribution (C9); model the ban-evasion re-add (C10).
+- **Alpha provenance:** `../alpha/thinking/merge-split-corpus.md` §4 + §6 ("Tier 1b — reconcile-case corpus").
 
 > **Folded into existing, not new threads:** the inter-collective peering *settled shape* (BGP-autonomy +
 > postal-hierarchy + signed routing) → add to **T2**'s provenance so T2 doesn't re-derive it. **Borderline
