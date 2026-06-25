@@ -89,6 +89,150 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
   `../alpha/seeds/transcripts/raw/drystone-peers-rights-governance-matrix-dialogue-2026-06-24.md`.
   Backlog: `../alpha/ROADMAP_TODO.md` **E30** (+ A11/A12/A13); seam: `../alpha/COHESION.md` **§37**.
 
+> **T2–T10 added 2026-06-25** from a sweep of the alpha backlog (`ROADMAP_TODO` A/D/E), the seam/edge
+> trackers (`COHESION` OPEN/DRIFT, `open-edges.md`, `open-considerations.md`), the beta themes'
+> "establishes / does not" boundaries, and the rollup coverage view — the under-staged, beta-bound
+> threads that the eight resolved themes correctly dropped (because unsettled) and that had no home
+> before this ledger existed. Ranked by alpha→beta maturation impact. Already-bannered gates (recovery
+> anchor, MPL, cooperative legal review, Noria, CroftC IP, genome-vs-strategy, V3 republish-UX,
+> cold-start, brand-name DRIFT) are deliberately **not** duplicated here — they are already visible in
+> their themes.
+
+### T2 — Governance at scale (subsidiarity + liquid delegation; the concentration default)
+
+- **Status:** `gated`.
+- **What it is:** how a centerless federation governs at scale (the ~200k breakpoint) without the
+  cheap-fork Sybil defense getting expensive and without quietly growing a center — likely subsidiarity +
+  instantly-revocable **liquid delegation**, with **concentration as the default failure** (the
+  Pirate-Party lesson) resisted by decay/caps/bounded-chains/expiry/visibility, and **member ≠
+  governance-constituent** modeled explicitly. Includes the honest admission that the membership
+  sequencer / superpeer is a **load-bearing centralization point** whose funding/uptime/governance must
+  be named as core, and the federation/inter-collective peering design surface.
+- **Promotion target:** completes the federation handoff that **01 §6** opens and **07 B5** gives a legal
+  shape to; touches **06** (Sybil softening). Likely a dedicated governance theme alongside T1.
+- **Gates:** decide the delegation model; pick concentration-resistance levers; model
+  member-vs-constituent; spec federation/peering; name the center's funding/governance honestly.
+- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D9** (+ D8 residual, E16 design surface);
+  `../alpha/COHESION.md` **§22**; `../alpha/thinking/open-considerations.md` §4 (load-bearing superpeer);
+  `../alpha/thinking/local-first-as-design-imperative.md` (open frontiers).
+
+### T3 — Moderation & abuse under a blind broker (the constructive design body)
+
+- **Status:** `gated`.
+- **What it is:** the operational complement to 06's "safe by structure, not inspection" thesis — what a
+  content-blind broker actually *does* about spam / CSAM / coordinated harm: client-side
+  report-with-reveal, metadata-based rate-limiting, reputation, and the `{pending,released,rejected}`
+  predicate-gated **hold/release plane** + **crypto-shred** — "must be designed in, not bolted on." Plus
+  the **kid-friendly-vs-uninspectable** product tension.
+- **Promotion target:** **06** (the design body it currently only gestures at). The CSAM/jurisdiction
+  *legal* posture is already surfaced (06→07); this is the distinct *engineering/design* thread.
+- **Gates:** decide the abuse-handling toolkit; reconcile with the geer's consented-visibility role;
+  decide whether crypto-shred + hold/release ship in the substrate or app layer; the legal/CSAM piece
+  (the user's) gates the rest.
+- **Alpha provenance:** `../alpha/thinking/open-considerations.md` §5 + §9; `../alpha/ROADMAP_TODO.md`
+  **D3 / D6 / E18**; `../alpha/COHESION.md` §18.
+
+### T4 — A brand / voice / messaging chapter (a missing theme)
+
+- **Status:** `gated`.
+- **What it is:** `narrative/messaging-and-quotes.md` is a mature, provenance-tagged (OURS / CITE /
+  CLEARANCE / UNVERIFIED) reservoir — taglines, the corporation-vs-person crowding-out framing (Gneezy &
+  Rustichini, Ostrom, Ariely), the digital-living-room / IYKYK positioning, the Euphoria tie-in with a
+  fair-use/trademark analysis. A chapter's worth of brand voice that no beta theme absorbs.
+- **Promotion target:** a **new brand/voice theme** (none of the eight is one); the rollup itself
+  anticipates it.
+- **Gates:** brand/product-name **DRIFT reconciled vs `NAMING.md`** (the 08/07 dependency — 08 says "must
+  be reconciled before any brand chapter"); CLEARANCE items (Euphoria line) cleared with counsel;
+  `[UNVERIFIED]` anecdotes confirmed or dropped.
+- **Alpha provenance:** `../alpha/narrative/messaging-and-quotes.md`; `../alpha/BETA-ROLLUP.md`
+  coverage view ("likely feeds a future brand chapter"); `../alpha/ROADMAP_TODO.md` C6 / A7.
+
+### T5 — Protocol behavior at scale / group-chat failure modes
+
+- **Status:** `gated`.
+- **What it is:** the honest gap in 04's "we proved it" — 04 explicitly does **not** establish large-scale
+  behavior or real-world fold/unfold UX. The open design questions: does survivor-selection need the
+  superpeer to be deterministic (the project's honesty hinges on it); the superpeer-as-covert-ordering
+  risk (is the pure-P2P tier "a demo"); immutable genesis-threshold amendability vs regress-grounding; and
+  the **churn-fold Achilles heel** (governance-log noise from device churn making the member-list fold
+  unmaintainable) with its concrete, unactioned recommendation to add a **synthetic high-churn /
+  multi-partition test now**.
+- **Promotion target:** **04** (widens it from "proved at human scale" toward production-shaped claims).
+  **Overlaps T1's §X** conflict model — several questions may be T1's validation surface; confirm and fold
+  where subsumed.
+- **Gates:** survivor-selection determinism decision; pure-P2P-vs-superpeer ordering honesty; genesis
+  amendability; write + run the churn/partition test (the test itself is alpha validation).
+- **Alpha provenance:** `../alpha/research/group-chat-failure-modes.md` (+ `-plain.md`);
+  `../alpha/crystallized/conclusions.md`; the test-plan backlog.
+
+### T6 — The per-platform trust-model doc (05's "highest-leverage next artifact")
+
+- **Status:** `gated`.
+- **What it is:** the per-network (Bluesky/AP/Mastodon/GoToSocial/Threads/Hive) write-up — the field used,
+  what Croft claims / doesn't claim, the backlink mechanism, exact verifier steps + pseudocode. 05 *names*
+  it as the highest-leverage next artifact but cannot assert its content because it does not exist.
+- **Promotion target:** **05** (completes the identity theme).
+- **Gates:** write it; confirm `alsoKnownAs` extra-entry persistence (`[UNVERIFIED]`, E14); resolve the
+  anchor-URI stability contract (A9) and the PDS-vs-self-controlled rotation key (A10), which determine
+  what each spoke can claim; depends partly on T7.
+- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **E13** (+ A9/A10/E14);
+  `../alpha/thinking/cross-platform-identity-provenance.md:222`; `beta/05` boundary.
+
+### T7 — atproto Permissioned/Private-Data watch-item (external dependency, gates 03 + 05)
+
+- **Status:** `gated` (gate is external, not Croft-internal work).
+- **What it is:** 03 calls atproto's Permissioned Data work "**the single most important external
+  development to track** — it could narrow or complement Croft's private path." The real ATProto Private
+  Data WG defers true E2EE / zero-knowledge; Croft sits on the harder ZK side. Couples to 05's `did:webvh`
+  native-support `[UNVERIFIED]` gate.
+- **Promotion target:** updates **03** (the field positioning) and **05** (preferred-DID-method choice)
+  when it lands.
+- **Gates:** the atproto WG reaches a settled E2EE/ZK posture; `did:webvh` native atproto support
+  confirmed against the FACTCHECK SoT.
+- **Alpha provenance:** `beta/03` §6; `beta/05` §3; FACTCHECK as SoT for the confirm.
+
+### T8 — Forward-only revocation under irreversible commitments
+
+- **Status:** `gated`.
+- **What it is:** revoking consent cannot rewind a spent action; decisions must be tagged
+  reversible-or-committing **at decision time**, and the record must permanently, honestly attribute which
+  consent supported which irreversible consequence. The governance-plane face of the recovery/consent
+  problem; 01 §5 states the *principle* (irreversible → constitutional rigidity bites hardest) but never
+  names the *mechanism*.
+- **Promotion target:** **04 / 06** (the governance log + revocation ladder); **01** (the
+  protection-rigidity principle). **Likely co-promotes with T1.**
+- **Gates:** define the reversible-vs-committing decision tag; spec the permanent attribution record;
+  reconcile with T1's append-only fold.
+- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D10**; `../alpha/COHESION.md` **§22**; `beta/01` §5.
+
+### T9 — Publication-readiness verification pass (01 Ostrom + 02 Clearances colour quotes)
+
+- **Status:** `gated`.
+- **What it is:** a hard external-publication gate currently scattered as inline `[UNVERIFIED]` flags with
+  no aggregating thread: **01**'s Ostrom subsidiarity passage is from the 2013 generalization, not
+  *Governing the Commons* ("confirm against the primary text before direct citation"); **02**'s Clearances
+  colour quotes (Chambers, "four-footed clansmen," the Shetland curse, the "Magna Carta of the Highlands"
+  attribution, the "law locks up the man or woman" verse, the 1772 OED sentence) are tertiary-source
+  `[UNVERIFIED]` and "must stay flagged until a primary-source pass."
+- **Promotion target:** clears external publication of **01** and **02** (does not change their narrative,
+  removes their publication blockers).
+- **Gates:** a primary-source verification pass clearing each cited quote/attribution.
+- **Alpha provenance:** `beta/01` §2.4; `beta/02` §1/§4/§5. (Pass-2 fact-check left Ostrom as the one
+  remaining 01 confirm.)
+
+### T10 — Real-time media-layer hardening (finishes 04's media leg)
+
+- **Status:** `gated` (largely de-risked — a "close the last decisions" thread).
+- **What it is:** 04 carries media only as *characterized* (E12 green-real on synthetic frames). str0m is
+  production-grade server-side (weak exactly on P2P ICE, which Croft routes around) and the RoQ/MoQ split
+  is adopted; the residual `[OPEN]` is whether str0m's strong/weak boundary is precisely tested, which
+  sets the browser-facing SFU-meer exposure — feeding the pending TC-ENG0 (engine API audit) and TC-INT3
+  (A1-vs-A2 engine/transport decision).
+- **Promotion target:** **04** (hardens the media leg from "characterized" toward production-shaped).
+- **Gates:** TC-ENG0 done; TC-INT3 decided; the str0m P2P-ICE boundary `[OPEN]` closed.
+- **Alpha provenance:** `../alpha/research/str0m-production-readiness.md`,
+  `../alpha/research/iroh-realtime-media-references.md`; `../alpha/thinking/realtime-media-over-iroh.md`.
+
 ---
 
 ## How to use this file
