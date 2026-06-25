@@ -8,7 +8,7 @@ mechanism and the IP-stewardship structure.
 > ⚠️ **DECISION-GATED.** This theme carries unresolved calls that are the user's, not engineering's: the
 > cooperative legal-review gate, the **Noria** foundation-name clearance, fiscal-sponsor selection, the
 > foundation-vs-coop entity form, and the "load-bearing-few principles (genome vs strategy)" question. They
-> are surfaced in §"Open / surfaced items," not resolved.
+> are surfaced under "What this theme establishes (and does not)," not resolved.
 
 > **NOT-LEGAL-ADVICE.** The legal/financial *framework* here is real, but every statute section, IRS form,
 > fee, and dollar figure is dialogue-sourced and **requires confirmation by a cooperative/nonprofit/IP
