@@ -1010,8 +1010,10 @@ distilled two Drystone spec sections (`thinking/drystone-spec/section-2-*.md`, `
   **web-verified in-session only** and are **not yet in the FACTCHECK SoT** — confirm before beta (see the
   manifest 2026-06-24 intake note). One **self-correction** is preserved in the raw (the false "Matrix
   E2EE bilateral-disable" claim → corrected to the one-way encryption latch); **do not re-introduce the
-  wrong claim** when distilling. Status: **CLOSED-as-filing** (raw + spec drafts + indexes); **beta
-  integration is a separate pass**. Tracked ROADMAP_TODO **E30** (+ A11/A12/A13).
+  wrong claim** when distilling. Status: **CLOSED-as-filing** (raw + spec drafts + indexes). **Staged
+  for beta as `../beta/OPEN-THREADS.md` T1 (`gated`)** — held out of the settled theme docs until its
+  gates clear (DRAFT status, A11/A12/A13, fact-confirmation, the unwritten `P-*` principles), then
+  promoted into a theme + a `BETA-ROLLUP.md` row. Tracked ROADMAP_TODO **E30** (+ A11/A12/A13).
 
 ---
 
