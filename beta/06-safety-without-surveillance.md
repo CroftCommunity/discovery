@@ -88,7 +88,7 @@ authority are stated there as crypto facts; here they are reasoned as social/adv
 > — `thinking/abuse-resistance-and-the-rave-trap.md`
 
 *Verification:* design; the Tier-0 blind broker is green-real (E3.4), and the running blind meer binary is
-green-real (E9). *Grounds:* the meer holds no payload key, so content moderation at the transport layer is
+green-real (meer P0+P1). *Grounds:* the meer holds no payload key, so content moderation at the transport layer is
 structurally unavailable. The question is not whether to inspect, but how to stay safe without it.
 
 ## 2. The rave-trap: answered by scale and membership metadata, never content
@@ -101,8 +101,10 @@ structurally unavailable. The question is not whether to inspect, but how to sta
 > (b) stranger-discovery, and (c) unbounded broadcast scale."
 > — `thinking/abuse-resistance-and-the-rave-trap.md`
 
-*Verification:* design; the physics caps (mesh dies ~5 peers, an SFU holds dozens) are green-real from the
-relay lab. *Grounds:* remove public discovery and cap broadcast fan-out / rate / audience, and you remove
+*Verification:* design — the physics caps (mesh dies ~5 peers, an SFU holds dozens) are architectural,
+stated by physics in `thinking/abuse-resistance-and-the-rave-trap.md` / `thinking/realtime-media-over-iroh.md`;
+the relay lab proves the blind metadata-admission lever (E11, characterized) and the blind meer (green-real),
+not the capacity numbers. *Grounds:* remove public discovery and cap broadcast fan-out / rate / audience, and you remove
 the abuse surface without inspecting a byte. Mass distribution *physically needs* a meer, so the
 distribution vector is exactly the controllable, blind, metadata-only choke. The category to hold onto:
 "a club is members who *joined* (a recorded, attributable, standing-bearing act), not anonymous consumers of

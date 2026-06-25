@@ -5,8 +5,9 @@ date: 2026-06-24
 status: synthesis (least-gated, spine-complete).
 
 verification: the cross-field grounding was checked in-dialogue (alpha appendix). Quotations are
-preserved verbatim below with their citation and a per-quote verification flag; three attributions
-(Peirce, Popper, Ostrom) must be confirmed against primary editions before any external publication.
+preserved verbatim below with their citation and a per-quote verification flag; one attribution
+(Ostrom's subsidiarity passage) must be confirmed against the primary edition before any external
+publication.
 
 ---
 
@@ -324,7 +325,8 @@ five disciplines reached independently. The razor (provenance-not-utility), the 
 themes stand on.
 
 **Does not establish:** that local-first *guarantees* a humane system (necessary, not sufficient); nor
-are the Peirce / Popper / Ostrom quotes publication-ready until confirmed against primary editions.
+is the Ostrom subsidiarity quote publication-ready until confirmed against the primary edition
+(*Governing the Commons*).
 
 ---
 

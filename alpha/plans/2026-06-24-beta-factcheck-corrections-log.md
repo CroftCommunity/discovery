@@ -145,8 +145,11 @@ reputable secondary sources via web. Results drove the exact replacement strings
 
 - All quote replacements use the primary-edition wording confirmed in the re-verification pass
   (sources cited inline above and in the report).
-- No `alpha/` corpus file was edited; the sole `alpha/` change is `BETA-ROLLUP.md` (the designated
-  additive file).
+- No `alpha/` **corpus** file (thinking/research/crystallized/narrative/seeds-transcripts) was edited.
+  The only `alpha/` corpus-adjacent change is `BETA-ROLLUP.md` (the designated additive file). Two
+  working-surface files outside the corpus were also touched by the follow-on "Croft Group" tag commit:
+  `alpha/seeds/generated-prompts/README.md` and the new `alpha/seeds/generated-prompts/beta-factcheck-pass2-prompt.md`
+  (the thin-pointer handoff lane, not frozen corpus).
 - The eight beta theme docs, `beta/README.md`, and the two `alpha/plans/` artifacts (the report and this
   log) are the only changed files.
 - No surfaced decision gate (MPL license, recovery anchor, cooperative legal review, the Noria name,

@@ -215,7 +215,9 @@ The iroh+Automerge+MLS stack is not a lone bet:
 *Verification:* **CONFIRMED** ("real despite smelling fabricated"). The strongest external validation that
 the substrate bet is sound and survivable off-grid. Dialogue-sourced ECOSYSTEM rows (the §5c app-layer
 tooling, the federation-routing rows, the games rows) are flagged dialogue-sourced; the §5d/§5e/§5f and
-Solid/DSNP rows are dialogue-surfaced but web-verified in their FACTCHECK companions.
+Solid/DSNP rows are dialogue-surfaced but web-verified in their FACTCHECK companions. *(Collapses COHESION
+§17 and §31 — iroh substrate corroboration from the field — and §32 — the open-social landscape these
+rows survey.)*
 
 ---
 
