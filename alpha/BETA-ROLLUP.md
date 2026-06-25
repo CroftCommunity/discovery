@@ -268,7 +268,72 @@ alpha-only working/index surface — is an open call recorded in `../MATURITY-RO
 - **The umbrella dossier:** `SOVEREIGN-COMMONS-DOSSIER.md` (pre-Croft naming; high provenance debt — its
   durable content is distributed across 01/02/07; retire-vs-keep is a later call).
 
-Closing this list to zero (or to an explicit "retired as alpha-only") is the remaining coverage work.
+**Coverage view CLOSED (2026-06-25 per-file audit).** The per-file audit
+(`plans/2026-06-25-beta-coverage-per-file-audit.md`) dispositioned all 165 alpha files exactly once and
+closed every source above to either **folded → beta §** or **alpha-only by design**:
+
+- **Index / working surfaces** (`ANALYSIS.md`, `TEST-PLAN.md`, `open-considerations.md`, `open-edges.md`):
+  alpha-only by design (PROCESS/INDEX or CITED). `ROUND-2026-06-17-…` → **folded to 04 §4** (E10/E12/E11/meer
+  results); residual media-hardening → T10.
+- **Narrative skeletons** (`narrative/long-form.md`, `short.md`): alpha-only by design (PROCESS/INDEX —
+  drafting surfaces; conclusions folded across beta). `messaging-and-quotes.md` → STAGED T4 (K11 crossed to
+  07 A2b).
+- **Research** (`discord-matrix-groupchat.md` → T16; `group-chat-failure-modes(-plain).md` → T5;
+  `iroh-realtime-media-references.md`, `str0m-production-readiness.md` → CITED + T10;
+  `open-publication-and-ip-protection.md`, `socialization-and-publication-venues.md` → **folded to 07 Pillar
+  C (K9, venue map intact)**): all closed.
+- **Conformance/spec detail** (`crystallized/conclusions.md` → folded across 04/01/03 + M0–M4 to T12;
+  `conformance-suite.md`, `TEST-CORPUS.md`, `CROFT-PROTOCOL.md` → CITED, alpha-only by design backing 04):
+  closed.
+- **The umbrella dossier** (`SOVEREIGN-COMMONS-DOSSIER.md`): PROVENANCE/RAW; durable content verified
+  distributed across 01/02/07 (K2/K3/K5/K10) — **except two framings flagged below (CM-A1, CM-A4)**;
+  retire-vs-keep remains a later call.
+
+**Ledger-accuracy nit:** the 03 table tags `ECOSYSTEM.md → synthesized → 03`, but ECOSYSTEM §8's cooperative
+prior-art register (Ostrom/Stocksy/Mondragon/credit-union/Drivers/Resonate/PCC/SPI/SFC) is cited by **07's**
+reasoning, not 03's body. Treat ECOSYSTEM §8 as **CITED-NOT-FOLDED** (the register stays alpha by design; 07
+carries the operative subset in B1/B5/B6). Not a coverage gap.
+
+## New CONCLUSION-MISSING finds (2026-06-25 per-file audit) — K13–K16 FOLDED; partials unfolded
+
+The per-file pass found settled conclusions still unfolded after K1–K12. Four were independently
+grep-confirmed ABSENT from beta and, **on the user's per-theme approval, were folded 2026-06-25 as K13–K16**
+(clean beta narrative, no prior-tier links — exactly as K1–K12). Three are partial folds
+(headline/discipline already present, a sub-nuance flattened); they remain **unfolded** (optional, low-value).
+
+| # | Settled conclusion | Folded into | Alpha provenance | Status |
+|---|---|---|---|---|
+| K13 | **"Connection itself is the newest enclosure — platforms rent our relationships back to us."** The relationship/third-place as the present enclosure target; bridges 02 §1–5 to *why a social product*. | **02 §6** (new closing ¶) | `SOVEREIGN-COMMONS-DOSSIER.md` §2/§12 | **folded 2026-06-25** |
+| K14 | **Recovery is two tiers: the lock (buildable now) vs the trust (unsolved).** Mechanism shippable now (threshold shares across independent trust domains); only the trust predicate is undecided. | **05 §7** (new ¶) | `thinking/local-first-as-design-imperative.md` | **folded 2026-06-25** |
+| K15 | **The "non-mimicry moat":** non-extraction unlocks a feature class extractive competitors structurally cannot ship (the affirmative competitive case). | **07 A9** (new subsection) | `thinking/cooperative-social-union-model.md` | **folded 2026-06-25** |
+| K16 | **Linear/extractive vs cyclical/relational "operating systems"** — a third framing of the civic "why." | **07 A0** (new subsection, framing Pillar A) | `SOVEREIGN-COMMONS-DOSSIER.md` §3.1/§12 | **folded 2026-06-25** |
+| CM-P1 | Roll-up trust **trilemma** + accumulator/MMR end-state (partial: 04 §3 already lands the answer + "never authority-signed" discipline; only the 3-way framing + MMR future-path absent). | — (unfolded) | `thinking/design-notes-addendum.md` §2 | partial; optional |
+| CM-P2 | The positive **"guarantee actually made"** sentence — legibility+exit, not convergence (partial: 04 already carries the social-legibility invariant; only the "we don't promise convergence" formulation flattened). | — (unfolded) | `thinking/design-notes-addendum.md` §6/§8 | partial; optional |
+| CM-P3 | Geer visibility-dial **3-rung enumeration** (partial: 06 §3 already says "least-invasive rung" + "other rungs remain compellable"; only the report/classifier/full-key enumeration absent). | — (unfolded) | `thinking/geer-gating-peer.md` | partial; optional |
+
+K13–K16 each landed as clean beta narrative (no prior-tier links; verification flags only where the
+source carries them); their source→landing trace is the table immediately above, exactly as K1–K12 are
+recorded in their own table (folded conclusions are tracked in the K-table, not duplicated into the
+per-theme tables).
+
+The unsettled long-tail finds from the same audit are staged as **T18 (LTS-for-interfaces), T19 (blind-peer
+encrypted-search substrate), T20 (conflict-reason gaps C4/C7/C8/C9/C10)** in `../beta/OPEN-THREADS.md`.
+
+## Beta refinement (2026-06-24 publication dialogue): 07 Pillar C prior-art vehicle
+
+Distinct from K13–K16 (newly-*found* missing conclusions), this is a **refinement of an already-settled and
+already-folded** conclusion. New alpha intake — the 2026-06-24 publication/defensive-disclosure dialogue
+(`seeds/transcripts/raw/drystone-publication-defensive-disclosure-dialogue-2026-06-24.md` →
+`thinking/drystone-publication-and-defensive-disclosure.md`) — overturned the **prior-art *vehicle*** half of
+**K9 / 07 Pillar C** (which had recorded "IETF Internet-Draft first then arXiv").
+
+| ref | Was (settled) | Refined to (folded 2026-06-25, user-approved) | Folded into |
+|---|---|---|---|
+| K9 / 07 C3 | prior art via **IETF Internet-Draft first, then arXiv** | prior art via a **third-party-witnessed DOI'd archive (Zenodo) + an OpenTimestamps cryptographic timestamp + a public Git release** *first*; an IETF I-D is a later, *more-encumbered* destination (IETF Trust holds reuse rights; needs 2 interop impls); arXiv gatekept. Disclosure only *enabling* once the sync wire format is field-by-field — that gates minting the v0.1 DOI. | **07 C3** (rewritten) + narrative overview + charter + C4 *Grounds* + the NOT-LEGAL-ADVICE banner |
+
+**Left open (NOT folded):** the spec-text license **CC0 vs CC-BY 4.0** (07 C2 still records CC-BY). The
+dialogue leans CC0; this is the user's call (ROADMAP_TODO **A14**; intersects the A1 MPL/AGPL gate;
+NOT-LEGAL-ADVICE). 07 C2 was deliberately left unedited. Seam: COHESION §38.
 
 ## Settled conclusions not yet folded (2026-06-25 completeness audit)
 
@@ -291,7 +356,7 @@ had not crossed. With K1–K12 folded, `principles.md` Tier 1 is now drained int
 | K6 | **Capabilities-not-rights as a named principle** — the **data-plane (capabilities) vs control-plane (rights)** grounding + the **availability-as-a-back-door** seam (a right exercisable only through one peer's presence is escrowed to it). The settled epistemic framing (distinct from T1's gated wire design — likely the `P-Peer-Equality` principle T1/E30 needs written). | 01 (principle set) | `thinking/design-notes-addendum.md` |
 | K7 | **Capability-vs-authority delegate primitive + planes/blast-radius** — capability ("do the work") vs authority ("act as you") never conflated; courier-vs-agent (pre-seal payload, delegate only the trigger); liveness is the boundary; planes = blast-radius classes, reconvergence policy per-plane bound into the asset hash. The general delegation theory under meer/geer/recovery; only a parenthetical in 08. | 04 / 05 / 06 | `thinking/local-first-as-design-imperative.md` |
 | K8 | **Meer confidentiality dial (Tier 0 / 1 / 2 / no-mirror)** — "blind" is a per-group governance dial, not binary; Tier-2 (key-holding) only where a co-op designates a trusted member; a Tier-0/1 meer must prove it holds no payload key. Beta flattens it to binary "blind." | 06 §1/§7 | `thinking/meer-superpeer-design.md` |
-| K9 | **Defensive-publication / IP-and-venue strategy** — publish the spec defensively (no own patent), **doc CC-BY 4.0 + reference code Apache-2.0**, IETF Internet-Draft first (prior art) then arXiv, with a per-layer venue map. The *external* twin of 07's *internal* AGPL/trademark IP story; couples T9. (Not even in the coverage view above.) | 07 (a Pillar C) | `research/open-publication-and-ip-protection.md`; `research/socialization-and-publication-venues.md` |
+| K9 | **Defensive-publication / IP-and-venue strategy** — publish the spec defensively (no own patent), **doc CC-BY 4.0 + reference code Apache-2.0**, IETF Internet-Draft first (prior art) then arXiv, with a per-layer venue map. The *external* twin of 07's *internal* AGPL/trademark IP story; couples T9. (Not even in the coverage view above.) **[Prior-art *vehicle* refined 2026-06-24 → Zenodo DOI + OpenTimestamps first, IETF-I-D demoted; text license CC0-vs-CC-BY now open (A14). See "Beta refinement" section above.]** | 07 (a Pillar C) | `research/open-publication-and-ip-protection.md`; `research/socialization-and-publication-venues.md` |
 | K10 | **Free-tier mandate** — participation must be possible on a bare phone (CPU/memory/storage/internet), no purchased infrastructure. A settled access *commitment*, not a feature. | 01 §4 / 08 | `crystallized/principles.md` Tier 1; dossier §7 |
 | K11 | **Motivation-crowding-out evidence** (Gneezy & Rustichini, "A Fine is a Price") — the peer-reviewed backbone for *why* a fee-for-everything model is structurally corrosive (prices crowd out the intrinsic motivation that makes community real), distinct from the rug-pull/anti-fragile argument 07 already carries. | 07 | `narrative/messaging-and-quotes.md` |
 | K12 | **On-device-LLM strictly-optional invariant** — no single on-device model can be assumed present; the assistant must detect-availability-first, accelerate-never-gate, and every path must be reachable without it (menus/verbs/deep-links a complete navigation system on their own). | 08 §6 | `thinking/app/on-device-llm-feasibility.md` |

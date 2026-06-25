@@ -255,3 +255,43 @@ Meadowcap "no native revocation"; Willow unenforceable plaintext U64 timestamp +
 matrix.org Postgres-corruption postmortem; Karlsruhe SACMAT 2020; Element X vs Classic) before they
 harden into beta. iroh consistent with SoT (`1.0.0`); no drift markers. COHESION §37; ROADMAP_TODO
 A11/A12/A13 + E30. Beta integration is a **separate pass** (not done in this intake).
+
+## 2026-06-24 intake — Drystone publication & defensive-disclosure dialogue (+ spec skeleton)
+
+A claude.ai design dialogue (content-dated 2026-06-24, filed 2026-06-25) on **how Drystone goes public and
+stays open**: IETF/RFC document conventions, the one-document-principles-up-front structure, the iroh-first
+feedback venue, and the defensive-publication mechanism (CC0 text + patent-non-assertion notice + Zenodo DOI
++ OpenTimestamps as the priority/prior-art vehicle). Produced a Drystone spec **v0.1 skeleton**.
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| Publication / defensive-disclosure dialogue (claude.ai) | `seeds/transcripts/raw/drystone-publication-defensive-disclosure-dialogue-2026-06-24.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)**. UI chrome stripped; the embedded spec-skeleton block kept. |
+| Drystone spec v0.1 skeleton (generated in-dialogue) | `thinking/drystone-spec/drystone-spec-v0.1-skeleton.md` | **working copy (DRAFT scaffold)** — the document scaffold the §2/§X deep drafts slot into |
+| Distilled publication/IP thinking | `thinking/drystone-publication-and-defensive-disclosure.md` | distilled |
+
+**Provenance / verification note:** all IETF/RFC-process facts, RFC numbers (2360, 6762, 6709, 2119/8174,
+9000), the IKEv2 rationale-draft precedent, **Zenodo** specifics, **OpenTimestamps**, arXiv, and IETF-Trust
+draft-reuse terms are **dialogue/web-sourced 2026-06-24, NOT independently re-verified** — `[UNVERIFIED]`
+pending a primary-source pass. iroh consistent with SoT (`1.0.0`); no drift markers. **Beta impact:** this
+dialogue **refines** beta `07` Pillar C's settled prior-art-vehicle posture (was "IETF Internet-Draft first
+then arXiv"; now Zenodo DOI + OpenTimestamps first, IETF draft demoted as more-encumbered/later) — folded
+into `07` 2026-06-25 per user approval (see `BETA-ROLLUP.md` K-table). The **CC0-vs-CC-BY** text-license
+question is left open (the user's call; intersects the MPL/AGPL gate). COHESION §38; ROADMAP_TODO A14 + E31.
+
+## 2026-06-24 intake — Rights-vs-capabilities definitional dialogue
+
+A claude.ai design dialogue (content-dated 2026-06-24, filed 2026-06-25) grounding beta `01` §5's boundary
+("no right to remove the rights of others") by making the **rights-vs-capability line sharp**: the
+discriminating test (a right is standing whose removal cancels the conditions of its own contestation; a
+capability's removal leaves contestation intact), the four rights (tenure/exit/voice/share) defined by what
+their removal forecloses, capabilities as the open remainder, the voice-vs-amplification edge case, and two
+verify-before-hardening items (share-as-right; tenure-vs-04-survivor-rekey).
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| Rights-vs-capabilities definitional dialogue (claude.ai) | `seeds/transcripts/raw/rights-vs-capabilities-definitions-dialogue-2026-06-24.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)**. UI chrome stripped; the 01-§5 framing paragraph kept verbatim. The session-opening paste of current `beta/01` is the live beta state, not re-filed. |
+| Distilled definitions block | `thinking/rights-vs-capabilities-definitions.md` | distilled (the cite-able block) |
+
+**Beta impact:** produces a fold candidate for `beta/01` §5 (the framing paragraph grounding the boundary) —
+**surfaced for approval, NOT folded** (it changes a settled doc and the four-rights set has two open checks).
+No external facts (the user's own design reasoning; nothing to fact-check). COHESION §39; ROADMAP_TODO E32.

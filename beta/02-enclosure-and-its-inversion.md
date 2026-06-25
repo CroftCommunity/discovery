@@ -224,6 +224,15 @@ and lock-in is the leverage. Enclosure of physical commons → IP enclosure → 
 social/informational space. This theme carries only the historical framing; the *prescriptive* answer — the cooperative as
 the maintenance plan — is `07`.
 
+The enclosure did not stop at the platform. Its newest target is **connection itself**. Having enclosed the
+physical commons and then the informational one, the growth machine moved inward to enclose human
+relationship — the death of the third place, manufactured loneliness, and platforms that **rent our
+relationships back to us**: pay-to-boost visibility, feeds tuned for outrage and comparison, a charge levied
+on simply being heard by the people who already chose you. Making communication and connection a product
+sold back at a premium is the saddest turn of the cycle — and it is the turn that explains why the answer
+has to be a *social* one. A protocol for documents or files would leave the enclosed commons enclosed; only
+a commons for relationship contests the enclosure where it now actually lives.
+
 ## 7. The architecture restated in land, and the two settled names
 
 A private plot coupled to a surviving common is the social shape of Croft's architecture: you hold your own

@@ -182,6 +182,17 @@ backup-only, never in live ops, so it is not a live single-point-of-compromise. 
 itself* remains the user's call (cross-ref `07`); it is the top unresolved design decision across the
 whole corpus.
 
+**The mechanism and the trust are two separable tiers — keep them apart.** Tier 1 is *the lock*: the
+recovery mechanism itself — threshold / Shamir shares, sealed, released on a predicate, optionally
+time-locked. The lock is **buildable now**, with the release predicate left pluggable as an interface, and
+the predicate should be a **threshold across independent trust domains** (social peers *and* at least one
+out-of-band channel attestation — DNS / OOB), never a single gate. Tier 2 is *the trust*: who, and when, a
+release is legitimate — the social problem, and the genuinely unsolved-in-general one (the certificate chain
+works; deciding which issuer to believe is the hard part). The practical consequence sharpens the open
+problem: "recovery is open" is too pessimistic — the lock is shippable today, and only the *trust predicate*
+is undecided. Recovery custody is also the highest-value attack target in the system, which is the deeper
+reason the anchor decision stays the user's.
+
 ## 8. The same DID roots both planes
 
 The public-side atproto DID and the private-side MLS-credential root are *the same lineage*. The
