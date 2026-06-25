@@ -89,6 +89,26 @@ authority are stated there as crypto facts; here they are reasoned as social/adv
 green-real (meer P0+P1). *Grounds:* the meer holds no payload key, so content moderation at the transport layer is
 structurally unavailable. The question is not whether to inspect, but how to stay safe without it.
 
+"Blind," though, is not a single binary setting — it is a **per-group governance dial**, the same
+consented-exception nuance the geer's rungs prize, applied to the always-on node itself:
+
+- **Tier 0 — blind mirror** (the Croft default): encrypted payload plus the cleartext join-metadata the
+  crypto cannot hide, range reconciliation over that metadata, no payload key held. Maximum reliability,
+  minimum trust.
+- **Tier 1 — double-enveloped**: an outer envelope keyed to the authorised set wraps the inner E2EE
+  payload; the meer strips only the outer layer to route and verify the sender, and the inner stays sealed.
+  More sealing buys less reconciliation ability.
+- **Tier 2 — semantic**: the meer holds the key, merges state, and answers queries — the only tier that
+  reads plaintext. Run *only* where a co-op explicitly designates a trusted always-on member.
+- **No-mirror**: no meer at all; the group converges only when its members are co-online. Privacy-maximal,
+  reliability-minimal.
+
+The dial is chosen per group and surfaced as policy, never a global pick. Two invariants keep it honest: a
+Tier-0 or Tier-1 meer **must be able to prove it holds no payload key**, and any tier upgrade is surfaced to
+members as a security-boundary event rather than slipping in silently. So when this theme says the system is
+"blind by default," that default is Tier 0 — a real green-real (E3.4) blind broker — sitting at the safe end
+of a dial the group can knowingly turn, not a flat property the architecture imposes.
+
 ## 2. The rave-trap: answered by scale and membership metadata, never content
 
 > "the worst combination is **Telegram's surface with Signal's blindness** — public/mass broadcast + large
@@ -186,6 +206,32 @@ but not sufficient — a resourced always-on state-holder can entrench by *circu
 hostage (encrypted, exportable state → re-host cheaply); blindness caps the weight; stand-up-a-replacement-
 and-elect-it (the decisive everyday guard, distinct from the adversarial fork backstop); scoped non-creeping
 rights; metadata transparency. The same ladder applies to the geer.
+
+There is a deeper version of this guard, because the meer is not just one revocable role — it is a whole
+*mode of operation* that must stay optional. Croft runs in two modes that have to reach the **same
+governance state**: superpeer-assisted (the meer sweeps the floor — compaction, roll-up minting, carrying
+rekeys and revocation commits when human peers aren't co-present) and pure peer-to-peer (no meer; the same
+work happens, slower, as a deliberate periodic ceremony of co-signing lineages). The binding rule is that
+the meer is an *accelerant*, never the sole source of any outcome — it does sweeping, but never sweeping
+that only it can do. The discipline that keeps this honest is a **conformance test** applied to every
+superpeer feature: *is there a governance outcome reachable with the meer that is unreachable without
+it — not slower, not more annoying, unreachable?* The answer must be no; if it is ever yes, that capability
+has quietly become referee-only and the design has leaked. For each thing the meer does, the no-meer path
+to the same end must be writable down, even if that path is "five lineages come online together and it
+takes a day."
+
+The trap here is not the abstract possibility but its decay over time. A group runs superpeer-assisted for
+a year, the meer does all the sweeping, then it goes away — shutdown or partition — and the group has never
+once run the threshold-checkpoint ceremony itself. "Possible in principle" has rotted into "possible but no
+code path has ever run it." The mitigation is operational, not architectural: **run the pure-P2P checkpoint
+ceremony on a schedule even when the meer is present** — occasionally, to keep the muscle warm — on the same
+logic as testing a backup by actually restoring it. This is what keeps "rights stay distributed" *true under
+stress* rather than only true at rest. The subtle leak it defends against is availability masquerading as a
+right: if the meer is the only peer reliably online and every governance act needs someone online to carry
+it, the always-on peer becomes the de-facto authorizer — not because it took a right, but because it
+absorbed one through presence. A right that can only be exercised through one specific peer's presence is
+not held equally; it is escrowed to that peer. Keeping the no-meer path exercised is what keeps the
+distribution real.
 
 ## 8. Membership ≠ access: the public door a stakeholder holds open
 

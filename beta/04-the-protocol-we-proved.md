@@ -134,6 +134,39 @@ genesis*:
   with intact lineage. The fresh-genesis "sixteenth-great-grandparent" path exists only when both sides
   *want* to merge but neither epoch is acceptable.
 
+### The substrate model — capability vs. authority, and planes of blast radius
+
+Two design invariants shape what the substrate is allowed to delegate. They are not proofs; they are the
+rules the proven mechanisms above are built to respect.
+
+**Capability is not authority.** *Capability* means "able to do the work"; *authority* means "permitted
+to act as you." A single grant must never conflate the two. A delegation is modeled as a
+**(predicate, sealed-payload) pair** — a peer or threshold holds it and emits the payload when the
+predicate fires — with exactly three knobs: a **trigger** (time, event, peer-online, or
+quorum-attested condition), a **threshold** (1 for capability; k-of-n for authority), and
+**attribution** (the emission names its trigger and its delegate, for audit). The safety rule is
+**courier, not agent**: pre-seal the payload so the delegate carries no abusable authority and delegate
+only the trigger (a dead-man's-switch, a timelock, an escrowed pre-signed action). Only an action whose
+content depends on *future* state cannot be pre-sealed, and only that action needs live authority and
+full threshold treatment — so the courier-vs-agent boundary is decided before building, because it sets
+the blast radius. The load-bearing invariant: **capability delegation can outlive the principal;
+authority delegation cannot exist without a living principal.** *Liveness is the boundary* — which is
+why search, discovery, and group-liveness are separately considerable, and distinct from revocation.
+
+**Planes are equivalence classes of blast radius.** A *plane* is a functional grouping (chat,
+scheduling, action/C2, audit, governance) whose members share a substrate but differ in *the consequence
+of being wrong*. Planes are anchored to **principals, not groups** — a principal is any identity that can
+hold and delegate authority (person, device, role, service), forming a hierarchy where delegation flows
+down. A delegation is scoped to a single **(principal, plane)** cell, so a compromised token leaks one
+cell of that grid and no more. The invariant that enforces it: **namespace delegations never cross.**
+Each token is bound to its plane's namespace as a non-removable caveat, checked at emit time, so
+cross-plane reuse **fails closed** by construction — the substrate is shared, the namespaces are not.
+**Reconvergence policy is per-plane** (asset-overridable), declared at intent-to-collaborate and bound
+immutably into the asset's hash: automatic merge where divergence is incidental concurrency, human-gated
+reconvergence where divergence is substantive disagreement. The substrate cannot tell concurrent typing
+from fundamental disagreement at merge time — only the declared meaning can — so the policy is made as
+non-equivocable as the content it governs.
+
 ## 3. What was actually proved
 
 The thesis was sequenced so the riskiest thing ran first. The protocol invariants I1–I10 and the phased
@@ -157,6 +190,7 @@ held.
 | Phase 3 — thin slice over real iroh + blind broker | partition→broker-carries-commit→one live epoch; contradiction hard-stops over the wire; broker observes only ciphertext + routing | E3.1/E3.2/E3.4 | **green-real** (IP/timing still observable, as expected) |
 | Cross-machine (3 AWS boxes + a NAT'd laptop) | disconnected peers compute a **byte-identical** reconcile verdict; the superpeer is a capability, not a right (no broker-only outcome); the trap-door re-formation yields an identical reformed genesis on all hosts | A1/A3/B-series | **green-real-multimachine** |
 | Faithful wire test | the real Ed25519-signed message verified for **signature AND standing** on receipt: HONEST→accept, FORGED→reject (BadSignature), NONMEMBER (valid sig, no standing)→reject (UnauthorizedAuthor) — the attack a hash chain cannot catch | — | **green-real** |
+| Governance-log roll-up / threshold-signed checkpoint | settled, un-forked history compacts into a checkpoint a **quorum of admin lineages** co-signs (real Ed25519), so a client renders the member list without replaying the whole log; a **single-authority/broker checkpoint is rejected**, the head must match the log, and a checkpoint **cannot span a fork** — the broker is no finality authority | — | **green-real** (CLOSED 2026-06-16) |
 | Conformance suite v0.1.0 | a black-box vector suite a second implementation must pass, derived from the real code | 66 pass / 0 fail | **green** |
 
 **The adversarial passes earned their keep** — they falsified, not just confirmed. Two real gaps were
@@ -213,6 +247,13 @@ Carried open items:
 - **Broadcast tier must disable the embedded MLS ratchet-tree** — with it on, commits grow ~linearly in
   member count (1.4 KB @ 8 → 11 KB @ 128 leaves; AR-5, measured on openmls 0.8.1). Affordable at human
   scale, not at broadcast scale.
+- **The unbounded-log death is closed, not carried.** Splitting the governance log into a settled,
+  un-forked past and a still-churning live tail, then compacting the settled part into a threshold-signed
+  checkpoint (above), is the direct answer to the SSB failure `03` names as a cautionary tale: every
+  client no longer replays an ever-growing log just to render the member list. The cost moves from a
+  continuous, mandatory, grows-forever verification to a periodic, optional, bounded one — and because
+  the checkpoint is signed by a quorum of admin lineages rather than an authority or broker, the
+  decentralization survives the compaction. This is `green-real`, not a managed-someday item.
 - **Spec-vs-code reconciliation — surfaced AND resolved (2026-06-17).** The earlier divergence between
   the spec's §2 domain-tagged genesis/topic pre-images and the code's plain `sha256` +
   `"lineage-topic-v1"` topic tag was closed: the tagged pre-images are now canonical in both the spec
