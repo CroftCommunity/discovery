@@ -233,6 +233,74 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 - **Alpha provenance:** `../alpha/research/str0m-production-readiness.md`,
   `../alpha/research/iroh-realtime-media-references.md`; `../alpha/thinking/realtime-media-over-iroh.md`.
 
+> **T11–T17 added 2026-06-25** from a content-level completeness audit (four readers across
+> `crystallized/`, `thinking/`, `narrative/`+dossier, `research/`+index) hunting alpha material walked
+> out but not manifested in beta. These are the **unsettled** finds; the audit's **settled-but-unfolded
+> conclusions** (the bigger bucket) are tracked separately in `../alpha/BETA-ROLLUP.md` → "Settled
+> conclusions not yet folded," because they belong *in* the themes, not here.
+
+### T11 — Adoption-chasm thesis + the institutional-mandate "fourth bridge"
+
+- **Status:** `gated` (provenance-gated finding + an undone design directive).
+- **What it is:** a survey of ~16 P2P/local-first projects concluding **only Signal crossed the chasm**, and that crossing needs three conditions — product parity, a non-extractive sustaining org, an inciting event (which produces *spikes*, not sustained migration). Plus a discovered **fourth bridge: institutional mandate** (Matrix's 25+ government adoptions were top-down) "worth designing for explicitly," and the **embedded-trust** corollary (P2P tools must embed in *existing* trust networks, not expect trust to form around the tool).
+- **Promotion target:** **07** (the institutional-adoption path as a sustainability lever) and **03** (close the field map with the "only Signal crossed, and why" verdict).
+- **Gates:** the survey carries a `[needs primary-source verification]` caveat (confirm before asserting); "design for institutional mandate" is an undone directive.
+- **Alpha provenance:** `../alpha/research/p2p-founder-motivations-adoption.md` (RQ2 synthesis); `../alpha/SOVEREIGN-COMMONS-DOSSIER.md` §7; `../alpha/narrative/long-form.md` (adoption-curve risk, named not analyzed).
+
+### T12 — Consumer-pull economic inversion (M3) + the M0–M4 product-track sequencing
+
+- **Status:** `gated` (settled-as-direction; under-designed).
+- **What it is:** the **fifth rung of the "recurring inversion"** — invert the ad model into a **consumer-side / demand-side broker** (the one economic pillar of the thesis with no home in 07 or 08). Plus the **M0–M4 product track** (M0 single-user vault → M1 secure group chat → M2 social graph you hold → M3 consumer-pull inversion → M4 the cooperative) — the staged delivery spine no theme carries.
+- **Promotion target:** **07** (a third economic mechanism) and **08** (the product-track roadmap).
+- **Gates:** M3 is named but not designed; the per-milestone shape needs work before it's resolved-beta.
+- **Alpha provenance:** `../alpha/crystallized/conclusions.md` (M0–M4); `../alpha/crystallized/principles.md` (the five-scale inversion list).
+
+### T13 — Encrypt-then-content-address kills cross-user dedup (media storage economics)
+
+- **Status:** `gated`.
+- **What it is:** same media + different nonces ⇒ different ciphertext hashes ⇒ **no cross-user dedup**; for media-heavy use this breaks the storage math the survivability fund was costed on. A genuine seam between the media layer and the funding model (distinct from T10's media *transport* hardening).
+- **Promotion target:** the **04/08 (media) ↔ 07 (survivability-fund costing)** seam.
+- **Gates:** decide the storage/dedup posture and re-cost the fund accordingly.
+- **Alpha provenance:** `../alpha/thinking/open-considerations.md` (the dedup item); `../alpha/experiments/encrypted-blob-share/`.
+
+### T14 — iOS opportunistic-only P2P as a named product limitation
+
+- **Status:** `gated`.
+- **What it is:** on iOS you cannot hold a background socket, so device-to-device P2P is **opportunistic, not deterministic**, and spontaneous off-grid meshing is aspirational/unproven — which structurally argues the meer is the dependable backbone, not a bonus. The four-property impossibility is already in 03; the **iOS-background constraint as a stated limitation on the product's connectivity promise** is not.
+- **Promotion target:** **08 §9** (a peer asterisk to the "serverless"/relay-dependency one) and **03**.
+- **Gates:** decide what Croft promises about off-grid/background sync (the product consequence is undecided).
+- **Alpha provenance:** `../alpha/thinking/ios-opportunistic-p2p.md`.
+
+### T15 — P2P-games data layer (ephemeral-live / durable-outcome) + open attestation
+
+- **Status:** `gated`.
+- **What it is:** a settled-as-shape decision — **live play is always over iroh and always ephemeral; only the settled outcome is durable, by the players' choice** (one durable record per completed game). But the **outcome-attestation mechanism is explicitly open** and the games pond is "candidate, not committed."
+- **Promotion target:** **08 §7**.
+- **Gates:** the mutual-signed outcome-attestation mechanism; games-pond commitment.
+- **Alpha provenance:** `../alpha/thinking/app/design-philosophy.md` (data-layer shape); `../alpha/thinking/app/ponds/` (attestation set aside).
+
+### T16 — Matrix close-cousin E2EE operational lessons (UTD invariant, mandatory-recovery onboarding, expectation-gap)
+
+- **Status:** `gated` (lessons settled; design responses unbuilt).
+- **What it is:** Matrix's production-paid E2EE lessons as direct design commitments — treat "every current member can decrypt every current-epoch message" as a **continuously-tested invariant** with a friendly key-request/healing path (never a dead "Unable to decrypt" tile); make **recovery setup near-mandatory in onboarding** with a blocking warning before any single-device-no-recovery state; and the **expectation-gap list** (instant full-history search, link previews, read receipts, "all my history on a new phone") Croft makes Hard — "planned, not discovered late." Beyond T5 (scale) and T1 (governance).
+- **Promotion target:** **04** (the decrypt-invariant + healing path) and **08** (the onboarding-flow + expectation-setting UX). The recovery-onboarding *flow* is distinct from the bannered recovery-*anchor* gate.
+- **Gates:** decide the invariant/healing mechanism and the onboarding gate UX.
+- **Alpha provenance:** `../alpha/research/discord-matrix-groupchat.md` (Matrix lessons + expectation gaps).
+
+### T17 — Three-audiences settings model + the composable-interface ramp
+
+- **Status:** `gated`.
+- **What it is:** settings serve **three audiences by relationship to the system** (never-touch / tune-a-few / full-surface), named by intent not depth, realized via a composable-interface ramp of self-authorship. Underpins 08's "composability is the user-respecting value" stance, which 08 currently asserts without the audience model beneath it. The composable-interface realization is explicitly a forward note (unproven).
+- **Promotion target:** **08**.
+- **Gates:** the composable-interface ramp has no proof/spec yet (a product-track concern).
+- **Alpha provenance:** `../alpha/crystallized/principles.md` (three-audiences + composable-interface note).
+
+> **Folded into existing, not new threads:** the inter-collective peering *settled shape* (BGP-autonomy +
+> postal-hierarchy + signed routing) → add to **T2**'s provenance so T2 doesn't re-derive it. **Borderline
+> (engineering, likely ROADMAP not a beta thread):** the Automerge-over-application audit, and the Wire
+> `core-crypto` (GPL-3.0) vs `openmls`/`mls-rs` engine+license decision (the latter couples to 07's
+> flagged MPL-vs-AGPL substrate item).
+
 ---
 
 ## How to use this file
