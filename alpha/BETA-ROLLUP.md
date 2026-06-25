@@ -269,3 +269,36 @@ alpha-only working/index surface — is an open call recorded in `../MATURITY-RO
   durable content is distributed across 01/02/07; retire-vs-keep is a later call).
 
 Closing this list to zero (or to an explicit "retired as alpha-only") is the remaining coverage work.
+
+## Settled conclusions not yet folded (2026-06-25 completeness audit)
+
+A content-level audit (reading `crystallized/`, `thinking/`, `narrative/`+dossier, `research/` against
+the eight themes) found **settled** conclusions walked out in alpha that never landed in beta. Unlike the
+`OPEN-THREADS` (which are *unsettled*), these are **promotion-ready coverage gaps** — they belong *in* a
+theme and just weren't folded. **Correction to this ledger:** the per-theme tables above tag
+`crystallized/principles.md` Tier 1 as "synthesized" into 01/07, but the items below show Tier-1 coverage
+was **overstated** — several Tier-1 principles (and one green-real proof) did not actually cross. Folding
+these is the next maturation pass; until then they are tracked here so they are not lost.
+
+| # | Settled conclusion (not in beta) | Lands in | Alpha provenance |
+|---|---|---|---|
+| K1 | **Governance-log roll-up / threshold-signed checkpoint** — settled-history compaction so a client need not replay the whole log; threshold-signed (never authority/broker), can't span a fork. **green-real, CLOSED 2026-06-16** (`gov::Checkpoint`/`verify_checkpoint`). The direct answer to the SSB unbounded-log death. **Highest — it is proven and unrepresented.** | 04 §3/§5 | `thinking/design-notes-addendum.md`; `crystallized/proof-ledger.md`; `COHESION.md` §3 |
+| K2 | **The "recurring inversion"** — the named five-scale generator (extractive stateful intermediary → stateless/content-blind/optional → wrapped in a reinforcing institution); ties the protocol moves (04/06) to the economic ones (07) as one idea. Each instance is in beta; the unifying pattern is nowhere. | 01 §3/§6 or 07 | `crystallized/principles.md` Tier 1; `SOVEREIGN-COMMONS-DOSSIER.md` |
+| K3 | **"Centralization *capture*, not centralization itself"** + the **"credibly-decentralized-but-operationally-centralized" trap** — the permission slip for having a meer/relay/co-op at all, and the diagnostic criterion 03 judges the field by. Used everywhere in beta, stated nowhere. | 01/07 + 03 | `crystallized/principles.md` Tier 1; dossier §2/§7 |
+| K4 | **Two convergent modes + the conformance test + keep-the-ceremony-warm** — superpeer-assisted and pure-P2P must reach the same governance state; the superpeer only *accelerates*; "for every superpeer feature, is there an outcome unreachable without it?"; run the pure-P2P checkpoint ceremony on a schedule so the no-superpeer path can't rot. The operational guard that keeps rights distributed. | 06 §7 / 04 | `thinking/design-notes-addendum.md` |
+| K5 | **Per-tier security properties matrix** (the guardrail that keeps "different, not weaker" honest) + the two sharp claimable properties: **transparent offline** (two phones sync with zero internet) and **no central operator to compel**. | 03 §5 / 06 | `crystallized/principles.md` Tier 1; dossier §7/§13 |
+| K6 | **Capabilities-not-rights as a named principle** — the **data-plane (capabilities) vs control-plane (rights)** grounding + the **availability-as-a-back-door** seam (a right exercisable only through one peer's presence is escrowed to it). The settled epistemic framing (distinct from T1's gated wire design — likely the `P-Peer-Equality` principle T1/E30 needs written). | 01 (principle set) | `thinking/design-notes-addendum.md` |
+| K7 | **Capability-vs-authority delegate primitive + planes/blast-radius** — capability ("do the work") vs authority ("act as you") never conflated; courier-vs-agent (pre-seal payload, delegate only the trigger); liveness is the boundary; planes = blast-radius classes, reconvergence policy per-plane bound into the asset hash. The general delegation theory under meer/geer/recovery; only a parenthetical in 08. | 04 / 05 / 06 | `thinking/local-first-as-design-imperative.md` |
+| K8 | **Meer confidentiality dial (Tier 0 / 1 / 2 / no-mirror)** — "blind" is a per-group governance dial, not binary; Tier-2 (key-holding) only where a co-op designates a trusted member; a Tier-0/1 meer must prove it holds no payload key. Beta flattens it to binary "blind." | 06 §1/§7 | `thinking/meer-superpeer-design.md` |
+| K9 | **Defensive-publication / IP-and-venue strategy** — publish the spec defensively (no own patent), **doc CC-BY 4.0 + reference code Apache-2.0**, IETF Internet-Draft first (prior art) then arXiv, with a per-layer venue map. The *external* twin of 07's *internal* AGPL/trademark IP story; couples T9. (Not even in the coverage view above.) | 07 (a Pillar C) | `research/open-publication-and-ip-protection.md`; `research/socialization-and-publication-venues.md` |
+| K10 | **Free-tier mandate** — participation must be possible on a bare phone (CPU/memory/storage/internet), no purchased infrastructure. A settled access *commitment*, not a feature. | 01 §4 / 08 | `crystallized/principles.md` Tier 1; dossier §7 |
+| K11 | **Motivation-crowding-out evidence** (Gneezy & Rustichini, "A Fine is a Price") — the peer-reviewed backbone for *why* a fee-for-everything model is structurally corrosive (prices crowd out the intrinsic motivation that makes community real), distinct from the rug-pull/anti-fragile argument 07 already carries. | 07 | `narrative/messaging-and-quotes.md` |
+| K12 | **On-device-LLM strictly-optional invariant** — no single on-device model can be assumed present; the assistant must detect-availability-first, accelerate-never-gate, and every path must be reachable without it (menus/verbs/deep-links a complete navigation system on their own). | 08 §6 | `thinking/app/on-device-llm-feasibility.md` |
+
+Lower-priority / borderline (noted, not yet listed as gaps): the **user-need-first / Google+ lesson**
+(largely implied by 08/01); the **"type at creation, not a runtime toggle"** MLS-coherence *rationale*
+(the headline is already in 08 §5, only the reason was flattened).
+
+**Disposition:** folding K1–K12 into their target themes is a deliberate next pass (it edits the resolved
+synthesis), sequenced and reviewed — not a silent rewrite. `crystallized/principles.md` is **not yet fully
+drained into beta**; K1–K12 are the unfinished drainage.
