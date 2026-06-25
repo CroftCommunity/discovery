@@ -10,11 +10,11 @@ others" (beta `01` §5) is load-bearing rather than asserted. A standalone, cite
 (`drystone-spec/`, §2.3 / §5), beta `01` §5/§6.1, `05`, and `06` all point here. Pairs with the
 capabilities-not-rights / data-plane-vs-control-plane framing already in `01` §6.1.
 
-> **Status:** the **discriminating test** and the rights/capability *definitions* are settled. The
-> **four-rights closed set** carries **two verify-before-hardening items** (share; tenure) — see the end. So
-> this block is settled-as-method; the closed set is settled-pending-two-checks. Do not harden the set into
-> the normative spec until both clear (ROADMAP_TODO; the fold into beta `01` is a surfaced candidate, not yet
-> done).
+> **Status:** the **discriminating test** and the rights/capability *definitions* are settled and were
+> **folded into beta `01` §5 on 2026-06-25 (user-approved, K17)** — a tier-clean grounding paragraph. The
+> **four-rights closed set** still carries **two verify-before-hardening items** (share; tenure) — see the
+> end — so do **not** harden the *closed set* into the normative spec until both clear (ROADMAP_TODO E32
+> b/c). The 01 fold deliberately states the principle without those caveats (they are spec/04/07-level).
 
 ## The discriminating test — does removal cancel the conditions of its own contestation?
 
@@ -74,9 +74,11 @@ itself be a clearance of others' standing *not to listen*.
    strand a peer, **tenure has an implementation-level exception** that must be named explicitly rather than
    left absolute. A protocol-level check against the re-key/survivor mechanism. ROADMAP_TODO.
 
-## Where this lands (surfaced, not yet folded)
+## Where this landed
 
 The dialogue produced this block **and** a one-paragraph framing for **`01` §5** that states the cut, ties it
-to `01` §3, and hands off here. Folding that paragraph into settled beta `01` is a **surfaced candidate
-awaiting approval** — held because (a) it changes a settled doc and (b) the four-rights set has the two open
-checks above. The framing paragraph is preserved verbatim in the raw transcript.
+to `01` §3, and hands off here. **Folded into beta `01` §5 on 2026-06-25 (user-approved, K17)** as a
+tier-clean paragraph (no pointer back to this alpha block) after the boundary bullets — the discriminating
+test, the four rights-by-removal, and the voice-vs-amplification cut. This block remains the fuller alpha
+reference and the home of the two open checks above. The original framing paragraph is preserved verbatim in
+the raw transcript. Trace: `../BETA-ROLLUP.md` (Beta grounding, K17).

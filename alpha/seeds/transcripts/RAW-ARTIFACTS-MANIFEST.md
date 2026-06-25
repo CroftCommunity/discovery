@@ -275,8 +275,9 @@ draft-reuse terms are **dialogue/web-sourced 2026-06-24, NOT independently re-ve
 pending a primary-source pass. iroh consistent with SoT (`1.0.0`); no drift markers. **Beta impact:** this
 dialogue **refines** beta `07` Pillar C's settled prior-art-vehicle posture (was "IETF Internet-Draft first
 then arXiv"; now Zenodo DOI + OpenTimestamps first, IETF draft demoted as more-encumbered/later) — folded
-into `07` 2026-06-25 per user approval (see `BETA-ROLLUP.md` K-table). The **CC0-vs-CC-BY** text-license
-question is left open (the user's call; intersects the MPL/AGPL gate). COHESION §38; ROADMAP_TODO A14 + E31.
+into `07` 2026-06-25 per user approval (see `BETA-ROLLUP.md` K-table). The **text license is CC0 1.0**
+(decided 2026-06-25, user-approved; folded into `07` C2 over CC-BY 4.0; Apache-2.0 reference-code license
+unchanged; A14 closed). COHESION §38; ROADMAP_TODO A14 + E31.
 
 ## 2026-06-24 intake — Rights-vs-capabilities definitional dialogue
 
@@ -292,6 +293,8 @@ verify-before-hardening items (share-as-right; tenure-vs-04-survivor-rekey).
 | Rights-vs-capabilities definitional dialogue (claude.ai) | `seeds/transcripts/raw/rights-vs-capabilities-definitions-dialogue-2026-06-24.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)**. UI chrome stripped; the 01-§5 framing paragraph kept verbatim. The session-opening paste of current `beta/01` is the live beta state, not re-filed. |
 | Distilled definitions block | `thinking/rights-vs-capabilities-definitions.md` | distilled (the cite-able block) |
 
-**Beta impact:** produces a fold candidate for `beta/01` §5 (the framing paragraph grounding the boundary) —
-**surfaced for approval, NOT folded** (it changes a settled doc and the four-rights set has two open checks).
-No external facts (the user's own design reasoning; nothing to fact-check). COHESION §39; ROADMAP_TODO E32.
+**Beta impact:** the rights-vs-capability grounding was **folded into `beta/01` §5 on 2026-06-25
+(user-approved, K17)** — a tier-clean paragraph after the boundary bullets. Two verify-before-hardening
+checks (share-as-right; tenure-vs-04-survivor-rekey) remain open and were deliberately left out of the beta
+narrative (ROADMAP_TODO E32 b/c). No external facts (the user's own design reasoning; nothing to fact-check).
+COHESION §39; ROADMAP_TODO E32; `BETA-ROLLUP.md` (Beta grounding, K17).

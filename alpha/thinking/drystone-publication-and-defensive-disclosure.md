@@ -160,10 +160,12 @@ IETF draft; mint-the-DOI-only-when-Section-7-is-enabling.
 
 **Open — the user's calls (surface, do not resolve; NOT-LEGAL-ADVICE where noted):**
 
-- **Text license: CC0 vs CC-BY 4.0.** This dialogue leans **CC0** (maximal "no one can restrict it"). Beta
-  `07` Pillar C currently records **CC-BY 4.0** for the spec text. Intersects the bannered MPL-2.0/AGPL
-  substrate-license gate. NOT-LEGAL-ADVICE — a patent attorney should review the patent-non-assertion
-  paragraph specifically; enabling-disclosure standards and grace periods are jurisdiction-specific.
+- **Text license: CC0 — DECIDED 2026-06-25 (user-approved).** The spec text is **CC0 1.0** (over
+  attribution-only CC-BY 4.0; maximal "no one can claim or restrict the idea"). Folded into beta `07` C2 +
+  narrative/charter/banner; Apache-2.0 reference-code license unchanged. Intersects but does not resolve the
+  bannered MPL-2.0/AGPL substrate gate. NOT-LEGAL-ADVICE — a patent attorney should still review the
+  patent-non-assertion paragraph specifically; enabling-disclosure standards and grace periods are
+  jurisdiction-specific.
 - **Priority order, Zenodo+OTS-first vs IETF-I-D-first.** This dialogue **refines** beta `07` Pillar C's
   settled "IETF Internet-Draft first then arXiv" posture (the user confirmed Zenodo is the correct
   conclusion) — folded into `07` 2026-06-25; see `../BETA-ROLLUP.md`.
