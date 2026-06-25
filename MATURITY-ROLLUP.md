@@ -74,6 +74,23 @@ section it **landed in**. Treatment codes:
 The ledger also keeps a **coverage view**: prior-stage sources not yet dispositioned by any drafted
 higher-stage doc. Closing that list to zero is how we confirm nothing slipped through.
 
+## 3b. The open-threads ledger (the staging queue, at the higher level)
+
+The rollup ledger's `deferred` code says "not yet pulled up." When deferred material is **actively
+queued for the higher stage but blocked on specific settling work** — and would *pollute the settled
+narrative* if asserted now — it gets a richer home: an open-threads ledger living in the **higher**
+stage as `<STAGE>/OPEN-THREADS.md` (e.g. `beta/OPEN-THREADS.md`; later `rc/OPEN-THREADS.md`). The
+settling happens at that stage's gate, so the queue sits there; the prior stage **references** it
+(`ROADMAP_TODO.md` / `COHESION.md` / the rollup ledger point to it) so the need is never lost.
+
+It is a process artifact, not a theme doc, and may point down into the prior stage freely. Per thread:
+**status** (`surfaced` / `gated` / `ready-to-promote`), **what it is**, **promotion target** (which
+higher-stage doc/section), **gates** (the explicit decisions / `ENABLING` spec work / fact-confirmation
+that must clear), and **prior-stage provenance**. **Promotion rule:** a thread enters a theme doc — and
+earns a rollup-ledger row — **only when its gates clear**; until then theme docs may not assert it. This
+is what lets DRAFT / decision-gated / fact-unconfirmed material be tracked toward the next stage without
+contaminating the resolved synthesis.
+
 ## 4. The steps (one transition)
 
 1. **Re-validate the blueprint** against the *current* frozen prior stage (it may post-date the plan).

@@ -110,6 +110,10 @@ the coverage view of alpha sources not yet pulled up live in `../alpha/BETA-ROLL
 
 Companion artifacts:
 
+- **`OPEN-THREADS.md`** (this level) — the staging queue at the beta gate: threads being pulled toward
+  beta that are not yet settled enough to enter a theme doc (DRAFT / decision-gated / fact-unconfirmed
+  material), each with its gates named and a promotion target. Keeps the need from being lost without
+  letting it pollute the settled themes. A process artifact, not a theme doc.
 - **`../alpha/BETA-ROLLUP.md`** (prior level) — the auditable alpha→beta rollup ledger: per-source
   treatment + landing, the exclusions, and the coverage gap still to close. Reflect on it to confirm
   nothing was missed or pulled up unexpectedly.

@@ -13,6 +13,12 @@ corpus content. It is the only addition to `alpha/` for the alpha→beta transit
 corpus content stays frozen (PLAYBOOK §4). The repeatable *method* behind this ledger lives at the
 discovery root in `../MATURITY-ROLLUP.md` (cross-stage), to be reused at beta→rc.
 
+**Companion at the beta gate:** material that is queued for beta but **not yet settled** (DRAFT /
+decision-gated / fact-unconfirmed) is held in `../beta/OPEN-THREADS.md` — a `deferred` item with its
+gates named and a promotion target — so it is tracked toward beta without polluting the resolved
+themes. This ledger records what **landed**; that one records what is **waiting on settling work**.
+First entry: T1 — the Drystone governance & peer model (`thinking/drystone-spec/`).
+
 ## How to read this
 
 For each beta theme: the one-line thesis, then a table mapping each alpha source to its **treatment**
