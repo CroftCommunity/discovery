@@ -969,6 +969,52 @@ deepens §18's app body into *what actually fills the garden and how to build it
 
 ---
 
+## 37. Drystone peers/rights/capabilities + governance-conflict spec ↔ the meer/geer/revocation thinking + the Matrix close-cousin contrast
+
+The 2026-06-24 Matrix-contrast dialogue (`seeds/transcripts/raw/drystone-peers-rights-governance-matrix-dialogue-2026-06-24.md`)
+distilled two Drystone spec sections (`thinking/drystone-spec/section-2-*.md`, `section-x-*.md`). It
+**refines several existing thinking docs** — backport-on-promotion, not contradictions:
+
+- **REFINES `thinking/meer-superpeer-design.md`.** The **meer** is recast from a peer *type* to a
+  **PeerSet** — a named, pinned capability bundle `floor + requires{availability} + forbids{read}`. It is
+  a **full peer with full standing** that satisfies read-your-own-local-history **vacuously** (it holds
+  no plaintext of its own); blindness is the *enforced absence of a delegated capability*, not a lesser
+  nature. "A meer is really a peer missing a delegation." Status: **CLOSED-as-refinement** (backport the
+  PeerSet framing into the meer doc when §2 promotes).
+- **REFINES `thinking/geer-gating-peer.md`.** Gating is reframed as a delegated **capability/role**, not a
+  species — but it is flagged as the **one capability that bumps the read right** (§2.7 open), the one
+  that most needs an explicit `forbids` clause. The **name "geer" is disliked** (ROADMAP_TODO **A13**).
+- **REFINES `thinking/revocation-authority.md` + `freshness-signal.md`.** Revocation is an
+  **epoch-rotating, expulsion-shaped governance fact** that reuses the §X total order + fold; honest limit
+  (protects the future, not the past) is stated as correct, not a shortcoming. Composes with the
+  freshness/membership-fresh reasoning.
+- **NEW: the governance-conflict model (§X).** Authority = a monotonic **fold over an append-only
+  governance log** (no resolved state to reset → **no Matrix-style state reset**); a **timestamp-free
+  causal total order** (issuer-rank / precedence / causal-length / BLAKE3 tiebreak); an **unconflictable
+  capped root**; the **R1–R6** capability interface; **attributable-acceptance** dichotomy (knowingly-
+  vs concurrently-stale, no silent third category); and a **regress-breaking termination** construction
+  (causal ordering spine separated from the authority forward-pass). This is the Drystone answer to the
+  problem Matrix's State Resolution v2 solves at the cost of a CVE + a 2-week outage.
+- **NEW principles surfaced (not yet written → ROADMAP_TODO E30):** `P-Durable-Enablement` ("a feature too
+  costly to implement uniformly becomes one users route around"), the **peer-capability-floor** (a node
+  that can't meet the floor isn't a lesser peer, it isn't a peer — simplicity-as-formality), and the
+  **asymmetry of expressible range** (the flexible model can present as the rigid one, not the reverse;
+  checkable in principle). These belong in `crystallized/principles.md` §1 alongside `P-Local-Truth` /
+  `P-Peer-Equality` / `P-Knowable-Truth`, which the spec `Realizes` but which **do not yet exist** by
+  those names.
+- **OPEN / surfaced (don't resolve):** capability mechanism **Track A (Meadowcap) vs Track B (Keyhive)**
+  (**A11**); key-custody default **blind-relay vs trusted-delegate** + "does Option-B-as-default rebuild a
+  readable homeserver?" (**A12**); the `ENABLING` wire formats (canonical encoding, **frontier-closure
+  §X.8.5** = highest divergence risk).
+- **Provenance / DRIFT-WATCH:** cleaned-paste (§4). The Matrix/Willow/Meadowcap/Keyhive facts were
+  **web-verified in-session only** and are **not yet in the FACTCHECK SoT** — confirm before beta (see the
+  manifest 2026-06-24 intake note). One **self-correction** is preserved in the raw (the false "Matrix
+  E2EE bilateral-disable" claim → corrected to the one-way encryption latch); **do not re-introduce the
+  wrong claim** when distilling. Status: **CLOSED-as-filing** (raw + spec drafts + indexes); **beta
+  integration is a separate pass**. Tracked ROADMAP_TODO **E30** (+ A11/A12/A13).
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
