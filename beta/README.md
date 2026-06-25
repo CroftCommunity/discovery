@@ -16,10 +16,19 @@ layer. It is built for synthesis + real validation, not for re-deriving the thin
 
 - **Beta is cohesive within itself.** A beta doc references only *other beta docs* for its forward
   narrative. A reader should be able to walk beta end-to-end without dropping into alpha.
-- **The audit trail lives at the prior level, not here.** The detailed rollup trace (what was lifted
-  from each alpha source, how it was treated, where it landed) lives in `../alpha/BETA-ROLLUP.md` so
-  this synthesis layer stays a clean forward narrative. Each beta doc keeps only a concise
-  `Sources (alpha)` footer plus a one-line pointer to the ledger. Linkage is one-directional: beta → alpha.
+- **No prior-tier references inside a beta doc.** A beta doc reads clean at its own maturity level — it
+  carries **no links back to alpha**: no `Sources (alpha)` footer, no `Provenance trace` line, no inline
+  `thinking/…`/`research/…` quote attributions, no `COHESION §` / `BETA-ROLLUP` pointers, no `../alpha/…`
+  paths. The entire "what was lifted from each alpha source, how it was treated, where it landed" map
+  lives **only** in `../alpha/BETA-ROLLUP.md` (the handoff doc at the prior level), so the two tiers can
+  be laid side by side without the matured tier carrying the trail. A beta doc ends on "What this theme
+  establishes (and does not)." The one exception is `OPEN-THREADS.md`: an unsettled thread keeps its alpha
+  connective tissue there until it lands — then the content goes into the (clean) beta doc and its mapping
+  moves into the rollup.
+- **The discipline tightens with maturity.** Each stage carries fewer prior-tier traces than the last; by
+  `rc` and `publish` the documents are clean of prior-tier references *entirely* — even the markers a beta
+  doc still carries (the `cite FACTCHECK SoT` pointer and per-claim verification flags) resolve as facts
+  harden into settled statements. Beta applies the floor; rc/publish complete it.
 - **"Do not carry forward" means absent, not annotated.** Excluded material (the crofting "ancient free
   clan" myth; the REFUTED crypto-wars quotes; the MO §351 statute specifics; `did:key`
   atproto-resolvability) simply **does not appear in beta** — that is what not carrying it forward
@@ -47,12 +56,11 @@ Every theme doc follows the same shape (established on 01 and 04):
 4. **Body** — the resolved synthesis. **Direct quotes are preserved whole** as referenced block quotes
    with a citation and a per-quote verification flag, each tied to the conclusion(s) it grounds — never
    paraphrased away.
-5. **What this theme establishes (and does not).**
-6. **Provenance trace** — a one-line pointer to the theme's section in `../alpha/BETA-ROLLUP.md`.
-7. **Sources (alpha)** — concise footer.
+5. **What this theme establishes (and does not).** ← the doc ends here.
 
-No "do not carry forward" list, no detailed rollup table inside a beta doc — both live at the prior
-level (per the discipline above).
+No `Sources (alpha)` footer, no `Provenance trace`, no "do not carry forward" list, and no detailed
+rollup table inside a beta doc — all of it lives at the prior level (`../alpha/BETA-ROLLUP.md`), per the
+tier discipline above.
 
 ## The themes (reading order)
 

@@ -5,8 +5,7 @@ date: 2026-06-24
 status: synthesis (spine-complete at the design level; one decision and one artifact remain the user's).
 
 verification: this theme is largely design-synthesis; external quotes are few. The precise atproto facts
-carry their verification and cite the source of truth
-(`../alpha/seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md`) — not re-verified here.
+carry their verification and cite FACTCHECK SoT — not re-verified here.
 
 ---
 
@@ -80,15 +79,12 @@ unresolved design decision across the whole corpus.
 
 > "Keys are not identity. Identity is the provable lineage. Keys are per-device actors stamped out under
 > it."
-> — `thinking/multi-device.md` §1
 
 > "each device is a distinct MLS member with its own key, and the 'same person' fact lives one layer up, in
 > the DID lineage."
-> — `thinking/multi-device.md` §1
 
 *Verification:* internal design statements, in-source. *Grounds:* a lineage is a DID with a genesis anchor —
 the unit of "person" — which rejects both the shared-key (SSB) and server-of-truth (Signal/Matrix) models.
-*(COHESION §7: logic CLOSED.)*
 
 ## 2. Device = distinct MLS member; thresholds count lineages, not leaves
 
@@ -98,7 +94,6 @@ is a *presentation fold* (the member list shows "Chase," not three devices).
 
 > "The genesis threshold rules (immutable, per I1) are evaluated over **lineages, not device leaves.** Two
 > signatures from leaves of the same lineage count as one toward any social threshold."
-> — `thinking/multi-device.md` §5
 
 *Verification:* internal design statement; the invariant (INV-LINEAGE-NOT-LEAF) is **green-real** in `04`.
 *Grounds:* an actor cannot manufacture a quorum from their own hardware. A deliberate asymmetry follows:
@@ -107,7 +102,6 @@ pay the full social threshold (how a lost device is cleaned up):
 
 > "The moment you remove your laptop, you have the rights to modify the group; it just stops being a
 > participant."
-> — `thinking/multi-device.md` §6
 
 *Cross-ref `04`* for the invariant's proof and the one library dependency this design adds — that openmls can
 carry the lineage-proving credential on the leaf (§8.1; logic CLOSED, library dependency tracked).
@@ -134,27 +128,23 @@ for resolving outside-set `did:plc` identities.
 ## 4. The validating PLC read-replica (store evidence, not answers)
 
 > "a cache stores answers; a replica stores and re-validates the evidence. We want the replica."
-> — `thinking/plc-identity-resilience.md` (Part 2)
 
 *Verification:* internal design statement. *Grounds:* store the signed *op-log*, not resolved documents;
 order by chain (`prev_cid`), never by timestamp (PLC concurrency means ops are first-seen out of order);
 insert idempotently on `cid`. Validation = signature against the rotation key as-of-parent-state + hash
 chain + the fork/recovery rule. This is what catches a primary that deletes an op to roll back a DID — the
 replica retains both branches, so rollback is *detectable*, not silent. It is also the verifier that walks
-the Bluesky half of any provenance graph (§5). *(COHESION §8/§9: the atproto public-path chain-of-custody,
-CLOSED with live evidence.)*
+the Bluesky half of any provenance graph (§5).
 
 ## 5. Cross-platform = attestation, not derivation; no cross-network authority key
 
 > "So a cross-platform *authority* key cannot exist. There's no key any two of these networks both accept
 > as the thing that controls the account; the wall is structural, not tooling-immaturity."
-> — `croft-identity-provenance-dialogue-2026-06-20.md` (ASSISTANT)
 
 > "out-of-band, mutually-anchored or root-signed provenance attestation is the only real cross-platform
 > linkage mechanism, precisely because every cryptographic-identity arena insists on being its own
 > authority. The root is a correlation and provenance anchor, not a controller — its value is evidentiary,
 > not operational."
-> — `croft-identity-provenance-dialogue-2026-06-20.md` (ASSISTANT)
 
 *Verification:* in-source dialogue formulations. *Grounds:* the only real linkage is a hub-and-spoke with a
 `did:webvh` root (offline update key) as a correlation anchor; spokes (`did:plc` Bluesky / AP HTTP-Sig actor
@@ -162,14 +152,13 @@ CLOSED with live evidence.)*
 independent child keys, not derivation:
 
 > "The provenance is the signed log entry, not a derivation path."
-> — `thinking/cross-platform-identity-provenance.md`
 
 The linkage field is `alsoKnownAs`, and its weakness is the feature — bidirectional presence is the
 mechanical validation; absence means *unverified*, not *false*. The three ranked goals resolve cleanly:
 provable common ownership = **fully achievable**; a recovery anchor = **partial, network-dependent** (real
 on Bluesky via a root-controlled rotation key, none native on AP, attestation-only on Hive); one key to
-operate everything = **drop it.** *(COHESION §21: CLOSED — the structural answer; "evidentiary not
-operational" flagged for `crystallized/principles.md`, cross-ref `01`.)*
+operate everything = **drop it.** ("Evidentiary not operational" flagged for `crystallized/principles.md`,
+cross-ref `01`.)
 
 ## 6. The `did:webvh ↔ did:plc` convergence — a cheap, non-foreclosing hedge
 
@@ -178,7 +167,7 @@ an append-only signed log + resolve-by-replay; the only differences are *where t
 the resolver checks the genesis hash*. atproto discussion #2705 sketched dual-resolvability (a PDS hosting
 the full oplog → each `did:plc` becomes a valid `did:webvh`). Design rule: treat the Bluesky `did:plc` as a
 spoke, keep the `did:webvh` SCID as the root anchor even though nothing reads it today — hedge-positioning,
-not a roadmap bet. *(COHESION §21: CONFIRMED/consistent, no drift.)*
+not a roadmap bet.
 
 ## 7. Total-device-loss recovery — the open fork (the headline problem)
 
@@ -187,11 +176,11 @@ device is lost, no key survives → recovery is an external-anchor decision. The
 backup** (escrow operator-can't-read / threshold-shared) vs **device delegation** (an existing device
 authorizes a new one; needs a device present).
 
-**Decided shape (2026-06-16, `multi-device.md` §10.1):** delegation-primary for the live path + an *optional*
-offline HD seed reserved purely as a lose-all-devices backup — mirroring the corpus-wide conclusion in
-COHESION §12. The seed is backup-only, never in live ops, so it is not a live single-point-of-compromise.
-The *anchor decision itself* remains the user's call (cross-ref `07`); COHESION §12 calls it "the top
-unresolved design decision across the whole corpus."
+**Decided shape (2026-06-16):** delegation-primary for the live path + an *optional* offline HD seed
+reserved purely as a lose-all-devices backup — mirroring the corpus-wide conclusion. The seed is
+backup-only, never in live ops, so it is not a live single-point-of-compromise. The *anchor decision
+itself* remains the user's call (cross-ref `07`); it is the top unresolved design decision across the
+whole corpus.
 
 ## 8. The same DID roots both planes
 
@@ -203,10 +192,9 @@ you carry across platforms" one theme rather than two.
 **Precise atproto facts.** `did:plc` and `did:web` are atproto's two blessed methods, and `did:plc` =
 "Public Ledger of Credentials" (*cite FACTCHECK SoT*). The mechanism specifics are sourced to the
 identity-resilience analysis, not the FACTCHECK: `did:plc` has a 72h recovery window where a
-higher-priority rotation key overrides, and rotation keys must be k256 or p256
-(`../alpha/thinking/plc-identity-resilience.md`); `plc.directory` is run by Bluesky PBC as a transparency
-log (not an authority over keys), with a governance handoff planned, not done
-(`../alpha/seeds/transcripts/raw/croft-identity-provenance-dialogue-2026-06-20.md`; COHESION §21).
+higher-priority rotation key overrides, and rotation keys must be k256 or p256; `plc.directory` is run by
+Bluesky PBC as a transparency log (not an authority over keys), with a governance handoff planned, not
+done.
 
 ---
 
@@ -221,20 +209,3 @@ offline seed).
 native atproto `did:webvh` support (`[UNVERIFIED]`, gates §3's preferred option); whether PDS/PLC tooling
 preserves extra `alsoKnownAs` entries on write (needs a real test); and the per-platform trust-model doc
 remains unwritten — the highest-leverage next artifact.
-
----
-
-## Provenance trace
-
-The detailed source-by-source rollup lives at the prior level, in `../alpha/BETA-ROLLUP.md` (theme 05
-section): treatments, the carried atproto facts, the excluded refuted items (`did:key` resolvability; the
-"Public Liaison Corporation" and "Equivalency Assertion" fabrications; over-strong "cannot be faked"), and
-the surfaced open decisions.
-
-## Sources (alpha)
-
-- `../alpha/thinking/multi-device.md` **[S]** · `../alpha/thinking/plc-identity-resilience.md` **[S]** ·
-  `../alpha/thinking/cross-platform-identity-provenance.md` **[S]**
-- `../alpha/seeds/transcripts/raw/croft-identity-provenance-dialogue-2026-06-20.md` **[R]**
-- `../alpha/seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md` **[INDEX — cite, don't re-verify]**
-- `../alpha/COHESION.md` §7, §12, §21

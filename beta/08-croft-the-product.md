@@ -11,7 +11,7 @@ status: synthesis — **DECISION-GATED** (see the banner below). The client arch
 > cooperative funding mechanism (shared with `07`). Surfaced, not resolved.
 
 verification: design-synthesis with proof status carried where it exists (Phase 0 green-real). For iroh
-facts, cite the source of truth (`../alpha/seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md`).
+facts, cite FACTCHECK SoT.
 
 ---
 
@@ -78,28 +78,24 @@ are all surfaced-but-unresolved.
 > "A pond is a connection to an external social ecosystem (native data, honest seams, attribution); a pad is
 > a small self-contained app that runs in the shell (a game, a tool; sandboxed, permission-scoped, vetted).
 > Ponds are ecosystems; pads are the lily pads that float in the garden."
-> — `thinking/app/design-philosophy.md` §1a
 
 > "Composability is itself the user-respecting value. Not a feature, a stance."
-> — `thinking/app/design-philosophy.md` §1a
 
 *Verification:* **settled design thesis** (the Phase-0 substrate — one module behind a port — is green-real).
 *Grounds:* naming the thesis converts an emergent architectural accident (modules behind ports → the user
 assembles their own garden) into the explicit organizing principle. The garden *test* gates existence:
 
 > Does it "add optional leverage a user can adopt or ignore, without the surface feeling broken either way?"
-> — `thinking/app/design-philosophy.md` §1a
 
 *Grounds:* abandoning a pond that fails to earn its place costs nothing structural (it was always one module
 behind a port), which is what makes speculative ponds safe to try. The garden test gates *existence*; the
-design-criteria bar (§5) gates *behavior*. *(COHESION §18.)*
+design-criteria bar (§5) gates *behavior*.
 
 ## 2. Honest seams
 
 > "We do not fuse ecosystems into a shared data model. Each pond keeps its own native model end to end."
 > — and — "What we share is the chrome, not the content." — and — "The seam is about experience shape, not
 > protocol lineage."
-> — `thinking/app/design-philosophy.md` §4
 
 *Verification:* **settled.** *Grounds:* Lemmy and Mastodon both ride ActivityPub but stay separate ponds —
 the seam is about experience shape, not plumbing. Honest seams keep ponds native and become, at the pad
@@ -113,8 +109,7 @@ holds / calls / awaits the port — DECISION 1). Two orthogonal callout axes: **
 its own `effects.rs`) and **implementation** (swappable adapters behind a port — a fixture-fake + real HTTP
 for Bluesky; an in-proc fake + later real-iroh for the chat Transport). *Verification:* **Phase 0 green-real**
 — 20/20 acceptance tests (A1–D2, P1–P7), built in CroftC PR #10 and imported byte-identical to
-`experiments/croft-app-phase0/`. *(COHESION §23 DECIDED: the two-CLIs question settled; prior client work
-— `croft-chat-cli` — adapts to it as greenfield growth on an existing port, not a refactor.)*
+`experiments/croft-app-phase0/`.
 
 ## 4. Per-pond domain cores unified by the shared shell (decomposition: option C)
 
@@ -132,13 +127,12 @@ cores, never inside a pond core — deferred until a concrete cross-pond action 
 
 > "Group size is not one axis with a power knob — it is **three different products that share a send
 > button**, and the architecture changes character at each break."
-> — `thinking/interaction-tiers.md`
 
 *Verification:* **settled design thinking** (extends lineage-groups). *Grounds:* **Interactive** (~2 to a few
 dozen; live iroh, opt-in presence/typing over gossip); **Quiet-but-large** (presence/typing auto-off above a
 threshold, eventual consistency); **Broadcast** (>~1000 or any one-to-many; drop the real-time apparatus,
-append-only rolling-forward log — Scuttlebutt-shaped without SSB's immutable-infinite-history flaw, COHESION
-§11). Type is chosen at creation, not a switchable mode; guarantees slide automatically with behavior. The
+append-only rolling-forward log — Scuttlebutt-shaped without SSB's immutable-infinite-history flaw). Type is
+chosen at creation, not a switchable mode; guarantees slide automatically with behavior. The
 privacy-preserving default is the free one; the convenience (presence/typing) costs something *visible*
 (battery), not *hidden* (metadata): "Presence and typing are off by default because they require staying
 connected, which uses battery, and we never send them through our servers."
@@ -152,14 +146,12 @@ pond-extra (honest seams, attribution, broker-as-little-as-possible, graceful de
 craft rule:
 
 > "**Nothing ships placed by eye.** Every space, size, color, radius, and duration comes from a token."
-> — `thinking/app/design-philosophy.md` §7
 
 The genuinely-ours security finding:
 
 > "CSP alone does NOT contain a webview" — "platforms that serve web code must trust their entire JS supply
 > chain, because CSP does not prevent leakage." — and — "Your transport is iroh QUIC, not browser WebRTC. So
 > … disabling WebRTC in the webview is pure upside."
-> — `thinking/app/ponds/webxdc-security-and-competitive-games.md`
 
 *Verification:* **research finding, action-item flagged** (the Cure53 webxdc audit; Tauri uses the native OS
 WebView per FACTCHECK SoT, so per-platform mitigation differs). *Grounds:* since iroh QUIC is the transport,
@@ -176,7 +168,7 @@ cost); **port** (WebRTC → iroh QUIC transport swap; you are a *better* host th
 point-to-point channels, not broadcast-only). One reusable **fair-reveal (commit-reveal) primitive** powers
 governance-grade voting + dice fairness + hidden-info games at once — built once, early, ranked above any
 single app by leverage; its bridge value is that local real-time voting is "a fun group toy that is also
-cooperative-governance infrastructure." *(COHESION §19; license verification flagged for bundle time.)*
+cooperative-governance infrastructure." *(License verification flagged for bundle time.)*
 
 ## 8. Membership ≠ access, at the product layer
 
@@ -192,8 +184,7 @@ entry hitting the ten-second bar — is the open E11 engineering question.
 
 "No application server" holds, but browser iroh peers are **permanently relayed** and direct hole-punch
 **falls back to relays** (n0's by default) — connection-bootstrap leans on relays
-(`../alpha/thinking/app/README.md`; COHESION §19. iroh `1.0.0` / DERP→relays rename / Tauri native
-WebView: cite FACTCHECK SoT). Record
+(iroh `1.0.0` / DERP→relays rename / Tauri native WebView: cite FACTCHECK SoT). Record
 it, do not over-claim; this metered infra cost feeds the `07` sustainability question. And the **deep-link
 resolver / ten-second door (E11)** is the single most strategically important component, because it is
 simultaneously the core navigation UX and the *entire* acquisition model (there is no public discovery by
@@ -217,23 +208,3 @@ CroftC-side PR remains open); the product/brand names (brand DRIFT vs `NAMING.md
 any brand chapter — do not propagate unsettled names into structure); the cooperative funding mechanism
 (shared with `07`, "the most important unthought thing"); and the E11 protocol expression (open engineering).
 "Serverless" is true only as "no application server," always with the relay asterisk.
-
----
-
-## Provenance trace
-
-The detailed source-by-source rollup lives at the prior level, in `../alpha/BETA-ROLLUP.md` (theme 08
-section): treatments, the excluded unsettled brand/product names and over-claimed "serverless," and the
-surfaced decision gates (CroftC IP, brand drift, E11, cold-start, cooperative mechanism).
-
-## Sources (alpha)
-
-- `../alpha/thinking/app/README.md` **[S/INDEX]** · `../alpha/thinking/app/design-philosophy.md` **[S]** ·
-  `../alpha/thinking/app/client-architecture-adr.md` **[S]** · `../alpha/thinking/app/design-criteria.md` **[S]**
-- `../alpha/thinking/app/build-specs/BUILD-SPEC.md` **[S/U]** · `../alpha/thinking/app/ponds/build-order.md` **[U]** ·
-  `../alpha/thinking/app/ponds/games-pond-authoritative-list.md` **[U]** ·
-  `../alpha/thinking/app/ponds/webxdc-security-and-competitive-games.md` **[U]**
-- `../alpha/thinking/interaction-tiers.md` **[S]** ·
-  `../alpha/thinking/membership-vs-access-the-public-door.md` **[S]**
-- `../alpha/seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md` **[INDEX — cite for iroh]**
-- `../alpha/COHESION.md` §18, §19, §23

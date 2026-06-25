@@ -8,6 +8,13 @@ not pulled up). It lives **at the prior level (alpha)** on purpose: the audit tr
 corpus it traces, so `beta/` stays a clean forward narrative and we can double-check coverage from here
 rather than guessing whether something was missed or included unexpectedly.
 
+**This ledger is now the *sole* home of the alpha→beta map** (as of 2026-06-25): the beta theme docs were
+stripped of all prior-tier references — no `Sources (alpha)` footers, no `Provenance trace` lines, no
+inline `thinking/…`/`research/…` quote attributions, no `COHESION §` pointers — so a beta doc reads clean
+at its maturity level and the full source→treatment→landing trace exists *only* here. Lay the two side by
+side to see what was pulled and where it went. (The per-quote internal-source attributions that used to
+sit inline in beta are captured at the source→section granularity in the per-theme tables below.)
+
 This is a **process/reflection artifact** (peer to `COHESION.md`, `RAW-ARTIFACTS-MANIFEST.md`), not
 corpus content. It is the only addition to `alpha/` for the alpha→beta transition; existing alpha
 corpus content stays frozen (PLAYBOOK §4). The repeatable *method* behind this ledger lives at the

@@ -13,7 +13,7 @@ mechanism and the IP-stewardship structure.
 > **NOT-LEGAL-ADVICE.** The legal/financial *framework* here is real, but every statute section, IRS form,
 > fee, and dollar figure is dialogue-sourced and **requires confirmation by a cooperative/nonprofit/IP
 > attorney before any filing or reliance.** This theme carries the *reasoning*, not the citations; the
-> specifics are excluded (recorded in the rollup ledger).
+> specifics are excluded.
 
 ---
 
@@ -91,7 +91,7 @@ property*, not a behavioral promise.
 > enshittification: "first, they are good to their users; then they abuse their users to make things better
 > for their business customers; finally, they abuse those business customers to claw back all the value for
 > themselves. Then, they die."
-> — Cory Doctorow, quoted in `research/social-platform-cycle.md`
+> — Cory Doctorow
 
 *Verification:* **documented** (ADS 2023 Word of the Year). *Grounds:* enshittification is the *behavior*;
 the *cause* is that growth capital requires an exit, an exit requires an extraction story, and lock-in is the
@@ -100,13 +100,11 @@ fiduciary obligation to extract. *Buried conclusion harvested:* you cannot retro
 growth capital; the commitment must be made at inception. A "better owner" is not a structural fix:
 
 > "A good king is still a king."
-> — `research/social-platform-cycle.md` (the Flickr/SmugMug counter-example)
 
 ### A2. Non-extraction is anti-fragile, not just ethical
 
 > "Non-extraction is anti-fragile, not just ethical." The VC model is brittle — grow exponentially or die;
 > "A member-owned utility only needs *growth-pacing* … a revenue dip is leaner spend, not a death spiral."
-> — `crystallized/principles.md` (Tier 1)
 
 *Verification:* **settled value.** *Grounds:* anti-fragility is a *competitive* property, not a concession —
 the ethical choice and the durable choice are the same choice. The structural reason a survivor stays a
@@ -117,14 +115,11 @@ sold) — governance, not decentralization, is the defense, because it removes t
 
 > "Credit union, not a club." Member-owned, dues-funded, surplus reinvested — "the co-op is the maintenance
 > plan."
-> — `crystallized/principles.md` (Tier 1)
 
 > "Pay the keepers — burnout is a failure of governance." — "Just as a city hires engineers to keep the
 > water running, we pay engineers to keep the social commons running."
-> — `crystallized/principles.md` (Tier 1)
 
 > "Founder-speed early, democracy by sunset — not Day-One direct democracy."
-> — `crystallized/principles.md` (Tier 1)
 
 *Verification:* **settled values.** *Grounds:* the co-op is a *utility*, not a hobby (the Rural Electric
 Cooperative model — build the lines the community owns when incumbents won't); market-rate cash pay for core
@@ -143,7 +138,7 @@ shape); an **indivisible reserve** (the co-op endowment); and a parallel **501(c
 owns the open-source code + indexers, grant-funded; the co-op owns the app, nodes, and member ledger,
 dues-funded). Value is locked in **internal utility credits** (offset dues, no token to dump → no bot
 incentive — the anti-Steemit). *(Collapses the existential "sustainability ↔ cooperative mechanism" open item
-— D5/§8 — into a concrete, legally-grounded shape; the statute specifics are excluded, see the ledger.)*
+into a concrete, legally-grounded shape; the statute specifics are excluded.)*
 
 ### A8. Anti-rug-pull: bankruptcy-remote steward + pre-funded graceful exit
 
@@ -175,7 +170,6 @@ cross-referenced, not resolved here.)*
 > "Code and brand are opposite tools and must never touch." — "The fork is free; the *confusion* is what the
 > mark prevents." — the mark is "anti-counterfeiting for a community asset — defensive of users' trust, not
 > mercantile."
-> — `thinking/foundation-and-ip-stewardship.md`
 
 *Verification:* **design intent** (not a legal filing). *Grounds:* AGPL says *take it, fork it*; the mark says
 *but you cannot call your fork by our name unless it conforms*. This matters most exactly when success makes
@@ -185,7 +179,6 @@ the project a scammer target.
 
 > "a credible commitment in the game-theory sense (you remove your own ability to defect, which is what makes
 > the promise trustworthy downstream)."
-> — `thinking/foundation-and-ip-stewardship.md`
 
 *Verification:* **design intent.** *Grounds:* a CLA would collect relicensing rights in one party (a capture
 vector); a DCO grants none, so no party — not a future founder, not a captured board, not an acquirer — can
@@ -205,7 +198,6 @@ principles — i.e. is the badge where the principles get their teeth? (Seam wit
 ### B4. Entity phasing — don't build a governor before the thing it governs exists
 
 > "Rent the foundation function for years; you cannot rent the coop — build it when it's real."
-> — `thinking/foundation-and-ip-stewardship.md`
 
 *Verification:* **design intent.** *Grounds:* **Phase 0** (now) — no entities; code AGPL-3.0-or-later;
 near-free brand separation today (a `TRADEMARK.md` stating the name/logo are NOT AGPL-covered and forks must
@@ -221,9 +213,9 @@ Transfer = a charitable contribution of property; trademarks assigned **with the
 (DCO/AGPL means the foundation holds copyright + marks, not a code monopoly). The foundation licenses the
 house mark to the coop **royalty-free but with quality-control conditions** (free ≠ uncontrolled — active
 control is what preserves the mark), and the *same terms are repeatable for future coops* → even-footing made
-mechanical: no coop owns the name; the first has no structural privilege over the second. *(Gives D8's
-"centerless-meets-center" — the legal entity / name registrar / the money — a concrete shape arranged to stay
-plural.)* This is *why* the foundation must be named independently of the flagship — neutrality collapses the
+mechanical: no coop owns the name; the first has no structural privilege over the second. *(Gives the
+"centerless-meets-center" tension — the legal entity / name registrar / the money — a concrete shape arranged
+to stay plural.)* This is *why* the foundation must be named independently of the flagship — neutrality collapses the
 moment it stewards a non-Croft asset under a Croft-derived name (the Noria candidate, below).
 
 ### B6. The verified failure-case lineage
@@ -235,18 +227,16 @@ credits, not a speculative token. Diaspora (leaked metadata to cloud middleware)
 indexers. Coomappa — the sharpest line:
 
 > "owned a cooperative but actually owned a technological dependency"
-> — failure-case lineage, `thinking/cooperative-social-union-model.md`
 
 *Verification:* **dialogue-sourced, FACTCHECK-verified as a failure pattern.** And Discord as the clean
 illustration of the *default* extractive arrangement:
 
 > "volunteer moderator labor is literally embedded in the number bankers are pricing, while moderators are
 > external to the cap table" — Discord contributor monetization is "a tenant who can sublet, not an owner."
-> — `research/discord-dominance.md` (Update 2026-06-22)
 
 *Verification:* all Discord *figures* are `[UNVERIFIED]` (private company); the *labor-extraction reasoning*
 is the load-bearing part. *Grounds:* contribution and ownership are fully decoupled in the default
-arrangement — the member-owned coop is designed to invert exactly that. *(Collapses COHESION §36.)*
+arrangement — the member-owned coop is designed to invert exactly that.
 
 ---
 
@@ -264,21 +254,3 @@ form; and whether the compatibility badge is where the non-negotiable principles
 genome-vs-strategy question, seam with `01`). The sources settle on AGPL-3.0-or-later + DCO as design intent;
 the MPL-vs-AGPL relationship to the *substrate* is flagged for confirmation against the protocol docs, not
 asserted here.
-
----
-
-## Provenance trace
-
-The detailed source-by-source rollup lives at the prior level, in `../alpha/BETA-ROLLUP.md` (theme 07
-section): treatments, the NOT-LEGAL-ADVICE exclusions (MO §351 sections, fees, royalty/financial figures),
-the carried reasoning, and the surfaced decision gates.
-
-## Sources (alpha)
-
-- `../alpha/research/social-platform-cycle.md` **[S]** · `../alpha/crystallized/principles.md` (Tier 1) **[S]**
-- `../alpha/thinking/cooperative-social-union-model.md` **[S]** ·
-  `../alpha/thinking/foundation-and-ip-stewardship.md` **[S]** ·
-  `../alpha/thinking/governance-and-survivability.md` **[U]**
-- `../alpha/research/discord-dominance.md` **[U]** (moderator-labor finding only) · `../alpha/NAMING.md` **[S]**
-  (Noria foundation candidate)
-- `../alpha/COHESION.md` §33, §35, §36

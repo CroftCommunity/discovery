@@ -4,7 +4,7 @@ date: 2026-06-24
 
 status: synthesis (least-gated, spine-complete).
 
-verification: the cross-field grounding was checked in-dialogue (alpha appendix). Quotations are
+verification: the cross-field grounding was checked in-dialogue. Quotations are
 preserved verbatim below with their citation and a per-quote verification flag; one attribution
 (Ostrom's subsidiarity passage) must be confirmed against the primary edition before any external
 publication.
@@ -327,19 +327,3 @@ themes stand on.
 **Does not establish:** that local-first *guarantees* a humane system (necessary, not sufficient); nor
 is the Ostrom subsidiarity quote publication-ready until confirmed against the primary edition
 (*Governing the Commons*).
-
----
-
-## Provenance trace
-
-The detailed source-by-source rollup (what was lifted from each alpha file, how it was treated —
-synthesized / collapsed / harvested / carried-flag / excluded / deferred — and where it landed) lives
-at the prior level, in `../alpha/BETA-ROLLUP.md` (theme 01 section), so this synthesis layer stays
-clean and the audit trail sits with the corpus it traces. The concise `Sources (alpha)` footer below is
-the reader's pointer; the ledger is the auditable record.
-
-## Sources (alpha)
-
-- `../alpha/narrative/lineage-of-a-design-imperative.md` **[S]** · `../alpha/thinking/local-first-as-design-imperative.md` **[S]** · `../alpha/crystallized/principles.md` **[S]**
-- `../alpha/seeds/transcripts/raw/croft-architecture-design-dialogue-2026-06-20.md` **[R]**
-- `../alpha/COHESION.md` §25 · `../alpha/seeds/transcripts/raw/crypto-wars-to-p2p-pds-economics-dialogue-2026-06-22.md` (+ `-FACTCHECK.md`) **[R]**
