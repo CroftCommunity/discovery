@@ -99,6 +99,13 @@ the structure needed to represent fluid, branching social reality faithfully (le
 histories that are *real* (cryptographically guaranteed unaltered) and unfoldable *legitimately*
 (lineage proves standing) are not an accident — they are one fact with two payoffs.
 
+This sharpens what the protocol does and does not promise. **Drystone does not promise that a group
+converges to one agreed membership** — under partition it may legitimately fork and stay forked. What it
+promises instead is that **every party can always see a true, attributable history, and always has a clean
+exit.** The failure mode it refuses is the inverse — *claiming convergence while only delivering
+legibility* — which is how a system quietly misleads people about a settled state they never actually
+reach.
+
 ## 2. The two-tree model (the design lives in the binding)
 
 There are two distinct data structures, and the whole design lives in how they bind:
