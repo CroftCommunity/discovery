@@ -422,6 +422,28 @@ own synthesis, not attributed to Beer. The Beer quotes + Cybersyn/OGAS dates/fig
 **[confirm before publish]** against primary editions (carried in Part 2 Appendix B). **OPEN-THREADS T23
 CLOSED.** Seam: COHESION §40.
 
+## Social-graph-as-substrate / storage-architecture intake (2026-06-26)
+
+New alpha intake (`seeds/transcripts/raw/social-graph-substrate-redb-storage-dialogue-2026-06-26.md`, the
+second "benefit from current context" handoff) synthesized to `thinking/social-graph-as-substrate.md`, with
+a buildable redb spec at `seeds/generated-prompts/redb-social-graph-layer-build-prompt.md`. Layered per the
+user's Drystone(protocol) / Croft(app) / redb(local-impl) cut:
+
+| what | treatment | landed in |
+|---|---|---|
+| **Trust-vs-provenance** (provenance certain; "is this key really Anna" is a utility call; all trust roots in social trust incl. root CAs; the binding act records, doesn't establish) + **vouch as graded, contextual, non-transitive signal, never a verdict** (PGP's lesson) | **synthesized** | Drystone spec **Part 1 §2.0** (under the razor) + Part 2 §5/§8 `vouch`/`get_trust_signals` |
+| **Recursive principal** (a peer is a locus of adjudication; user = group of devices; community = group of users) + **composition vs valuation edges** (shared-MLS-lineage vs weighted-trust-no-shared-keys) + **per-edge adversarial posture** | **synthesized** | Drystone spec **Part 1 §2.3** + Part 2 §3.1/§5 |
+| **Per-device authorship + lamport** + **user-principal-as-self-AS** credential model + **devices-as-MLS-leaves** (no nesting, no dup signature keys) | **synthesized + carried-flag [confirm before publish] (MLS RFC 9420/9750)** | Drystone spec **Part 2 §4.5.1** |
+| **Declarative snapshot = cache** (valid iff head matches; never synced/trusted-from-peer; "values that passed authorization at each step") + **verifiable roll-up** (commits to gov-head hash; re-expandable; Option-A self-fold) + **two-tier compaction** (governance permanent, content compactable; off by default) | **synthesized** (sharpens §7) | Drystone spec **Part 2 §7.3.3** |
+| **Social graph as the substrate, chat as a tenant** + group≠member-set + implicit/sticky group lifecycle + local-projection-vs-shared-anchor seam + invisible-graph UX | **synthesized** (app reframe — surfaced, not folded into a theme) | `thinking/social-graph-as-substrate.md` §1–3; **OPEN-THREADS T26** (→ `08`) |
+| **Authoritative assertion-DAG + derived redb projection** (local-first CQRS), governance log + roll-up, redb as derived-state engine, blobs in iroh-blobs | **synthesized** (local-implementation) | redb build prompt; **OPEN-THREADS T25**; `thinking/social-graph-as-substrate.md` §4–5 |
+| Prior art (Keet/Holepunch chat-bottomed-vs-graph-bottomed; ATProto public-follow-graph; Gun/OrbitDB/redb/Automerge) | **harvested** (web-verified-in-dialogue) | candidate ECOSYSTEM.md additions (Keet/Holepunch + the contrast); flagged **[confirm before publish]** |
+
+**Layering discipline held:** local-implementation (redb) and app-product (social-graph-substrate UX) were
+**kept out of the vendor-neutral protocol spec**; only protocol-level conclusions were folded into
+`drystone-spec`. Web-searched facts (Keet/ATProto/redb/Automerge/MLS) carry **[confirm before publish]**.
+Seam: COHESION §41.
+
 ## Settled conclusions not yet folded (2026-06-25 completeness audit)
 
 A content-level audit (reading `crystallized/`, `thinking/`, `narrative/`+dossier, `research/` against

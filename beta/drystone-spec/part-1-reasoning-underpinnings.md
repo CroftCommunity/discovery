@@ -78,6 +78,24 @@ disagreement** — and that single line is the whole protocol's posture, lifted 
 knowledge itself. Part 2's refusal to algorithmically adjudicate a social dispute (the *no-adjudication
 rule*, §7) and its content-blind safety posture (§8) are this same razor at the mechanism layer.
 
+**The razor extends to identity, and this is where most systems quietly cheat.** Cryptography answers
+*provenance* with certainty — "is this the same key that made that earlier assertion" — but it cannot
+answer "is this key the person I mean." **That second question is a utility call, not a provenance one,
+and it is always a human judgment.** All trust ultimately roots in social trust: even the root
+certificate authorities that secure the rest of the web are trusted because a community of people vouches
+for them and polices them, not because of any cryptographic fact at the bottom. A deliberate human act —
+scanning a code to add a device, exchanging keys in person — does not *establish* trust; it **binds
+existing trust to a key** so that provenance can carry it forward. Pretending cryptography *establishes*
+trust rather than *recording and amplifying* a human decision is itself a failure mode, because it leads
+people to trust the math exactly where the human judgment was weak. So the protocol's job is to give
+**certain provenance** as a substrate and to leave **graded, contextual trust** to humans — never to
+compute a trust verdict. Where the system carries trust signals between peers (one peer vouching for
+another), those signals **MUST** be graded, **MUST** be indexed by purpose ("trusted for *what*"), and
+**MUST NOT** be treated as automatically transitive or as an automatic grant — they are input to a human
+or policy decision, never a verdict. (This is the lesson of PGP's web of trust, which failed by making
+trust scalar, context-free, and automatically transitive; the fix is to keep a vouch an honestly-weighted
+signal, never a computed conclusion. See Part 2 §5 `vouch` and `get_trust_signals`.)
+
 The four principles below are what the razor requires of the wire.
 
 ### 2.1. P-Local-Truth — the only canonical state is local
@@ -152,6 +170,19 @@ presets; only capabilities do.** Every named configuration of a peer **MUST** be
 `floor + [explicit capability set]`; any configuration meaning "this peer is entitled to *less*" is
 rejected as a smuggled rights distinction. Delegation **MUST** attenuate (a subset of held authority,
 never a superset). *(Part 2 §5, §7.)*
+
+**A peer is recursively a group — and two edge types keep the recursion honest.** A peer is a *locus of
+adjudication* (it holds authority others must respect), not merely a node that senses and relays; and the
+same primitive nests: a **user is a group of devices**, a **community is a group of users**, a federation a
+group of communities. The recursion is held together by **two distinct kinds of relationship that must
+not be conflated**: **composition** — members co-deriving shared authoritative state (a device pool, a
+scope's membership; this is the MLS-lineage / shared-key relationship) — and **valuation** — one group
+directionally *weighting* another group's assertions without any shared key (trust between
+cryptographically-separate principals). Composition merges state; valuation weights signals. Blur them and
+trust leaks into key access. A consequence the rest of the design leans on: **adversarial posture is a
+per-edge property, not a global stance** — your own device pool is a high-trust composition edge that needs
+no Byzantine defense, while a stranger valuation edge needs more; forcing strong-adversarial rigor where it
+doesn't fit is as wrong as omitting it where it does. *(Part 2 §3.1, §5.)*
 
 > **Two checks left open before the rights set hardens** (carried, not resolved): whether `share` (a
 > claim on a scope's commons) is fully a right or partly a membership-class capability, and whether the

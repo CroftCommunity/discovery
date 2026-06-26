@@ -150,6 +150,30 @@ fold absorbed branches by lineage into one actor. A scope's topic carries multip
 what every peer computes identically to agree on the member list and on **lineage-counted thresholds**
 (§7.2). *green-real* — one actor's two devices fold to one; all peers agree on the folded actor count.
 
+#### 4.5.1. Per-device authorship and the user-principal-as-self-AS
+
+Devices are **not** a shared key. Each device is an independent signer with its own signature key, and an
+assertion is **authored and signed per-device**: the envelope carries `author_device` (the signing identity
+the signature verifies against) and `author_principal` (the user-principal the device is credentialed to).
+The device→principal binding is established by a **credential**, not by key-sharing. This is the only model
+consistent with the underlying group-key layer, which **forbids two devices of one user sharing a signature
+key in a group** and represents each device as its own member — so "these devices are the same user" is
+necessarily an **identity-layer credential policy**, not a key-layer fact. *(Group-key/MLS facts: confirm
+against the primary specification — **[confirm before publish]**.)*
+
+Because there is no central authority in a serverless system, the **user-principal key acts as its own tiny
+certificate authority for its devices**: the user-principal signs each device's credential, and a verifier
+accepts "this device is principal P" by validating that credential chain. Adding a device is the deliberate,
+high-trust act (e.g. scanning a code) that the user-principal then attests — which is exactly the trust
+binding of Part 1 §2.0 (the human act binds existing trust to a key; the credential records it).
+
+A direct consequence for ordering: since devices are independent signers, the **logical clock is
+per-device** (each device advances only its own `lamport`, so there are no cross-device collisions and no
+coordination is required), and a user-principal's stream is the **deterministic fold-time merge** across its
+devices' streams (ordered by lamport, then a stable tiebreak). `auth_assertions_by_device` (the per-device
+causal index used for range-sync) keys on the device identity for exactly this reason. *(Local-storage
+detail; see the implementation build spec.)*
+
 ---
 
 ## 5. Identity, Rights, and Capabilities
@@ -515,6 +539,31 @@ state than applying them in the order §7.3.1 selects — concretely, two facts 
 where at least one removes or narrows authority the other depends on. The **mutual-expulsion** case (A
 expels B while B expels A, equal standing) resolves by steps 3–4; exactly one survives, never both and
 never neither, and the loser's fact remains in the log as a valid-but-superseded entry, visible for audit.
+
+#### 7.3.3. The declarative snapshot is a cache; truncation is verifiable
+
+The governance log is the **imperative** source of truth; "current state" (membership, roles, the rules
+in force) is a **declarative snapshot** — a deterministic fold of the log carrying the governance head it
+was computed from. The snapshot **MUST** be treated as a cache: it is **never authoritative, never
+independently writable, never synced as truth, never trusted from a peer**, and it is **valid only while
+its recorded head equals the group's current governance head** (otherwise re-fold the tail). It is not
+"latest values" but "latest values that passed authorization at each step" — the log is **self-validating
+under replay**, since each fact is admitted only if authorized under the rules in force at its position.
+Peers reconcile by exchanging the **imperative log** and each deriving the snapshot independently;
+agreement is verified by reaching the same state from the same head, and disagreement is explicit — there
+is **no point at which a peer accepts another's declared state without local validation.**
+
+To bound replay cost without breaking that discipline, the log **MAY** be truncated by a **roll-up**: a
+signed checkpoint committing to `(governance_head_hash, state_commitment)`. Because the head is hash-linked,
+committing to it transitively commits to the whole prefix, so a roll-up is a **re-expandable, back-verifiable
+truncation** — not a trusted summary. The sound posture (and the one that needs no quorum to stay live):
+**each peer independently folds and self-checkpoints**; where roll-ups are co-signed, a co-signature is
+*corroboration of an independent identical fold*, never a substitute for local validation. Compaction is set
+at genesis in **two tiers** — the **governance spine is permanent and uncompacted** (it is exactly what a
+returning/dormant node needs to reconstruct the authorized signer set and validate everything else), while
+**content is compactable** into head-committed, Merkle-rooted checkpoints. Roll-up is **built-in but off by
+default** and catch-up never *depends* on it. *(design; the byte-level checkpoint encoding is `ENABLING`,
+Appendix B. Local snapshot/rollback mechanics — e.g. savepoint cadence — are an implementation detail.)*
 
 ### 7.4. Freshness — no false "current"
 
