@@ -448,6 +448,49 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 - **Alpha provenance:** `../alpha/thinking/algedonic-and-peerhood-as-adjudication.md` §5; raw
   `../alpha/seeds/transcripts/raw/beer-algedonic-cybersyn-ogas-dialogue-2026-06-25.md` (Turn 6).
 
+> **T25–T26 added 2026-06-26** from the social-graph-as-substrate / storage-architecture dialogue. T25 is a
+> *local-implementation* build (not protocol); T26 is an *app/product* reframe (theme 08). The protocol-level
+> conclusions already landed in the Drystone spec (Part 1 §2.0/§2.3, Part 2 §4.5.1/§7.3.3).
+
+### T25 — The Drystone redb storage-and-projection layer (vetted, adaptable local component)
+
+- **Status:** `surfaced` (build spec ready; not built).
+- **What it is:** the local **derived-state engine** — authoritative signed-assertion store + governance log
+  + a rebuildable redb projection (graph adjacency index + declarative snapshot), behind a typed
+  query/command/notification surface, with crypto/MLS/credentials/blob I/O as **injected traits** so it slots
+  into the existing stack and is testable in isolation. The whole point is a **well-proven, adaptable**
+  surface (property tests for order-insensitive convergence / rebuildability / authoritative-vs-derived
+  consistency; mutation testing on fold+validation; adversarial, fork, partial-knowledge, compaction, scale).
+  Local-implementation, **not** the protocol.
+- **Promotion target:** an `experiments/` spike → eventually an implementation; not a beta theme. Couples
+  T1 (the protocol the fold validates against) and the redb local-storage choice.
+- **Gates:** build it from the prompt; review the property-test **generators** (diverse/forked/partial) and
+  the **mutation-survivor list** (where "vetted" is won/lost); the **edge-table representation** (composite-key
+  vs multimap) is an explicit build-time measurement.
+- **Alpha provenance:** `../alpha/seeds/generated-prompts/redb-social-graph-layer-build-prompt.md`;
+  `../alpha/thinking/social-graph-as-substrate.md` §4–5; raw
+  `../alpha/seeds/transcripts/raw/social-graph-substrate-redb-storage-dialogue-2026-06-26.md`.
+
+### T26 — Social-graph-as-substrate: the product reframe (chat as a tenant)
+
+- **Status:** `gated` (an app/product-shape reframe — the user's call on whether/how to restructure `08`).
+- **What it is:** invert the app pyramid — the **social graph is the substrate; chat is one tenant**, peer
+  to games/calls/photos hung off a durable **group** (the group is the index; a chat can end while the group
+  persists; spin up a fresh chat with the same group, attachments intact). With it: **group identity ≠ member
+  set** (stable ID + locally-overridable presentation name); **implicit/sticky group lifecycle** (sticky =
+  matchable for reconciliation · live-non-sticky · pruned-never-resurrected; reconcile-vs-fresh-vs-prune is a
+  per-formation human choice); the **local-projection vs shared-anchor** seam (naming/stickiness local;
+  membership/cross-participant-identity/new-attachments need a shared anchor); and the **load-bearing-but-
+  invisible graph** UX (the group's "home/face," many-doors-one-room) — the hardest UX problem. Dissolves the
+  Delta-Chat "games pollute a thread / un-pinnable / chats live forever and couple membership+governance" pain.
+- **Promotion target:** **`08` (Croft the product)** — a significant reframe of its app shape; surfaced, not a
+  unilateral rewrite. The substrate claim is core Drystone (in the spec); the *product surfacing* is 08.
+- **Gates:** the user's direction on restructuring `08` around the substrate model; the group's-face UX
+  (testable/iterative, built on the T25 local framework that "guides rather than binds"); reconcile the
+  sticky-group lifecycle with `06`/membership-vs-access.
+- **Alpha provenance:** `../alpha/thinking/social-graph-as-substrate.md` §1–3; raw
+  `../alpha/seeds/transcripts/raw/social-graph-substrate-redb-storage-dialogue-2026-06-26.md`.
+
 ## How to use this file
 
 When a beta theme doc is tempted to assert something that is actually still in flight, park it here

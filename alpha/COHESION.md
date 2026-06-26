@@ -1114,6 +1114,36 @@ defines `P-Local-Truth` / `P-Knowable-Truth` / `P-Peer-Equality` / `P-Durable-En
 
 ---
 
+## 41. Social graph as the substrate + the storage architecture (the layered intake)
+
+The 2026-06-26 social-graph-substrate dialogue
+(`seeds/transcripts/raw/social-graph-substrate-redb-storage-dialogue-2026-06-26.md` →
+`thinking/social-graph-as-substrate.md`) develops three things at three layers, kept distinct on purpose:
+
+- **Protocol (Drystone).** The **"equal in rights, not capabilities" social graph is core Drystone** — a
+  signed-assertion relationship DAG. Folded into the spec: **trust-vs-provenance** (Part 1 §2.0 — provenance
+  is cryptographically certain, "is this key really Anna" is a social/utility call, all trust roots in social
+  trust incl. root CAs; vouching is a graded non-transitive signal, never a verdict — PGP's lesson); the
+  **recursive principal** + **composition-vs-valuation edges** + per-edge adversarial posture (Part 1 §2.3,
+  extending peerhood-as-adjudication / §40); **per-device authorship + lamport + user-principal-as-self-AS**
+  credentials + **devices-as-MLS-leaves** (Part 2 §4.5.1); the **declarative-snapshot-as-cache + verifiable
+  roll-up + two-tier compaction** (Part 2 §7.3.3). Status: **folded**.
+- **App / product (Croft, `08`).** **Social graph as the substrate, chat as a tenant** (group is the durable
+  index; attachments are siblings; group≠member-set; implicit/sticky group lifecycle; local-projection-vs-
+  shared-anchor; invisible-graph UX). A significant reframe of 08's app shape — **surfaced as OPEN-THREADS
+  T26, not a unilateral 08 rewrite**. Status: **OPEN** (the user's call on restructuring 08).
+- **Local implementation (redb).** Authoritative assertion-store + governance log + rebuildable redb
+  projection (local-first CQRS), behind a typed surface with injected crypto/MLS/blob traits — a **vetted,
+  adaptable** component. **Not the protocol.** Build spec at
+  `seeds/generated-prompts/redb-social-graph-layer-build-prompt.md`; staged **OPEN-THREADS T25**.
+- **Prior art** (Keet/Holepunch chat-bottomed-vs-graph-bottomed; ATProto public-follow-graph; Gun/OrbitDB):
+  candidate ECOSYSTEM additions, **[confirm before publish]**.
+- **Provenance:** the user's own design reasoning + web-searched facts (Keet/ATProto/redb/Automerge/MLS RFC
+  9420/9750) **not yet in FACTCHECK SoT** → **[confirm before publish]**. Trace in `BETA-ROLLUP.md`
+  "Social-graph-as-substrate / storage-architecture intake 2026-06-26".
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
