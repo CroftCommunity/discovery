@@ -1,6 +1,6 @@
 # Alpha left-behind / left-out audit (stricter eye, post-spec context)
 
-date: 2026-06-26 · status: IN PROGRESS (resumable; one file at a time)
+date: 2026-06-26 · status: COMPLETE (all alpha files dispositioned; 10 finds closed/surfaced — see closing summary)
 
 ## Problem statement
 
@@ -126,3 +126,55 @@ discord-matrix-groupchat → T16. (T5/T7/T10/T11/T16 confirmed present.)
   future-ROADMAP enhancement).
 - **Q5 — a pre-production crypto/security audit** ("none of our crypto has been audited; every credible system
   has been"): **not tracked anywhere** → added to backlog **ROADMAP_TODO B11** (a standing pre-prod gate).
+
+## alpha root indexes (11) — DONE — no new finds
+
+All DETERMINED. PROCESS/INDEX (the registers/sequencing themselves): ANALYSIS, BETA-ROLLUP, COHESION,
+README, ROADMAP (M0–M4→T12), ROADMAP_TODO, TEST-PLAN (CITED; "test home TBD" §302 is a local
+test-sequencing detail, alpha-by-design). FOLDED: ECOSYSTEM → 03 (§8 coop register CITED by 07);
+NAMING → 02/07; ROUND-2026-06-17-media-meer-conformance → 04 §4 (T10 residual). PROVENANCE/RAW:
+SOVEREIGN-COMMONS-DOSSIER — drained (K2/K3/K5/K10/K13/K16) and **DETERMINED: keep for provenance**
+(PLAYBOOK §4 default; retire-vs-keep no longer limbo).
+- **Checked, not a find:** Keet/Holepunch is **already** in ECOSYSTEM (line 253, added 2026-06-22). The
+  this-session "chat-bottomed-vs-graph-bottomed" contrast is captured in
+  `thinking/social-graph-as-substrate.md` §9 (optional ECOSYSTEM-row enrichment, not left-behind).
+
+## seeds/ (~74) — scoped DETERMINED as a class (explicit, not skipped)
+
+seeds/ are **frozen raw provenance** (raw dialogues + PR seeds), the **FACTCHECK SoT** files (CITED,
+cite-don't-re-verify), **generated-prompts** (PROCESS/RAW; the redb build prompt added this session, the
+beta-01-review prompt retired this session), and **unpacked duplicates** (byte-identical/abridged ancestors
+of canonical twins). The 2026-06-25 per-file audit verified canonical twins are **equal-or-richer**, i.e. no
+unique settled conclusion lives only in a seed; this session's new transcripts (Beer, social-graph) were
+filed + synthesized + folded. **Determination:** PROVENANCE/RAW + CITED + PROCESS as a class — not
+re-walked file-by-file because settled content is already lifted to the synthesis layer and the twins were
+verified. (Stated explicitly so this is a scoping *decision*, not a silent skip.)
+
+---
+
+## CLOSING SUMMARY — audit complete (2026-06-26)
+
+**Coverage:** all alpha corpus files dispositioned to **DETERMINED** or **OPEN** — crystallized (7),
+thinking-top (33), app (15), drystone-spec (4), narrative (6), research (16), root indexes (11), seeds-class
+(~74). **No file left in limbo.**
+
+**The stricter eye's yield (10 finds, all closed/surfaced):**
+1. K-table `01 §X` landing pointers stale post-01-retirement → redirect note (BETA-ROLLUP).
+2. `user-need-first / Google+` Tier-1 limbo → DETERMINED-subsumed (08 §1 + razor).
+3. **CM-P2** honest-guarantee ("not convergence; legibility + clean exit") → **FOLDED into 04 §1** (user-approved).
+4. CM-P1 (roll-up trilemma) → closed (resolved by spec §7.3.3 Option-A).
+5. CM-P3 (geer 3-rung) → closed (subsumed by 06 §3).
+6. `historical-peer-rights.md` "maturity home = later call" → **T28**.
+7. **T1** materially stale ("not built / P-* unwritten") → **PROMOTED → drystone-spec** (spec built this session).
+8. **T29** — MLS group state ↔ governance-log/Automerge consistency (research Q3) → new thread.
+9. **ROADMAP B11** — pre-production crypto/security audit (research Q5) → backlog.
+10. CROFT-PROTOCOL disposition changed (CITED→04 ⇒ FOLDED→drystone-spec Part 2) — recorded.
+
+**Pattern:** the 2026-06-25 audit was solid on *folds*; the stricter eye caught (a) **this-session
+bookkeeping drift** (the 01-retirement / spec-build left T1 + K-table pointers stale) and (b) **prior-audit
+limbo** the earlier pass left "optional/low/deferred." Two items (T29, B11) were genuinely *left out* and
+are the most substantive.
+
+**Residual decisions still the user's** (surfaced, not resolved): the standing gates (README list); the new
+threads T28 (historical-peer-rights home) / T29 (MLS↔log binding); optional curations (user-need-first as an
+explicit principle; P-* back-port to `crystallized/principles.md`; ECOSYSTEM Keet-contrast enrichment).
