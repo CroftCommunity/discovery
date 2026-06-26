@@ -589,6 +589,15 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 - **Alpha provenance:** `research/messaging-solutions-landscape.md` §top-unresolved #3;
   `thinking/social-graph-as-substrate.md` §7; `thinking/multi-device.md`;
   `thinking/field-trades-and-the-ordering-tension.md` §3–4.
+- **Implementation finding (2026-06-26):** the storage-layer twin of this ordering tension was found and
+  fixed in the redb projection during the PR #11 → `experiments` integration. A node card's identity fields
+  (`created_at`/`created_by`) were **first-touch-wins** → ingest-order-sensitive → two peers with the same
+  governance facts but different arrival orders derived different cards (an I2/I5 convergence violation,
+  caught by the I3 rebuild check). Fixed by making them the **canonical `(created_at, created_by)` MIN**
+  (commutative, order-independent) — the derived-layer analogue of the §7 content-hash tie-break. Writeup:
+  `experiments/alpha/local_storage_projection/CONVERGENCE_FINDING.md`. Takeaway folded into the spec note
+  below: every derived field must be a commutative canonical reduction of the facts, never an artifact of
+  fold order ("last/first-writer-wins is a clock in disguise, and Drystone has no clock").
 
 > **T30 added 2026-06-26** — consolidates the scattered spec-maturation work (spec App-B `ENABLING` items +
 > `[confirm before publish]` flags + T1/T23/T29 residuals) into one tracked path-to-publication thread, so
