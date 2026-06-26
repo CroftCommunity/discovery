@@ -15,12 +15,30 @@ estimates, carried `[UNVERIFIED]`. Dialogue-sourced rows are flagged as such.
 The present-day field is best read as a set of honest trades, not a ladder of better-to-worse. The central
 finding holds across every system examined: **no deployed system delivers usability, decentralization, and
 metadata protection simultaneously** — each buys one or two by spending the third. Signal buys world-class
-UX with centralization and phone-rooted identity; SSB bought pure P2P and paid with multi-device hell,
+UX with centralization and **phone-rooted identity *at registration*** (a phone number is still required to
+register, but since **usernames (2024)** it is no longer the contact-graph identifier — phone-rooted at the
+Sybil/registration layer, not in who-can-find-whom); SSB bought pure P2P and paid with multi-device hell,
 recovery dead-ends, and unbounded logs; Briar buys the strongest threat model and refuses multi-device and
-recovery outright; Delta Chat rides email for free reach and inherits email's metadata leak. The deeper
-version is a *four-property impossibility*: group moderation + multi-device + PFS + offline-mesh cannot all
-hold without an unequal, privileged peer. Croft does not dodge this — it makes the trade openly (the
-meer/superpeer as an unequal-in-capability-but-not-in-rights sequencer; see `drystone-spec`, `04`, `06`).
+recovery outright; **Delta Chat** rides email for free reach — and *classically* inherited email's metadata
+leak, but **under a chatmail relay it no longer does**: as of 2.48+ (2026) it moves `To`/`Subject`/
+`References`/group-membership into the encrypted part (full **Header Protection, RFC 9788**) and chatmail
+relays store no contact/group metadata, leaving a **relational-metadata residue at the relay** (no Sealed
+Sender yet), not the full header leak. *[Signal/Delta facts: confirm before publish.]*
+
+The deeper version is best read as a **trade with a quantified cost, not a strict impossibility**: group
+moderation + multi-device + PFS + offline-mesh cannot all hold *cheaply* — removing the ordering authority
+makes concurrent commits fork, and processing them out-of-order forces clients to **retain key material,
+degrading forward secrecy**. The cost is real and measurable, but it is being **bought back by
+construction**: **DMLS/FREEK** (Phoenix R&D; FREEK = Alwen/Mularczyk/Tselekounis) uses a *puncturable PRF*
+to recover most of that FS at a storage cost, and the ordering function can be a **deterministic protocol
+role, not an unequal privileged peer** — plain MLS already resolves forks with a deterministic tie-break.
+So the honest claim is **"no *production* deployment delivers all four"** (every shipping MLS system —
+Webex/Wire/Discord, Google/Apple RCS — is server-ordered; the serverless escapes DMLS/FREEK and
+`draft-xue-distributed-mls` are drafts/PoC as of mid-2026), *not* "mathematically impossible." This makes
+the honest-trades framing **stronger**, not weaker. Croft makes the trade openly and on the decentralized
+side of it — the meer/superpeer is an **unequal-in-capability-but-not-in-rights** sequencer, exactly the
+"deterministic ordering role, not a privileged peer" the cryptography permits (see `drystone-spec` §7, `04`,
+`06`). *[DMLS/FREEK + deployment-status facts: confirm before publish.]*
 
 On the public-social side the comparison narrows to one anchor reason: an atproto DID is a portable,
 self-authenticating, user-held identifier that can serve as the *same* identity primitive on the public
@@ -81,22 +99,34 @@ without leaving the global network — and almost every one is a direct expressi
 
 > "no system in the field delivers usability, decentralization, and metadata protection simultaneously"
 
-*Verification:* **CONFIRMED** (corpus synthesis). The field's failures are real and instructive, not a foil
-— "you must beat what is actually good." The deeper version, from the iOS work, is a **four-property
-impossibility**: group moderation + multi-device + PFS + offline-mesh cannot coexist without an unequal,
-privileged peer (PFS vs mesh-healing; moderation vs multi-device in a partition). MLS (RFC 9420) *assumes* a
-Delivery Service for ordering; Croft's meer/superpeer is exactly that "unequal-in-capability, equal-in-
-rights" sequencer.
+*Verification:* **CONFIRMED** (corpus synthesis) — with the four-property claim **corrected from
+"impossibility" to "trade with a quantified cost," confirm-before-publish.** The field's failures are real
+and instructive, not a foil — "you must beat what is actually good." The deeper version, from the iOS work:
+group moderation + multi-device + PFS + offline-mesh cannot coexist *cheaply* without an ordering authority
+(PFS vs mesh-healing; moderation vs multi-device in a partition). MLS (RFC 9420) *assumes* a Delivery
+Service for ordering; remove it and concurrent commits fork, and processing them out-of-order **degrades
+forward secrecy** by forcing key-material retention. This is a **measurable cost, not an impossibility**:
+**DMLS/FREEK** (puncturable-PRF) buys most of the FS back at a storage cost, and the ordering role can be a
+**deterministic protocol role**, so it need not be an *unequal, privileged* peer. The empirical truth is
+narrower and airtight: **no *production* deployment delivers all four** — every shipping MLS system is
+server-ordered (Webex/Wire/Discord, Google/Apple RCS), and the serverless escapes (DMLS/FREEK,
+`draft-xue-distributed-mls`) are drafts/PoC as of mid-2026. Croft's meer/superpeer is exactly the permitted
+"unequal-in-capability, **equal-in-rights**, deterministic-ordering" sequencer — the decentralized side of
+the trade, made openly. *[DMLS/FREEK + deployment-status + Signal/Delta facts: confirm before publish; see
+also `04`'s Matrix contrast and the MLS↔log binding in the open threads.]*
 
 ## 2. The messaging field map
 
-Signal (centralized, gold-standard UX, phone-rooted identity); SSB (the canonical cautionary tale —
-single-device-tied keypair, no recovery, unbounded logs, weak forward secrecy); Matrix (production
-decentralized-encrypted group chat, but Megolm metadata leak + federation-graph exposure + MLS-in-
-distributed-topology unsolved); Briar (best metadata protection via Tor, *refuses* multi-device and recovery
-by design); Delta Chat (the closest Rust+iroh cousin — validated the realtime-P2P / durable-store-and-forward
-split, but transfer-then-diverge multi-device + email metadata leak); Session (no-phone keypair + mnemonic
-recovery; dropped then restored PFS — the cautionary "don't trade away forward secrecy").
+Signal (centralized, gold-standard UX, **phone-rooted at registration** — usernames since 2024 remove the
+phone number from the contact graph); SSB (the canonical cautionary tale — single-device-tied keypair, no
+recovery, unbounded logs, weak forward secrecy); Matrix (production decentralized-encrypted group chat, but
+Megolm metadata leak + federation-graph exposure + MLS-in-distributed-topology unsolved *in production* —
+now an active frontier, DMLS/FREEK + `draft-xue-distributed-mls`); Briar (best metadata protection via Tor,
+*refuses* multi-device and recovery by design); Delta Chat (the closest Rust+iroh cousin — validated the
+realtime-P2P / durable-store-and-forward split; transfer-then-diverge multi-device, and **under chatmail no
+longer the full email metadata leak** — RFC 9788 Header Protection in 2.48+ leaves only a relational residue
+at the relay); Session (no-phone keypair + mnemonic recovery; dropped then restored PFS — the cautionary
+"don't trade away forward secrecy"). *[Signal/Delta/Matrix-frontier facts: confirm before publish.]*
 
 ## 3. The public-social field map and the three "own-your-data" poles
 

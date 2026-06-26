@@ -1146,6 +1146,33 @@ The 2026-06-26 social-graph-substrate dialogue
 
 ---
 
+## 42. Field-trades fact-check + the decentralized-MLS ordering tension (corrects 03; sharpens the spec)
+
+The 2026-06-26 adversarial field-check
+(`seeds/transcripts/raw/field-trades-four-property-impossibility-dmls-and-redb-dialogue-2026-06-26.md` →
+`thinking/field-trades-and-the-ordering-tension.md`) tested `beta/03`'s framing. All facts **[confirm
+before publish]**.
+
+- **Corrections folded into `03`** (over-claims softened / outdated facts fixed): **Signal** is phone-rooted
+  only at *registration* (usernames 2024); **Delta Chat** under chatmail no longer leaks email metadata
+  (RFC 9788 Header Protection 2.48+) — only a relational residue; the **four-property "impossibility" is an
+  engineering tension with a quantified FS cost**, not an impossibility — which **strengthens** the
+  honest-trades framing. SSB + Briar confirmed. Status: **folded (flagged)**.
+- **The decentralized-MLS ordering tension** (the spec's own design space): removing the Delivery Service →
+  forks → out-of-order commits **degrade forward secrecy** (retain key material). **DMLS/FREEK**
+  (puncturable PRF, storage cost ∝ fork frequency) and **`draft-xue-distributed-mls`** are sibling
+  serverless approaches; **every production MLS is server-ordered** (no shipped escape). Routed → **T29**
+  (MLS↔governance-log binding), **`drystone-spec` Part 2 App-A.1** (related work), **ECOSYSTEM §2**.
+  **Load-bearing consequence:** Drystone's fork/reconcile + survivor/re-key model carries a **real FS cost**
+  (the price of holding the tie-break window open) — couples **T22**. Status: **OPEN** (design against or
+  adopt FREEK).
+- **redb** facts (1.0/savepoints/MVCC/per-txn durability/stable file format) **confirmed** the build-prompt
+  reliance (3.x API still web-sourced).
+- **Provenance:** web-verified-in-dialogue; `BETA-ROLLUP.md` "Field-trades fact-check + DMLS/FREEK intake
+  2026-06-26"; couples §37/§41 (Drystone governance / spec).
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the

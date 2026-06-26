@@ -752,6 +752,22 @@ suite.*
   timestamp tiebreak is clock-gameable. Drystone keeps power out of the ordering spine entirely (§7.5.2).
   **[confirm before publish — Matrix State Resolution claims]**
 
+### A.1 Related work — decentralized MLS (and the forward-secrecy cost of serverless ordering)
+
+Drystone's §7 (serverless, timestamp-free deterministic ordering with fork-by-construction and a
+deterministic tie-break) sits in the same design space as the active **decentralized-MLS** work, and shares
+its central problem: with no Delivery Service to order Commits, concurrent commits fork, and **processing
+commits out-of-order degrades forward secrecy** because clients must retain key material. Two sibling
+approaches: **DMLS / FREEK** (Fork-Resilient Continuous Group Key Agreement) recovers most of that forward
+secrecy with a **puncturable PRF** — at a **storage cost that scales with fork frequency** — and
+**`draft-xue-distributed-mls`** ("Send Groups," PCS+FS without global ordering consensus). Both are
+**drafts / proof-of-concept as of mid-2026; every production MLS deployment is server-ordered.** The
+relevance to this spec: the fork/reconcile model (§7.6) and the survivor/re-key path are **not free of an FS
+cost** — reconciling a fork means retaining (and ideally puncturing) key material, the price of keeping the
+tie-break window open. Drystone should either design against or adopt a FREEK-shaped mechanism; tracked as
+an open binding alongside the MLS↔governance-log consistency item. **[confirm before publish — DMLS/FREEK,
+draft-xue, and the MLS-deployment-status claims.]**
+
 ## Appendix B. Open Questions (forming; not weakening the normative sections)
 
 These are known-incomplete and tracked so they are not mistaken for settled:

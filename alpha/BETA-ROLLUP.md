@@ -449,6 +449,25 @@ user's Drystone(protocol) / Croft(app) / redb(local-impl) cut:
 `drystone-spec`. Web-searched facts (Keet/ATProto/redb/Automerge/MLS) carry **[confirm before publish]**.
 Seam: COHESION §41.
 
+## Field-trades fact-check + DMLS/FREEK intake (2026-06-26) — corrects `03`, sharpens the spec
+
+New alpha intake (`seeds/transcripts/raw/field-trades-four-property-impossibility-dmls-and-redb-dialogue-2026-06-26.md`,
+an adversarial fact-check of `03`'s framing + a redb confirmation) synthesized to
+`thinking/field-trades-and-the-ordering-tension.md`. All facts **[confirm before publish]** (web-verified-in-dialogue).
+
+| what | treatment | landed in |
+|---|---|---|
+| **Signal phone-rooted only at registration** (usernames 2024, not the contact graph) | **carried-flag correction** | `beta/03` narrative + §2 field map |
+| **Delta Chat no longer "inherits email's metadata leak"** (RFC 9788 Header Protection 2.48+; chatmail stores no metadata; relational residue only) | **carried-flag correction** | `beta/03` narrative + §1 + §2 field map |
+| **Four-property "impossibility" → engineering tension with a quantified FS cost** (DMLS/FREEK counterexample; ordering can be deterministic not a privileged peer; "no *production* deployment," not "impossible") — **strengthens** the honest-trades framing | **collapsed/corrected** (softened an over-claim) | `beta/03` narrative + §1 |
+| **DMLS/FREEK + `draft-xue-distributed-mls` + the FREEK out-of-order-commit FS cost** (puncturable PRF; storage scales with fork frequency) | **synthesized** as decentralized-MLS prior art | **OPEN-THREADS T29** + `drystone-spec` Part 2 **App-A.1** (related work) + **ECOSYSTEM §2** (DMLS/FREEK row; draft-xue already via Germ §6) |
+| **MLS deployment status** (all production server-ordered: Webex/Wire/Discord, Google/Apple RCS) | **harvested** | `beta/03` + ECOSYSTEM §2 |
+| **redb facts** (1.0 Jun 2023, savepoints, MVCC, per-txn durability, stable file format; no Jepsen-grade evidence) | **carried-flag CONFIRMATION** of the build-prompt facts (3.x API still web-sourced) | `thinking/field-trades-and-the-ordering-tension.md` §4; build prompt |
+
+SSB + Briar **confirmed** (no change). The corrections **soften over-claims / fix outdated facts in a
+settled theme** — safe pre-confirmation (removing over-claims); the new facts carry **[confirm before
+publish]** and couple **T29** (MLS↔log binding) and **T22** (survivor/re-key FS cost). Seam: COHESION §42.
+
 ## Settled conclusions not yet folded (2026-06-25 completeness audit)
 
 > **Landing-pointer redirect (2026-06-26):** the K-tables below (and the K13–K16 / K17 tables above) record
