@@ -355,6 +355,40 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
   equivocation attribution (C9); model the ban-evasion re-add (C10).
 - **Alpha provenance:** `../alpha/thinking/merge-split-corpus.md` §4 + §6 ("Tier 1b — reconcile-case corpus").
 
+> **T21–T22 added 2026-06-26** from the rights-vs-capabilities grounding folded into `01` §5 (K17). The
+> discriminating test and the four-rights cut are settled and in beta; these are the two
+> **verify-before-hardening** checks deliberately kept out of the `01` narrative — they gate hardening the
+> four-rights *closed set* into the normative Drystone spec. (Were ROADMAP_TODO E32 b/c.)
+
+### T21 — Is `share` fully a right, or partly a membership-class capability?
+
+- **Status:** `gated`.
+- **What it is:** of the four rights named in `01` §5 (tenure / exit / voice / share), **`share`** — a claim
+  on the collective's commons — is the least-settled. If `share` can be legitimately diluted by governance or
+  membership class (a real possibility under the cooperative model), then part of it behaves like a
+  *capability*, not a right. The boundary "no right to remove the rights of others" needs to know **which
+  portion of `share` is the inviolable floor** and which portion is a class-varying entitlement.
+- **Promotion target:** **01** §5 (sharpen the `share` definition) + **07** (the cooperative membership /
+  patronage model decides the dilutable portion). Couples the Drystone spec's rights-floor (§2).
+- **Gates:** decide, in the cooperative model, the inviolable-floor vs class-varying split of `share`; then
+  the four-rights closed set can harden into the spec.
+- **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
+  `../alpha/ROADMAP_TODO.md` **E32 (b)**; `beta/01` §5; `beta/07` Pillar A.
+
+### T22 — Does the `04` survivor re-key strand a peer's `tenure`?
+
+- **Status:** `gated`.
+- **What it is:** `tenure` (standing to remain a peer) is stated in `01` §5 as an absolute right. But the
+  `04` survivor / re-key mechanism could, in implementation, **strand a peer** (leave it unable to rejoin a
+  re-keyed group). If so, `tenure` has an implementation-level exception that must be **named explicitly**
+  rather than left absolute — otherwise the boundary over-claims.
+- **Promotion target:** **04** (the survivor/re-key mechanism — does it preserve tenure, and under what
+  bound) + a precise caveat back into **01** §5 if an exception is real.
+- **Gates:** a protocol-level check of the re-key/survivor path against the tenure claim; if an exception
+  exists, specify its bound; then the four-rights closed set can harden.
+- **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
+  `../alpha/ROADMAP_TODO.md` **E32 (c)**; `beta/01` §5; `beta/04` (survivor re-key) / `beta/05` §7.
+
 > **Folded into existing, not new threads:** the inter-collective peering *settled shape* (BGP-autonomy +
 > postal-hierarchy + signed routing) → add to **T2**'s provenance so T2 doesn't re-derive it. **Borderline
 > (engineering, likely ROADMAP not a beta thread):** the Automerge-over-application audit, and the Wire

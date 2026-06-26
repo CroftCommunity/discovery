@@ -1,0 +1,299 @@
+[Speaker 1]
+Okay, I'm looking at the beta contents. And I'm looking at 01. I'm gonna read through things and kind of take verbal notes for Claude refinement.
+
+[Speaker 1]
+This theme is the deepest y under Croft. See, I think this really is the basis for dry Stone, which to be fair, dry Stone is the basis for Croft protocol wise, but We should. Kind of structure that as? This is the. Philosophical underpinnings, that sort of. You know, lead to the protocol protocol itself, like, you know, manifests?
+
+[Speaker 1]
+Kind of the little craft ecosystem. The claim. A distributed system can only ever establish provenance what is consistent and corroborated. Never truth. I think the better way to say it would be a node in a distributed system can only ever establish provenance what is consistent and corroborated. Never truth because it's really the node.
+
+[Speaker 1]
+Itself, the system the distributed system is there to facilitate nodes having. The necessary view.
+
+[Speaker 1]
+Truth is structurally outside a Network's reach. Because a network sees assertions and agreement patterns, never the world. The assertions are about, so the honest system computes provenance and leaves judgment with the people at the edges.
+
+[Speaker 1]
+Yes. I don't know what that is. The razor means exactly. You might want to remove it. The theme them shows is not one designer's preference, but a conclusion that five disciplines reached independently across 2400 years. Ethics, epistemology, economics, political science, and system science, each from its own starting point, none arguing with the others.
+
+[Speaker 1]
+Let's remove the nun, arguing with the other's line. That's weird. That convergence is the strongest corroboration. The idea has. The razor falls from the razor Falls, the generative premise local first state is the same sentence as the epistemology, which is the primary copy lives with the unit and the network reconciles.
+
+[Speaker 1]
+I feel like we are. Kind of intermixing distributed system and network here. Like, we should be consistent or Define that. You know, distributed system is nodes communicating remotely about, you know, some? Common truth or something, so that and truth is local and corroborated, never certified from a center. Yes, in a distributed system again, a reason not to use the network reconciles there because the architecture and its justification run on the same engine.
+
+[Speaker 1]
+The system earns belief the way it describes belief being earned, and the premise propagates into identity history, governance, Federation, and even name resolution. I don't know about name resolution. I mean, I know what that's about. Um. But I think maybe it's.
+
+[Speaker 1]
+Something about, you know? Point of presence like, yes, it's hierarchical. Naming something like that? Um, the theme closes on the design posture that follows? Design the conditions, then get out of the way. The negative space is the design. How about the negative space is a? Intentional and critical. Part of the design and the one principal boundary.
+
+[Speaker 1]
+Is that the whole project review that the whole project refuses to cross? No right to remove the rights of others. I like this, but it's weird that that no right to remove the rights of others is in prints. It's also weird that the design the conditions u. Line is in parens because those are like.
+
+[Speaker 1]
+The legitimate call outs. With its confirmed legal ancestor. Yeah, I mean, I do know that. That's like related to. Um. You know, using devices on a proprietary Network, I think but? I just think probably not the right place in it when we're kind of laying out the. The reasoning foundations that's like?
+
+[Speaker 1]
+You know, a second pass of like another document of, like, you know, historical alignment or something? So? The epistemal epistemological claim that grounds the architecture provenance, not utility. Truth is structurally Out Of Reach for a distributed system for nodes in a distributed system and then. It's that nodes in a distributed system can only ensure provenance.
+
+[Speaker 1]
+Because utility is, you know, value system effectively.
+
+[Speaker 1]
+Local first is the generative premise and the two-part theorem. Humanity respects entails. Local first Central truth design is necessarily faulty. Friction as diagnostic, yes, but? I guess we're just enumerating.
+
+[Speaker 1]
+It's that yeah. The design posture designed for conditions. The negative space of design. I mean, one print. There's more than one principal boundary because we looked at other places, and we said, you know these, we say that, you know, equal inner rights, not capabilities. So then we have to Define what the rights are, right?
+
+[Speaker 1]
+So one principal boundary that the you agree, these are the rights of a node. Another one is, you know, there can be no right to remove the rights of others. The inverse correlation protection and the confirm, yep.
+
+[Speaker 1]
+I like the lift of equine rights, not capabilities to the equal possibility of a octave shapes. Yep, and variety, you know, crucially?
+
+[Speaker 1]
+The theme. Okay, so that's about this document. Okay, so compute products and over utility. A distributed system sees two things once again, isn't it? A node. Isn't that what we're saying and the node in this case for us is up here? Because we're defining what appears by the rights floor that defines a peer so like in the system to be a peer.
+
+[Speaker 1]
+We're saying these rights have to be true, and we have that sketch out in another place. It's his assertions and agreement patterns. Who corroborates, whom and never sees the world the assertions are about. Yes, so, is this true is a question about something structurally outside of the system's reach structurally inside of the system and the node?
+
+[Speaker 1]
+The only questions answerable inside the system review is internally consistent. Which which in turn means locally consistent with a node's view of. The state within the system itself, and who else us hurts the same alignment, neither of which is a truth claim only a provenance. And corroboration right from this follows angle design imperative.
+
+[Speaker 1]
+The system establishes what is consistent and corroborating human Supply. What is right and true? I mean nodes in the system, establish what is consistent and corroborated. Through interaction with the system. Providence is a closed determinant question. Does the chain verify? I don't understand that sentence utility is open in principle, living in plural, revisable values.
+
+[Speaker 1]
+System that tried to certify truth would encode. One conclusion would, by necessity. A system that tried to sort of, oh, how about? In the affirmative systems that attempt to certify truth must encode. Really fixed conclusions, often even one conclusion as objective fact and marginalize. Everyone. All other nodes who see it differently.
+
+[Speaker 1]
+Who have come to different conclusions, corroborated different truths or different local state. This includes by Nature dissenters who turn out to be. Correct? Or, you could say rather than so, we said truth. And then, then, we're saying, turn out to be right. We really kind of need to firm that up, like, are we talking about?
+
+[Speaker 1]
+You can't discern. Okay, we're saying, you can't discern truth, but also a dissenter turns out to be, right? Really, it's the dissenter turns out to be.
+
+[Speaker 1]
+Node that is judged to have the highest utility right by. The human. So, the honest mission is not truth, but trustworthy disagreement. That line is a banger that one should really probably be its own thing. This is the general form of the protocol layer rule in, yes, and once again.
+
+[Speaker 1]
+I think what we're looking at here and number one is is basically. The foundations for reasoning about why the protocol is structured. The way it is, so it's this is much more. The epistemiology of epistemology of dry Stone than it is necessarily cropped, even though that's, you know, it's kind of a one, two, three.
+
+[Speaker 1]
+So, the razor is unrepresented in ship systems, but is not a Wilderness, right? Okay, so we Define the razor before we should say. The truth of? You know, node local state always being. The state from which decisions and distributed system are made because all nodes in a distributed system are making decisions based on the local state.
+
+[Speaker 1]
+They have at the time, and then the system is designed to effectively give them the appropriate or the expected amount of state to reason about, but. It's still that local state is.
+
+[Speaker 1]
+Ultimately, Supreme. I don't want to use that word, but? You know, that's the idea is, like, oh, okay, just like human beings, we can only make decisions from the, you know, the experience and the data we have. Thinkers who never? Who are never collaborated. Arguing. Thinkers who never collaborated, arguing from different starting points independently, arrive at pieces of the same conclusion.
+
+[Speaker 1]
+I mean, I like that point. It's a little weirdly said. Each quote is below is preserved whole in its citation. Yep. So, the Socrates quote I'd like to just ditch like, I just think it's too broad to to say. You know? Uncertainty, basically. Like, you could also call in Buddha and beginner mind, and I just think it seems.
+
+[Speaker 1]
+Two hand wavy. Let's just exclude this. I think the case is strong enough without reaching that far out, like, yes, I agree, philosophically, like? This is the same family tree, but I also think.
+
+[Speaker 1]
+This is too loose of interpretation on, like a backing to really start with it. We should just exclude the Socrates quote and then just rethink the timeline. Who cares if it's 2400 years? We just said that. You know, one node right against all, you know, all their nodes is still, right, like?
+
+[Speaker 1]
+That means that it doesn't matter how long something's been right or wrong for as well. Um, Mill names the cost of silencing The Defender if all mankind -1 word of one opinion and only one person were of the contrary opinion mankind would be no more Justified in silencing the one person than he if he had the power would be and Justified in silencing mankind.
+
+[Speaker 1]
+Yep, I like that quote. Making one.
+
+[Speaker 1]
+In one unified case. This is the moral spine of let the descender Fork. We should have really LED with that, really like? You know, we're? Burying the lead there. Silencing is theft from the present and from posterity, so the fork must always stay available as they dignified exit. I don't like the silencing its theft from the present from posterity.
+
+[Speaker 1]
+Like, I get what you mean. It just comes across as hand wavy. Maybe we can make that same? Kind of point in a different way. Which is why refuses algorithm y? Which is why o4 refuses, and we really need to like. If we're gonna interreference these, we should come up with a shorter like thing than 04.
+
+[Speaker 1]
+Like, what is the stand in name or principle there? Because it's just awkward to read as 04 refuses? Right, but really, the verification here kind of should be the lead in, which is. The pro, the design of the protocol. Is meant to refuse to algorithmically adjudicate social disputes and refuses moderation as surveillance moderation as?
+
+[Speaker 1]
+Yeah.
+
+[Speaker 1]
+I don't know whether it's surveillance or outside surveillance or. Un agreed upon surveillance or something like that? Maybe that's fine. Refuses moderation as surveillance. Instead, accepts, you know?
+
+[Speaker 1]
+The ability for nodes to determine their relationship to, you know? Moderation and outcomes of adjudication, that kind of thing. Epistemology certainty is unreachable, yes, but we really need to say, like. Certainty for a node and a distributed system is unreachable, right, like a node can't know what else is happening out.
+
+[Speaker 1]
+There can only again work from its first thing. I don't like the do not block the inquiry quote because I just feel like it's maybe there was more to it in the original. Transcript or something, but just a do not block the way of inquiry is. Too hard to understand in this terms at this point.
+
+[Speaker 1]
+In the reading. The canonical wording is wave inquiry, the prior Road of inquiry variant. Okay, so we corrected the quote. Truth is, what a community of inquiry converges towards over. I don't like that. Truth is, what? Maybe it's?
+
+[Speaker 1]
+The corroborated reality. Corroborated reality.
+
+[Speaker 1]
+Corroborated effective true immunity because? I just don't like the idea of like? This still makes it seem like there's one truth, you know. So, crowd reality is what a community of inquiry converges towards over unlimited time. Approached, never possessed. Oh, I see. So, we're saying, truth isn't. Yeah, that's fair.
+
+[Speaker 1]
+But we still need to kind of reword that to differentiate between what we can and what we cannot. Gossip, convergent with humility. Built into the math, the system was never foreclose revision. That's a confusing way to say that. Our knowledge can only be finite while our ignorance must necessarily be infinite.
+
+[Speaker 1]
+Yes, I like that because it does speak to the idea that a node in the system really has infinite ignorance about what the other nodes are doing, and like, we just have to accept that. And once we accept that, now we can kind of design for real conditions. Um.
+
+[Speaker 1]
+Theories are never verified, only corroborated by surviving refutation appears. History is conjecture. Agreement is corroboration again. That line is. Kind of the heart and soul of this, and we're burying it here. A claim is ever is only ever not yet overturned provenance. The survivable record is exactly what a never verified.
+
+[Speaker 1]
+Only corroborated epistemology can honestly compute. Yes, very mouthful. Way to say it. Maybe we can? Make that simpler and so more digestible. And, like, I'm realizing that a lot of the grounds in these sections, like, that's really the hot, the kind of Top Line item here. Economics. The knowledge of Center would need cannot be centralized.
+
+[Speaker 1]
+The knowledge Center would need to what?
+
+[Speaker 1]
+Always make. Um. You know? Truth is decision or something, I know it. I know what we're getting, I just that's not a good way to do it need for what the peculiar character of the problem of a rational economic order is determined precisely by the fact that the knowledge of the circumstances which we must make use never exist and concentrated or integrated form, but solely in the dispersed bits of incomplete and frequently contrajictory knowledge, which all the separate individuals possess.
+
+[Speaker 1]
+Yeah, I love that. Out makes. I think it. It plays greatly in right. I really think the better play is to, like, start off a section with a quote that you know, or like, start off a section with, like the grounding thing, and then kind of the quote that is the tie in from outside and then kind of moving on to the walking it out.
+
+[Speaker 1]
+So? Incomplete and frequently contradictory is the Network's actual condition is a distributed system's actual convention. Once again, we're mixing that up, which was stated in 1945, so it was the quote that were taught unclear. There practical is inarticulable, which is why utility cannot be computed. Yes, the Judgment a human brings to a Divergence.
+
+[Speaker 1]
+Is the local time and place knowledge. No Center can caption, so decisions belong at the edges decisions and. Value judgments. Ostrium is the so this is 2 4. Osteum is the Imperial empirical answer to is this utopian? No Noble winning documentation. Yada yada? Yep. Terry robust government's tasks are assigned by default to the lowest jurisdiction, unless by that, I think we're saying.
+
+[Speaker 1]
+The nodes, right, like? The The Edge nodes in a peer-to-peer system. It's all Edge nodes, you know? Which is fascinating? So, the empirical finding of the two map principles are verified against secondary academic summaries. The subsidiary passages from the 2013 generalization, not yes. Okay, so we need to pull the.
+
+[Speaker 1]
+Direct text. Keep governance local where consent is cheap again. That should basically be the top line here. Federate only irreducible. Minimum yes, makes sense. Her quote backs it up, and then we should walk out after that. Like, and why that's necessary, not optional? Plurality is a survivable. Survivable. Condition, not a preference.
+
+[Speaker 1]
+I think maybe the better way to say it is plurality is a necessary condition for.
+
+[Speaker 1]
+Distributed for a distributed for for node Health in a distributed system where nodes are equal peers. Right with? By Nature, diverging views of.
+
+[Speaker 1]
+What's corroborated, you know, and what's asserted? So only variety can destroy variety. I, I think we're cutting off a lot of that quote there or. It's confusing this quote because that little line is too confusing. But then there's the when the variety or complexity of the environment exceeds the capacity of a system, natural or artificial.
+
+[Speaker 1]
+The environment will bound it and ultimately destroy that system, so I don't want to paraphrase here at all. So I don't like that. And I think we have a better quote somewhere in our literal. Transcripts for the? The first Ashby thing. This is like inferred and a real quote, and it's very confusing, um.
+
+[Speaker 1]
+So, grounds a regulator that collapses plural perspectives. So, a regulator, such as a central store of? Factor truth. A central. You know, unoverridable, like, con, you know? Pretend canonical. I don't know the right way to say that collapses plural perspectives into one certified truth is brittle by formal law, yes, and will be overwhelmed by the reality it oversimplified or.
+
+[Speaker 1]
+We will be overwhelmed by it. Yeah, well, it might be overwhelmed or so. It's either going to be overwhelmed or it's basically. Remove variety from the system. It's going to prune, you know, the parts that it can't represent by Nature. Preserving plural perspectives, allowing Forks refusing to collapse Divergence is requisite.
+
+[Speaker 1]
+Variety made architectural plurality is robustness. Yes, I love that line, and we're kind of burying it. Beer turns the law into a blueprint. Attenuate versus amplify the alginic signal. Escalate the hard case to a human. I feel like we're jumping right into the weeds. There needs some more explanation and Exposition.
+
+[Speaker 1]
+And then I don't like the paraphrase again. I want, like the real quote, and then we explain the real quote. Let's not try to like, show a quote that's a paraphrase, and then also explain, you know what I mean, it doesn't make any sense. The point of the direct quote is that it backs up like?
+
+[Speaker 1]
+Philosophically reasoning wise. The points we're trying to make?
+
+[Speaker 1]
+Um. Grounds, the formal version of escalade to human judgment right from beer. So, we definitely need to walk that out better and link that up and pull the real better quote and all that. The cautionary tale is Scott's monoculture Forest, 18th century Prussia. Scientific Forester forestry reduced diverse Forest, one Timber, and replaced the ecosystem with early rows of one species.
+
+[Speaker 1]
+I mean, I like this point. I just think that we're confusing things with the way we're saying it because it. Then you get into like a Wellered trees. Nodes in the system, and I just feel like it's. I think we should make this point simpler and just basically say.
+
+[Speaker 1]
+An example, you know, a complex distributed system can be simplified into one into a one commodity machine, but effectively it will make it so brittle. You know. So the idea is that it's viewed as an optimization, and it can be from the point of view of the center. But we have also shown that the center by Nature has to effectively dough variety and so reality, you know?
+
+[Speaker 1]
+Um. So, then there's the quote, seeing like a state, yes, which we just kind of like? Make confused or we don't actually quote. That's weird, at least not like the other quotes. The design job is not to be the blight. Do not optimize towards a single, legible value. Variety is generated and selected, not designed.
+
+[Speaker 1]
+Yes, so we're making a couple points in this section. One of them is. We're not trying to. Create the variety of the system. We're setting the conditions for that variety to flourish, which actually does tie in better to the forest. Analogy that even so, I still think that's just awkwardly.
+
+[Speaker 1]
+Made and fit, and the grounds here even needs a little judging and should be higher up like before.
+
+[Speaker 1]
+So, what? None of them were arguing for this system and known that blah blah, okay? So, I don't really care for the why. Convergence is the proof, because that's a bit like. Preponderance sort of thing. No Center can hold the truth. Plurality is a survival condition. Of a distributed system where all nodes are equal.
+
+[Speaker 1]
+And the honest design, surface surfaces, disagreement, and leaves judgment at the edges. Yes, and we kind of said the same thing earlier, so I feel like the sections here kind of can use a little bit. Local first is the same sentence as the epistemology, the engineering premise, and the epistemological premise are the same sentence, said twice.
+
+[Speaker 1]
+Now, I would say same concept restated, right? Because the architecture in its own justification run on the same engine, the design earns belief the way it describes belief being earned. I like that line. I don't have a clue what it means. There was only ever one thing being said again, too.
+
+[Speaker 1]
+Confusing, made sense in the context of, like some of the transcripts, but we have, like. Little bits and pieces and aphorisms from transcripts scattered in here that just don't make any sense moments. We made them into one document. The premise propagates all the way up each layer. So, yes, identity local.
+
+[Speaker 1]
+First, state your DID, is yours carried when you move. So, this is right where I think we're getting into to my point before. Like, we're really talking now about dry, so? You know? History. Local, first state. The hashtag you hold verify locally reconcile, not certify across peers. Provenance, not utility, falls out.
+
+[Speaker 1]
+Yep, governance local first applied to consent. Standing is State, you hold, not permission. Granted, Fork is local, first native move, when peers disagree. Local Fork is a local, first preserved. Option, right? When peers disagree, maybe Federation is legal first at collective scale the collective, so we haven't introduced Federation here.
+
+[Speaker 1]
+Or Collective, so we're just kind of. Either we have to sort of explain that groups of peers. Can function as a collective, or we have to sort of save this for later. Or something, even resolution is local, first applied to dependencies. Yeah, I don't like that line.
+
+[Speaker 1]
+Her two-part theorem, Humanity. Respecting system must be local first because the person is the unit of composability and Central primary state has already made the person secondary. Yeah, okay. I think we should reverse that and be like, or just say, a Humanity respecting system must be local first because.
+
+[Speaker 1]
+The person who is? Arbiter of utility is the unit of composability. You know. And then, in contrast, a central, Central, Central primary State already makes the person and their variety secondary. Central truth design is necessarily faulty. Right. And okay, so we're making the already made them. We're making that point again.
+
+[Speaker 1]
+So, because by requisite variety, the center sender is always below the variety. Governments must Force reality down to fit. Yes, is necessary but not sufficient. The Edge can be wrong, too, and so friction is diagnostic. Yes, we're not saying that the nodes are right. We're just saying that the center.
+
+[Speaker 1]
+When you talk about variety and complexity? Because the center is bounded, it can't possibly represent all states, you know? That her combinations are truths, I guess. Is not the same as manufactured friction, right, a center force? Yeah, so we're basically saying. We're not saying it's, it's a perfect world.
+
+[Speaker 1]
+We're saying the frictions are honest and like. Can be adjudicated and, and you know, the honest disagreement thing? That is designed for the conditions. Get out of the way. Yep, the conditions of a healthy system are knowable and finite, even though the variety they permit is unbounded. Yes, you can specify the soil without specifying the forest.
+
+[Speaker 1]
+Yes. The enabling set is mostly restraints. Not almost no features. That's confusing. The negative space is. Critical to the design, I guess, secure standing a real cheap dignified exit, an honest, non-equivocating record accessible resolution that defers judgment. I'm not sure what that means. A refusal to optimize towards a single, legible value.
+
+[Speaker 1]
+Towards a single, legible perspective State, something like that. Giving up the authority to decide the outcome is also the falsifiable discipline. You can be corrected observably when the variety dies. That's a confusing sentence to me. The one principled boundary. It's not the one, like we said earlier. It's the one printable negative boundary, I guess, or yeah.
+
+[Speaker 1]
+Um, variety is permitted in everything except the removal of another standing to hold variety. A fork creates a clearance destroys. Yeah, that's fair, right? Standing tenure standing. 10-Year exit voice share, okay, are not the collectives to remove again. Now, we're using Collective, whereas before we use it to describe something, they can be Federated.
+
+[Speaker 1]
+So, like, we really. We really need to like. Shake that out. I think we just mentioned Federer. We need to define the collective. We need to define Federation like we're using these if we're going to use these terms like concrete pronoun waves and we really have to get more specific.
+
+[Speaker 1]
+The wolf test. Any action that generalized would remove the conditions of its own. Contestation is illegitimate by Nature. The tell is self-cancellation. I like that sentence. I feel like it's very confusing. Rights removal is the only self-amplifying move towards collapse. Yeah. It lowers the variety available to resist the next removal.
+
+[Speaker 1]
+Monoculture mechanism is a in a polity. What the hell does that mean? I think it's right. So, the rights floor is a consistency and equality requirement, not a moral overlay. Yes. Well, consistency inequality requirement. In a distributed system where equal nodes need to represent Divergent views. Which nodes that are meant to be a proxy for the, you know, a digital human experience have to do?
+
+[Speaker 1]
+Inverse correlation of protection, maximal Freedom, where exit protects you maximal protection of Rights where exit cannot. I think that's a good line where contest contestation is cheap. Get out of the way where decisions are irreversible or Singleton bound. Constitutional rigidity by its hardest. I don't like bites hardest, or maybe, like?
+
+[Speaker 1]
+Is required for, you know, Fidelity in the system or something.
+
+[Speaker 1]
+What separates a right from a capability is a property. Is an intrinsic property, not a list. A right is standing that must survive for any dispute about it to stay contestable. What is about it? Mean any dispute about? Divergent. Local, Divergent State. What's it there, remove it, and the holder?
+
+[Speaker 1]
+Yeah, it is the right. Okay, so, is it a right standing that must survive any dispute about the right to stay contestable? Remove it and the holder loses the very means to object. I think the sentence is right, but it's confusing a capability. A role. So, elsewhere, we've said.
+
+[Speaker 1]
+Um. We have. Capabilities, which are things you can do roles, which basically? You know, Grant? Member pier in a group, the ability to exercise a capability like on their behalf, a delegated Authority, right. So, you delegate the execution of a role effectively for some principle can be a group as a principal can be a, you know?
+
+[Speaker 1]
+Person or advice, a moderation power, right access. Vote waiting is a power whose removal leaves the holder standing to object intact, right? So? If you don't have a capability like, that's fine. Lose admin on a collective, and you can still contest the loss through 10, your voice and exit.
+
+[Speaker 1]
+And that is the tell. It was a capability. Okay, this is the same cut as. Something three? Rights are local. First, state, the person holds and cannot be reached into. That's a confusing sentence, since we sort of defined rights before. But we could say.
+
+[Speaker 1]
+Protect the.
+
+[Speaker 1]
+Standing of local First State, the person holds, or the node holds in a distributed system and cannot be reached into by other nodes or cannot be inspected directly by their nodes. Capabilities are mediated through roles and relationships and so move. Yes. And the standing. Side, face of the data plane control plane split.
+
+[Speaker 1]
+So, the four rights are each fixed by what the removal would foreclose. Yes, I like that tenure standing to remain appear. Remove it in the unit is erased, right? So, we need to. But what? What exactly do you need that adds up to tenure? Exit three to Fork or?
+
+[Speaker 1]
+Uh, exit, or remove right. Remove it in the Decenter has nowhere to go. Voice standing to assert into the record and be corroborated or refuted. Remove it in the assertion, itself goes invisible, yes, and share.
