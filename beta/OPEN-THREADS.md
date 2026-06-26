@@ -578,8 +578,17 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
   couples T1 (governance), T29's sibling §7.5 frontier-closure, and the survivor/re-key path (T22).
 - **Gates:** specify the membership-fact → MLS-commit binding and its behavior at fork/partition/re-key;
   confirm the Matrix-in-federation comparison **[confirm before publish]**.
+- **Prior art (added 2026-06-26, [confirm before publish]):** this is the **decentralized-MLS frontier** —
+  **DMLS/FREEK** (Phoenix R&D; FREEK = Alwen/Mularczyk/Tselekounis) and **`draft-xue-distributed-mls`** are
+  sibling approaches to serverless ordering, drafts/PoC only (no production deployment). **FREEK quantifies
+  the exact cost** Drystone's fork model incurs: processing out-of-order commits degrades forward secrecy,
+  recovered via a **puncturable PRF** at a **storage cost** that scales with the retention window, group
+  size, and **fork frequency**. So Drystone's "forks self-heal by deterministic tie-break in the retention
+  window" is **not free** — the FS price is retain-and-puncture key material; this couples **T22**
+  (survivor/re-key vs tenure). Design against, or adopt, the FREEK mechanism.
 - **Alpha provenance:** `research/messaging-solutions-landscape.md` §top-unresolved #3;
-  `thinking/social-graph-as-substrate.md` §7; `thinking/multi-device.md`.
+  `thinking/social-graph-as-substrate.md` §7; `thinking/multi-device.md`;
+  `thinking/field-trades-and-the-ordering-tension.md` §3–4.
 
 > **T30 added 2026-06-26** — consolidates the scattered spec-maturation work (spec App-B `ENABLING` items +
 > `[confirm before publish]` flags + T1/T23/T29 residuals) into one tracked path-to-publication thread, so
