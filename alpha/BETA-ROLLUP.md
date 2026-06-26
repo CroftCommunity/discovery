@@ -351,6 +351,77 @@ Provenance: `thinking/rights-vs-capabilities-definitions.md` (the cite-able bloc
 partly a membership-class capability (→ 07); does the 04 survivor re-key strand `tenure` (→ 04). **Staged
 beta `../beta/OPEN-THREADS.md` T21 / T22** (2026-06-26); tracked ROADMAP_TODO **E32 (b)/(c)**; seam COHESION §39.
 
+## Beta 01 review → Drystone protocol spec (2026-06-26)
+
+A voice-transcribed read-through review of `beta/01-epistemic-foundation.md` (now filed
+`beta/thinking/raw/01_beta_review.txt`, manifest row added) was processed into a classified refinement
+list (`plans/2026-06-26-beta-01-review-refinements.md`). In dialogue the target was reframed: rather than
+polish 01 in place, **01's content became Part 1 of a new beta Drystone protocol spec** — a build-against,
+certify-against document in the format of the alpha `thinking/drystone-spec/` scaffold. The spec is
+**vendor-neutral**: Drystone is the protocol; Croft is one ecosystem built on it (not the protocol).
+
+**Landed:** `beta/drystone-spec/` (README + `part-1-reasoning-underpinnings.md` +
+`part-2-certifiable-design.md`).
+
+| source | treatment | landed in |
+|---|---|---|
+| `beta/01-epistemic-foundation.md` (the razor; local-first; rights-floor; equal-in-rights; design posture) | **synthesized** into named design principles | spec **Part 1** §2 (`P-Local-Truth`, `P-Knowable-Truth`, `P-Peer-Equality`, `P-Durable-Enablement`) + §2.0 razor + §3 convergence |
+| `01` cross-field grounding (Mill, Hayek, Ashby, Popper, Ostrom) | **carried-flag** (verbatim quotes whole + per-quote verification) | spec Part 1 §3 |
+| `crystallized/CROFT-PROTOCOL.md` (proven wire spec) | **synthesized** (data model, signed message, integrity-vs-authority, multi-device fold, transport/media, freshness, visibility, failed-op, conformance) + **carried-flag** (green-real / green-model / design proof status) | spec **Part 2** §4, §6, §7.4/§7.6, §8, §9 |
+| `thinking/drystone-spec/section-2-peers-rights-capabilities.md` | **synthesized** (one peer; rights vs capabilities; capability/role/PeerSet; meer; revocation; exitability; asymmetry-of-expressible-range) | spec Part 2 §5 |
+| `thinking/drystone-spec/section-x-governance-conflicts.md` | **synthesized + carried-flag (ENABLING)** (append-only governance log; timestamp-free total order; R1–R6 capability interface; attributable acceptance; regress-free fold; Track A/B) | spec Part 2 §7 |
+| `thinking/drystone-spec/drystone-spec-v0.1-skeleton.md` | **synthesized** (RFC structure, defensive-publication notice, CC0 text license, sequencing caveat) | spec README + section frame |
+
+**This filled a real gap:** the alpha section drafts `Realizes` `P-*` principles whose defining §1 was
+**never written** (ROADMAP E30) — Part 1 writes them.
+
+**Review decisions applied (content changes from the settled 01):**
+- **Excluded:** the **Socrates** quote(s) (over-broad; ethics now leads with Mill) and the **Peirce** "do
+  not block the way of inquiry" quote (too opaque in context). *Both were `Verified`; cut on the author's
+  review direction, not a verification failure.*
+- **De-emphasized:** the "2,400 years" framing (duration is not the argument).
+- **No paraphrase-as-quote:** the Ashby survival-condition **gloss** and the **Beer** paraphrase were
+  dropped *as quotations* — Part 1 keeps Ashby's real line and carries Beer as reasoning prose, with a
+  verbatim Beer citation **pending a user-supplied transcript** (staged `../beta/OPEN-THREADS.md` **T23**).
+- **Relocated:** the **Hush-A-Phone / Bazelon** confirmed legal ancestor moved *out* of the reasoning
+  layer into a new historical-alignment doc `thinking/historical-peer-rights.md` (framed as historical
+  *peer rights*, vendor-neutral; CONFIRMED Bazelon quote preserved). It is **not** carried into the spec.
+- **Node-not-system, lead-with-grounds, define-terms, deflate-aphorisms** applied throughout Part 1.
+
+**Reconciliation items surfaced (Part 2 Appendix B, not resolved):** vendor-neutral naming (the reference
+impl's signed `croft-*` domain-separation tags must become `drystone-*` and be re-proven, since the tag is
+signed over); hash-function reconciliation (§4 proven on SHA-256 vs §7 designed on BLAKE3); the `ENABLING`
+wire encodings (canonical fact encoding, frontier-commitment, frontier-closure, capability wire format);
+root-authority succession; the `share`/`tenure` open checks (T21/T22); and the Matrix/Willow/Meadowcap/
+Keyhive comparisons flagged **[confirm before publish]**.
+
+**Corpus disposition — EXECUTED 2026-06-26 (user-directed "01 goes away as superseded").**
+`beta/01-epistemic-foundation.md` was **deleted**; its reasoning lives in `drystone-spec` Part 1. The
+README theme table + reading-order diagram now show the spec as the front "why" (the `02`–`08` numbering
+is retained for cross-ref stability; there is intentionally no `01` theme doc). All 26 `01` cross-refs
+across `02`/`03`/`04`/`05`/`07`/`OPEN-THREADS` were rewired to `drystone-spec` (Part 1 for the why, Part 2
+§5 for the rights set; T21/T22 repointed). Only deliberate supersession/history notes still name `01`. The
+stale handoff prompt (`seeds/generated-prompts/beta-01-review-refinement-prompt.md`) was banner-retired as
+reference-only.
+
+### Beer / algedonic / Cybersyn-OGAS intake (2026-06-26) — closes T23, sharpens the spec
+
+New alpha intake (`seeds/transcripts/raw/beer-algedonic-cybersyn-ogas-dialogue-2026-06-25.md`, the
+"new Beer transcript" promised at T23) was synthesized to
+`thinking/algedonic-and-peerhood-as-adjudication.md` and incorporated:
+
+| what | treatment | landed in |
+|---|---|---|
+| Real Beer quotes ("ride the dynamics," *Brain of the Firm*; "their only hope," *Designing Freedom* 1974) + plain-language **algedonic** channel + the **Cybersyn/OGAS** anecdote | **synthesized + carried-flag [confirm before publish]** (replaces the dropped paraphrase) | `drystone-spec` Part 1 §3 |
+| The **adjudication-locus axis** + **peerhood = where decision rights sit** ("a peer is a locus that can adjudicate; count the adjudication loci; the wires lie, the authority topology tells the truth") + the OGAS anti-pattern | **synthesized** | `drystone-spec` Part 2 §3.1 (new) + §5.2 (sharpened) |
+| **Label-not-enforce as a peerhood-preserving primitive** (enforcement relocates adjudication → peers become sensors) + hard-stop-and-escalate as the algedonic channel | **synthesized** | `drystone-spec` Part 2 §7.6, §8 |
+| **Exit-backed authority** + the companion question "what makes a right cost something to violate?" (3 groundings; couples the wolf test + exitability + the Track A/B decision) | **synthesized** (open design question) | `drystone-spec` Part 2 Appendix B; staged **OPEN-THREADS T24** |
+
+"aids to human viability, not excuses for automatic command" is **confirmed a secondary gloss** — kept as
+own synthesis, not attributed to Beer. The Beer quotes + Cybersyn/OGAS dates/figures are
+**[confirm before publish]** against primary editions (carried in Part 2 Appendix B). **OPEN-THREADS T23
+CLOSED.** Seam: COHESION §40.
+
 ## Settled conclusions not yet folded (2026-06-25 completeness audit)
 
 A content-level audit (reading `crystallized/`, `thinking/`, `narrative/`+dossier, `research/` against

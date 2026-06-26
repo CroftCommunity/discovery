@@ -1073,6 +1073,47 @@ define**:
 
 ---
 
+## 40. Beta 01 → Drystone protocol spec (the why becomes Part 1) + the Drystone/Croft layering cut
+
+The 2026-06-26 voice review of `beta/01` (`beta/thinking/raw/01_beta_review.txt`) drove a reframe: **01's
+reasoning becomes Part 1 of a new vendor-neutral Drystone protocol spec** (`beta/drystone-spec/`), and the
+alpha `thinking/drystone-spec/` mechanics + `crystallized/CROFT-PROTOCOL.md` become Part 2. This **closes
+the §37/§39/T1 seam** that the spec's `P-*` principles were referenced-but-undefined (ROADMAP E30): Part 1
+defines `P-Local-Truth` / `P-Knowable-Truth` / `P-Peer-Equality` / `P-Durable-Enablement`.
+
+- **Drystone ≠ Croft (naming cut, user-directed).** Drystone is the protocol; Croft is *one* ecosystem on
+  it (app + a Drystone-compliant cooperative hosting Peer/PeerSet), intended not to be the only one;
+  IP/marks → an independent foundation (candidate *Noria*, decision-gated). The spec names no ecosystem in
+  normative text. **OPEN reconciliation:** the reference impl's signed `croft-*` domain-separation tags
+  must become `drystone-*` and be **re-proven** (the tag is signed over). Status: **OPEN** (spec Part 2
+  Appendix B).
+- **Hash-layer seam.** Part 2 §4 is green-real on **SHA-256**; §7 governance is designed on **BLAKE3**.
+  The committed suite must be pinned. Status: **OPEN** (Appendix B).
+- **Content cuts from settled 01** (author's review direction): **Socrates** + **Peirce** quotes excluded;
+  "2,400 years" de-emphasized; **Ashby gloss + Beer paraphrase** dropped as quotations (real Ashby line
+  kept; verbatim Beer **pending a user transcript** — T23). **Hush-A-Phone/Bazelon relocated** out of the
+  reasoning layer to `thinking/historical-peer-rights.md` (vendor-neutral historical alignment).
+- **Corpus disposition — CLOSED (executed 2026-06-26, user-directed "01 goes away as superseded").**
+  `beta/01` **deleted**; README front-anchor + reading order now point at `drystone-spec`; all 26 `01`
+  cross-refs rewired (`02`/`03`/`04`/`05`/`07`/OPEN-THREADS → `drystone-spec`, Part 2 §5 for the rights
+  set; T21/T22 repointed). `02`–`08` numbering retained for stability; no `01` theme doc. Stale handoff
+  prompt banner-retired. Status: **CLOSED**.
+- **Beer / algedonic / Cybersyn-OGAS intake — CLOSES T23 and sharpens the spec.** The promised Beer
+  source (`seeds/transcripts/raw/beer-algedonic-cybersyn-ogas-dialogue-2026-06-25.md` →
+  `thinking/algedonic-and-peerhood-as-adjudication.md`) added: real Beer quotes + the **algedonic** channel
+  (Part 1 §3); the **adjudication-locus axis** and **peerhood = where decision rights sit** with the OGAS
+  anti-pattern (Part 2 §3.1/§5.2); **label-not-enforce as peerhood-preserving** + hard-stop-as-algedonic
+  (Part 2 §7.6/§8); **exit-backed authority** + "what makes a right cost something to violate?" (Part 2
+  App-B). This is a **load-bearing refinement to P-Peer-Equality**: you must define the peer (a locus of
+  adjudication) before peer rights. **OPEN-THREADS T23 CLOSED.**
+- **Provenance:** the user's own design reasoning + already-filed alpha mechanics + the Beer dialogue.
+  **[confirm before publish]:** the Beer quotes + Cybersyn/OGAS dates/figures, and the
+  Matrix/Willow/Meadowcap/Keyhive comparisons (Part 2 App-B); iroh cites FACTCHECK SoT. Trace in
+  `BETA-ROLLUP.md` "01 review → Drystone spec 2026-06-26"; plan
+  `plans/2026-06-26-beta-01-review-refinements.md`.
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the

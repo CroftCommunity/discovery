@@ -20,7 +20,7 @@ recovery dead-ends, and unbounded logs; Briar buys the strongest threat model an
 recovery outright; Delta Chat rides email for free reach and inherits email's metadata leak. The deeper
 version is a *four-property impossibility*: group moderation + multi-device + PFS + offline-mesh cannot all
 hold without an unequal, privileged peer. Croft does not dodge this — it makes the trade openly (the
-meer/superpeer as an unequal-in-capability-but-not-in-rights sequencer; see `01`, `04`, `06`).
+meer/superpeer as an unequal-in-capability-but-not-in-rights sequencer; see `drystone-spec`, `04`, `06`).
 
 On the public-social side the comparison narrows to one anchor reason: an atproto DID is a portable,
 self-authenticating, user-held identifier that can serve as the *same* identity primitive on the public
@@ -61,7 +61,7 @@ without leaving the global network — and almost every one is a direct expressi
 
 **Out of scope (and where it lives).**
 
-- The verification discipline / provenance-debt methodology itself → `01`.
+- The verification discipline / provenance-debt methodology itself → `drystone-spec`.
 - The deep crypto-wars / Clearances / commons lineage → `02`.
 - The Drystone wire spec, MLS lineage-groups proof internals, the meer mechanism → `04` (cited as
   *outcomes*, not mechanisms).
@@ -118,7 +118,7 @@ surrendering-keys goals. Solid/WebID/Solid-OIDC/DPoP RFC 9449 and DSNP are CONFI
 The test 03 applies to every pole here is the **"credibly decentralized but operationally centralized"
 trap** — cryptographic portability that is technically real but economically meaningless because
 aggregation re-centralizes, so the data is portable on paper while the network that gives it value is not.
-(The principle itself is derived in `01`; this theme only uses it as the yardstick.) Atproto is the clearest
+(The principle itself is derived in `drystone-spec`; this theme only uses it as the yardstick.) Atproto is the clearest
 case to hold to it: DIDs and self-authenticating repos make identity genuinely portable, yet if relays,
 AppViews, and defaults concentrate, the portability buys little in practice. A pole passes only if it
 **survives as small self-hosted nodes** — that is the line between credible decentralization and the trap.

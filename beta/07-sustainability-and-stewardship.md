@@ -81,7 +81,7 @@ choice — and each guard is a *structural property*, not a behavioral promise.
 
 **Out of scope (and where it lives).**
 
-- The provenance-not-utility razor, requisite-variety, "no right to remove the rights of others" → `01`
+- The provenance-not-utility razor, requisite-variety, "no right to remove the rights of others" → `drystone-spec`
   (this theme inherits non-extraction as a value; it does not re-derive its epistemic basis).
 - The crofting/commons history and the settled **Croft** + **Drystone** names → `02`.
 - The related-projects register (Platform Cooperativism Consortium, Stocksy, SPI/SFC/Aspiration rows) → `03`.
@@ -93,7 +93,7 @@ choice — and each guard is a *structural property*, not a behavioral promise.
 - Discord is cited in two themes: `08` owns "how Discord won / how to compete"; this theme owns *only* the
   moderator-labor-as-captured-value finding. Survivability is split: the legal/economic anti-rug-pull
   structure lands here; the technical archive mechanics are cross-referenced, not resolved here. The
-  "is the badge where principles get teeth" question sits at the seam with `01` — surfaced, not resolved.
+  "is the badge where principles get teeth" question sits at the seam with `drystone-spec` — surfaced, not resolved.
 
 ## Pillar A — the economic / governance mechanism
 
@@ -252,7 +252,7 @@ The badge **starts as an honor system, not a USPTO certification mark** (a forma
 heavyweight obligations — control the standard, don't use it on your own goods, don't discriminate among
 qualifiers — to defer); transparency is the early enforcement, with a revocation clause. *Surfaced, not
 resolved:* does flying the badge assert only *technical* interop, or also adherence to the non-negotiable
-principles — i.e. is the badge where the principles get their teeth? (Seam with `01`.)
+principles — i.e. is the badge where the principles get their teeth? (Seam with `drystone-spec`.)
 
 ### B4. Entity phasing — don't build a governor before the thing it governs exists
 
@@ -424,6 +424,6 @@ that constitutes the community.
 framework is real, the statute sections / fees / dollar figures require counsel); the **Noria** foundation
 name (a candidate pending trademark clearance); the fiscal-sponsor selection and the coop-vs-coop+501(c)(3)
 form; and whether the compatibility badge is where the non-negotiable principles get their teeth (the
-genome-vs-strategy question, seam with `01`). The sources settle on AGPL-3.0-or-later + DCO as design intent;
+genome-vs-strategy question, seam with `drystone-spec`). The sources settle on AGPL-3.0-or-later + DCO as design intent;
 the MPL-vs-AGPL relationship to the *substrate* is flagged for confirmation against the protocol docs, not
 asserted here.

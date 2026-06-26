@@ -1,3 +1,17 @@
+> **STALE / SUPERSEDED — reference only (2026-06-26).** This handoff prompt was executed and then
+> overtaken by the work it kicked off. Do **not** run it as written. What actually happened:
+> the verbal review was processed, but in dialogue the target was reframed — `beta/01` did **not** get
+> refined in place; instead its reasoning became **Part 1 of a new vendor-neutral Drystone protocol spec**
+> (`beta/drystone-spec/`, Parts 1 & 2), and **`beta/01-epistemic-foundation.md` was retired** (superseded;
+> the file no longer exists). The review transcript moved to `beta/thinking/raw/01_beta_review.txt`.
+> The classified extraction, the pivot, and the full trace live in
+> `../../plans/2026-06-26-beta-01-review-refinements.md` and `../../BETA-ROLLUP.md`
+> ("01 review → Drystone spec 2026-06-26"). Kept here as a record of the original ask, not as live
+> instructions. References below to `beta/01-epistemic-foundation.md` and `beta/thinking/01_beta_review.txt`
+> are historical (both paths have since changed).
+
+---
+
 # Prompt: process the verbal review of beta theme 01 → refine `beta/01-epistemic-foundation.md`
 
 Copy this into a **fresh session after `/clear`** (ideally the highest-capability model available). It is
