@@ -40,3 +40,27 @@ decision in README gates / BETA-ROLLUP deferred) · **FIND** (left-behind/left-o
 | conformance-suite.md | DETERMINED-CITED (04 §3 + CROFT-PROTOCOL §12 + now `drystone-spec` Part 2 §9 conformance) | none. |
 | TEST-CORPUS.md | DETERMINED-PROCESS/INDEX (cross-repo test catalog) | none. |
 | CROFT-PROTOCOL.md | **disposition CHANGED this session:** was CITED→04; now DETERMINED-FOLDED → `drystone-spec` Part 2 (matured 2026-06-26) + still CITED by 04. `croft-*` tag-rename flagged in spec App-B. | none new (recorded in BETA-ROLLUP "01 review → Drystone spec" intake). |
+
+## thinking/ top-level (33) — DONE
+
+Clearly-folded (baseline verified 2026-06-25 + stricter-eye confirmed, no left-behind):
+abuse-resistance-and-the-rave-trap (06), atproto-atmospheric-web (03 §6), cooperative-social-union-model
+(07; CM-A3→K15 folded), cross-platform-identity-provenance (05; per-platform doc→T6), failed-op-response
+(06 §4), foundation-and-ip-stewardship (07 B1–B5), freshness-signal (06 §5), governance-and-survivability
+(07 A8), group-privacy-lanes-design-note (06 §10), interaction-tiers (08 §5), ios-opportunistic-p2p (03;
+T14), local-first-as-design-imperative (01→spec; K6/K7/K14 folded; T19 blind-search), meer-superpeer-design
+(06 §1 K8), membership-vs-access-the-public-door (06 §8 + 08 §8), merge-split-corpus (04 §3; C4–C10→T20),
+multi-device (05; per-device-lamport/self-AS added to spec §4.5.1 this session), plc-identity-resilience
+(05), realtime-media-over-iroh (04 §4; T10), revocation-authority (06 §6), social-layer (06 §9),
+thesis-lineage-groups (04), drystone-publication-and-defensive-disclosure (07 Pillar C K9).
+PROCESS/INDEX: experiment-suite, model-holds-up-summary, open-edges. FOLDED+STAGED: open-considerations.
+
+New-this-session (disposed): algedonic-and-peerhood-as-adjudication (→ spec P1 §3 / P2 §3.1/§5.2/§8/App-B;
+T24), social-graph-as-substrate (→ spec P1/P2 + 08 + T25/T26/T27), rights-vs-capabilities-definitions
+(→ spec §5 / 01-now-spec §5; T21/T22).
+
+| file | finding + decision |
+|---|---|
+| design-notes-addendum.md | **CM-P1** (roll-up trust trilemma + accumulator/MMR end-state): **DETERMINED** — resolved by spec §7.3.3 choosing Option-A (each peer self-folds; no-trust checkpoint); accumulator/MMR is a minor unbuilt future direction, recorded here, not worth re-editing the spec. **CM-P2** (honest guarantee = "true attributable history + clean exit, NOT convergence"): **FIND — fold candidate.** 04 carries the *substance* (social-legibility invariant, lines 17/32/98) but **not** the sharp explicit sentence "Drystone does not promise membership convergence." Recommend a one-sentence add to 04 §1 or §5 — **awaiting your approval** (settled-theme edit). |
+| geer-gating-peer.md | **CM-P3** (report-gated / classifier-gated / full-key 3-rung enumeration): **DETERMINED-subsumed** — 06 §3 carries the load-bearing point ("least-invasive rung," "other rungs compellable"); the enumeration is alpha detail. |
+| historical-peer-rights.md (NEW this session) | **FIND — new limbo I introduced:** the doc ends "eventual maturity home … a later call" (its own beta theme vs fold into history theme `02` vs stay alpha). **Surfaced as OPEN-THREADS T28** rather than left as an inline "later call." |
