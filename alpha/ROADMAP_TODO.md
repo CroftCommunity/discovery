@@ -50,6 +50,7 @@ don't resolve), **[doable]** (no blocker), **[resource]** (blocked on hardware/a
 | B8 | **E4 — LVS frontend** (`ipvsadm`); E1 suggests one fat process suffices. | [resource] | `thinking/open-edges.md:125` | — |
 | B9 | **E8 / E9 — `meer` binary** (superpeer bridge + confidentiality tiers); **T13 — iOS build host**. | [resource] | `thinking/open-edges.md:126` | `thinking/open-edges.md:123` |
 | B10 | **Background BLE-meshing feasibility spike (NEW)** — CoreBluetooth doesn't relaunch on new-advertiser discovery; Berty says bg P2P dies in seconds. Prove before any design leans on it. | [explore] | `thinking/ios-opportunistic-p2p.md:82` | `COHESION.md:17`, `...-FACTCHECK.md` |
+| B11 | **Plan an independent crypto/security audit before any production claim (NEW, surfaced 2026-06-26 by the alpha left-behind audit)** — none of the crypto integration has been audited; every credible system in the field has been. A standing pre-production gate, not a design decision. | [pre-prod] | `research/messaging-solutions-landscape.md` §top-unresolved #5 | alpha left-behind audit |
 
 ## C. Backports / reconciliations (corpus hygiene)
 
