@@ -64,24 +64,31 @@ tier discipline above.
 
 ## The themes (reading order)
 
-The seven lineages of thinking (G1–G7) resolved into eight narrative themes (N1–N8). Reading order
-runs why → history → field → protocol → identity → safety → sustainability → product.
+The seven lineages of thinking (G1–G7) resolved into narrative themes. Reading order runs
+why → history → field → protocol → identity → safety → sustainability → product.
+
+**The "why" is now the Drystone protocol spec.** Theme `01` (the epistemic foundation) was
+**superseded 2026-06-26**: its reasoning became **Part 1 (Reasoning Underpinnings)** of the
+vendor-neutral **Drystone protocol specification** (`drystone-spec/`), which pairs it with **Part 2 (The
+Certifiable Design)** — the build-against, certify-against mechanics. The `02`–`08` numbering is retained
+for stability (cross-references are stable); there is intentionally no `01` theme doc. Drystone is the
+protocol; Croft is one ecosystem built on it (see `drystone-spec/README.md`).
 
 | # | doc | thesis (one line) | lineage | status |
 |---|---|---|---|---|
-| 01 | `01-epistemic-foundation.md` | No center can hold the truth; compute provenance, never utility; local-first is the generative premise. | N1 / G1 | **drafted** |
+| — | `drystone-spec/` (Part 1) | The "why": no center can hold the truth; compute provenance, never utility; local-first is the generative premise; a peer is a locus of adjudication. | N1 / G1 | **spec — Part 1** (supersedes the former `01`) |
 | 02 | `02-enclosure-and-its-inversion.md` | Every era's commons gets enclosed; the croft is the rare halt — a private plot coupled to a surviving common. | N2 / G3a+G1 | **drafted** |
 | 03 | `03-the-living-ecosystem.md` | Against the live field (atproto/Solid/DSNP/Nostr/Matrix/Germ), Croft's bet is "different, not weaker." | N3 / G3b | **drafted** |
-| 04 | `04-the-protocol-we-proved.md` | A group is a navigable lineage, not an eternal room — and it is green-real on openmls 0.8.1, not a sketch. | N5 / G4 | **drafted** |
+| 04 | `04-the-protocol-we-proved.md` | A group is a navigable lineage, not an eternal room — and it is green-real on openmls 0.8.1, not a sketch. (The *narrative* of proving the protocol; the spec itself is `drystone-spec/`.) | N5 / G4 | **drafted** |
 | 05 | `05-identity-you-carry.md` | Keys are not identity; a person is a DID lineage; cross-platform continuity is attestation, never a master key. | N6 / G5 | **drafted** |
 | 06 | `06-safety-without-surveillance.md` | A content-blind system stays safe by structure, not inspection; membership ≠ access. | N8 / G6 | **drafted** (graduated to its own theme) |
 | 07 | `07-sustainability-and-stewardship.md` | Non-extraction is anti-fragile — if a cooperative mechanism *and* an IP-stewardship structure carry it. | N4 / G2 | **drafted** — **decision-gated** |
 | 08 | `08-croft-the-product.md` | Surface the proven substrate as a composable garden of ponds + pads on one core, thin shells. | N7 / G7 | **drafted** — **decision-gated** |
 
 ```
-  01 ─► 02 ─► 03 ─► 04 ─► 05 ─► 06 ─► 07 ─► 08
-  why    history  field  protocol  identity  safety  sustainability  product
-  └── the grounding ──┘  └──── what we built & proved ────┘  └── how it survives & ships ─┘
+  drystone-spec ─► 02 ─► 03 ─► 04 ─► 05 ─► 06 ─► 07 ─► 08
+  why + design     history field protocol identity safety sustainability product
+  └─ the protocol ─┘  └──── what we built & proved ────┘  └── how it survives & ships ─┘
 ```
 
 ## Structural decisions taken for this synthesis (2026-06-24)
@@ -111,10 +118,11 @@ never silently resolves them:
 
 ## State
 
-All eight themes are drafted (`01`–`08`), least-gated first. Built without touching `alpha/` corpus
-content; verbatim quotes preserved whole with citation + verification flag; the user's decisions surfaced,
-not resolved (the gates are listed below and bannered in `07` and `08`). The auditable alpha→beta trace and
-the coverage view of alpha sources not yet pulled up live in `../alpha/BETA-ROLLUP.md`.
+Themes `02`–`08` are drafted, and the former `01` is now the **Drystone protocol spec** (`drystone-spec/`,
+Parts 1 & 2). Built without touching `alpha/` corpus content; verbatim quotes preserved whole with citation
++ verification flag; the user's decisions surfaced, not resolved (the gates are listed below and bannered in
+`07` and `08`). The auditable alpha→beta trace and the coverage view of alpha sources not yet pulled up live
+in `../alpha/BETA-ROLLUP.md`.
 
 Companion artifacts:
 

@@ -16,7 +16,7 @@ risks are named, not hidden.
 > what makes the social model legible, because *"knowing where a conversation branched from" is at once
 > the security invariant and the social-legibility invariant.*
 
-This theme is the engineering instantiation of `01`'s razor (compute provenance, never utility). Its
+This theme is the engineering instantiation of `drystone-spec`'s razor (compute provenance, never utility). Its
 adversarial/social complement — staying safe while content-blind — graduated to its own theme, `06`.
 The identity floor it counts standing against is `05`. The names (Croft the umbrella, **Drystone** the
 protocol) are introduced in `02`.
@@ -66,7 +66,7 @@ knowing the protocol is real, not a sketch — and exactly where the edges are.
 
 **Out of scope (and where it lives).**
 
-- The epistemic *why* the protocol embodies → `01`.
+- The epistemic *why* the protocol embodies → `drystone-spec`.
 - Naming / what "Drystone" means and the commons rationale → `02`.
 - The DID-lineage identity story and the recovery-anchor *decision* → `05`.
 - The adversarial/*social* safety problem (abuse hubs, the geer, freshness-as-authority-gate,
@@ -222,7 +222,7 @@ A later round proved the substrate carries real-time media without giving the re
 - **Meer (P0+P1, `green-real`):** a blind always-on superpeer (`meer`) runs as a binary — it serves
   offline state holding **zero payload keys**, an offline member syncs through it and decrypts locally,
   and the member can be **re-homed into a replacement meer** (state portability — the anti-entrenchment
-  guard that keeps delegation materially reversible, per `01`/`07`).
+  guard that keeps delegation materially reversible, per `drystone-spec`/`07`).
 
 ## 5. The honest boundaries
 

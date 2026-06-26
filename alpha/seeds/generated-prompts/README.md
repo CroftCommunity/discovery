@@ -26,7 +26,10 @@ and the standing indexes. Status notes whether the prompt has been run.
 - [`beta-coverage-per-file-audit-prompt.md`](beta-coverage-per-file-audit-prompt.md) — per-file alpha→beta
   completeness audit (disposition every alpha file; close the coverage list to zero). **Run (2026-06-25)** →
   `alpha/plans/2026-06-25-beta-coverage-per-file-audit.md` (folded K13–K16; staged T18–T20).
-- [`beta-01-review-refinement-prompt.md`](beta-01-review-refinement-prompt.md) — turn the user's verbal
-  read-through review of beta theme 01 (`beta/thinking/01_beta_review.txt`) into a classified refinement
-  plan, then apply approved edits to `beta/01-epistemic-foundation.md`. **Not yet run** (authored 2026-06-26,
-  to run in a fresh clean-context session).
+- [`beta-01-review-refinement-prompt.md`](beta-01-review-refinement-prompt.md) — **STALE / SUPERSEDED
+  (reference only).** Originally: turn the user's verbal read-through review of beta theme 01 into a
+  refinement plan and edit `beta/01-epistemic-foundation.md`. What actually happened: the review was
+  processed but the target was reframed — `beta/01` was **retired** and its reasoning became **Part 1 of
+  the new Drystone protocol spec** (`beta/drystone-spec/`). The transcript moved to
+  `beta/thinking/raw/01_beta_review.txt`. See the banner in the prompt and
+  `../../plans/2026-06-26-beta-01-review-refinements.md`. Do not run as written.

@@ -73,7 +73,7 @@ exit — so the theme names which parts of the pattern it claims and where the a
 
 **Out of scope (and where it lives).**
 
-- The cross-millennium *design-imperative* lineage and Ostrom-not-Hardin as an *epistemic* argument → `01`.
+- The cross-millennium *design-imperative* lineage and Ostrom-not-Hardin as an *epistemic* argument → `drystone-spec`.
 - The platform-by-platform mechanics of enshittification as *competitive/landscape* analysis → `03`.
 - The cooperative *as the maintenance plan*, the funding/extraction-imperative *prescription*, and the
   **Noria** foundation-name candidate (pending legal) → `07`.

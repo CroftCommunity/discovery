@@ -59,7 +59,7 @@ unresolved design decision across the whole corpus.
 
 **Out of scope (and where it lives).**
 
-- The "evidentiary, not operational" rights-floor framing as an *epistemic principle* → `01` (cross-ref,
+- The "evidentiary, not operational" rights-floor framing as an *epistemic principle* → `drystone-spec` (cross-ref,
   don't re-derive).
 - The `threshold-counts-lineages` invariant's *proof* and MLS epoch mechanics → `04` (stated here as a
   load-bearing fact).
@@ -72,7 +72,7 @@ unresolved design decision across the whole corpus.
   the user.** The decided *shape* (delegation-primary + optional offline seed backup) is recorded; the open
   fork for *total-device-loss* remains the user's call and overlaps `07`. The promotion of "evidentiary, not
   operational" into `crystallized/principles.md` is settled-as-conclusion but is the user's call to insert
-  (cross-ref `01`). The per-platform trust-model doc is *named* here as the highest-leverage next artifact,
+  (cross-ref `drystone-spec`). The per-platform trust-model doc is *named* here as the highest-leverage next artifact,
   not authored inside this theme.
 
 ## 1. Keys ≠ identity; identity is the provable lineage
@@ -158,7 +158,7 @@ mechanical validation; absence means *unverified*, not *false*. The three ranked
 provable common ownership = **fully achievable**; a recovery anchor = **partial, network-dependent** (real
 on Bluesky via a root-controlled rotation key, none native on AP, attestation-only on Hive); one key to
 operate everything = **drop it.** ("Evidentiary not operational" flagged for `crystallized/principles.md`,
-cross-ref `01`.)
+cross-ref `drystone-spec`.)
 
 ## 6. The `did:webvh ↔ did:plc` convergence — a cheap, non-foreclosing hedge
 

@@ -5,8 +5,9 @@ date: 2026-06-25
 ## What this is
 
 A holding ledger for threads that are **being pulled toward beta but are not yet settled enough to
-become resolved beta narrative**. It exists so a live need is never lost, while the eight resolved
-theme docs (`01`–`08`) stay a clean, settled synthesis. A thread lives here — referenced, not asserted
+become resolved beta narrative**. It exists so a live need is never lost, while the resolved theme docs
+(`02`–`08`) and the Drystone protocol spec (`drystone-spec/`) stay a clean, settled synthesis. A thread
+lives here — referenced, not asserted
 — until its gates clear; only then does it graduate into a theme doc (and earn a row in
 `../alpha/BETA-ROLLUP.md`).
 
@@ -108,7 +109,7 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
   governance-constituent** modeled explicitly. Includes the honest admission that the membership
   sequencer / superpeer is a **load-bearing centralization point** whose funding/uptime/governance must
   be named as core, and the federation/inter-collective peering design surface.
-- **Promotion target:** completes the federation handoff that **01 §6** opens and **07 B5** gives a legal
+- **Promotion target:** completes the federation handoff that the spec's peer-equality principle opens (`drystone-spec` Part 1 §2.3, Part 2 §5) and **07 B5** gives a legal
   shape to; touches **06** (Sybil softening). Likely a dedicated governance theme alongside T1.
 - **Gates:** decide the delegation model; pick concentration-resistance levers; model
   member-vs-constituent; spec federation/peering; name the center's funding/governance honestly.
@@ -200,13 +201,13 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 - **What it is:** revoking consent cannot rewind a spent action; decisions must be tagged
   reversible-or-committing **at decision time**, and the record must permanently, honestly attribute which
   consent supported which irreversible consequence. The governance-plane face of the recovery/consent
-  problem; 01 §5 states the *principle* (irreversible → constitutional rigidity bites hardest) but never
+  problem; `drystone-spec` (Part 2 §5.6) states the *principle* (irreversible → maximal protection of rights where exit cannot help) but never
   names the *mechanism*.
 - **Promotion target:** **04 / 06** (the governance log + revocation ladder); **01** (the
   protection-rigidity principle). **Likely co-promotes with T1.**
 - **Gates:** define the reversible-vs-committing decision tag; spec the permanent attribution record;
   reconcile with T1's append-only fold.
-- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D10**; `../alpha/COHESION.md` **§22**; `beta/01` §5.
+- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D10**; `../alpha/COHESION.md` **§22**; `drystone-spec` Part 2 §5.6.
 
 ### T9 — Publication-readiness verification pass (01 Ostrom + 02 Clearances colour quotes)
 
@@ -220,7 +221,7 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 - **Promotion target:** clears external publication of **01** and **02** (does not change their narrative,
   removes their publication blockers).
 - **Gates:** a primary-source verification pass clearing each cited quote/attribution.
-- **Alpha provenance:** `beta/01` §2.4; `beta/02` §1/§4/§5. (Pass-2 fact-check left Ostrom as the one
+- **Alpha provenance:** `drystone-spec` Part 1 §3; `beta/02` §1/§4/§5. (Pass-2 fact-check left Ostrom as the one
   remaining 01 confirm.)
 
 ### T10 — Real-time media-layer hardening (finishes 04's media leg)
@@ -355,39 +356,42 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
   equivocation attribution (C9); model the ban-evasion re-add (C10).
 - **Alpha provenance:** `../alpha/thinking/merge-split-corpus.md` §4 + §6 ("Tier 1b — reconcile-case corpus").
 
-> **T21–T22 added 2026-06-26** from the rights-vs-capabilities grounding folded into `01` §5 (K17). The
-> discriminating test and the four-rights cut are settled and in beta; these are the two
-> **verify-before-hardening** checks deliberately kept out of the `01` narrative — they gate hardening the
-> four-rights *closed set* into the normative Drystone spec. (Were ROADMAP_TODO E32 b/c.)
+> **T21–T22 added 2026-06-26** from the rights-vs-capabilities grounding (was folded into `01` §5, K17;
+> now in the Drystone spec — `drystone-spec` Part 1 §2.3 + Part 2 §5.3). The discriminating test and the
+> four-rights cut are settled and in the spec; these are the two **verify-before-hardening** checks
+> deliberately kept out of the spec's normative rights set — they gate hardening the four-rights *closed
+> set*. (Were ROADMAP_TODO E32 b/c.)
 
 ### T21 — Is `share` fully a right, or partly a membership-class capability?
 
 - **Status:** `gated`.
-- **What it is:** of the four rights named in `01` §5 (tenure / exit / voice / share), **`share`** — a claim
-  on the collective's commons — is the least-settled. If `share` can be legitimately diluted by governance or
-  membership class (a real possibility under the cooperative model), then part of it behaves like a
-  *capability*, not a right. The boundary "no right to remove the rights of others" needs to know **which
-  portion of `share` is the inviolable floor** and which portion is a class-varying entitlement.
-- **Promotion target:** **01** §5 (sharpen the `share` definition) + **07** (the cooperative membership /
-  patronage model decides the dilutable portion). Couples the Drystone spec's rights-floor (§2).
+- **What it is:** of the four rights named in `drystone-spec` (Part 2 §5.3 — tenure / exit / voice / share),
+  **`share`** — a claim on the collective's commons — is the least-settled. If `share` can be legitimately
+  diluted by governance or membership class (a real possibility under the cooperative model), then part of
+  it behaves like a *capability*, not a right. The boundary "no right to remove the rights of others" needs
+  to know **which portion of `share` is the inviolable floor** and which portion is a class-varying
+  entitlement.
+- **Promotion target:** `drystone-spec` Part 2 §5.3 (sharpen the `share` definition; it is already flagged
+  open there and in Part 2 Appendix B) + **07** (the cooperative membership / patronage model decides the
+  dilutable portion).
 - **Gates:** decide, in the cooperative model, the inviolable-floor vs class-varying split of `share`; then
   the four-rights closed set can harden into the spec.
 - **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
-  `../alpha/ROADMAP_TODO.md` **E32 (b)**; `beta/01` §5; `beta/07` Pillar A.
+  `../alpha/ROADMAP_TODO.md` **E32 (b)**; `drystone-spec` Part 2 §5.3; `beta/07` Pillar A.
 
 ### T22 — Does the `04` survivor re-key strand a peer's `tenure`?
 
 - **Status:** `gated`.
-- **What it is:** `tenure` (standing to remain a peer) is stated in `01` §5 as an absolute right. But the
-  `04` survivor / re-key mechanism could, in implementation, **strand a peer** (leave it unable to rejoin a
-  re-keyed group). If so, `tenure` has an implementation-level exception that must be **named explicitly**
-  rather than left absolute — otherwise the boundary over-claims.
+- **What it is:** `tenure` (standing to remain a peer) is stated in `drystone-spec` (Part 2 §5.3) as an
+  absolute right. But the `04` survivor / re-key mechanism could, in implementation, **strand a peer** (leave
+  it unable to rejoin a re-keyed group). If so, `tenure` has an implementation-level exception that must be
+  **named explicitly** rather than left absolute — otherwise the boundary over-claims.
 - **Promotion target:** **04** (the survivor/re-key mechanism — does it preserve tenure, and under what
-  bound) + a precise caveat back into **01** §5 if an exception is real.
+  bound) + a precise caveat back into `drystone-spec` Part 2 §5.3 if an exception is real.
 - **Gates:** a protocol-level check of the re-key/survivor path against the tenure claim; if an exception
   exists, specify its bound; then the four-rights closed set can harden.
 - **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
-  `../alpha/ROADMAP_TODO.md` **E32 (c)**; `beta/01` §5; `beta/04` (survivor re-key) / `beta/05` §7.
+  `../alpha/ROADMAP_TODO.md` **E32 (c)**; `drystone-spec` Part 2 §5.3; `beta/04` (survivor re-key) / `beta/05` §7.
 
 > **Folded into existing, not new threads:** the inter-collective peering *settled shape* (BGP-autonomy +
 > postal-hierarchy + signed routing) → add to **T2**'s provenance so T2 doesn't re-derive it. **Borderline
@@ -395,7 +399,54 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 > `core-crypto` (GPL-3.0) vs `openmls`/`mls-rs` engine+license decision (the latter couples to 07's
 > flagged MPL-vs-AGPL substrate item).
 
----
+> **T23 added 2026-06-26** from the beta-01 → Drystone-spec build (Part 1 §3, the cross-field grounding).
+
+### T23 — Verbatim grounding quotes for the systems-science section (Ashby gloss, Beer paraphrase) — CLOSED
+
+- **Status:** **CLOSED 2026-06-26** (source supplied + incorporated). One verification flag carries
+  forward (below).
+- **What it was:** the systems-science grounding carried two non-verbatim blocks — an Ashby
+  survival-condition **gloss** and a **Beer** paraphrase. The spec build dropped both as quotations
+  (kept Ashby's real line "Only variety can destroy variety," *Intro to Cybernetics* p. 207) and held the
+  Beer grounding as prose pending a real source.
+- **Resolution:** the user supplied the Beer source (the Beer / algedonic / Cybersyn / OGAS dialogue,
+  `../alpha/seeds/transcripts/raw/beer-algedonic-cybersyn-ogas-dialogue-2026-06-25.md`). Incorporated into
+  **Drystone spec Part 1 §3** with two defensible-verbatim Beer quotes ("ride the dynamics," *Brain of the
+  Firm*; "their only hope," *Designing Freedom* 1974), the plain-language **algedonic** explanation, and
+  the **Cybersyn/OGAS** natural experiment. The "aids to human viability…" phrasing is confirmed a
+  synthesis gloss (not attributed to Beer). The richer thread — the **adjudication-locus axis**,
+  **peerhood-as-adjudication**, and **exit-backed authority** — landed in Part 2 §3/§5.2/§8/App-B and the
+  alpha synthesis `../alpha/thinking/algedonic-and-peerhood-as-adjudication.md`.
+- **Carried flag:** the two Beer quotes and the Cybersyn/OGAS dates/figures are web-verified in the
+  dialogue only and **[confirm before publish]** against primary editions before a publication-final
+  release. (Tracked in the spec's Part 2 Appendix B external-fact-confirmation item.)
+
+> **T24 added 2026-06-26** from the Beer/OGAS intake — the unsettled design question that fell out of
+> peerhood-as-adjudication. (Distinct from the now-closed T23, which was just the verbatim-Beer sourcing.)
+
+### T24 — What grounds a peer's authority, and what makes a right cost something to violate?
+
+- **Status:** `gated`.
+- **What it is:** the Drystone spec now defines a **peer as a locus of adjudication** (Part 2 §3.1/§5.2)
+  and rights as standing whose removal cancels its own contestation (§5.3). But in a system with no
+  central allocator, *peerhood-as-authority must bottom out in something*, and the grounding choice
+  changes the enforcement primitive. Three candidates: (1) **cryptographic-fact** authority (self-enforcing
+  but only key-shaped domains); (2) **consensus-conferred** (circular — a peer can be demoted to a sensor
+  by collective non-recognition with no topological change, the silent peer→sensor rot, and it needs the
+  very enforcement the design avoids); (3) **exit-backed** (a peer holds authority insofar as its absence
+  costs the system something it can't replace — ties authority to variety; needs *legibility of exit*).
+  Working definition to pressure-test: *a peer is a locus whose adjudication others must respect because
+  the cost of not respecting it is borne by them, not only by the peer.* The spec needs a **companion
+  question to "where do decision rights sit": "what makes those rights cost something to violate?"** —
+  without it there is no early detector of the rot.
+- **Promotion target:** `drystone-spec` Part 2 §5 (the peer/rights definition) + Part 1 §2.3
+  (P-Peer-Equality). Currently held as an open question in **Part 2 Appendix B**.
+- **Gates:** couples the **wolf test** and the §5.8 **exitability** backstop; and the grounding choice
+  interacts with the **capability-mechanism Track A/B decision** (T1 / `ROADMAP_TODO` A11) — the
+  enforcement primitive each grounding implies differs. Decide the grounding, then the peerhood/rights
+  definitions can harden.
+- **Alpha provenance:** `../alpha/thinking/algedonic-and-peerhood-as-adjudication.md` §5; raw
+  `../alpha/seeds/transcripts/raw/beer-algedonic-cybersyn-ogas-dialogue-2026-06-25.md` (Turn 6).
 
 ## How to use this file
 
