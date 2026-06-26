@@ -348,8 +348,8 @@ COHESION §38.
 Provenance: `thinking/rights-vs-capabilities-definitions.md` (the cite-able block) ←
 `seeds/transcripts/raw/rights-vs-capabilities-definitions-dialogue-2026-06-24.md`. **Two checks left open**
 (do NOT harden the four-rights *closed set* into the normative spec until clear): is `share` fully a right or
-partly a membership-class capability (→ 07); does the 04 survivor re-key strand `tenure` (→ 04). Tracked
-ROADMAP_TODO **E32 (b)/(c)**; seam COHESION §39.
+partly a membership-class capability (→ 07); does the 04 survivor re-key strand `tenure` (→ 04). **Staged
+beta `../beta/OPEN-THREADS.md` T21 / T22** (2026-06-26); tracked ROADMAP_TODO **E32 (b)/(c)**; seam COHESION §39.
 
 ## Settled conclusions not yet folded (2026-06-25 completeness audit)
 

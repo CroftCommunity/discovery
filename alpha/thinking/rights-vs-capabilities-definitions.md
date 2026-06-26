@@ -64,7 +64,7 @@ Removing your ability to assert at all = a rights violation. A peer declining to
 exercising *their* own standing. This keeps voice from collapsing into "a right to an audience," which would
 itself be a clearance of others' standing *not to listen*.
 
-## Two items to verify before this hardens (open)
+## Two items to verify before this hardens (open) — staged beta `OPEN-THREADS` T21 / T22 (2026-06-26)
 
 1. **Is `share` fully a right, or partly a capability?** (→ `07` / the cooperative model.) If `share` can be
    diluted by legitimate governance / membership class, part of it behaves like a capability — name **which

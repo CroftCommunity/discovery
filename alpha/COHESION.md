@@ -1063,8 +1063,8 @@ define**:
   voice-vs-amplification edge case resolves *into* 06's label-not-enforce (declining to relay = a peer's own
   standing, not a voice removal). Two **verify-before-hardening** seams: (1) **is `share` a right or a
   membership-class capability** (→ 07 / cooperative model — name the inviolable floor); (2) **does the 04
-  survivor re-key strand `tenure`** (→ name tenure's implementation exception if so). Status: **OPEN**
-  (ROADMAP_TODO E32).
+  survivor re-key strand `tenure`** (→ name tenure's implementation exception if so). **Staged beta
+  `../beta/OPEN-THREADS.md` T21 / T22** (2026-06-26). Status: **OPEN** (ROADMAP_TODO E32 b/c).
 - **LINKS `thinking/drystone-spec/` (T1).** Roles decompose as `floor + [capabilities]` (§2 draft); this
   block is the definitional backing the spec's §2.3/§5 cite. The unwritten `P-Peer-Equality` /
   `P-Durable-Enablement` principles (E30/T1) realize the same cut.

@@ -23,3 +23,10 @@ and the standing indexes. Status notes whether the prompt has been run.
 - [`achilles-heel-research-prompt.md`](achilles-heel-research-prompt.md) — adversarial pressure-test of the
   ordering/consensus "dirty secret" (is the blind superpeer secretly the MLS ordering authority). **Not yet
   run** — the adversarial complement to the F-group proofs (COHESION §4).
+- [`beta-coverage-per-file-audit-prompt.md`](beta-coverage-per-file-audit-prompt.md) — per-file alpha→beta
+  completeness audit (disposition every alpha file; close the coverage list to zero). **Run (2026-06-25)** →
+  `alpha/plans/2026-06-25-beta-coverage-per-file-audit.md` (folded K13–K16; staged T18–T20).
+- [`beta-01-review-refinement-prompt.md`](beta-01-review-refinement-prompt.md) — turn the user's verbal
+  read-through review of beta theme 01 (`beta/thinking/01_beta_review.txt`) into a classified refinement
+  plan, then apply approved edits to `beta/01-epistemic-foundation.md`. **Not yet run** (authored 2026-06-26,
+  to run in a fresh clean-context session).
