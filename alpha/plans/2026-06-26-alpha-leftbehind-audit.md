@@ -64,3 +64,29 @@ T24), social-graph-as-substrate (→ spec P1/P2 + 08 + T25/T26/T27), rights-vs-c
 | design-notes-addendum.md | **CM-P1** (roll-up trust trilemma + accumulator/MMR end-state): **DETERMINED** — resolved by spec §7.3.3 choosing Option-A (each peer self-folds; no-trust checkpoint); accumulator/MMR is a minor unbuilt future direction, recorded here, not worth re-editing the spec. **CM-P2** (honest guarantee = "true attributable history + clean exit, NOT convergence"): **FOLDED 2026-06-26 (user-approved) → 04 §1** (new ¶ after "one fact with two payoffs"). BETA-ROLLUP CM-P2 row marked folded. |
 | geer-gating-peer.md | **CM-P3** (report-gated / classifier-gated / full-key 3-rung enumeration): **DETERMINED-subsumed** — 06 §3 carries the load-bearing point ("least-invasive rung," "other rungs compellable"); the enumeration is alpha detail. |
 | historical-peer-rights.md (NEW this session) | **FIND — new limbo I introduced:** the doc ends "eventual maturity home … a later call" (its own beta theme vs fold into history theme `02` vs stay alpha). **Surfaced as OPEN-THREADS T28** rather than left as an inline "later call." |
+
+## thinking/app/ (15) — DONE
+
+All DETERMINED or OPEN; **no new finds.** FOLDED → 08: design-philosophy (§1/§2/§3/§6; games-data-layer
+§13 → T15), client-architecture-adr (§3/§4), design-criteria (§6), ponds/build-order (§7/§9),
+ponds/games-pond-authoritative-list (§7), ponds/on-device-llm-feasibility (§10 K12),
+ponds/webxdc-security-and-competitive-games (§6). CITED (alpha-by-design detail): build-specs/BUILD-SPEC
+(Phase-0 green-real backs 08 §3), ponds/apps-pond-utility-list (catalog), ponds/build-shape-pass (license
+table + iroh-docs detail), ponds/fair-reveal-primitive-spec (commit-reveal crypto; per-use-case mitigations
+are local spec detail), ponds/p2p-games-pond-launch-set (superseded by authoritative-list). PROCESS/INDEX:
+README, build-specs/BUILD-SPEC-PHASE-1-2. OPEN: brand-and-voice-notes → T4; games outcome-attestation
+open-question → T15. *Note:* app docs already reference "social-graph discovery" — consistent with the 08
+substrate reframe (corroboration, not an orphan). T4/T15/T17 confirmed present in OPEN-THREADS.
+
+## thinking/drystone-spec/ (4) — DONE — **disposition CHANGED this session + T1 was stale (fixed)**
+
+All four were **STAGED (T1)** at 2026-06-25; this session they were **matured into the beta Drystone
+protocol spec**, so the disposition changed and **T1 was materially stale** (still said "not built / `P-*`
+unwritten"). **FIND fixed:** T1 updated → **PROMOTED → drystone-spec**, residuals carried to the spec.
+
+| file | disposition (now) |
+|---|---|
+| drystone-spec-v0.1-skeleton.md | DETERMINED-FOLDED → `drystone-spec` README + structure |
+| section-2-peers-rights-capabilities.md | DETERMINED-FOLDED → spec Part 2 §5 |
+| section-x-governance-conflicts.md | DETERMINED-FOLDED → spec Part 2 §7 |
+| README.md | DETERMINED-FOLDED (its `P-*` E30 gap → now written in spec Part 1 §2); residual open items (Track A/B, key-custody A12, geer-name A13, ENABLING formats) → spec App-A/App-B + ROADMAP |

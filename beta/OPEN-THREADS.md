@@ -52,10 +52,23 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 
 ## Open threads
 
-### T1 — Drystone governance & peer model (§2 peers/rights/capabilities + §X governance conflicts)
+### T1 — Drystone governance & peer model (§2 peers/rights/capabilities + §X governance conflicts) — PROMOTED → drystone-spec
 
-- **Status:** `gated`.
-- **What it is:** the governance-layer design distilled 2026-06-24 — one kind of peer; **rights**
+- **Status:** **PROMOTED 2026-06-26 → `drystone-spec`** (built this session; residual gates carried into the
+  spec, see below). The 2026-06-25 "design we have NOT built / `P-*` unwritten" framing below is **superseded**.
+- **Resolution:** the §2/§X drafts were matured into the **beta Drystone protocol spec** — the `P-*`
+  principles are now **defined** in `drystone-spec` Part 1 §2 (`P-Local-Truth`, `P-Knowable-Truth`,
+  `P-Peer-Equality`, `P-Durable-Enablement`); §2 peers/rights/capabilities/PeerSets/meer/exitability →
+  Part 2 §5; §X governance log / timestamp-free order / R1–R6 / attributable acceptance / regress-free fold
+  → Part 2 §7. **Residual gates (now carried in the spec, not here):** the `ENABLING` wire formats
+  (canonical fact encoding, frontier-closure, frontier-commitment, capability wire format) → spec Part 2
+  **Appendix B**; **Track A (Meadowcap) vs Track B (Keyhive)** → spec **Appendix A** + couples T24;
+  **key-custody default (A12)** and **geer-name (A13)** → ROADMAP_TODO; the Matrix/Willow/Meadowcap/Keyhive
+  facts carry **[confirm before publish]** in the spec. Optional curation: whether to back-port the named
+  `P-*` principles into alpha `crystallized/principles.md` (they are canonical in the spec) — a curation
+  call, low-priority.
+- **What it was (pre-spec staging):** the governance-layer design distilled 2026-06-24 — one kind of peer;
+  **rights**
   (universal, never delegated) vs **capabilities** (additive, delegated, revocable); the
   **capability / role / PeerSet** layers (the meer recast as a PeerSet, satisfying read-your-own-history
   vacuously); the **exitability** backstop + **asymmetry-of-expressible-range** framing; revocation as an
