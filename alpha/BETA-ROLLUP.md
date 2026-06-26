@@ -451,6 +451,12 @@ Seam: COHESION §41.
 
 ## Settled conclusions not yet folded (2026-06-25 completeness audit)
 
+> **Landing-pointer redirect (2026-06-26):** the K-tables below (and the K13–K16 / K17 tables above) record
+> several folds as landing in **`01 §X`**. Theme `01` was **retired/superseded 2026-06-26** — its reasoning
+> is now **Part 1** of the Drystone protocol spec (`beta/drystone-spec/`) and the rights/peer material is in
+> **Part 2 §5**. So read every "`01 §X`" landing in these tables as **`drystone-spec` Part 1 (reasoning) /
+> Part 2 §5 (rights & capabilities)**. The folds themselves are intact; only the doc they live in moved.
+
 A content-level audit (reading `crystallized/`, `thinking/`, `narrative/`+dossier, `research/` against
 the eight themes) found **settled** conclusions walked out in alpha that had not landed in beta. Unlike the
 `OPEN-THREADS` (which are *unsettled*), these were **promotion-ready coverage gaps** — they belonged *in* a
