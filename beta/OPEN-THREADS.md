@@ -28,6 +28,11 @@ point here). Division of labor:
 - **this file** — the subset of not-yet-pulled-up material that is **actively queued for beta and
   blocked on specific settling work**, with that work named per thread. A thread here is a `deferred`
   rollup item with its gates made explicit and a promotion target attached.
+- `README.md` → **"Standing decisions surfaced, not resolved"** — the **decision-gate register** (the
+  user's calls): MPL/AGPL license, total-device-loss recovery anchor, cooperative legal-review, Noria name,
+  CroftC Phase-0 IP, genome-vs-strategy. These are **not** duplicated as threads here (they live in the
+  README list + the relevant theme banners); a thread may *reference* a gate, but the gate itself is tracked
+  there. (Capability Track A/B, key-custody, geer-name are tracked in `ROADMAP_TODO` A11/A12/A13 + T1/T24.)
 
 ## Entry schema
 
@@ -467,7 +472,9 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 
 ### T25 — The Drystone redb storage-and-projection layer (vetted, adaptable local component)
 
-- **Status:** `surfaced` (build spec ready; not built).
+- **Status:** **in progress (being built externally, 2026-06-26)** — the build spec
+  (`../alpha/seeds/generated-prompts/redb-social-graph-layer-build-prompt.md`) is being implemented in a
+  separate build environment by the user. Was `surfaced`.
 - **What it is:** the local **derived-state engine** — authoritative signed-assertion store + governance log
   + a rebuildable redb projection (graph adjacency index + declarative snapshot), behind a typed
   query/command/notification surface, with crypto/MLS/credentials/blob I/O as **injected traits** so it slots
@@ -573,6 +580,33 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
   confirm the Matrix-in-federation comparison **[confirm before publish]**.
 - **Alpha provenance:** `research/messaging-solutions-landscape.md` §top-unresolved #3;
   `thinking/social-graph-as-substrate.md` §7; `thinking/multi-device.md`.
+
+> **T30 added 2026-06-26** — consolidates the scattered spec-maturation work (spec App-B `ENABLING` items +
+> `[confirm before publish]` flags + T1/T23/T29 residuals) into one tracked path-to-publication thread, so
+> it is flagged here rather than only living inside the spec.
+
+### T30 — Mature the Drystone spec to publication-final (the path to the defensive-publication DOI)
+
+- **Status:** `gated` (spec is beta-maturity; publication-final is the next stage up).
+- **What it is:** two closures take `drystone-spec` from beta to a mintable defensive-publication record:
+  1. **Pin the `ENABLING` wire encodings, in sequence** (Part 2 App-B): the **canonical governance-fact byte
+     encoding** (the base all others extend) → **frontier-closure-before-sort** (the highest-risk divergence
+     point) → **frontier-commitment + acceptance-record format** → **§7.2 message formats field-by-field** →
+     the **capability wire format** (gated on the Track A/B decision). Per the spec README sequencing note,
+     **do not mint the v0.1 Zenodo DOI until §7.2 is buildable from the text alone** — that is when the
+     disclosure becomes *enabling* (protective as prior art).
+  2. **Confirm the `[confirm before publish]` external facts** against primary sources (currently
+     web-verified-in-dialogue only): Matrix State Resolution / room v12 / CVE-2025-49090, Willow, Meadowcap,
+     Keyhive (Part 2 §7 / App-A); the Beer quotes + Cybersyn/OGAS dates/figures (Part 1 §3); iroh cites the
+     FACTCHECK SoT. Also resolve the spec's own reconciliations: the **`croft-*` → `drystone-*` tag rename**
+     (re-prove, since the tag is signed over) and the **SHA-256 (§4) vs BLAKE3 (§7) hash-function** choice.
+- **Promotion target:** `drystone-spec` → an `rc`/publish-stage spec + a Zenodo DOI + OpenTimestamps + a
+  public Git release (the vehicle settled in **07 Pillar C / K9**; spec-text **CC0 1.0**, code **Apache-2.0**).
+- **Gates:** the Track A/B capability decision (couples T1/T24) blocks the capability wire format; the rest
+  is concrete spec-writing + a fact-confirmation sweep. **NOT-LEGAL-ADVICE:** attorney review of the
+  patent-non-assertion paragraph still advised (07 C3).
+- **Provenance:** `drystone-spec` Part 2 Appendix A/B; `thinking/drystone-publication-and-defensive-disclosure.md`;
+  couples T1 (PROMOTED), T22 (tenure/re-key), T24 (Track A/B), T29 (MLS↔log binding).
 
 ## How to use this file
 
