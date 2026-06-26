@@ -70,9 +70,10 @@ unresolved design decision across the whole corpus.
 
 - The recovery-anchor decision (trust-minimized backup vs device delegation) is **surfaced here, decided by
   the user.** The decided *shape* (delegation-primary + optional offline seed backup) is recorded; the open
-  fork for *total-device-loss* remains the user's call and overlaps `07`. The promotion of "evidentiary, not
-  operational" into `crystallized/principles.md` is settled-as-conclusion but is the user's call to insert
-  (cross-ref `drystone-spec`). The per-platform trust-model doc is *named* here as the highest-leverage next artifact,
+  fork for *total-device-loss* remains the user's call and overlaps `07`. Whether the **"evidentiary, not
+  operational"** framing of the rights-floor is elevated to a named, canonical principle is
+  settled-as-conclusion but remains the user's call (a decision tracked at the prior level, not carried
+  inline). The per-platform trust-model doc is *named* here as the highest-leverage next artifact,
   not authored inside this theme.
 
 ## 1. Keys ≠ identity; identity is the provable lineage
@@ -157,8 +158,8 @@ The linkage field is `alsoKnownAs`, and its weakness is the feature — bidirect
 mechanical validation; absence means *unverified*, not *false*. The three ranked goals resolve cleanly:
 provable common ownership = **fully achievable**; a recovery anchor = **partial, network-dependent** (real
 on Bluesky via a root-controlled rotation key, none native on AP, attestation-only on Hive); one key to
-operate everything = **drop it.** ("Evidentiary not operational" flagged for `crystallized/principles.md`,
-cross-ref `drystone-spec`.)
+operate everything = **drop it** — the rights-floor is **evidentiary, not operational** (it records and
+proves standing; it does not operate things).
 
 ## 6. The `did:webvh ↔ did:plc` convergence — a cheap, non-foreclosing hedge
 

@@ -1130,8 +1130,10 @@ The 2026-06-26 social-graph-substrate dialogue
   roll-up + two-tier compaction** (Part 2 §7.3.3). Status: **folded**.
 - **App / product (Croft, `08`).** **Social graph as the substrate, chat as a tenant** (group is the durable
   index; attachments are siblings; group≠member-set; implicit/sticky group lifecycle; local-projection-vs-
-  shared-anchor; invisible-graph UX). A significant reframe of 08's app shape — **surfaced as OPEN-THREADS
-  T26, not a unilateral 08 rewrite**. Status: **OPEN** (the user's call on restructuring 08).
+  shared-anchor; invisible-graph UX). **FOLDED into `08` 2026-06-26 (user-approved "yes we should reframe")**:
+  narrative + charter re-anchored; new §1/§1.1/§1.2; §4 re-pointed; establishes rewritten. T26 **PROMOTED**.
+  Residual design gates kept open (the group's-face UX on the T25 framework; reconcile sticky lifecycle with
+  `06`). Status: **shape settled in 08; residual UX gates open**.
 - **Local implementation (redb).** Authoritative assertion-store + governance log + rebuildable redb
   projection (local-first CQRS), behind a typed surface with injected crypto/MLS/blob traits — a **vetted,
   adaptable** component. **Not the protocol.** Build spec at

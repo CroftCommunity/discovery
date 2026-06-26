@@ -83,7 +83,7 @@ protocol; Croft is one ecosystem built on it (see `drystone-spec/README.md`).
 | 05 | `05-identity-you-carry.md` | Keys are not identity; a person is a DID lineage; cross-platform continuity is attestation, never a master key. | N6 / G5 | **drafted** |
 | 06 | `06-safety-without-surveillance.md` | A content-blind system stays safe by structure, not inspection; membership ≠ access. | N8 / G6 | **drafted** (graduated to its own theme) |
 | 07 | `07-sustainability-and-stewardship.md` | Non-extraction is anti-fragile — if a cooperative mechanism *and* an IP-stewardship structure carry it. | N4 / G2 | **drafted** — **decision-gated** |
-| 08 | `08-croft-the-product.md` | Surface the proven substrate as a composable garden of ponds + pads on one core, thin shells. | N7 / G7 | **drafted** — **decision-gated** |
+| 08 | `08-croft-the-product.md` | The social graph is the substrate; chat is a tenant; a durable group carries co-equal sibling activities — surfaced as a composable garden of ponds + pads on one core, thin shells. | N7 / G7 | **drafted** — **decision-gated** |
 
 ```
   drystone-spec ─► 02 ─► 03 ─► 04 ─► 05 ─► 06 ─► 07 ─► 08
