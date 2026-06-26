@@ -178,3 +178,16 @@ are the most substantive.
 **Residual decisions still the user's** (surfaced, not resolved): the standing gates (README list); the new
 threads T28 (historical-peer-rights home) / T29 (MLS↔log binding); optional curations (user-need-first as an
 explicit principle; P-* back-port to `crystallized/principles.md`; ECOSYSTEM Keet-contrast enrichment).
+
+## Post-audit documentation follow-ups (2026-06-26, user-directed "are all open threads documented?")
+
+- **(1) Build:** the user is now building the redb layer **externally** → **T25 status updated** to
+  "in progress (being built externally)."
+- **(2) Spec maturation:** the path-to-publication work (the `ENABLING` wire-format sequence + the
+  `[confirm before publish]` fact sweep + the `croft-*`-rename / hash-function reconciliations) was only
+  inside the spec App-B / scattered across T1/T23/T29 → **consolidated as new thread T30** (mature
+  `drystone-spec` to publication-final / the DOI).
+- **(3) Decision gates:** confirmed documented in the **README "Standing decisions surfaced, not resolved"**
+  register (+ theme banners; Track A/B etc. in ROADMAP A11/A12/A13). Added a **discoverability pointer** to
+  that register in the OPEN-THREADS division-of-labor so a thread-reader is directed to the gates. The user
+  will action the gates later.
