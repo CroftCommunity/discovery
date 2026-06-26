@@ -520,6 +520,25 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 - **Gates:** the user's decision to name it as a principle (or leave it as a per-theme conclusion).
 - **Alpha provenance:** `beta/05` §5; `../alpha/BETA-ROLLUP.md` 05 §Deferred-decision note.
 
+> **T28 added 2026-06-26** by the alpha left-behind audit — extracted from an inline "later call" that the
+> 2026-06-26 Hush-A-Phone relocation left at the bottom of `../alpha/thinking/historical-peer-rights.md`,
+> rather than leaving it as an inline deferral.
+
+### T28 — Maturity home for the historical peer-rights material (Hush-A-Phone lineage)
+
+- **Status:** `surfaced` (a placement decision).
+- **What it is:** when the Hush-A-Phone / Bazelon "private benefit, not public detriment" legal ancestor was
+  relocated out of the reasoning core (it is **not** spec material — vendor-neutral, historical), the new
+  doc `../alpha/thinking/historical-peer-rights.md` was left with its eventual home undecided: (a) mature
+  into its own beta theme, (b) fold into the history theme **`02`** (enclosure / commons — closely adjacent),
+  or (c) stay alpha-only by design. It is also extensible (common-carrier, right-to-repair, interop
+  mandates) which weighs toward (a)/(b).
+- **Promotion target:** most likely **`02`** (historical-alignment is its register) or a small standalone
+  historical theme; or stays alpha.
+- **Gates:** the user's placement call; whether the lineage gets developed enough to warrant its own theme.
+- **Alpha provenance:** `../alpha/thinking/historical-peer-rights.md`; the "no right to remove" legal-ancestor
+  also lives in `crystallized/principles.md` (frozen) and was relocated out of the beta reasoning doc.
+
 ## How to use this file
 
 When a beta theme doc is tempted to assert something that is actually still in flight, park it here
