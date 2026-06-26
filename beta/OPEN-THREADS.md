@@ -552,6 +552,28 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
 - **Alpha provenance:** `../alpha/thinking/historical-peer-rights.md`; the "no right to remove" legal-ancestor
   also lives in `crystallized/principles.md` (frozen) and was relocated out of the beta reasoning doc.
 
+> **T29 added 2026-06-26** by the alpha left-behind audit — a research-surfaced open question
+> (`research/messaging-solutions-landscape.md` §"top unresolved questions" #3) that was never surfaced as a
+> thread or a spec open item.
+
+### T29 — MLS group state ↔ governance-log / Automerge state consistency
+
+- **Status:** `gated` (an open design binding, spec-relevant).
+- **What it is:** the design makes the **governance log** authoritative for membership (the append-only fold,
+  `drystone-spec` Part 2 §7) and **MLS** the key/epoch layer; "membership is bound to the ratchet" means they
+  fork together (Part 2 §4.5.1 / the social-graph synthesis). But the **exact binding** — how MLS epoch
+  transitions are driven by, and kept consistent with, the folded governance state, especially under
+  concurrent commits / partition / survivor re-key — is **not specified**. The research named this "the exact
+  problem Matrix is still solving for MLS-in-federation." It is an `ENABLING`-level integration, distinct from
+  the §7 governance-conflict resolution (which orders *facts*) and from the borderline "Automerge-over-
+  application audit" engineering note.
+- **Promotion target:** `drystone-spec` Part 2 (a new §, or an Appendix B `ENABLING` item) once specified;
+  couples T1 (governance), T29's sibling §7.5 frontier-closure, and the survivor/re-key path (T22).
+- **Gates:** specify the membership-fact → MLS-commit binding and its behavior at fork/partition/re-key;
+  confirm the Matrix-in-federation comparison **[confirm before publish]**.
+- **Alpha provenance:** `research/messaging-solutions-landscape.md` §top-unresolved #3;
+  `thinking/social-graph-as-substrate.md` §7; `thinking/multi-device.md`.
+
 ## How to use this file
 
 When a beta theme doc is tempted to assert something that is actually still in flight, park it here

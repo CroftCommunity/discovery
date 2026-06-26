@@ -90,3 +90,39 @@ unwritten"). **FIND fixed:** T1 updated → **PROMOTED → drystone-spec**, resi
 | section-2-peers-rights-capabilities.md | DETERMINED-FOLDED → spec Part 2 §5 |
 | section-x-governance-conflicts.md | DETERMINED-FOLDED → spec Part 2 §7 |
 | README.md | DETERMINED-FOLDED (its `P-*` E30 gap → now written in spec Part 1 §2); residual open items (Track A/B, key-custody A12, geer-name A13, ENABLING formats) → spec App-A/App-B + ROADMAP |
+
+## narrative/ (6) — DONE
+
+All DETERMINED or OPEN; no new finds (two minor recorded notes).
+- lineage-of-a-design-imperative.md — DETERMINED-FOLDED → (01 →) `drystone-spec` Part 1 §3. **Note:** this
+  session cut Socrates/Peirce, de-emphasized "2,400 years," dropped the Ashby-gloss/Beer-paraphrase-as-quote,
+  and relocated Hush-A-Phone — all recorded in BETA-ROLLUP "01 review → Drystone spec." So the per-theme 01
+  table row's "every verbatim quote reproduced whole" is **superseded** by that intake section (not re-edited;
+  redirect note + intake section cover it). The deferred "reinforcements" (von Foerster / Jane Jacobs / ecology
+  diversity-stability) remain DETERMINED-DEFERRED (recorded in BETA-ROLLUP 01; optional low-value Part-1
+  expansion).
+- long-form.md / short.md — DETERMINED-PROCESS/INDEX (synthesis skeletons; adoption-curve risk → T11).
+- messaging-and-quotes.md — DETERMINED-OPEN → T4 (brand/voice reservoir; K11 crossed → 07 A2b).
+- verticals/croft-the-name-and-the-commons.md — DETERMINED-FOLDED → 02.
+- verticals/README.md — DETERMINED-PROCESS/INDEX. **Confirmation, not a find:** verticals #1–6 are unwritten
+  stubs, but their core ideas already folded — "renting-our-relationships-back" → K13 (02 §6),
+  "linear-vs-cyclical" → K16 (07 A0). Unwritten ≠ left-behind; the conclusions landed.
+
+## research/ (16) — DONE — **2 genuinely left-out items found + surfaced**
+
+Clearly-folded/cited/staged (baseline holds, no left-behind): messaging-solutions-landscape (03),
+public-social-protocols (03), germ-xchat-features (03), atproto-private-data-architecture (03 §6; T7),
+atproto-sovereign-appview-club (03 §8), discord-dominance (03 §7 + 07 B6), social-platform-cycle (02 §6 +
+07), open-publication-and-ip-protection (07 C K9), socialization-and-publication-venues (07 §C4 K9),
+iroh-realtime-media-references (CITED 04 §4; T10), str0m-production-readiness (CITED; T10), README
+(PROCESS). STAGED: group-chat-failure-modes(-plain) → T5; p2p-founder-motivations-adoption → T11;
+discord-matrix-groupchat → T16. (T5/T7/T10/T11/T16 confirmed present.)
+
+**FINDs (from `messaging-solutions-landscape.md` §"top unresolved questions"):**
+- **Q3 — MLS group state ↔ governance-log/Automerge consistency** ("the exact problem Matrix is solving for
+  MLS-in-federation"): a real open design binding **not surfaced** anywhere → **OPEN-THREADS T29** (+ spec
+  App-B cross-ref). Q1 (multi-device DID flow)→05/spec §4.5.1; Q2 (recovery)→the bannered gate + K14; Q4
+  (metadata padding/mixing vs scope-the-claim)→DETERMINED (the honest-metadata posture, spec §8; mixing a
+  future-ROADMAP enhancement).
+- **Q5 — a pre-production crypto/security audit** ("none of our crypto has been audited; every credible system
+  has been"): **not tracked anywhere** → added to backlog **ROADMAP_TODO B11** (a standing pre-prod gate).
