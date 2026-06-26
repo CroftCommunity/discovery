@@ -165,6 +165,11 @@ total-device-loss recovery is the open problem.
 "Equivalency Assertion" fabricated DID-Core label; "Public Liaison Corporation"; over-strong "cannot be
 faked" (use "resistant to third-party spoofing"). **Surfaced:** the recovery-anchor decision (user's);
 the anchor-URI stability contract; the unwritten per-platform trust-model doc (highest-leverage next artifact).
+**Deferred decision (2026-06-26, was an inline prior-tier pointer in `beta/05`, now cleaned out for tier
+discipline):** whether the **"evidentiary, not operational"** framing of the rights-floor is elevated to a
+named, canonical Tier-1 principle in `crystallized/principles.md`. Settled-as-conclusion (it is stated clean
+in `beta/05`); the *promotion* into the principles set is the user's curation call. Tracked here and as
+`../beta/OPEN-THREADS.md` **T27**, not carried inline in the beta doc.
 
 ---
 
@@ -435,7 +440,7 @@ user's Drystone(protocol) / Croft(app) / redb(local-impl) cut:
 | **Recursive principal** (a peer is a locus of adjudication; user = group of devices; community = group of users) + **composition vs valuation edges** (shared-MLS-lineage vs weighted-trust-no-shared-keys) + **per-edge adversarial posture** | **synthesized** | Drystone spec **Part 1 §2.3** + Part 2 §3.1/§5 |
 | **Per-device authorship + lamport** + **user-principal-as-self-AS** credential model + **devices-as-MLS-leaves** (no nesting, no dup signature keys) | **synthesized + carried-flag [confirm before publish] (MLS RFC 9420/9750)** | Drystone spec **Part 2 §4.5.1** |
 | **Declarative snapshot = cache** (valid iff head matches; never synced/trusted-from-peer; "values that passed authorization at each step") + **verifiable roll-up** (commits to gov-head hash; re-expandable; Option-A self-fold) + **two-tier compaction** (governance permanent, content compactable; off by default) | **synthesized** (sharpens §7) | Drystone spec **Part 2 §7.3.3** |
-| **Social graph as the substrate, chat as a tenant** + group≠member-set + implicit/sticky group lifecycle + local-projection-vs-shared-anchor seam + invisible-graph UX | **synthesized** (app reframe — surfaced, not folded into a theme) | `thinking/social-graph-as-substrate.md` §1–3; **OPEN-THREADS T26** (→ `08`) |
+| **Social graph as the substrate, chat as a tenant** + group≠member-set + implicit/sticky group lifecycle + local-projection-vs-shared-anchor seam + invisible-graph UX | **synthesized → FOLDED into 08 (user-approved 2026-06-26)** | `beta/08` narrative + charter + new **§1/§1.1/§1.2** + §4 re-point + establishes; trace via **OPEN-THREADS T26 (PROMOTED → 08)**; `thinking/social-graph-as-substrate.md` §1–3 |
 | **Authoritative assertion-DAG + derived redb projection** (local-first CQRS), governance log + roll-up, redb as derived-state engine, blobs in iroh-blobs | **synthesized** (local-implementation) | redb build prompt; **OPEN-THREADS T25**; `thinking/social-graph-as-substrate.md` §4–5 |
 | Prior art (Keet/Holepunch chat-bottomed-vs-graph-bottomed; ATProto public-follow-graph; Gun/OrbitDB/redb/Automerge) | **harvested** (web-verified-in-dialogue) | candidate ECOSYSTEM.md additions (Keet/Holepunch + the contrast); flagged **[confirm before publish]** |
 

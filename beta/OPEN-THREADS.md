@@ -471,9 +471,21 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
   `../alpha/thinking/social-graph-as-substrate.md` §4–5; raw
   `../alpha/seeds/transcripts/raw/social-graph-substrate-redb-storage-dialogue-2026-06-26.md`.
 
-### T26 — Social-graph-as-substrate: the product reframe (chat as a tenant)
+### T26 — Social-graph-as-substrate: the product reframe (chat as a tenant) — PROMOTED → 08
 
-- **Status:** `gated` (an app/product-shape reframe — the user's call on whether/how to restructure `08`).
+- **Status:** **PROMOTED 2026-06-26 → `08`** (user-approved "yes we should reframe this way"). The reframe
+  is folded into `08`: theme narrative + charter re-anchored on the social graph as substrate; new **§1**
+  (the social graph is the substrate; the garden grows from it) with **§1.1** (the durable group made
+  invisible — group≠member-set, implicit/sticky/pruned lifecycle, the group's-face UX, local-vs-shared-anchor)
+  and **§1.2** (ponds/pads as a group's siblings); §4 re-pointed (`group-core` is the substrate core);
+  establishes-rewritten. **Residual gates kept open** (below) — the group's-face UX iteration (on the T25
+  local framework) and reconciling the sticky-group lifecycle with `06`/membership-vs-access remain design
+  work, but the *shape* is now settled in 08.
+- **What it was (the reframe, now in 08 §1):** invert the app pyramid — the **social graph is the substrate;
+  chat is one tenant**, peer to games/calls/photos hung off a durable **group** (the group is the index; a
+  chat can end while the group persists). **group identity ≠ member set**; **implicit/sticky group
+  lifecycle**; the **local-projection vs shared-anchor** seam; the **load-bearing-but-invisible graph** UX.
+  Dissolves the Delta-Chat "games pollute a thread / chats couple membership+governance" pain.
 - **What it is:** invert the app pyramid — the **social graph is the substrate; chat is one tenant**, peer
   to games/calls/photos hung off a durable **group** (the group is the index; a chat can end while the group
   persists; spin up a fresh chat with the same group, attachments intact). With it: **group identity ≠ member
@@ -490,6 +502,23 @@ write the settled synthesis into the theme doc (quotes whole, verification flags
   sticky-group lifecycle with `06`/membership-vs-access.
 - **Alpha provenance:** `../alpha/thinking/social-graph-as-substrate.md` §1–3; raw
   `../alpha/seeds/transcripts/raw/social-graph-substrate-redb-storage-dialogue-2026-06-26.md`.
+
+> **T27 added 2026-06-26** — extracted from an inline prior-tier pointer that had been sitting in `beta/05`
+> (a `crystallized/principles.md` "flagged for insertion" note). It was cleaned out of the beta doc for tier
+> discipline and promoted to a tracked decision here. Logged to correct a pattern of leaving real decisions
+> as inline notes rather than surfacing them.
+
+### T27 — Promote "evidentiary, not operational" to a canonical principle?
+
+- **Status:** `gated` (a user curation decision).
+- **What it is:** the rights-floor is **evidentiary, not operational** — it records and proves standing; it
+  does not operate things (stated clean in `beta/05` §5 and its charter). This is **settled as a conclusion**;
+  the open question is purely whether it should be **elevated to a named, canonical Tier-1 principle** in the
+  alpha principles set (`crystallized/principles.md`) — a curation call, not a design question.
+- **Promotion target:** `crystallized/principles.md` (alpha) if adopted; no beta-doc change needed (the
+  conclusion already reads clean in `05`).
+- **Gates:** the user's decision to name it as a principle (or leave it as a per-theme conclusion).
+- **Alpha provenance:** `beta/05` §5; `../alpha/BETA-ROLLUP.md` 05 §Deferred-decision note.
 
 ## How to use this file
 

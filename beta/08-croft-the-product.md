@@ -1,6 +1,6 @@
-# 08 — Croft the product: the composable garden
+# 08 — Croft the product: a composable garden rooted in the social graph
 
-date: 2026-06-24
+date: 2026-06-24 · reframed 2026-06-26 (social-graph-as-substrate)
 
 status: synthesis — **DECISION-GATED** (see the banner below). The client architecture is green-real
 (proven in Phase 0); the brand and the IP/ownership status are not settled.
@@ -17,20 +17,40 @@ facts, cite FACTCHECK SoT.
 
 ## Theme narrative (overview)
 
-Everything in the corpus until this body was the *protocol / substrate* — lineage-groups, the Drystone P2P
-protocol, the iroh transport (`04`). This theme is the distinct **application layer**: "Croft" the product
-that rides on that substrate without re-opening it. The organizing image is a user-respecting **utility
-garden**. The app does not decide how useful any pond is to a given user — the user shapes their own garden,
-and a pond that matters to one person is absent and unmissed for another. Composability *is* the
-user-respecting value: a stance, not a feature.
+Everything in the corpus until this body was the *protocol / substrate* — the Drystone social graph,
+lineage-groups, the iroh transport (`04`, and the Drystone protocol spec). This theme is the distinct
+**application layer**: "Croft" the product that rides on that substrate without re-opening it.
 
-The garden has two kinds of unit. A **pond** is a connection to an existing social ecosystem, kept native
-end-to-end with **honest seams** (no fused timeline, no normalized cross-pond model); a **pad** is a small
-self-contained app (a game, a tool) that floats in the garden, sandboxed and permission-scoped. The one pond
-Croft fully owns is **Croft Group** [working name, pending brand reconciliation — see the decision-gated
-banner] — private group chat (and later P2P social games) on iroh — which is the
-lineage-groups work surfaced. That it slots in with no protocol change is itself evidence the substrate
-decisions hold.
+**The foundational move — and the correction this theme is built on — is that the social graph is the bottom
+of the product, and chat is one tenant on it, not the floor.** Most messaging apps put the chat thread at
+the bottom and bolt games, calls, and shared media onto it; the thread becomes both the conversation *and*
+the index of everything a group ever did, and it is bad at the second — a game pollutes the thread, can't be
+pinned, can't be managed long-term. Croft inverts the pyramid: the durable thing is the **group** — a stable
+social object with its own identity and history — and chat, games, calls, and shared media are **co-equal
+siblings attached to it**, none nested inside another. A chat can end while the group persists; you can start
+a fresh chat with the same group and the games and photos are still there, because the functional group is
+distinct from any one chat but determinate. The group is the durable index; the thread goes back to being
+only a thread. This is the **"equal in rights, not capabilities" social graph** of the substrate, surfaced
+as a product.
+
+On that substrate sits a user-respecting **composable garden** — and the garden grows *from the graph*. The
+app does not decide how useful any pond is to a given user; the user shapes their own garden, and a pond that
+matters to one person is absent and unmissed for another. Composability *is* the user-respecting value: a
+stance, not a feature. The garden has two kinds of unit. A **pond** is a connection to an existing social
+ecosystem, kept native end-to-end with **honest seams** (no fused timeline, no normalized cross-pond model);
+a **pad** is a small self-contained app (a game, a tool) that attaches to a group as one of its siblings,
+sandboxed and permission-scoped. The owned social experience — private group chat, and later P2P social
+games — is the **first cultivation of the group substrate** (the lineage-groups work, surfaced) [working
+name *Croft Group*, pending brand reconciliation — see the decision-gated banner]. That it slots in with no
+protocol change is itself evidence the substrate decisions hold.
+
+The graph must be **load-bearing and invisible at the same time** — foundational as architecture, almost
+absent as experience. The user lives "me and these people, and the things we do together," never
+"administering a graph." The group's identity is **not its member set** (it has a stable identity that
+survives membership change, with a presentation name that is shareable but locally overridable); groups form
+*implicitly* (start a chat and a group quietly exists) or *explicitly* (make a group, then attach a chat and
+a game) and the two are indistinguishable once they exist; and a group becomes durable-and-rediscoverable by
+an affirmative act (a "sticky" gesture), with casual ones living and fading without the user ever curating.
 
 The spine is settled and proven in code: a pure Rust functional core (`(state, intent) -> (state,
 effects)`, no I/O, WASM-clean) behind a thin imperative shell per platform (CLI, web, desktop, mobile), with
@@ -51,11 +71,14 @@ are all surfaced-but-unresolved.
 
 **In scope.**
 
-- The application/client layer: the garden thesis, the ponds + pads taxonomy, the shared-core/thin-shell
-  client architecture, interaction tiers, the design-criteria quality bar, the ponds/games catalog + build
-  pathways, the pad security model, the visual system intent.
-- **Croft Group as a pond** = lineage-groups *surfaced*. The product consumes the proven protocol; it does
-  not re-specify it.
+- The application/client layer: **the social-graph-as-substrate product shape** (the durable group; chat/
+  games/calls/media as co-equal siblings attached to it; group identity ≠ member set; the implicit/sticky/
+  pruned group lifecycle; the load-bearing-but-invisible-graph UX), the garden thesis, the ponds + pads
+  taxonomy, the shared-core/thin-shell client architecture, interaction tiers, the design-criteria quality
+  bar, the ponds/games catalog + build pathways, the pad security model, the visual system intent.
+- **The owned social experience** (private group chat + later P2P social games) = lineage-groups *surfaced*
+  as the first cultivation of the group substrate. The product consumes the proven protocol and the
+  Drystone social graph; it does not re-specify them.
 
 **Out of scope (and where it lives).**
 
@@ -81,7 +104,52 @@ have standing fails it.
   an idiom-translating broker between cores, deferred by default per honest-seams. Pad trust mechanics are a
   product-layer pad criterion here; the underlying attestation/crypto is treated as solved per the user's call.
 
-## 1. The garden thesis (ponds + pads)
+## 1. The social graph is the substrate; the garden grows from it
+
+> "The durable thing is the group, not the chat. Chat is one tenant; games, calls, and shared media are
+> co-equal siblings attached to the same group. A chat can end while the group persists."
+
+*Verification:* **settled design thesis** (the substrate it rides — the Drystone social graph and the
+Phase-0 client substrate, one module behind a port — is green-real). *Grounds:* this inverts the pyramid
+most apps build. When the chat thread is the bottom, it is forced to be both the communication medium and
+the index of everything the group ever did, and it is bad at the second: a game launched into a thread
+pollutes it and can't be pinned, history can't be managed, and ending a thread destroys the group — so
+zombie threads live forever and membership and governance stay welded to a conversation. Putting the
+**group** at the bottom and hanging chat/games/calls/media off it as siblings dissolves all of that at once:
+each activity gets its own surface, the thread is only a thread again, and a group's durability never
+depended on any one chat. This is the product expression of the substrate's relationship graph — equal in
+rights, not capabilities — surfaced.
+
+### 1.1 The durable group, made invisible
+
+The group is a **first-class, durable object with a stable identity that is not its member set** — the same
+group survives members joining and leaving, and its presentation name is shareable but **locally
+overridable** (one identity, many faces). Two paths bring a group into being and are indistinguishable once
+it exists: **implicit** (start a chat and a group quietly forms behind it) and **explicit** (make a group,
+then attach a chat and a game). A group becomes durable-and-rediscoverable by an affirmative **"sticky"**
+act; casual groups live and fade without the user curating, and a group can be deliberately **ended** (and
+not silently resurrected). Reusing the same people *suggests* an existing group but never forces it — the
+human stays in control of whether old history comes into a new context, which matters acutely in a
+family-safety product where "the system grouped me back with someone" is the surprise to avoid.
+
+The discipline that keeps this from becoming a chore is that **the graph is load-bearing and invisible at
+the same time.** The user experiences "me and these people, and the things we do together," never
+"administering a graph." The one surface the group genuinely needs is its **home / face** — a place you and
+these people share, navigable into its attached chats/games/media — and the hardest UX problem in the whole
+product is keeping that face from becoming a settings page for a graph node. Entry points are **plural but
+convergent**: you can enter through a person, an activity, a chat, or the group's face, all routing to the
+same group (many doors, one room).
+
+One honest seam the product layer must respect, inherited from the substrate: **presentation and
+association are local, but access and cross-participant group identity need a shared anchor.** Naming,
+stickiness, and a user's own view are local projections requiring no agreement; *membership* is a shared
+construct, and a member removed from a group stops receiving new content but **cannot be made to un-see what
+they already hold** (`06`). The UX must communicate that boundary truthfully — "removed, won't see anything
+new" is sayable; "can no longer see what was already shared" generally is not.
+
+### 1.2 The garden — ponds and pads grow from the graph
+
+On the group substrate sits the composable garden:
 
 > "A pond is a connection to an external social ecosystem (native data, honest seams, attribution); a pad is
 > a small self-contained app that runs in the shell (a game, a tool; sandboxed, permission-scoped, vetted).
@@ -89,9 +157,11 @@ have standing fails it.
 
 > "Composability is itself the user-respecting value. Not a feature, a stance."
 
-*Verification:* **settled design thesis** (the Phase-0 substrate — one module behind a port — is green-real).
-*Grounds:* naming the thesis converts an emergent architectural accident (modules behind ports → the user
-assembles their own garden) into the explicit organizing principle. The garden *test* gates existence:
+A **pad is one of a group's siblings** — a game or tool attached to the group alongside its chat, not nested
+inside the thread — which is exactly what makes it pinnable, durable, and manageable rather than lost in a
+message river. *Grounds:* naming the thesis converts an emergent architectural accident (modules behind
+ports → the user assembles their own garden) into the explicit organizing principle. The garden *test*
+gates existence:
 
 > Does it "add optional leverage a user can adopt or ignore, without the surface feeling broken either way?"
 
@@ -122,8 +192,9 @@ for Bluesky; an in-proc fake + later real-iroh for the chat Transport). *Verific
 ## 4. Per-pond domain cores unified by the shared shell (decomposition: option C)
 
 Not one god-core (which would couple a Bluesky read-model with an MLS group engine), not two disconnected
-cores (which would re-fatten the shells). The group pond is symmetric to the feed pond: add a `group-core` +
-a Transport port; the existing `shell` composes both ponds' view models. *Caveat carried:* the chat core is
+cores (which would re-fatten the shells). The **`group-core` is the substrate core** — it carries the
+durable group and the social graph (§1) that a group's sibling attachments hang off — and a pond is symmetric
+to it: add a domain core + its port; the existing `shell` composes both view models. *Caveat carried:* the chat core is
 **richer** than the feed read-model (bidirectional / real-time, MLS epoch state, fork/merge with
 reconvergence-policy-per-plane, governance/delegate planes) — the *pattern* transfers cleanly, the *core
 content* is substantially more complex. **Awareness vs interactivity** is the clean line: awareness is shell
@@ -226,8 +297,11 @@ privileged way in.
 
 ## What this theme establishes (and does not)
 
-**Establishes:** the product is a composable garden of ponds + pads on one proven spine — the
-shared-core/thin-shell client architecture is green-real (Phase 0, 20/20); the Croft Group pond is
+**Establishes:** the product is built on the **social graph as its substrate** — the durable group is the
+bottom of the pyramid and chat/games/calls/media are co-equal siblings attached to it (a chat can end while
+the group persists; group identity ≠ member set; implicit/sticky/pruned lifecycle), with the graph
+load-bearing but invisible. On that substrate sits a composable garden of ponds + pads on one proven spine —
+the shared-core/thin-shell client architecture is green-real (Phase 0, 20/20); the owned social experience is
 lineage-groups surfaced with no protocol change (evidence the substrate holds); interaction tiers, the quality
 bar, and the build pathways are settled design; the webxdc security finding turns iroh-as-transport into a
 free containment win; the free-tier access floor (a bare phone, no purchased infra, no always-on node) is a
