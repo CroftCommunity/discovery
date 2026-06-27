@@ -74,14 +74,17 @@ executed** — they are larger reorgs or net-new authored docs awaiting a greenl
   where the review supplied material; the rest carry a review note pending expansion.*
 - **S3 — brand/voice + adoption-enablement twin docs, start now.** Stand up a brand/voice/messaging
   working doc **and** an adoption-enablement doc as **twins** that accrete ideas/links/"ammo" over time so
-  nothing is forgotten. Maps to **T4** (brand) + **T11** (adoption). *Directive registered; docs not yet
-  authored.*
+  nothing is forgotten. Maps to **T4** (brand) + **T11** (adoption). **Started 2026-06-26 (scaffolds):**
+  `../alpha/narrative/brand-comms-workbook.md` + `../alpha/narrative/adoption-enablement.md` (cross-linked
+  twins; index existing reservoirs, accrete from here).
 - **S4 — per-platform design files.** One design file each for **Linux / macOS / Android / iOS**, walking
   out the common-core-vs-platform-difference trades; every not-yet-implemented platform needs its own.
-  Maps to **T6 / T14**. *Directive registered; not authored.*
+  Maps to **T6 / T14**. **Started 2026-06-26 (scaffolds):** `../alpha/thinking/app/platforms/` (README +
+  `linux/macos/android/ios.md`, anchored on the client-architecture ADR).
 - **S5 — per-app PRDs.** One PRD each for **chat** and the **games pond**, plus the new modest starter
   use case — a peer-to-peer **"thinking of you"** signal (touch your phone to reach out to another
-  person). Maps to **T15**. *Directive registered; not authored.*
+  person). Maps to **T15**. **Started 2026-06-26 (scaffolds):** `../alpha/thinking/app/prds/` (README +
+  `chat/games-pond/thinking-of-you.md`).
 - **S6 — by-type grouped index.** Once threads carry a Type (above), add a grouped view so a batch of one
   type can be run out together. *Follow-up to the Type field.*
 
@@ -173,7 +176,8 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   DRIFT** — `../alpha/thinking/app/brand-and-voice-notes.md` (taglines, two-speed answer, "Grow your own",
   message funnel) and `../alpha/assets/README.md` (draft wordmarks, license-gated) [added 2026-06-25
   per-file audit]; `../alpha/BETA-ROLLUP.md` coverage view ("likely feeds a future brand chapter");
-  `../alpha/ROADMAP_TODO.md` C6 / A7.
+  `../alpha/ROADMAP_TODO.md` C6 / A7. **Accreting home (S3, started 2026-06-26):**
+  `../alpha/narrative/brand-comms-workbook.md`.
 
 ### T5 — Protocol behavior at scale / group-chat failure modes
 
@@ -211,7 +215,8 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   anchor-URI stability contract (A9) and the PDS-vs-self-controlled rotation key (A10), which determine
   what each spoke can claim; depends partly on T7.
 - **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **E13** (+ A9/A10/E14);
-  `../alpha/thinking/cross-platform-identity-provenance.md:222`; `beta/05` boundary.
+  `../alpha/thinking/cross-platform-identity-provenance.md:222`; `beta/05` boundary. **Per-platform home
+  (S4, started 2026-06-26):** `../alpha/thinking/app/platforms/`.
 
 ### T7 — atproto Permissioned/Private-Data watch-item (external dependency, gates 03 + 05)
 
@@ -293,7 +298,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **What it is:** a survey of ~16 P2P/local-first projects concluding **only Signal crossed the chasm**, and that crossing needs three conditions — product parity, a non-extractive sustaining org, an inciting event (which produces *spikes*, not sustained migration). Plus a discovered **fourth bridge: institutional mandate** (Matrix's 25+ government adoptions were top-down) "worth designing for explicitly," and the **embedded-trust** corollary (P2P tools must embed in *existing* trust networks, not expect trust to form around the tool).
 - **Promotion target:** **07** (the institutional-adoption path as a sustainability lever) and **03** (close the field map with the "only Signal crossed, and why" verdict).
 - **Gates:** the survey carries a `[needs primary-source verification]` caveat (confirm before asserting); "design for institutional mandate" is an undone directive.
-- **Alpha provenance:** `../alpha/research/p2p-founder-motivations-adoption.md` (RQ2 synthesis); `../alpha/SOVEREIGN-COMMONS-DOSSIER.md` §7; `../alpha/narrative/long-form.md` (adoption-curve risk, named not analyzed).
+- **Alpha provenance:** `../alpha/research/p2p-founder-motivations-adoption.md` (RQ2 synthesis); `../alpha/SOVEREIGN-COMMONS-DOSSIER.md` §7; `../alpha/narrative/long-form.md` (adoption-curve risk, named not analyzed). **Accreting home (S3, started 2026-06-26):** `../alpha/narrative/adoption-enablement.md`.
 
 ### T12 — Consumer-pull economic inversion (M3) + the M0–M4 product-track sequencing
 
@@ -332,7 +337,8 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **What it is:** on iOS you cannot hold a background socket, so device-to-device P2P is **opportunistic, not deterministic**, and spontaneous off-grid meshing is aspirational/unproven — which structurally argues the meer is the dependable backbone, not a bonus. The four-property impossibility is already in 03; the **iOS-background constraint as a stated limitation on the product's connectivity promise** is not.
 - **Promotion target:** **08 §9** (a peer asterisk to the "serverless"/relay-dependency one) and **03**.
 - **Gates:** decide what Croft promises about off-grid/background sync (the product consequence is undecided).
-- **Alpha provenance:** `../alpha/thinking/ios-opportunistic-p2p.md`.
+- **Alpha provenance:** `../alpha/thinking/ios-opportunistic-p2p.md`. **Per-platform design file (S4,
+  started 2026-06-26):** `../alpha/thinking/app/platforms/ios.md`.
 
 ### T15 — P2P-games data layer (ephemeral-live / durable-outcome) + open attestation
 
@@ -345,7 +351,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **What it is:** a settled-as-shape decision — **live play is always over iroh and always ephemeral; only the settled outcome is durable, by the players' choice** (one durable record per completed game). But the **outcome-attestation mechanism is explicitly open** and the games pond is "candidate, not committed."
 - **Promotion target:** **08 §7**.
 - **Gates:** the mutual-signed outcome-attestation mechanism; games-pond commitment.
-- **Alpha provenance:** `../alpha/thinking/app/design-philosophy.md` (data-layer shape); `../alpha/thinking/app/ponds/` (attestation set aside).
+- **Alpha provenance:** `../alpha/thinking/app/design-philosophy.md` (data-layer shape); `../alpha/thinking/app/ponds/` (attestation set aside). **PRD stubs (S5, started 2026-06-26):** `../alpha/thinking/app/prds/games-pond.md` + `../alpha/thinking/app/prds/thinking-of-you.md` (+ `chat.md`).
 
 ### T16 — Matrix close-cousin E2EE operational lessons (UTD invariant, mandatory-recovery onboarding, expectation-gap)
 
