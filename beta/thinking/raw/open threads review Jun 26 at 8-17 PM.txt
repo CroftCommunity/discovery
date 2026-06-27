@@ -1,0 +1,212 @@
+[Speaker 1]
+Okay, I'm looking at the discovery beta open threads. I'm just going to kind of go through this for some follow-up here.
+
+[Speaker 1]
+So, promotion rule. I noticed some things are still in here as promoted, like T1. I mean, it's kind of confusing to have promoted items alongside open thread items, so we should really promotion should probably be moving out of open threads into a. You know, promoted, and that'll just stay with the?
+
+[Speaker 1]
+Um, whatever level, it's at basically. So, there's still a provenance there, but then that keeps the list of things to sort of think through. That are open threads. You know? Contained, so that when I'm going through it, it's easier to see. Um. So, governance at scale T2?
+
+[Speaker 1]
+We've talked about this in liquid delegation for much larger groups, something to revisit. Um. Because we're really getting to the point where? We need our testing harness. To kind of test, you know? Scale, both in terms of.
+
+[Speaker 1]
+Variety and quantity. But, you know, in terms of peers? And this particular thing is really going to be like a let's make some hypothesis, and then play it out, you know? I think, because I have some principled stands like, you know, peers are still. Have right and and those are?
+
+[Speaker 1]
+Uh in Violet, but? We also have to just kind of look at how things play out because it might be. It's likely that there's more than one kind of large-scale governance model. You know, we talked about? The idea of effectively? You know, a delegate that has your vote, so to speak, and that's like, revocable, and movable.
+
+[Speaker 1]
+And the whole liquid democracy thing, you know, it's? Possible that maybe there's? Groups that don't want to bother voting. And then, like? Your participation would be, you know, All or Nothing. And so there's a core group of admins that are elected, like something closer to how Reddit moderation works like as long as you know.
+
+[Speaker 1]
+Peers are still equal, have their rights, and they can vote with their two feet and all that. It's not right, wrong, or anything else. It's just a matter of like. You know, consent, and definition, and I could see. You know, both might make sense. And then the other one is like, you could have broadcast only groups, you know.
+
+[Speaker 1]
+The rights model is just totally different. Uh, moderation and abuse under blind broker. Um. Yes, we had talked about how? You know, a blind broker or the the mere peer set as it were? Um, effectively has the same rights as a full peer. It just has no local history state of its own.
+
+[Speaker 1]
+It never sees contents, right? Um. And as long as that framing holds up, I think we're looking at you really. You can't moderate in terms of content because you can't see it. So, then, you really looking at, like? Abuse. Yeah, side things, so moderation, I think, would be separate from the mere pier set.
+
+[Speaker 1]
+They're kind of talking about the gear pier set. Um. And I think these are just two kind of different stacks of. Delegations, you know? Speaking of which, one thing that I've seen here, which I'll address otherwise, is just. Confusion between rights, roles, capabilities, and delegation, like
+
+[Speaker 2]
+Peers, delegate roles. You know?
+
+[Speaker 1]
+To each other. So, like, within a group, you might have a particular, maybe you can only have one instance of a particular role. And it is, you know, initially, the Creator, and it can, and it's delegated, kind of de facto there, and you can. Have. Government rule that says, you know, if everybody accept that person?
+
+[Speaker 1]
+Votes to remove it from them, then it can be reassigned or votes to reassign it then that happens. But so rights are things that appear holds like. This is the combination of factors that makes it a valid peer. Without it, we've noted. You know, the system itself degrades. Capabilities, though.
+
+[Speaker 1]
+I feel like I've seen places where this is conflated, and we really need to clear it up to my mind. A capability is like intrinsic to appear like you could have a peer that has a, you know, a radio attached to it. You could have a peer that has the ability to do push notifications because it has a particular token or something like it has a capability.
+
+[Speaker 1]
+You have a peer that is 16 cores and 10 terabytes of RAM. That's. You know, just an exaggeration, but you know, these are. This is a difference in capability. Um. It has the same rights, you know it. It can't. Uh, dominate from a governance perspective, but it has different capabilities, right?
+
+[Speaker 1]
+Capabilities that likely make it more suited, you know, or maybe less to a particular role. And so roles are delegated. Capabilities are intrinsic. Rights. Inherent. Right? Um. So, I want to clear that up and then a pure set. Is, like, um? Just a predefined group of? You know roles and capabilities that come with like a functional expectation and both so that you can kind of, you know, package it to.
+
+[Speaker 1]
+Because it's a a named thing that can be reasoned about, but also, so you can like, say, hey, you're the mere. You know, peer said, blind broker. Uh, you have that comes with these delegations, which we can group like to simplify governance. Um, you know, the expectation is, you have these capabilities to fulfill it and then.
+
+[Speaker 1]
+You know if? Then you can have, like, mutually exclusive. Roles basically like? Decryption. Role can't ever be with? I don't know if, like, I guess that's a role. We've just sort of taught, like. I haven't really talked about how one peer can is blind versus others can. Decrypt, and we should settle that in terms of MLS capabilities, but effectively, you could say, like, hey, a mirror set!
+
+[Speaker 1]
+Like?
+
+[Speaker 1]
+Like a notable notification thing. Or maybe it can't at all, right? That seems a little hairier because, like.
+
+[Speaker 1]
+Then you get into the woohoo forbid case, and it seems much.
+
+[Speaker 1]
+More true to form to instead, say, hey, these things really can never travel together. So, if you try to do it like the group is going to lock up, or it's going to notify everybody, and like. And pause, things you know, just fail noise. Maybe it will succeed functionally, but like?
+
+[Speaker 1]
+Suddenly, there's a big, noisy hay. There's. Uh. You know? Restricted combination of Rights or something, you know, this? Your your communication may be at risk. Do you want to Fork the group and not include the people who captured that you know who made that vote something like that, right?
+
+[Speaker 1]
+It'd be like a. You know, the human adjudication, and like, somehow, a graceful handling. But at the point at which you're in a, a group of peers that votes to? You know? Take a mirror, which everyone knows, hasn't, you know, ate more ha High availability capabilities. Um. And get make it no longer blind.
+
+[Speaker 1]
+Like, now you're in a human trust situation, like. Now, now it changes the Dynamics of the group, and the group is no longer the same, you know? Um, okay, brand voice messaging chapter. Yeah, I'd like to start. Um, like, a docs folder like, this could be a theme like we took.
+
+[Speaker 1]
+We made themes out of the alpha content, and that's cool, and I'm seeing now that we're kind of going through them and deconstructing them into, like, yeah, another structure, like extracting dry Stone and all that I think. That's right, but I think we should start to pull together like branding messaging like, you know, Communications like ideas, thoughts, links that kind of thing.
+
+[Speaker 1]
+Um. So, we should talk about T4. T5. Um, protocol Behavior at scale. Yeah, I think that this flows right in with the other one of. We really. We need like to work out the test harness and set up a bunch of conformants and performance testing. Uh, and quality test cases.
+
+[Speaker 1]
+Um, the per platform trust model doc T6. I think. Still just deferred the permission to private data watch item still deferred forward, only revocation under irreversible commitments. T8. Revoking consent cannot rewind to spend action. Yeah, yeah. Okay. Define the reversible versus committing decision hack spec. The permanent attribution record reconciled with t1's append only fold.
+
+[Speaker 1]
+I think. I think a lot of these need more. Like what it is is okay, but I need like problem statement proposed, you know, possible? Solution, you know? What about this? Was indeterminate, like, it's kind of in Gates, but need more sort of pros and walk out some of these that we have in here.
+
+[Speaker 1]
+Like, we have a lot more material on them, and I know that they're kind of. Referenced here, but. Honestly, maybe each one of these, uh? Open threads should be its own file in a directory. Just because? They're especially as we get further. They're just bigger, more contextual decisions. You know, that put in 30 of them in a file, makes it difficult to kind of reason about, and then we can have like a directory of open ones and a directory of, you know, uh?
+
+[Speaker 1]
+Closed ones. Whatever. Uh, T9, yep, still need to get the raw material T10 still deferred. For now, we'll get to that. T11.
+
+[Speaker 1]
+Um. Yeah, so this is basically. And.
+
+[Speaker 1]
+And, you know, adoption enablement, and you know, branding and marketing are, like, twin kind of? Docs, you know? Being built up for just like? Thinking and reference and pulling the thread so that basically the idea is we don't forget things and we kind of build up the. The ammo over time, so that when it comes time, we're like, okay, yeah, here's what we've been looking at.
+
+[Speaker 1]
+Um, T12. I really just need you to walk me through that when I think. Because. Guess I thought that was resolved. T13. I think this is, like, hey, if we have blobs that are encrypted? So, media plus a different nonce. Do we mean like a different user in Crips?
+
+[Speaker 1]
+A key or a different user uses their key to encrypt an asset. Now that asset is a? You know, uh? In indiscernible blob. Well, if every user does that now, the same image has 15 copies, which is distinctly. Not great from like a operational, pragmatic perspective, I think. I think maybe the?
+
+[Speaker 1]
+There's a couple possible compromises here. This is definitely one of those ones where, like. This needs just a whole lot of thinking, you know, and it's not gonna fit in this one file. But I think broadly.
+
+[Speaker 1]
+You could work it out to where since a group is itself a principle. Like, I don't know how, if you could. Basically encrypt an asset so that it was. The same as an encrypted blob for the whole group and then store it that way and then, like, at least you would get deduplication at that scale.
+
+[Speaker 1]
+Or.
+
+[Speaker 1]
+Work out kind of in, you know? An encryption and key envelope scenario where, like? You encrypt things in a way that?
+
+[Speaker 1]
+I'm just not sure, really. We just need a lot more thinking, kind of testing, and probably research on this in terms of. Like, how does um proton do it right? They have an encrypted, uh, at the ends file store. How does peer go do it, you know? T14. Ios opportunity stick only P2P.
+
+[Speaker 1]
+Yes, like we have. Basically, the IOS app designed is going to need. To play into the iOS strengths. Which means? You know, kind of event driven from the system.
+
+[Speaker 1]
+Calms, you know, and like sink, and so we'll have to work that out. I don't really know why this is gated. I think maybe we need to start, like? Per platform. Design files, like one for Linux, one for OSX, one for Android, one for iOS, and to start walking out.
+
+[Speaker 1]
+Like, yeah, you have the. You have the kind of core social graph Library, then you have like the the chat extension right off the bat from it. But, you know, we've already talked about. We want as much of a common core as possible, but also platforms are just different, and they're going to have different.
+
+[Speaker 1]
+Needs and trade-offs, and so, like, we should just. Take this, and instead of it being like a one-off open thread, it becomes. Uh. You know, like? Every platform that isn't implemented yet needs. Version of this thinking T15 games and data layer. Um, yeah, I kind of. Kind of this, like the game.
+
+[Speaker 1]
+Still calling it a pond for now. I think maybe, like, this is another. Like, let's just start a design. Document, and like, you know, chat should have its own, and games should have its own. Um, at the very least. And then the one other one, like we had talked about, kind of like.
+
+[Speaker 1]
+A, you know, like, just a I'm thinking of you type of thing where it's like. Instead of buying those bracelets, you can touch a thing on your phone, and it's a peer-to-peer. You know, reach out and somehow signal to the other person that, like, hey, you're thinking of them, you know, just that simple.
+
+[Speaker 1]
+That would be like a good starting use case, and even though it's modest, still, like, would just get its own design. Doc, you know, we're talking about basically like a PRD. You know? Uh, t16.
+
+[Speaker 1]
+I don't entirely understand that one. So, yeah, and more fodder for. These just need more plain explanation. Meat on the bone, and like. Their own files so that we can kind of. Really walk out the challenge and like. What our options are? And keep it all together. The three audience settings, that's a.
+
+[Speaker 1]
+You know? That's designed that. You know, that's a design principle that impacts the platform, you know. Design specs, the per platform design specs. So I do consider that fairly settled. So, like, what to do with it? LTS for interfaces, yet another like design ethos that impacts, you know, all of the platform implementations?
+
+[Speaker 1]
+I consider that pretty much settled. It's more about, like, what does it look like? Blind, peer encrypted search. Yeah, I think that was kind of. I just don't really want to get into this. I mean, I guess we could do some experimentation for t19. To like, understand if there's any utility here, but to me, this seems kind of like a losing game.
+
+[Speaker 1]
+T20.
+
+[Speaker 1]
+We can. I'm just not entirely sure what to do with this, like? Define c7's intended resolution, extend attack to multi-parent ancestry. Hardened equivocation attribute. Like we, I need more like plain language problem statement, you know? Solutions. We've already sort of thought about, like, what we preferred. When we talked about it like, this is just too terse for me is share fully a right or partly a membership class capability.
+
+[Speaker 1]
+This is more confusion on. Capability versus roll, I suspect, but also can we Define what we mean by share? Because I'm not sure that shares the way that I would frame what I'm thinking, like, peers have a right.
+
+[Speaker 1]
+I don't know if it's participate in the network. Because you really can't have a right to someone else's resources in this model. So, how to frame like? This is sort of where the. Local, canonical State, you know, peer rights. This is where it meets the okay. Do peers have a right to communicate with others, and what's the boundary on that that still respects, like?
+
+[Speaker 1]
+Appears ability to, you know? Right to exit appears. Um, you know, right to Fork that kind of thing, and I'm not sure what the right framing is it. There's something there. We just need more kind of thinking on it. T22. Does the Survivor re-key stand appears tenure?
+
+[Speaker 1]
+Maybe tenure is my version of that right to share, like tenure, is the ability to functionally be appear to other peers, right?
+
+[Speaker 1]
+So, this is some testing we need to run for t22. We should just do that. 23, T23. Okay, I. This one's closed again, like, confusing to have clothes mixed in.
+
+[Speaker 1]
+What grounds appears Authority and what makes a right cost something to violate. What we've talked about this? Several places, including part one of the dry Stone spec, which is. The peers Authority is local by Nature, like. On, like, part of what defines up here is that it has local state.
+
+[Speaker 1]
+No one else has that? You know, informs the. The distributed system you know to like corroborates with other peers, you know, is meant to be corroborated, um. But I guess I'm thinking, like? What makes a right cause something to violate is? The litter, the Integrity of the overall system depends on each Pier having the rights to participate, you know, to preserve variety, which is in turn.
+
+[Speaker 1]
+You know, for the longevity and homeostasis of the system itself, like the broader social system, the broader social graph will collapse. If you start stripping piers of Rights, so I guess maybe I need more on this, like? Maybe we need more research, or I need to understand what we're missing there better.
+
+[Speaker 1]
+Red DB storage and projection layer. This one's in progress even better, like this is yet a third category, so we have like what result or closed in progress? Whatever the states are for these open threads open, so open closed and in progress, I guess. And we need to do some experiments.
+
+[Speaker 1]
+Yeah, yet again, this is something to where, like, maybe. We, each one of these needs, not just a status, but like, what type of open thread like, does it need? Proving doesn't need experimentation. Does it need you know additional content, like the quote, stuff like? There's more to it so you could have an open one that you know needs content.
+
+[Speaker 1]
+An open one that needs more experimentation and like being able to group those to run them out would be great. Oh yeah, it's promoted instead of closed, or I guess closed would be. Nope, decided not to pursue it. Promoted, is it got integrated? Um.
+
+[Speaker 1]
+Evidentiary, not operational t27.
+
+[Speaker 1]
+I don't entirely understand what we're looking at there. T28, yeah, I want to start the. So we should have, like? We need to start building out our like design docs you know prds for for platforms that you know, build on the dry Stone spec. Um, and like the. Kind of the this the tech stack that we've got going to to sort of build the canonical case.
+
+[Speaker 1]
+This one, I think, like, got filed in Alpha. To my mind this, like it, we pulled it out of. The beta 1 and and then extracted it out to Alpha, but? Really? It seems like you know?
+
+[Speaker 1]
+The history of? Peer rights and distributed systems, you know, distributed social systems? Itself, a topic, right? And one that we have enough. To like, have a, maybe it's maybe it's a theme to kind of figure out where to go from there. Uh, t29, MLS group, state convergence log. I, I guess, I feel like, maybe this is?
+
+[Speaker 1]
+Sold, and I'm just unsure what there's a lot going on here, and I'm unsure what what we need to do. I guess, like more experiments, is it? You know, just the spec that needs to be nailed down, like the shape of the data. Typing all that. I'm not sure.
+
+[Speaker 1]
+And then T30. This is just a meta thing, so I'd really rather just Purge that. Like, well, I guess what this would be, is, this would be? Um, open thread DOI publication. So, the T30 isn't to mature the spec it's? You know, publish the final spec. And get the DOI identifier.
+
+[Speaker 1]
+And critically, you know, an open thread for, like, attorney legal review, kind of thing. So, there might be two open threads here for this one, which is one is like the type would be. You know, legal review, and one and another the type would be, you know, publish.
