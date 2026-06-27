@@ -489,10 +489,18 @@ staging-queue ledger** — no theme-doc or spec content changed, no decision gat
   `drystone-spec` Part 2 §5 sharpening; sharpens T21, informs T20/T3. **T32** — attorney legal-review of
   the defensive-publication (patent-non-assertion), split out of T30 (which is now the `publish` thread).
 
-**Surfaced, not executed (the user's call — registered in OPEN-THREADS as S1–S6):** per-thread directory
-split (S1); per-thread Problem/Proposed/Indeterminate expansion (S2); brand/voice + adoption-enablement
-twin docs, start now (S3, maps T4/T11); per-platform design files (S4, maps T6/T14); per-app PRDs incl. a
-new "thinking of you" use case (S5, maps T15); a by-type grouped index (S6).
+**Surfaced as tracked decisions S1–S6 in OPEN-THREADS.** Still surfaced-not-executed: per-thread
+directory split (S1); per-thread Problem/Proposed/Indeterminate expansion (S2); a by-type grouped index
+(S6). **Started 2026-06-26 (scaffolds, on user request "both then push"):**
+- **S3** brand/voice + adoption-enablement twin docs (maps T4/T11) → `narrative/brand-comms-workbook.md`
+  + `narrative/adoption-enablement.md` (cross-linked; index existing reservoirs, accrete from there).
+- **S4** per-platform design files (maps T6/T14) → `thinking/app/platforms/` (README +
+  `linux/macos/android/ios.md`, anchored on `thinking/app/client-architecture-adr.md`).
+- **S5** per-app PRDs incl. the new "thinking of you" use case (maps T15) → `thinking/app/prds/`
+  (README + `chat/games-pond/thinking-of-you.md`).
+
+All seven new docs are **scaffolds** — structure + provenance pointers + open questions, no invented
+design decisions.
 
 ## Settled conclusions not yet folded (2026-06-25 completeness audit)
 
