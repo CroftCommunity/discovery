@@ -468,6 +468,32 @@ SSB + Briar **confirmed** (no change). The corrections **soften over-claims / fi
 settled theme** — safe pre-confirmation (removing over-claims); the new facts carry **[confirm before
 publish]** and couple **T29** (MLS↔log binding) and **T22** (survivor/re-key FS cost). Seam: COHESION §42.
 
+## Open-threads review → OPEN-THREADS refactor (2026-06-26)
+
+A voice-transcribed read-through review of `beta/OPEN-THREADS.md` (now filed
+`beta/thinking/raw/open threads review Jun 26 at 8-17 PM.txt`, manifest row added) was processed into a
+classified extraction (`plans/2026-06-26-open-threads-review.md`) and applied as a **refactor of the
+staging-queue ledger** — no theme-doc or spec content changed, no decision gate resolved.
+
+**Applied to `beta/OPEN-THREADS.md`:**
+- **Status taxonomy** (`open` [surfaced/gated] · `in-progress` · `promoted` · `closed`) and a **Type**
+  field (`needs-content` · `needs-research` · `needs-experimentation` · `needs-proving` · `legal-review`
+  · `publish`) so threads can be grouped and run out by kind of work.
+- **Promoted/closed moved out of the live queue** into a new "Promoted & closed (provenance retained)"
+  section: **T1** (promoted → drystone-spec), **T26** (promoted → 08), **T23** (closed). Promotion rule +
+  "how to use" updated to the move-down convention.
+- Every open thread tagged with a Type; per-thread review notes added where the transcript gave specific
+  direction.
+- **New threads:** **T31** — disentangle rights / roles / capabilities / delegation (+ PeerSet,
+  fail-noisy restricted combinations); captures the author's working definitions as direction for a later
+  `drystone-spec` Part 2 §5 sharpening; sharpens T21, informs T20/T3. **T32** — attorney legal-review of
+  the defensive-publication (patent-non-assertion), split out of T30 (which is now the `publish` thread).
+
+**Surfaced, not executed (the user's call — registered in OPEN-THREADS as S1–S6):** per-thread directory
+split (S1); per-thread Problem/Proposed/Indeterminate expansion (S2); brand/voice + adoption-enablement
+twin docs, start now (S3, maps T4/T11); per-platform design files (S4, maps T6/T14); per-app PRDs incl. a
+new "thinking of you" use case (S5, maps T15); a by-type grouped index (S6).
+
 ## Settled conclusions not yet folded (2026-06-25 completeness audit)
 
 > **Landing-pointer redirect (2026-06-26):** the K-tables below (and the K13–K16 / K17 tables above) record
