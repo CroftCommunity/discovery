@@ -8,6 +8,55 @@ This changelog is organized by theme rather than by line, because several change
 
 ---
 
+## document-pass-6 (2026-07-06): the consolidation (p9) — self-contained Part 1 + Part 2, transport + MLS folded in
+
+**What changed, in one line.** The definitive synthesis pass: the transport/delivery design and the deep MLS
+design were folded fully into Part 2, Part 1 and Part 2 were made self-contained and consistent, terms that
+were later sharpened were back-ported, and the whole set went through primary-source verification, a
+consistency read, versioned upstream reference sections, and cross-document reference disambiguation. This
+is the "p9 / pending-design-review" set from the consolidation session. Part 1: 890→975 lines. Part 2:
+2751→3961 lines.
+
+**Part 2 now subsumes former standalone companions:**
+- The identity model (`persona-definition.md`) is integrated as **§5.2 (Principal, client, persona)** plus
+  the term definitions in Appendix D. The standalone `persona-definition.md` is **superseded** (see the
+  deferred-reconciliation note below).
+- The open-items / interoperability parameters (`open-items.md`) are integrated as **Appendix B** (with the
+  `ENABLING` encodings), and external-fact confirmations as **Appendix C**. The standalone `open-items.md`
+  is **superseded**.
+- The vocabulary discipline (`bounded-contexts-and-vocabulary.md`) is reflected in the new
+  `conventions-and-decisions.md`.
+
+**Terminology change (back-ported):** `PrincipalSet` (introduced in document-pass-4) is retired in favor of
+**Group Role Set** (a named, pinned, Group-recognized bundle of Group Roles; Part 2 §5.5, §3759). The
+`client = leaf key pair + author identity` conception is now consistent with MLS usage throughout (a client
+is a keying context, not "software"); persona is the sharper transport-design definition, back-ported over
+the fuzzier prior Part 2 wording.
+
+**New companions filed:** `conventions-and-decisions.md` (the conventions + synthesis-decisions primer),
+`part-1-changelog.md` and `part-2-changelog.md` (the consolidation's detailed per-part content-pass logs).
+This `CHANGELOG.md` remains the filing-side revision log (document-pass-0 through -6); the two new per-part
+changelogs carry the content-pass detail from the consolidation session.
+
+**Verification landed in the consolidation (per the per-part changelogs):** transcript-hash §8.2 formula
+(verbatim), resumption PSK §8.6, epoch-number metadata leak (RFC 9750), the Matrix Project Hydra facts
+(CVE-2025-54315, CVE-2025-49090, MSC4289/MSC4291/MSC4297, verbatim), CALM (Hellerstein & Alvaro), RBSR
+(arXiv:2212.13567 / SRDS 2023), CRDT (SSS 2011 / RR-7506), RFC 8446 record padding. Two corrections caught:
+**RoQ is an Internet-Draft, not RFC 9714** (that citation was wrong, now corrected), and **Sigstore's
+primitive is signature transparency, not "countersigning"** (corrected). Versioned upstream reference
+sections added to both parts.
+
+**Deferred reconciliation (flagged, not executed this filing — the user deferred the consistency sweeps).**
+The following now-superseded companions are **kept in place pending the user's go-ahead to retire them**, so
+the tree temporarily carries both the consolidated content and the older standalones (a known, flagged
+inconsistency, not an accident): `persona-definition.md` (superseded by §5.2 + Appendix D; still uses the
+retired `PrincipalSet`), `open-items.md` (superseded by Appendix B), `bounded-contexts-and-vocabulary.md`
+(reflected in `conventions-and-decisions.md`), and `review-handoff.md` (predates the persona migration
+entirely). The two SVG figures are retained though the consolidated Part 2 no longer references them by
+figure number. The `impl/doc-writing-method.md` canonical was updated to the newest (p9) doc-method.
+
+---
+
 ## document-pass-5 (2026-07-06): transport/identity/encryption integration + iroh 1.0 pass + RFC 9420 §16.4 correction
 
 **What changed, in one line.** Part 2 §6 was expanded from a thin three-subsection stub into a full

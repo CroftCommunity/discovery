@@ -2,8 +2,10 @@
 
 **Version:** 0.1.0 (beta maturity — draft / defensive-publication track)
 
-**Status:** Draft. Build-against shape complete; the byte-level `ENABLING` encodings that gate a
-publication-final release are listed in Part 2, Appendix B, not yet pinned.
+**Status:** Draft, consolidated (the "p9" set, document-pass-6): Part 1 and Part 2 are self-contained and
+consistent, with the transport/delivery and deep-MLS designs folded in. **Pending design review** — the
+remaining open work is the design decisions and `ENABLING` wire encodings tracked in Part 2, Appendix B,
+not editorial cleanup. Build-against shape complete.
 
 **License (text):** CC0 1.0 Universal (Public Domain Dedication).
 
@@ -35,18 +37,24 @@ application layer, no product surface):
   └───────────────────────────────────────────────────────────────┘
 ```
 
-- **Part 1** — `part-1-reasoning-underpinnings.md`
-- **Part 2** — `part-2-certifiable-design.md`
-- **Vocabulary of record** — `persona-definition.md` (the term lattice + invariants for the identity
-  model; principal / client / persona / peer, single-sourced with Part 2 §5)
-- **Vocabulary discipline** — `bounded-contexts-and-vocabulary.md` (spec-layer design/language note: why
-  a term like *peer* legitimately means different things in different contexts, and the test for when to
-  rename)
-- **Figures** — `drystone-exposure.svg` (Fig. 1, the trust/exposure map) and `drystone-catchup-flow.svg`
-  (Fig. 2, the returning-member catch-up flow), referenced from Part 2 §6 and §7
-- **Changelog** — `CHANGELOG.md` (running revision log; newest entry first)
-- **Reviewer brief** — `review-handoff.md` (standalone summary for cross-session review)
-- **Open items** — `open-items.md` (read-and-decide ledger; settled items + genuinely open items)
+- **Part 1** — `part-1-reasoning-underpinnings.md` (the consolidated "p9" set; document-pass-6)
+- **Part 2** — `part-2-certifiable-design.md` (the consolidated "p9" set; transport + MLS folded in;
+  identity model at §5.2, open items / `ENABLING` at Appendix B, external-fact confirmations at Appendix C,
+  term definitions at Appendix D)
+- **Conventions + decisions** — `conventions-and-decisions.md` (the synthesis conventions and the
+  cross-session design decisions; includes the vocabulary discipline)
+- **Changelogs** — `CHANGELOG.md` (filing-side revision log, document-pass-0..6, newest first) plus
+  `part-1-changelog.md` and `part-2-changelog.md` (the consolidation's detailed per-part content-pass logs)
+
+**Superseded companions, retained pending the user's go-ahead to retire them** (document-pass-6 folded
+their content into Part 2; kept in place for now, a flagged temporary duplication, not an oversight):
+- `persona-definition.md` — superseded by Part 2 §5.2 + Appendix D (and still uses the retired term
+  `PrincipalSet`, now `Group Role Set`)
+- `open-items.md` — superseded by Part 2 Appendix B
+- `bounded-contexts-and-vocabulary.md` — reflected in `conventions-and-decisions.md`
+- `review-handoff.md` — predates the persona migration; needs a full reconciliation pass
+- `drystone-exposure.svg`, `drystone-catchup-flow.svg` — the trust/exposure map and catch-up flow;
+  retained, though the consolidated Part 2 no longer references them by figure number
 
 Each Part 2 section names the Part 1 principle(s) it `Realizes`, so the two halves are traceable
 against each other: every mechanic should cash out a principle, and every principle should bind a
@@ -61,7 +69,7 @@ protocol works.
 **Drystone is the protocol; Croft is an ecosystem built on it.** They must not be conflated. Drystone is
 intended to carry more than one ecosystem; Croft is the first, comprising (at least) a Croft-branded
 application, and a Drystone-compliant cooperative hosting operator that participates as an ordinary
-`principal` / `PrincipalSet`. The protocol text is CC0 and names no ecosystem in its normative content. (Stewardship
+`principal` / `Group Role Set`. The protocol text is CC0 and names no ecosystem in its normative content. (Stewardship
 of the protocol's IP and marks is intended to sit with an independent foundation — candidate name *Noria*,
 pending clearance, a project decision not settled by this spec.)
 
@@ -107,7 +115,7 @@ third party's patent; implementers are responsible for their own due diligence.
 | **right** | A claim every principal is entitled to, universal and never delegated (Part 2 §5.3). |
 | **capability** | A delegated, additive, revocable means to *do* something, sitting on top of the rights floor (Part 2 §5.4). |
 | **role** | The descriptive, free-composing set of capabilities a principal holds right now (Part 2 §5.5). |
-| **PrincipalSet** | A named, pinned, group-recognized bundle of roles and the capabilities they imply, with a required *and* forbidden composition, drift-checked against the governance log (Part 2 §5.5). The compound word is always the defined concept, never the ordinary "set." (Formerly "PeerSet.") |
+| **Group Role Set** | A named, pinned, Group-recognized bundle of Group Roles and the capabilities they imply, with a required *and* forbidden composition, drift-checked against the governance log (Part 2 §5.5). The compound is always the defined concept, never the ordinary "set." (Formerly "PrincipalSet," earlier "PeerSet.") |
 | **governance fact** | A signed, append-only entry recording a governance decision (admit / expel / grant / revoke / amend). Authority is a fold over these (Part 2 §7). |
 | **meer** | Infrastructure, **not** a principal: a blind store-and-forward node offering availability capacity, configured by a scope to serve ciphertext (Part 2 §5.4, §6). Holds no rights, no role, no identity; the legacy labels "blind peer / blind member" are retired. |
 | **fork / re-formation** | A persona or minority's lossless-in-rights exit into a differently-shaped scope, preserving history and provenance. The backstop that makes delegation exitable. |

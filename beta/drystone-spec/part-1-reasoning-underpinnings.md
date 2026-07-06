@@ -51,6 +51,24 @@ That single fact (not a value judgment, a structural limit) is where the princip
 > standing in the relation, and we never use "peer" as a noun for the entity itself. (The genus above
 > persona is the **principal**, of which persona is the human kind; Part 2 §5.2.)
 
+> **A note on three more words, and a distinction of case: group, Group, and scope.** This document uses
+> **group** (lowercase) for the *social* sense: a body of people, manifested as personae, who communicate,
+> coordinate, and govern together, the real-life grouping the whole design exists to serve. It uses
+> **Group** (capital G) for that same collective *once it is a principal in the system*: a bounded
+> entitlement-and-governance unit that can hold assets, be granted to, and act as a single unit, with the
+> fixed boundaries that make its tradeoffs real. The capital-G Group is what Part 2 realizes over an MLS
+> group (Part 2 §5.10); the lowercase group is the human body it manifests. The two are the same collective seen
+> from two layers, and the case marks which layer a sentence stands on. A social group of people can raise
+> a hand and decide "Bob hosts the relay"; the capital-G Group can make the *same* decision, but its
+> mechanics are fixed by technical truth (a Group-governance act, or a change to the scope, below). A
+> **scope**, finally, is *wider* than a Group: it is the extent of exposure and processing for a Group's
+> messaging, the reach of routing and metadata beyond the entitled membership. A node that carries or
+> triggers on a Group's traffic without being a Group member (a relay, a push-notify node) sits in the
+> Group's scope but not in the Group. Governance and entitlement facts attach to the **Group** (a Group
+> forks, holds history, sets thresholds); exposure and routing-reach facts attach to the **scope**. The
+> full mechanical treatment is Part 2 §5 and Part 2 §6; the note here is only to fix the case-and-sense so the
+> argument below reads cleanly.
+
 ### 1.1. Scope
 
 This specification defines Drystone, the protocol, and nothing above it: no governance policy for any
@@ -133,7 +151,7 @@ subsequently corroborated or preferred. The razor does not promise that truth is
 promises that disagreement is survivable.) **The honest mission is therefore not truth, but trustworthy
 disagreement**, and that single line is the whole protocol's posture, lifted to a principle about
 knowledge itself. Part 2's refusal to algorithmically adjudicate a social dispute (the *no-adjudication
-rule*, §7) and its content-blind safety posture (§8) are this same razor at the mechanism layer.
+rule*, Part 2 §7) and its content-blind safety posture (Part 2 §8) are this same razor at the mechanism layer.
 
 **The razor extends to identity, and this is where most systems quietly cheat.** Cryptography answers
 *provenance* with certainty, "is this the same key that made that earlier assertion", but it cannot
@@ -202,7 +220,7 @@ ordering be forgeable would mean a heavyweight schism every time the input is ga
 not "every system must exclude forgeable ordering inputs"; it is "**a system whose nodes each hold their
 own canonical view and whose only remedy is exit rather than in-place override must**," which is our case
 and the case of any design sharing those two properties, not a claim about systems we are not building.
-*(Realized in Part 2 §4.5.1, §7.3.1, §7.4.)*
+*(Realized in Part 2 §4.5.1, Part 2 §7.3.1, Part 2 §7.4.)*
 
 The four principles below are what the razor requires of the wire.
 
@@ -226,7 +244,7 @@ only state any participant can stand on.
 **Consequence.** Therefore the protocol **MUST NOT** depend on any node holding privileged or canonical
 state. A node that has seen fewer facts **MUST** compute a *stale-but-honest* view, never a false one.
 The comparative and asserted layers are how nodes converge; the local layer is the only thing any of
-them stands on. *(Part 2 §4, §5.1, §7.)*
+them stands on. *(Part 2 §4, Part 2 §5.1, Part 2 §7.)*
 
 ### 2.2. P-Knowable-Truth: verify for yourself; the record is auditable, never silently mutable
 
@@ -246,7 +264,7 @@ what a system that cannot certify truth *can* honestly compute.
 checkable from the bytes), and authority **MUST** be a monotonic fold over an append-only fact set rather
 than a recomputed mutable value, so a lagging node under-authorizes (acts on less) but never
 mis-authorizes (acts on a reverted or forged state). Every superseded or stale decision **MUST** remain
-in the record, attributable. *(Part 2 §4.3, §7.3, §8.)*
+in the record, attributable. *(Part 2 §4.3, Part 2 §7.3, Part 2 §8.)*
 
 > **This consequence has a deployed cautionary tale.** The append-only-monotonic-fold requirement is not
 > abstract caution. A peer protocol in the same design space (Matrix) that instead recomputed a mutable
@@ -256,28 +274,30 @@ in the record, attributable. *(Part 2 §4.3, §7.3, §8.)*
 > reverts. See Part 2 §7.3 and Appendix C for the grounded comparison. **[confirm before publish, CVE
 > root-cause against MSC4297 primary text]**
 
-### 2.3. P-Peer-Equality: equal in rights and (by necessity) weight; unequal in resources and revocable roles
+### 2.3. P-Peer-Equality: equal in rights, therefore equal in weight; unequal in resources and revocable Group Roles
 
 **Commitment.** A **persona is the human layer's manifestation** in the system, not a node or a device; rights
 and weight attach to it *because* a person stands behind it. Peer-equality is therefore **equality of personae as
 manifested**, and the protocol guarantees, by mechanism, that one recognized persona carries equal rights and
 one flat unit of weight. Whether a persona corresponds to one distinct human is a social-utility judgment the
-group makes at its own standard, never one the system can attest, and never one it **could** attest (the
+Group makes at its own standard, never one the system can attest, and never one it **could** attest (the
 binding has no technical representation; the razor of §2.0 applied to identity). There is **one kind of persona**,
 and "equal" is made precise by asking *in what ways may one persona differ from another?*, and answering with
-**four properties, two necessarily equal and two legitimately unequal**, that an older, looser "peers are equal"
-had tangled into one phrase. (Personae stand in **peer relation**; "peer" names that relation, not the entity.)
+**four properties, two necessarily equal and two legitimately unequal**. (Personae stand in **peer
+relation**; "peer" names that relation, not the entity.)
 
 The two **equalities**, equal for every persona always:
 
 - **Right**: what a **principal** *inherently holds*: the floor of voice, tenure, and exit/fork. Held
   **identically by every persona, and unremovable.** A right is precisely the thing that *cannot* be delegated
-  or revoked, the tell is that exit/fork survives even when every role is stripped and even when a quorum
-  captures the group.
+  or revoked, the tell is that exit/fork survives even when every Group Role is stripped and even when a quorum
+  captures the Group. A right is standing in the *system*, not in any one Group: it is what the fork carries
+  into both descendants, which is exactly why a Group's governance can never reach it.
 
 - **Weight**: how much a **persona** *counts* in governance. **Flat: one per distinct persona (by lineage)**, and
-  equal **by necessity, not by separate decree**: it follows from the equal right. If standing-to-participate
-  is equal, standing-to-be-counted is equal, weight is the governance image of the rights floor.
+  equal **not by a separate decree but as a consequence of the equal right**: if standing-to-participate
+  is equal, standing-to-be-counted is equal. Weight is the governance image of the rights floor, the same
+  commitment expressed in a different context, not an independent conclusion the design arrives at on its own.
 
 The two **inequalities**, legitimately different between personae:
 
@@ -286,24 +306,33 @@ The two **inequalities**, legitimately different between personae:
   more. This is a fact about every node in the system, not only a persona's devices: meers and relays have
   resources too. It appears here because, *across personae*, it is one of the two legitimate inequalities.
 
-- **Role**: what governance authority a **principal** has been *granted* (admin, moderation, gating, the
-  authority to act for a group). **Granted by consent, scoped, attenuating, and always revocable.** This is
+- **Group Role**: what governance authority a **principal** has been *granted within a Group* (admin, moderation,
+  gating, the authority to act for a Group). **Granted by consent, scoped, attenuating, and always revocable.** This is
   the one *operational* inequality the design permits, and it rides **entirely above** the two equalities:
-  granting or revoking a role never touches a persona's rights floor or its unit of weight.
+  granting or revoking a Group Role never touches a persona's rights floor or its unit of weight. (Where this
+  document contrasts the *category* of granted authority with the *category* of inherent standing, it says
+  "role" in the lower case, the genus; a concrete grant inside a Group is a "Group Role.")
 
-The sentence that replaces every earlier formulation: **personae are equal in rights and (by necessity) weight,
-and unequal in resources and revocable roles.** The moment more resources, more devices, or any granted role
+The one-sentence statement of the model: **personae are equal in rights, and therefore equal in weight,
+and unequal in resources and revocable Group Roles.** The moment more resources, more devices, or any granted role
 buys more *rights* or more *weight*, the design has leaked. (The Meadowcap **capability**, a read/write
 data-access grant, is *not* a fifth property here; it is the mechanism a role operates through, one layer
-down in the data plane. See Part 2 §5.0, §5.5.)
+down in the data plane. See Part 2 §5.0, Part 2 §5.5.)
 
 **Reasoning.** What separates an inherent **right** from a granted **role** is an intrinsic property, not a
-list: **a right is standing that must survive for any dispute about it to remain contestable, remove it and
-the holder loses the very means to object.** A **role**, a delegated governance authority, a moderation
-power, the authority to act for a group, is a power whose removal leaves the holder's standing to object
-intact (lose admin on a scope and you can still contest the loss through your tenure, voice, and exit; that
-is the tell it was a role, not a right). And **weight** is not a third thing to be clamped by fiat: it is the
-governance image of the equal right, the flat count of one per distinct persona (by lineage) that no role grant
+list, and the distinction lives at two layers that must stay aligned. At the **social** layer, in any human
+group whether or not it runs on a protocol, a *right* is standing that must survive for any dispute about
+it to remain contestable, remove it and the holder loses the very means to object, whereas a *role* is
+delegated authority whose removal leaves the holder's standing intact. That is the epistemological
+distinction, and it holds independently of any technology. Drystone's **Group Role** is that social *role*
+made technical, with fidelity: it is a delegated governance authority (a moderation power, the authority to
+act for a Group) whose removal, by the same test, leaves standing untouched. Lose admin on a Group and you
+can still contest the loss through your tenure, voice, and exit; that is the tell it was a Group Role, not a
+right, and it is the technical mirror of the social test passing. The two layers agree by construction,
+which is the point: the mechanism is trustworthy exactly because the wire-level distinction between a right
+and a Group Role reproduces the social distinction between standing and delegated authority, rather than
+inventing a different one. And **weight** is not a third thing to be clamped by fiat: it is the
+governance image of the equal right, the flat count of one per distinct persona (by lineage) that no Group Role grant
 and no device count may inflate, equal *because* rights are equal. Equality of *weight*, over a floor of
 equal *rights*, is what lets equal nodes hold and reconcile divergent views, the whole job of nodes that
 stand in for a human's experience. So the rights floor and the weight that follows from it are a
@@ -311,22 +340,22 @@ stand in for a human's experience. So the rights floor and the weight that follo
 truth" hold at the level of who-may-act and who-counts, not just what-is-true.
 
 The load-bearing anti-capture claim, stated honestly as what the protocol *guarantees* versus what the
-group *judges* (the provenance/utility split of §2.0, applied to identity):
+Group *judges* (the provenance/utility split of §2.0, applied to identity):
 
 - *Protocol guarantee (provenance):* **weight is flat per recognized persona and conserved under
   delegation**, allocated one-per-persona at the source, only ever moved, never minted. Adding devices adds
   resources, never weight. This holds by mechanism.
 
 - *Group judgment (personhood, contextual):* whether a recognized persona is a distinct person is a
-  **utility judgment the group makes at its own confidence**, on the same trust-to-do gradient as every
-  other delegation, high in a QR-scan family scope, deliberately decoupled-but-still-one-per-person via a
-  verifiable-credential service in an anonymous scope, loose in an open broadcast scope. Drystone does
+  **utility judgment the Group makes at its own confidence**, on the same trust-to-do gradient as every
+  other delegation, high in a QR-scan family Group, deliberately decoupled-but-still-one-per-person via a
+  verifiable-credential service in an anonymous Group, loose in an open broadcast Group. Drystone does
   **not** attempt to guarantee one-lineage-one-human, **by design**: that binding is the kind of truth the
   system structurally cannot certify (§2.0), and enforcing it would prune the legitimate **multiple
  presentation** (the same person as parent, pseudonymous activist, anonymous participant) that is part
   of the social substrate (the variety argument, applied to identity). So the claim is not "you cannot
-  forge personhood"; it is *given the group's recognition of its personae, weight is flat and uninflatable by
-  resources.* Sybil resistance is contextual, supplied by the group's chosen confidence mechanism, not
+  forge personhood"; it is *given the Group's recognition of its personae, weight is flat and uninflatable by
+  resources.* Sybil resistance is contextual, supplied by the Group's chosen confidence mechanism, not
   global and not the protocol's. *(Part 2 §5.6 carries the full treatment and the Spritely / ActivityPub
   grounding.)*
 
@@ -338,22 +367,27 @@ discriminating test for any proposed action is whether, generalized, it would re
 own contestation; if so it is illegitimate by nature, and the tell is self-cancellation.
 
 **Consequence.** Therefore equality **MUST** be enforced by mechanism, not convention. **Rights have no
-presets; roles, capabilities, and PrincipalSets do, and weight is flat.** Every named configuration of a persona
-**MUST** be expressible as `floor + [explicit role set] + [implied capabilities] + [expected resources]`;
+presets; Group Roles, capabilities, and Group Role Sets do, and weight is flat.** Every named configuration of a persona
+**MUST** be expressible as `floor + [explicit Group Role Set] + [implied capabilities] + [expected resources]`;
 any configuration meaning "this persona is entitled to *fewer rights*" is rejected as a smuggled rights
 distinction, and any meaning "this persona *counts for more*" is rejected as smuggled weight. Delegation
 **MUST** attenuate (a subset of held authority, never a superset). Governance thresholds **MUST** count
-distinct personae by lineage, never clients. *(Part 2 §5, §7.)*
+distinct personae by lineage, never clients. (A **Group Role Set** is a named bundle of Group Roles that
+travel together, so a Group can grant or revoke them as one unit rather than role-by-role, and can constrain
+them at the meta-governance level, "a holder of this Set may not also hold that Group Role", which is how
+separation of powers is expressed inside a Group. The concept is carried but still settling; its mechanism
+is developed in Part 2 §5.) *(Part 2 §5, Part 2 §7.)*
 
 > **A note on vocabulary against the prior art.** Drystone uses three distinct nouns at distinct planes,
 > none colliding with the systems it builds on: **resource** (a device facility, one of the two
-> inequalities), **role** (an in-group **governance authority**, the other inequality, the layer MLS
+> inequalities), **Group Role** (an in-Group **governance authority**, the other inequality, the layer MLS
 > deliberately leaves to the application), and **capability** (Meadowcap's term, kept verbatim: an
-> unforgeable read/write **data-access** grant). The capability sits **beneath** roles, not beside
-> resources: a role may carry the authority to issue capabilities, and the capabilities themselves are
+> unforgeable read/write **data-access** grant). The capability sits **beneath** Group Roles, not beside
+> resources: a Group Role may carry the authority to issue capabilities, and the capabilities themselves are
 > data-plane tokens, one level below the peer-equality question. So Meadowcap's "capability" is Drystone's
-> capability, unchanged, the device facility is a "resource," and the governance authority is a "role."
-> Detailed in Part 2 §5.0 / §5.4 / §5.5.
+> capability, unchanged, the device facility is a "resource," and the in-Group governance authority is a "Group Role"
+> (lowercase "role" is the genus, the category of granted authority; a "Group Role" is a concrete grant inside a Group).
+> Detailed in Part 2 §5.0 / Part 2 §5.4 / Part 2 §5.5.
 
 > **An equal-and-opposite design exists, and it is worth naming as the steelman.** Under adversarial
 > security review, Matrix concluded the opposite of P-Peer-Equality: that sound decentralized
@@ -369,25 +403,28 @@ distinct personae by lineage, never clients. *(Part 2 §5, §7.)*
 > the remedy** (§2.4, Part 2 §5.7 "Capture ≠ brick"). The two are different answers to the same threat,
 > and Drystone's is the one consistent with peer-equality.
 
-**A principal is recursively a group, and two edge types keep the recursion honest.** A principal is a *locus of
+**A principal is recursively a Group, and two edge types keep the recursion honest.** A principal is a *locus of
 adjudication* (it holds authority others must respect), not merely a node that senses and relays; and the
-same primitive nests: a **principal can be a group**, a **user is a group of devices (clients)**, a
-**community is a group of users**, a federation a group of communities. The recursion is held together by
+same primitive nests: a **principal can be a Group**, a **persona's own devices are a Group** (in MLS terms a
+Group of clients, the key-and-author bindings that live across a persona's devices), a **community is a group
+of people** that can itself act as a Group-principal, a federation a grouping of communities. (Note the case:
+where the clause names a *social body* it is lowercase group; where it names that body *as a bounded
+principal in the system* it is capital-G Group.) The recursion is held together by
 **two distinct kinds of relationship that must not be conflated**: **composition**, members co-deriving
-shared authoritative state (a device pool, a scope's membership; this is the MLS-lineage / shared-key
-relationship), and **valuation**, one group directionally *weighting* another group's assertions without
+shared authoritative state (a device Group, a Group's membership; this is the MLS-lineage / shared-key
+relationship), and **valuation**, one Group directionally *weighting* another's assertions without
 any shared key (trust between cryptographically-separate principals). Composition merges state; valuation
 weights signals. Blur them and trust leaks into key access. A consequence the rest of the design leans on:
-**adversarial posture is a per-edge property, not a global stance**, your own device pool is, *by
+**adversarial posture is a per-edge property, not a global stance**, your own device Group is, *by
 default*, a high-trust composition edge that needs little Byzantine defense, while a stranger valuation
 edge needs more; forcing strong-adversarial rigor where it doesn't fit is as wrong as omitting it where it
-does. But *by default* is load-bearing: **even the device-group edge is a dial, not a fixed truth.** A
+does. But *by default* is load-bearing: **even the device-Group edge is a dial, not a fixed truth.** A
 person whose threat model includes a single device being seized or coerced, an activist, a journalist,
 someone in an unsafe household, may rationally want Byzantine-style suspicion *within their own device
-group*, treating a captured device as a hostile signer. The family-tablet case and the seized-device case
-are two settings of one dial; a design that hardcodes "device group = trusted" prunes the second case out
+Group*, treating a captured device as a hostile signer. The family-tablet case and the seized-device case
+are two settings of one dial; a design that hardcodes "device Group = trusted" prunes the second case out
 of existence, which is the variety failure in miniature, and it bites hardest exactly when the stakes are
-highest. *(Part 2 §3.1, §5.)*
+highest. *(Part 2 §3.1, Part 2 §5.)*
 
 > **The dial-discipline principle, 80/20 defaults, and the 20% must stay representable.** Once every
 > trust relationship is recognized as a dial, a real risk appears: *if everything is a dial, nothing is
@@ -399,53 +436,53 @@ highest. *(Part 2 §3.1, §5.)*
 > is not a footnote: the whole point of refusing a hardcoded center is undone if the defaults quietly
 > become a center by foreclosing the settings the minority depends on.
 
-**Why this matters concretely, who owns a shared artifact when a group forks.** A group, being a
+**Why this matters concretely, who owns a shared artifact when a Group forks.** A Group, being a
 principal, can *own* things, and that ownership is what makes the fork humane rather than destructive.
 Picture three personae collaborating on a document by automatic merge; they hit a genuine disagreement and
-the scope forks (§2.5). Who keeps the document? The honest answer is **both layers own it, and so both
-forks keep the whole thing.** The artifact lives in the group's *communal* space, the group-principal
-owns it as a collective, and each persona owns its own contributions as an individual, so when the group
+the Group forks (§2.5). Who keeps the document? The honest answer is **both layers own it, and so both
+forks keep the whole thing.** The artifact lives in the Group's *communal* space, the Group-principal
+owns it as a collective, and each persona owns its own contributions as an individual, so when the Group
 splits, neither half is orphaned (there was no center holding the artifact to sever) and neither half is
 left with fragments (the shared object was communal all along). Each fork walks away with a complete copy
 and full standing to continue, exactly as an open-source fork carries the entire repository rather than a
 slice. This is *fork-not-verdict* (§2.5) seen at the data layer: the system does not rule on who deserves
-the document; it lets both continue. The mechanism, a Meadowcap *communal* namespace, the act-for-the-group
-authority as a revocable role, and the recursion bottoming out at flat-weight personae so composition cannot
+the document; it lets both continue. The mechanism, a Meadowcap *communal* namespace, the act-for-the-Group
+authority as a revocable Group Role, and the recursion bottoming out at flat-weight personae so composition cannot
 launder governance weight, is specified in Part 2 §5.10. The reason it is peer-equal and not apex is the
 same reason this whole principle is: a communal namespace gives every member equal authority and no one the
 whole, which is `P-Peer-Equality` expressed in who-owns-the-data.
 
 > **Open seams left before the model fully hardens** (carried, not resolved): whether the survivor /
 > re-key path can strand a persona's `tenure`; and the precise **communal-namespace key construction** for a
-> group-as-principal (Part 2 §5.10 gives it a concrete shape, a communal namespace rather than a derived
+> Group-as-principal (Part 2 §5.10 gives it a concrete shape, a communal namespace rather than a derived
 > central credential, but the key establishment and rotation under membership change are
-> designed-not-frozen, and cross-group grants are `ENABLING`). These gate freezing the model into
-> normative text; see Part 2 §5.2, §5.6, §5.10, and Appendix B.
+> designed-not-frozen, and cross-Group grants are `ENABLING`). These gate freezing the model into
+> normative text; see Part 2 §5.2, Part 2 §5.6, Part 2 §5.10, and Appendix B.
 
 ### 2.4. P-Durable-Enablement: participation, and exit, must be real on a bare node
 
 **Commitment.** Participation **MUST** be possible on a bare node, ordinary device, no purchased
-infrastructure required, and any default delegation a persona or scope adopts **MUST** be revocable and
+infrastructure required, and any default delegation a persona or Group adopts **MUST** be revocable and
 restructurable down to the rights floor at any time, with **no loss of rights** and only **graceful
 degradation of capacity**. The enabling set is mostly restraints, not features: secure standing; a real,
 cheap, dignified exit; an honest, non-equivocating record; resolution that defers judgment to humans; and
 a refusal to optimize toward a single legible perspective. **The negative space, what the protocol
 declines to do, is an intentional and critical part of the design.**
 
-**Reasoning.** A delegated role is only meaningfully different from a captive structural dependency
+**Reasoning.** A delegated Group Role is only meaningfully different from a captive structural dependency
 if the delegation can be withdrawn and restructured without loss of rights. A good default helper and a
 server you cannot leave can look identical right up until trust fails, and that is exactly the moment
-the difference must hold: the Drystone scope restructures or exits and loses only capacity; the captive
-scope loses everything and starts over. The guarantee is measured not by how often it is exercised but by
+the difference must hold: the Drystone Group restructures or exits and loses only capacity; the captive
+arrangement loses everything and starts over. The guarantee is measured not by how often it is exercised but by
 being unconditionally available to the minority who do; a right you cannot afford to exercise elsewhere
 is not a right you hold. Giving up the authority to decide outcomes is also the protocol's falsifiability
 discipline: you can be observably corrected when the conditions you set fail to keep variety alive.
 
-**Consequence.** Therefore the no-helper path **MUST** stay exercised and real (a scope **MUST NOT**
+**Consequence.** Therefore the no-helper path **MUST** stay exercised and real (a Group **MUST NOT**
 structurally depend on any single persona's presence to act), delegation **MUST** be materially reversible
-(encrypted state the group holds keys to; a re-issuable grant, not a box), and the fork / re-formation
+(encrypted state whose keys the Group's members hold, not a box), and the fork / re-formation
 exit **MUST** remain available as the final backstop, preserving history and provenance to the point of
-departure. *(Part 2 §5.4, §5.8, §6, §7.)*
+departure. *(Part 2 §5.4, Part 2 §5.8, Part 2 §6, Part 2 §7.)*
 
 ### 2.5. The forced terminus: why fork, not verdict
 
@@ -473,7 +510,10 @@ The residue is exactly the set where **provenance is fully determined and utilit
 razor's seam, made operational. This is why "intrinsically personal" is doing real work and not
 emphasis: the resolution input must come from the people whose relationships are at stake because *they
 are the only locus where the value being adjudicated exists.* They do not have privileged access to the
-answer; they **constitute** it.
+answer; they **constitute** it. (The residue has more than one shape: the mutual-expulsion case here is
+*too many* valid claims, and a required role left vacant with no valid successor is *too few*; Part 2
+Part 2 §7.6.1 enumerates both, since a mechanism that watches only for contradiction would miss the second. Both
+are the same seam, provenance-settled and utility-open.)
 
 **Therefore the terminus is a fork, not a verdict.** A verdict would presuppose the question had an answer
 the loser should accept; the fork presupposes it did not, and lets divergence persist as two communities
@@ -486,12 +526,12 @@ but to stop pretending there is one. *(Realized in Part 2 §7.6; the machine's j
 contradiction with full provenance, Part 2 §8's label-not-enforce, and the humans supply utility.)*
 
 A note on what this is *not*. It is **not** "send every conflict to humans"; that would drown the
-escalation channel and destroy the one thing that has to stay trustworthy (Part 2 §7.4, §7.6). Codified
+escalation channel and destroy the one thing that has to stay trustworthy (Part 2 §7.4, Part 2 §7.6). Codified
 logic resolves everything it determinately can; only the provably-non-empty non-monotonic residue is
 handed to people. And whether a given concurrent contradiction is a genuine social dispute versus a
 benign sync artifact is *itself* partly a utility judgment, vulnerable to alarm-fatigue, and therefore a
-per-scope governed tolerance over verifiable provenance signals, not a hardcoded constant (Part 2 §7.4,
-§7.6).
+per-Group governed tolerance over verifiable provenance signals, not a hardcoded constant (Part 2 §7.4,
+Part 2 §7.6).
 
 ### 2.6. The voice right requires field-integrity: why the substrate's ownership form is in scope
 
@@ -499,7 +539,7 @@ This subsection adds no new principle and no new wire obligation. It names one d
 principles jointly imply but none states outright, because it is the joint between the protocol and the
 larger question of who may own the substrate the protocol runs on. It is kept short on purpose: the full
 grounding, including the empirical case, lives in a companion argument (*Peer Standing, the Securitized
-Corporation, and the Cooperative Form*, §7) and is not re-argued here. What belongs in the spec is only
+Corporation, and the Cooperative Form*, Part 2 §7) and is not re-argued here. What belongs in the spec is only
 the structural claim and the existing mechanisms that already realize it.
 
 **The claim.** `P-Peer-Equality` (§2.3) makes **voice** a right: the standing to assert into the record
@@ -561,14 +601,14 @@ that mutual dependence is why this specification treats the substrate's ownershi
 > **[tension] Field-integrity is not a pure good, and the center-free field does not escape all shaping.**
 > Some shaping is endemic to any delivery system that must order what a persona sees: even an altruistic
 > re-ranker is pulled toward engagement absent better signal on true utility (the revealed-preference
-> trap; companion §7). Removing the external-objective curator does **not** yield an unshaped field; it
+> trap; companion Part 2 §7). Removing the external-objective curator does **not** yield an unshaped field; it
 > removes the *structurally adverse* curator and returns the ordering to peer governance. So the claim is
 > the narrower, defensible one, peer-governed-legible-exitable shaping, not no shaping, and the protocol's
 > job is to make the ordering contestable and the curator absent, not to pretend ordering away. The
 > reflexive harm by which concealed shaping degrades the collective correction that would otherwise
-> contest it is grounded in the companion (§7) and is not re-argued here.
+> contest it is grounded in the companion (Part 2 §7) and is not re-argued here.
 
-*(Realized by: §2.2 no-silent-mutation; §2.4 fork-as-exit; Part 2 §7.4 silence-is-not-currency, §7.6 fork.
+*(Realized by: §2.2 no-silent-mutation; §2.4 fork-as-exit; Part 2 §7.4 silence-is-not-currency, Part 2 §7.6 fork.
 This subsection adds no wire obligation; it names why the existing ones are the realization of the voice
 right's field-integrity precondition.)*
 
@@ -619,7 +659,7 @@ does not itself contain:
 > L. Lamport, "Time, Clocks, and the Ordering of Events in a Distributed System," *CACM* 21(7) (1978) ·
 > **[confirm before publish, verbatim against the primary paper].**
 
-This is the field's own statement of §2.0.1 (time is not a corroborable fact) and §7.3.1 (order causally,
+This is the field's own statement of §2.0.1 (time is not a corroborable fact) and Part 2 §7.3.1 (order causally,
 break ties cryptographically, the deliberately-arbitrary-but-deterministic total-order extension, never
 a wall-clock). *The seam, kept honest:* Lamport also showed how clocks can be used to **build** a total
 order; he was not arguing that wall-clocks are an attack surface. He supplies the structural fact (no
@@ -671,8 +711,8 @@ mechanism side:
 
 *The seam, and it is the instructive one:* CRDTs converge precisely *because* they are restricted to
 operations whose merge is deterministic, the same monotonic class CALM describes, and exactly **not** the
-social-contradiction residue. So CRDTs ground Drystone's data plane (§4, §7.1) and simultaneously show
-*why* governance needs the §7.6 escalation: the convergence guarantee holds for the resolvable class and
+social-contradiction residue. So CRDTs ground Drystone's data plane (Part 2 §4, Part 2 §7.1) and simultaneously show
+*why* governance needs the Part 2 §7.6 escalation: the convergence guarantee holds for the resolvable class and
 stops exactly where utility begins. Same boundary, seen from the mechanism side.
 
 Taken together, these four results are why Part 1 says local-first is *derived, not chosen*: no global
@@ -690,7 +730,7 @@ dissenter fork.* Mill names the cost directly:
 > J. S. Mill, *On Liberty* (1859) · *Verified.*
 
 So the fork must always stay available as the dignified exit, which is why the protocol refuses to
-algorithmically adjudicate a social dispute (Part 2 §7) and refuses moderation-as-surveillance (§8),
+algorithmically adjudicate a social dispute (Part 2 §7) and refuses moderation-as-surveillance (Part 2 §8),
 accepting instead that each node determines its own relationship to moderation and to the outcomes of
 adjudication. This is the ethical statement of the forced terminus of §2.5: the fork is not a fallback,
 it is the only non-coercive output when a value is genuinely contested.
@@ -739,9 +779,9 @@ anticipated, so you need a channel for those cases to surface. Beer named it the
 normal hierarchy and carries no analysis**, "this hurts, a human needs to look now." It is not a fallback
 or an admission of failure; it is a designed channel, as load-bearing as the automated path, because no
 filter is perfect and the cost of silently absorbing a missed hard case is too high. In Drystone this is
-exactly the **hard-stop-and-escalate** rule (Part 2 §7.6) and the **label-not-enforce** posture (§8): the
+exactly the **hard-stop-and-escalate** rule (Part 2 §7.6) and the **label-not-enforce** posture (Part 2 §8): the
 machine *annotates rather than acts*, surfacing the signal and leaving the decision with a person, which
-is also what keeps adjudication, and therefore personahood, distributed (Part 2 §3, §5.2). The §2.5 residue
+is also what keeps adjudication, and therefore personahood, distributed (Part 2 §3, Part 2 §5.2). The §2.5 residue
 *is* Beer's "case the rules never anticipated," and the fork is what the dynamics ride toward when the
 rules correctly decline to decide.
 
@@ -782,10 +822,15 @@ primary 1990 text:
 > E. Ostrom, *Governing the Commons: The Evolution of Institutions for Collective Action* (1990),
 > design principles 6 and 7 · **[confirm before publish, verbatim wording against the 1990 primary].**
 
-Principle 6 is Drystone's accessible conflict-resolution-at-the-edge (the §7.6 hard-stop surfaces to the
-affected scope, not to a center); principle 7 is `P-Peer-Equality`'s right to self-organize and
-`P-Durable-Enablement`'s fork (no external authority may forbid a scope from devising or re-forming its
-own institutions).
+Principle 6 is Drystone's accessible conflict-resolution-at-the-edge: in Ostrom's terms a community of
+people has low-cost local arenas to resolve its own conflicts, and Drystone realizes that value as the Part 2 §7.6
+hard-stop surfacing to the affected **group** (the people), adjudicated within the capital-G **Group** that
+manifests them, never relocated to a center. Principle 7 is `P-Peer-Equality`'s right to self-organize and
+`P-Durable-Enablement`'s fork: no external authority may forbid a **group** of people from devising or
+re-forming its own institutions, which Drystone realizes as the capital-G Group's unforbiddable fork. (The
+lowercase **group** here is deliberate: Ostrom's principles are about human communities, and the homage
+holds only if her semantics are preserved; the capital-G Group is named as the *realization* of the value,
+not as a rewrite of her claim.)
 
 The capstone, **subsidiarity**, comes from the *later* generalization and must be cited as such, not
 attributed to the 1990 book:
@@ -849,15 +894,15 @@ Verification legend: *Verified*, quoted/checked against the primary this round o
 
 ### Distributed systems (the formal spine, §2.0.1, §2.2, §2.5, and Part 2 §7)
 
-- Lamport, L. "Time, Clocks, and the Ordering of Events in a Distributed System." *Communications of the ACM* 21(7), 1978. Grounds: no global clock; "happened-before" is a partial order; total order requires an arbitrary tiebreak. Supports §2.0.1 and §7.3.1. **[confirm, verbatim]**. *Seam:* supplies the structural fact, not the design consequence that wall-clocks are an attack surface (that inference is Drystone's).
+- Lamport, L. "Time, Clocks, and the Ordering of Events in a Distributed System." *Communications of the ACM* 21(7), 1978. Grounds: no global clock; "happened-before" is a partial order; total order requires an arbitrary tiebreak. Supports §2.0.1 and Part 2 §7.3.1. **[confirm, verbatim]**. *Seam:* supplies the structural fact, not the design consequence that wall-clocks are an attack surface (that inference is Drystone's).
 
 - Gilbert, S. & Lynch, N. "Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services." *ACM SIGACT News* 33(2), 2002, formalizing Brewer, E., PODC 2000 keynote ("Towards Robust Distributed Systems"); see also Brewer, E., "CAP Twelve Years Later," *IEEE Computer* 45(2), 2012. Grounds: under partition, consistency and availability cannot both hold, which forces local-first (§1, §2.1). **[confirm, statement]**. *Seam:* about linearizable shared storage under partition; not "no shared truth of any kind."
 
 - Hellerstein, J. M. & Alvaro, P. "Keeping CALM: When Distributed Consistency is Easy." *Communications of the ACM* 63(9), 2020. Conjectured at PODS 2010 (Hellerstein, "The Declarative Imperative"); proven for queries by Ameloot, T. J., Neven, F. & Van den Bussche, J., "Relational Transducers for Declarative Networking," *J. ACM* 60(2), 2013. Grounds: coordination-free consistency iff monotonic, the formal statement of the razor's resolvable/irreducible split (§2.2 forward, §2.5 backward). **[confirm, statement]**. *Seam:* about consistency; the application to social non-monotonic operations is "CALM applied to governance," not a CALM claim.
 
-- Shapiro, M., Preguiça, N., Baquero, C. & Zawirski, M. "Conflict-free Replicated Data Types." *SSS 2011* (13th Int'l Symposium on Stabilization, Safety, and Security of Distributed Systems). See also the companion INRIA RR-7506, "A Comprehensive Study of Convergent and Commutative Replicated Data Types," 2011. Grounds: convergence without consensus is real and proven for the monotonic class, the existence proof for the center-free data plane (§4, §7.1). **[confirm, statement]**. *Seam:* converges precisely because restricted to deterministic-merge operations, the same boundary that makes the governance residue need §7.6.
+- Shapiro, M., Preguiça, N., Baquero, C. & Zawirski, M. "Conflict-free Replicated Data Types." *SSS 2011* (13th Int'l Symposium on Stabilization, Safety, and Security of Distributed Systems). See also the companion INRIA RR-7506, "A Comprehensive Study of Convergent and Commutative Replicated Data Types," 2011. Grounds: convergence without consensus is real and proven for the monotonic class, the existence proof for the center-free data plane (Part 2 §4, Part 2 §7.1). **[confirm, statement]**. *Seam:* converges precisely because restricted to deterministic-merge operations, the same boundary that makes the governance residue need Part 2 §7.6.
 
-### Ethics (§2.5, §3, and Part 2 §7.6, §8)
+### Ethics (§2.5, §3, and Part 2 §7.6, Part 2 §8)
 
 - Mill, J. S. *On Liberty*, 1859. Grounds the value: silencing the dissenter is an unjustifiable cost, hence the fork as the dignified exit. *Verified.*
 
@@ -865,7 +910,7 @@ Verification legend: *Verified*, quoted/checked against the primary this round o
 
 - Hayek, F. A. "The Use of Knowledge in Society." *American Economic Review* 35(4), 1945. Grounds the value: the knowledge a center would need is irreducibly dispersed, so utility cannot be computed centrally. *Verified verbatim.* *Seam:* an argument about the *utility* layer; the *provenance* layer is exactly what can be made global and checkable.
 
-### Systems science (§2.3, §3, and Part 2 §7.6, §8)
+### Systems science (§2.3, §3, and Part 2 §7.6, Part 2 §8)
 
 - Ashby, W. R. *An Introduction to Cybernetics*, 1956 (the Law of Requisite Variety, p. 207). Grounds: only variety can absorb variety; collapsing plurality is brittle by formal law. *Verified.*
 
@@ -877,7 +922,7 @@ Verification legend: *Verified*, quoted/checked against the primary this round o
 
 ### Political science / commons governance (§2.3, §2.4, §3, and Part 2 §7.6)
 
-- Ostrom, E. *Governing the Commons: The Evolution of Institutions for Collective Action.* Cambridge University Press, 1990 (design principles 6, conflict-resolution mechanisms; and 7, minimal recognition of the right to organize). Grounds: self-governance without a sovereign arbiter is empirically durable; the two mirrored principles map to §7.6 escalation-at-the-edge and to the right to self-organize/fork. **[confirm, verbatim wording of principles 6 and 7 against the 1990 primary]**.
+- Ostrom, E. *Governing the Commons: The Evolution of Institutions for Collective Action.* Cambridge University Press, 1990 (design principles 6, conflict-resolution mechanisms; and 7, minimal recognition of the right to organize). Grounds: self-governance without a sovereign arbiter is empirically durable; the two mirrored principles map to Part 2 §7.6 escalation-at-the-edge and to the right to self-organize/fork. **[confirm, verbatim wording of principles 6 and 7 against the 1990 primary]**.
 
 - Wilson, D. S., Ostrom, E. & Cox, M. E. "Generalizing the core design principles for the efficacy of groups." *Journal of Economic Behavior & Organization* 90S, 2013 (subsidiarity: lowest jurisdiction unless ineffective). Grounds the subsidiarity capstone. **[confirm, verbatim; distinct from the 1990 book, do not conflate]**.
 
@@ -888,3 +933,43 @@ Verification legend: *Verified*, quoted/checked against the primary this round o
 - Spritely Institute (Lemmer-Webber, C., Executive Director), "Technical Values and Design Goals" (spritely.institute/about) and the W3C ActivityPub lineage (Lemmer-Webber lead author). Grounds the **contextual-identity** posture of §2.3 / Part 2 §5.6: no global town square, contextual flows over context collapse, the principle that one should not claim guarantees one cannot provide, and trust as contextual/revocable rather than all-or-nothing. Supports Drystone's stance that personhood is a contextual group judgment, not a protocol guarantee, and that legitimate multiple self-presentation is part of the social substrate. The petname tradition (Spritely Brux; Stiegler) is the nearest prior art for human-meaningful naming over non-human-meaningful keys, relevant where Drystone later addresses naming. Quotations verified verbatim against the primary page.
 
 > **A consolidated, component-by-component prior-art map (covering the data layer (CALM, CRDTs, Willow/Meadowcap/Keyhive), the resolution layer (Matrix State Resolution and the 2025 CVEs, MSC4289/4291/4297), the cryptographic group-state layer (MLS, decentralized-MLS / FREEK), and the governance-as-protocol frontier) lives in Part 2 Appendix C, and the substrate requirement-vs-realization treatment (MLS, iroh, and the primitives) is Part 2 §10.** Part 1's references are the *principled* lineage; Part 2's are the *mechanism* lineage. Both exist for the same reason: to name the shoulders this stands on, transparently, and to make clear that the claim is synthesis and humane delivery, not invention or supremacy.
+
+---
+
+## Upstream reference links (versioned)
+
+Canonical, edition- or version-specific sources for the principled lineage above, so a reader resolves the exact work cited rather than a later edition or a secondary summary. Part 1's sources ground *values and formal results*; the mechanism lineage (MLS, iroh, Willow, Matrix, and the software versions) is in Part 2's own versioned links section. Where a source was checked against its primary, it is marked *(verified)*; where a specific date, wording, or edition is still to be pulled from the primary, it carries **[confirm]** consistent with the citations above.
+
+### Distributed-systems spine
+
+- **Lamport, L.**, "Time, Clocks, and the Ordering of Events in a Distributed System," *Communications of the ACM* 21(7), July 1978, pp. 558–565. https://doi.org/10.1145/359545.359563 . Grounds §2.0.1, Part 2 §7.3.1 (partial order; total order needs an arbitrary tiebreak). **[confirm verbatim.]**
+
+- **Gilbert, S. & Lynch, N.**, "Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services," *ACM SIGACT News* 33(2), 2002, pp. 51–59. https://doi.org/10.1145/564585.564601 . With Brewer's PODC 2000 keynote and "CAP Twelve Years Later," *IEEE Computer* 45(2), 2012 ( https://doi.org/10.1109/MC.2012.37 ). Grounds §1, §2.1. **[confirm statement.]**
+
+- **Hellerstein, J. M. & Alvaro, P.**, "Keeping CALM: When Distributed Consistency is Easy," *CACM* 63(9), 2020, pp. 72–81. https://cacm.acm.org/research/keeping-calm/ (arXiv https://arxiv.org/abs/1901.01930 ). Conjectured PODS 2010; query proof Ameloot, Neven & Van den Bussche, *J. ACM* 60(2), 2013. Grounds the §2.5 resolvable/residue split. *(Attribution and statement verified this revision.)*
+
+- **Shapiro, M., Preguiça, N., Baquero, C. & Zawirski, M.**, "Conflict-free Replicated Data Types," *SSS 2011* (LNCS 6976), pp. 386–400, https://doi.org/10.1007/978-3-642-24550-3_29 ; companion INRIA RR-7506, "A Comprehensive Study of Convergent and Commutative Replicated Data Types," January 2011, https://hal.inria.fr/inria-00555588 . Grounds Part 2 §4, Part 2 §7.1 (convergence without consensus, for the monotonic class). *(Venue, DOI, and report number verified this revision.)*
+
+### Ethics, economics, systems science, epistemology
+
+- **Mill, J. S.**, *On Liberty*, 1859. Canonical text: https://www.gutenberg.org/ebooks/34901 . Grounds the fork-as-dignified-exit value (§2.5). *(Verified.)*
+
+- **Hayek, F. A.**, "The Use of Knowledge in Society," *American Economic Review* 35(4), 1945, pp. 519–530. https://www.jstor.org/stable/1809376 . Grounds §2.0, §3 (dispersed knowledge; utility is not centrally computable). *(Verified verbatim.)*
+
+- **Ashby, W. R.**, *An Introduction to Cybernetics*, Chapman & Hall, 1956 (the Law of Requisite Variety, p. 207). Canonical scan: http://pcp.vub.ac.be/books/IntroCyb.pdf . Grounds §2.3, §3 (only variety absorbs variety). *(Verified.)*
+
+- **Beer, S.**, *Brain of the Firm*, 1972 (2nd ed. Wiley, 1981), the algedonic channel and the "specify only somewhat" discipline. Grounds §2.5, Part 2 §7.6. **[confirm the "specify only somewhat" wording against the primary edition; the Cybersyn/OGAS figures and the "aids to human viability" gloss are [confirm] / labeled synthesis.]**
+
+- **Popper, K.**, *Conjectures and Refutations*, 1963 (Routledge). Grounds §2.0, §2.2, §3 (corroboration, never verification). *(Verified.)*
+
+### Commons governance and the governance-as-protocol frontier
+
+- **Ostrom, E.**, *Governing the Commons*, Cambridge University Press, 1990 (design principles 6, conflict-resolution mechanisms; and 7, minimal recognition of the right to organize). https://doi.org/10.1017/CBO9780511807763 . Grounds §2.3, §2.4, Part 2 §7.6. **[confirm the verbatim wording of principles 6 and 7 against the 1990 primary.]**
+
+- **Wilson, D. S., Ostrom, E. & Cox, M. E.**, "Generalizing the core design principles for the efficacy of groups," *Journal of Economic Behavior & Organization* 90S, 2013, pp. S21–S32. https://doi.org/10.1016/j.jebo.2012.12.010 . Grounds the subsidiarity capstone. **[confirm verbatim; distinct from the 1990 book.]**
+
+- **Schneider, N., De Filippi, P., Frey, S., Tan, J. Z. & Zhang, A. X.**, "Modular Politics: Toward a Governance Layer for Online Communities," *Proc. ACM Human-Computer Interaction* 5 (CSCW1), 2021, article 16. https://doi.org/10.1145/3449090 . The closest governance-as-protocol neighbor (Part 2 Appendix C.4). **[confirm quotations against the CSCW paper.]**
+
+- **Spritely Institute** (Lemmer-Webber, C.), "Technical Values and Design Goals," https://spritely.institute/about/ , and the **W3C ActivityPub** Recommendation (2018), https://www.w3.org/TR/activitypub/ . Ground the contextual-identity posture (§2.3, Part 2 §5.6). The petname tradition (Stiegler, "An Introduction to Petname Systems") is the nearest prior art for human-meaningful naming over keys. *(Spritely page quotations verified verbatim.)*
+
+The component-by-component mechanism prior-art map is in Part 2 Appendix C, and the versioned software/spec pins are in Part 2's upstream-links section. Part 1's references are the principled lineage; nothing here is a claim of priority or supremacy, only of the shoulders this stands on.

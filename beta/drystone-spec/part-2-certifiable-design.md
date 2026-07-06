@@ -28,8 +28,7 @@ fact not yet independently verified).
 > that term now names managed ephemeral compute, nearly the inverse of what is meant. The load-bearing
 > property is not topology but **where adjudication lives** (§3.1): no node holds privileged or canonical
 > authority. Where precision is needed we say *center-free* or *no node holds privileged or canonical
-> state*; where we mean the wiring we say *peer-to-peer*. (This replaces the looser "serverless" usage in
-> earlier drafts.)
+> state*; where we mean the wiring we say *peer-to-peer*.
 
 > **Vendor-neutral naming.** Drystone is the protocol. The reference implementation this part is matured
 > from carried the historical brand "Croft" in some signed wire constants (e.g. the domain-separation tag
@@ -43,12 +42,20 @@ fact not yet independently verified).
 ## 3. Protocol Overview
 
 A **persona** holds a local store that is canonical for it (`P-Local-Truth`). Peers participate in
-**scopes** (groups holding shared state). Within a scope, two kinds of state move:
+**Groups**: entitlement-and-governance units holding shared state, each realized over an MLS group (§6,
+§10.2). Within a Group, two kinds of state move:
 
 - **History**: the content personae author, as signed, hash-chained entries. This is the data plane.
 
 - **Governance facts**: signed, append-only entries recording who may do what (admit, expel, grant,
   revoke, amend). Authority is a deterministic fold over these. This is the control plane.
+
+A Group's **scope** is wider than its membership: it is the extent of exposure and processing for the
+Group's messaging, the reach of routing and metadata beyond the entitled members. A node that carries or
+triggers on a Group's traffic without holding its keys (a relay, a store-and-forward meer, a push-notify
+node) sits in the Group's scope but is not a member of the Group. Governance and entitlement facts attach
+to the **Group**; exposure and routing-reach facts attach to the **scope**. (The two terms, and the
+lowercase-**group** social sense beneath the capital-G Group, are fixed in §5.0 and §5.2.)
 
 A persona is one or more **devices** (keypairs) acting under a single **lineage**; receivers fold devices
 back to one actor so that membership and thresholds are counted by actor, not by device. Peers reach each
@@ -138,13 +145,49 @@ to the proving spike. The reference profile's tag strings are `croft-lineage-gen
 `croft-group-genesis:`, `croft-group-topic:`; **Drystone normatively requires a versioned, domain-separated
 tag and does not mandate these strings** (Appendix B, naming reconciliation).
 
-> **Note on the content-id pre-image.** Earlier drafts included a `timestamp` field in the content-id
-> canonical pre-image. It is removed: per §2.0.1, a wall-clock value is an uncorroborable assertion and
-> must not appear in any identity, ordering, or authority-bearing computation. A content id binds *what*
-> and *where* (group, regime, author, content), not *when*. If an application wishes to record an authored
-> "claimed time," it does so as ordinary payload content, an explicitly author-asserted value, never a
-> protocol fact, and never an input to the content id. *(design; the canonical content-id encoding is
-> `ENABLING`, Appendix B.)*
+> **What the gossip topic *is*, shown by its consequences: it is a major determinant of scope, and its
+> mapping to Groups is a delivery-fabric choice.** The `group gossip topic` row above shows the reference
+> profile deriving one gossip topic per Group from that Group's ID. That is a reasonable default and what the
+> testing implementation does, but it is a **realization choice, not the model**, and the clearest way to see
+> why is to hold the choice as a variable and read off the outcomes. First, a distinction to keep sharp: the
+> gossip topic is **not synonymous with scope**. Scope is the whole envelope of exposure and processing, the
+> Delivery Fabric as a whole (§6.3, where the Delivery Fabric is defined; and §5.4): gossip, direct
+> connections, relays, meers, and push-notify nodes, and the metadata each sees. The gossip topic is **one
+> large contributor** to that envelope, because it governs who is in the dissemination swarm and therefore
+> who sees the sealed traffic and its routing metadata, but a relay in the path, a meer holding sealed bytes,
+> or a push-notify node each adds to scope
+> independently of the topic. With that held, the topic seed is a major lever on *how wide* the scope is:
+>
+> - **Seed the topic from a single Group's ID (the reference default).** The swarm is that Group's members
+>   (plus whatever helpers are in the swarm). Scope, on the gossip axis, tracks the Group one-to-one. Metadata
+>   exposure over gossip is confined to that Group's delivery, and a member of another Group cannot compute or
+>   join this topic. This is the tight default, and it is why it reads, at first, as though "scope is
+>   Group-specific."
+>
+> - **Seed the topic from a value shared across several Groups.** Those Groups now share one dissemination
+>   swarm: a node in the swarm sees the sealed traffic of all of them (still ciphertext, but the routing
+>   metadata and membership of the shared topic are common). Scope is now *wider* than any one Group, which
+>   is exactly the case that shows scope and Group are different objects. A deployment might choose this to
+>   pool delivery infrastructure across related Groups, accepting the wider metadata envelope as the cost.
+>
+> - **Include or exclude a given meer or relay from the topic (or add one to the path).** Adding a helper to
+>   the swarm or the delivery path widens the scope to include that helper's exposure (it now sees the sealed
+>   envelopes and their routing metadata as they pass); excluding it narrows the scope. Same Group, same
+>   gossip topic, different scope, purely a fabric choice, which is the concrete proof that the topic alone
+>   does not fix the scope.
+>
+> So the mapping of scope to Group is a **delivery-fabric decision**, not a fixed coupling, and the topic
+> seed is one principal lever on it (alongside which helpers are in the path). What the model *requires* is
+> only that the seed be high-entropy (below), so the topic is not guessable; the Group-ID derivation is one
+> way to meet that, carried in the reference profile. Reading "the reference profile keys the topic from the
+> Group ID" as "scope is Group-specific" is the realization-for-requirement slide §10 exists to prevent.
+
+> **Note on the content-id pre-image.** The content-id pre-image carries **no `timestamp` field**: per
+> Part 1 §2.0.1, a wall-clock value is an uncorroborable assertion and must not appear in any identity, ordering,
+> or authority-bearing computation. A content id binds *what* and *where* (group, regime, author, content),
+> not *when*. If an application wishes to record an authored "claimed time," it does so as ordinary payload
+> content, an explicitly author-asserted value, never a protocol fact, and never an input to the content id.
+> *(design; the canonical content-id encoding is `ENABLING`, Appendix B.)*
 
 A scope's gossip-topic seed **MUST** be high-entropy / salted, not a guessable human handle, otherwise an
 adversary computes the topic and joins or observes. *(Leak bound characterized; see §8.)*
@@ -161,7 +204,7 @@ signing_bytes = "msg-v1" ‖ branch(32) ‖ seq(LE u64) ‖ author_id_bytes ‖ 
 A receiver **MUST** recompute the pre-image and verify the signature against the author's key. *green-real*,
 the real message traveled live iroh-gossip and verified against a real backfill import; an honest
 member's message is accepted, a forged one rejected. (Note: position is `seq`, a per-branch counter, not a
-clock, ordering is structural, not temporal, consistent with §2.0.1.)
+clock, ordering is structural, not temporal, consistent with Part 1 §2.0.1.)
 
 ### 4.4. Integrity-and-ordering vs authorship-and-standing: two distinct guarantees
 
@@ -196,7 +239,7 @@ folded count.
 
 #### 4.5.1. Per-client authorship, per-client logical clock, and the principal-as-self-AS
 
-Clients are **not** a shared key. Each **client** (§5.2: software on a device that is a member of a group,
+Clients are **not** a shared key. Each **client** (§5.2: software on a device that is a member of a Group,
 one MLS leaf, one signature key, one credential) is an independent signer with its own signature key, and
 an assertion is **authored and signed per-client**: the envelope carries `author_client` (the signing
 identity the signature verifies against), `author_device` (the device hosting it), and `author_principal`
@@ -220,7 +263,7 @@ client is the deliberate, high-trust act (e.g. scanning a code) that the princip
 exactly the trust binding of Part 1 §2.0 (the human act binds existing trust to a key; the credential
 records it).
 
-A direct consequence for ordering, and a load-bearing instance of §2.0.1 (*time is not a fact*): the
+A direct consequence for ordering, and a load-bearing instance of Part 1 §2.0.1 (*time is not a fact*): the
 **logical clock is per-client and strictly logical, never a wall-clock.** Each client advances only its own
 `lamport` counter, so there are no cross-client collisions and no coordination is required; a wall-clock is
 never consulted, because a wall-clock is an uncorroborable assertion and could not order what must
@@ -236,11 +279,10 @@ converge. A principal's stream is the **deterministic fold-time merge** across i
 > `Realizes: P-Peer-Equality, P-Local-Truth, P-Knowable-Truth, P-Durable-Enablement`
 
 This section fixes the vocabulary the rest of the spec runs on. It is the section a reviewer presses
-hardest, because it is where `P-Peer-Equality` is enforced by mechanism rather than assumed, and where a
-single overloaded word ("peer") previously hid several independent ideas. The fix is to ask one precise
-question, *in what ways may one persona differ from another?*, and to answer it with **exactly four
-properties, two necessarily equal and two legitimately unequal**, then to separate the **identity layer**
-(principals and clients) from the **governance layer** (personae and weight).
+hardest, because it is where `P-Peer-Equality` is enforced by mechanism rather than assumed. The section
+asks one precise question, *in what ways may one persona differ from another?*, and answers it with
+**exactly four properties, two necessarily equal and two legitimately unequal**, then separates the
+**identity layer** (principals and clients) from the **governance layer** (personae and weight).
 
 > **Provenance of this model.** The equality framing and the principal/peer/client vocabulary below are
 > Drystone's own synthesis (ours), not sourced from any external spec. Two prior-art vocabularies are
@@ -253,13 +295,14 @@ properties, two necessarily equal and two legitimately unequal**, then to separa
 >   **read or write access to data** in a namespace, issued by that data's owner and attenuating under
 >   delegation (§5.5, §10.4). Drystone does **not** reuse "capability" for anything else.
 >
-> The device-facility layer that an earlier draft mislabelled "capability" is renamed **resource** (§5.4),
-> and the in-group governance-authority layer is **role** (§5.5). **Capability** is **not** one of the four
-> peer-equality properties below: it is the **data-access mechanism a role operates through** (a role may
-> carry the authority to issue capabilities), and it lives in the data plane (§7.1, §10.4), one layer below
-> the equality question. So the property nouns sit at distinct planes, **resource** (device fact),
-> **role** (group governance authority), **capability** (data access, Meadowcap, beneath roles), and none
-> collides with the prior art.
+> The device-facility layer is **resource** (§5.4), and the in-Group governance-authority layer is **Group
+> Role** (§5.5). **Capability** is **not** one of the four peer-equality properties below: it is the
+> **data-access mechanism a Group Role operates through** (a Group Role may carry the authority to issue
+> capabilities), and it lives in the data plane (§7.1, §10.4), one layer below the equality question. So the
+> property nouns sit at distinct planes, **resource** (device fact),
+> **Group Role** (in-Group governance authority), **capability** (data access, Meadowcap, beneath Group Roles), and none
+> collides with the prior art. (Lowercase "role" is the genus, the category of delegated authority; a "Group
+> Role" is a concrete grant inside a Group. §5.0 and Part 1 §2.3.)
 
 ### 5.0. Two equalities, two inequalities: and the two layers
 
@@ -273,30 +316,32 @@ system, a principal by virtue of its key pair, present through lineage and verif
 expression and in count. The protocol guarantees, by mechanism, that one recognized persona carries equal
 rights and one flat unit of weight. Whether a persona corresponds to one distinct human is a separate
 question the protocol does **not** answer, and **could not**: that binding has no technical representation
-the protocol could read (§5.2), so there is no fact to certify. It is a social-utility judgment the group
-makes at its own standard (§2.0, §5.6). The mechanical guarantee is what makes that judgment meaningful; it
-does not substitute for it. That is the razor (§2.0) applied to the persona concept itself.
+the protocol could read (§5.2), so there is no fact to certify. It is a social-utility judgment the Group
+makes at its own standard (Part 1 §2.0, §5.6). The mechanical guarantee is what makes that judgment meaningful; it
+does not substitute for it. That is the razor (Part 1 §2.0) applied to the persona concept itself.
 
 **The two equalities**, equal for every persona, always:
 
 - **Right, what a *principal* inherently holds.** The floor: voice, tenure, and exit/fork (§5.3). It is
   **equal for every persona, and unremovable.** The proof that it is a right and not a role is that the last
-  of them, exit/fork, survives even when every role is stripped and even when a quorum captures the
-  group: participation persists as the standing to leave with your state and continue. A right is precisely
-  the thing that *cannot* be delegated or revoked. Attaches to the **principal**, flows to its clients.
+  of them, exit/fork, survives even when every Group Role is stripped and even when a quorum captures the
+  Group: participation persists as the standing to leave with your state and continue. A right is precisely
+  the thing that *cannot* be delegated or revoked, standing in the system rather than in any one Group.
+  Attaches to the **principal**, flows to its clients.
 
 - **Weight, how much a *persona* counts in governance.** **Flat: one per distinct persona**, where a persona is
-  the unit a group's **members resolve to by lineage** (§4.5), regardless of how many clients, devices,
-  resources, or roles carry that lineage. Weight is equal **by necessity, not by separate decree**: it
-  *follows from* equal rights. If standing-to-participate is equal (the right), then standing-to-be-counted
-  is equal (the weight), the second is the governance image of the first. Attaches to the **persona** (§5.6).
-  *(A note on what the group recognizes, and what it does not. A group recognizes its **members**,
-  clients, in MLS terms (§5.2). Lineage then resolves a group's member-clients to **one persona** (§4.5), and
+  the unit a Group's **members resolve to by lineage** (§4.5), regardless of how many clients, devices,
+  resources, or roles carry that lineage. Weight is equal **not by a separate decree but as a consequence of
+  the equal right**: if standing-to-participate is equal (the right), then standing-to-be-counted
+  is equal (the weight), the second is the governance image of the first, the same commitment in a different
+  context, not an independent conclusion. Attaches to the **persona** (§5.6).
+  *(A note on what the Group recognizes, and what it does not. A Group recognizes its **members**,
+  clients, in MLS terms (§5.2). Lineage then resolves a Group's member-clients to **one persona** (§4.5), and
   it is that resolved persona that is counted once. The system attests this resolution by provenance. What the
   system does **not** attest is whether a persona corresponds to a distinct **person**: that one-persona-one-human
-  binding is a **contextual judgment the group makes** at its own confidence (§5.6). We avoid the phrase
+  binding is a **contextual judgment the Group makes** at its own confidence (§5.6). We avoid the phrase
   "personhood-verified": "verified" would imply the system did the verifying, when the protocol guarantees
-  provenance and the group judges personhood.)*
+  provenance and the Group judges personhood.)*
 
 **The two inequalities**, legitimately different between personae:
 
@@ -306,48 +351,36 @@ does not substitute for it. That is the razor (§2.0) applied to the persona con
   RAM. It is a fact about every node in the system (a persona's clients, but also meers and relays, §5.4),
   not only about personae; it is listed among the persona inequalities because, *across personae*, it is one of the
   two ways they legitimately differ. A resource says what is *possible*, never what is *permitted* and
-  never how much a persona *counts* (§5.4). *(This is the layer an earlier draft called "capability";
-  renamed because "capability" is Meadowcap's word for data access, and because "resource" names the
-  device fact without inviting the false slide from "able to" to "entitled to.")*
+  never how much a persona *counts* (§5.4). The word is **resource**, not "capability": "capability" is
+  Meadowcap's word for data access (§5.5), and "resource" names the device fact without inviting the false
+  slide from "able to" to "entitled to."
 
-- **Role, what governance authority a *principal* has been *granted*.** Admin, moderator, gating, the
-  act-for-the-group authority, the authority to issue capabilities (§5.5). A role is **granted by member
+- **Group Role, what governance authority a *principal* has been *granted*.** Admin, moderator, gating, the
+  act-for-the-Group authority, the authority to issue capabilities (§5.5). A Group Role is **granted by member
   consent, scoped, attenuating, and always revocable.** It is the one *operational* inequality the design
-  permits: personae may hold different roles, and that is normal. Crucially, **a role rides entirely above the
+  permits: personae may hold different Group Roles, and that is normal. Crucially, **a Group Role rides entirely above the
   two equalities**, granting or revoking one never changes a persona's rights floor or its unit of weight.
-  Roles are the application-layer construct MLS deliberately leaves undefined (§5.5).
+  Group Roles are the application-layer construct MLS deliberately leaves undefined (§5.5). (Lowercase "role"
+  is the genus, the category of delegated authority; a concrete grant inside a Group is a "Group Role.")
 
-So the sentence that replaces every earlier formulation: **personae are equal in rights and (by necessity)
-weight, and unequal in resources and revocable roles.** The old phrase "equal in rights, not capabilities"
-was wrong twice over: it used "capabilities" for device facts (now *resources*), and it implied rights
-could be unequal when the inequality it had in mind was always a *role*. Rights do not vary. Roles do.
+The one-sentence statement of the model: **personae are equal in rights, and therefore equal in weight, and
+unequal in resources and revocable Group Roles.** Rights do not vary; Group Roles do. The inequality people
+sometimes have in mind when they imagine rights differing is always a *Group Role*, a grant, never a right.
 
 A note on what is **not** on this list. **Capability** (the Meadowcap data-access grant, read/write an
-area of a namespace, §5.5) is not a fifth persona-property. It is the **mechanism a role operates through**: a
-role may carry the authority to *issue* capabilities, and the capabilities themselves are data-plane tokens
-(§7.1, §10.4), one level below the question of how personae differ. It is listed here only to place it: it
-sits *under* roles, not beside resources.
+area of a namespace, §5.5) is not a fifth persona-property. It is the **mechanism a Group Role operates
+through**: a Group Role may carry the authority to *issue* capabilities, and the capabilities themselves are
+data-plane tokens (§7.1, §10.4), one level below the question of how personae differ. It is listed here only
+to place it: it sits *under* Group Roles, not beside resources.
 
-And two layers, because the entity that holds rights is not the same granularity as the device that acts:
-
-- **Identity layer, principals and clients.** A **principal** is a role-holding entity identified by
-  exactly one authenticatable identity (one key-lineage). A **client** is **software on a device that is a
-  member of a group**, one MLS leaf, one signature key, one credential (the term is carried over from MLS
-  for consistency). A **device** is the hardware (a node, §5.4); a device may host **more than one
-  client**, and a principal is **realized by one or more clients across one or more devices**.
-
-- **Governance layer, personae and weight.** A **persona** is the **human layer's manifestation** in the system:
-  a principal by virtue of its key pair, the entity rights and weight attach to *because* a
-  person stands behind it, and the locus at which the social-utility calls the system cannot compute (§2.0)
-  are adjudicated. A persona is **not a node** (a node is a box, with resources, §5.4); it is the
-  human-as-manifested, rooted in a **cryptographic key pair** from which its devices' and clients'
-  membership keys descend by signed credential (its **lineage**, §4.5). Its clients run on its devices; the
-  persona is neither. It carries the rights floor and is the source of one unit of governance weight, and the
-  fold counts **one persona per rooting key pair** however many clients and devices carry that lineage. The
-  binding "one persona is one human" is what makes that weight meaningful, and that binding is a **social
-  judgment the group makes, never something the system attests** (§5.6, §2.0): the protocol attests
-  provenance and runs governance over personae as manifested; whether a persona corresponds to a distinct person
-  is the group's contextual call.
+The four properties sit across two layers, because the entity that holds rights is not the same granularity
+as the device that acts. The **identity layer** is **principals and clients**: a principal is the
+permission-holding entity (one key-lineage), realized by one or more clients across one or more devices. The
+**governance layer** is **personae and weight**: a persona is the human layer's manifestation, the entity
+rights and weight attach to, and the locus at which the social-utility calls the system cannot compute
+(Part 1 §2.0) are adjudicated. Both layers are defined in full at §5.2; what matters here is that they are
+distinct, the identity layer answers *who is acting and can it be authenticated*, the governance layer
+answers *whose standing counts and by how much*.
 
 ### 5.1. The only canonical state is local
 
@@ -364,30 +397,33 @@ append-only view.
 > a reviewer validates against) are in **Appendix D**; this section is the
 > prose source those entries summarize.
 
-A **principal** is a **role-holding entity, identified by one key-lineage.** This is the genus. It is
+A **principal** is a **permission-holding entity, identified by one key-lineage.** This is the genus. It is
 defined by its *identity* (one authenticatable lineage), not merely by its function, so that "holds a
-role" does not collapse into "anything at all." Kinds of principal:
+permission" does not collapse into "anything at all." A principal is reasoned about through the permissions
+it carries, and "permission" spans planes: a Group member holds **Group Roles** (in-Group governance
+authority, §5.5), while a non-Group principal like a meer holds **ecosystem permissions** (connectivity and
+delivery reach, §5.4) and no Group Role. (Lowercase "role" is the genus of delegated authority; a concrete
+grant inside a Group is a "Group Role.") Kinds of principal:
 
 - a **persona**, the principal that **manifests a human** in the system, a principal by virtue of its key
   pair, carrying the rights floor and one unit of weight, and the locus at which the social-utility calls
-  the system cannot compute (§2.0) are adjudicated because a person stands behind it (the
-  common case: one person, one persona per group, possibly many devices). Its clients run on its devices,
+  the system cannot compute (Part 1 §2.0) are adjudicated because a person stands behind it (the
+  common case: one person, one persona per Group, possibly many devices). Its clients run on its devices,
   tied to the persona by lineage (§4.5); the persona is neither a client nor a device nor any node;
 
-- a **group**, a collective that can hold a role as a single principal (its identity model is an **open
-  seam**, see below);
+- a **Group**, a collective that can hold a Group Role as a single principal (its identity model is an **open
+  seam**, see §5.10 and below);
 
-- a **delegate**, not a separate species but a **state**: a persona or group currently holding a role
+- a **delegate**, not a separate species but a **state**: a persona or Group currently holding a Group Role
   delegated by another principal (§5.5).
 
-A **meer** is **not** a principal and does not appear above. "Meer" is a colloquialism for a blind
-store-and-forward node: infrastructure, defined in §5.4 (a node offering availability capacity, configured
-by a scope to serve ciphertext) and §6 (transport). The legacy labels "mere-peer," "blind member," and
-"blind peer" are all wrong: a meer is neither a member nor a persona, and holds no role. (Note: "peer" as a
-noun for the entity is itself retired in favour of **persona**; "peer" now names only the relation, §3.1.) It is named by scope
-configuration, not enrolled as an identity.
+A **meer** is **not** a principal in the Group-governance sense and does not appear above: it is a
+broad-plane principal holding ecosystem permissions (§5.4), a blind store-and-forward node offering
+availability capacity, configured by a persona to serve ciphertext. It holds no Group Role, no right, and no
+weight, and it is named by persona-level configuration rather than enrolled as an identity. It is defined in
+§5.4 and realized at the transport layer in §6.
 
-A **client** is **software on a device that is a member of a group**: one MLS **leaf**, one **signature
+A **client** is **software on a device that is a member of a Group**: one MLS **leaf**, one **signature
 key**, one **credential**, authenticated as a **member** via the **AS** (§10.2). The term is MLS's, kept
 for consistency. A **device** is hardware (a node, §5.4) and may host **more than one client**; a human
 may have **more than one device**. So the hosting chain is human → devices → clients, and a principal is
@@ -406,7 +442,7 @@ addresses principals, folding a principal's clients and devices, by lineage, to 
 
 > **The keystone distinction, a lineage is a provenance object; a persona is the human it manifests, and
 > personhood is a social judgment.** These are different *kinds* of thing, and keeping them distinct is the
-> identity-layer instance of the spec's founding provenance/utility split (§2.0).
+> identity-layer instance of the spec's founding provenance/utility split (Part 1 §2.0).
 >
 > - A **lineage** is **technically representable**: it is a cryptographic-provenance chain, a thing the
 >   protocol can point at, verify signatures against, and count. The protocol delivers the lineage with
@@ -429,11 +465,10 @@ addresses principals, folding a principal's clients and devices, by lineage, to 
 > any other edge.
 
 > **Open seam, the principal that anchors a multi-client lineage.** The cross-device identity is the
-> **principal**; "operator" and "user" were both rejected (one too effusive of a privileged actor, one too
-> imprecise). `principal` is the chosen term. The **group-as-principal identity** is now given a concrete
-> shape in §5.10 (a Meadowcap **communal namespace** rather than a derived central credential); what
-> remains designed-not-frozen is its key establishment and rotation under membership change. Carried to
-> Appendix B (the collective / federation gap).
+> **principal**. The **Group-as-principal identity** takes a concrete shape in §5.10, a Meadowcap
+> **communal namespace** rather than a derived central credential; what is designed-not-frozen is its key
+> establishment and rotation under membership change. Carried to Appendix B (the collective / federation
+> gap).
 
 ### 5.3. Rights: the inherent, equal floor: never delegated, never unequal
 
@@ -443,15 +478,15 @@ the system (Part 1 §2.4); it is one of the two equalities of §5.0. The base fl
 
 - **Read your own local history.** Unqualified, identical for every persona.
 
-- **Read the history of a scope you are a member of, for the period of your membership.** Begins at join,
+- **Read the history of a Group you are a member of, for the period of your membership.** Begins at join,
   ends at leave; includes what the persona was present for; does not extend to content authored after the
   persona leaves, and does not retroactively vanish for content the persona legitimately held while a member
   (§5.7).
 
-- **A scope holds full history for itself,** independent of any member's tenure.
+- **A Group holds full history for itself,** independent of any member's tenure.
 
-Two consequences where the floor is most often misread. **A persona's own history is permanent; its window
-into a shared scope is bounded by membership**, two different histories, treated as such. **A principal
+Two consequences that keep the floor precise. **A persona's own history is permanent; its window
+into a shared Group is bounded by membership**, two different histories, treated as such. **A principal
 with no local history of its own still holds the full read-your-own-history right**, exercised over an
 empty set (a persona that has joined but authored nothing satisfies the right vacuously). A meer is not the
 example here: it is infrastructure, not a principal, so it holds no rights at all (§5.4). Where a principal
@@ -460,11 +495,10 @@ is *blind*, that is the absence of a key and of any role conferring read, never 
 > **One open check before the rights set hardens** (carried from Part 1 §2.4): the proven floor in this
 > draft is the read-rights triple above. The fuller rights articulation is **three rights**, **tenure**
 > (standing to remain a persona), **voice** (standing to assert into the record and be corroborated or
-> refuted), and **exit** (the right to fork); each fixed by what its removal would foreclose. (An earlier
-> draft floated a fourth, `share`, a claim on a scope's commons. It is **dropped as a right**: a claim on
-> shared assets is not part of the inalienable floor. Where it has substance it belongs in the data layer
-> as ownership of a Meadowcap communal namespace (§5.10), not in the rights set. What survives of that idea
-> is the communal-asset model, not a right.)
+> refuted), and **exit** (the right to fork); each fixed by what its removal would foreclose. A claim on a
+> Group's commons is **not** a right: it is not part of the inalienable floor, and where it has substance it
+> is a data-layer matter, ownership of a Meadowcap communal namespace (§5.10), handled there rather than in
+> the rights set.
 >
 > The remaining open check is **`tenure` under re-key**: can the §7 survivor / re-key path leave a persona
 > formally a member but unable to re-establish its standing after a re-key? If so, tenure is not yet a
@@ -488,12 +522,12 @@ weight.
 
 **Common resources** (the current set, not closed):
 
-- **Availability capacity.** The device can hold and serve a scope's *encrypted* objects, including
+- **Availability capacity.** The device can hold and serve a Group's *encrypted* objects, including
   buffering for offline members. Availability capacity does **not** imply read: such a device holds
-  ciphertext it cannot decrypt, because it is never given a key. A node configured by a scope to do only
+  ciphertext it cannot decrypt, because it is never given a key. A node a persona configures to do only
   this, blindly, is a **meer** (below); it is infrastructure, not a principal.
 
-- **Read / search-offload capacity.** The device can decrypt, index, retain, and serve a scope's history
+- **Read / search-offload capacity.** The device can decrypt, index, retain, and serve a Group's history
   (the *facility*; whether the principal is *permitted* to is a read **role**, §5.5).
 
 - **Reachability.** The device is positioned (public reachability, uptime) to forward for others.
@@ -501,20 +535,78 @@ weight.
 The pairing rule (for the resources that matter to *governance*, namely a principal's own clients): a
 **role** (the governance authority, §5.5) is only useful to a principal whose **client** has the
 **resource** to exercise it. Granting a read role to a device with no decryption capacity is inert. Roles
-and resources are matched at the **PrincipalSet** layer (§5.5), which is exactly why a PrincipalSet bundles a role
+and resources are matched at the **Group Role Set** layer (§5.5), which is exactly why a Group Role Set bundles a role
 set *with an expectation of resources*. The anti-capture consequence is in the words: a node may have more
 resources, and that buys it no rights and no weight, only the ability to be *useful*, never to *count for
 more*.
 
 **The meer: blind store-and-forward infrastructure.** "Meer" is a **colloquialism**, not a model entity:
 it is just a short name for a **blind store-and-forward node**. Such a node accepts, retains, and serves a
-scope's encrypted objects, seeing ciphertext plus routing metadata only. It is **not a principal, member,
-or persona**, holds **no role**, **no rights floor**, and **no weight**. It is named by a scope's
-configuration (the scope records which store-and-forward endpoints it uses), not granted a role and not
-enrolled as an identity. Its blindness is **structural**: it is never issued a decryption key, so there is
-no "decrypt" to forbid and no role to strip. A Tier-0 meer can prove it holds zero payload keys (§8).
-Electing, replacing, or dropping a meer is a configuration fact about the scope's infrastructure (§5.9),
-not a grant to a principal.
+Group's encrypted objects, seeing ciphertext plus routing metadata only. It is **not a Group principal, member,
+or persona**, holds **no Group Role**, **no rights floor**, and **no weight**. It is not granted a Group Role
+and not enrolled as an identity. Its blindness is **structural**: it is never issued a decryption key, so there is
+no "decrypt" to forbid and no Group Role to strip. A Tier-0 meer can prove it holds zero payload keys (§8).
+
+**A meer's presence in a scope is a fabric-level fact; a persona's *use* of it is a per-persona decision.**
+These are two different layers and must not be collapsed. A meer participates in a Group's delivery scope
+the way any swarm node does, it is in the gossip fabric, carrying and seeing the sealed envelope and its
+routing metadata as it passes, and that presence is not something a single persona can revoke: it is a
+property of the **Delivery Fabric** (the blind carrying population, defined at §6.3), not a per-persona
+grant. What *is* a per-persona decision is whether to
+**use and rely on** the meer, calling in for held messages, depending on it for durability, respecting its
+store-and-forward function, or declining all of that. Because a single meer's exposure sits at the fabric level
+and is shared across everyone in scope (and can be in scope for several Groups at once, since scope is
+exposure reach, not bounded by any one Group's membership), one persona declining to interact does not
+remove the meer from scope or change anyone else's exposure. So the meer is not "adopted per persona"; its
+scope presence is a fabric fact, and only the *trust-and-use* decision is the individual's.
+
+**A meer is a principal in the broad sense, though not in the Group-governance sense, and it does hold
+permissions.** Saying the meer holds "no Group Role, no rights, no weight" is a claim about the
+*Group-governance plane* only. It does not mean the meer is authority-less in the system. The meer is a
+**principal** in the broad sense of §5.2 (an actor reasoned about through the permissions it carries), and
+those permissions are real and enumerable, they are just of a different kind: **ecosystem permissions**,
+connectivity and delivery reach rather than in-Group governance. A meer typically holds permission to be in
+a Group's delivery swarm, and often permission to talk to a downstream push-notify node, which in turn may
+hold permission to talk to an external third party (an OS push service). This little chain of ecosystem
+permissions is what lets the meer function as infrastructure, and it is why "Group Role," "right," and
+"weight" are reserved for the governance plane while "permission" spans planes: the meer holds ecosystem
+permissions and no Group-governance ones. These permissions are **enumerable** and **blind** (exercising
+them never confers sight of content).
+
+**Two revocation planes, and why a persona's recourse against a meer lives on the second.** Revocation in
+Drystone is not one mechanism; it acts at two layers with different actors and different authority.
+
+- **Group-governance revocation** (§5.7, §5.8) acts *inside* a Group, on Group facts, a Group Role or
+  membership. It runs through the Group's replicated policy and the k-of-n threshold counted per persona,
+  and it is global to the Group by construction: once the fold accepts it, the fact holds for every member.
+
+- **Node-local withdrawal of use** acts at the layer of the software an individual persona runs as a
+  standalone authoritative node. It is how a persona withdraws its own reliance on a *non-Group* helper
+  like a meer or relay: it stops calling the helper, stops depending on it for durability, declines to
+  interact. Its authority comes from the standalone-authoritative-node premise (§5.1), so it needs no
+  threshold and no governance round. Crucially, this is **not** removal of the helper from scope: the meer
+  remains in the Delivery Fabric and still sees whatever routing metadata the fabric exposes. It is the
+  **exit right exercised at the client level**, a recognition of the persona's autonomy over its own node,
+  not a change to the shared scope. (Architecturally this holds by construction, since a persona controls
+  whether its own client calls, answers, or connects to a given helper, even where a dedicated "stop using
+  this meer" affordance is not yet implemented.)
+
+The **asymmetry is the tell** they are two planes. A Group Role revocation is global to the Group and
+actually changes a Group fact; a node-local withdrawal is local to the one persona and changes only that
+persona's behavior, leaving the helper in scope. Whether to withdraw, and the shape of the response
+(re-home your own durability to a different meer, lean on more than one, pull the function onto your own
+device, or fork the Group entirely if the concern is Group-wide), is a **social-utility judgment** about
+trust and tradeoffs, not a mechanical toggle, which is why the protocol makes the response available but
+does not compute it (the Part 1 §2.0 razor, one layer down).
+
+**Helper governance and alignment is a first-class concern, treated separately.** Because scope is broader
+than a Group and a single helper can be in scope for many Groups, the **operation and governance of helper
+nodes (meers, relays, push-notify nodes) meaningfully shapes the scope of exposure across the whole
+system**, at a layer no individual persona's non-interaction can dissolve. A persona's node-local
+withdrawal is the individual backstop, the exit exercised at the client; it is not a substitute for the
+question of who runs these helpers and whether they are ideologically and operationally aligned. That
+question is a first-class concern in its own right, not something each Group settles internally, and it is
+treated separately (carried as an open item; see Appendix B and the conventions reference).
 
 **A meer is optional, not required.** Clients communicate directly peer-to-peer over the transport (§6);
 two clients, or many, can exchange MLS messages with no meer in the path. What a meer adds is **offline
@@ -527,41 +619,46 @@ from an iroh relay** (§6): the relay is a transport-layer blind packet forwarde
 traversal), holding nothing; the meer is an application-layer store that persists encrypted objects for
 later delivery. Both are blind; they sit at different layers and neither is mandatory.
 
-### 5.5. Role, capability, PrincipalSet, and delegation: the governance and data-access planes
+### 5.5. Group Role, capability, Group Role Set, and delegation: the governance and data-access planes
 
 Two distinct kinds of grant sit above the rights floor, at two different planes, and a third construct
 bundles them. None touches the inherent rights floor or the flat weight.
 
-- **Role, an in-group governance authority.** A scoped, attenuable authority to *act* in the group's
-  governance: admit or remove members, gate distribution, hold the **act-for-the-group** authority (§5.10),
-  or *issue and revoke capabilities* over the group's data. A role is **granted to a principal** by member
+- **Group Role, an in-Group governance authority.** A scoped, attenuable authority to *act* in the Group's
+  governance: admit or remove members, gate distribution, hold the **act-for-the-Group** authority (§5.10),
+  or *issue and revoke capabilities* over the Group's data. A Group Role is **granted to a principal** by member
   consent, is **revocable** (§5.7), composes by union, and mutates freely, granting or revoking one is
   normal governance traffic, no alarm. Each grant is a governance fact (§7). **This is the layer MLS
   deliberately leaves to the application**, RFC 9750 §6.4 (Access Control) states that MLS "does not itself enforce any
   access control on group operations" (any member can add or evict), in contrast to designs with a single
   group controller, and that "MLS-using applications are responsible for setting their own access control
   policies", giving the example that if only an administrator may change members, the application must
-  inform members of that policy and who the administrator is (§10.2). Drystone's role layer **is** that
+  inform members of that policy and who the administrator is (§10.2). Drystone's Group Role layer **is** that
   application policy, enforced not by a server but by the governance fold: a child's `Remove(parent)` is a
-  well-formed MLS message that honest peers **reject as unauthorized** because the replicated role policy
+  well-formed MLS message that honest peers **reject as unauthorized** because the replicated Group Role policy
   does not grant the child that authority. *(Honest seam: the protection is convergent agreement that the
   op is unauthorized, not cryptographic impossibility of emitting it, §5.7.)*
 
 - **Capability, a data-access grant (Meadowcap's sense, kept verbatim).** An **unforgeable token
   bestowing read or write access to an area of a namespace**, issued by that data's owner, attenuating
   under delegation. A capability is about **reading and writing entries**, nothing else: it does not admit
-  members, does not gate, does not carry a vote. Capabilities are *issued under* a role (the authority to
+  members, does not gate, does not carry a vote. Capabilities are *issued under* a Group Role (the authority to
   issue them) and live in the data plane (§7.1, §10.4). Drystone keeps Meadowcap's word because Drystone
   intends Meadowcap (or a Meadowcap-shaped mechanism) as the data-access realization, and renaming it
   would fight the prior art.
 
-- **PrincipalSet, a named, pinned, group-recognized bundle** of roles, the capabilities they imply, and the
+- **Group Role Set, a named, pinned, Group-recognized bundle** of Group Roles, the capabilities they imply, and the
   **resources expected to fulfil them**, with an **enforced composition**: a **required** set, a
-  **forbidden** set, and optionally **mutually-exclusive** roles (two that may never travel together).
-  Prescriptive; it answers "what is a principal of this name supposed to hold, and never hold." Drift
-  from the pinned composition is an integrity event the group flags.
+  **forbidden** set, and optionally **mutually-exclusive** Group Roles (two that may never travel together).
+  It serves two functions: it lets a Group **grant or revoke a bundle as one unit** rather than
+  Group-Role-by-Group-Role (the human-fatigue reason, people reason about "moderator," not a list of
+  individual grants), and it lets the Group **constrain composition** for separation of powers ("a holder
+  of this Set may not also hold that Group Role"). Prescriptive; it answers "what is a principal of this
+  name supposed to hold, and never hold." Drift from the pinned composition is an integrity event the Group
+  flags. *(First-class term, still settling: the name and the two functions are fixed, the full mechanism is
+  developed across §5.5 to §5.9 and flagged where it is not yet frozen.)*
 
-**Delegation** is the act of granting a role or passing on a capability. Two normative properties:
+**Delegation** is the act of granting a Group Role or passing on a capability. Two normative properties:
 
 - **Always attenuating and bounded.** A principal **MUST** be able to delegate only a subset of what it
   holds, never a superset (`Realizes: P-Peer-Equality`; the attenuation requirement, §7.2 R2; this is
@@ -569,61 +666,62 @@ bundles them. None touches the inherent rights floor or the flat weight.
   never widens or mints it.
 
 - **Two targets, one primitive.** A principal **MAY** delegate to (a) another client in its **own
-  principal's device group** (trust stays within personal control) or (b) another principal in the
-  **shared scope** (a cooperative anchor, another member's always-on node). Same mechanism; the trust
+  principal's device Group** (trust stays within personal control) or (b) another principal in the
+  **shared Group** (a cooperative anchor, another member's always-on node). Same mechanism; the trust
   boundary is the user's choice. This is what lets Drystone refuse consolidation onto a single keeper.
 
 All of these live in the **grant planes** and **none alters weight or the rights floor.** A principal
-carrying any role or capability still holds its complete inherent floor and its single unit of weight. The
-mechanical check: every PrincipalSet **MUST** be definable as `floor + [explicit role set] + [implied
+carrying any Group Role or capability still holds its complete inherent floor and its single unit of weight. The
+mechanical check: every Group Role Set **MUST** be definable as `floor + [explicit Group Role set] + [implied
 capabilities] + [expected resources]`; a name meaning "entitled to fewer **rights**" is **forbidden**;
-that would be a smuggled rights distinction. **Rights have no presets; roles, capabilities, and PrincipalSets
+that would be a smuggled rights distinction. **Rights have no presets; Group Roles, capabilities, and Group Role Sets
 do.**
 
-A PrincipalSet's pinning is enforced by a **drift check**: the group gathers the role grants in force for a
-principal from the governance log and compares them against the declared PrincipalSet's required / forbidden /
+A Group Role Set's pinning is enforced by a **drift check**: the Group gathers the Group Role grants in force for a
+principal from the governance log and compares them against the declared Group Role Set's required / forbidden /
 mutually-exclusive composition. Mismatch in **any** direction is the alarm, a principal that *acquired* a
-forbidden role (dangerous), *lost* a required one (failing the job relied on), or *combined* two
-mutually-exclusive roles (a restricted combination). The check is mechanical, because every side is a fact
+forbidden Group Role (dangerous), *lost* a required one (failing the job relied on), or *combined* two
+mutually-exclusive Group Roles (a restricted combination). The check is mechanical, because every side is a fact
 already in the log. (Separately, "this node is blind" is trustworthy for a structural reason, not a pinned
-role set: a Tier-0 store node can prove it holds zero payload keys, §8.)
+Group Role set: a Tier-0 store node can prove it holds zero payload keys, §8.)
 
 > **Trust-dynamics changes fail loud, by design.** Two cases route to a noisy hard-stop rather than a
-> silent rejection. The first is a governance action placing two mutually-exclusive roles on one principal.
-> The second is a reconfiguration that would make a scope's blind store-and-forward node (a meer, §5.4)
+> silent rejection. The first is a governance action placing two mutually-exclusive Group Roles on one principal.
+> The second is a reconfiguration that would make a Group's blind store-and-forward node (a meer, §5.4)
 > receive decryption keys, converting blind infrastructure into a reading party. In either case the action
-> surfaces to the affected scope ("a restricted change was attempted; your communications may be at risk,
+> surfaces to the affected Group ("a restricted change was attempted; your communications may be at risk,
 > fork without the principals who voted it?") and routes to human adjudication (§7.6). The reasoning: a
 > quorum that votes to de-blind a node everyone relied on as blind has *changed the trust dynamics of the
-> group*, which is precisely the kind of standing contradiction that is a utility judgment, not a
+> Group*, which is precisely the kind of standing contradiction that is a utility judgment, not a
 > computation. *design, decided; the loud-failure rung ties to §7.6.*
 
-Worked example, a **moderator** (a PrincipalSet):
+Worked example, a **moderator** (a Group Role Set):
 
 ```
-moderator (a PrincipalSet) ::= floor                               // full inherent rights, unchanged
+moderator (a Group Role Set) ::= floor                            // full inherent rights, unchanged
                         + requires role { admit, remove }     // governance authority granted by consent
                         + expects  resource { reachability }  // device facts that help fulfil it
-                        + forbids  role { act-for-the-group }  // kept separate from group-signing authority
+                        + forbids  role { act-for-the-Group }  // kept separate from Group-signing authority
                         + holds    capability { }              // no standing data-access grant by default
 ```
 
-A moderator is a **persona** holding a moderation role: its rights floor and unit of weight are unchanged by
-the grant, and revoking the role returns it to a bare persona. The PrincipalSet pinning makes drift an integrity
-event: acquiring the forbidden `act-for-the-group` role, or losing a required one, is flagged. Delete the
-PrincipalSet name and nothing about any persona's rights changes. *design (PrincipalSet drift-check and mutual-exclusion
+A moderator is a **persona** holding a moderation Group Role: its rights floor and unit of weight are unchanged by
+the grant, and revoking the Group Role returns it to a bare persona. The Group Role Set pinning makes drift an integrity
+event: acquiring the forbidden `act-for-the-Group` Group Role, or losing a required one, is flagged. Delete the
+Group Role Set name and nothing about any persona's rights changes. *design (Group Role Set drift-check and mutual-exclusion
 formalism).*
 
-A **meer** is *not* a PrincipalSet, because it is not a principal: it is blind store-and-forward infrastructure
-configured by the scope (§5.4), with no role to pin and no rights to bundle.
+A **meer** is *not* a Group Role Set, because it is not a principal in the Group-governance sense: it is blind store-and-forward infrastructure
+a persona configures for its own durability (§5.4), with no Group Role to pin and no rights to bundle.
 
 ### 5.6. Weight: flat by default, conserved under delegation, anchored to personhood
 
-**Weight** is the second of the two equalities (§5.0): how much a persona counts when the group decides
+**Weight** is the second of the two equalities (§5.0): how much a persona counts when the Group decides
 something. It attaches to the **persona**, and its default is **flat, one per distinct persona**,
 regardless of how many clients, devices, resources, capabilities, or roles that persona holds. It is equal
-**by necessity, not by separate decree**; it follows from the equal rights floor (§5.3): equal
-standing-to-participate is the same fact as equal standing-to-be-counted. Resources and roles are the two
+**not by a separate decree but as a consequence of the equal rights floor** (§5.3): equal
+standing-to-participate is the same fact as equal standing-to-be-counted, the same commitment in a
+different context, not an independent conclusion. Resources and Group Roles are the two
 legitimate inequalities (§5.0); rights and weight are the two equalities, and weight is the governance
 image of the right.
 
@@ -635,24 +733,24 @@ governance at scale):
   revocably. The delegate then exercises several personae's weight, but every unit still traces to a distinct
   persona (by lineage).
 
-- **Elected admins.** A scope **MAY** vest decision roles in a small elected set (closer to forum
+- **Elected admins.** A Group **MAY** vest decision Group Roles in a small elected set (closer to forum
   moderation), with personae retaining equal weight to elect, recall, and ultimately fork.
 
-- **Broadcast-only.** A scope **MAY** define a rights model where most principals receive rather than
-  decide; weight is near-vestigial in such a scope, but the floor (voice, exit) is retained.
+- **Broadcast-only.** A Group **MAY** define a rights model where most principals receive rather than
+  decide; weight is near-vestigial in such a Group, but the floor (voice, exit) is retained.
 
 **The conservation invariant, which holds across every model:** weight is **allocated one-per-recognized-persona
 at the source and is never minted, only moved.** A delegate exercising five personae's weight still reduces to
-five distinct personae the group recognizes. The total weight in a scope equals the count of its recognized
+five distinct personae the Group recognizes. The total weight in a Group equals the count of its recognized
 personae, no matter how delegated, pooled, or elected. **Delegation moves weight; it never creates it.** This
 is the anti-capture property, and it is *stronger* and *more honest* than "everyone votes equally" (some
-scopes won't): the claim is not equal exercise, it is **non-inflatable total over the personae the group
+Groups won't): the claim is not equal exercise, it is **non-inflatable total over the personae the Group
 recognizes.**
 
-> **What the protocol guarantees vs what the group judges, and why this split is the honest one.** The
-> anti-capture property has two parts that live at two layers, and conflating them (as an earlier draft
-> did, by asserting "personhood is unforgeable") is exactly the provenance/utility collapse the spec
-> exists to prevent (§2.0).
+> **What the protocol guarantees vs what the Group judges, and why this split is the honest one.** The
+> anti-capture property has two parts that live at two layers. Collapsing them into a single claim that
+> "personhood is unforgeable" would be the provenance/utility collapse the spec exists to prevent (Part 1 §2.0):
+> the protocol proves provenance, but personhood is a Group judgment, and the two must stay distinct.
 >
 > 1. *Protocol guarantee (provenance, technical, airtight):* messages from a key-lineage are provably from
 >    that lineage; governance weight is **flat per recognized persona and conserved under delegation**, never
@@ -660,42 +758,42 @@ recognizes.**
 >    guarantees by mechanism.
 >
 > 2. *Group judgment (personhood, social, contextual):* whether a recognized persona corresponds to a
->    distinct person is a **utility judgment the group makes at its own confidence**, on the same
+>    distinct person is a **utility judgment the Group makes at its own confidence**, on the same
 >    trust-to-do gradient as every other delegation. The protocol does **not** guarantee
 >    one-lineage-one-human, and **could not**: there is no fact for it to deliver (the binding has no
->    technical representation, §5.2) and no authority tier above the group from which to impose it (§3.1, §8).
->    Both impossibilities are the same §2.0 limit, seen from the delivery side and the enforcement side. So
->    the judgment does not get handed to the group; it **necessarily falls** to it. (This is distinct from a
->    group **gating its own entry** to its own standard, which is legitimate and often desirable: gating is
->    the group's recognition dial operating at the door, not the protocol enforcing a binding from above.)
+>    technical representation, §5.2) and no authority tier above the Group from which to impose it (§3.1, §8).
+>    Both impossibilities are the same Part 1 §2.0 limit, seen from the delivery side and the enforcement side. So
+>    the judgment does not get handed to the Group; it **necessarily falls** to it. (This is distinct from a
+>    Group **gating its own entry** to its own standard, which is legitimate and often desirable: gating is
+>    the Group's recognition dial operating at the door, not the protocol enforcing a binding from above.)
 >
-> So the load-bearing claim is **not** "you cannot forge personhood." It is: *given the group's recognition
+> So the load-bearing claim is **not** "you cannot forge personhood." It is: *given the Group's recognition
 > of who its personae are, weight is flat and uninflatable by resources.* The equality holds over the personae
-> the group recognizes, and the recognition is the group's own.
+> the Group recognizes, and the recognition is the Group's own.
 
 > **Sybil resistance is contextual, not global, stated honestly rather than overclaimed.** Multiplicity has
 > two cases that must not be conflated. *Across discrete systems*, one human holding many personae (one per
-> group) is the intended design, not a flaw. *Within a single group*, the intent is one persona per human;
+> Group) is the intended design, not a flaw. *Within a single Group*, the intent is one persona per human;
 > the protocol cannot enforce that binding (above), so two personae for one human is **possible**, and its
 > consequence is **degraded governance**: weight that should be one unit counts as two, so per-persona
-> equality stops corresponding to per-human equality. Whether this is tolerated is the group's call, and the
-> **strength of binding a group requires before recognizing a persona as a distinct human is proportional to
-> the group's function and goals**: a scope with access to financials sets a tighter standard than a casual
-> messaging scope, which sets a tighter one than a public-but-registered event invite. This proportionality
+> equality stops corresponding to per-human equality. Whether this is tolerated is the Group's call, and the
+> **strength of binding a Group requires before recognizing a persona as a distinct human is proportional to
+> the Group's function and goals**: a Group with access to financials sets a tighter standard than a casual
+> messaging Group, which sets a tighter one than a public-but-registered event invite. This proportionality
 > is on **recognition**, never on weight: a stronger binding requirement, not a heavier vote; once recognized,
 > weight is flat, one per persona, regardless of how strong the binding was. Sybil resistance is supplied by
-> the group's chosen personhood-confidence mechanism, not by the protocol, and it ranges across the trust
+> the Group's chosen personhood-confidence mechanism, not by the protocol, and it ranges across the trust
 > gradient:
 >
-> - **High**, a family scope where a partner scans a QR code to join: the binding of social identity to
+> - **High**, a family Group where a partner scans a QR code to join: the binding of social identity to
 >   key provenance is high-confidence, so flat-per-persona is flat-per-person in practice.
 >
-> - **Medium, and anonymous**, an activist or privacy-sensitive scope that delegates the personhood check
+> - **Medium, and anonymous**, an activist or privacy-sensitive Group that delegates the personhood check
 >   to a verifiable-credential service which enforces "one personhood per government ID" *without ever
 >   revealing the ID*: one-persona-per-person **and** real-world anonymity, simultaneously. Provenance is
 >   guaranteed (these messages came from one root key chain); real-world identity is never disclosed.
 >
-> - **Low**, an open broadcast scope where binding is loose and Sybil resistance is weak, accepted as the
+> - **Low**, an open broadcast Group where binding is loose and Sybil resistance is weak, accepted as the
 >   property of that context.
 >
 > Delegating the personhood check to a credential service is **itself a utility judgment to accept**, and
@@ -707,7 +805,7 @@ recognizes.**
 
 > **Why declining to solve global personhood is faithfulness, not a cop-out, the variety argument applied
 > to identity.** A protocol that *enforced* one-key-one-human would make legitimate **multiple
-> presentation** impossible: the same person as a parent in one scope, a pseudonymous activist in another,
+> presentation** impossible: the same person as a parent in one Group, a pseudonymous activist in another,
 > an anonymous participant in a third. That plurality is part of the social substrate, and collapsing it
 > to a single global identity would prune variety, the Ashby argument (Part 1 §2.3) applied to identity
 > itself. The Spritely Institute (Christine Lemmer-Webber, Executive Director and lead author of W3C
@@ -781,8 +879,8 @@ the revoked party's subsequent branches and **MUST NOT** claw back history contr
 
 **Revocation/add authority is a threshold dial** (k-of-n, **counted by distinct persona (by lineage),
 never by client**): default 1-of-any, up to k-of-any or role-restricted admins. A membership op is
-authorized iff it carries signatures meeting the scope's **current, replicated** policy; policy lives in
-versioned scope state and is itself changed by governance ops under the current policy. The canonical form
+authorized iff it carries signatures meeting the Group's **current, replicated** policy; policy lives in
+versioned Group state and is itself changed by governance ops under the current policy. The canonical form
 is a **co-signed op**, a self-certifying k-of-n bundle validated locally against the current epoch,
 freshness-gated (§7.4); proposal-plus-votes is an optional deliberative mode. *green-real (real k-of-n
 bundle verified over live transport: an authorized 2-of-≥2 revoke accepted, an under-threshold revoke
@@ -795,9 +893,9 @@ rejected).*
 > co-signatures from clients of the same principal count once.
 
 **The admin floor is derived from policy, anti-brick only.** A threshold `k_op` **MUST** be ≤ eligible
-signers by distinct persona (by lineage) at the epoch it is set (solo genesis ⇒ `k_op = 1`; a scope
+signers by distinct persona (by lineage) at the epoch it is set (solo genesis ⇒ `k_op = 1`; a Group
 **MAY** be born "create with 10, need 5"); raising above headcount self-bricks and is rejected. Once set,
-the scope **MUST** retain `n ≥ k_op`; a membership op whose post-state breaches the floor is **structurally
+the Group **MUST** retain `n ≥ k_op`; a membership op whose post-state breaches the floor is **structurally
 invalid** (rejected by every verifier from replicated policy alone). `k` **MUST NOT** auto-track `n`
 downward (a threshold-downgrade attack). The floor is **anti-brick only**: a legitimate quorum acting
 within policy, including self-capture, is accepted; the recourse for an out-voted minority is the §7.6
@@ -807,32 +905,34 @@ partially run (see §7.3 capped-root note and Appendix B for the coverage Drysto
 > **Capture ≠ brick is also Drystone's answer to the uncapped-root steelman.** Matrix, under adversarial
 > review, prevents room-capture by granting the creator uncapped, permanent power (an apex). Drystone's
 > design philosophy is the opposite and is the one consistent with `P-Peer-Equality`: a legitimate quorum
-> **may** capture a scope (that is permitted), what is forbidden is **bricking** it (rendering it
+> **may** capture a Group (that is permitted), what is forbidden is **bricking** it (rendering it
 > inoperable / unrecoverable), and the remedy against capture is **exit, the §7.6 fork**, not an apex
 > that prevents capture in advance. So the comparison with Matrix is not only "can a capped root match
 > their soundness" but "is exit-as-remedy-for-capture sound where apex-prevents-capture was their
-> choice." See §7.3. **[confirm before publish, MSC4289 / Matrix creator-power.]**
+> choice." See §7.3. *(MSC4289 creator-power verified against the Matrix Project Hydra disclosure, Aug
+> 2025.)*
 
-**Roles are revocable delegations, never impositions.** Every granted role (admin, moderator, a
-content-gating role) **MUST** be a revocable delegation under the same threshold
+**Group Roles are revocable delegations, never impositions.** Every granted Group Role (admin, moderator, a
+content-gating Group Role) **MUST** be a revocable delegation under the same threshold
 authority, **MUST** carry only scoped, enumerated, non-creeping authority, and **MUST NOT** be immutable,
 forced, or held by structural right. A creator holds **no** structural superuser right: at creation they
-receive a bootstrap admin role purely so a one-member scope can function, revocable like any other.
-**Anti-entrenchment ladder:** any delegated role is revocable (1) routinely under the policy threshold,
+receive a bootstrap admin Group Role purely so a one-member Group can function, revocable like any other.
+**Anti-entrenchment ladder:** any delegated Group Role is revocable (1) routinely under the policy threshold,
 (2) as an always-available backstop by unanimity of the non-holders (a ceiling on revocation difficulty,
-a group may set an easier bar, never a harder one), and (3) ultimately by the §7.6 fork. **No grant may
+a Group may set an easier bar, never a harder one), and (3) ultimately by the §7.6 fork. **No grant may
 make itself irrevocable.** *green-real (revocation mechanics); design (ladder, decided).*
 
 ### 5.8. Revocation reuses governance machinery; it protects the future, not the past
 
-A role grant is a governance fact (§7); revoking it is a new fact that supersedes the grant, resolved by
-the same total order and fold as any other governance conflict. For roles that confer read, revocation
-**MUST** rotate the scope epoch so the revoked principal cannot read content authored after the revocation
-folds in (identical to membership expulsion). Revoking a read-delegate is, formally, an expulsion-shaped
-fact.
+A Group Role grant is a governance fact (§7); revoking it is a new fact that supersedes the grant, resolved by
+the same total order and fold as any other governance conflict. For Group Roles that confer read, revocation
+**MUST** exclude the revoked principal from reading content authored after the revocation folds in (the R5
+forward-read exclusion, §7.2), which the MLS realization delivers by advancing to a new epoch whose keys the
+revoked principal does not hold (identical to membership expulsion). Revoking a read-delegate is, formally, an
+expulsion-shaped fact.
 
 This inherits an honest limit: **revocation protects the future, not the past.** A principal that held a
-read role while valid may have retained what it read; revocation stops future access, it cannot unmake what
+read Group Role while valid may have retained what it read; revocation stops future access, it cannot unmake what
 was legitimately held. The plain form, which a non-expert can hold: *you can revoke a delegate's access to
 new content at any time and it actually takes effect, but the delegate may keep copies of what it already
 saw, true of everyone anyone has ever shared anything with.* Stating it plainly is more honest than
@@ -843,93 +943,102 @@ implying otherwise.
 The availability and read/search-offload roles are clean additive permissions. **Gating** is different: it
 acts on the distribution or visibility of content, which bears on other personae's ability to exercise their
 read right, so the additive framing does not automatically dissolve the tension. The likely resolution, to
-be *specified* rather than assumed: gating acts on distribution/visibility within the scope's own governed
+be *specified* rather than assumed: gating acts on distribution/visibility within the Group's own governed
 rules, **not** on the underlying right to read what one legitimately holds; every gating action is itself a
 governed, attributable governance fact; and a gated persona's right to its own local history (including what
 it already holds) is untouched.
 
 > `ENABLING:` The precise relationship between a gating action and the read right MUST be specified, what
 > it can and cannot affect, how it relates to content already held locally, and how it is bounded by the
-> scope's rules so it cannot become a backdoor for suppressing a right under the guise of a role. This is
-> the one role that, specified carelessly, could re-introduce a rights distinction through the permission
-> layer, and therefore the one most needing an explicit forbidden clause wherever it appears in a PrincipalSet.
+> Group's rules so it cannot become a backdoor for suppressing a right under the guise of a Group Role. This is
+> the one Group Role that, specified carelessly, could re-introduce a rights distinction through the permission
+> layer, and therefore the one most needing an explicit forbidden clause wherever it appears in a Group Role Set.
 
-A content-visible gating role also weakens the system's "cannot comply" property (compellability): a
+A content-visible gating Group Role also weakens the system's "cannot comply" property (compellability): a
 principal that has seen content cannot un-see it on revocation. The default **MUST** therefore remain blind
-and any such role **MUST** be strictly per-scope opt-in, disclosed, scoped to the least-invasive rung, and
+and any such Group Role **MUST** be strictly per-Group opt-in, disclosed, scoped to the least-invasive rung, and
 accountable, and it is a policy/legal question, not only an engineering one (gates a real deployment).
 
 ### 5.9. Exitability: the backstop that makes flexibility real
 
 > `Realizes: P-Durable-Enablement`
 
-A delegated role is only meaningfully different from a captive structural dependency if the delegation can
+A delegated Group Role is only meaningfully different from a captive structural dependency if the delegation can
 be withdrawn and restructured **without loss of rights.** Therefore:
 
-Any default delegation a principal or scope adopts **MUST** be revocable and restructurable down to the
+Any default delegation a principal or Group adopts **MUST** be revocable and restructurable down to the
 rights floor (§5.3) at any time, with **no loss of rights** and **only graceful degradation of capacity**,
-never loss of function or standing. Concretely, a scope that delegated the availability and search-offload
-roles to some principal (including a cooperative anchor or single operator-principal) **MUST** be able to
-move that delegation to a different principal, split it across several, pull it into its own device groups,
-or drop it entirely, and in every case continue to function. What degrades is capacity (deep search may
-slow or need a member's own device online); never rights or the ability to communicate and govern.
+never loss of function or standing. Two different things are in play here and must be kept apart. The
+**read / search-offload Group Role** (the authority to decrypt, index, and serve, §5.4) is a governance
+grant, so like every Group Role it **MUST** be revocable under the Group's threshold authority (§5.7);
+revoking it excludes the ex-delegate from new content, realized by an epoch advance (§5.8). **Availability**, by
+contrast, is **not a Group Role at all**, it is a *resource* (§5.4): a node's blind capacity to hold and
+serve ciphertext, needing no grant because there is nothing to permit.
+principal (a cooperative anchor or single operator-principal) for these functions **MUST** be able to move
+the read Group Role to a different principal, split it, or drop it, and members **MUST** be able to shift
+their blind-availability reliance to a different node, in every case continuing to function. What degrades
+is capacity (deep search may slow or need a member's own device online); never rights or the ability to
+communicate and govern.
 
-Material reversibility is normative, not formal: (a) a helper holds only **encrypted** state and the scope
-holds the keys, so the scope **MUST** be able to re-host on or migrate to a different node (no data
-hostage); (b) the scope **MUST** be able to stand up a different store-and-forward node and reconfigure to
-use it in place of the incumbent (the node is named by scope configuration, not bound to a box); (c) the
-§7.6 re-formation fork remains the adversarial backstop. *green-real, a meer's encrypted store was
+Material reversibility is normative, not formal: (a) a helper holds only **encrypted** state and the keys
+are held by the Group's members (§5.4), never by the helper, so no helper can hold data hostage; (b) because
+whether to *use* a given meer is a per-persona decision at the client (§5.4), each member can shift its own
+durability to a different store-and-forward node by withdrawing use of the incumbent and calling another,
+with no governance round, and this per-member freedom aggregates to a Group-level property: the Group as a
+whole is never hostage to any one helper, because no member depends on it by structural necessity; (c) the
+§7.6 re-formation fork remains the adversarial backstop for the Group-governance plane, where a concern is
+Group-wide rather than one member's. *green-real, a meer's encrypted store was
 exported, imported into a different replacement meer, and a member re-homed and converged identically;
 losing a meer costs availability, never data.*
 
 **The asymmetry of expressible range** (a checkable claim, not a quality judgment): a flexible model can
 present as the rigid one, but the rigid one cannot present as the flexible one. Drystone can be configured
 to behave like a single-keeper deployment; a server-shaped system cannot be configured to behave like the
-exitable, per-role-delegated model, because its central dependency is structural rather than granted. The
+exitable, per-Group-Role-delegated model, because its central dependency is structural rather than granted. The
 design question this hands forward, and the thing to press the spec on, is whether the exit path is
 genuinely lossless-in-rights *in the default case* and not only at the unused margins (§5.7 admin floor,
 §7.4 freshness, the no-helper-path obligation of `P-Durable-Enablement`).
 
-### 5.10. The group as a principal: communal ownership, composition, and acting on a group's behalf
+### 5.10. The Group as a principal: communal ownership, composition, and acting on a Group's behalf
 
 > `Realizes: P-Peer-Equality, P-Local-Truth, P-Durable-Enablement`
 >
 > Cross-references: §5.2 (kinds of principal), §5.5 (roles and capabilities), §7.1 (data model), §7.6
-> (fork), Part 1 §2.3 (recursive principal-is-a-group), Appendix C (Meadowcap communal/owned).
+> (fork), Part 1 §2.3 (recursive principal-is-a-Group), Appendix C (Meadowcap communal/owned).
 
-A **group is a principal** (§5.2): a collective that can hold a role, own artifacts, be granted to, and be
+A **Group is a principal** (§5.2): a collective that can hold a Group Role, own artifacts, be granted to, and be
 referred to, a composable unit, not only a key-agreement context. This subsection fixes how that works,
-because it answers a question a single-layer model cannot: **when a group forks, who owns the shared
+because it answers a question a single-layer model cannot: **when a Group forks, who owns the shared
 artifacts?**
 
-**The group-principal lives above MLS, in the artifacts, not in the key layer.** The MLS group is the
+**The Group-principal lives above MLS, in the artifacts, not in the key layer.** The MLS group is the
 **communication-and-safety substrate** (a set of clients sharing a key, with forward secrecy and
-post-compromise security). The **group-principal** is an **application-layer identity**, a Meadowcap
+post-compromise security). The **Group-principal** is an **application-layer identity**, a Meadowcap
 **communal namespace** (§7.1); that *corresponds to* an MLS group for communication but is **not defined
 by it**. They share a membership set; they are different objects at different layers. MLS answers "who
-shares the key and can read"; the group-principal answers "who owns this, whom may this group grant to,
-what does this group's authority cover." This separation is deliberate and is the only one consistent with
-MLS's own design, which provides no notion of a group acting as a grantor of access (§10.2).
+shares the key and can read"; the Group-principal answers "who owns this, whom may this Group grant to,
+what does this Group's authority cover." This separation is deliberate and is the only one consistent with
+MLS's own design, which provides no notion of a Group acting as a grantor of access (§10.2).
 
 **Authority is communal, not apex, which is what lets it survive a fork.** Meadowcap offers two models:
 **communal** namespaces, where authority comes from owning a subspace key and all members hold equal
 authority with no one holding the whole, and **owned** namespaces, where a single keyholder has total
-top-down control. Drystone's group-principal is **communal by default**, because communal authority *is*
+top-down control. Drystone's Group-principal is **communal by default**, because communal authority *is*
 `P-Peer-Equality` expressed at the data layer: horizontal, no apex, each member writing into their own
-subspace. The **owned** model is the apex Drystone rejects for group governance, though it remains
+subspace. The **owned** model is the apex Drystone rejects for Group governance, though it remains
 legitimate for the narrow case of a single author owning a sub-namespace of content they alone created
-(the boundary between governing-the-group and owning-your-own-data: group governance is communal, while a
+(the boundary between governing-the-Group and owning-your-own-data: Group governance is communal, while a
 single author's own sub-content may be owned, §5.3).
 
 **Worked mechanism, the forked artifact.** Three personae collaborate on a document by automatic merge
 (a convergent, monotonic data structure, §7.1). They disagree in a way that is a genuine standing
-contradiction, and the scope forks (§7.6). Who owns the document?
+contradiction, and the Group forks (§7.6). Who owns the document?
 
-- **Both layers own it, and that is why it survives.** The artifact lives in the group's **communal
-  namespace**: the group-principal owns it *as a collective*, and each contributing persona owns its own
+- **Both layers own it, and that is why it survives.** The artifact lives in the Group's **communal
+  namespace**: the Group-principal owns it *as a collective*, and each contributing persona owns its own
   **subspace** of contributions *as an individual*. Ownership was never solely at either layer.
 
-- **At the fork, both descendant groups carry the whole artifact**: exactly as an open-source fork
+- **At the fork, both descendant Groups carry the whole artifact**: exactly as an open-source fork
   carries the full repository, not a fraction. Because communal authority was distributed across the
   members all along, the fork does not orphan the artifact (there was no center to sever) and does not
   shatter it into private fragments (the communal namespace is the shared object). Each fork continues
@@ -938,45 +1047,47 @@ contradiction, and the scope forks (§7.6). Who owns the document?
 - This is the data-layer face of *fork-not-verdict* (§7.6): the system does not adjudicate who "keeps"
   the document. Both do. The fork is the dignified exit, and the artifact comes along on both sides.
 
-**Composition, a group-principal can be a member of another group-principal.** Because a group is a
-principal, the structure nests: a **user is a group of clients**, a **community is a group of users (persona
-or group principals)**, a **federation is a group of communities**. Each layer is a communal namespace
+**Composition, a Group-principal can be a member of another Group-principal.** Because a Group is a
+principal, the structure nests: a **persona's own devices are a Group of clients**, a **community is a group
+of people** (whose personae, or whose sub-Groups acting as principals, are the members), a **federation is a
+grouping of communities**. (The case follows §5.0 and Part 1 §2.3: the social body is lowercase group, the
+same body acting as an in-system principal is the capital-G Group.) Each layer is a communal namespace
 with a referable identity, each ownable and grantable, each forkable with its artifacts intact. A
-group-principal can therefore be granted a capability (§5.5), hold a role, or be referred to as a unit,
-which is what makes "stand on a group as a composable identity" concrete rather than aspirational.
+Group-principal can therefore be granted a capability (§5.5), hold a Group Role, or be referred to as a unit,
+which is what makes "stand on a Group as a composable identity" concrete rather than aspirational.
 
-**Acting on a group's behalf is itself a governed role.** A group cannot sign; some principal must act for
-it. The authority to **act-for-the-group**, to issue a capability, delegate, or make a grant in the
-group's name, is a **role** (§5.5) granted by member consent, scoped, and **revocable** under the same
-threshold authority as any other role (§5.7), with the §7.6 fork as the ultimate backstop. This is the
-same anti-entrenchment discipline as admin, one layer up: no principal holds the act-for-the-group role by
+**Acting on a Group's behalf is itself a governed Group Role.** A Group cannot sign; some principal must act for
+it. The authority to **act-for-the-Group**, to issue a capability, delegate, or make a grant in the
+Group's name, is a **Group Role** (§5.5) granted by member consent, scoped, and **revocable** under the same
+threshold authority as any other Group Role (§5.7), with the §7.6 fork as the ultimate backstop. This is the
+same anti-entrenchment discipline as admin, one layer up: no principal holds the act-for-the-Group Group Role by
 structural right, and no grant of it may make itself irrevocable.
 
 **The recursion bottoms out, and that is what keeps weight honest.** Composition could otherwise be a
-laundering path for governance weight, a principal pooling many sub-groups to manufacture standing. It
+laundering path for governance weight, a principal pooling many sub-Groups to manufacture standing. It
 cannot, because **weight (§5.6) is anchored at the leaves: flat, one per distinct persona, never
-minted, only delegated.** However deep the composition, the total weight in any scope reduces to the count
-of distinct personae (by lineage) at the bottom. A group-principal's weight in a parent scope is
+minted, only delegated.** However deep the composition, the total weight in any Group reduces to the count
+of distinct personae (by lineage) at the bottom. A Group-principal's weight in a parent Group is
 *defined by its members' delegated weight*, conserved through every layer, never inflated by the act of
-composing. So the group-as-principal model gives Drystone composable collective identity **without**
+composing. So the Group-as-principal model gives Drystone composable collective identity **without**
 opening the door composition would otherwise open, because the personhood-anchored leaf is the floor of
 the recursion.
 
 > **Two seams left open here, stated rather than smoothed.** *(1)* The precise **identity construction for
-> a group-principal**, the communal namespace key and how it is established and rotated as membership
-> changes, is designed-not-frozen (the §5.2 open seam, now given a concrete shape: a communal namespace
-> rather than a derived central credential). The motivation is concrete: when forking and merging are cheap
-> but a group is collaborating on a shared asset, honoring a fork requires the asset to be owned jointly by
-> the clients (and so the personae) *and* the group, so both forks carry the whole thing like an open-source
-> repository fork. A Meadowcap **communal namespace** fits that model well, which is why the group-principal
-> is shaped as one. What is unworked is the **key rotation scheme** (how the group and its members jointly
+> a Group-principal**, the communal namespace key and how it is established and rotated as membership
+> changes, is designed-not-frozen (the §5.2 open seam): the shape is a communal namespace rather than a
+> derived central credential. The motivation is concrete: when forking and merging are cheap
+> but a Group is collaborating on a shared asset, honoring a fork requires the asset to be owned jointly by
+> the clients (and so the personae) *and* the Group, so both forks carry the whole thing like an open-source
+> repository fork. A Meadowcap **communal namespace** fits that model well, which is why the Group-principal
+> is shaped as one. What is unworked is the **key rotation scheme** (how the Group and its members jointly
 > own the namespace and how the key rotates under churn) and whether the communal namespace is **primary**
-> (the group-principal *is* a communal namespace at all times) or **secondary** (established only at a fork
+> (the Group-principal *is* a communal namespace at all times) or **secondary** (established only at a fork
 > or merge, when joint ownership has to be made explicit). The decisive next step is to **dig into Meadowcap
-> and check its alignment with MLS**, whether group-associated assets can fork and merge sanely across the
+> and check its alignment with MLS**, whether Group-associated assets can fork and merge sanely across the
 > two layers, before committing the construction. This is a Drystone construction question, not a gap in
-> Meadowcap: Meadowcap's communal-namespace semantics are confirmed (below). *(2)* **Cross-group** grants
-> and references (one group-principal granting to or composing another across trust boundaries) are sketched
+> Meadowcap: Meadowcap's communal-namespace semantics are confirmed (below). *(2)* **Cross-Group** grants
+> and references (one Group-principal granting to or composing another across trust boundaries) are sketched
 > here as the composition model but their wire encoding and the valuation-vs-composition edge (Part 1 §2.3)
 > are `ENABLING`. Both carried to Appendix B.
 >
@@ -992,27 +1103,31 @@ the recursion.
 
 ---
 
-## 6. Transport, Identity Planes, and the Encryption Stack
+## 6. Transport and Delivery: the Three Planes, Identity, and the Encryption Stack
 
 > `Realizes: P-Local-Truth, P-Knowable-Truth, P-Peer-Equality, P-Durable-Enablement`
 >
 > Cross-references: §3.1 (where adjudication lives), §4.5.1 (per-client membership), §5.4 (the meer and the
 > relay, two distinct blind roles), §5.9 (the meer is optional; exitability), §7.4 (freshness and the
-> returning-member catch-up), §8 (the relay/meer as blind forwarders), §10.2 (the MLS requirement), §10.3
-> (the transport/overlay requirement). External transport facts (iroh core / QUIC) are verified against
-> the released iroh 1.0 primaries this round; the FACTCHECK SoT remains the internal cross-check of record.
+> returning-member catch-up), §7.5 (attributable acceptance), §8 (the relay/meer as blind forwarders),
+> §10.2 (the MLS requirement), §10.3 (the transport/overlay requirement). External transport facts (iroh
+> core / QUIC) are verified against the released iroh 1.0 primaries this round.
 >
-> **Requirement vs realization.** This section specifies the iroh + MLS reference at the wire. The abstract
-> transport requirement (T1–T7) and the abstract group-key requirement (K1–K8), with the compliance bars a
-> non-iroh or non-MLS candidate must meet, are consolidated in §10.3 and §10.2. The transport layer is the
-> one place *peer-to-peer* is the precise word (§3.1, naming note).
->
-> **Figures.** Fig. 1 (`drystone-exposure.svg`) is the exposure map: who sees what, by layer. Fig. 2
-> (`drystone-catchup-flow.svg`) is the returning-member governance catch-up, the §7.4 flow at the wire.
+> **Requirement vs realization.** This section reasons about the *shape, handling, and requirements* of
+> transport and delivery independently of the named protocols that currently realize them, then names the
+> realization (iroh, MLS, HyParView/PlumTree) with enough specificity that a reader can tell what is
+> load-bearing from what is incidental. The abstract transport requirement (T1–T7) and the abstract
+> Group-key requirement (K1–K8), with the compliance bars a non-iroh or non-MLS candidate must meet, are
+> consolidated in §10.3 and §10.2. A protocol meeting the same requirements is swappable for the named one.
+> The clean demonstrative of why this separation matters, carried through the section: MLS's own spec
+> includes an *ordering* function at its Delivery Service, and Drystone references MLS heavily and
+> appropriately, yet **declines** that function, because ordering is already carried inside the sealed
+> messages (§6.6, §7.4). "Present in the realization" is not "required by the model," and the DS ordering
+> role is the standing example.
 >
 > **Verification legend.** *Verified*, checked against the cited primary this round; **[confirm]**,
 > load-bearing and version-dependent or not yet pulled from the cited primary this round. **iroh reached
-> 1.0 (June 2026), and the version split is now itself a differentiator this section relies on.** iroh core
+> 1.0 (June 2026), and the version split is itself a differentiator this section relies on.** iroh core
 > (the `Endpoint` / `Connection` / `Router` / ALPN surface, the QUIC + TLS 1.3 transport, the relay,
 > key-based addressing) is wire-and-API-stable under the 1.0 guarantee, so the transport-plane claims here
 > are pinned, not provisional. The overlay and discovery layers Drystone uses are **separately-versioned
@@ -1021,27 +1136,65 @@ the recursion.
 > specifics are therefore still **[confirm]** against each crate's pinned version even though iroh core is
 > stable. Each flag below says which layer it belongs to.
 
-This section specifies how Drystone peers find each other, how messages move between them, and what each
-cryptographic layer does and does not protect. It is written against the two substrates §10 names: **MLS**
-(RFC 9420 / RFC 9750) for group key agreement and message protection, and **iroh** for transport,
-discovery, and the gossip overlay. The organizing claim is that **identity and encryption each operate at
-two distinct planes, the peer and the group, and conflating them is the failure mode this section exists
-to prevent.** This is the same composition-vs-valuation discipline of Part 1 §2.3 carried to the wire:
-keeping the planes separate is what stops trust from leaking into key access.
+This section specifies how Drystone peers find each other, how sealed messages move between them, and what
+each layer does and does not protect. It is built against the two substrates §10 names: **MLS** (RFC 9420 /
+RFC 9750) for Group key agreement and message protection, and **iroh** for transport, discovery, and the
+gossip overlay.
+
+The organizing idea, and the spine of this section, is that **delivery is not one choice but three
+independent questions**, and treating them separately is what lets mechanisms a flatter model would cast as
+rivals be *combined*, each doing the job it is good at:
+
+- **Carriage (Plane C):** by what path does a sealed message travel from author toward recipient? A direct
+  dial, the gossip overlay, or a relay. (§6.5.)
+
+- **Durability (Plane D):** when the recipient is not reachable right now, where do the sealed bytes persist
+  so they can be pulled later? The participants themselves, a store-and-forward node, or fellow members.
+  (§6.6.)
+
+- **Presence (Plane P):** who learns that a sealed message for a given recipient exists, so they can prompt
+  that recipient to fetch it? Nobody (the recipient polls), a carrier, a holder, or a push service. (§6.7.)
+
+A delivery arrangement is then a *pairing*: one carriage path, one durability source, one presence source.
+The planes are **independent axes** paired freely (any carriage with any durability with any presence),
+**except where one mechanism serves two planes by construction**, which the text flags at each occurrence.
+Within a plane the sources are **non-exclusive**: more than one can be active at once, racing, because a
+sealed MLS message is byte-identical whichever path carried it and duplicates deduplicate on their content
+hash (§6.6.4). When Bob is briefly offline, the swarm may carry a message live (carriage) while a meer holds
+the durable copy (durability) and a wake nudges his phone when he is reachable (presence): three answers to
+three questions, not one coupled decision.
+
+Keeping the planes separate lets the spec state each plane's real character without contradiction: the
+gossip swarm is a *carriage* path that provides no durability, and separating carriage from durability is
+what lets that be said plainly (the swarm carries; it does not persist), instead of the plane's nature being
+obscured by filing it under durability. Where points *are* fused by construction, the discipline is to say
+so: **D-self is also C-direct** (participants who hold the buffer also deliver it, one act on two planes),
+and **the meer is one node on three planes** (it persists as D-meer, is carry-fetched from, and can poke as
+P-meer); **C-swarm, by contrast, is fused with nothing durable**. Naming the fusions keeps "these two planes
+happen to be one mechanism here" distinct from "these are independent choices."
+
+The section is ordered so the substrate precedes what it produces. **Identity (§6.1) and the encryption
+stack (§6.2) come first, and the Delivery Fabric (§6.3) and the observer picture (§6.4) follow as their
+consequences**: a carrier is blind *because* content is sealed to the Group's epoch, and observers see so
+little *because* identity is split into two planes and the payload interior is sealed. **Discovery** (§6.9),
+resolving a peer key to a location, is a distinct concern given its own section after the planes; it is the
+one part of this section the spec treats more lightly than it will ultimately need, and §6.9 says so.
 
 ### 6.1. Two planes of identity
 
 Drystone has two identity planes, and they answer two different questions. Keeping them separate is not
-pedantry; it is the mechanism realization of the composition-vs-valuation distinction (Part 1 §2.3).
+pedantry; it is the mechanism realization of the composition-vs-valuation distinction (Part 1 §2.3), and it
+is the same seam the whole delivery design rests on: the plane that authenticates a *channel* is not the
+plane that authorizes an *actor*.
 
 #### 6.1.1. Peer-level identity (the transport plane)
 
 A peer is addressed by a long-lived public key, an iroh **`EndpointId`** (the public half of an Ed25519
 keypair). This key is the peer's network identity: you dial a key, not an address, and iroh resolves the
-key to a current network location on demand (§6.4). *(Verified against iroh 1.0: each endpoint holds an
-Ed25519 keypair whose public half is the `EndpointId`, and that key is also the endpoint's TLS identity, so
-it cannot be impersonated. `EndpointId` is the 1.0 term; pre-1.0 iroh called it `NodeId`, and a reader of
-older material will see the old name.)*
+key to a current network location on demand (discovery, §6.9). *(Verified against iroh 1.0: each endpoint
+holds an Ed25519 keypair whose public half is the `EndpointId`, and that key is also the endpoint's TLS
+identity, so it cannot be impersonated. `EndpointId` is the iroh 1.0 term; iroh's own pre-1.0 material uses
+`NodeId` for the same thing.)*
 
 What this plane establishes is **provenance of the channel**: when a connection opens to an `EndpointId`,
 the transport's TLS 1.3 handshake authenticates that the peer on the other end holds the private key for
@@ -1055,44 +1208,48 @@ The transport plane carries that binding forward once a human has made it; it ne
 
 #### 6.1.2. Group-level identity (the MLS plane)
 
-Membership in a governed scope is a separate fact from peer reachability. In MLS, a member is a **leaf** in
+Membership in a governed Group is a separate fact from peer reachability. In MLS, a member is a **leaf** in
 the group's ratchet tree, holding the group's continuously-rotated key material. RFC 9420 §2 defines a
 member as a client included in the shared state of a group, with access to the group's secrets, and an
 epoch as the state of a group in which a specific set of authenticated clients hold shared cryptographic
 state. *(Verified, RFC 9420 §2 terminology.)* A peer's `EndpointId` says it can be *reached*; its MLS leaf
-says it is a *member of this group at this epoch*. This is the wire form of the §4.5.1 model: each
+says it is a *member of this Group at this epoch*. This is the wire form of the §4.5.1 model: each
 **client** is its own MLS member (one leaf, one signature key, one credential), and a principal's clients
 are folded to one persona by lineage (§4.5), never by sharing a key.
 
 These planes are deliberately decoupled. A single principal may hold several `EndpointId`s (a phone, a
 laptop, the device-pool composition edge of Part 1 §2.3) that together act through several clients in one
-scope, and the same person may be a member of many scopes under different presentations (the
-multiple-presentation argument of Part 1 §2.3 / §5.6). Peer identity is per-device-key; group identity is
+Group, and the same person may be a member of many Groups under different presentations (the
+multiple-presentation argument of Part 1 §2.3 / §5.6). Peer identity is per-device-key; Group identity is
 per-membership. The recursion of Part 1 §2.3 (device → user → community) lives here: composition at the
-MLS plane (shared group key) is distinct from valuation across planes (one group weighting another's
+MLS plane (shared Group key) is distinct from valuation across planes (one Group weighting another's
 assertions with no shared key).
 
-> **The seam, stated plainly.** Peer identity authenticates a *channel*; group identity authorizes an
-> *actor in a scope*. A correctly-authenticated channel from a peer who is not a member of scope S grants
+> **The seam, stated plainly.** Peer identity authenticates a *channel*; Group identity authorizes an
+> *actor in a Group*. A correctly-authenticated channel from a peer who is not a member of Group S grants
 > nothing in S. A member of S whose channel cannot currently be authenticated is still a member; you simply
 > cannot talk to them right now. **Reachability and membership fail independently**, and the design **MUST
 > NOT** treat "I have a verified connection" as "this peer may act here." This is the §4.4 separation
-> (integrity-and-ordering vs authorship-and-standing) seen from the transport side.
+> (integrity-and-ordering vs authorship-and-standing) seen from the transport side, and it is why the
+> Delivery Fabric (§6.3) can be a blind carrying commons: carrying is a channel fact, reading is a
+> membership fact, and the two never collapse into each other.
 >
 > The reference transport reinforces the seam by construction: in iroh the remote `EndpointId` is known
 > only *after* the mutual-TLS handshake completes, so a peer is admitted to the channel before any
-> scope-membership question is asked, and the membership check is necessarily a *later, application-layer*
+> Group-membership question is asked, and the membership check is necessarily a *later, application-layer*
 > step. There is no point at which "channel authenticated" and "may act in S" are the same event. *(Verified
 > against iroh 1.0: a `Connection` can only be constructed after successful handshake and authentication,
 > and `Connection::remote_id()` is infallible precisely because the connection it is called on is already
-> authenticated; the application then decides separately whether that identity may act in the scope. This is
+> authenticated; the application then decides separately whether that identity may act in the Group. This is
 > stable 1.0 core API, not a provisional detail.)*
 
 ### 6.2. The encryption stack: two layers, different jobs
 
 Calling this "double encryption" is close but imprecise. There are two encryption layers, but they are not
 redundant wrappings of one secret; they protect **different things**, and the security argument depends on
-knowing which protects what.
+knowing which protects what. This is the substrate the rest of the section is an outcome of: it is because
+Layer B seals content to the Group's epoch that the Delivery Fabric (§6.3) can carry blind and the observer
+exposure (§6.4) stays narrow.
 
 RFC 9750 states the division of labor directly, and it is sharper than "the transport adds security":
 *the security guarantees of MLS do not depend on the transport*, MLS is designed to hold even against a
@@ -1118,9 +1275,9 @@ timing and sizes of what you deposit or drain), though never Layer B content. An
 **not** terminate the peer-to-peer QUIC/TLS session; it routes encrypted packets by `EndpointId` and
 cannot decode them, so it sees the `EndpointId`-to-`EndpointId` envelope and timing but not even the
 Layer A record contents. Either way, the point holds: transport encryption is hop-by-hop, so its metadata
-protection is against a *network observer*, not against the intermediary in the path. This is exactly why
-transport encryption alone is insufficient for a center-free design where messages pass through other
-peers, and exactly why Layer B is not optional.
+protection is against a *network observer*, not against the intermediary in the path (§6.4 draws the full
+by-layer picture). This is exactly why transport encryption alone is insufficient for a center-free design
+where messages pass through other peers, and exactly why Layer B is not optional.
 
 RFC 9750's own recommendation names this layer: use transports providing reliability and metadata
 confidentiality, such as TLS or QUIC, for carrying MLS messages. *(Verified, RFC 9750 §8 recommendation,
@@ -1129,25 +1286,25 @@ construction.
 
 #### 6.2.2. Layer B, message encryption (MLS PrivateMessage)
 
-**Scope:** the *content*, end-to-end across the whole group, independent of how many hops or relays it
+**Scope:** the *content*, end-to-end across the whole Group, independent of how many hops or relays it
 traverses.
 
 **Protects:** confidentiality, integrity, and authenticity of the application payload, and (when
-configured) the handshake, to the group's current epoch. RFC 9420 §2 defines a `PrivateMessage` as signed,
+configured) the handshake, to the Group's current epoch. RFC 9420 §2 defines a `PrivateMessage` as signed,
 authenticated as coming from a member in a particular epoch, and encrypted so that it is confidential to
-the members of the group in that epoch; an application message is a `PrivateMessage` carrying application
+the members of the Group in that epoch; an application message is a `PrivateMessage` carrying application
 data. *(Verified, RFC 9420 §2 terminology.)* A `PrivateMessage` is AEAD-sealed under per-sender,
 per-message keys derived from the ratchet. Anyone who is not a member at that epoch, including every relay,
 meer, and gossip-forwarding non-member, sees ciphertext only.
 
 **Provides what transport cannot:** end-to-end protection that survives passing through untrusted
-intermediaries. This is the layer that makes the blind-relay (§6.5.2) and blind-meer (§6.5.3) roles safe.
+intermediaries. This is the layer that makes the blind-relay (§6.5.2) and blind-meer (§6.6.2) roles safe.
 A meer holds `PrivateMessage` bytes it cannot read precisely because Layer B sealed them before they ever
 reached Layer A.
 
 **Provides, uniquely:** forward secrecy and post-compromise security across epochs (§10.2 K1, K2), because
-MLS actively deletes and replaces keying material as the group advances. Transport encryption gives
-session forward secrecy; MLS gives *group-history* forward secrecy that survives membership changes.
+MLS actively deletes and replaces keying material as the Group advances. Transport encryption gives
+session forward secrecy; MLS gives *Group-history* forward secrecy that survives membership changes.
 
 #### 6.2.3. Why both, and what neither gives
 
@@ -1163,40 +1320,45 @@ The layers compose because they cover complementary gaps:
   and shape* of a given link's traffic secret from a network observer on that link. Content secrecy is
   end-to-end; metadata secrecy is hop-by-hop.
 
+The by-layer observer picture (who sees what, at the overlay, iroh, and IP layers) is drawn in §6.4; the
+two blockquotes below are the complementary MLS-specific residue, what the *seal itself* does and does not
+conceal regardless of transport.
+
 > **The honest limits, neither layer defeats traffic analysis, and metadata is only hop-private.** Three
 > cautions the design carries rather than papers over.
 >
 > *First, MLS minimizes but does not eliminate metadata.* RFC 9420 §16.4 lists fields it does not protect:
 > the unencrypted header fields of a `PrivateMessage`, the lengths of encrypted messages, anything sent as
 > a `PublicMessage`, and the `KeyPackage` / `GroupInfo` / `Welcome` distribution. From these a party can
-> infer the group ID, the current epoch and the frequency of epoch changes, message frequency within an
-> epoch, group extensions, and membership. §16.4.1 is explicit that MLS provides no mechanism to protect
-> the group ID and epoch from the Delivery Service, so those and the change frequencies are not protected
+> infer the Group ID, the current epoch and the frequency of epoch changes, message frequency within an
+> epoch, Group extensions, and membership. §16.4.1 is explicit that MLS provides no mechanism to protect
+> the Group ID and epoch from the Delivery Service, so those and the change frequencies are not protected
 > against DS inspection, though any modification to them causes decryption failure. *(Verified, RFC 9420
 > §16.4 / §16.4.1.)* The named adversary is the DS and a party observing the unprotected header fields, not
 > a generic observer of the ciphertext.
 >
 > Note what is **not** exposed: the per-sender `generation` counter rides inside `SenderData`, which is
 > AEAD-encrypted (RFC 9420 §6.3.2), and RFC 9420 §16.3's purpose is precisely to conceal which member sent
-> a message. So sender identity within the group is protected in the framing, and there is no RFC-sourced
+> a message. So sender identity within the Group is protected in the framing, and there is no RFC-sourced
 > claim that an outside observer can detect a missed message from a counter gap. *(Verified, RFC 9420
-> §6.3.2 and §16.3. An earlier Drystone draft asserted the opposite, that a `PrivateMessage` exposes the
-> generation counter and a counter gap reveals a missed message to an observer; that claim was unsourced
-> and is removed.)*
+> §6.3.2 and §16.3.)*
 >
 > *Second, transport metadata privacy is hop-by-hop, not end-to-end.* A relay carrying the fallback path,
 > or a meer you dial directly, sits *inside* Layer A and sees the contact metadata for the traffic it
 > handles. It still cannot read content (Layer B), but "metadata-private" means private from the *network*,
-> not from the *intermediary you handed the bytes to*. This is the leak drawn in Fig. 1, and it is
-> inherent, not a defect to fix.
+> not from the *intermediary you handed the bytes to*. This is inherent to hop-by-hop encryption, and it is the
+> §6.4 relay/meer exposure seen from the encryption side.
 >
 > *Third, neither layer conceals packet timing, sizes, rate, and bursts from a determined traffic-analysis
 > adversary.* TLS 1.3 provides a length-concealment *mechanism* (record padding) but no guarantee against
-> traffic analysis. **[confirm, RFC 8446 padding mechanism; corroboration arXiv:2406.15686.]** For the
+> traffic analysis. *(Verified this revision: RFC 8446 §5.4 states TLS records may be padded to obscure
+lengths and improve protection against traffic-analysis techniques but does not hide transmitted data
+length; the traffic-analysis residue is corroborated by arXiv:2406.15686 §6.2, which restates exactly this
+RFC 8446 limitation.)* For the
 > high-threat dials of Part 1 §2.3 (activist, journalist), this is the residue that needs additional
 > measures (cover traffic, mix routing) outside the scope of this section.
 
-> **Membership inference, and the mitigation the RFC names.** Of the metadata exposures, group membership
+> **Membership inference, and the mitigation the RFC names.** Of the metadata exposures, Group membership
 > is the most consequential for the high-threat dial, and RFC 9420 §16.4.3 is precise about it: membership
 > is represented directly by the ratchet tree, so exposing the tree leaks membership; `Add` / `Remove`
 > proposals sent as `PublicMessage` leak membership changes, and a party seeing all changes can reconstruct
@@ -1208,264 +1370,771 @@ The layers compose because they cover complementary gaps:
 > to keep the `LeafNode` minimally identifying, a deployment choice the spec sanctions, not a gap. (This is
 > the same client-correlation cost §10.2 logs against K5, named there as an accepted tradeoff.)
 
-### 6.3. Connection establishment, routing, and interaction tiers
+### 6.3. Two populations: the Delivery Fabric and the Group
 
-The transport is **iroh**: encrypted QUIC with relay fallback for NAT'd peers, routed by `EndpointId`.
-Scope membership maps to a gossip **topic** (§4.2), carried over **iroh-gossip** (§6.6). A relay forwards
-opaque frames and **MUST NOT** be required to read content; it routes by endpoint, not by topic.
-*green-real, NAT path via relay; the relay sees only ciphertext plus routing metadata.* iroh attempts a
-direct hole-punched QUIC path first and falls back to a stateless encrypted relay only when that fails; in
-iroh's own production figures the direct path succeeds for the large majority of connections and carries
-the bulk of data volume, so the relay is the exception path, not the common one. *(Verified against iroh
-1.0: direct-first with relay fallback, and the relay is stateless and content-blind. The exact
-success-rate percentages are iroh's reported production numbers, not a Drystone guarantee, and are cited as
-corroboration only.)*
+With sealing established (§6.2), the first outcome can be stated: a separation orthogonal to the three
+planes organizes the rest of this section, and it is *made possible* by the seal. **The set of nodes that
+carry sealed messages is independent from, and can be larger than, the set entitled to read them.**
+
+- The **Delivery Fabric (DF)** is the *carrying* population: a blind, content-agnostic overlay (gossip,
+  direct links, relays) that moves sealed messages. It can be larger than any one Group and can overlap
+  many Groups, a shared carrying commons. A node on the fabric sees ciphertext and routing metadata at
+  most, never content, and it sees that little precisely because Layer B sealed the payload before it
+  entered the fabric. This is where a non-member's devices can sit: nodes that carry, holding no key.
+
+- The **entitlement population** is the **Group** (§5): who holds the leaf keys to read, and who may be
+  asked to reconcile history. **Membership, not position on the fabric, is what authorizes reading and
+  reconciliation.**
+
+The Delivery Fabric is the concept the earlier sections point to when a helper is said to "sit in the
+Group's scope but not in the Group" (§5.4). Stated precisely now that the fabric has a name: a Group's
+**scope** (§5.4) is its *exposure envelope measured over the Delivery Fabric*, the whole reach of routing
+and metadata across the carrying population, of which the gossip topic is one large contributor and each
+helper in the path (relay, meer, push-notify node) is another (§4.2). The fabric is the substrate; the
+scope is how much of that substrate a given Group's sealed traffic touches. This is also why a single meer
+or relay can sit in the scope of several Groups at once: its position is a fact about the shared carrying
+fabric, not a grant from any one Group (§5.4, and the fabric-level-fact vs per-persona-use distinction
+there).
+
+This split lets the carrying network scale for robustness without ever widening who can read. A larger
+fabric means more paths, more redundancy, better reach to a hard-to-reach recipient, and none of those
+extra carriers gains any ability to read, because reading is gated by holding the Group leaf key, not by
+fabric position. A non-member node can relay for a Group all day and learn nothing, because it holds no
+leaf key for that Group.
+
+The **sealed message** is the single object that crosses between the two populations, and it does three
+jobs at once: it is **payload** for those entitled to read it, **delivery** for its recipient, and
+**gap-definition** for an entitled holder who reads it, because inside the seal it carries its author's
+signed sequence index (§6.8, §7.5). One artifact, three jobs. This is why the design needs no separate
+"a message exists" announcement channel: the message's own arrival is the announcement, and its sealed
+index, read by members, is the record of what should exist. (The correctness reason a *separate* announce
+channel would be worse, not merely redundant, is the time-of-check-to-time-of-use argument in §6.7 under
+P-gossip.)
+
+This decoupling is not new: Hyperledger Fabric ships the same shape (membership-scoped channels riding a
+larger gossip overlay), and the epidemic-dissemination lineage goes back to Demers et al. 1987. What
+Drystone does differently is keep it center-free in ordering and governance, and make entitlement
+cryptographic rather than a routing policy. (Appendix C / the provenance companion traces the full lineage
+and is explicit about where the novelty is and is not.)
+
+### 6.4. What observers can see (the metadata floor)
+
+The second outcome of the substrate: because content is sealed (§6.2) and identity is split into two planes
+(§6.1), the routing envelope and the sealed interior are different objects, and the difference bounds the
+entire metadata exposure. For the fabric to carry a message to a Group's subscribers, the **topic
+identifier must be readable**. This is not a Drystone concession; it is the irreducible floor of *any*
+routed delivery system: a flat server reads recipient addresses, a federated server routes by domain, a
+broadcast overlay reads a topic. You cannot route to a destination you cannot name. Drystone exposes the
+*minimum* routable selector (a topic identifier) and seals everything else; the only way to expose less is
+to route every message to everyone, which general messaging does not ship.
+
+The **author identity and the author-signed sequence index are sealed inside the payload**, readable only
+by members after decryption. This ties two claims together: because the index is sealed, a member reads it
+to detect gaps (§6.8, §7.5), and a blind carrier, including a meer, cannot read it to order or attribute
+the blobs it holds (§6.6.2). "The meer cannot order" and "a carrier cannot infer per-author gaps" are one
+consequence of one decision, the index lives inside the seal.
+
+The adversarial picture is best drawn **by observer**, because observers sit at different layers, see
+different things, and a single attacker rarely occupies more than one:
+
+- A **swarm member** observes at the **overlay layer**: a subscribed node forwarding along the broadcast
+  tree, seeing the traffic through *its* part of that tree, the topic identifier and the sealed blobs on it.
+  An epidemic overlay gives no node the global roster or flow, so this is a *partial, local* picture: the
+  shape of activity in its neighborhood (volume, timing, sizes, distinct-blob counts via the content-hash
+  dedup key, §6.6.4). It knows *which Group* but sees only its slice, and it is content-blind (sealed) and
+  attribution-blind (author and index sealed).
+
+- A **relay** observes at the **iroh layer**, as a handoff-and-tunneling helper endpoints deliberately use
+  to hole-punch or to carry traffic when no direct path exists. iroh's relay forwards datagrams addressed to
+  a destination EndpointId, so it can see that one EndpointId is talking to another and how many bytes pass,
+  but, by iroh's own account, only until the two endpoints establish a direct connection, and a direct
+  hole-punch succeeds roughly 90% of the time (§6.5.2). So the relay sees a graph of **durable EndpointId
+  pairs, but transiently**: it drops out once a direct connection forms, leaving only the pre-hole-punch
+  window and the residual fraction of pairs that never go direct, and even then it sees the *pair and byte
+  count*, never the topic (sealed in QUIC) and never the content (MLS-sealed inside that). The relay is a
+  chosen helper, not a network position. *(Verified against iroh 1.0 / crate docs.)*
+
+- A **gateway** observes at the **IP layer, below iroh**, as a topological chokepoint packets traverse
+  because of where it sits (a NAT, a mesh uplink, an ISP egress). It sees encrypted QUIC packets between
+  **IP addresses** and nothing above that: not the EndpointId (an iroh-layer identity inside the connection,
+  not an IP header), not the topic, not the content. Its graph is over **ephemeral IPs**, which rotate with
+  mobility and NAT, are shared behind CGNAT, and are reassigned, so it does not durably attribute to a
+  persona or device and it decays as addresses churn. This is the same weak handle any network observer has
+  on any encrypted traffic, the universal floor, not a Drystone-specific concession.
+
+These do not combine cheaply, and they fail in opposite ways: the relay sees durable identities but
+transiently and pair-only, blind to Group and content; the gateway holds a persistent position but sees
+only churning, identity-blind IP flows. The frightening observer, persistent *and* identity-bearing *and*
+Group-aware, would have to be the relay for a pair that never hole-punches *and* a swarm member at that
+Group's tree positions *and* correlate the two across layers, which a healthy redundant swarm and the 90%
+direct-connection rate actively work against. A separate surface is **discovery** (§6.9): resolving an
+EndpointId to its address tells the resolver that someone looked up EndpointId X, which is the one place the
+default deployment leans on an operated service and which a deployment can opt out of. All of this
+transport- and discovery-level metadata is out of scope for what *this* layer undertakes to defeat
+(Drystone seals content and in-payload metadata and routes on the topic); it is addressed, if at all, by
+lower-layer countermeasures (a private relay and resolver, padding, cover traffic, mixing), which the
+design notes rather than provides. The strongest honest summary: a swarm member can build a partial view of
+the *shape* of a Group's activity, never its content and never its attribution; broader views require a
+chokepoint position that a redundant fabric is designed to prevent.
+
+### 6.5. Carriage (Plane C): the path the message travels
+
+The Delivery Fabric (§6.3) offers three carriage paths. **None of them, by itself, persists anything for an
+absent recipient**; persistence is the durability plane's job (§6.6). Carriage is about reaching whoever can
+be reached *now*. The three paths are non-exclusive: the selector (§6.8) may attempt several at once and let
+the first delivery win, because duplicates deduplicate on the content hash (§6.6.4).
+
+A note on discovery, alluded to here and treated in full at §6.9: every carriage path presupposes that the
+recipient's key can be resolved to a current location (or that a shared topic is already joined). That
+resolution is a distinct concern, handled by §6.9, and this section assumes it has happened.
+
+#### 6.5.1. C-direct (direct peer-to-peer, the most center-free path)
+
+Suppose Alice (a persona running two devices, a phone and a laptop) and Bob (a persona on one device, the
+recurring "briefly offline" case below) are both present, on the same network, no internet needed. They
+exchange MLS messages directly over QUIC, routed by `EndpointId`, no helper in the loop. This is the most
+center-free path in the design and is **first-class, not a degraded mode**. It is also the path half of the
+no-helper floor: when participants carry their own traffic directly, carriage and durability are **fused by
+construction** into D-self (§6.6.1), one act that both delivers and (with queue-and-retry) persists.
+*green-real (direct QUIC
+path; the two peers exchange sealed messages with no intermediary).*
+
+The reference transport is **iroh**: encrypted QUIC with TLS 1.3, addressed by `EndpointId`, attempting a
+direct hole-punched path first. In iroh's own production figures the direct path succeeds for the large
+majority of connections and carries the bulk of data volume, so the relay (§6.5.2) is the exception path,
+not the common one. *(Verified against iroh 1.0: direct-first with relay fallback. The success-rate
+percentages are iroh's reported production numbers, not a Drystone guarantee, and are cited as corroboration
+only.)*
+
+#### 6.5.2. C-relay (relay-assisted, when a direct path will not form)
+
+When a direct path will not form (NAT, mobility, firewall), an **iroh relay** forwards the encrypted packets
+so carriage still succeeds. The relay is a **carriage assist, content-blind**: it does not terminate the
+peer-to-peer QUIC/TLS session, routes by `EndpointId`, and cannot decode what it forwards. What it can
+observe, and for how long (an `EndpointId` pair and byte counts, transiently, until a direct connection
+forms), is drawn in §6.4. A relay process **SHOULD** meter and isolate per tenant and **MUST** degrade
+*visibly* under stress, never silently. *green-real (NAT path via relay; the relay sees only ciphertext plus
+routing metadata).*
+
+The relay is one of the three resource-asymmetry roles (§6.6.2 for the meer, §6.7.1 for push-notify); it
+supplies **reachability** and nothing else, is redundant and revocable, and is never an authority. It is a
+chosen helper, not a network position: endpoints deliberately use it, and a Group that wants no relay can
+run direct-only on a local network (§6.11 Mode 2).
+
+#### 6.5.3. C-swarm (the gossip overlay, for live fan-out with no central store)
+
+Now suppose Alice and Bob are in a larger Group on a local network with no internet, or simply want live
+fan-out to many recipients. The **gossip overlay** carries each message across the **swarm** (the population
+of nodes subscribed to the topic) along a **spanning tree** built over that swarm: a message is eager-pushed
+along the tree's edges and the tree self-repairs as nodes come and go. It is **not a flooded mesh**; the
+tree is what keeps the broadcast cheap. This is genuine, efficient delivery, and the right tool when there
+is no central store or a Group deliberately wants none.
+
+The mechanism, HyParView for membership and PlumTree for broadcast, is developed in full at §6.10 as the
+current *realization* of C-swarm; the requirement C-swarm places on any overlay (an epidemic broadcast tree,
+no node holding global membership, blind to content) is stated at §6.10 and consolidated in §10.3, and a
+different overlay meeting that requirement is swappable for the named one.
+
+C-swarm's nature, stated plainly because separating the planes lets the spec say it without contradiction:
+**gossip carries but does not persist.** It keeps no replay log, so a node entirely offline during a
+message's live window recovers nothing from the swarm itself. *green-real (an online node received every
+broadcast; a late joiner recovered none).* C-swarm is therefore a carriage path **with no durability-plane
+partner of its own** (the one plane-fusion that does *not* happen), so an offline recipient needs a separate
+D- source, a meer or peer reconciliation, to recover what the swarm carried past.
+
+> **A Group may run on C-swarm with weak or no durability, a legitimate choice under the dial discipline.**
+> Under the Part 1 §2.3 dial discipline, a Group may select C-swarm to avoid an internet-link requirement or
+> to tilt away from any central store (P-Durable-Enablement). The one non-negotiable: **a Group may accept
+> message *loss*, but the protocol must never allow *invisible* loss.** Loss-tolerance is a Group dial and
+> may be loose; loss-*visibility* is floored by P-Knowable-Truth (Part 1 §2.2) and the freshness rule
+> (§7.4). The mechanism that keeps loss visible even with no store to query is **gap-aware history
+> convergence** (§6.8): each message's sealed signed index lets a member see precisely what it is missing
+> from the messages it does hold. A swarm-only Group leans entirely on that, which is why the sealed index
+> is load-bearing rather than optional.
+
+### 6.6. Durability (Plane D): where the bytes wait for an offline recipient
+
+Three sources, presented **most-center-free outward**, because the floor is the point: everything above it
+is an optimization, never a dependency. Within the plane the sources are non-exclusive and the selector
+(§6.8) may race them.
+
+#### 6.6.1. D-self: the floor
+
+Suppose Bob steps away mid-conversation. Alice, or any node on the path, buffers the sealed bytes and
+retries when Bob returns. **Durability is supplied by the participants themselves.** Paired with C-direct
+this is the fused no-helper cell (one mechanism carrying and persisting), and it is the path Part 1 §2.4
+requires to stay real and routinely exercised: a conversation can happen on bare nodes with no purchased
+infrastructure (P-Durable-Enablement). Everything else in this plane is an optimization over D-self, and
+naming it the floor is what lets every other source be removed without ending the conversation. *green-real
+(exactly-once delivery holds down to the D-self floor under every combination of surviving paths).*
+
+#### 6.6.2. D-meer: the default optimization
+
+Now suppose Bob is offline for hours and Alice does not want to stay online holding his mail. A **meer**
+(§5.4) is a **blind store-and-forward node** that holds the sealed bytes for Bob and hands them over when he
+returns. It is never given a leaf key, so it stores ciphertext and learns nothing; it is revocable and
+redundantly held, never a structural dependency. It is Drystone's realization of the **store-and-forward
+half** of MLS's Delivery Service. One well-connected meer can fan out to many recipients, cheaper than many
+direct dials, so this is the sensible default for an internet deployment. *green-real (Tier-0 meer holds
+sealed bytes and serves them on dial-home; admission denies a non-listed node).*
+
+The meer is the standing example of the requirement-vs-realization separation (§6 header note). **It does
+store-and-forward but does not order messages, and ordering is not lost by this; it is sourced elsewhere.** A
+conventional delivery service orders by acting as a central sequencer clients must trust. Drystone does not,
+because ordering is already carried *inside the messages*, in the author-signed causal structure and
+per-author index (§7.3.1, §7.4), sealed in the payload where only members can read it (§6.4). So the meer
+has no ordering job to do, and could not do it: the index it would need to sequence the blobs is sealed
+against it. **Being blind and not ordering are the same fact, and that fact is the sealed index.** Order is
+needed, present, and intrinsic; it is simply not the meer's to provide, nor within its power to provide.
+This is precisely the MLS DS *ordering* function that Drystone declines while keeping the DS's
+store-and-forward function: present in the realization, not required by the model.
+
+Because the meer holds only ciphertext, every MLS guarantee holds against it exactly as against any
+untrusted DS. *(Verified, RFC 9750.)*
+
+> **Design rule, the meer stores byte-identical sealed messages, never re-sealed copies.** Dual delivery (a
+> member receiving the same commit once via gossip and once via meer drain) is benign because gossip
+> deduplicates beneath MLS and MLS applies commits forward-only and idempotently: a duplicate commit no
+> longer matches current state and is dropped, the monotonic-fold property of Part 1 §2.2 / §7.3. But this
+> safety holds **only if the meer returns the identical `PrivateMessage` bytes.** A meer that re-encrypts or
+> re-frames a message could induce ratchet key/nonce reuse, which MLS does not permit. The meer **MUST**
+> store and forward the sealed bytes unchanged. *(This is why §5.4 insists the meer is never issued a key:
+> there is no decrypt, so there is nothing to re-seal.)*
+
+The meer is one node appearing on **three planes**, kept distinct on purpose: it persists here as D-meer,
+you carry-fetch from it (a carriage act), and it can poke as P-meer (§6.7). Naming the three keeps "one node
+happens to do three jobs" separate from "these are three independent choices."
+
+#### 6.6.3. D-peer: the Group as its own replay buffer
+
+Now suppose Bob was offline for a message Alice caught, there is no meer, but Alice is reachable. Bob
+recovers it **from Alice directly.** Members are already entitled to all the Group's messages, so two
+members reconciling their held history **leaks nothing across the entitlement boundary and adds no new
+reader.** Because a real Group has many members, the Group becomes its own **distributed replay buffer**: if
+anyone caught it, anyone else can recover it, with no central store. This is the same reconciliation
+machinery the device-Group uses (§6.6.5) and the same gap-aware convergence C-swarm leans on (§6.8), pointed
+at fellow members. *green-real (a gap detected from a fabric-delivered message is filled by reconciling with
+a member reached off the fabric; forged or tampered records are rejected whatever their source).*
+
+D-peer is sound only under **hard invariants**, each keeping the convenience from leaking trust into
+authority (Part 1 §2.0 razor, Part 1 §2.3, Part 1 §2.5):
+
+- **Self-verifying records only.** A member accepts a reconciled record only when it verifies on its own
+  author signature and folds into the hash structure, never on the partner's say-so. Reconciliation moves
+  provenance-carrying records, never derived or asserted state.
+
+- **Dataplane only, never governance.** Reconciliation carries message history. Governance state (who is a
+  member, the current epoch) is read from the member's own authoritative MLS view, never accepted as a
+  peer's assertion.
+
+- **Corroboration is alignment, not truth.** That several members hold the same record affects *coverage*
+  (how likely you are to find it), never *validity* (which is the signature's job alone). Treating a
+  holding-count as a truth signal would build the quorum apex the razor forbids.
+
+- **Current membership only, exit is final.** A member may reconcile only the history of the Group it is
+  currently in; departure ends eligibility. This is the Part 1 §2.4 exit right read correctly, you leave
+  *with* the history you hold and gain no standing to pull more afterward, which **dissolves** the
+  former-member history-pull attack surface rather than having to defend against it.
+
+Participation is **voluntary per member**: acting as a sync peer is a service a member opts into, not a duty
+the Group imposes. The **Group** sets whether D-peer is allowed at all; within that, members enroll
+individually. The one cost D-peer carries that the blind roles do not is that **a sync partner is not
+blind**: reconciling reveals a coarse activity pattern to a fellow member, so whether D-peer defaults on is
+a **per-Group threat-model dial** (on for small high-trust Groups, opt-in for large contested ones, §6.11,
+and the open item in Appendix B).
+
+#### 6.6.4. Racing the sources, for free
+
+Because an MLS message is **byte-identical no matter which path carried it**, the same message arriving by
+two routes is recognized as one and **deduplicated on its content hash**. So a recipient can have several
+paths and sources attempting at once across both planes, C-direct, C-swarm, D-meer, and D-peer, first
+delivery wins, duplicates drop. This is the maximum-robustness posture and it costs nothing in principle: a
+message the swarm carried past Bob's offline window is one the meer still holds; a message one member
+withholds is one several others are corroborated to hold; a message the meer is slow on may arrive first
+over a live swarm path. *green-real (one seal relayed by two paths deduplicates to a single entry; the
+selector delivers exactly once down to the D-self floor).*
+
+#### 6.6.5. The device-Group: a persona's own devices, kept in sync
+
+Now suppose Alice's laptop caught a message her phone missed. Her devices should converge so her history is
+complete everywhere, without a server syncing them. Drystone handles this with a **second Group**: Alice's
+own devices form their own Group whose job is reconciling history among them. It is the durability plane
+applied to a persona's own device-pool, and it is a **durability amplifier**, more places any given message
+survives, entirely within one entitlement boundary.
+
+**An ordinary Group, scoped by lineage.** Alice's devices are each, independently and equally, leaves in
+whatever conversations she is in; MLS treats them as co-equal members, and the design adds no leaf-to-leaf
+hierarchy, because inventing one would step outside the flat membership MLS's security analysis assumes.
+Their reconciliation Group is **not a special construct or a sub-tier**. It is an **ordinary first-order
+Group**, distinguished only by *scope*: its admission is lineage-restricted (below), and all its leaves
+belong to one owner. Same machinery, same security analysis. The apt description is a **secondary
+history-convergence backplane with a stronger membership story**: a backplane, because its job is
+reconciling history across Alice's devices alongside her primary conversations; stronger, because the bar to
+join is verifiable cryptographic descent rather than an asserted invitation.
+
+**What actually moves.** The device-Group moves **sealed bytes** among its leaves, exactly as every Group
+does. Its leaves decrypt what they receive because they hold the leaf key, but that is simply what
+membership is; there is no special "plaintext channel" and so nothing extra to secure. It widens entitlement
+to **no one**, which is the entire safety story: every leaf is the same owner, already entitled on each of
+her devices, so syncing among them moves nothing across any entitlement boundary. A device *not* in a
+conversation holds no leaf key for it and, even handed the sealed bytes, reads nothing. The two convergence
+invariants that matter, trust a record only on its own signature and its fold into the hash structure (never
+the partner's word), and reconcile dataplane history only (never governance, read from the device's own MLS
+view), hold here for the ordinary reason they hold for every Group. *green-real (two co-entitled devices
+each decrypt and converge; a non-member handed the same sealed bytes cannot decrypt; a tampered record is
+rejected even from a trusted sibling device, and a forged governance assertion over the device channel is
+ignored).*
+
+**Admission is where control is worth the most.** A device joins the device-Group like any MLS member,
+under a **lineage-restricted policy** by default: the joining leaf must prove cryptographic descent from the
+persona's rooting key (§5, and the credential-validation hook RFC 9750 names as application policy). Part 1
+Part 1 §2.3 already makes lineage the thing that collapses a person's many devices into one persona of weight one,
+and that descent is verifiable. The reason to put the strong check precisely *here* is that a history
+holder, once admitted, cannot be made to un-read what it received: **admission is the last moment control is
+fully effective**, so it earns the strongest available control, a verifiable proof beats an asserted "this
+device is mine." *green-real (a non-lineage credential is rejected by the real credential-validation hook at
+commit-build time, before the commit reaches the network).* The honest scope limit: the lineage check
+governs *which devices become holders*; it does nothing about a holder compromised later, and nothing about
+Alice exporting her own content. It protects the admission decision, not the aftermath, because nothing can
+protect content already read (claiming otherwise would be the Part 1 §2.0 failure of trusting math where the real
+safeguard was human judgment). The standing defense against a later-seized device is the ongoing ability to
+cut *future* convergence.
+
+### 6.7. Presence (Plane P): who tells the recipient to look
+
+Durability decides *where* Bob's mail waits. Presence decides *who tells Bob it is there*. The recipient's
+situation sets which applies. The presence paths are **not rivals for one slot**; they compose as
+**detector plus actuator** (below).
+
+- **P-none.** Nobody but sender and recipient. Bob's device catches up on its own schedule, foreground,
+  periodic fetch, manual refresh, by **polling a meer** with its cursor ("anything since this position?").
+  No wake mechanism and no device-token binding: the most center-free presence posture, and **always
+  available as the floor.**
+
+- **P-gossip.** Suppose one of a non-member's devices is a fabric carrier on the topic. The sealed message
+  arrives at that node via gossip; it makes no attempt to read it (it holds no leaf key for the Group),
+  takes the bare fact of arrival as the signal "a message exists for this Group," fires a content-free wake
+  toward Bob, and discards the bytes. **The node read nothing and stored nothing, yet Bob's sleeping phone
+  gets nudged.** This works on the stock gossip layer with no extra channel, because presence does not
+  require a content-free signal: holding an unreadable blob *is* a perfectly good arrival signal, and the
+  carrier simply does not decrypt it.
+
+- **P-meer.** A meer that holds mail for Bob knows it holds it, and can poke his device to fetch. This is
+  the meer on its third plane (§6.6.2). In a meer-backed deployment this is the usual detector.
+
+- **P-push.** A **byte-free wake to a sleeping mobile device**, via the platform push service, because a
+  backgrounded mobile OS forbids a live connection and only a push can wake the app (§6.7.1). It carries
+  nothing of substance; it is an actuator, not a carriage path.
+
+> **Why the design wants no separate "announcement" channel, and it is a correctness point, not a
+> preference.** Splitting "a message exists" onto a second channel from "here is the message" creates a
+> window where the two can disagree: an announcement with no message behind it (a node stuck waiting), or a
+> message with no announcement (a node that thinks nothing arrived). That is the classic
+> time-of-check-to-time-of-use race, the same reason it is safer to attempt an operation and handle failure
+> than to check-then-act. Letting the message's own arrival be the signal (P-gossip) is **atomic**: there is
+> no gap to disagree across. The cost is that a carrier receives a blob it only needed to know existed and
+> then throws it away, a little wasted bandwidth, the cheapest thing in the system to spend, in exchange for
+> eliminating an entire class of race and an entire second overlay to secure. The inefficiency is the clean
+> choice.
+
+**Detector plus actuator.** Something *notices* the message exists (P-gossip: a carrier saw it arrive;
+P-meer: the holder knows it stored it; P-none: nobody, the recipient polls), and something *reaches* the
+recipient (P-push wakes a sleeping device; a live device needs no actuator; polling is self-actuated). "A
+carrier detects, push actuates" is one coherent path. **Which detector applies is set by deployment** (a
+meer-backed deployment uses P-meer; a swarm-only deployment uses P-gossip; they are interchangeable where
+both exist), and **the actuator is forced by the recipient** (only a push can wake a backgrounded phone, and
+poll-a-meer is always the non-push fallback beneath it). *green-real (a backgrounded device presents
+identical, complete, ordered history on waking, whether woken by push or by foreground poll).*
+
+#### 6.7.1. The push-notify role, and why it is designed to be minimal
+
+The push-notify node exists because a backgrounded mobile OS forbids a live connection, and only a push can
+wake the app. It is one of the three resource-asymmetry roles (relay, §6.5.2; meer, §6.6.2; push-notify
+here): all blind to content, revocable, redundant, never authorities, each an instance of the Part 1 §2.3
+resource inequality (what a node happens to *have*, here APNs/FCM credentials and a device-token registry).
+It is deliberately the **smallest** such role:
+
+It learns only "Endpoint X has a waiting message; wake X," and sends a **content-free wake**, not the
+message. Two reasons converge on byte-free. The rights model wants the smallest metadata footprint, so no
+ciphertext should pass through a third party that does not need it. And the platform forces it anyway: the
+reliable push is the user-facing alert, the invisible silent push is throttled and droppable (§6.7.2), so
+any design that needs the push to *carry* content is fragile, whereas wake-then-fetch degrades cleanly to
+"catch up on next foreground."
+
+It is **doubly removable.** A foregrounded app holds a live connection and needs no push host at all (the
+no-helper path, kept real). A polling device pulls from a meer on its own schedule with no wake, needing no
+token binding. The single irreducible cost is the **device-token-to-`EndpointId` binding**, which is
+inherently identifying, and because polling avoids it entirely, paying it is **opt-in**: a user who declines
+push declines the binding. Keeping the host byte-free is both a smaller footprint and a sharper revocation
+story, removing it costs a wake optimization and nothing else, because durability lived in the meer or in
+D-self all along.
+
+#### 6.7.2. Mobile wake as a conditional accommodation (not a requirement)
+
+Unlike the transport, overlay, and sealing requirements (§10.2, §10.3), mobile wake is **not a requirement
+of the design**. It is a conditional accommodation for one class of node. Most nodes participate in the
+overlay and see arrivals directly (P-gossip), so they need no wake; but a backgrounded mobile device cannot
+hold constant presence (the OS drops it from the swarm), and for that class an **external** wake lets it
+come back and fetch.
+
+The wake **must be able to carry nothing of substance** (the design uses it only as a content-free nudge),
+because the wake channel is operated by a platform vendor the design does not trust with content, and
+because the channel is throttled and unreliable enough that no design should depend on it carrying anything.
+This is why the wake is an accommodation and not a requirement: it is unreliable by nature, so it can only
+ever be an *optimization* over "catch up on next foreground," and the polling fallback (P-none) always
+suffices without it.
+
+The reference implementation is **APNs and FCM**, the platform-mandated push services. Payload cap is 4 KB
+(Apple); FCM matches at 4096 bytes and states its transport is not end-to-end encrypted, so applications
+must supply their own E2E, which is exactly why content sealing (§6.2) is what makes riding a push provider
+safe: the provider carries, at most, a content-free wake. *(Verified, Apple / Firebase primaries.)*
+Silent/background push is throttled and not guaranteed. **[confirm: only Apple's "a few per hour, dynamic"
+is pinnable; specific secondary numbers conflict, and the device-side measurement awaits real credentials.]**
+The reliable channel is the user-facing alert; the invisible silent channel is the throttled one, which is
+exactly why the wake is only an optimization: wake-and-fetch degrades correctly, and the durable fetch path
+(§6.6) exists regardless.
+
+### 6.8. Gap-aware history convergence, plane fusions, and the adaptive selector
+
+#### 6.8.1. Gap-aware history convergence (one mechanism, three uses)
+
+Three separate features in this section, C-swarm hole-visibility (§6.5.3), D-peer recovery (§6.6.3), and
+device-Group sync (§6.6.5), are **one mechanism at different scopes**, and it is defined once here so the
+three point at a single description rather than three that could drift. Its natural home is the **durability
+plane**: it is how a member recovers history it missed, distinct from the meer's store-and-forward (the meer
+holds sealed bytes *for* you; convergence is members reconciling what they each *already hold*). But it runs
+over the same Delivery Fabric as everything else and reaches across planes, it is also the *detector* that
+makes loss visible on a swarm-only Group (a presence-adjacent touchpoint), which is why it is stated here
+rather than buried inside one plane.
+
+The mechanism has two beats:
+
+- **Detect a nameable gap.** Each sealed message carries, *inside the seal*, its author's signed sequence
+  index (§6.4, §7.5). A member reading its held messages therefore knows each author's high-water mark and
+  can name precisely which positions it is missing, from the messages it *does* hold, with no store to
+  query and no announcement channel. This is why loss stays *visible* even on C-swarm with no durable source
+  (§6.5.3): the record of what should exist is the set of sealed indices the member already has. A blind
+  carrier cannot compute this, because the index is sealed against it, the same fact that denies the meer
+  ordering (§6.6.2).
+
+- **Fill it from a self-verifying source.** The member reconciles the missing positions with any source that
+  can supply them, its own other devices first (§6.6.5), then fellow members (§6.6.3), over any transport,
+  via **range-based set reconciliation (RBSR)**: an efficient exchange that converges two holders' record
+  sets by comparing summaries of ranges rather than shipping everything. Every filled record is accepted
+  only on its own author signature and its fold into the hash structure (the §6.6.3 self-verifying
+  invariant), never on the partner's word.
+
+**No transport gate; the gate is membership.** A message arriving over any path updates the high-water mark,
+which is pure detection, requiring no trust decision and working for member and blind carrier alike. *Then*,
+if the node is an entitled member with a gap and the Group allows it, the application reconciles with an
+entitled member over any transport, and that member need not be on the fabric at all. Whether you reached a
+partner via the fabric or a direct dial is irrelevant; whether they are a verified current member is
+everything. *green-real (a gap detected from a fabric-delivered message is filled by reconciling with a
+member reached off the fabric; the records verify source-agnostically, and tampered or forged records are
+rejected whatever their source).*
+
+The RBSR production construction (Willow 3d-range vs Negentropy) is a §5 decision; the scaling shape is
+green-real, the specific construction is not yet chosen (Appendix B).
+
+#### 6.8.2. The plane fusions, gathered
+
+Stated once each at their occurrence and gathered here for reference, because knowing which combinations are
+*forced by construction* and which are *free choices* is the whole point of separating the planes:
+
+- **D-self is C-direct** (§6.5.1, §6.6.1): participants who buffer their own traffic also deliver it, one
+  mechanism on the carriage and durability planes at once.
+
+- **The meer is one node on three planes** (§6.6.2): D-meer (it persists), carriage (you carry-fetch from
+  it), and P-meer (it can poke). Three jobs, one node, kept distinct on purpose.
+
+- **C-swarm is fused with nothing durable** (§6.5.3): gossip carries but keeps no replay log, so it has no
+  durability-plane partner and an offline recipient needs a separate D- source. This *non*-fusion is as
+  important to name as the fusions: the swarm's lack of durability is a property to state outright, not one
+  to discover after filing it under the wrong plane.
+
+Everything else pairs freely: any carriage with any durability with any presence.
+
+#### 6.8.3. The adaptive selector
+
+The **selector** is the runtime policy that picks a (carriage, durability, presence) combination **per
+recipient, per moment**, and races the non-exclusive sources within a plane. It is **not itself a delivery
+model**; it is the control layer above the three planes. It chooses by connectivity and degrades
+gracefully: a direct local link when both peers are present; swarm, meer, and member-corroboration racing
+when the recipient is intermittent; meer plus push for a backgrounded phone; poll-a-meer when push is
+declined. Where D-peer is enabled, it prefers reconciling with **several** members over one, so no single
+member can withhold unnoticed (the §5.4 / Part 1 §2.4 no-single-dependency floor at the sync layer).
+
+**Every cell has a named no-helper fallback**, because Part 1 §2.4 requires the floor to stay real: it is
+always **D-self with P-none**, direct carriage, participant durability, recipient-polls presence. *green-real
+(exactly-once delivery holds under every combination of surviving paths down to the D-self floor, and a
+backgrounded device presents identical, complete, ordered history on waking).*
+
+#### 6.8.4. Payload classes the selector distinguishes
+
+Speed and durability are independent (carriage and durability are separate planes), so a fast path does not
+imply a non-durable one. **The application classifies each payload deliberately; the selector never
+guesses**, and in particular a real message is never silently treated as throwaway (that would be invisible
+loss, which §6.5.3 / Part 1 §2.2 forbids).
+
+- **Live-durable.** Both parties present, a low-latency path for a snappy real-time feel, *and* a full
+  signed record that persists into history like any other message. This is the right shape for real-time
+  chat in a provenance-first system: fast *and* remembered. Real-time here is just fast delivery of durable
+  messages, not a separate ephemeral lane.
+
+- **Intrinsic-ephemeral.** Non-utterance state whose value is bound to the moment: typing indicators, cursor
+  positions, presence beacons. No durability source and no wake engage, because there is nothing to keep and
+  nobody to wake; **loss is *correct***, and a suppressed one is a non-event, not a gap. Because these cost
+  battery and radio for zero durable value, each carries a resource-default that can scale with Group size
+  (typing indicators, whose value falls and whose cost rises as a Group grows, default off above a
+  small-Group threshold, working value ~7 to 10, tunable). This is a battery setting, not a privacy or
+  correctness one.
+
+- **Chosen-ephemeral (disappearing messages).** A real, durable message carrying a signed "do not retain
+  past T" disposition that honest clients apply. This is a *retention policy on a normal message*, not a
+  transport mode, and it carries a hard honesty caveat identical to refusing a fake unsend: it is
+  **cooperative non-retention, never enforced deletion.** A node cannot prove it expunged, and a modified
+  client simply keeps what it read. So it may promise "honest clients stop showing this and drop their
+  copy," never "this message is gone." (This is the §8 label-not-enforce posture applied to retention.)
+
+- **Self-destruct (time-bound sensitive value).** A distinct payload class (the guest-wifi password shown
+  until Monday) whose achievable semantics depend on the history mode and whose strength is bounded by node
+  fidelity, not cryptography. It is the one class that deliberately chooses *less* durability and *less*
+  replication, opting out of the meer and out of D-peer so no blind store holds the sealed value past its
+  window, the inverse of every other class here. It is framed, not settled (Appendix B; the history-modes
+  treatment in §7).
+
+### 6.9. Discovery, connection establishment, and interaction tiers
+
+Discovery is a concern distinct from the three planes, placed after the delivery model because carriage
+(§6.5) presupposes it but does not depend on its internals. It is the one part of §6 the specification treats
+more lightly than it will ultimately need: the fuller treatment, multiple resolvers, privacy of the lookup
+itself, rendezvous, and revocation of stale records, is **under-developed** and owed future work (Appendix
+B).
+
+#### 6.9.1. Connection establishment and interaction tiers
+
+The transport is **iroh**: encrypted QUIC with relay fallback for NAT'd peers, routed by `EndpointId`
+(§6.5). A Group's membership maps to a gossip **topic** (§4.2, and the topic-is-one-contributor-to-scope
+note there); a relay forwards opaque frames and **MUST NOT** be required to read content, routing by
+endpoint, not by topic.
 
 **Co-location** (reference deployment): two peers reach each other over relay fallback only if they share a
 home relay (no relay-to-relay mesh); relay placement is server-published and authoritative, keyed on the
 rendezvous/namespace, not on identity. A relay process **SHOULD** meter and isolate per tenant and **MUST**
 degrade *visibly* under stress, never silently. *green-real (measured).*
 
-**Interaction tiers** are chosen at scope creation, not toggled at runtime: **interactive** (prompt
+**Interaction tiers** are chosen at **Group creation**, not toggled at runtime: **interactive** (prompt
 delivery + real failure signal), **quiet-large** (eventual, "it will arrive or you will be told it did
 not"), and **broadcast** (best-effort rolling log). The broadcast tier **MUST** disable the embedded
-group-key ratchet tree (O(N) commits) and ship the tree out of band. *design (tiers) + green-real (the
-O(N) ratchet-tree cost is measured).*
+Group-key ratchet tree (O(N) commits) and ship the tree out of band. *design (tiers) + green-real (the O(N)
+ratchet-tree cost is measured).*
 
-### 6.4. Discovery: resolving a key to a location
+#### 6.9.2. Resolving a key to a location
 
 Discovery is the lookup that turns a bare `EndpointId` (identity) into a current network location so a peer
-can be dialed at all. It is distinct from the gossip overlay's *internal* peer-learning (§6.6): discovery
+can be dialed at all. It is distinct from the gossip overlay's *internal* peer-learning (§6.10): discovery
 is key-to-address resolution; the gossip overlay's internal mechanism is intra-swarm peer sampling.
 Discovery gets you to the door; gossip is the room.
 
 One integrity property is constant across all three mechanisms below and worth stating once: discovery
 records are **self-signed by the endpoint's own key**, and the lookup key *is* that public key, so no
 resolver can forge a peer's address; a tampered record fails signature verification against the key being
-looked up. What varies between mechanisms is *who can observe or withhold* lookups, never whether they can
-lie. Two notes on status after iroh 1.0: the three mechanisms are now **separately-versioned address-lookup
-crates** (`iroh-mainline-address-lookup` for the DHT path, `iroh-mdns-address-lookup` for mDNS) rather than
-options inside the core crate, so they are real shipped components, not "wire-it-yourself" gaps; the
-self-signed-record integrity model itself is **[confirm against the Pkarr record-signing spec]**, which is
-a Pkarr-level primary, not an iroh-version question.
+looked up. **What varies between mechanisms is who can observe or withhold lookups, never whether they can
+lie.** Two notes on status after iroh 1.0: the three mechanisms are now **separately-versioned
+address-lookup crates** (`iroh-mainline-address-lookup` for the DHT path, `iroh-mdns-address-lookup` for
+mDNS) rather than options inside the core crate, so they are real shipped components, not
+"wire-it-yourself" gaps; the self-signed-record integrity model itself is **[confirm against the Pkarr
+record-signing spec]**, a Pkarr-level primary, not an iroh-version question.
 
-#### 6.4.1. DNS / Pkarr (default; a soft center)
+**DNS / Pkarr (default; a soft center).** Self-signed records served through DNS servers operated by n0.
+Fast (globally cached) and zero-config. The soft-center caveat: n0's servers cannot forge a record
+(integrity holds) but can observe which keys are looked up and published, and can withhold or go down (an
+availability and metadata-concentration point). A center for observation, never for integrity, and the one
+discovery-layer surface the observer picture (§6.4) flags as an operated dependency.
 
-Self-signed records served through DNS servers operated by n0. Fast (globally cached) and zero-config. The
-soft-center caveat: n0's servers cannot forge a record (integrity holds) but can observe which keys are
-looked up and published, and can withhold or go down (an availability and metadata-concentration point). A
-center for observation, never for integrity.
+**Pkarr-on-mainline-DHT (center-free, global).** The same self-signed records published into the no-owner
+BitTorrent mainline DHT. This removes the single observation/censorship point: no party sees all lookups or
+can globally withhold a record. Costs: higher lookup latency, lower reliability than cached DNS, and records
+expire and require periodic republishing. This is the discovery path that keeps an internet-scale Drystone
+deployment from depending on n0. Post-1.0 this path ships as the `iroh-mainline-address-lookup` crate.
+**[confirm, the mainline-DHT publishing and republish-interval behavior against that crate's pinned
+version.]**
 
-#### 6.4.2. Pkarr-on-mainline-DHT (center-free, global)
+**mDNS (center-free, local / airgapped).** Local-link multicast resolution: no internet, no server, no DHT.
+Every member on the LAN segment is discoverable without publishing anywhere, so there is no bootstrap seed
+at all (§6.10.2). Bounded to the broadcast domain (does not cross routers), a feature for airgapped and
+family-LAN Groups, a hard limit for cross-network reach. Same key-authenticated integrity: a malicious LAN
+responder returning a wrong address causes a failed dial, never an impersonation. Post-1.0 this ships as the
+`iroh-mdns-address-lookup` crate, so it is a turnkey discovery mechanism, not something a deployment must
+build itself. **[confirm, the crate's exact behavior, e.g. whether it republishes on interface change,
+against its pinned version.]**
 
-The same self-signed records published into the no-owner BitTorrent mainline DHT. This removes the single
-observation/censorship point: no party sees all lookups or can globally withhold a record. Costs: higher
-lookup latency, lower reliability than cached DNS, and records expire and require periodic republishing.
-This is the discovery path that keeps an internet-scale Drystone deployment from depending on n0. Post-1.0
-this path ships as the `iroh-mainline-address-lookup` crate. **[confirm, the mainline-DHT publishing and
-republish-interval behavior against that crate's pinned version.]**
+### 6.10. The gossip overlay: the current realization of C-swarm (HyParView + PlumTree)
 
-#### 6.4.3. mDNS (center-free, local / airgapped)
+This section develops the mechanism behind C-swarm (§6.5.3), and it is the clearest place to see the
+requirement-vs-realization discipline the whole section rests on. **The requirement comes first, and it is
+the durable thing**; the named algorithms are one way to meet it.
 
-Local-link multicast resolution: no internet, no server, no DHT. Every member on the LAN segment is
-discoverable without publishing anywhere, so there is no bootstrap seed at all (§6.6.2). Bounded to the
-broadcast domain (does not cross routers), a feature for airgapped and family-LAN scopes, a hard limit for
-cross-network reach. Same key-authenticated integrity: a malicious LAN responder returning a wrong address
-causes a failed dial, never an impersonation. Post-1.0 this ships as the `iroh-mdns-address-lookup` crate,
-so it is a turnkey discovery mechanism, not something a deployment must build itself; the earlier "is mDNS
-mature enough to rely on" question is resolved by its existence as a maintained crate. **[confirm, the
-crate's exact behavior, e.g. whether it republishes on interface change, against its pinned version.]**
+**The requirement C-swarm places on any overlay.** An **epidemic broadcast overlay**: a swarm in which
+nodes forward each message to their neighbors along a **self-healing spanning tree**, so a message injected
+anywhere reaches every currently-live subscriber, **without any node holding global membership** and
+without a central broadcaster. Two capabilities follow: a **membership** mechanism keeping each node a
+small, self-repairing neighbor set (the swarm survives churn without anyone knowing the whole roster), and a
+**broadcast** mechanism pushing content along the tree while lazily repairing breaks (delivery both cheap
+and resilient). The overlay carries **sealed bytes only**; it is one population of the Delivery Fabric
+(§6.3) and is blind by construction. This requirement is consolidated in §10.3, and **a different overlay
+meeting it is swappable for the named one**: if a future swarm protocol met these capabilities with some
+added advantage, it could replace HyParView/PlumTree without disturbing anything above the overlay, which is
+exactly the point of reasoning about the requirement independently of the manifestation.
 
-### 6.5. Delivery: direct, relayed, and via the meer
+What the requirement does **not** ask of the overlay, stated because a naive design would over-build it:
+**durable storage** (the swarm keeps no replay log, which is why a fully-offline node recovers nothing from
+it, §6.5.3, and durability is a separate plane, §6.6), and a **separate content-free "a message exists"
+signal** riding the overlay (a node in the swarm already sees each arrival, so presence for that node rides
+the arrival of the sealed bytes, §6.7 P-gossip).
 
-A non-member that routes ciphertext it cannot read is, in MLS terms, a **Delivery Service (DS)**; RFC 9420
-§3 states that MLS assumes a trusted Authentication Service but a largely untrusted DS, and is designed to
-protect the confidentiality and integrity of group data even against a compromised DS, which is in general
-only expected to deliver messages reliably. *(Verified, RFC 9420 §3.)* Even a malicious DS cannot add
-itself to a group or recover the group key; at most it observes membership metadata or suppresses messages
-by withholding them. **[confirm, RFC 9420 §16.9 DS-compromise specifics beyond the §3 summary.]** This
-bounds the blind-forwarder threat model precisely: a Drystone relay or meer can **censor** (drop, delay)
-and **observe** (contact graph), but never **forge** or **decrypt**.
+**Current conforming implementation: iroh-gossip.** Once a peer can reach one swarm member (via §6.9), the
+gossip layer disseminates messages and maintains a fresh neighbor picture with no coordinator. iroh-gossip
+stacks two algorithms, each from its own 2007 paper by Leitão, Pereira & Rodrigues: **HyParView** for
+membership ("HyParView: A Membership Protocol for Reliable Gossip-Based Broadcast," DSN 2007) and
+**PlumTree** for broadcast ("Epidemic Broadcast Trees," SRDS 2007, pp. 301–310). *(Verified, attribution and
+the two-paper split against the primaries this round; the SRDS paper is PlumTree, the DSN paper is
+HyParView, they are not one paper, and iroh-gossip's own crate docs name both papers as its basis.)*
 
-Drystone splits the DS's two functions, ordering and store-and-forward, and keeps only the second
-(§10.2): there is **no DS in its ordering role** (ordering is the timestamp-free causal-cryptographic fold
-of §7.3.1, with forks first-class, §7.6), and the store-and-forward function is the optional **meer**
-(§5.4, §6.5.3).
-
-#### 6.5.1. Direct peer-to-peer (the common case)
-
-Two online peers exchange `PrivateMessage` bytes over a direct, hole-punched iroh QUIC connection. No
-intermediary holds the bytes. This is the default and the majority path (Fig. 1 puts it at the common-case
-~90–95% of traffic). Layer A authenticates the channel and hides the link metadata from the network; Layer
-B protects the content end-to-end (redundant for *content* here, since there is no intermediary, but still
-the source of FS/PCS and group authentication).
-
-#### 6.5.2. Relay-assisted (NAT traversal)
-
-When two peers cannot hole-punch a direct path, iroh's relay coordinates the connection and, in the
-residual case, forwards encrypted packets. The relay is *inside* Layer A for the traffic it carries (it
-sees `EndpointId`-to-`EndpointId` flow and timing) but never *inside* Layer B (content stays sealed). The
-relay is **stateless and content-blind**: a transport-layer metadata observer, not a message store. This
-is the **iroh relay**, distinct from the meer (§5.4): the relay is a transport-layer blind packet forwarder
-for reachability, holding nothing; the meer is an application-layer store that persists encrypted objects
-for later delivery. Both are blind; they sit at different layers; neither is mandatory.
-
-#### 6.5.3. The meer (offline durability, the additive role)
-
-A **meer** (§5.4) persists sealed `PrivateMessage` bytes for members who were offline, and serves them on
-dial-home, the §7.4 returning-member catch-up: the member reports its `(G, D)` cursor (the
-governance-commit and dataplane positions it last held), drains the missed governance commits and retained
-dataplane backlog, then verifies forward (Fig. 2). A meer holds Layer-B ciphertext it cannot read. Per
-Part 1 §2.4 and §5.9, the meer is a **revocable role held redundantly, never a structural dependency**: the
-no-meer path stays real, and losing a meer costs offline-durability only, never function or standing.
-
-> **Design rule, the meer stores byte-identical sealed messages, never re-sealed copies.** Dual delivery (a
-> member receiving the same commit once via gossip and once via meer drain) is benign because gossip
-> de-duplicates beneath MLS and MLS applies commits forward-only and idempotently: a duplicate commit no
-> longer matches current state and is dropped, the monotonic-fold property of Part 1 §2.2 / §7.3. But this
-> safety holds **only if the meer returns the identical `PrivateMessage` bytes.** A meer that re-encrypts
-> or re-frames a message could induce ratchet key/nonce reuse, which MLS does not permit. The meer **MUST**
-> store and forward the sealed bytes unchanged. *(This is why §5.4 insists the meer is never issued a key:
-> there is no decrypt, so there is nothing to re-seal.)*
-
-### 6.6. The gossip overlay (HyParView + PlumTree)
-
-Once a peer can reach one swarm member (via §6.4), the gossip layer disseminates messages and maintains a
-fresh neighbor picture with no coordinator. iroh-gossip stacks two algorithms, each from its own 2007
-paper by Leitão, Pereira & Rodrigues: **HyParView** for membership ("HyParView: A Membership Protocol for
-Reliable Gossip-Based Broadcast," DSN 2007) and **PlumTree** for broadcast ("Epidemic Broadcast Trees,"
-SRDS 2007, pp. 301–310). *(Verified, attribution and the two-paper split against the primaries this round;
-the SRDS paper is PlumTree, the DSN paper is HyParView, they are not one paper, and iroh-gossip's own crate
-docs name both papers as its basis.)*
-
-**A version-status note that matters here.** Unlike iroh core, **`iroh-gossip` is a separate crate on its
-own pre-1.0 release line** (it was split out of the iroh crate before 1.0 and explicitly no longer receives
-"special treatment"), so the iroh 1.0 wire-and-API stability guarantee **does not extend to it**. Its
+**A version-status note that matters here.** Unlike iroh core, **`iroh-gossip` is a separately-versioned
+crate on its own pre-1.0 release line**, outside the iroh 1.0 wire-and-API stability guarantee. Its
 mapping of HyParView/PlumTree, its event surface, and its tuning constants can still change between
 releases. The flags in this subsection are therefore scoped to `iroh-gossip`'s own pinned version, not to
-iroh core, which is stable. **[confirm, iroh-gossip internals against its pinned (pre-1.0) version.]**
+iroh core, which is stable. **[confirm, iroh-gossip internals against its pinned (pre-1.0) version.]** This
+version split is itself an instance of the requirement-vs-realization separation: the requirement is pinned,
+the realization is a moving pre-1.0 crate, and saying so is what keeps a reader from mistaking a tuning
+constant for a design commitment.
 
-#### 6.6.1. HyParView, the membership layer
+#### 6.10.1. HyParView, the membership layer
 
-Each node keeps two views: a small **active view** (the live connections that messages flow over) and a
-larger **passive view** (a reserve address book, not connected). Periodic background shuffles swap view
-samples between nodes, keeping the passive view stocked. When an active link dies, a passive peer is
-promoted to refill it, so the overlay reheals locally with no central coordinator. **[confirm, the
-active/passive view-size constants are illustrative; verify iroh-gossip's configured values, the SRDS
-paper used a small fanout, e.g. 4, but iroh may differ.]**
+Each node keeps two views: a small **active view** (the live connections messages flow over) and a larger
+**passive view** (a reserve address book, not connected). Periodic background shuffles swap view samples
+between nodes, keeping the passive view stocked. When an active link dies, a passive peer is promoted to
+refill it, so the overlay reheals locally with no central coordinator. **[confirm, the active/passive
+view-size constants are illustrative; verify iroh-gossip's configured values, the SRDS paper used a small
+fanout, e.g. 4, but iroh may differ.]**
 
-This is the source of the "gossip has its own internal discovery" property: within a swarm, a node learns
-of *other members* from peers it already knows, via shuffles. This is intra-swarm peer learning, **not**
-key-to-address resolution; it cannot bootstrap a node into a swarm from nothing, which is why `subscribe`
-takes a bootstrap-peer set (§6.6.2). *(Verified against the iroh-gossip crate API: `subscribe` is called
-with a `TopicId` and a set of bootstrap peers, confirming a swarm cannot be joined from a topic id alone.)*
+This is the source of the "gossip has its own internal discovery" property: within a swarm, a node learns of
+*other members* from peers it already knows, via shuffles. This is intra-swarm peer learning, **not**
+key-to-address resolution (§6.9); it cannot bootstrap a node into a swarm from nothing, which is why
+`subscribe` takes a bootstrap-peer set (§6.10.2). *(Verified against the iroh-gossip crate API: `subscribe`
+is called with a `TopicId` and a set of bootstrap peers, confirming a swarm cannot be joined from a topic id
+alone.)*
 
-#### 6.6.2. Bootstrap and the seed role
+#### 6.10.2. Bootstrap and the seed function
 
 To join a topic, a node hands `subscribe` one or more bootstrap `EndpointId`s already in the swarm;
 HyParView grows its view from that seed. The seed shares peer *knowledge* (samples from its views), not its
-live connections; the newcomer forms its own active view by dialing peers directly. The seed is a
-phonebook, not a switchboard.
+live connections; the newcomer forms its own active view by dialing peers directly. The seed is a phonebook,
+not a switchboard.
 
-> **The seed is a join-time center if singular, make it plural and rotating.** A swarm runs fine without
-> the seed once members are woven in (PlumTree and HyParView need no bootstrap thereafter). But a *new*
-> member, or one that lost its passive view while offline, cannot re-enter if the only discoverable peer is
-> down. Per Part 1 §2.4 this is the structural-dependency hazard relocated to the join path, and the fix
-> mirrors the meer fix (§5.9): several members publish as seeds, newcomers bootstrap from any, the set
-> rotates. In Mode 2 (mDNS, §6.7.2) this is automatic, every member is discoverable, so there is no single
-> seed. A starved active view (e.g. "1 active, many passive") makes a seed especially fragile and is not
-> recommended for a peer others rely on to join.
+> **The seed is a join-time center if singular, make it plural and rotating.** A swarm runs fine without the
+> seed once members are woven in (PlumTree and HyParView need no bootstrap thereafter). But a *new* member,
+> or one that lost its passive view while offline, cannot re-enter if the only discoverable peer is down.
+> Per Part 1 §2.4 this is the structural-dependency hazard relocated to the join path, and the fix mirrors
+> the meer fix (§5.9): several members publish as seeds, newcomers bootstrap from any, the set rotates. In
+> Mode 2 (mDNS, §6.11.2) this is automatic, every member is discoverable, so there is no single seed. A
+> starved active view (e.g. "1 active, many passive") makes a seed especially fragile and is not recommended
+> for a peer others rely on to join.
 
-#### 6.6.3. PlumTree, the broadcast layer
+#### 6.10.3. PlumTree, the broadcast layer
 
 Each node splits neighbors into **eager-push** peers (which get the full message immediately) and
 **lazy-push** peers (which get only an `IHAVE(message-id)` digest). Eager links self-organize into a
-spanning tree; lazy links are the redundant edges held in reserve. **[confirm, eager/lazy semantics
-against the SRDS primary and the iroh-gossip implementation.]**
+spanning tree; lazy links are the redundant edges held in reserve. **[confirm, eager/lazy semantics against
+the SRDS primary and the iroh-gossip implementation.]**
 
 Pruning is the efficiency engine: a duplicate arriving over an eager link (already received from the
-tree-parent) triggers a `PRUNE` that demotes the link to lazy. After a few messages the eager links
-collapse to a tree carrying one copy per node, and the redundant links carry only cheap digests. Healing
-is why the lazy links exist: if a tree branch breaks, downstream nodes still receive `IHAVE` digests over
-lazy links, notice a digest for a message they never received, and send a `GRAFT` to pull it and re-attach
-the tree. *(The payload-via-tree-branches, recover-via-remaining-links design is verified against the SRDS
-primary; the exact `PRUNE`/`GRAFT`/`IHAVE` wire behavior in iroh-gossip is* **[confirm].**)
+tree-parent) triggers a `PRUNE` that demotes the link to lazy. After a few messages the eager links collapse
+to a tree carrying one copy per node, and the redundant links carry only cheap digests. Healing is why the
+lazy links exist: if a tree branch breaks, downstream nodes still receive `IHAVE` digests over lazy links,
+notice a digest for a message they never received, and send a `GRAFT` to pull it and re-attach the tree.
+*(The payload-via-tree-branches, recover-via-remaining-links design is verified against the SRDS primary;
+the exact `PRUNE`/`GRAFT`/`IHAVE` wire behavior in iroh-gossip is* **[confirm].**)
 
-#### 6.6.4. What gossip does and does not guarantee
+#### 6.10.4. What gossip does and does not guarantee
 
 Delivery is best-effort and probabilistic: the tree usually reaches everyone and healing usually repairs
 breaks, but a node that is *entirely offline* during a broadcast is not in the tree and receives neither
-eager pushes nor `IHAVE` digests; there is no branch to heal. This is the structural reason gossip cannot
-be the durability layer: PlumTree repairs *transient* breaks in a live tree; it offers nothing to an absent
-node. Offline durability is the meer's job (§6.5.3), and catch-up validity is the returning member's local
-check (§7.4, Fig. 2).
+eager pushes nor `IHAVE` digests; there is no branch to heal. This is the structural reason gossip cannot be
+the durability layer: PlumTree repairs *transient* breaks in a live tree; it offers nothing to an absent
+node. Offline durability is the durability plane's job (§6.6), and catch-up validity is the returning
+member's local check (§7.4).
 
 The event surface a subscriber sees at the network layer is `NeighborUp`, `NeighborDown`, `Received`, and
 `Lagged`, note the absence of any delivery confirmation. *(Verified against a recent iroh-gossip release:
 the net-layer subscriber event set is exactly these four, and `Lagged` carries no information about *what*
 was missed. The protocol-layer `ProtoEvent` is narrower still, `NeighborUp` / `NeighborDown` / `Received`,
-with no `Lagged` at all.)* The event enum has changed shape across versions (an earlier `Joined` event was
-folded into `NeighborUp`; the enum was later flattened), so the exact variants remain **[confirm]** against
-the pinned release, as does the send-side `broadcast` return semantics, whether any completion signal
-exists beyond "queued." The load-bearing property is version-stable regardless of the enum's exact shape:
-there is **no per-recipient ack**, so "what to drop" decisions cannot read a gossip confirmation; they ride
-MLS epoch acknowledgement and dial-home acks instead (§6.5.3, §7.4). `Lagged` tells a receiver it fell
-behind but not what it lost, a reason to drain from a meer, not a data-loss signal in itself.
+with no `Lagged` at all.)* The exact enum variants vary across `iroh-gossip` releases, so they remain
+**[confirm]** against the pinned release, as does the send-side `broadcast` return semantics. The
+load-bearing property is version-stable regardless of the enum's exact shape: there is **no per-recipient
+ack**, so "what to drop" decisions cannot read a gossip confirmation; they ride MLS epoch acknowledgement
+and dial-home acks instead (§6.6.2, §7.4). `Lagged` tells a receiver it fell behind but not what it lost, a
+reason to drain from a meer, not a data-loss signal in itself, and the precise "what did I miss" answer
+comes from gap-aware convergence (§6.8.1), not from the overlay.
 
-### 6.7. The two deployment modes
+### 6.11. The two deployment modes
 
-The modes run the **same protocol**; the differences are entirely in the discovery substrate (§6.4) and the
-presence of the meer (§6.5.3). MLS sealing, the gossip overlay, local commit verification, and the cursor
-catch-up are identical in both.
+The modes are **named bundles of plane choices**: they run the **same protocol**, and the differences are
+entirely in the discovery substrate (§6.9) and the presence of the meer (§6.6.2). MLS sealing, the gossip
+overlay, local commit verification, and the cursor catch-up are identical in both. This is the payoff of the
+whole three-plane treatment: a "deployment mode" is not a different architecture but a selection across
+Carriage, Durability, and Presence.
 
-#### 6.7.1. Mode 1, relay/meer (internet-scale, members scattered, often offline)
+#### 6.11.1. Mode 1, relay/meer (internet-scale, members scattered, often offline)
 
-- **Discovery:** DNS/Pkarr or Pkarr-on-DHT (§6.4.1 / §6.4.2).
+- **Discovery:** DNS/Pkarr or Pkarr-on-DHT (§6.9.2).
 
-- **Live delivery:** direct hole-punched QUIC where possible (§6.5.1); relay-assisted fallback (§6.5.2).
+- **Carriage:** direct hole-punched QUIC where possible (C-direct, §6.5.1); relay-assisted fallback
+  (C-relay, §6.5.2); the swarm spans the internet (C-swarm, §6.5.3).
 
-- **Catch-up:** returning members dial a redundant, rotating meer (§6.5.3), report the `(G, D)` cursor,
-  drain missed governance commits and retained dataplane backlog, then verify forward (§7.4 catch-up flow,
-  Fig. 2).
+- **Durability:** returning members dial a redundant, rotating meer (D-meer, §6.6.2), report the `(G, D)`
+  cursor, drain missed governance commits and retained dataplane backlog, then verify forward (§7.4).
 
-- **Meer-absent behavior:** liveness and cursor comparison still work peer-to-peer; governance validity is
-  still locally checkable; only long-gap backlog (a member offline while its corroborating peers were also
-  away) is lost. Governance currency degrades to a corroborated estimate, which is safe because
-  incompleteness can only **under-authorize** (§7.4).
+- **Presence:** P-meer or P-push over a poll-a-meer floor (§6.7).
 
-- **Gossip:** the swarm spans the internet; bootstrap from a known stable seed (an always-on meer is a
-  natural seed) or a rotating seed set (§6.6.2). Best-effort fan-out; the meer captures for offline
-  members.
+- **Meer-absent behavior:** liveness and cursor comparison still work peer-to-peer (D-peer, §6.6.3);
+  governance validity is still locally checkable; only long-gap backlog (a member offline while its
+  corroborating peers were also away) is lost. Governance currency degrades to a corroborated estimate,
+  which is safe because incompleteness can only **under-authorize** (§7.4).
 
-#### 6.7.2. Mode 2, direct P2P, local network (LAN, airgapped, family-tablet, field)
+#### 6.11.2. Mode 2, direct P2P, local network (LAN, airgapped, family-tablet, field)
 
-- **Discovery:** mDNS (§6.4.3), every member discoverable, no seed.
+- **Discovery:** mDNS (§6.9.2), every member discoverable, no seed.
 
-- **Live delivery:** pure direct QUIC on the LAN; no relay (no NAT problem on a flat segment), no meer.
+- **Carriage:** pure direct QUIC on the LAN (C-direct); no relay (no NAT problem on a flat segment); the
+  swarm is small and local (C-swarm).
 
-- **Catch-up:** peer-to-peer, a briefly-absent member rejoins the topic, asks reachable members for
-  cursors, pulls missed commits from any member that has them, verifies locally (§7.4).
+- **Durability:** peer-to-peer (D-peer, §6.6.3), a briefly-absent member rejoins the topic, asks reachable
+  members for cursors, pulls missed records from any member that has them via gap-aware convergence
+  (§6.8.1), verifies locally. No meer.
+
+- **Presence:** P-gossip and P-none; no push host.
 
 - **Missing vs Mode 1:** durability across a *total-absence* window only. If all members cycled off, no one
   holds the backlog. Governance stays safe (under-authorize); the dataplane may gap.
 
-- **Gossip:** same protocol; bootstrap from mDNS rather than a seed; small swarm, so fan-out is fast and
-  `Lagged` is unlikely; `NeighborUp` / `NeighborDown` do real work as broker-free liveness.
-
 > **The through-line.** Mode 2 is Mode 1 minus offline durability, with every other function preserved,
 > `P-Durable-Enablement` made concrete. The meer and the relay are **additive conveniences, not structural
-> requirements** (§5.9): discovery swaps substrate; the cryptographic and governance machinery is
-> invariant. This is the §5.9 exitability claim seen at the transport layer, the rigid single-keeper
-> deployment is one *setting* of this model, never a different architecture.
+> requirements** (§5.9): discovery swaps substrate; the cryptographic and governance machinery is invariant.
+> This is the §5.9 exitability claim seen at the transport layer: the rigid single-keeper deployment is one
+> *setting* of this model, never a different architecture.
 
-### 6.8. Real-time media
+### 6.12. Real-time media
 
 Real-time media (voice/video/stage) rides the **same iroh transport** as messaging but over **QUIC
-datagrams** (unreliable, no retransmit) carried as RTP-over-QUIC. Media frames **MUST** use the datagram
-flow (latency over reliability) and **MUST** be end-to-end encrypted via per-sender keys derived from the
-group key epoch, so a forwarding helper stays blind. A group-scale call **SHOULD** use a **blind forwarding
-helper** (header-only routing) rather than full mesh past a handful of peers; server-side mixing that
-requires plaintext is **forbidden**. Media keys rotate on membership change exactly as messages do.
+datagrams** (unreliable, no retransmit) carried as RTP-over-QUIC. It is, in the payload-class vocabulary of
+§6.8.4, an intrinsic-latency-over-reliability class with its own carriage needs. Media frames **MUST** use
+the datagram flow (latency over reliability) and **MUST** be end-to-end encrypted via per-sender keys
+derived from the Group key epoch, so a forwarding helper stays blind. A Group-scale call **SHOULD** use a
+**blind forwarding helper** (header-only routing) rather than full mesh past a handful of peers; server-side
+mixing that requires plaintext is **forbidden**. Media keys rotate on membership change exactly as messages
+do.
 
 Two media congestion-control rules are **normative**: (1) the media engine's bitrate estimator **MUST** be
 authoritative and back off on the path-RTT trend (plus per-stream loss and jitter); it **MUST NOT** rely on
@@ -1474,8 +2143,6 @@ alone (a delayed prefix shows none). (2) Real-time media and bulk reliable trans
 separate flows/connections, or the bulk transfer starves the media. *green-real (both rules measured: a
 delay-based estimator backs off 64→8 kbps in under a second; co-located bulk drove media RTT to seconds,
 separate flows left the call untouched). The video engine and real-codec/RTP path are design.*
-
----
 
 ## 7. Synchronization and Governance-Conflict Resolution
 
@@ -1497,14 +2164,14 @@ redesign; Drystone is built Willow-*shaped*, not Willow-*dependent*.
 ### 7.2. The grant-and-revocation interface (mechanism-neutral, normative)
 
 > **Scope (carried from §5.5):** this interface governs both kinds of grant that sit above the rights
-> floor, **roles** (in-group governance authority) and **capabilities** (Meadowcap data-access grants).
+> floor, **Group Roles** (in-Group governance authority) and **capabilities** (Meadowcap data-access grants).
 > Both are unforgeable, attenuating, revocable governance facts, so they share one interface. "Capability"
 > here is Meadowcap's data-access sense, kept verbatim; the requirements are the standard object-capability
 > guarantees.
 
-Whatever role/capability mechanism Drystone adopts **MUST** provide:
+Whatever Group-Role / capability mechanism Drystone adopts **MUST** provide:
 
-- **R1, Unforgeable grant.** A role or capability cannot be fabricated by anyone not entitled to issue it.
+- **R1, Unforgeable grant.** A Group Role or capability cannot be fabricated by anyone not entitled to issue it.
 
 - **R2, Attenuating delegation.** A holder may delegate a subset of held authority, never a superset
   (`Realizes: P-Peer-Equality`; this is Meadowcap's confinement property for capabilities).
@@ -1514,7 +2181,7 @@ Whatever role/capability mechanism Drystone adopts **MUST** provide:
 
 - **R4, Bounded stale-authority exposure.** For a holder that refuses to sync a revocation, the protocol
   **MUST** bound the window in which third parties accept the revoked grant, a finite, stated bound
-  (epoch boundary or membership-graph generation; **not** a wall-clock interval, per §2.0.1, a bound
+  (epoch boundary or membership-graph generation; **not** a wall-clock interval, per Part 1 §2.0.1, a bound
   expressed in time would rest on the same uncorroborable clock).
 
 - **R5, Forward read exclusion.** After expulsion, the member **MUST NOT** read entries authored after
@@ -1553,8 +2220,10 @@ depends on; if it is relaxed, termination (§7.5.2), no-state-reset, and attribu
 > unconflictable base that v2.1 moved toward. *Two distinct claims, kept separate so neither overreaches:*
 > the monotonic fold defends against the **reset** class; the timestamp-free order (§7.3.1) defends
 > against the **backdating** surface. These are different defenses against different failure modes, not
-> one claim. **[confirm before publish, CVE-2025-49090 root cause against the MSC4297 primary text; the
-> blog/implementer-guide summary is the current source, not the MSC itself.]**
+> one claim. *(Verified this revision: the CVE-2025-49090 root cause, a state reset to an earlier/incorrect
+> value absent a validly-producing event, and the MSC4297 fix, begin the iterative auth checks from the
+> empty set and replay the full conflicted subgraph between conflicting facts, are both confirmed against
+> the Matrix State Res v2.1 implementer's guide and the CVE record.)*
 >
 > *Steelman against.* Under the same 2025 review, Matrix concluded that sound decentralized resolution
 > requires an **uncapped root**, room creators with permanent "infinite" power (MSC4289), reasoning
@@ -1564,17 +2233,18 @@ depends on; if it is relaxed, termination (§7.5.2), no-state-reset, and attribu
 > problem**: their order consumes a wall-clock, so backdating manufactures authority, so they pin
 > authority to an apex; Drystone removes the wall-clock from the order (§7.3.1), so that specific attack
 > has no purchase. **This is an argument, not yet a proof, and the gap is named precisely in Appendix B.**
-> **[confirm before publish, MSC4289.]**
+> *(The MSC4289 facts, creator infinite power and the backdating rationale, are verified against the Matrix
+> Project Hydra disclosure; what remains open is Drystone's soundness claim, not the Matrix fact.)*
 
-**The unconflictable root.** Each scope has a founding fact establishing initial authority. Its authority
-over the genesis of the scope is **not** subject to the §7.3.1 ordering; it is the base case of the
+**The unconflictable root.** Each Group has a founding fact establishing initial authority. Its authority
+over the genesis of the Group is **not** subject to the §7.3.1 ordering; it is the base case of the
 authority-rank computation, not a competitor within it, because a conflict at the root is the one ambiguity
 an attacker could convert into total capture. Drystone's root authority is **capped, delegable, and
 revocable-by-succession** (`Realizes: P-Peer-Equality`), not infinite. The root forgery vector itself is
-closed structurally: the scope id is `H(tag ‖ group_id)` (§4.2) and the founding fact is the fold's
+closed structurally: the Group's genesis id is `H(tag ‖ group_id)` (§4.2) and the founding fact is the fold's
 unconflictable base, so there is no second create event to smuggle in (the structural analogue of the fix
-Matrix shipped as MSC4291, room-id-as-hash-of-create-event). *design.* **[confirm before publish,
-MSC4291.]**
+Matrix shipped as MSC4291, room-id-as-hash-of-create-event). *design; the Matrix MSC4291 fix is verified
+against the v1.16 release notes.*
 
 > `ENABLING:` Root-authority succession (how founding authority transfers when founders leave) is the most
 > dangerous operation in the system and is deferred to a Lifecycle section (Appendix B). A permanently
@@ -1645,7 +2315,7 @@ clocks (corroborable) plus a content-address tiebreak (deterministic), never a w
 > those two properties, but they do not make it a universal law (Part 1 §2.0.1). The reason for rejecting
 > power-in-the-comparator is separate from the reason for rejecting timestamps: folding power into the
 > comparator drew an apparent-cycle objection in Matrix's own review, while the timestamp tiebreak is
-> uncorroborable per §2.0.1. Note carefully: Matrix's 2025 state-reset CVE was rooted in
+> uncorroborable per Part 1 §2.0.1. Note carefully: Matrix's 2025 state-reset CVE was rooted in
 > starting-state/replay-scope, **not** in the timestamp tiebreak, so this contrast is about ordering-spine
 > design, and the CVE is cited in §7.3 for the *separate* monotonic-fold point. *(State-Resolution-v2
 > tiebreak fields and the authors' "trusting servers not to lie about the time" admission confirmed against
@@ -1665,7 +2335,7 @@ never neither, and the loser's fact remains in the log as a valid-but-superseded
 > provenance tiebreak, not a utility judgment about who *should* win. Where a contradiction is a genuine
 > membership contradiction that the fold cannot determinately resolve without manufacturing a utility
 > verdict (Part 1 §2.5), §7.6 applies instead: the protocol hard-stops and escalates. The line between
-> "deterministically tiebroken" and "must escalate" is itself partly a per-scope tolerance, see §7.6.
+> "deterministically tiebroken" and "must escalate" is itself partly a per-Group tolerance, see §7.6.
 
 #### 7.3.3. The declarative snapshot is a cache; truncation is verifiable
 
@@ -1673,7 +2343,7 @@ The governance log is the **imperative** source of truth; "current state" (membe
 in force) is a **declarative snapshot**, a deterministic fold of the log carrying the governance head it
 was computed from. The snapshot **MUST** be treated as a cache: it is **never authoritative, never
 independently writable, never synced as truth, never trusted from a participant**, and it is **valid only while
-its recorded head equals the group's current governance head** (otherwise re-fold the tail). It is not
+its recorded head equals the Group's current governance head** (otherwise re-fold the tail). It is not
 "latest values" but "latest values that passed authorization at each step", the log is **self-validating
 under replay**, since each fact is admitted only if authorized under the rules in force at its position.
 Peers reconcile by exchanging the **imperative log** and each deriving the snapshot independently;
@@ -1701,9 +2371,9 @@ participant's wall-clock) and **MUST NOT** display a view as "current" unless it
 best-seen tip **and** has heard a beacon within the tier's freshness horizon; otherwise the view **MUST**
 surface as "behind" or "unverified." Silence **MUST NOT** be rendered as currency. *green-model.*
 
-> **What freshness can and cannot establish, and why this is a §2.0.1 consequence.** No node can know
+> **What freshness can and cannot establish, and why this is a Part 1 §2.0.1 consequence.** No node can know
 > what is *most current* in a center-free design, "most current" presumes a global vantage no node has,
-> and it would have to rest on the very wall-clock §2.0.1 rules out. But a node *can* establish two things
+> and it would have to rest on the very wall-clock Part 1 §2.0.1 rules out. But a node *can* establish two things
 > that **are** corroborable provenance: **liveness over a window** (which peers emitted beacons recently,
 > measured by the node's own local elapsed time as a private input, never as a shared clock) and **causal
 > independence** (whether two diverging facts are concurrent or one references the other). The protocol
@@ -1723,8 +2393,8 @@ labeled). This **narrows, does not close**, the fresh-but-wrong-partition window
 hard-stop's, by design. *design, decided; tests specified, not yet run.*
 
 **The returning-member catch-up: the `(G, D)` cursor and the verify-fold-escalate sequence (Fig. 2).** A
-member that was offline rejoins and reconciles against whatever it can reach (a meer in Mode 1, §6.5.3;
-reachable peers in Mode 2, §6.7.2). The returning member reports a **`(G, D)` cursor**, the position it
+member that was offline rejoins and reconciles against whatever it can reach (a meer in Mode 1, §6.6.2;
+reachable peers in Mode 2, §6.11.2). The returning member reports a **`(G, D)` cursor**, the position it
 last held on the **governance** stream (`G`) and on the **dataplane** stream (`D`), and drains what it
 missed from that cursor forward. The source of the commits **does not matter to validity**: a commit
 arriving from a meer, a peer, or the gossip overlay is checked identically, because a forged one will not
@@ -1740,7 +2410,7 @@ verify. The local sequence, drawn in Fig. 2, is:
   Sequential operations are not the residue; only genuinely concurrent, mutually-exclusive-over-standing
   operations are.
 
-- For a concurrent contradiction, apply the per-scope **benign-vs-dispute tolerance** (§7.4.1). A
+- For a concurrent contradiction, apply the per-Group **benign-vs-dispute tolerance** (§7.4.1). A
   provably-benign sync artifact is auto-reconciled or held as a **stale-but-honest** view pending
   corroboration; a case that cannot be proven benign **escalates to humans with full provenance** (§7.6),
   where the machine annotates and does not decide.
@@ -1748,7 +2418,7 @@ verify. The local sequence, drawn in Fig. 2, is:
 The safety property the cursor inherits from the monotonic fold (§7.3): a returning member that cannot
 reach a complete backlog **under-authorizes** (acts on less) but never **mis-authorizes** (acts on a
 reverted or forged state). Incompleteness is therefore always safe, which is why meer-absent and
-total-absence windows (§6.7) degrade governance currency to a corroborated estimate rather than to a
+total-absence windows (§6.11) degrade governance currency to a corroborated estimate rather than to a
 hazard. *(design; the byte-level `(G, D)` cursor and checkpoint encodings are `ENABLING`, Appendix B. The
 catch-up validity check reuses the §7.3 fold and §7.5 attributable-acceptance machinery, adding no new
 authority-bearing input.)*
@@ -1763,12 +2433,12 @@ human channel would drown in false alarms and lose the trust the entire algedoni
 (Part 1 §3, Beer). If escalation were too lax, a real contradiction would be silently auto-reconciled,
 which would re-open the manufactured-resolution surface §7.3.1 closes.
 
-The resolution follows the razor (Part 1 §2.0, §2.5). The **machine computes the provenance signals**,
+The resolution follows the razor (Part 1 §2.0, Part 1 §2.5). The **machine computes the provenance signals**,
 concurrency vs causal-dependence, liveness-over-window (§7.4), and the magnitude/shape of frontier
 divergence, all corroborable. **Whether a given concurrent contradiction is treated as benign-and-safely-
-auto-reconcilable versus escalate-to-humans is a per-scope governed tolerance over those signals, not a
+auto-reconcilable versus escalate-to-humans is a per-Group governed tolerance over those signals, not a
 hardcoded constant**, because the benign-vs-deception distinction is ultimately a utility judgment and is
-vulnerable to alarm-fatigue, so it must be tunable to the scope's threat model, temperament, and need.
+vulnerable to alarm-fatigue, so it must be tunable to the Group's threat model, temperament, and need.
 
 Two normative guardrails keep the tolerance honest:
 
@@ -1782,10 +2452,51 @@ Two normative guardrails keep the tolerance honest:
   resolution costs the integrity the protocol exists to protect.
 
 The setting itself is a threat-model judgment; this specification states the axes (fatigue-risk vs
-silent-false-resolution-risk) and **declines to pick the default value**; that is a scope's call, and a
-per-scope governed policy fact like any other. What the spec leaves to implementation is twofold: the
+silent-false-resolution-risk) and **declines to pick the default value**; that is a Group's call, and a
+per-Group governed policy fact like any other. What the spec leaves to implementation is twofold: the
 **granularity of the knobs** exposed and the **shipped defaults**; both are tuning decisions to settle
 against a real deployment, not protocol constants. *design.*
+
+#### 7.4.2. Two MLS recovery hazards the corroboration model dissolves
+
+Two hazards MLS names for a recovering node lose their force here, and it is worth showing why, because in
+each the MLS hazard is real and the Drystone answer is not a patch but a consequence of the fold already
+specified.
+
+**A stale `GroupInfo` cannot defeat post-compromise security.** When a client cannot process a commit, a
+common MLS recovery is to rejoin by external commit using a published `GroupInfo`, and stock MLS treats
+that `GroupInfo` as authoritative. An adversary who feeds a victim an unprocessable commit and then serves
+a stale `GroupInfo` can drive the victim to rejoin into a superseded (possibly compromised) epoch,
+defeating PCS, or serve a corrupted one to block rejoin (a denial of service). *(Verified, RFC 9750 §8.1.4,
+§5.3.)* In a center-free mesh this is sharper, because any peer, not one identifiable DS, can serve the
+`GroupInfo`. The hazard exists because in stock MLS the `GroupInfo` is the only thing the rejoining client
+can check against. **In Drystone the `GroupInfo` is not the authority; the governance chain is.** A
+rejoining node treats a `GroupInfo` as a *claim* and corroborates it against the authoritative chain it
+already holds; a `GroupInfo` pointing at a membership or epoch the chain has moved past is detectable
+locally, with no trusted third party. Two distinct defenses discharge the two halves: the **monotonic fold**
+(§7.3) means a forged governance assertion cannot roll the group back, it only fails to advance in step, so
+the asserter forks itself out (a fork of one) rather than corrupting anyone; and the **per-Group threshold**
+(§7.2) quantifies the attack MLS leaves unquantified, mounting it costs compromising a quorum of cosigners,
+not one member, and the threshold is the same dial Part 1 §2.3 sets by context (a family joined in person by
+QR runs low; an activist group runs strict). The residual carried to Appendix B: a rejoining node far enough
+behind on the governance chain that its own view has not advanced past the epoch a recent-but-superseded
+`GroupInfo` points at. The §7.4 under-authorize-never-mis-authorize property suggests this holds, but it is
+reasoned, not proven. **[confirm.]**
+
+**Insider replay and nonce-reuse-on-restore are isolated by out-of-band convergence.** MLS does not protect
+against replay by insiders (a member can re-inject an old application message; the per-sender counter
+detects a gap but does not prevent replay), and it carries a `reuse_guard` because a client that reverts to
+earlier state can reuse a nonce and break AEAD. *(Verified, RFC 9750 §8.6; RFC 9420 §6.3.1, §16.7.)* Both
+hazards are the same shape, old bytes re-entering the live protocol stream, and both are dangerous only if
+the durability-and-history layer shares a stream with live protocol operation. It does not: **gap-aware
+history convergence runs out of band** (§6.8.1), reconciling the durable hash tree by anti-entropy and never
+re-injecting into the live MLS stream. A replayed old message therefore arrives as a content-addressed
+history-tree entry to be reconciled, idempotent and non-advancing (the monotonic fold, Part 1 §2.2), not as a live
+MLS message to process, so it is inert. The same separation covers nonce reuse: recovery restores
+history-tree state on the out-of-band layer, never a live group's ratchet or secret-tree state resumed in
+place. The residual carried to Appendix B: this holds only if the recovery model is always "re-plant or
+re-join fresh, converge history out of band" and never resurrects a live group's epoch secrets in place. If
+any path does the latter, the hazard returns. **[confirm.]**
 
 ### 7.5. Attributable acceptance and the regress-free fold
 
@@ -1802,7 +2513,7 @@ Against the attack of lying about one's knowledge state: **frontier omission** i
 (the commitment pins the set; the omitted revocation is provably in or out), and **equivocation** is
 defeated by the per-persona acceptance chain (two signed chain heads with the same predecessor are
 non-repudiable proof). **Backdating** cannot be defeated by cryptography alone, there is no trustworthy
-internal clock (§2.0.1, again: a node's own clock is not corroborable), so the bound is **causal**: if the
+internal clock (Part 1 §2.0.1, again: a node's own clock is not corroborable), so the bound is **causal**: if the
 revocation is in the causal history of any fact the participant's frontier includes, the "didn't have it" claim is
 refuted; the only residual is a participant genuinely causally independent of the revocation, which is the
 legitimate concurrent-partition case R4 exists to bound (by epoch/generation, not by time). Every stale
@@ -1860,7 +2571,10 @@ different properties and neither subsumes the other.**
 > the §7.3 founding-fact base case). **Adopting their closure does not adopt their ordering**: Drystone
 > keeps its own content-address tiebreak and rejects power-in-the-comparator and the wall-clock tiebreak
 > (§7.3.1). The two are separable, the closure is a convergence prerequisite independent of how ties
-> break. **[confirm before publish, MSC4297 conflicted-subgraph mechanism against the primary text.]**
+> break. *(Verified this revision against the Matrix State Res v2.1 implementer's guide: the two changes
+> are exactly (1) start the iterative auth checks from the empty set and (2) replay the conflicted state
+> subgraph, characterized as the strongly-connected component containing the contracted conflicted
+> supernode and computed by intersecting the forward-reachable and backward-reachable sets.)*
 
 > **A failure mode specific to Drystone's monotonic fold.** If a participant omits an in-between fact (incomplete
 > subgraph-closure), Drystone's monotonic fold will **not** produce Matrix's *reversion*; it produces two
@@ -1876,9 +2590,9 @@ different properties and neither subsumes the other.**
 When two histories merge, an implementation **MUST** detect membership contradictions (e.g.
 removed-then-included) and **hard-stop**; it **MUST NOT** silently auto-resolve (last-writer-wins or
 otherwise). Resolution is a social/governance input, not an automatic merge. The sanctioned exit for a
-minority is a clean, attributable **re-formation fork**: a differently-shaped scope that preserves history
+minority is a clean, attributable **re-formation fork**: a differently-shaped Group that preserves history
 and provenance to the point of departure and legitimizes/erases nothing retroactively. Stripping a helper
-operated by a cooperative or external operator simply **detaches** the scope into a differently-shaped one
+operated by a cooperative or external operator simply **detaches** the Group into a differently-shaped one
 (unpreventable anyway, the operator can always leave); the protocol only preserves history and provenance
 to the detachment. *green-real (contradiction hard-stop; identical reformed genesis across independent
 peers).*
@@ -1889,7 +2603,7 @@ the protocol raises the hard case to the humans who hold the context, the formal
 somewhat, then escalate the residue." It is a *designed* channel, not a failure path: the protocol commits
 in advance that genuine contradiction is a human-adjudicated event, because no merge rule can be trusted to
 absorb it silently. Crucially, the escalation keeps **both the signal and the authority local**; it
-surfaces the conflict to the affected scope rather than relocating the decision to a center that lacks the
+surfaces the conflict to the affected Group rather than relocating the decision to a center that lacks the
 context that made the conflict legible.
 
 **Why the terminus is a fork and not a verdict** (Part 1 §2.5, made mechanical). The residue that reaches
@@ -1903,6 +2617,214 @@ of departure), not to manufacture a consensus that was never available. The mach
 *surfacing* the contradiction with full provenance; the humans supply utility; and the fork is what honesty
 requires when utility itself is contested. *(This is also why the §8 posture is label-not-enforce: the same
 move, one layer down.)*
+
+#### 7.6.1. The escalation set has two members, not one
+
+The residue Part 1 §2.5 forces to humans has **two shapes**, and a mechanism that watches for only the
+first misses the second. Both share the defining property, provenance fully settled and utility open, the
+razor's seam (Part 1 §2.0); they differ only in how they are detected.
+
+- **Contradiction: too many valid claims.** Concurrent conflicting operations that all verify: Carol and
+  Bob, two personae at equal standing, each committing the other's removal against the same epoch; or a
+  removed-then-included merge. Detected as concurrent commits that will not linearize. This is the case the
+  hard-stop above catches.
+
+- **Under-determination: too few valid claims.** A required Group Role vacant with no valid grant
+  available. Suppose Dave holds the sole admin Group Role and his only node goes stale and is pruned
+  (§7.4); the survivors need the Group Role filled and cannot agree who fills it. There is no conflicting
+  act to order, there is an *absence* no cryptographic operation should fill. Detected as a required Group
+  Role vacant with no admissible successor.
+
+Under-determination is **expected, and deliberately given no technical resolution**, because filling the
+vacancy by a tree operation the survivors did not agree on is a center certifying utility (Part 1 §2.0). What the
+protocol supplies is the conditions for cheap human resolution, not the resolution: **legibility** (every
+node deterministically computes the same picture, Group Role vacant, these survivors, this governance
+posture, per P-Knowable-Truth, Part 1 §2.2), **cheap exits in every direction** (re-delegate the Group Role in one
+grant, run with it unfilled since the Group persists Group-Role-less by the no-helper floor of Part 1 §2.4,
+or fork), and **refusal to manufacture the missing authority**. The judgment stays with the humans; the
+instantiation of whatever they choose is Drystone's, and it is cheap in every direction.
+
+#### 7.6.2. The mechanism the fork and heal run on: one primitive, three arities
+
+A fork is not a distinct mechanism from a heal or a routine re-key; all three are the **same operation at
+different arity**, which the delivery layer calls **re-plant** (§6): read current membership from the
+governance chain, instantiate a fresh MLS group over it, and atomically repoint the conversation to it.
+
+- **Legitimate governance fork** (the split is real, so two conversations are correct): plant two fresh
+  groups, one per branch, each seeded from its branch's membership. One conversation lineage becomes two.
+
+- **Accidental fork** (a benign concurrency artifact, no governance divergence): plant one fresh group over
+  the reconciled membership and repoint both former branches to it. Valid **only** when governance did not
+  diverge, both branches carry identical authoritative membership; any governance divergence, even one
+  contested act, disqualifies the auto-heal, because healing it would manufacture the verdict Part 1 §2.5 forbids.
+
+- **Routine re-key**: repoint one to one.
+
+The choice of *which arity* to apply is the governed classifier of §7.4.1 (is this concurrent contradiction
+a real dispute or a benign artifact), a per-Group tolerance over verifiable provenance signals, never a
+constant. The mechanism is identical whichever way the classifier decides; only the decision is governed,
+and it must stay governed.
+
+#### 7.6.3. MLS is subordinate here; the conversation outlives the key layer
+
+The reason none of this is asked of MLS is a division of layers. **The MLS group is key-distribution
+infrastructure with a lifespan; the conversation persists across a sequence of MLS groups**, carried by the
+application-layer structures (the dataplane history and the governance chain), and the MLS group identity is
+not the conversation identity. MLS's transcript hash can represent exactly one linear commit sequence, with
+no representation for a branch or a merge (RFC 9420 §8.2), so a fork cannot be expressed inside an MLS group
+at all. *(Verified against RFC 9420 §8.2: each epoch chains as `confirmed_transcript_hash[n] =
+Hash(interim_transcript_hash[n-1] || ConfirmedTranscriptHashInput[n])`, a strict single-predecessor chain
+seeded from a zero-length string at genesis, which is exactly the "one linear sequence" property, no branch
+or merge is representable.)* Rather than defeat that linearity, Drystone
+keeps it where it is harmless (the monotonic dataplane, one linear sequence is correct) and declines it
+where it is not (the governance residue, where forcing a linear order over concurrent non-monotonic
+operations is the coordinate horn of the CALM dilemma Part 1 §2.5 rules out).
+
+The three arities are not bespoke: they map onto MLS's own **ReInit** (the re-key arity, and the heal over
+reconciled membership) and **branching** (the fork arity) operations, linked by a **resumption PSK** that
+proves co-membership at the source epoch (RFC 9420 §11.2, §11.3, §8.6). This is strong external validation,
+the standards body converged on the same shape, close the old group and re-form over the membership, linked
+by a PSK. The PSK carries the **entitlement** thread across a re-plant; the **content** thread is carried
+separately by the dataplane history (the PSK touches no content), and the two are kept distinct. *(Verified,
+RFC 9420 §8.6: the resumption PSK proves prior co-membership, not content.)*
+
+> **The one MLS-named hazard the re-plant inherits: ReInit is not atomic.** Committing a ReInit immediately
+> freezes the existing group, but creating the new group and sending its Welcomes is a separate step, so a
+> member can commit the ReInit and then go offline before completing the re-form, stranding the group in a
+> window where the old group is dead and the new one does not yet exist. *(Verified, RFC 9750 §6.1, §7.)* In
+> a center-free mesh the committer is an ordinary peer, so this freeze-then-strand window is a routine risk,
+> not an edge case. The freeze-first order is a deliberate tradeoff: it purchases replay-immunity (a committed
+> ReInit cannot be duplicated by a conflicting commit), at the cost of the stranding window. The candidate resolution is that the **governance chain
+> records the re-plant intent (re-planting to membership M) before the freeze**, so any member can complete
+> a stranded re-plant from the authoritative instruction rather than needing the original committer.
+> Whether the ordering is genuinely intent-recorded-before-freeze is the open question that decides whether
+> this hazard is discharged or merely bounded. **[confirm against the delivery and governance-chain
+> ordering; carried to Appendix B.]**
+
+### 7.7. Dataplane history: two modes
+
+The governance fold above (§7.3) is one structure; a Group's **dataplane history** (the conversation
+content itself) is managed in one of **two mutually exclusive modes**, chosen at Group creation. A Group
+runs one or the other, not both, because their convergence semantics and validity rules differ. The split
+exists because two things a Group might want, unbounded scale and coordinated mutability, pull the data
+model in incompatible directions, and no single structure has both properties.
+
+- **Forward-only mode (large-scale Groups).** An append-only, hash-linked causal fold, the same §7.3.1
+  ordering spine applied to content: provenance accrues by accumulation, entries are never overwritten or
+  deleted in place. It scales because no node needs the whole history and the structure is a simple
+  verifiable chain, which fits large, broadcast-like, or loosely-coupled Groups where coordinated mutation
+  would not converge cheaply. The only "cleanup" available is a coordinated hash roll-up (§7.7.2), not
+  per-entry mutation.
+
+- **Willow-mutable mode (bounded-size Groups).** Entries are path-addressed; a newer entry overwrites an
+  older one at the same path, and deletion is expressed as **prefix pruning**, so mutation and deletion are
+  first-class, convergent, capability-gated operations. It fits bounded-size Groups (families, teams, small
+  communities) that want genuine coordinated edit and delete, and it carries per-entry overwrite-tracking
+  overhead that only pays below some practical size. *(The size bound is an engineering estimate,
+  parameter- and backend-dependent, not yet measured; Appendix B.)*
+
+Being **Willow-shaped already** makes the mutable mode cheap to reach: the delivery layer chose range-based
+set reconciliation and content-hash addressing (§6.8.1, §7.1) for reasons that hold in forward-only mode
+regardless, and those choices put the substrate close to Willow's data model already. So adopting
+Willow-mutable mode for a bounded Group later is an *evolution of an already-Willow-shaped store, not a
+rewrite*, and it costs nothing in the forward-only case. This is a deliberate hedge: shape for the harder
+mode, pay only for the easier one until a Group needs the harder one.
+
+#### 7.7.1. What prefix pruning buys, and the wall it does not move
+
+Prefix pruning is a real capability gain and a bounded one, and both halves matter. Willow gives payloads
+hierarchical path names and deletes by overwriting a prefix (like overwriting a directory with an empty
+file); a delete is itself a convergent, synced, Meadowcap-capability-gated operation, so *who may delete
+what* is an authorization question. *(Verified, Willow data-model spec; Meadowcap.)* This is qualitatively
+beyond the forward-only fold, where removing a mid-history entry breaks every downstream hash (a fork from
+that point): Willow expresses coordinated, convergent, authorization-gated deletion as a normal synced
+operation, which the fold cannot without forking.
+
+The wall it does **not** move, stated plainly because a reader will otherwise assume erasure. Deletion is
+**metadata-convergent, not existence-erasing**, the prune leaves a tombstone, so "a value was here and was
+removed" is itself a propagated fact (honest, but not secret). And **convergence governs honest nodes; it
+cannot reach a copy already taken** by export, screenshot, or a modified client. This is the same
+irreversibility wall as cooperative chosen-ephemeral (§6.8.4): Willow upgrades deletion from an
+uncoordinated, unprovable, chain-breaking act to a coordinated, convergent, tombstoned, capability-gated
+one, but it does not eliminate the cooperative-non-retention nature of the guarantee. Deletion remains
+cooperative against honest nodes, never enforced against an adversary, and never corroborable.
+
+#### 7.7.2. Coordinated history roll-up (a governance item, not deletion)
+
+Distinct from per-entry deletion is **coordinated history roll-up**: a Group collapsing or summarizing old
+history to bound storage. It is a **Group governance decision** with a Group default for local execution and
+corroboration, and it is named here only to keep it separate from the two ideas it is often confused with,
+it is **not** chosen-ephemeral (a per-message retention disposition, §6.8.4) and **not** self-destruct
+(§6.8.4). In forward-only mode it is the *only* cleanup available, taking the shape of a coordinated hash
+roll-up rather than mutation. The mechanism (how the Group decides, the default, how local execution is
+corroborated) is its own governance treatment, referenced here rather than specified.
+
+#### 7.7.3. Self-destruct is bounded by node fidelity, and mode changes what it can mean
+
+Self-destruct (the §6.8.4 payload class: a time-bound sensitive value all members would prefer not persist,
+"show the guest wifi password until Monday") carries a **modest, deliberately-named threat model**: a
+good-enough honest auto-clean that beats passwords living forever in SMS, not anti-forensic erasure against
+a motivated adversary. Its strength is **not cryptographic**, because you cannot prove a recipient did not
+copy the value nor that every device expunged; it is a **trust-and-fidelity property**, the Part 1 §2.3 question of
+which nodes are in play and whom you trust to honor the disposition. This makes it the **inverse of
+provenance**: everything else in Drystone maximizes durability and replication, and self-destruct
+deliberately minimizes both, to keep the value within a boundary of nodes trusted to honor its removal.
+
+Three consequences follow, and the last is the cross-cutting one:
+
+- **It opts out of blind-store durability on principle.** A self-destruct value must not sit sealed in a
+  meer past its window, because a meer is *outside the fidelity boundary*, it is blind, honors nothing, and
+  cannot be extended removal-trust. So it is delivered live-durable to member devices and skips D-meer and
+  D-peer (§6.6). The opt-out is principled, not a knob.
+
+- **The fidelity boundary is the membership, and must be legible.** The sender is trusting the member
+  devices in scope to honor "mask or remove after T," so the system should show that boundary (this reaches
+  these N member devices, none a blind store, honest clients will expunge), letting the sender make the
+  Part 1 §2.3 judgment informed.
+
+- **Achievable semantics differ by history mode, and this must be surfaced.** In **Willow-mutable** mode,
+  prefix pruning is a real convergent removal of the stored value. In **forward-only** mode, the sealed
+  record is in the append-only fold and cannot be excised without a fork, so the value can be masked from
+  display but the sealed entry remains. The same self-destruct request therefore yields different honest
+  outcomes by mode, and in forward-only mode "removal" honestly means "masked from display, not excised from
+  the fold." Self-destruct remains an open thread (Appendix B): framed here with its honest envelope and its
+  mode-dependence, deliberately not fully specified pending dedicated investigation.
+
+### 7.8. Side histories: one conversation, more than one history
+
+A conversation may carry more than one history, and the requests that look like one feature are **three
+mechanisms at three costs**. The single question that selects the tier: *does the side history need
+different keys, or just different structure?* Reaching for a heavier tier than the answer requires
+overbuilds the common case; reaching for a lighter one underbuilds the rare one.
+
+- **Tier 1, threading (a subid).** A thread is a field on a message, a subid pointing into the Group's
+  existing dataplane hash tree. Nothing new is created, the messages are already sealed under the Group's
+  keys and already in the one history; the thread is a grouping over existing content, a UI/UX function, not
+  a protocol one. This is the common case, nearly free, and the expected default for ordinary in-conversation
+  threads. *Settled: no new mechanism.*
+
+- **Tier 2, a separate-but-inherited side history.** Some side conversations want their own history, not
+  just a display grouping (a "2026 vacation" collection kept aligned but separate and exportable; a
+  guestbook off a Group). The defining property is that **everyone in the parent Group may read it**, the
+  separation is structural, not access. So it is a *second dataplane hash tree sealed under the same Group's
+  keys*, addressable and convergeable on its own, but **not a new MLS group**; entitlement is inherited from
+  the parent because there is no new key layer. Its cost is another hash tree to converge and nothing more,
+  no O(N) instantiation, no ratchet tree, no Welcomes, no freeze-then-strand hazard. *Candidate.*
+
+- **Tier 3, a subgroup with its own entitlement.** When the side history must have *different* entitlement,
+  a subset who may read it and others who may not, cryptographically enforced, only a real MLS branch will
+  do: a new group over the subset with its own key layer, linked to the parent by resumption PSK. This is
+  the **fork arity of the re-plant family** (§7.6.2) and carries its full cost, O(N) instantiation over the
+  subset and the ReInit/branch freeze-then-strand hazard (§7.6.3). *Candidate.*
+
+The load-bearing consequence: **entitlement inheritance is what makes tier 2 cheap, and also what
+disqualifies it the moment access must narrow.** In tier 2 a member's right to the side history is
+definitionally the parent-Group right, because there is no separate key layer, so the instant the design
+wants "only some of us see this," inheritance breaks and the case is forced up to tier 3. The tier-2/tier-3
+boundary is not a UX preference; it is a hard line drawn by whether entitlement diverges from the parent,
+and the entire cost cliff sits there. Whether tier 2 deserves a first-class named construct at all, or is
+simply an emergent use of the data model (a Group hosting more than one dataplane hash tree), is the central
+undecided question, carried to Appendix B.
 
 ---
 
@@ -1920,16 +2842,16 @@ exitability, §5.5/§5.8). It explicitly does **not** defend against: instant re
 bounded, not zero, §7.2 R4); retroactive confidentiality (past reads by a since-expelled member are not
 unmade, §5.7); or *prevention* of stale-authority writes (only their detection and attribution, §7.5).
 These non-guarantees are the honest price of an eventually-consistent, center-free architecture; none of
-them lets an attacker capture a scope or silently revert a decision.
+them lets an attacker capture a Group or silently revert a decision.
 
-**The wall-clock as an attack surface (cross-reference).** Because §2.0.1 establishes that a timestamp is
+**The wall-clock as an attack surface (cross-reference).** Because Part 1 §2.0.1 establishes that a timestamp is
 an uncorroborable assertion, any place a wall-clock entered an authority-bearing computation would be a
 social-engineering surface exploitable **even by an authorized, membership-gated member**, honestly (clock
 skew) or maliciously (deliberate skew). The protocol's response is categorical: the wall-clock appears in
 no ordering, identity, authority, or bound (§4.2, §4.5.1, §7.2 R4, §7.3.1). Liveness is measured locally as
 a private input only (§7.4). This closes the surface by construction rather than by detection.
 
-**Visibility and the social layer.** A scope's regime and visibility class are **born in at genesis and
+**Visibility and the social layer.** A Group's regime and visibility class are **born in at genesis and
 immutable** (part of the signed genesis); there is **no silent regime crossing**, a republish is a
 distinct authored act carrying a reference plus author-chosen content, never the original. Outward
 propagation depth is enforced by every verifier. An implementation **MUST NOT** offer a structure-only
@@ -1941,35 +2863,80 @@ unrepresentable, a modelled target's connection shape has anonymity set 1).*
 namespace) and connection attempts; this surface **MUST** be surfaced, not hidden, and a
 Tier-0 helper **MUST** hold no payload key and **MUST be able to prove it** (assert-and-log
 `payload_keys_held = 0`). *green-real (Tier-0 meer proves zero payload keys; admission denies a non-listed
-node).* (Note: earlier drafts listed "timestamp" among observed join-metadata; a relay observes *arrival
-order at the relay*, which is the relay's own local observation, not an authored timestamp, the distinction
-matters per §2.0.1 and the metadata accounting should say "arrival ordering as locally observed," not
-"timestamp.")
+node).* What a relay observes in this surface is **arrival order at the relay**, its own local observation,
+not an authored timestamp; per Part 1 §2.0.1 the metadata accounting names it "arrival ordering as locally
+observed," never "timestamp."
 
 **Failed-operation response.** Detection of an invalid op is deterministic; the *response* is a governance
-dial, **loud** (signed, corroborated rejection → group immune memory), **silent** (reject, no signal), or
+dial, **loud** (signed, corroborated rejection → Group immune memory), **silent** (reject, no signal), or
 **blackhole** (tarpit). A serious auto-response **SHOULD** require k-observer corroboration. Note "silent"
 is application-layer: the relay still observes the connection attempt. *design.*
 
 **Label, not enforce, a personahood-preserving primitive.** Where content moderation or social adjudication
 is involved, the protocol's posture is to **label** (attach advisory, attributable metadata) and leave the
-*action* to scope governance or each persona's own client, rather than to **enforce** (act unilaterally and
+*action* to Group governance or each persona's own client, rather than to **enforce** (act unilaterally and
 irreversibly on the network's behalf). This is not only a safety choice; it is what keeps the system *made
 of peers* (§3.1). Enforcement relocates adjudication to whoever enforces, quietly converting peers into
 sensors by stripping their decision rights, whereas labeling leaves adjudication with the principal and
 propagates only information. It is the same algedonic move as the §7.6 hard-stop and the same razor as Part
-1 §2.5: **surface the signal, don't seize the decision.** Each enforcement hook tends to look locally
+1 Part 1 §2.5: **surface the signal, don't seize the decision.** Each enforcement hook tends to look locally
 reasonable, which is exactly how a network of peers can degrade into a centrally-adjudicated sensor mesh over
 time; the label-not-enforce default is the precommitment against that drift.
 
-### 8.1. Honesty boundaries this specification still carries
+### 8.1. Forward secrecy and durable history are not in tension
+
+A center-free design that keeps durable history invites the worry that durability undoes forward secrecy.
+It does not, and the reason is what forward secrecy is defined against. **Forward secrecy assumes the
+adversary already holds all the ciphertext**; it delivers its guarantee by requiring the *keys* to that
+ciphertext be deleted on schedule. So a durability node (a meer, §6.6.2) holding sealed bytes indefinitely
+is squarely inside the scenario forward secrecy is built to survive, provided keys were deleted on
+schedule. The deletion schedule operates on keys, never on ciphertext. *(Verified, RFC 9750: FS holds
+against access to all encrypted traffic history combined with current keying material, provided keys are
+deleted after use.)*
+
+The real friction lives in **keys, not ciphertext**, and there are two seams:
+
+- **Key retention to process reordering.** A reorder-prone center-free delivery layer may require members to
+  retain key material to process commits out of order, which violates the deletion schedule and reduces
+  forward secrecy. This is the seam a decentralized delivery layer creates, and it is the cost side of the
+  staleness calculus (§7.4). *(Verified against draft-kohbrok-mls-decentralized-mls-00.)*
+
+- **The persistently-offline node** (§7.4): FS and PCS rely on active deletion and replacement, so an offline
+  node holding old keys is a residual hazard MLS itself admits it cannot fully close. *(Verified, RFC 9750.)*
+
+Self-deleting content is a **different object at a different layer**, and the two must not be conflated. MLS
+has no disappearing-message feature; its deletion schedule is a *key* mechanism producing forward secrecy
+and says nothing about content. Drystone's chosen-ephemeral retention (§6.8.4) is a *content*-layer policy,
+a signed "do not retain past T" disposition honest clients apply. MLS's key deletion neither implements nor
+conflicts with it; they touch different objects. And chosen-ephemeral retention is **cooperative
+non-retention, never enforced deletion**, a node cannot prove it expunged, and a modified client keeps what
+it read (the §8 label-not-enforce posture applied to retention).
+
+#### 8.1.1. Decentralized MLS (DMLS / FREEK): a research pointer, not a dependency
+
+The key-retention seam above is the subject of active work worth tracking without depending on. DMLS
+(draft-kohbrok-mls-decentralized-mls-00, March 2025), built on FREEK (Alwen, Mularczyk, Tselekounis;
+eprint 2023/394), modifies the MLS key schedule to derive multiple init secrets via a puncturable PRF, so
+retained key material loses less forward secrecy, and adds content-derived epoch identifiers so forks off
+one integer epoch are uniquely identifiable. *(Verified against the draft.)* It is **preliminary and not a
+dependency**: its introduction and security-considerations sections are empty, and its state-consolidation
+procedure assumes two coordinating servers to prevent forks, the inverse of Drystone's premise. The posture
+is to track it as the most relevant work on the *cost* side of the staleness calculus, and to consider
+adopting two ideas independently of the whole protocol, **content-derived epoch identifiers** and the
+**PPRF approach to forward-secure retained init secrets**, while **declining its consolidation procedure**,
+because Drystone's consolidation is the governed fork/heal of §7.6, above the key layer rather than inside
+it. If DMLS matures on the cost side it widens the "briefly offline" window of §7.4 without weakening
+forward secrecy as much; it does not change the §7.6 escalation posture, which the principles force
+regardless of key-layer efficiency. *design.*
+
+### 8.2. Honesty boundaries this specification still carries
 
 Stated plainly so the spec does not over-claim: (a) freshness (§7.4) is proven in the model, not yet over
-live transport; (b) the failed-op leak/immune dial is design-only; (c) a content-visible gating role's
+live transport; (b) the failed-op leak/immune dial is design-only; (c) a content-visible gating Group Role's
 **compellability** tradeoff is an unresolved policy/legal question, not an engineering one (gates any such
 deployment); (d) the video media engine and real-codec/RTP path are design; (e) the membership-op
 freshness threshold and admin-floor rule are decided-but-not-yet-test-run; (f) the false-positive
-escalation tolerance (§7.4.1) is design-only and its *value* is deliberately left to scope policy; (g) the
+escalation tolerance (§7.4.1) is design-only and its *value* is deliberately left to Group policy; (g) the
 capped-root soundness claim against the Matrix uncapped-root steelman (§7.3, Appendix B) is argued, not
 proven, and the coverage of what has actually been tested must be surfaced before it hardens.
 
@@ -2012,24 +2979,21 @@ provenance, a reader can see exactly what Drystone *depends on* versus what it *
 durability: a reference can be replaced by any candidate that satisfies the requirement, and the spec
 should make the compliance bar explicit rather than implicit in a name.
 
-The earlier mechanism-neutral text stands and is cross-referenced: the capability interface (§7.2 R1–R6)
-and the Willow-shaped data-model commitment (§7.1) already separate requirement from realization, and
-§10.3 and §10.4 simply consolidate and complete that treatment. Where §10 and an in-place section appear
-to overlap, the in-place section is normative for its mechanism and §10 is the consolidated requirement
-view.
+The mechanism-neutral treatments elsewhere carry the same separation and are cross-referenced here: the
+capability interface (§7.2 R1–R6) and the Willow-shaped data-model commitment (§7.1) already separate
+requirement from realization, and §10.3 and §10.4 consolidate and complete that treatment. Where §10 and an
+in-place section appear to overlap, the in-place section is normative for its mechanism and §10 is the
+consolidated requirement view.
 
-A note that frames the whole section, and answers a question the design keeps raising. Drystone is a
-**local-first, center-free** system: there is **no shared global state by design** (`P-Local-Truth`). That
-is not suitable for every application, anything requiring a single authoritative global ordering (a
-central ledger, a globally-serialized auction close) is the wrong fit and should use a coordinator. But
-the application classes it *is* suited to, group messaging, collaborative state, membership and
-governance, anything where local-canonical-plus-reconciliation is the honest model, are significant, and
-the fit there is not a weakness of the cryptographic-systems lineage but its point. The recurring
-observation that "you still need a human-adjudication layer" (§7.6) is not a defect of this class either:
-**every convergent system, of any architecture, is ultimately managed by humans**, the centralized ones
-simply hide the humans behind the operator. Drystone makes the human layer explicit and keeps it at the
-edge rather than at a center. So the substrate requirements below are chosen to serve that class well, not
-to chase a universal applicability the design deliberately declines.
+A note that frames the whole section. Drystone is a **local-first, center-free** system: there is **no
+shared global state by design** (`P-Local-Truth`). It suits a specific class of application, group
+messaging, collaborative state, membership and governance, anything where
+local-canonical-plus-reconciliation is the honest model, and it is deliberately not built for applications
+requiring a single authoritative global ordering (a central ledger, a globally-serialized auction close),
+which should use a coordinator. The human-adjudication layer (§7.6) is part of the design, not a gap in it:
+**every convergent system, of any architecture, is ultimately managed by humans**, and where a centralized
+system places those humans behind an operator, Drystone makes the layer explicit and keeps it at the edge.
+The substrate requirements below are chosen to serve that class well.
 
 ### 10.1. How to read this section
 
@@ -2041,7 +3005,7 @@ meets the table and avoids the disqualifiers is **substrate-compliant** even if 
 ### 10.2. Messaging backplane: group key agreement and the secure-messaging properties
 
 > Cross-references: §4.5.1 (per-client authorship, client-as-member), §5.7 (revocation rotates epoch),
-> §6.2 (the two-layer encryption stack and the MLS metadata treatment), §6.8 (media keys from the group
+> §6.2 (the two-layer encryption stack and the MLS metadata treatment), §6.12 (media keys from the Group
 > epoch), Appendix A.1 (decentralized-MLS forward-secrecy cost), Appendix C.3.
 
 **(R) Requirement.** Drystone requires a **group key agreement** mechanism that lets a dynamic set of
@@ -2103,7 +3067,7 @@ addition, below):
 
 - Provides no detectable membership disagreement (silent divergence at the key layer), breaking K3.
 
-- Bakes in a **wall-clock** dependency for epoch validity or ordering (violates §2.0.1).
+- Bakes in a **wall-clock** dependency for epoch validity or ordering (violates Part 1 §2.0.1).
 
 **Reference realization: MLS (RFC 9420), with the architecture of RFC 9750, and exactly why it wins, and
 exactly where Drystone diverges from its assumptions.**
@@ -2157,18 +3121,75 @@ server-ordered and Drystone is not.* A future mechanism that satisfies K1–K8, 
 could replace MLS without changing any Drystone requirement. **[confirm before publish, the DS/AS trust
 model and deployment-status claims against RFC 9420/9750 and the decentralized-MLS drafts.]**
 
+#### 10.2.1. Concept alignment, and where MLS is subordinate
+
+Where a Drystone concept already has a native MLS representation, the two are folded rather than built
+twice, and the correspondence strength dictates what to do: **Direct** (the Drystone concept *is* the MLS
+construct, build on it), **Partial** (they align on one layer only, use the MLS piece for its layer and
+supply the rest, keep the boundary explicit), **Drystone-only** (MLS has no representation, Drystone builds
+it), **Underused** (MLS offers a construct Drystone should adopt rather than reinvent).
+
+- **Direct.** The **re-plant family** (§7.6.2) is MLS's **ReInit** and **branching** generalized, linked by
+  **resumption PSK**; this is the strongest alignment in the suite and lowers implementation risk, the
+  primitives exist. **Entitlement continuity** across a re-plant is the resumption PSK, which proves
+  co-membership at the source epoch. **State-loss recovery (entitlement half)** is MLS's rejoin-with-PSK.
+  *(Verified, RFC 9420 §11.2, §11.3, §8.6; RFC 9750 §6.6.)*
+
+- **Partial.** **Conversation continuity** is only partly the PSK: the PSK carries entitlement, the
+  **dataplane history** carries content, kept separate. **State-loss recovery (content half)** has no MLS
+  representation, MLS rejoin proves prior membership but does not restore missed messages, so recovery is
+  MLS-for-entitlement and Drystone-for-content, two separate exchanges. **Staleness removal** uses MLS's
+  *intent* ("eventually remove non-updating members," RFC 9420 §16.6) as the requirement, and supplies the
+  *mechanism* MLS omits (the deterministic staleness predicate plus governed response of §7.4).
+
+- **Drystone-only, by design.** **Out-of-band history convergence** (§6.8.1), the **monotonic governance
+  fold** (§7.3, MLS enforces no access control on group operations, any member may commit, which is
+  precisely why the external-join hazard is unquantified in MLS and quantifiable here), and
+  **fork-not-verdict / the escalation set** (§7.6, MLS's linear transcript cannot express a fork at all).
+  MLS staying out of history and access-control is deliberate on both sides; there is nothing to fold in.
+
+- **Underused (candidate to adopt).** The **epoch_authenticator**: MLS derives a per-epoch value members
+  compare out of band to confirm they share the same state (two members on different branches compute
+  different authenticators), which is close to Drystone's whole-group-consistency check; whether the check
+  can use it directly rather than a separately-built comparison, and how it relates to the governance
+  chain's own consistency signal, is worth resolving so the two are folded rather than parallel. **[confirm
+  against RFC 9420 §8.7 and the delivery-layer consistency design; carried to Appendix B.]** Separately, the
+  resumption PSK's cross-group PCS-carrying property may be underused for linking healing across a persona's
+  parallel groups. *(Not yet examined; Appendix B.)*
+
+The whole set reduces to one posture, applied case by case: **MLS supplies a local cryptographic check
+almost everywhere it needs agreement and assumes a coordinator supplies the global agreement; Drystone does
+not re-add the coordinator, and for each case decides whether the global agreement is unnecessary,
+reconstructible without coordination, or a social-utility judgment that must escalate to humans** (§7.6).
+The third kind is the designed terminus of Part 1 §2.5, not a failure mode.
+
+| Hard case | What MLS assumes | Drystone posture | Forcing principle |
+|---|---|---|---|
+| Linear epoch chain | DS orders commits, one wins per epoch | MLS subordinate; continuity in app-layer hash structures (§7.6.3) | Part 1 §2.0 |
+| Concurrent commits / fork | one commit wins per epoch | fork/heal/re-key are one primitive, three arities, never represented in MLS (§7.6.2) | Part 1 §2.5 |
+| Role under-determination | not addressed | second escalation class; expected; escalates to humans; cheap instantiation of their choice (§7.6.1) | Part 1 §2.4, Part 1 §2.5 |
+| Stale / offline node | should eventually be removed | mechanical staleness detector, governed response; rights untouched, capacity degrades (§7.4) | Part 1 §2.3, Part 1 §2.4 |
+| External-join recovery | GroupInfo authoritative to a rejoining client | GroupInfo is a claim corroborated against the governance chain; threshold dial quantifies attack cost; bad assertions self-fork (§7.4.2) | Part 1 §2.2, Part 1 §2.3 |
+| Insider replay / nonce reuse on restore | no replay protection; reuse_guard on revert | isolated by out-of-band history convergence; live epoch secrets never restored in place (§7.4.2) | Part 1 §2.2 |
+| FS versus durable bytes | keys deleted on schedule | no tension; FS assumes ciphertext retention; real risk is key retention under reordering (§8.1) | Part 1 §2.4 |
+| Self-deleting messages | no such feature | application-layer content policy; cooperative non-retention (§6.8.4, §8.1) | Part 1 §2.4 |
+| Decentralized operation | strongly consistent DS | track DMLS/FREEK for the cost side; adopt epoch-id and PPRF ideas, not the consolidation (§8.1.1) | engineering |
+| ReInit non-atomicity | committer completes the re-form, or another member does | native ReInit/branching shape; freeze-then-strand window closed if governance chain records intent before freeze (§7.6.3) | Part 1 §2.4 |
+
+*Table sourced from the MLS-hard-cases analysis; each row's mechanism is developed in the cited section. The RFC citations behind the "what MLS assumes" column are verified against RFC 9420 / RFC 9750 this round; the Drystone-posture cells are design, with the load-bearing residuals (external-join far-behind node, in-place secret restore, re-plant intent ordering) carried as **[confirm]** in Appendix B.*
+
 ### 10.3. Transport and overlay: point-to-point reachability, and the topology question
 
-> Cross-references: §6 (transport), §6.4 (discovery), §6.5 (delivery: relay and meer), §6.6 (the gossip
-> overlay), §6.7 (deployment modes), §6.8 (media datagrams), §3.1 (where adjudication lives), §8 (the relay
-> and meer as blind forwarders), Appendix C.
+> Cross-references: §6 (transport and delivery), §6.9 (discovery), §6.5 (carriage), §6.6 (durability,
+> incl. the meer), §6.10 (the gossip overlay), §6.11 (deployment modes), §6.12 (media datagrams), §3.1
+> (where adjudication lives), §8 (the relay and meer as blind forwarders), Appendix C.
 
 **(R) Requirement.** Drystone requires a **transport** that lets two peers, identified by **public key**
 (not by IP or location), establish a **mutually-authenticated, end-to-end-encrypted** channel, with a
 **fallback path** when a direct connection is impossible (NAT/firewall), where **any intermediary is a
 blind forwarder** that cannot read content and routes by endpoint, not by topic. It additionally requires
 an **overlay** by which scope members find and exchange with each other, and an **unreliable datagram**
-mode for real-time media (§6.8).
+mode for real-time media (§6.12).
 
 **Compliance table, a candidate transport/overlay MUST:**
 
@@ -2178,9 +3199,9 @@ mode for real-time media (§6.8).
 | T2 | Provide end-to-end encryption such that intermediaries see ciphertext + routing metadata only | a relay/meer stays blind (§8); supports the meer (§5.4) |
 | T3 | Attempt a direct peer-to-peer path, with a **fallback relay** when direct fails | participation on a bare node behind a NAT must be real (`P-Durable-Enablement`) |
 | T4 | Ensure any relay/intermediary is a **blind packet forwarder** (no session-content knowledge, routes by endpoint) | an intermediary must not become a center or an adjudicator (§3.1) |
-| T5 | Provide a reliable stream mode **and** an unreliable datagram mode | messaging needs reliability; real-time media needs latency-over-reliability (§6.8) |
+| T5 | Provide a reliable stream mode **and** an unreliable datagram mode | messaging needs reliability; real-time media needs latency-over-reliability (§6.12) |
 | T6 | Provide (or admit) an overlay for scope-member discovery/exchange keyed on the scope topic (§4.2) | members must find each other without a central directory |
-| T7 | Not require a wall-clock for any authority-bearing decision | §2.0.1 |
+| T7 | Not require a wall-clock for any authority-bearing decision | Part 1 §2.0.1 |
 
 **Disqualifiers, a candidate is non-compliant if it:**
 
@@ -2188,13 +3209,13 @@ mode for real-time media (§6.8).
   impersonable).
 
 - Requires a **content-reading** intermediary, any relay/SFU/mixer that must see plaintext to function
-  (breaks T2/T4; server-side media mixing on plaintext is already **forbidden**, §6.8).
+  (breaks T2/T4; server-side media mixing on plaintext is already **forbidden**, §6.12).
 
 - Makes the fallback path a **mandatory permanent hop** (a relay that cannot be bypassed by a direct
   connection is a structural center, breaking T3/T4).
 
 - Offers only reliable streams, forcing real-time media through retransmit (breaks T5, starves media,
-  the measured failure in §6.8).
+  the measured failure in §6.12).
 
 **Reference realization: iroh (1.0), and why it currently wins.**
 
@@ -2207,7 +3228,7 @@ forwarder**: it carries encrypted packets and routes them by `EndpointId` withou
 them, and the payload is always encrypted to the destination endpoint (T4). *(Verified against iroh 1.0:
 public-key TLS identity that cannot be impersonated, direct-first with stateless relay fallback, and a
 relay that sees only endpoint identifiers and not content. These are stable 1.0 core properties.)* The
-overlay (§6.6) and discovery (§6.4) layers it pairs with are separately-versioned crates outside the 1.0
+overlay (§6.10) and discovery (§6.9) layers it pairs with are separately-versioned crates outside the 1.0
 guarantee, tracked in Appendix B.
 
 **The topology question, stated surgically, because "p2p" does not cleanly capture the design.** This is
@@ -2221,7 +3242,7 @@ does **not** require, and does not forbid, any particular *overlay topology*. So
 
 - **What is a legitimate, compliant divergence:** a **pure peer-to-peer mesh** (every member maintains a
   direct path to every other) is fully Drystone-compliant, nothing in the spec prevents it. So is a
-  relay-assisted star, a gossip overlay (HyParView/Plumtree, the iroh-gossip reference, §6.6), a
+  relay-assisted star, a gossip overlay (HyParView/Plumtree, the iroh-gossip reference, §6.10), a
   hub-and-spoke through a cooperative anchor, or any hybrid. All satisfy T1–T7 so long as the anchor/relay
   stays blind and bypassable.
 
@@ -2293,8 +3314,8 @@ target worth re-checking).
 exposure, forward read exclusion, attributable acceptance), the standard object-capability guarantees.
 *References:* Track A (Meadowcap-shaped delegated tokens) or Track B (Keyhive-shaped convergent membership
 graph), Appendix A; both satisfy R1/R2/R3/R6; they differ only on revocation immediacy. No Drystone
-requirement assumes a track. The **role** layer (in-group governance authority, §5.5) sits *above* this:
-roles are granted by the governance fold and may carry the authority to issue capabilities, but the
+requirement assumes a track. The **Group Role** layer (in-Group governance authority, §5.5) sits *above* this:
+Group Roles are granted by the governance fold and may carry the authority to issue capabilities, but the
 capability mechanism itself is the data-access primitive.
 
 **Data model / sync.** Already requirement-first: a **namespace/subspace/path** addressable store
@@ -2310,7 +3331,7 @@ namespace/subspace/path model confirmed against the spec; see Appendix C.1.)*
 | Transport / overlay | T1–T7 (§10.3): point-to-point reachability, blind bypassable fallback | **iroh** (1.0) | wins on key-identity + blind stateless relay + datagram mode; **pure mesh and other topologies are compliant divergences**, not required, avoided as reference because mesh is `O(N²)` and churn-intolerant |
 | Signature | unforgeable, deterministic, key-as-identity, no silent downgrade | **Ed25519** (RFC 8032) | maturity + shared key type across transport/key/governance |
 | Hash | collision-resistant, tagged pre-images, single agreed function | **SHA-256** (§4) / **BLAKE3** (§7) | open reconciliation (Appendix B); leaning BLAKE3 to match Willow |
-| Capability (Meadowcap data-access) | §7.2 R1–R6 | Track A (Meadowcap) / Track B (Keyhive) | mechanism-neutral; differ only on revocation immediacy; the in-group **role** layer (governance authority) sits above this (§5.5) |
+| Capability (Meadowcap data-access) | §7.2 R1–R6 | Track A (Meadowcap) / Track B (Keyhive) | mechanism-neutral; differ only on revocation immediacy; the in-Group **Group Role** layer (governance authority) sits above this (§5.5) |
 | Data model / sync | namespace/subspace/path + range reconciliation (§7.1) | **Willow**-shaped | shaped-not-dependent; transition is substitution |
 
 The single sentence for this section: **Drystone depends on a stated bar for each substrate component and
@@ -2327,9 +3348,9 @@ optional meer (§5.4).**
 
 - **Capability mechanism, Track A (delegated-token, Meadowcap-shaped) vs Track B (convergent
   membership-graph, Keyhive-shaped).** Track A satisfies unforgeable-grant and attenuation natively but has
-  no native revocation, so R4 is met via bounded expiry (revoke = decline-to-renew) and R5 via per-scope
+  no native revocation, so R4 is met via bounded expiry (revoke = decline-to-renew) and R5 via per-Group
   epoch keys; revocation latency is bounded by the expiry interval (expressed as an epoch/generation bound,
-  not a wall-clock interval, §2.0.1). Track B makes removal and re-encryption first-class convergent
+  not a wall-clock interval, Part 1 §2.0.1). Track B makes removal and re-encryption first-class convergent
   operations (stronger revocation immediacy) at materially higher complexity and a dependency on research
   still in flight. Both satisfy R1/R2/R3/R6 identically, so the state-reset-avoidance guarantee does not
   depend on the choice, only revocation immediacy does. The choice is deferred to the richer-access-control
@@ -2351,7 +3372,7 @@ optional meer (§5.4).**
 - **Reverse-topological-power ordering (Matrix-style)** for governance resolution: rejected, for **two
   separate reasons that must not be conflated**: (1) folding sender power into the comparator produced an
   apparent-cycle objection in that protocol's own review; and (2) the timestamp tiebreak is uncorroborable
-  (§2.0.1), not merely gameable. Drystone keeps power and clock out of the ordering spine entirely
+  (Part 1 §2.0.1), not merely gameable. Drystone keeps power and clock out of the ordering spine entirely
   (§7.5.2). **Separately**, Drystone *adopts* Matrix State Resolution v2.1's conflicted-subgraph closure
   (§7.5.2), taking their convergence fix without taking their ordering. The CVE-2025-49090 state-reset
   class is cited in §7.3 as evidence for the monotonic-fold choice and was rooted in starting-state/replay-
@@ -2410,29 +3431,29 @@ These are known-incomplete and tracked so they are not mistaken for settled:
   (§4.2); frontier-commitment construction and acceptance-record format (§7.5.1);
   **frontier-closure-and-subgraph-closure before sort** (§7.5.2, the highest-risk divergence point); the
   gating-vs-read relationship (§5.8.1); the capability/membership-graph wire format (gated on the Track A/B
-  decision); and the **returning-member `(G, D)` cursor and checkpoint encoding** (§6.5.3, §7.4), the
+  decision); and the **returning-member `(G, D)` cursor and checkpoint encoding** (§6.6.2, §7.4), the
   governance-position and dataplane-position a returning member reports on dial-home.
 
-- **iroh substrate confirmation, post-1.0 (§6.3, §6.4, §6.6, §10.3).** iroh reached **1.0 (June 2026)** with
-  a wire-and-API stability guarantee, which **resolves the transport-plane items** that were open while iroh
-  was pre-1.0: public-key (`EndpointId`/Ed25519) TLS identity that cannot be impersonated, the post-handshake
-  point at which the remote identity becomes known (the §6.1 seam), direct-first hole-punch with stateless
-  blind relay fallback, and the relay routing by endpoint without decoding content are now **verified against
-  iroh 1.0 core** and are no longer carried as open. What **remains [confirm]** is precisely the set the 1.0
-  guarantee does **not** cover, because those components are **separately-versioned crates**:
+- **iroh substrate confirmation, post-1.0 (§6.5, §6.9, §6.10, §10.3).** iroh core is **1.0 (June 2026)**,
+  wire-and-API-stable, which covers the transport-plane facts: public-key (`EndpointId`/Ed25519) TLS
+  identity that cannot be impersonated, the post-handshake point at which the remote identity becomes known
+  (the §6.1 seam), direct-first hole-punch with stateless blind relay fallback, and the relay routing by
+  endpoint without decoding content, all **verified against iroh 1.0 core**. What **remains [confirm]** is
+  the set the 1.0 guarantee does **not** cover, because those components are **separately-versioned
+  crates**:
 
   - **`iroh-gossip` (pre-1.0, own release line):** the `Event` surface and the absence of any per-recipient
     delivery confirmation (the four net-layer events are verified at a recent version, but the enum has
     changed shape across versions, so the exact variants are version-pinned); the send-side `broadcast`
     return semantics; the HyParView active/passive view-size constants; and the PlumTree
-    `PRUNE`/`GRAFT`/`IHAVE` wire behavior as iroh-gossip configures it (§6.6.1, §6.6.3, §6.6.4). The
+    `PRUNE`/`GRAFT`/`IHAVE` wire behavior as iroh-gossip configures it (§6.10.1, §6.10.3, §6.10.4). The
     `subscribe(TopicId, bootstrap_peers)` shape is verified against the crate API.
 
   - **The address-lookup crates (`iroh-mainline-address-lookup`, `iroh-mdns-address-lookup`):** these now
     exist as shipped, maintained crates (which resolves the earlier "is mDNS mature / turnkey" question);
-    what remains is their exact republish-and-expiry behavior against each crate's pinned version (§6.4.2,
-    §6.4.3), plus the Pkarr self-signed-record integrity model, which is a **Pkarr-spec** primary, not an
-    iroh-version question (§6.4).
+    what remains is their exact republish-and-expiry behavior against each crate's pinned version (§6.9.2,
+    §6.9.2), plus the Pkarr self-signed-record integrity model, which is a **Pkarr-spec** primary, not an
+    iroh-version question (§6.9.2).
 
   The *algorithm attribution* (the two 2007 Leitão, Pereira & Rodrigues papers) and the *RFC 9420 / RFC 9750
   architecture claims* in §6 are verified against primaries and are **not** in this set. The honest summary:
@@ -2443,16 +3464,25 @@ These are known-incomplete and tracked so they are not mistaken for settled:
   the system.
 
 - **The capped-vs-uncapped-root soundness question** (§7.3, and Part 1 §2.3): **the priority open
-  security item.** Matrix concluded under adversarial review that sound decentralized resolution needs an
-  *uncapped* root (MSC4289). Drystone claims a *capped, revocable-by-succession* root is sound *because* its
-  ordering is timestamp-free (§7.3.1), closing the backdating surface that forced their apex. The work to
-  close this:
+  security item.** The Matrix facts are now confirmed against primaries, and they sharpen the framing rather
+  than just supporting it. Matrix's MSC4289 gives the room creator "infinitely high" power level, and its
+  stated reason is precise: *the creator's server can already effectively control a room by backdating
+  events, because access control requires a hierarchy and the creator sits at its top*, so MSC4289
+  formalizes a control that backdating already made real. *(Verified against MSC4289 and the Matrix Project
+  Hydra disclosure, Aug 2025.)* This is not "decentralized resolution needs an uncapped root in the
+  abstract"; it is "an apex is forced *when backdating is possible*." Drystone's claim is therefore that a
+  *capped, revocable-by-succession* root is sound *because* its ordering is timestamp-free (§7.3.1), which
+  removes the very backdating surface that forced Matrix's apex. The work to close this:
 
   - **State the coverage, not a bare "tested/open."** The MSC4289 attack class has at least three
     components: (a) backdating to manufacture favorable causal/authority position; (b) the
-    create-event-uniqueness / root-forgery vector (Matrix's CVE-2025-54315 / MSC4291); and (c) the
-    self-demotion / promote-others entrenchment trap. Drystone's timestamp-free order addresses (a); the
-    `H(tag ‖ group_id)` genesis and unconflictable-base fold address (b); the anti-entrenchment ladder and
+    create-event-uniqueness / root-forgery vector (Matrix's CVE-2025-54315, fixed in room v12 / MSC4291 by
+    making the room ID the hash of the creation event, which Matrix rates High-not-Critical and reports with
+    *no known exploitation path*); and (c) the self-demotion / promote-others entrenchment trap (MSC4289
+    also adds creator self-demotion and multiple creators as the escape). *(All three verified against the
+    Matrix v1.16 release notes and Project Hydra disclosure.)* Drystone's timestamp-free order addresses (a);
+    the `H(tag ‖ group_id)` genesis and unconflictable-base fold address (b), and note this is the *same
+    fix* Matrix reached, the room/group ID as a hash of the genesis; the anti-entrenchment ladder and
     anti-brick floor (§5.7) address (c). **Identify which of (a), (b), (c), and which of their
     compositions, the existing tests actually exercised**, and state that coverage. If composition
     (a)+(b)+(c) was tested under adversarial conditions with must-reject vectors, the claim is closer to
@@ -2463,16 +3493,18 @@ These are known-incomplete and tracked so they are not mistaken for settled:
     Matrix *prevents* capture with an apex; Drystone *permits* capture and makes the §7.6 fork the remedy.
     So the question is not only "can a capped root match their soundness" but "**is exit-as-remedy-for-
     capture sound where apex-prevents-capture was their choice**", and the latter is what the test suite
-    should target. **[confirm before publish, MSC4289 / MSC4291 / CVE-2025-54315.]**
+    should target. *(The MSC4289 / MSC4291 / CVE-2025-54315 facts this rests on are verified this revision;
+    what remains open is the Drystone-side question of which coverage the test suite actually exercises, a
+    design/validation item, not a fact to confirm.)*
 
 - **The open rights check** (§5.3): does the §7 survivor/re-key path strand `tenure` (leave a persona
   formally a member but unable to re-establish standing after a re-key)? This gates freezing the rights set
   (now three: tenure, voice, exit) into normative text. The candidate fourth right `share` has been
   **dropped**: a claim on shared assets is not part of the inalienable floor; where it has substance it is
   ownership of a Meadowcap communal namespace (§5.10), a data-layer matter, not a right. The concrete test
-  to run: take a persona with valid standing, drive a survivor re-key of the scope, and check whether that
+  to run: take a persona with valid standing, drive a survivor re-key of the Group, and check whether that
   persona can still re-establish its membership standing from its retained lineage and local state, or whether
-  the re-key leaves it unable to rejoin its own scope. If the latter, tenure is not yet clean.
+  the re-key leaves it unable to rejoin its own Group. If the latter, tenure is not yet clean.
 
 - **The false-positive escalation tolerance** (§7.4.1): the signals are corroborable provenance; the
   tolerance over them is a governed utility judgment whose *value* this spec declines to fix. The open work
@@ -2499,6 +3531,38 @@ These are known-incomplete and tracked so they are not mistaken for settled:
   therefore the same contextual trust gradient as personhood itself, not a protocol primitive. This couples
   to the §5.8 exitability backstop and the exit-as-remedy-for-capture framing above.
 
+- **MLS hard-case residuals** (the [confirm] items the §7/§8/§10.2 fold carries, each a specific stress-test, not a design gap):
+
+  - **External-join far-behind node** (§7.4.2): whether a rejoining node far enough behind on the governance chain can always distinguish a recent-but-superseded `GroupInfo` from a current one. The §7.4 under-authorize-never-mis-authorize property suggests yes; reasoned, not proven. **[confirm.]**
+
+  - **In-place secret restore** (§7.4.2): whether the recovery design ever restores a live group's epoch secrets in place (which would reopen the insider-replay and nonce-reuse hazards) versus always re-planting or re-joining fresh. The isolation argument holds only if recovery never resurrects live ratchet/secret-tree state in place. **[confirm.]**
+
+  - **Re-plant intent ordering** (§7.6.3): whether the governance chain records the re-plant intent (re-planting to membership M) *before* the ReInit freeze, so any member can complete a stranded re-plant from the authoritative instruction. If yes, the freeze-then-strand window is discharged; if not, it needs a different completion mechanism. **[confirm against the delivery and governance-chain ordering.]**
+
+  - **KeyPackage-exhaustion seating trilemma** (§7.4, §7.6): for an offline member that has exhausted pre-published KeyPackages at a boundary, at most two of three hold, fresh-KeyPackage forward secrecy, offline seatability, and avoiding the external-join path. Reusable last-resort KeyPackages buy offline seatability at an FS cost (RFC 9420 §16.8); refusing them forces late joining or the external-join path (whose safety depends on the §7.4.2 `GroupInfo`-corroboration defense holding). The resolution is likely another posture dial. *Open thread.*
+
+  - **Re-plant seating default at a boundary** (§7.6.2): Welcome-seating versus external-commit-seating, which moves the KeyPackage-availability burden between planter and joiner. §7.4.2 reweights this: the external-commit path carries a PCS-integrity hazard the Welcome path does not, even with the governance-chain defense. *Undecided.*
+
+  - **epoch_authenticator overlap** (§10.2.1 underused row): whether Drystone's whole-group consistency detection can use the MLS epoch_authenticator directly rather than a separately-built comparison, and how it relates to the governance chain's own consistency signal. **[confirm against RFC 9420 §8.7 and the delivery-layer consistency design.]**
+
+  - **Resumption-PSK cross-group linking** (§10.2.1 underused row): whether the re-plant family already exercises, or could use, the PSK's cross-group PCS-carrying property to link healing across a persona's parallel groups. *Not yet examined.*
+
+  - **Transcript-hash construction formula** (§7.6.3): *resolved this revision.* The §8.2 construction was read verbatim: `confirmed_transcript_hash[n] = Hash(interim_transcript_hash[n-1] || ConfirmedTranscriptHashInput[n])` and `interim_transcript_hash[n] = Hash(confirmed_transcript_hash[n] || InterimTranscriptHashInput[n])`, seeded from zero-length strings at genesis. This is a strict single-predecessor chain with no branch or merge representation, exactly the "one linear commit sequence" property §7.6.3 relies on. *(Verified against RFC 9420 §8.2.)*
+
+  - **Epoch-number metadata leak versus re-plant frequency** (§6.4, §7.6.2): *the leak itself is confirmed; the re-plant interaction is the open part.* RFC 9750 states verbatim that MLS header metadata is an opaque `group_id` plus a numerical epoch (the number of changes made to the group), and that a network observer correlating this with other data may reconstruct sensitive information, with the recommended mitigation being to carry the metadata over a secure channel. *(Verified against RFC 9750 §8.1.2.)* The open design question is the re-plant interaction: re-plant is cheap and freely used, but each re-plant reads as activity to an observer, so the cheapness that makes re-plant attractive also makes it a metadata emitter. Two mitigations to weigh: the DMLS content-derived epoch identifier (§8.1.1), which leaks differently than a monotonic count, and the metadata-confidential transport RFC 9750 itself recommends (the delivery layer's concern, §6.4). *Open thread; interacts with the §6.4 metadata posture.*
+
+- **Dataplane history modes and side histories** (§7.7, §7.8): the open threads from the history-structure design.
+
+  - **Mode migration** (§7.7): whether a Group can migrate between forward-only and Willow-mutable modes, or whether the mode is fixed at Group creation. Suspected fixed-at-creation given the differing convergence semantics; verify. **[confirm.]**
+
+  - **The forward-only / Willow-mutable size bound** (§7.7): the practical size separating the two modes is an engineering estimate, parameter- and backend-dependent, not yet measured. The specific Willow instantiation parameters and Meadowcap capability shapes for the mutable mode are a §5 decision. **[confirm.]**
+
+  - **Self-destruct specification** (§7.7.3, §6.8.4): framed as a node-fidelity-bounded, inverse-of-provenance payload class with its honest envelope and mode-dependent achievable semantics, deliberately not fully specified pending dedicated investigation. Open questions: selector signaling for "do not durably store / do not enter D-peer," delivery semantics when a member device is offline past T (likely never deliver an already-expired secret), whether "mask" and "remove" are distinct dispositions, and whether a client's build profile can be part of the legibility surface. *Open thread.*
+
+  - **Tier-2 side history: feature or data-model note** (§7.8): whether a separate-but-inherited side history deserves a first-class named construct with its own lifecycle (creation, export, garbage collection, convergence scope), or is simply an emergent use of the data model (a Group hosting more than one dataplane hash tree). This is the central undecided question and determines whether "side history" is a feature or a note. If named: how it is addressed and discovered, how its convergence scope relates to the parent's, and how it is exported as a standalone tree while sealed under the parent's keys. **[confirm.]**
+
+  - **Tier-2 to tier-3 promotion** (§7.8): whether a tier-2 side history can be promoted to a tier-3 subgroup later (access narrows after the fact) without losing history, and what that migration costs. This is the mirror of the re-plant family (§7.6.2) and likely reuses it. Also whether tier-1 subids and tier-2 side histories should share an addressing scheme so a thread can be losslessly promoted. *Candidate, not required.*
+
 - **External-fact confirmation** (§7, and the Beer/Cybersyn/OGAS grounding in Part 1 §3): the comparisons
   consolidated in Appendix C (CALM, Willow/Meadowcap/Keyhive, Matrix State Resolution and the 2025 CVEs,
   decentralized-MLS, Modular Politics) and the Beer quotes / Cybersyn-OGAS history are web-verified in
@@ -2509,12 +3573,20 @@ These are known-incomplete and tracked so they are not mistaken for settled:
 This appendix gathers, in one place, the prior art each layer builds on and the precise relationship to
 each, so the novelty claim can be stated honestly and a reviewer can see the landscape at once. **Status
 of grounding:** the **MLS** (RFC 9420/9750), **Meadowcap/Willow**, and **Spritely/ActivityPub** claims
-have been confirmed verbatim against their primary sources this revision. The **Matrix State Resolution**
-mechanics (MSC and CVE specifics), the **CALM/CRDT** attributions, and the **Beer / Cybersyn / OGAS**
-history remain `[confirm before publish]` against primary sources, current grounding for those is web
-research from the design dialogues, not yet the FACTCHECK SoT. The honest novelty claim is **synthesis and
-terminus, unoccupied against the closest published neighbors**, *not* "first ever," and *not* novelty of
-the underlying mechanisms.
+have been confirmed verbatim against their primary sources. The **Matrix Project Hydra** facts are now
+confirmed against Matrix's own primaries (the Aug 2025 Project Hydra disclosure, the v1.16 release notes,
+and the CVE records): **CVE-2025-54315** (rooms before v12 lack cryptographic create-event uniqueness, High,
+no known exploitation path), **MSC4289** (creator gets "infinitely high" power, with Matrix's stated reason
+that backdating already gives the creator's server de facto control, plus creator self-demotion and multiple
+creators), **MSC4291** (room ID becomes the hash of the creation event), **MSC4297** (State Resolution
+v2.1: start the iterative auth checks from the empty set, and replay the conflicted state subgraph between
+conflicting facts, the closure Drystone *adopts* at §7.5.2), and **CVE-2025-49090** (the state-reset class
+v2.1 fixes). What still remains `[confirm before publish]` is narrower: the **CRDT/
+local-first** attributions and **Beer / Cybersyn / OGAS** history (still web-research grounding, not yet the
+FACTCHECK SoT). The **CALM theorem** attribution and statement are confirmed against Hellerstein & Alvaro
+("Keeping CALM," arXiv 1901.01930 / CACM 2020, conjectured PODS 2010) this revision. The honest novelty
+claim is **synthesis and terminus, unoccupied against the closest published
+neighbors**, *not* "first ever," and *not* novelty of the underlying mechanisms.
 
 ### C.1 The data layer: borrowed deliberately
 
@@ -2555,7 +3627,7 @@ the underlying mechanisms.
 
 - **Blockchain / DLT governance.** Reaches global consensus on a canonical chain and treats forks as
   failures to avert. Drystone is the inverse on both counts: no canonical global chain (`P-Local-Truth`),
-  and the fork as a first-class designed *good* (§2.5, §7.6), not a failure. The DAO-hard-fork literature
+  and the fork as a first-class designed *good* (Part 1 §2.5, §7.6), not a failure. The DAO-hard-fork literature
   documents that human intervention/forking is *forced* when code cannot resolve a value dispute; Drystone
   makes that forced move a designed primitive rather than a crisis.
 
@@ -2598,7 +3670,7 @@ Ashby (requisite variety), Beer (algedonic channel; Cybersyn/OGAS), Hayek (dispe
 *principles* (Part 1 §3 corroboration) but stop at the level of theory or values, none converts the value
 into a byte-level wire obligation with conformance vectors. The **value-to-mechanism gap** is part of what
 Drystone fills, and citing them is corroboration of the values, not of the mechanics. The
-intrinsically-personal nature of the §2.5 residue is *why* this gap is legitimate and not a failure of
+intrinsically-personal nature of the Part 1 §2.5 residue is *why* this gap is legitimate and not a failure of
 nerve: the protocol technicalizes only the provenance layer and **mechanizes the refusal** to technicalize
 the utility layer (the §7.6 hard-stop is a primitive whose content is "a human decides").
 
@@ -2613,26 +3685,29 @@ and this appendix is in error and should be corrected to match.
 
 ### D.1 Entities and genus
 
-**principal** is the genus: a role-holding entity identified by one
-key-lineage. Exactly three kinds:
+**principal** is the genus: a **permission-holding** entity identified by one
+key-lineage, reasoned about through the permissions it carries. Exactly three kinds:
 
 - **persona** is-a principal. The kind that manifests a human. Carries the
   rights floor and one unit of weight. The locus at which non-computable
   social utility is adjudicated, because a human stands behind it (§5.2).
 
-- **group** is-a principal. A collective that can hold a role as a single
+- **Group** is-a principal. A collective that can hold a Group Role as a single
   principal (key-establishment identity is an open seam, §5.10, Appendix B).
+  (Capital-G Group is the collective as an in-system principal; lowercase group
+  is the social body it manifests, §5.0, Part 1 §2.3.)
 
 - **delegate** is-a principal as a **state**, not a species: a persona or
-  group currently holding a role delegated by another principal (§5.5).
+  Group currently holding a Group Role delegated by another principal (§5.5).
 
-Not principals: **meer** (blind store-and-forward node, infrastructure; holds
-no role/right/weight; §5.4) and **relay** (iroh transport-layer blind
-forwarder; holds nothing; §6). Distinct layers; neither is a principal.
+Not principals in the Group-governance sense: **meer** (blind store-and-forward node, infrastructure; holds
+no Group Role, right, or weight, though it is a broad-plane principal holding **ecosystem permissions**;
+§5.4) and **relay** (iroh transport-layer blind forwarder; holds nothing; §6). Distinct layers; neither is
+a Group-governance principal.
 
 ### D.2 Hosting / realization chain
 
-human manifests-as persona (1:N across systems; one per group is the norm).
+human manifests-as persona (1:N across systems; one per Group is the norm).
 persona is rooted-in exactly one root key pair at a time. The root key pair
 descends-to membership keys by signed credential (the lineage, §4.5). persona
 is realized-by 1..N clients; clients run-on devices; a device is-a node and
@@ -2641,10 +3716,10 @@ human → devices → clients, folded by lineage to one persona.
 
 ### D.3 MLS-carried terms (RFC 9420/9750, verbatim)
 
-**client** = software on a device that is a member of a group: one **leaf**,
+**client** = software on a device that is a member of a Group: one **leaf**,
 one **signature key**, one **credential**, authenticated as a **member** via
-the **AS**. **member** = the client as enrolled in a group; the group
-recognizes members (clients), and lineage folds a group's member-clients to
+the **AS**. **member** = the client as enrolled in a Group; the Group
+recognizes members (clients), and lineage folds a Group's member-clients to
 one persona. Counting members ≠ counting personae; the fold is the bridge.
 
 ### D.4 Lineage and the count
@@ -2654,34 +3729,39 @@ to each membership key; technically representable, verified and counted with
 certainty. The **fold** resolves all clients/devices of one lineage to **one
 persona per rooting key pair**. Governance counts personae by lineage, never
 clients or devices. The binding "this lineage is one human" has **no technical
-representation**; it is the group's judgment (§5.6).
+representation**; it is the Group's judgment (§5.6).
 
 ### D.5 The four properties and the non-property
 
 Asked of personae, *in what ways may one persona differ from another?*
 
 - **right** (EQUAL): inherent floor (voice, tenure, exit/fork). Attaches to
-  the **principal**, flows to clients. Unremovable, never delegated.
+  the **principal**, flows to clients. Unremovable, never delegated. Standing
+  in the system, not in any one Group.
 
-- **weight** (EQUAL by necessity): how much a persona counts. Flat, one per
+- **weight** (EQUAL as a consequence of the equal right): how much a persona counts. Flat, one per
   distinct persona by lineage, non-inflatable. Attaches to the **persona**.
 
 - **resource** (UNEQUAL, legitimate): what a node has. Attaches to the
   **node/device**. Descriptive, not delegable.
 
-- **role** (UNEQUAL, legitimate): in-group governance authority granted to a
+- **Group Role** (UNEQUAL, legitimate): in-Group governance authority granted to a
   **principal** by consent. Scoped, attenuating, revocable. Rides above the
-  equalities.
+  equalities. (Lowercase "role" is the genus; a "Group Role" is a concrete
+  grant inside a Group.)
 
 - **capability** (NOT a fifth property): a Meadowcap data-access grant,
-  issued **under a role**, living in the data plane, one level below the
-  equality question. Under roles, not beside resources.
+  issued **under a Group Role**, living in the data plane, one level below the
+  equality question. Under Group Roles, not beside resources.
 
-### D.6 The bundle, the relation, the reassigned senses
+### D.6 The bundle, the relation, and the participant/node senses
 
-**PrincipalSet** = a named, pinned, group-recognized bundle of roles and
+**Group Role Set** (capital S, first-class) = a named, pinned, Group-recognized bundle of Group Roles and
 implied capabilities, bindable to **any principal**. Definable as
-`floor + [roles] + [implied capabilities] + [expected resources]`.
+`floor + [Group Roles] + [implied capabilities] + [expected resources]`. Two
+functions: grant/revoke as one unit, and mutual-exclusion constraints for
+separation of powers. It is a set of **Group Roles**, not of principals.
+Still-settling: name and functions fixed, full mechanism developing across §5.
 
 **peer** = the **relation**: symmetric standing between principals. Also kept
 for transport (peer-to-peer) and the consensus sense ("every honest peer
@@ -2691,20 +3771,26 @@ device is-a node.
 
 ### D.7 Invariants of record
 
-- **I1.** Only a principal holds a role, a right, or weight. A meer, relay,
-  node, device, or client holds none of these.
+- **I1.** Only a Group-governance principal (a persona, or a Group acting as
+  one) holds a **Group Role**, a **right**, or **weight**. A meer, relay,
+  node, device, or client holds none of these. (A meer is still a *broad-plane*
+  principal, reasoned about through the **ecosystem permissions** it carries,
+  §5.4; "holds no Group Role/right/weight" is a claim about the
+  Group-governance plane, not a claim that the meer is authority-less.)
 
 - **I2.** weight→persona; right→principal (flows to clients);
-  resource→node/device; role→granted-to-principal.
+  resource→node/device; Group Role→granted-to-principal (in-Group governance
+  authority); ecosystem permission→held-by-non-Group-principal (meer, relay).
 
 - **I3.** The fold counts personae per rooting key pair, never clients or
   devices; thresholds and quorums count personae by lineage.
 
-- **I4.** capability is issued-under-a-role and lives in the data plane;
+- **I4.** capability is issued-under-a-Group-Role and lives in the data plane;
   never one of the four equality-properties.
 
 - **I5.** The locus of adjudication is the principal (persona where the human
-  kind is specifically meant); never the retired entity-"peer."
+  kind is specifically meant); never a node, and never the relation-sense
+  "peer."
 
 - **I6.** The persona-to-human binding is a group judgment, never a protocol
   fact; to *recognize* is to decide to *treat as*, never to *verify*.
@@ -2714,13 +3800,61 @@ sense that matters" reads as the relation (absence of peer-standing in a
 sensor mesh), not the entity; the consensus-sense "peer"; and the compounds
 peer-to-peer / peer-governed / of peers / P-Peer-Equality.
 
+### D.8 Delivery-plane vocabulary (§6 coinages)
+
+**Delivery Fabric (DF)** = the *carrying* population: a blind, content-agnostic
+overlay (gossip, direct links, relays) that moves sealed messages. Larger than
+and overlapping the Groups that run over it; a node on it sees ciphertext and
+routing metadata at most, never content (§6.3). Distinct from the **Group**,
+the *entitlement* population (who holds leaf keys to read). The single object
+crossing between the two is the **sealed message**, which is payload, delivery,
+and gap-definition at once (§6.3).
+
+**scope** relates to the fabric thus: a Group's **scope** (§5.4) is its
+*exposure envelope measured over the Delivery Fabric*, of which the gossip
+topic is one large contributor and each helper in the path (relay, meer,
+push-notify node) is another (§4.2). Fabric is the substrate; scope is how much
+of it a Group's sealed traffic touches.
+
+**The three planes** (a delivery arrangement is a pairing, one of each;
+independent axes except where fused by construction):
+
+- **Carriage (C-)**, the path a message travels: **C-direct**, **C-swarm**
+  (the gossip overlay), **C-relay** (§6.5).
+
+- **Durability (D-)**, where sealed bytes persist for an offline recipient:
+  **D-self** (the floor, participants themselves), **D-meer** (a blind
+  store-and-forward node), **D-peer** (fellow members re-serve held history)
+  (§6.6).
+
+- **Presence (P-)**, who learns a message exists and prompts the fetch:
+  **P-none** (poll), **P-gossip** (a carrier's arrival-signal), **P-meer**,
+  **P-push** (byte-free mobile wake) (§6.7). Composes as **detector + actuator**.
+
+**Plane fusions of record** (§6.8.2): **D-self is C-direct**; **the meer is one
+node on three planes** (D-meer, carry-fetch, P-meer); **C-swarm is fused with
+nothing durable** (the load-bearing *non*-fusion).
+
+**gap-aware history convergence** = the one mechanism (detect a nameable gap via
+the sealed per-author index; fill it from a self-verifying source via RBSR)
+behind C-swarm hole-visibility, D-peer, and device-Group sync (§6.8.1).
+Durability-homed but cross-plane. **device-Group** = a persona's own devices as
+an ordinary first-order Group, lineage-restricted admission, a durability
+amplifier (§6.6.5).
+
+**The three resource-asymmetry roles** (blind, revocable, redundant, never
+authorities; instances of the Part 1 §2.3 resource inequality, holders of
+ecosystem permissions not Group Roles): **relay** (reachability, §6.5.2),
+**meer** (blind storage, §6.6.2), **push-notify** (wake, §6.7.1).
+
+
 ## References
 
 **Normative:** BCP 14 (RFC 2119 / RFC 8174); the signature and hash suites of the committed wire profile
 (§4.1); QUIC (RFC 9000) and TLS 1.3 (RFC 8446); the iroh transport (iroh core **1.0**, wire-and-API-stable,
 June 2026), with the overlay and discovery layers supplied by the separately-versioned `iroh-gossip`,
 `iroh-mainline-address-lookup`, and `iroh-mdns-address-lookup` crates (pinned versions tracked in Appendix
-B); RTP-over-QUIC for media (§6.8). The FACTCHECK SoT remains the internal cross-check of record for these
+B); RTP-over-QUIC for media (§6.12). The FACTCHECK SoT remains the internal cross-check of record for these
 external facts.
 
 **Informative (and [confirm before publish] where load-bearing; consolidated in Appendix C):** the CALM
@@ -2729,23 +3863,99 @@ theorem (Hellerstein & Alvaro) as the formal boundary for the escalation cut; CR
 range-based set reconciliation; authorized-write hook), Meadowcap (delegated **capabilities**, read/write
 data-access grants, kept verbatim as Drystone's data-access term, §5.5; attenuation by subsetting;
 communal/owned namespaces) and Keyhive (convergent capabilities / membership graphs) as the two
-data-access **capability** tracks, with the in-group **role** layer (governance authority) sitting above
+data-access **capability** tracks, with the in-Group **Group Role** layer (governance authority) sitting above
 them (§5.5); Matrix State Resolution v2 / v2.1 (MSC1442 / MSC4297), the 2025 Project Hydra disclosures
 and CVE-2025-49090 / CVE-2025-54315, and MSC4289 / MSC4291 as the rejected-ordering, adopted-closure, and
 uncapped-root-steelman references that motivate §7; decentralized-MLS (`draft-kohbrok-mls-dmls` / FREEK;
 `draft-xue-distributed-mls`) and MLS (RFC 9420) for the forward-secrecy cost of center-free ordering;
 Modular Politics (Schneider, De Filippi, Frey, Tan, Zhang, CSCW 2021) and Ostrom's IAD/polycentric work as
-the governance-as-protocol neighbor; Sigstore countersigning as the sign-over-prior-state pattern adopted
-for the frontier commitment (§7.5.1).
+the governance-as-protocol neighbor; and Sigstore's signature-transparency model (Rekor: an append-only
+Merkle log with signed tree-head checkpoints) as the nearest deployed analogue for the sign-over-prior-
+signed-state shape of the frontier commitment (§7.5.1), noting that Sigstore's own primitive is transparency
+via signed checkpoints, not a thing it calls "countersigning."
 
 **Transport, secure-messaging architecture, and overlay (the §6 mechanism lineage):** MLS (RFC 9420, July
 2023) for the group-key core and the `PublicMessage`/`PrivateMessage` framing; the MLS Architecture (RFC
-9750, April 2025) for the AS/DS trust model and the transport/MLS division of labor (§6.1, §6.2, §6.5,
+9750, April 2025) for the AS/DS trust model and the transport/MLS division of labor (§6.2, §6.5, §6.6,
 verified against the primaries this round); QUIC (RFC 9000) and TLS 1.3 (RFC 8446) for the transport and
-its record-padding mechanism; and, for the iroh-gossip overlay (§6.6), the two source algorithms, each its
+its record-padding mechanism; and, for the iroh-gossip overlay (§6.10), the two source algorithms, each its
 own 2007 paper by Leitão, Pereira & Rodrigues: **PlumTree** ("Epidemic Broadcast Trees," *Proc. 26th IEEE
 SRDS*, 2007, pp. 301–310) for the eager/lazy spanning-tree broadcast, and **HyParView** ("HyParView: A
 Membership Protocol for Reliable Gossip-Based Broadcast," *Proc. IEEE/IFIP DSN*, 2007) for the
 active/passive-view membership layer. The iroh-implementation specifics of all of the above are
 **[confirm]** against the pinned release (Appendix B); the RFC architecture claims and the algorithm
 attribution are verified.
+
+---
+
+## Upstream reference links (versioned)
+
+This section pins each external dependency and citation to a canonical, version-specific source, so a reader or implementer resolves the *exact* version this specification was written against rather than a moving "latest." Where a source was read against its primary this revision, it is marked *(verified this revision)*; otherwise the link is the canonical location to confirm against before publication. Version-sensitive dependencies carry their pinned version; where the production profile has not yet pinned a version (the pre-1.0 iroh crates), that is stated and the pin is tracked in Appendix B.
+
+### Secure-messaging core (MLS)
+
+- **RFC 9420, The Messaging Layer Security (MLS) Protocol** (Standards Track, July 2023). https://www.rfc-editor.org/rfc/rfc9420.html . The group-key core, the `PublicMessage`/`PrivateMessage` framing (§6), the transcript-hash chain (§8.2), the resumption PSK (§8.6), the epoch authenticator (§8.7), ReInit and branching (§11.2, §11.3). *(§8.2, §8.6 verified verbatim this revision; §8.7 epoch-authenticator adoption still an open candidate, §10.2.1.)*
+
+- **RFC 9750, The Messaging Layer Security (MLS) Architecture** (Standards Track, April 2025). https://www.rfc-editor.org/rfc/rfc9750.html . The AS/DS trust model, the transport/MLS division of labor (§6.2), the header-metadata leak (`group_id` plus numerical epoch, §16.4.1 / the metadata section), the KeyPackage-reuse tradeoff (§16.8), and the interoperability-parameter list (out-of-order tolerance, resumption-PSK retention). *(Metadata-leak and DS-ordering claims verified verbatim this revision.)*
+
+- **draft-kohbrok-mls-decentralized-mls** (DMLS) and **FREEK** (Alwen, Mularczyk, Tselekounis, IACR ePrint 2023/394). https://datatracker.ietf.org/doc/draft-kohbrok-mls-decentralized-mls/ and https://eprint.iacr.org/2023/394 . The PPRF-based forward-secure retained init secrets and content-derived epoch identifiers (§8.1.1). *Preliminary, tracked not depended on.* **[confirm against the current draft revision before publish.]**
+
+### Transport and overlay (iroh, QUIC, gossip)
+
+- **iroh, version 1.0.0** (wire-and-API-stable, June 2026). Crate: https://crates.io/crates/iroh/1.0.0 . Docs: https://docs.rs/iroh/1.0.0 . Source: https://github.com/n0-computer/iroh . The public-key (`EndpointId`/Ed25519) transport, dial-by-key with TLS-identity authentication, direct-first hole-punch with blind relay fallback (§6.1, §6.5). *(1.0 release and the EndpointId/dial-by-key API verified this revision; the 1.0 wire-and-API stability guarantee is load-bearing for the transport plane.)*
+
+- **`iroh-gossip`** (separately versioned, pre-1.0 own release line, outside the iroh 1.0 guarantee). Crate: https://crates.io/crates/iroh-gossip . Source: https://github.com/n0-computer/iroh-gossip . The HyParView/PlumTree overlay realization (§6.10). **The production profile must pin a version; the pinned version and its `Event` surface, `broadcast` semantics, and view-size constants are tracked in Appendix B. [confirm against the pinned version.]**
+
+- **`iroh-mainline-address-lookup` and `iroh-mdns-address-lookup`** (separately versioned, pre-1.0). Source: https://github.com/n0-computer . The discovery layer (§6.9.2). **Republish/expiry behavior is [confirm] against each crate's pinned version; the Pkarr self-signed-record model is a Pkarr-spec primary (below).**
+
+- **Pkarr (Public-Key Addressable Resource Records).** https://github.com/pubky/pkarr . The self-signed-record integrity model underneath the DNS/Pkarr discovery path (§6.9.2). **[confirm against the Pkarr spec.]**
+
+- **RFC 9000, QUIC: A UDP-Based Multiplexed and Secure Transport** (Standards Track, May 2021). https://www.rfc-editor.org/rfc/rfc9000.html . The transport iroh is built on (§6.1).
+
+- **RFC 8446, The Transport Layer Security (TLS) Protocol Version 1.3** (Standards Track, August 2018). https://www.rfc-editor.org/rfc/rfc8446.html . The handshake authenticating the `EndpointId` and the record-padding mechanism (§6.2, §6.4).
+
+- **RTP-over-QUIC (RoQ), `draft-ietf-avtcore-rtp-over-quic`** (Internet-Draft, not yet a published RFC; -14 as of this revision). https://datatracker.ietf.org/doc/draft-ietf-avtcore-rtp-over-quic/ . The media-transport reference for the real-codec path (§6.12). *(Corrected this revision: RoQ has no RFC number yet, the draft's own text states that only implementations of the final published RFC may use the "roq" ALPN token; treat the media path as riding a not-yet-final draft.)*
+
+- **PlumTree**, Leitão, Pereira & Rodrigues, "Epidemic Broadcast Trees," *Proc. 26th IEEE SRDS*, 2007, pp. 301–310. https://doi.org/10.1109/SRDS.2007.27 . The eager/lazy spanning-tree broadcast (§6.10). *(Algorithm attribution verified.)*
+
+- **HyParView**, Leitão, Pereira & Rodrigues, "HyParView: A Membership Protocol for Reliable Gossip-Based Broadcast," *Proc. IEEE/IFIP DSN*, 2007, pp. 419–429. https://doi.org/10.1109/DSN.2007.56 . The active/passive-view membership layer (§6.10). *(Algorithm attribution verified.)*
+
+### Data model and capabilities (Willow family, Keyhive)
+
+- **Willow Data Model.** https://willowprotocol.org/specs/data-model/index.html . The namespace/subspace/path structure and the `is_authorised_write` hook Drystone is built shaped-toward (§7.1). *(Data model verified this revision.)*
+
+- **Meadowcap.** https://willowprotocol.org/specs/meadowcap/index.html . The delegated data-access capability system: attenuation by subsetting, communal vs owned namespaces (§5.5, §5.10, the Track A capability option). *(Capability model and attenuation verified this revision.)*
+
+- **Range-Based Set Reconciliation**, Aljoscha Meyer, arXiv:2212.13567 (v2, Feb 2023); peer-reviewed as *Proc. 42nd IEEE SRDS*, 2023, pp. 59–69. https://arxiv.org/abs/2212.13567 . The RBSR sync technique underneath gap-aware convergence (§6.8.1, §7.1). *(Identifier and venue verified this revision; also the sync algorithm iroh-docs cites.)*
+
+- **Willow reference implementation (Rust).** https://codeberg.org/worm-blossom/willow_rs (formerly github.com/earthstar-project/willow-rs). Noted for version-finding; the spec, not the implementation, is normative.
+
+- **Keyhive** (Ink & Switch), the convergent-capability / membership-graph alternative (Track B, §7.2 capability-mechanism decision). https://www.inkandswitch.com/keyhive/ . **[confirm the current canonical location and the convergent-capability claims before publish.]**
+
+### Governance-conflict resolution (Matrix State Resolution, the neighbor Drystone contrasts with)
+
+- **Matrix State Resolution v2**, MSC1442. https://github.com/matrix-org/matrix-spec-proposals/blob/main/proposals/1442-state-resolution.md . The DAG-plus-Kahn's-algorithm skeleton Drystone shares but re-orders (§7.5.2, Appendix C).
+
+- **Matrix Project Hydra disclosure** (August 2025). https://matrix.org/blog/2025/08/project-hydra-improving-state-res/ . The 2025 state-resolution security work. *(Verified this revision.)*
+
+- **CVE-2025-49090** (State Resolution 2.0 state-reset class). https://www.cve.org/CVERecord?id=CVE-2025-49090 . Cited as cautionary evidence for the monotonic-fold choice (§7.3). *(Verified this revision: state reset to an earlier/incorrect value absent a validly-producing event, exploitable by a malicious homeserver via a crafted event/API sequence; fixed by State Res v2.1.)*
+
+- **CVE-2025-54315** (rooms before v12 lack cryptographic create-event uniqueness; High; no known exploitation path). https://www.cve.org/CVERecord?id=CVE-2025-54315 . Corresponds to Drystone's structural root-id closure (§7.3). *(Verified this revision.)*
+
+- **MSC4289** (explicitly privilege room creators; creator "infinite" power, with the backdating rationale; creator self-demotion; multiple creators). https://github.com/matrix-org/matrix-spec-proposals/blob/main/proposals/4289-explicitly-privilege-room-creators.md . The uncapped-root steelman (§5.7, §7.3). *(Verified this revision against MSC4289 and the Hydra disclosure.)*
+
+- **MSC4291** (room ID as the hash of the create event) and **MSC4297** (conflicted-subgraph closure, State Resolution v2.1). https://github.com/matrix-org/matrix-spec-proposals/blob/main/proposals/4291-room-ids-as-hashes.md , https://github.com/matrix-org/matrix-spec-proposals/blob/main/proposals/4297-consistent-state-res.md , with the implementer's guide at https://matrix.org/docs/spec-guides/state-res-2.1/ . MSC4291 corresponds to the genesis-id closure (§7.3); MSC4297's conflicted-subgraph mechanism is *adopted* at §7.5.2. *(Both verified this revision: MSC4291 against the v1.16 notes; MSC4297's two changes, empty-set start and conflicted-subgraph replay via the forward-backward SCC computation, against the State Res v2.1 implementer's guide.)*
+
+- **Matrix spec v1.16 release notes** (the room-version-12 changes above, landed). https://matrix.org/blog/2025/09/17/matrix-v1.16-release/ . *(Verified this revision.)*
+
+### Formal distributed-systems spine
+
+- **CALM theorem**, Hellerstein & Alvaro, "Keeping CALM: When Distributed Consistency is Easy," *CACM* 63(9), 2020. https://cacm.acm.org/research/keeping-calm/ (arXiv preprint https://arxiv.org/abs/1901.01930 ). Conjectured at PODS 2010; proof for queries by Ameloot, Neven & Van den Bussche, *J. ACM* 60(2), 2013. The consistent-coordination-free-iff-monotonic boundary underneath the §7.6 escalation cut. *(Attribution and statement verified this revision.)*
+
+- **CRDTs**, Shapiro, Preguiça, Baquero & Zawirski, "Conflict-free Replicated Data Types," *SSS 2011* (LNCS 6976), pp. 386–400, https://doi.org/10.1007/978-3-642-24550-3_29 ; companion technical report "A Comprehensive Study of Convergent and Commutative Replicated Data Types," INRIA RR-7506, January 2011, https://hal.inria.fr/inria-00555588 . The convergence-without-consensus premise for the data plane (§4, §7.1). *(Venue, DOI, and RR-7506 report number verified this revision; note RR-7506 is the "comprehensive study," distinct from the later RR-7686.)*
+
+### Countersigning pattern
+
+- **Sigstore signature transparency (Rekor).** https://docs.sigstore.dev/logging/overview/ . The nearest deployed analogue for the frontier commitment's sign-over-prior-signed-state shape (§7.5.1): Rekor is an append-only Merkle transparency log that periodically signs its tree head (a signed checkpoint), so an entry proves data existed at a point in a verifiable, non-mutable order. *(Mechanism verified this revision; note Sigstore's primitive is transparency via signed checkpoints and RFC 3161 timestamps, not "countersigning", so Drystone draws the checkpoint/Merkle-consistency analogy, not a literal Sigstore feature.)*
+
+Normative dependencies (BCP 14 keyword usage, RFC 2119 / RFC 8174) are at https://www.rfc-editor.org/info/bcp14 . Everything marked **[confirm]** here is consolidated with its resolution status in Appendix B; the versioned pins for the pre-1.0 iroh crates are the production profile's to fix and are tracked there.
