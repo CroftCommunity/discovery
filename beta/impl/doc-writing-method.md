@@ -116,7 +116,19 @@ State what the design does *not* do, in its own words, at the point where a read
 
 ---
 
-## 10. Mechanical hygiene
+## 10. Close a requirement-mapping doc with a posture summary table
+
+When a doc maps a design onto an external dependency it must satisfy or work around (a spec, a substrate, a protocol), close it with a single table that collapses each case to one row: what the dependency assumes or requires, the design's posture, and the forcing reason. One row per case, in the same order the body treats them.
+
+**Why.** The body argues each case at length, which is right for the reasoning but wrong for recall: a reviewer returning to the doc, or a reader deciding whether a case affects their work, needs the whole mapping visible at once, not reconstructed by re-reading eight sections. The table is the doc's index and its consistency check in one. If a row cannot be written in a sentence per cell, the corresponding section is probably still carrying an unresolved tangle, so the table doubles as a test that each case actually reached a statable posture. It also makes a missing case obvious: a gap in the table is a gap in coverage, visible at a glance.
+
+**Form.** A table near the end, before Open items, with a column for the case (cross-referenced to its section), a column for what the dependency assumes or requires, a column for the design's posture stated as an outcome not a discussion, and a column for the forcing principle or reason. Keep each cell to a phrase. The table states only decided-and-bounded postures; genuinely undecided threads live in Open items, not as a hedged table row. This keeps the "decided" and "undecided" registers cleanly separated, which is the same separation Rule 1 and Rule 9 draw at the paragraph level.
+
+**Example.** The MLS hard-cases doc closes with a nine-row posture summary: each row names an MLS assumption (the DS orders commits; GroupInfo is authoritative to a rejoining client; no insider-replay protection), the Drystone posture (MLS is subordinate; GroupInfo is a claim corroborated against the governance chain; isolated by out-of-band convergence), and the forcing principle from Part 1. The table is the fastest way to see the whole MLS-to-Drystone mapping, and writing it surfaced that two cases (external-join and insider-replay) shared a resolution shape that the prose had treated separately.
+
+---
+
+## 11. Mechanical hygiene
 
 Small rules that keep the prose readable and the references sound:
 
@@ -134,4 +146,4 @@ Small rules that keep the prose readable and the references sound:
 
 ## How the practices relate
 
-Most of these are one principle in different places. Self-defining terms (2), requirement-first (3), grounding before stating (6), and owning the residual (9) are all "state the checkable conclusion, do not defer or imply." The cast (4) and why-not-what (5) are "give the reader the intuition and the tradeoff, not just the mechanism." End-state (1), one-mechanism-named-once (7), and layer-separation (8) are "remove the confusions that make a doc un-checkable: stale history, drifted duplicates, conflated layers." The mechanical rules (10) keep the surface clean enough that the structural work shows through.
+Most of these are one principle in different places. Self-defining terms (2), requirement-first (3), grounding before stating (6), owning the residual (9), and the posture summary table (10) are all "state the checkable conclusion, do not defer or imply." The cast (4) and why-not-what (5) are "give the reader the intuition and the tradeoff, not just the mechanism." End-state (1), one-mechanism-named-once (7), and layer-separation (8) are "remove the confusions that make a doc un-checkable: stale history, drifted duplicates, conflated layers." The mechanical rules (11) keep the surface clean enough that the structural work shows through.

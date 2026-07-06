@@ -559,3 +559,41 @@ iroh core (which is 1.0 final per the FACTCHECK SoT). Corpus residue flagged by 
 resolved here): pin the iroh subcrate versions; confirm mls-rs ReInit/resumption-PSK exposure; the
 KeyPackage-availability cost that tunes boundary N. `seven-grounding.zip` removed after byte-identical
 filing, per the standing "clean up the zips" instruction.
+
+## 2026-07-06 intake — batch eight: MLS-substrate bundle + Modular Politics prior-art (eight-mls.zip + eight-modular.zip)
+
+Two deliverable sets. **`eight-mls.zip`** is the MLS-substrate understanding: overview/terms (RFC-anchored
+vocabulary resolving the leaf/client/device conflation), hardcases-and-posture (nine hazards + concept-
+alignment map + posture table), the threading candidate note, an updated shared writing method, and a
+session summary. **`eight-modular.zip`** is a source-grounded analysis of *Modular Politics* (the
+nearest-neighbor academic governance-as-protocol frame) plus its session summary. The user's two routing
+decisions: promote **one canonical writing-method doc** to the `impl/` layer root, and file **Modular
+Politics under `philosophy/prior-art/`**.
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| **MLS-substrate bundle (5 docs)** — `mls-overview-and-terms`, `mls-hardcases-and-posture`, `12-side-histories-and-threading`, `11-doc-method`, `session-summary` | `eight-mls.zip`; filed to `beta/impl/mls/` (threading renamed `side-histories-and-threading.md`, summary → `mls-session-summary.md`); the `11-doc-method` promoted to `beta/impl/doc-writing-method.md` | **preserved-verbatim** (byte-identical, `diff -q`; em-dash-clean) |
+| **Modular Politics analysis (2 docs)** — `modular-politics-analysis`, `session-summary` | `eight-modular.zip`; filed to `beta/philosophy/prior-art/` (summary → `modular-politics-session-summary.md`, 2 em-dashes normalized) | **preserved-verbatim** (analysis byte-identical; summary em-dash-normalized) |
+| **originating conversation (MLS terminology + grounding, Blacksky, Modular Politics, MLS journey/ecosystem)** | `seeds/transcripts/raw/mls-blacksky-modular-prior-art-2026-07-06.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)** |
+
+**Outputs filed (batch eight):**
+- `beta/impl/mls/` (+ documented in `impl/README`) — the MLS-substrate bundle (4 docs)
+- `beta/impl/doc-writing-method.md` — **single canonical** writing method (149-line, +§10 posture-table); the divergent `delivery-layer/11-doc-method.md` (137-line) was `git rm`'d and the corpus's "doc 11" references now resolve here
+- `beta/philosophy/prior-art/` (+ `README`) — the Modular Politics analysis + summary; `philosophy/README` gains a prior-art pointer
+- `seeds/generated-prompts/grounded-research-and-explanation-prompt.md` — the reusable search-first + quote-discipline + no-orphaned-concepts prompt (verbatim)
+- `beta/README.md` — impl row updated
+
+**Not distilled into docs (preserved in the raw transcript only):** the substantial **Blacksky** research
+(People's-Assembly/Polis governance; thin-AppView-fork + Rust performance path; Community Posts as an
+AppView-resident private-data lexicon inverting PDS-as-source-of-truth; 0→2M-users / full-network-AppView
+scale; the participatory-governance-vs-corporate-form gap) and the **MLS journey/ecosystem** research (MIMI
+as the interop half; the formal-proof record and its found limits — SUF-CMA/Ed25519 requirement, external-ops
+lowering PCS to session-state; the TreeSync/TreeKEM/TreeDEM decomposition; adoption). Both are flagged in
+`philosophy/prior-art/README` as candidates for a future `ECOSYSTEM.md` register update.
+
+**Honest provenance note (§4).** Deliverables verbatim (one em-dash normalization in the modular summary).
+The MLS docs' RFC claims are section-accurate but not all read verbatim (one `[confirm]` on the §8.2 hashing
+formula remains, per the source session). MLS-ecosystem facts flagged at source: Discord "DAVE" from a
+reference list not Discord's own blog; PQ-for-MLS from SEO-grade pages (unverified). Batch **8 of 11**;
+peer→persona and em-dash sweeps still deferred. `eight-mls.zip` + `eight-modular.zip` removed after
+byte-identical filing.

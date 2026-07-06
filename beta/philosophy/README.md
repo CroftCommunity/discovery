@@ -27,6 +27,11 @@ egalitarianism, republican non-domination, Ostrom's commons governance, Beer's c
 variety/viability principles) belongs here as it is filed. Theme material that is *principle*-shaped
 migrates to this layer; theme material that is *material/cultural*-shaped migrates to `history/` (Layer 1).
 
+**`prior-art/`** holds source-grounded analyses of the nearest-neighbor academic frames, what they
+established and where they stopped. First entry (2026-07-06): *Modular Politics* (governance as a portable
+protocol standard, Ostrom-rooted), the closest prior frame, which left the cryptographic-resolution and
+wire-encoding layers Drystone works in as future work.
+
 ## Where the argument connects
 
 - **Governance (Layer 6)** takes the conclusion (a cooperative form is required) and works its
