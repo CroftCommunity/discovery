@@ -303,3 +303,31 @@ verify-before-hardening items (share-as-right; tenure-vs-04-survivor-rekey).
 checks (share-as-right; tenure-vs-04-survivor-rekey) remain open and were deliberately left out of the beta
 narrative (ROADMAP_TODO E32 b/c). No external facts (the user's own design reasoning; nothing to fact-check).
 COHESION §39; ROADMAP_TODO E32; `BETA-ROLLUP.md` (Beta grounding, K17).
+
+## 2026-07-06 intake — Drystone spec revision session (document-pass-1)
+
+A claude.ai design dialogue: hypothesis discussion about local-truth supremacy in distributed systems, six
+revisions to Part 1 and Part 2, and a primary-source confirmation pass. Outputs: updated spec Parts 1+2,
+CHANGELOG.md, review-handoff.md — all filed into `discovery/beta/drystone-spec/`.
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| **Drystone spec revision session (claude.ai, 2026-07-06)** — hypothesis review (local-truth supremacy underrepresented in the field; Beer as exception); six revision moves; architecture-relativity of the timestamp constraint (two-sides-one-coin framing); equality model corrected (four properties: two equalities, two inequalities); capability demoted from peer-property to data-access mechanism; peer-vs-personhood keystone; device-group dial correction; dial-discipline principle; Matrix timestamp tiebreak confirmed verbatim (MSC1442 cleared); review-handoff created | `seeds/transcripts/raw/drystone-spec-revision-session-2026-07-06.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)**. UI chrome (tool-call dividers, file-edit markers) stripped; substantive design reasoning preserved. |
+
+**Outputs filed:**
+- `discovery/beta/drystone-spec/part-1-reasoning-underpinnings.md` — full replacement (347→792 lines)
+- `discovery/beta/drystone-spec/part-2-certifiable-design.md` — full replacement (819→1983 lines)
+- `discovery/beta/drystone-spec/CHANGELOG.md` — new companion (493 lines; running revision log)
+- `discovery/beta/drystone-spec/review-handoff.md` — new companion (217 lines; standalone reviewer brief)
+
+**Confirmation status changes:** Matrix State Resolution v2 timestamp tiebreak (MSC1442 / `origin_server_ts`
+tiebreak fields + authors' admission) confirmed verbatim — §7.3.1 marker cleared. MLS (RFC 9420/RFC 9750),
+Meadowcap/Willow, Spritely/ActivityPub, PGP web-of-trust, SSH TOFU also confirmed this session.
+Still `[confirm before publish]`: Matrix MSC/CVE specifics (CVE-2025-49090, CVE-2025-54315, MSC4289,
+MSC4291, MSC4297); CALM/CAP/CRDTs/Lamport verbatim; Beer verbatim + Cybersyn/OGAS figures; Ostrom verbatim;
+iroh relay-blindness; decentralized-MLS/FREEK. No drift markers vs existing FACTCHECK SoT.
+
+**Context:** this intake is part of the beta layer-cake restructure — `drystone-spec/` is Layer 1
+(protocol), `impl/` is Layer 2 (reference implementation, experiment-informed — themes 04/05/06), `croft/`
+Layer 3, `governance/` Layer 4, `history/` Layer 5, `socialization/` Layer 6. Layer directories to be
+populated across subsequent sessions.
