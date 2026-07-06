@@ -39,6 +39,7 @@ application layer, no product surface):
 - **Part 2** — `part-2-certifiable-design.md`
 - **Changelog** — `CHANGELOG.md` (running revision log; newest entry first)
 - **Reviewer brief** — `review-handoff.md` (standalone summary for cross-session review)
+- **Open items** — `open-items.md` (read-and-decide ledger; settled items + genuinely open items)
 
 Each Part 2 section names the Part 1 principle(s) it `Realizes`, so the two halves are traceable
 against each other: every mechanic should cash out a principle, and every principle should bind a

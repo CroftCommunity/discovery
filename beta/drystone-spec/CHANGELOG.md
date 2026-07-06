@@ -8,6 +8,34 @@ This changelog is organized by theme rather than by line, because several change
 
 ---
 
+## document-pass-2 (2026-07-06): model corrections, em-dash removal, open-items companion
+
+**What changed, in one line.** Seven model corrections from a structured review pass, three citation fixes, and a complete em-dash removal (562 em-dashes → 0 across both parts). A new companion file `open-items.md` was added.
+
+**Model corrections applied:**
+
+- **A2 (peer/member/lineage).** "Group-recognized peer" removed. A group recognizes *members* (clients, in the MLS sense); lineage resolves a group's member-clients to one peer. Weight and threshold language now reads "one per distinct peer (by lineage)." The personhood judgment (whether that peer is one human) is kept separate as the group's contextual call.
+
+- **A3/A4/A5 (meer and DS).** Meer is a retained colloquialism for a blind store-and-forward node (the earlier model where it was a full group member with no local history is abandoned). Verified against RFC 9750: a central Delivery Service is not required; clients can communicate directly peer-to-peer. The meer is optional offline-persistence (MLS store-and-forward layer); the iroh relay is separate (transport-layer NAT forwarder). §10.5 now says Drystone removes the **ordering** center.
+
+- **B1 (rights floor).** `share` dropped as a right. The floor is three: tenure, voice, exit. Where share has substance it is ownership of a Meadowcap communal namespace (data layer). The one remaining open check is tenure-under-rekey (Appendix B, test shape written in).
+
+- **B2 (group-principal).** Open seam noted: the Meadowcap/MLS alignment (can group-associated assets fork/merge sanely?) is the decisive next step before committing the communal-namespace construction. Rotation scheme and primary-vs-secondary question recorded as unworked.
+
+- **B5 (escalation tolerance).** "Value" → "default value"; spec deliberately declines to pick the default; knob granularity and shipped defaults are deployment tuning.
+
+- **B6 (capability mechanism).** Track A (Meadowcap) vocabulary preserved deliberately; Keyhive (Track B) recorded as preferred on revocation immediacy; deferral correct pending needs definition.
+
+- **B8 (grounds of authority).** Position recorded: rights floor is variety-enabling → system-sustaining; rights-negation is self-amplifying toward collapse; human-to-peer binding (mint-and-bind) is contextual (family = simpler/higher-trust, large disconnected groups = harder).
+
+**Citation fixes (D1–D3):** RFC 9750 reference corrected §3.5→§6.4; Matrix "trusting servers" line softened to paraphrase; duplicated Appendix line removed.
+
+**Em-dash removal:** 219 (Part 1) + 343 (Part 2) = 562 em-dashes removed. Replacements by grammatical role: bullet labels/headings → colons, appositives → commas, independent-clause joins → semicolons, parentheticals → commas or parentheses.
+
+**New companion file:** `open-items.md` — read-and-decide ledger (settled-this-round + genuinely-open items + deferred-no-action-needed).
+
+---
+
 ## 0000000. Timestamp-ordering claim made architecture-relative; Matrix tiebreak confirmed (newest, this round)
 
 **What changed, in one line.** Two refinements to the timestamp/governance-ordering material: (1) the Matrix State-Resolution-v2 timestamp tiebreak is now confirmed verbatim against primary sources and its marker cleared; (2) the claim that the authority-deciding path must exclude forgeable ordering inputs is reframed as **architecture-relative, not a universal law** — it is forced by Drystone's specific properties, and a system like Matrix can rationally tolerate what Drystone cannot.
