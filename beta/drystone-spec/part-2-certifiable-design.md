@@ -1246,7 +1246,11 @@ surface as "behind" or "unverified." Silence **MUST NOT** be rendered as currenc
 > independence** (whether two diverging facts are concurrent or one references the other). The protocol
 > therefore never asserts "this is the latest"; it asserts "I have heard from these peers within my own
 > measured window, and these facts stand in this causal relationship"; both of which a peer can defend.
-> Currency is not provenance; liveness-over-a-window and causal-independence are.
+> Currency is not provenance; liveness-over-a-window and causal-independence are. This rule is also the
+> mechanism realization of the **legibility** property of field-integrity (Part 1 §2.6): refusing to
+> render silence or a stale view as currency is, at the relational layer, the protocol declining to
+> present a partial slice as the whole and current field, which is what keeps a peer's **voice** a right
+> rather than a center-shaped capacity.
 
 **Membership/governance acts require strict CURRENT + corroboration.** To originate or co-sign an
 add/remove/policy-change, a peer **MUST** be (a) caught up and (b) corroborated-fresh, agreement on the

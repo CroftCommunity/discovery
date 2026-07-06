@@ -8,6 +8,20 @@ This changelog is organized by theme rather than by line, because several change
 
 ---
 
+## document-pass-3 (2026-07-06): voice/field-integrity bridge, RFC 9420 §16.4 reconciliation
+
+**What changed, in one line.** A new Part 1 §2.6 links the `voice` right to a field-integrity precondition (the joint between the protocol and the companion argument about who may own the substrate), and the RFC 9420 §16.4 metadata claims were reconciled against the spec's verbatim text, correcting one claim.
+
+**Part 1 — new §2.6 (voice requires field-integrity):** a bridging subsection after §2.5 (P-Durable-Enablement). It states one dependency: `voice` (§2.3 P-Peer-Equality) is a right only if the field a peer asserts into is not authored by a party whose interest the peer does not share and cannot see (call it field-integrity). It names three properties of legitimate ordering (peer-governed, legible, exitable), maps each to an existing mechanism (§2.2 no-silent-mutation, §2.4 fork, Part 2 §7.4 silence-is-not-currency, §7.6 fork), and marks the endemic-ordering point as a `[tension]` (the center-free field is not unshaped; it removes the structurally-adverse curator and returns ordering to peer governance). Adds **no new principle and no new wire obligation**; explicitly not a fifth peer-property. The empirical and ownership-form grounding is external, in the separately-maintained companion set (now filed under `../governance/` and `../activism/`), never a spec dependency for a mechanism.
+
+**Part 2 — §7.4 back-reference + RFC 9420 correction.** §7.4 gained one sentence tying its silence-is-not-currency rule to §2.6's legibility property (refusing to render silence or a stale view as currency is the protocol declining to present a partial slice as the whole field). The RFC 9420 §16.4 metadata-exposure claims were checked against the RFC's verbatim text: group ID and epoch are cleartext in the `PrivateMessage` header and unprotected against the DS (verified, scoped to the DS rather than a generic ciphertext observer); group membership is inferable (verified as written); the **per-sender generation counter claim was corrected** — `generation` lives inside the AEAD-encrypted `SenderData`, so it is *not* visible in the framing to an observer, and "a gap reveals a missed message to an observer" is unsourced in RFC 9420 and was removed/narrowed.
+
+**open-items.md:** two notes added — the §2.6 addition (recorded so it is not lost; no ruling needed) and a companion-narrative-tracked-separately note carrying one time-sensitive item: the **Project Mercury** allegations (Nov 2025 litigation filing, hearing set Jan 26 2026) surfaced no post-hearing ruling as of late June 2026, so PACER must be pulled directly before the companion is published externally. Does not gate the spec.
+
+**Not filed:** the standalone `drystone-part1-voice-bridge.md` draft is superseded by the merged §2.6 and kept only as dropoff scratch.
+
+---
+
 ## document-pass-2 (2026-07-06): model corrections, em-dash removal, open-items companion
 
 **What changed, in one line.** Seven model corrections from a structured review pass, three citation fixes, and a complete em-dash removal (562 em-dashes → 0 across both parts). A new companion file `open-items.md` was added.

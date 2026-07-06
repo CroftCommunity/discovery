@@ -32,6 +32,8 @@ These are applied in the documents. Read them as "here is what I recorded you de
 
 **Em-dashes removed.** Both documents are now free of em-dashes (was 219 in Part 1, 343 in Part 2). Replacements were chosen by grammatical role: colons for bullet labels and headings, commas for appositives, semicolons for independent-clause joins, parentheses where a comma would pile up. One thing to confirm: I converted heading title-separators to colons too (e.g. "P-Local-Truth: the only canonical state is local"). If you want headings to keep a different separator, say so; it is a quick change.
 
+**Part 1 §2.6 added (voice requires field-integrity).** A bridging subsection was merged into Part 1 after §2.5, linking the **voice** right to a precondition the existing mechanics already satisfy: that the field a peer asserts into is not authored by an external party against an objective the peer cannot see. It names three properties of legitimate ordering (peer-governed, legible, exitable), maps each to an existing mechanism (§2.2 no-silent-mutation, §2.4 fork, Part 2 §7.4 silence-is-not-currency, §7.6 fork), and marks the endemic-ordering point as a tension (the center-free field is not unshaped; it removes the structurally-adverse curator and returns ordering to peer governance). It adds **no new principle and no new wire obligation**; it is explicitly not a fifth peer-property. Part 2 §7.4 gained a one-sentence back-reference tying its silence rule to this legibility property. The empirical and ownership-form grounding lives in the separately-maintained companion narrative, not in the spec. No ruling needed; recorded so the addition is not lost.
+
 ---
 
 ## Part two: what genuinely remains open
@@ -91,6 +93,8 @@ These you have explicitly parked. Listed so nothing is lost, but none needs your
 ## Still-flagged primary sources (before external publication)
 
 Not design items, but tracked: these carry `[confirm before publish]` and were not re-pulled against primary texts this round. Beer "Brain of the Firm" and the Cybersyn/OGAS figures; Ostrom's 1990 principles 6 and 7 and the 2013 subsidiarity wording; the decentralized-MLS drafts (`draft-kohbrok-mls-dmls` / FREEK, `draft-xue`); TLS/X.509 against RFC 5280 and SSH against the OpenSSH man pages; Keyhive. The MLS facts (RFC 9420/9750), the Meadowcap/Willow semantics, the Matrix MSCs and CVE-2025-49090, and the CALM theorem were verified against primary sources across these sessions.
+
+**Companion narrative tracked separately.** The §2.6 motivation now points to a companion document set (the grounded argument "Peer Standing, the Securitized Corporation, and the Cooperative Form," the essay "Tilling the Soil of Our Relationships," and an elevator pitch). These carry their *own* source discipline and verification state and are **not** part of the Drystone spec's `[confirm before publish]` list; the spec depends on them only for motivation, never for a mechanism. One live item inside the companion to surface here because it is time-sensitive: the "Project Mercury" allegations (a Nov 2025 litigation filing) had a hearing set for Jan 26, 2026; a re-check of public reporting as of late June 2026 still surfaced no post-hearing ruling, so the docket itself (PACER) must be pulled directly before that document is published externally. This does not gate the spec.
 
 ---
 
