@@ -1,0 +1,72 @@
+# discovery / beta / impl: Layer 4 (reference implementation, experiment-informed)
+
+date: 2026-07-06
+
+**What this layer is.** Layer 4 of the beta layer-cake: the reference-implementation and
+experiment-informed design that sits between the protocol spec (Layer 3, `drystone-spec/`) and the
+product (Layer 5, `croft/`). It is where design work that is grounded in real experiments and real
+libraries lives while it matures, some of it destined to fold back up into the spec, some of it staying
+as implementation guidance. Themes `04` / `05` / `06` (the protocol-we-proved, identity, safety) migrate
+here as they settle.
+
+## Contents
+
+### `delivery-layer/` — the messaging/delivery-layer design corpus (00–12)
+
+The design of Drystone's messaging and delivery layer: the layer on top of the two settled substrate
+choices, MLS (RFC 9420 / RFC 9750) for group key agreement and message protection, and iroh (core 1.0,
+shipped 2026-06-15) for transport, discovery, and the gossip overlay. It is the follow-on from the
+messaging-layer research prompt filed at `../../alpha/seeds/generated-prompts/`. A self-contained,
+self-numbered set; start at `delivery-layer/00-session-summary.md`.
+
+| doc | what it is |
+|---|---|
+| `00-session-summary.md` | Entry point: what the design session set out to do, the grounded substrate facts, the findings. |
+| `01-delivery-architecture.md` | The architectural design (status: design, for folding into Part 2; Realizes P-Local-Truth / P-Knowable-Truth / P-Peer-Equality / P-Durable-Enablement). |
+| `02-references.md` | References for the design (incl. the CALM grounding). |
+| `03-pitch-outcomes.md`, `04-pitch-technical.md` | The pitch in outcome and technical registers. |
+| `05-experiments.md`, `10-experiments-round2.md`, `12-replant-experiments.md` | Experiment plans: the delivery-mode experiments, round two, and the tree re-plant / atomic-swap experiments. |
+| `06-deltachat-analysis.md` | Delta Chat comparison analysis. |
+| `07-history-modes.md` | History/durability modes. |
+| `08-experiment-methodology.md` | The fidelity-ladder methodology the experiments are tagged against (Rung A real-stack vs Rung B model). |
+| `09-provenance.md` | Provenance ledger for the corpus. |
+| `11-doc-method.md` | The design-doc writing method these docs follow. |
+
+## Key design results (from the corpus, grounded this round)
+
+- **The atomic-swap re-plant.** At a boundary N, the group's authoritative membership is read from the
+  governance chain (not replayed from MLS state); a fresh MLS group is stamped over exactly that set and
+  the old tree is cut down. No replay, deterministic boundary, membership read from the governance
+  authority. The MLS tree is demoted to a disposable key-distribution artifact: nothing downstream
+  (dataplane hash tree, current- and history-governance hash trees) reads the tree's shape, so tree-byte
+  nondeterminism across independent planters is a dedup, not a fork.
+- **Grounded against primaries:** MLS group creation is unilateral and needs a KeyPackage per member
+  (O(N) instantiation at the boundary); KeyPackages are single-use with a last-resort package as the
+  offline escape hatch; a fresh stamp rotates every member's leaf key (a group-wide key refresh, the
+  favorable PCS answer). The center-free constraint is KeyPackage availability at the boundary.
+- **CALM grounding:** the CALM theorem (consistent + coordination-free iff monotonic) was verified
+  against the primary sources (Hellerstein & Alvaro, *Keeping CALM*, arXiv:1901.01930 / CACM 2020; formal
+  proof lineage Ameloot, Neven & Van den Bussche 2013). Monotonicity is about information growth, not
+  time; consensus is the coordination you pay for when a problem is non-monotonic, not a picture of
+  monotonicity. Used to frame the local-authority / center-free design.
+
+## Provenance & status
+
+- **Assembled from conversation** (multi-session), delivered 2026-07-06 via `seven-grounding.zip`. Filed
+  byte-verbatim (13/13 `diff -q` confirmed), em-dash-clean as delivered. Raw transcript at
+  `../../alpha/seeds/transcripts/raw/drystone-delivery-layer-design-2026-07-06.md`. See
+  `../../alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`.
+- **Design maturity, not spec.** `01` is explicitly "for folding into Part 2" once it holds; it is not
+  yet normative. The experiments are tagged on the doc-08 fidelity ladder (Rung A on the real mls-rs /
+  iroh stack; Rung B for Drystone's own hash structures that are not built yet).
+- **Open residue flagged in the corpus (not by me this session):** pin the iroh subcrate versions
+  (iroh-gossip's manifest still pins an iroh rc, an integration-residue item); whether mls-rs exposes
+  ReInit as first-class emitting the resumption PSK vs fresh-create-plus-manual-PSK; and the KeyPackage
+  availability/cost that tunes the boundary N.
+
+## What this layer establishes (and does not)
+
+Establishes a grounded, experiment-informed design for the delivery layer and the atomic-swap re-plant
+model, ready to be exercised on the validated stack. Does **not** yet fold into the spec (that happens
+when the experiments hold), does not build Drystone's own governance/dataplane hash structures (Rung B),
+and does not pick the optimal boundary N (it measures the per-boundary cost that would tune it).

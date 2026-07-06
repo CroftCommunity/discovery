@@ -519,3 +519,43 @@ patch; (2) a full peer→persona sweep of the theme/companion bodies that still 
 noun; (3) optional em-dash tidy of the pre-existing docs never in the normalization scope (spec README,
 CHANGELOG, beta README). All three zips (`five-persona`, `six-transport`, `six-integrating`) removed after
 byte-identical filing, per the user's "clean up all the zips when done."
+
+## 2026-07-06 intake — batch seven: the delivery-layer design corpus (seven-grounding.zip)
+
+**`seven-grounding.zip`** is a 13-doc, self-numbered corpus (00–12): the design of Drystone's messaging /
+delivery layer, the follow-on from the batch-six research prompt. It seeds a **new Layer 4 `impl/`**
+(reference implementation, experiment-informed) as `impl/delivery-layer/`. This is design maturity, not
+spec (`01` is explicitly "for folding into Part 2" once it holds). The user noted we are at **batch 7 of
+11** with more changes coming, and deferred the two peer→persona / em-dash consistency sweeps ("not yet"),
+so no spec/philosophy doc was modified to absorb this round's concepts.
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| **delivery-layer corpus (13 docs, 00–12)** — session summary, architecture, references, two pitches, three experiment plans, Delta Chat analysis, history modes, methodology, provenance, doc-method | `seven-grounding.zip`; filed to `beta/impl/delivery-layer/` | **preserved-verbatim** (13/13 `diff -q`; em-dash-clean as delivered) |
+| **originating conversation (atomic-swap re-plant, CALM grounding, center-free framing)** | `seeds/transcripts/raw/drystone-delivery-layer-design-2026-07-06.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)** |
+
+**Outputs filed (batch seven):**
+- `beta/impl/` — **new Layer 4** (+ `README.md` layer index) — `impl/delivery-layer/` holds the 13-doc corpus
+- `beta/README.md` — layer-cake table: `impl/` marked seeded
+- raw transcript preserving the reasoning threads (see below)
+
+**Grounding results captured (from the corpus + transcript):** the **atomic-swap re-plant** (governance
+chain is the membership authority; a fresh MLS tree is stamped over the current member set at boundary N
+and the old tree cut down; nothing downstream reads the tree, so tree-byte nondeterminism is a dedup not a
+fork). MLS mechanics grounded against primaries (unilateral O(N) creation, KeyPackage-per-member,
+single-use with last-resort escape hatch, fresh stamp = group-wide leaf-key refresh = favorable PCS). The
+**CALM theorem** verified against primaries (Hellerstein & Alvaro, *Keeping CALM*, arXiv:1901.01930 / CACM
+2020; formal-proof lineage Ameloot, Neven & Van den Bussche 2013), with the attribution nuance (conjecture
+vs statement vs formal proof) recorded; monotonicity is information-growth, not time. The **center-free =
+plurality** framing ("raindrops on a lake, each the center of its own ripple, none the center of them all")
+and the two-layer fence (**peers converge on governance facts; each acts on its own local state**) are
+preserved in the raw transcript as durable concepts, not yet folded into the spec or philosophy (more
+changes expected). The standalone `calm-session-summary.md` from the source session was **not** in the zip
+(the CALM grounding lives in the corpus's `02-references.md`); can be filed if provided.
+
+**Honest provenance note (§4).** Deliverables verbatim, drift-clean. The `iroh =1.0.0-rc.1` mention in
+`00` is a correct note about **iroh-gossip's dependency pin** (integration-residue flag), not a claim about
+iroh core (which is 1.0 final per the FACTCHECK SoT). Corpus residue flagged by the source session (not
+resolved here): pin the iroh subcrate versions; confirm mls-rs ReInit/resumption-PSK exposure; the
+KeyPackage-availability cost that tunes boundary N. `seven-grounding.zip` removed after byte-identical
+filing, per the standing "clean up the zips" instruction.
