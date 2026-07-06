@@ -721,6 +721,53 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Provenance:** `beta/07` Pillar C (C3); `thinking/drystone-publication-and-defensive-disclosure.md`;
   split from T30.
 
+### T33 — Edge-preserving capital formation (funding the co-op without reinstalling the extractive edge)
+
+- **Status:** `open · surfaced` (surfaced 2026-07-06 by the peer-standing argument).
+- **Type:** `needs-research` (couples-with `legal-review`).
+- **What it is:** the one genuinely open engineering problem the peer-standing → cooperative-form
+  argument *generates* (not a flaw in it). A social-graph platform has real infrastructure costs
+  historically funded by exactly the securitized venture capital the argument rules out. Whether a
+  cooperative can raise sufficient capital **without issuing any claim** (non-voting preferred, outside
+  investor classes) that smuggles the asymmetric owner/user edge back in is contested and unresolved. If
+  edge-dissolution is the point, the funding instrument must itself be edge-preserving — which sharply
+  constrains the financing design space. Couples with the two grounding gaps the argument flags: the
+  Rochdale / ICA cooperative legal mechanics (non-transferable member shares, patronage returns) and the
+  platform-cooperativism capital-formation literature.
+- **Promotion target:** `governance/` (Layer 4) — extends `peer-standing-and-the-cooperative-form.md` §6
+  and theme `07`; sits under the bannered cooperative legal-review gate in `README.md`.
+- **Gates:** ground the platform-cooperativism capital-formation literature; ground the ICA/Rochdale
+  member-share mechanics; the broader cooperative/foundation legal-review gate (README) is the call this
+  sits under.
+- **Provenance:** `governance/peer-standing-and-the-cooperative-form.md` §6 + §8 (the `[tension]` on
+  capital formation) and `structural-argument-principles.md` §IX(32); assembled from conversation,
+  delivered 2026-07-06 (via `dropoff/third.zip`, since removed — the committed governance docs are the record).
+
+### T34 — Project Mercury: re-check the litigation docket before any external publication (time-sensitive)
+
+- **Status:** `open · gated` (surfaced 2026-07-06 by the activism-layer research set).
+- **Type:** `needs-research` (couples-with `publish`).
+- **What it is:** the strongest causal evidence in the `activism/` harm case — **Project Mercury**, a
+  2019–2020 internal Meta/Nielsen deactivation study alleged (in a Nov 2025 unredacted Motley Rice filing,
+  N.D. Cal. social-media MDL) to show users who stopped Facebook for a week "reported lower feelings of
+  depression, anxiety, loneliness and social comparison," with an internal staffer reportedly writing "the
+  Nielsen study does show causal impact on social comparison" and another reaching for a tobacco-companies
+  analogy. **It is live litigation at the knowledge edge:** the underlying documents are sealed, Meta filed
+  a motion to strike with a real methodological rebuttal (unblinded deactivation cannot separate the effect
+  of leaving from the belief that leaving helps), and a hearing was set for **Jan 26 2026**. A re-check of
+  public reporting as of late June 2026 surfaced no post-hearing ruling.
+- **Promotion target:** none — this is a **publication gate** on the `activism/` set (and, transitively, on
+  anything public-facing that leans on it), not beta-theme content. It does **not** gate the Drystone spec
+  (open-items records this explicitly).
+- **Gates:** pull the **PACER docket directly** (not aggregators) before external publication; retrieve the
+  unsealed exhibits if/when unsealed rather than relying on the plaintiffs' framing as relayed by Reuters /
+  CNBC / UPI; represent Meta's rebuttal at full strength every time. Same discipline applies to the
+  X-platform study (Nature 2026) if it becomes load-bearing.
+- **Provenance:** `activism/relational-field-research-brief.md` gap 14 + `structural-argument-narrative.md`
+  Plank 2; `drystone-spec/open-items.md` (companion-tracked-separately note). Non-load-bearing follow-ups
+  also flagged in `activism/README.md`: Tristan Harris to primary, the "63 break-glass" count to a Meta
+  document, and the ~35-study internal corpus traced from the aggregator to individual exhibits.
+
 ## Promoted & closed (provenance retained)
 
 Threads that have left the live queue — `promoted` (integrated into a matured doc) or `closed` (resolved

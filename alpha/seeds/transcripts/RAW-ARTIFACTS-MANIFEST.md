@@ -352,3 +352,79 @@ verified. Tenure-under-rekey test shape written into Appendix B (B1). No drift v
 Still `[confirm before publish]`: Beer, Ostrom, decentralized-MLS/FREEK, TLS/X.509, SSH, Keyhive,
 Lamport, CALM, CAP, CRDTs, Matrix CVE/MSC specifics; capped-root soundness (B4) remains priority
 security open item.
+
+## 2026-07-06 intake — peer-standing → cooperative-form companion set (third.zip)
+
+The philosophical/political spine that grounds the co-op ownership form: a five-document set
+"assembled from conversation" that follows the word *peer* (Latin *par*, "equal") through relational
+equality, non-domination, group-agency impossibility, Delaware corporate law, and the domain mismatch,
+to the conclusion that an ad-funded securitized corporation cannot constitute peer standing and that a
+cooperative form adopted from inception is required. Delivered as a zip because the originating web
+client would not render the files. This is a **companion set, not a Drystone spec update** — no
+`part-1`/`part-2` overwrite.
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| **peer-standing → cooperative-form set (5 docs)** — `peer-standing-and-the-cooperative-form.md` (full grounded argument, source of record), `structural-argument-principles.md`, `tilling-the-soil-essay.md`, `sixty-second-pitch.md`, `session-summary.md` | delivered via `beta/drystone-spec/dropoff/third.zip` (scratch — **removed 2026-07-06** after byte-identical copies confirmed in the tree); the **committed tree copies below are the durable verbatim record** | **preserved-verbatim** (deliverables byte-identical, `diff -q` confirmed twice before the zip was removed) |
+
+**Outputs filed (split across layers per the user's 2026-07-06 decision):**
+- `beta/governance/peer-standing-and-the-cooperative-form.md` — Layer 4 source of record
+- `beta/governance/structural-argument-principles.md` — Layer 4
+- `beta/governance/peer-standing-session-summary.md` — Layer 4 (renamed from `session-summary.md`)
+- `beta/socialization/tilling-the-soil-essay.md` — Layer 6
+- `beta/socialization/sixty-second-pitch.md` — Layer 6
+- `beta/governance/README.md`, `beta/socialization/README.md` — new layer indexes (carry the cross-layer navigation; deliverable bodies untouched)
+- `beta/OPEN-THREADS.md` — new **T33** (edge-preserving capital formation, the open problem the argument generates)
+
+**Honest provenance note (§4).** The **deliverables** are preserved verbatim. The **originating
+conversation** is NOT separately archived as a transcript: it spanned multiple prior web sessions
+("assembled from conversation"; the summary references "four conversations ago"), only this session's
+tail was visible, and it was chrome-laden claude.ai render — reconstructing it would be lossy, so per §4
+it is flagged **not-preserved** rather than faked. The canonical conversation lives in the user's web
+history if the full raw is ever wanted. Two grounding gaps the set itself flags remain **not sourced**:
+Rochdale/ICA co-op legal mechanics and the platform-cooperativism capital-formation literature (tracked
+in T33). Drift grep clean (no `rc.0` / `connect_to_peer` / "merkle search tree" / "AT Messaging working
+group" / `ger.mx`); no atproto/iroh/iOS facts touched. Bodies retain their em-dashes (not run through the
+Drystone-spec em-dash pass — finished companion docs, not spec).
+
+## 2026-07-06 intake — batch four: activism research set + spec pass-3 + peer-standing update (four-research.zip + four-peers.zip)
+
+Two zips. **`four-research.zip`** is the new *empirical* indictment — "platforms author the relational
+field": a five-plank structural narrative, a 14-gap evidence brief (each claim with its primary source,
+a verbatim line under the quote limit, and an epistemic tag), and a four-tier reference index. It seeds
+a **new Layer 7 `activism/`** (the "why the incumbents are harmful" register, distinct from
+`governance/`'s structural/legal case and `socialization/`'s presentation). **`four-peers.zip`** is a
+full updated snapshot: the Drystone spec (part1/part2/open-items) plus the peer-standing set, with the
+RFC 9420 §16.4 reconciliation and a new Part 1 §2.6 (voice requires field-integrity) folded in. Unlike
+third.zip, this batch **does** overwrite the spec — the user's clean-history workflow (overwrite in
+place + one commit per version).
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| **activism research set (3 docs)** — `structural-argument-narrative.md`, `relational-field-research-brief.md`, `reference-index.md` | delivered via `beta/drystone-spec/dropoff/four-research.zip`; filed to `beta/activism/` (below) | **preserved-verbatim** (byte-identical, `diff -q` confirmed) |
+| **spec + peer-standing snapshot (8 docs)** — `drystone-part1/part2/open-items.md`, `peer-standing.md`, `tilling-the-soil.md`, `elevator-pitch.md`, `session-summary.md`, `drystone-part1-voice-bridge.md` | delivered via `beta/drystone-spec/dropoff/four-peers.zip`; spec files overwritten in place, peer-standing set overwritten in `governance/`+`socialization/` (below) | **preserved-verbatim** (byte-identical, `diff -q` confirmed); the committed tree copies are the record |
+| **originating conversation (research + RFC 9420 threads)** | `seeds/transcripts/raw/platforms-author-relational-field-research-2026-07-06.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)**. User-pasted tail of a longer multi-session conversation; UI chrome stripped, edit-narration condensed, research-brief opening truncated in the paste (noted inline). |
+
+**Outputs filed (batch four):**
+- `beta/activism/` — **new Layer 7**: `structural-argument-narrative.md`, `relational-field-research-brief.md`, `reference-index.md`, `README.md`
+- `beta/governance/peer-standing-and-the-cooperative-form.md` — overwritten (555→820 lines; empirical grounding folded in), `peer-standing-session-summary.md` — overwritten; `README.md` — activism/spec-§2.6 cross-refs added
+- `beta/socialization/tilling-the-soil-essay.md`, `sixty-second-pitch.md` — overwritten
+- `beta/drystone-spec/part-1-reasoning-underpinnings.md` (796→875: new §2.6), `part-2-certifiable-design.md` (§7.4 back-ref + RFC 9420 claim-(c) correction), `open-items.md` (§2.6 note + companion-tracked + Project Mercury flag), `CHANGELOG.md` (document-pass-3 prepended) — overwritten
+- `beta/README.md` — layer-cake table +activism row (Layer 7); `beta/OPEN-THREADS.md` — new **T34** (Project Mercury docket re-check, time-sensitive)
+
+**Not filed:** `drystone-part1-voice-bridge.md` is the standalone *draft* of §2.6, superseded by the
+merged §2.6 in Part 1; kept only as dropoff scratch.
+
+**Honest provenance note (§4).** Deliverables preserved verbatim. The activism set carries its **own
+source discipline** (four quality tiers; peer-reviewed / company-primary anchors; conflicts shown, not
+resolved — the Meta teen-research and Project Mercury both have both primaries). **Time-sensitive:**
+**Project Mercury** is live litigation at the knowledge edge (Nov 2025 filing, hearing set Jan 26 2026,
+docs sealed) — pull PACER before any external publication (T34). The five-plank reflexivity
+**decomposition is synthesis** ("ours"), not a sourced finding. Non-load-bearing follow-ups still open:
+Tristan Harris to primary, "63 break-glass" count, the ~35-study internal corpus. RFC 9420 §16.4
+reconciliation: (a) group ID and (b) epoch verified with **narrowed scope** (cleartext `PrivateMessage`
+header, threat is the DS not a generic observer), (d) membership verified as written, **(c) corrected** —
+`generation` is inside AEAD-encrypted `SenderData`, not visible in framing; the "gap reveals a missed
+message" claim was unsourced in the RFC and removed. Drift grep clean; iroh cited at `1.0.0` per FACTCHECK
+SoT. Spec bodies went through the em-dash discipline already; the companion/activism bodies retain their
+em-dashes (finished companion docs, per the batch-three convention).

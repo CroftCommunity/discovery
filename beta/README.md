@@ -91,6 +91,32 @@ protocol; Croft is one ecosystem built on it (see `drystone-spec/README.md`).
   └─ the protocol ─┘  └──── what we built & proved ────┘  └── how it survives & ships ─┘
 ```
 
+## The layer-cake (emerging structure, populated across sessions)
+
+Alongside the theme docs, beta is being organized into a **maturity layer-cake** — the themes migrate
+into layers as they settle. Layer directories are seeded as material arrives, not all at once:
+
+| Layer | Dir | What it holds | State |
+|---|---|---|---|
+| 1 | `drystone-spec/` | Protocol spec (Parts 1+2, CHANGELOG, open-items, review-handoff) | populated |
+| 2 | `impl/` | Reference implementation, experiment-informed (themes 04/05/06 to migrate) | not yet created |
+| 3 | `croft/` | Product thinking (theme 08 to migrate) | not yet created |
+| 4 | `governance/` | Co-op / stewardship — the ownership-form argument, *structural/legal* register (theme 07 to migrate) | **seeded 2026-07-06** (peer-standing → cooperative-form set) |
+| 5 | `history/` | Enclosure / commons / peer-rights (theme 02 to migrate) | not yet created |
+| 6 | `socialization/` | Brand / voice / adoption, *presentation* register (T4 / T11 terrain) | **seeded 2026-07-06** (human-facing peer-standing pieces) |
+| 7 | `activism/` | The case against the status quo — why incumbent platforms are harmful, *empirical* register | **seeded 2026-07-06** (the "platforms author the relational field" research set) |
+
+The `02`–`08` theme docs at beta root remain the current reading spine; layer dirs carry their own
+`README.md` index. The peer-standing companion work (2026-07-06) was **split by register** per the
+layer plan: the empirical harm case → `activism/` (Layer 7), the structural/legal argument →
+`governance/` (Layer 4), the human-facing presentation → `socialization/` (Layer 6). The reading arc
+across the three is **activism (the problem) → governance (the solution) → socialization (the
+invitation).** `history/` is not yet seeded (none of that set is primarily a history document; the
+enclosure/peer-rights lineage stays with theme `02`). The Drystone spec's Part 1 §2.6 (voice requires
+field-integrity, added in document-pass-3) is the joint that ties the protocol to this companion set —
+pointing at `governance/` for structural grounding and `activism/` for empirical grounding, while
+depending on neither for a mechanism.
+
 ## Structural decisions taken for this synthesis (2026-06-24)
 
 - **N2 (history) and N3 (ecosystem) are two themes**, not one — a historical arc reads differently
