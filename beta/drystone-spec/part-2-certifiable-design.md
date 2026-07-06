@@ -35,15 +35,15 @@ fact not yet independently verified).
 
 ## 3. Protocol Overview
 
-A **peer** holds a local store that is canonical for it (`P-Local-Truth`). Peers participate in
+A **persona** holds a local store that is canonical for it (`P-Local-Truth`). Peers participate in
 **scopes** (groups holding shared state). Within a scope, two kinds of state move:
 
-- **History**: the content peers author, as signed, hash-chained entries. This is the data plane.
+- **History**: the content personae author, as signed, hash-chained entries. This is the data plane.
 
 - **Governance facts**: signed, append-only entries recording who may do what (admit, expel, grant,
   revoke, amend). Authority is a deterministic fold over these. This is the control plane.
 
-A peer is one or more **devices** (keypairs) acting under a single **lineage**; receivers fold devices
+A persona is one or more **devices** (keypairs) acting under a single **lineage**; receivers fold devices
 back to one actor so that membership and thresholds are counted by actor, not by device. Peers reach each
 other over an encrypted QUIC transport with relay fallback; a relay forwards opaque frames and need not
 read content. When two peers' views diverge, **range-based reconciliation** finds the difference and
@@ -62,9 +62,11 @@ realizations (MLS, iroh, and the primitives), separating each *requirement* from
 
 A network of many nodes with any-to-any connectivity is **not** automatically a distributed system of
 peers. The distinction this specification turns on is not topological; it is about **where adjudication
-lives.** A **peer is a locus that can *adjudicate***; it holds genuine authority over some domain that
-other peers must respect, not merely a node that can sense, store, and relay. A node that only senses and
-relays, with its decisions made elsewhere, is a **sensor**, however well-connected it is.
+lives.** A **principal is a locus that can *adjudicate***: it holds genuine authority over some domain that
+other principals must respect, not merely a node that can sense, store, and relay. A node that only senses and
+relays, with its decisions made elsewhere, is a **sensor**, however well-connected it is. To say a system
+is one *of peers* is to say its principals stand in **peer relation**: each is a locus the others must
+respect, none a center the others must obey.
 
 This is also exactly why the protocol is named *center-free* rather than *peer-to-peer*: peer-to-peer is
 a true statement about the wiring and a misleading one about the authority. A blockchain is peer-to-peer
@@ -82,12 +84,12 @@ regardless of how its packets flow.
 This is why Drystone specifies **rights separately from resources** (§5) and cannot let either be read
 off a network diagram: a **resource** ("this device can do X", sense, store, relay, compute) is visible in
 the plumbing, but a **right** ("this principal's authority over X must be respected") is visible only in the
-governance. It is also why the spec is **ordered** the way it is, define the peer (a locus of
-adjudication, §5.2), then peer rights (§5.3), then the mechanics that keep adjudication distributed (§7,
+governance. It is also why the spec is **ordered** the way it is, define the **principal** (a locus of
+adjudication, §5.2) and the **persona** as its human-representing kind, then the rights floor (§5.3), then the mechanics that keep adjudication distributed (§7,
 §8), and why the **label-not-enforce** posture (§8) is load-bearing rather than cosmetic: enforcement
-relocates adjudication to whoever enforces, quietly converting peers into sensors, while labeling leaves
-adjudication with the peer and propagates only information. Each enforcement hook looks locally reasonable,
-which is exactly how a peer network can **degrade into a sensor mesh** over time without anyone deciding to
+relocates adjudication to whoever enforces, quietly converting principals into sensors, while labeling leaves
+adjudication with the principal and propagates only information. Each enforcement hook looks locally reasonable,
+which is exactly how a network of peers can **degrade into a sensor mesh** over time without anyone deciding to
 centralize. Keeping adjudication at the edge is the protocol's job; surfacing the hard case to a human
 (the algedonic escalation, §7.6) is how it does so without pretending rules can resolve everything.
 
@@ -170,19 +172,19 @@ These are kept strictly separate, and conflating them is the central honesty err
 the authority check as an unauthorized author. This separation is what makes a branch trustworthy: the
 hash chain proves it was not tampered in transit; only signature + standing prove it may be there.
 
-### 4.5. Multi-client fold: client-count and device-count ≠ peer-count
+### 4.5. Multi-client fold: client-count and device-count ≠ persona-count
 
-A **peer** (the human as represented, §5.2) is rooted in a **cryptographic key pair**. That key pair is the
-root of a **cryptographic lineage**: each of the peer's devices and each **client** (group-member software,
-§5.2) hosted on them carries a membership key that **descends from the peer's key pair by signed
+A **persona** (the human layer's manifestation, §5.2) is rooted in a **cryptographic key pair**. That key pair is the
+root of a **cryptographic lineage**: each of the persona's devices and each **client** (group-member software,
+§5.2) hosted on them carries a membership key that **descends from the persona's key pair by signed
 credential**. Lineage here is literal, the concrete chain of signatures by which a client's membership key
-is provably tied back to its rooting peer, not an abstract tier.
+is provably tied back to its rooting persona, not an abstract tier.
 
 Receivers **MUST** fold by following each client's lineage back to its root: every client whose lineage
-roots at the same peer counts as **that one peer**, however many clients run on however many devices. A
-scope's topic carries many such lineages; the fold is what every peer computes identically to agree on the
-member list and on **lineage-rooted thresholds** (§7.2), which count **one peer per rooting key pair**,
-never clients or devices. *green-real*: one human's two devices fold to one peer; all peers agree on the
+roots at the same persona counts as **that one persona**, however many clients run on however many devices. A
+scope's topic carries many such lineages; the fold is what every participant computes identically to agree on the
+member list and on **lineage-rooted thresholds** (§7.2), which count **one persona per rooting key pair**,
+never clients or devices. *green-real*: one human's two devices fold to one persona; all participants agree on the
 folded count.
 
 #### 4.5.1. Per-client authorship, per-client logical clock, and the principal-as-self-AS
@@ -198,7 +200,7 @@ more than one) and which Drystone requires not to share one signature key across
 group, so "these clients are the same person" is necessarily an **identity-layer credential policy**, not
 a key-layer fact. This is the mechanism behind the governance-integrity spine (§5.2): because each client
 is a distinct member but governance counts **principals**, a principal's clients and devices are resolved
-by lineage to one peer before any quorum is counted, so more clients or devices never buy more weight.
+by lineage to one persona before any quorum is counted, so more clients or devices never buy more weight.
 *(Group-key/MLS facts: confirm against the primary specification, **[confirm before publish]**. The
 abstract group-key requirement this rests on, including the no-shared-signature-key-across-a-principal's-
 clients property as requirement K5, is consolidated in **§10.2**, where MLS is positioned as the reference
@@ -229,9 +231,9 @@ converge. A principal's stream is the **deterministic fold-time merge** across i
 This section fixes the vocabulary the rest of the spec runs on. It is the section a reviewer presses
 hardest, because it is where `P-Peer-Equality` is enforced by mechanism rather than assumed, and where a
 single overloaded word ("peer") previously hid several independent ideas. The fix is to ask one precise
-question, *in what ways may one peer differ from another?*, and to answer it with **exactly four
+question, *in what ways may one persona differ from another?*, and to answer it with **exactly four
 properties, two necessarily equal and two legitimately unequal**, then to separate the **identity layer**
-(principals and clients) from the **governance layer** (peers and weight).
+(principals and clients) from the **governance layer** (personae and weight).
 
 > **Provenance of this model.** The equality framing and the principal/peer/client vocabulary below are
 > Drystone's own synthesis (ours), not sourced from any external spec. Two prior-art vocabularies are
@@ -254,67 +256,69 @@ properties, two necessarily equal and two legitimately unequal**, then to separa
 
 ### 5.0. Two equalities, two inequalities: and the two layers
 
-The question `P-Peer-Equality` actually answers is: **in what ways may one peer differ from another?**
+The question `P-Peer-Equality` actually answers is: **in what ways may one persona differ from another?**
 There are exactly four properties, and the whole model is that **two are necessarily equal and two are
-legitimately unequal.** "Peers are equal" was always shorthand for this four-way split; collapsing it into
+legitimately unequal.** "Personae are equal" was always shorthand for this four-way split; collapsing it into
 one phrase is what produced the earlier confusion.
 
-What makes the equality *matter* is what a peer **is**: a peer is the **representation of a human** in the
-system, not a node or a device. So peer-equality is **equality of humans as represented**, equality in
-expression and in count. This holds **as long as the human-to-peer binding is one-to-one**, and that
-binding is a **social-utility judgment the group makes, not a fact the system can attest** (§2.0, §5.6).
-The protocol guarantees provenance and runs governance over peers as represented; it does **not** certify
-that one peer is one person. That is the razor (§2.0) applied to the peer concept itself.
+What makes the equality *matter* is what a **persona** is: a persona is the **human layer's manifestation** in the
+system, a principal by virtue of its key pair, present through lineage and verification (§4.5), not a node or a device. So peer-equality is **equality of personae as represented**, equality in
+expression and in count. The protocol guarantees, by mechanism, that one recognized persona carries equal
+rights and one flat unit of weight. Whether a persona corresponds to one distinct human is a separate
+question the protocol does **not** answer, and **could not**: that binding has no technical representation
+the protocol could read (§5.2), so there is no fact to certify. It is a social-utility judgment the group
+makes at its own standard (§2.0, §5.6). The mechanical guarantee is what makes that judgment meaningful; it
+does not substitute for it. That is the razor (§2.0) applied to the persona concept itself.
 
-**The two equalities**, equal for every peer, always:
+**The two equalities**, equal for every persona, always:
 
 - **Right, what a *principal* inherently holds.** The floor: voice, tenure, and exit/fork (§5.3). It is
-  **equal for every peer, and unremovable.** The proof that it is a right and not a role is that the last
+  **equal for every persona, and unremovable.** The proof that it is a right and not a role is that the last
   of them, exit/fork, survives even when every role is stripped and even when a quorum captures the
   group: participation persists as the standing to leave with your state and continue. A right is precisely
   the thing that *cannot* be delegated or revoked. Attaches to the **principal**, flows to its clients.
 
-- **Weight, how much a *peer* counts in governance.** **Flat: one per distinct peer**, where a peer is
+- **Weight, how much a *persona* counts in governance.** **Flat: one per distinct persona**, where a persona is
   the unit a group's **members resolve to by lineage** (§4.5), regardless of how many clients, devices,
   resources, or roles carry that lineage. Weight is equal **by necessity, not by separate decree**: it
   *follows from* equal rights. If standing-to-participate is equal (the right), then standing-to-be-counted
-  is equal (the weight), the second is the governance image of the first. Attaches to the **peer** (§5.6).
+  is equal (the weight), the second is the governance image of the first. Attaches to the **persona** (§5.6).
   *(A note on what the group recognizes, and what it does not. A group recognizes its **members**,
-  clients, in MLS terms (§5.2). Lineage then resolves a group's member-clients to **one peer** (§4.5), and
-  it is that resolved peer that is counted once. The system attests this resolution by provenance. What the
-  system does **not** attest is whether a peer corresponds to a distinct **person**: that one-peer-one-human
+  clients, in MLS terms (§5.2). Lineage then resolves a group's member-clients to **one persona** (§4.5), and
+  it is that resolved persona that is counted once. The system attests this resolution by provenance. What the
+  system does **not** attest is whether a persona corresponds to a distinct **person**: that one-persona-one-human
   binding is a **contextual judgment the group makes** at its own confidence (§5.6). We avoid the phrase
   "personhood-verified": "verified" would imply the system did the verifying, when the protocol guarantees
   provenance and the group judges personhood.)*
 
-**The two inequalities**, legitimately different between peers:
+**The two inequalities**, legitimately different between personae:
 
 - **Resource, what a *node* has.** Storage, uptime, reachability, a push token, a radio, "this
   box is willing to relay." A property of the **device or node**, not of identity: **intrinsic**,
   **descriptive**, **expected to be unequal**, and **not delegable**, you cannot hand another node your
-  RAM. It is a fact about every node in the system (a peer's clients, but also meers and relays, §5.4),
-  not only about peers; it is listed among the peer inequalities because, *across peers*, it is one of the
+  RAM. It is a fact about every node in the system (a persona's clients, but also meers and relays, §5.4),
+  not only about personae; it is listed among the persona inequalities because, *across personae*, it is one of the
   two ways they legitimately differ. A resource says what is *possible*, never what is *permitted* and
-  never how much a peer *counts* (§5.4). *(This is the layer an earlier draft called "capability";
+  never how much a persona *counts* (§5.4). *(This is the layer an earlier draft called "capability";
   renamed because "capability" is Meadowcap's word for data access, and because "resource" names the
   device fact without inviting the false slide from "able to" to "entitled to.")*
 
 - **Role, what governance authority a *principal* has been *granted*.** Admin, moderator, gating, the
   act-for-the-group authority, the authority to issue capabilities (§5.5). A role is **granted by member
   consent, scoped, attenuating, and always revocable.** It is the one *operational* inequality the design
-  permits: peers may hold different roles, and that is normal. Crucially, **a role rides entirely above the
-  two equalities**, granting or revoking one never changes a peer's rights floor or its unit of weight.
+  permits: personae may hold different roles, and that is normal. Crucially, **a role rides entirely above the
+  two equalities**, granting or revoking one never changes a persona's rights floor or its unit of weight.
   Roles are the application-layer construct MLS deliberately leaves undefined (§5.5).
 
-So the sentence that replaces every earlier formulation: **peers are equal in rights and (by necessity)
+So the sentence that replaces every earlier formulation: **personae are equal in rights and (by necessity)
 weight, and unequal in resources and revocable roles.** The old phrase "equal in rights, not capabilities"
 was wrong twice over: it used "capabilities" for device facts (now *resources*), and it implied rights
 could be unequal when the inequality it had in mind was always a *role*. Rights do not vary. Roles do.
 
 A note on what is **not** on this list. **Capability** (the Meadowcap data-access grant, read/write an
-area of a namespace, §5.5) is not a fifth peer-property. It is the **mechanism a role operates through**: a
+area of a namespace, §5.5) is not a fifth persona-property. It is the **mechanism a role operates through**: a
 role may carry the authority to *issue* capabilities, and the capabilities themselves are data-plane tokens
-(§7.1, §10.4), one level below the question of how peers differ. It is listed here only to place it: it
+(§7.1, §10.4), one level below the question of how personae differ. It is listed here only to place it: it
 sits *under* roles, not beside resources.
 
 And two layers, because the entity that holds rights is not the same granularity as the device that acts:
@@ -325,16 +329,17 @@ And two layers, because the entity that holds rights is not the same granularity
   for consistency). A **device** is the hardware (a node, §5.4); a device may host **more than one
   client**, and a principal is **realized by one or more clients across one or more devices**.
 
-- **Governance layer, peers and weight.** A **peer** is the **representation of a human** in the system:
-  the principal behind which there is a person, and the entity rights and weight attach to *because* a
-  person is there. A peer is **not a node** (a node is a box, with resources, §5.4); it is the
-  human-as-represented, rooted in a **cryptographic key pair** from which its devices' and clients'
+- **Governance layer, personae and weight.** A **persona** is the **human layer's manifestation** in the system:
+  a principal by virtue of its key pair, the entity rights and weight attach to *because* a
+  person stands behind it, and the locus at which the social-utility calls the system cannot compute (§2.0)
+  are adjudicated. A persona is **not a node** (a node is a box, with resources, §5.4); it is the
+  human-as-manifested, rooted in a **cryptographic key pair** from which its devices' and clients'
   membership keys descend by signed credential (its **lineage**, §4.5). Its clients run on its devices; the
-  peer is neither. It carries the rights floor and is the source of one unit of governance weight, and the
-  fold counts **one peer per rooting key pair** however many clients and devices carry that lineage. The
-  binding "one peer is one human" is what makes that weight meaningful, and that binding is a **social
+  persona is neither. It carries the rights floor and is the source of one unit of governance weight, and the
+  fold counts **one persona per rooting key pair** however many clients and devices carry that lineage. The
+  binding "one persona is one human" is what makes that weight meaningful, and that binding is a **social
   judgment the group makes, never something the system attests** (§5.6, §2.0): the protocol attests
-  provenance and runs governance over peers as represented; whether a peer corresponds to a distinct person
+  provenance and runs governance over personae as manifested; whether a persona corresponds to a distinct person
   is the group's contextual call.
 
 ### 5.1. The only canonical state is local
@@ -346,27 +351,33 @@ design. A lagging client computes a stale-but-honest state, never a false one, b
 reading its own store. *green-real / design*, the property §7 relies on to make authority a fold over an
 append-only view.
 
-### 5.2. Principal, client, peer: the identity model
+### 5.2. Principal, client, persona: the identity model
+
+> The consolidated term lattice and the invariants of record (the vocabulary
+> a reviewer validates against) are in **Appendix D**; this section is the
+> prose source those entries summarize.
 
 A **principal** is a **role-holding entity, identified by one key-lineage.** This is the genus. It is
 defined by its *identity* (one authenticatable lineage), not merely by its function, so that "holds a
 role" does not collapse into "anything at all." Kinds of principal:
 
-- a **peer**, the principal that **represents a human** in the system, carrying the rights floor (the
-  common case: one person, one identity, possibly many devices). Rights and weight attach to the peer
-  because a person is behind it. Its clients run on its devices, tied to the peer by lineage (§4.5); the
-  peer is neither a client nor a device nor any node;
+- a **persona**, the principal that **manifests a human** in the system, a principal by virtue of its key
+  pair, carrying the rights floor and one unit of weight, and the locus at which the social-utility calls
+  the system cannot compute (§2.0) are adjudicated because a person stands behind it (the
+  common case: one person, one persona per group, possibly many devices). Its clients run on its devices,
+  tied to the persona by lineage (§4.5); the persona is neither a client nor a device nor any node;
 
 - a **group**, a collective that can hold a role as a single principal (its identity model is an **open
   seam**, see below);
 
-- a **delegate**, not a separate species but a **state**: a peer or group currently holding a role
+- a **delegate**, not a separate species but a **state**: a persona or group currently holding a role
   delegated by another principal (§5.5).
 
 A **meer** is **not** a principal and does not appear above. "Meer" is a colloquialism for a blind
 store-and-forward node: infrastructure, defined in §5.4 (a node offering availability capacity, configured
 by a scope to serve ciphertext) and §6 (transport). The legacy labels "mere-peer," "blind member," and
-"blind peer" are all wrong: a meer is neither a member nor a peer, and holds no role. It is named by scope
+"blind peer" are all wrong: a meer is neither a member nor a persona, and holds no role. (Note: "peer" as a
+noun for the entity is itself retired in favour of **persona**; "peer" now names only the relation, §3.1.) It is named by scope
 configuration, not enrolled as an identity.
 
 A **client** is **software on a device that is a member of a group**: one MLS **leaf**, one **signature
@@ -374,19 +385,19 @@ key**, one **credential**, authenticated as a **member** via the **AS** (§10.2)
 for consistency. A **device** is hardware (a node, §5.4) and may host **more than one client**; a human
 may have **more than one device**. So the hosting chain is human → devices → clients, and a principal is
 **realized by one or more clients across one or more devices.** MLS addresses clients; Drystone governance
-addresses principals, folding a principal's clients and devices, by lineage, to one peer (§4.5).
+addresses principals, folding a principal's clients and devices, by lineage, to one persona (§4.5).
 
 > **The governance-integrity spine, identity, not client count.** Governance quorums and thresholds count
-> **peers (resolved by lineage to one peer per rooting key pair, §4.5), never clients.** Many clients across several devices are one
+> **personae (resolved by lineage to one persona per rooting key pair, §4.5), never clients.** Many clients across several devices are one
 > identity's worth of standing. This is what makes "you cannot buy your way to shifting the centre of
 > gravity" structurally true: adding clients or devices adds **resources**, never **rights** and never
 > **weight**, because the count is over principals. The governance layer discerns the **lineage** of each
-> client (the MLS leaf) and folds a principal's clients and devices to one peer, so a principal with one
+> client (the MLS leaf) and folds a principal's clients and devices to one persona, so a principal with one
 > device and a principal with five are weighted identically. This is the property whose absence made early
 > crypto-governance takeovers possible and painful to unwind; Drystone makes identity-not-resource the
 > basis of weight by construction.
 
-> **The keystone distinction, a lineage is a provenance object; a peer is the human it represents, and
+> **The keystone distinction, a lineage is a provenance object; a persona is the human it manifests, and
 > personhood is a social judgment.** These are different *kinds* of thing, and keeping them distinct is the
 > identity-layer instance of the spec's founding provenance/utility split (§2.0).
 >
@@ -394,19 +405,20 @@ addresses principals, folding a principal's clients and devices, by lineage, to 
 >   protocol can point at, verify signatures against, and count. The protocol delivers the lineage with
 >   certainty.
 >
-> - A **peer** is the **human that lineage is taken to represent**. Whether a given lineage corresponds to
->   a distinct person, the one-peer-one-human binding, has **no technical representation at all**, because
->   it was never a fact the system holds. It is a judgment the *group* makes (§5.6). The system counts
->   lineages; the group decides which lineages it recognizes as distinct persons, and *that* recognition is
->   what turns a counted lineage into a weighted peer.
+> - A **persona** is the **human that lineage is taken to manifest**. Whether a given lineage corresponds to
+>   a distinct person, the one-persona-one-human binding, has **no technical representation at all**, because
+>   it was never a fact the system holds. It is a judgment the *group* makes (§5.6), where to *recognize* is
+>   to decide to **treat** a lineage as a distinct person for the group's own purposes, never to *verify* it.
+>   The system counts lineages; the group decides which lineages it recognizes as distinct persons, and *that*
+>   recognition is what turns a counted lineage into a weighted persona.
 >
 > So the binding between the two, *this lineage is one person*, is **not a lookup but an adjudication**,
 > and that is precisely why it is a seat of social-utility judgment rather than something the spec
-> resolves. Collapsing peer into personhood is the same category error as "the network can certify truth":
-> it asks a provenance system to deliver a utility verdict. This is *why* "peer" and "personhood" are
+> resolves. Collapsing persona into personhood is the same category error as "the network can certify truth":
+> it asks a provenance system to deliver a utility verdict. This is *why* "persona" and "personhood" are
 > separate words in this spec, not loose synonyms, the separation is load-bearing, and how the binding is
 > structured is set on the same **per-edge adversarial dial** as all other trust (Part 1 §2.3), because
-> the posture toward "is this peer one person" is no more a single global setting than the posture toward
+> the posture toward "is this persona one person" is no more a single global setting than the posture toward
 > any other edge.
 
 > **Open seam, the principal that anchors a multi-client lineage.** The cross-device identity is the
@@ -419,35 +431,35 @@ addresses principals, folding a principal's clients and devices, by lineage, to 
 ### 5.3. Rights: the inherent, equal floor: never delegated, never unequal
 
 A right is what a principal **inherently holds**, not what it may be *granted* (that is a role, §5.5). The
-floor is held **identically by every peer** and **cannot** be delegated away or stripped without degrading
+floor is held **identically by every persona** and **cannot** be delegated away or stripped without degrading
 the system (Part 1 §2.4); it is one of the two equalities of §5.0. The base floor:
 
-- **Read your own local history.** Unqualified, identical for every peer.
+- **Read your own local history.** Unqualified, identical for every persona.
 
 - **Read the history of a scope you are a member of, for the period of your membership.** Begins at join,
-  ends at leave; includes what the peer was present for; does not extend to content authored after the
-  peer leaves, and does not retroactively vanish for content the peer legitimately held while a member
+  ends at leave; includes what the persona was present for; does not extend to content authored after the
+  persona leaves, and does not retroactively vanish for content the persona legitimately held while a member
   (§5.7).
 
 - **A scope holds full history for itself,** independent of any member's tenure.
 
-Two consequences where the floor is most often misread. **A peer's own history is permanent; its window
+Two consequences where the floor is most often misread. **A persona's own history is permanent; its window
 into a shared scope is bounded by membership**, two different histories, treated as such. **A principal
 with no local history of its own still holds the full read-your-own-history right**, exercised over an
-empty set (a peer that has joined but authored nothing satisfies the right vacuously). A meer is not the
+empty set (a persona that has joined but authored nothing satisfies the right vacuously). A meer is not the
 example here: it is infrastructure, not a principal, so it holds no rights at all (§5.4). Where a principal
 is *blind*, that is the absence of a key and of any role conferring read, never a restriction on a right.
 
 > **One open check before the rights set hardens** (carried from Part 1 §2.4): the proven floor in this
 > draft is the read-rights triple above. The fuller rights articulation is **three rights**, **tenure**
-> (standing to remain a peer), **voice** (standing to assert into the record and be corroborated or
+> (standing to remain a persona), **voice** (standing to assert into the record and be corroborated or
 > refuted), and **exit** (the right to fork); each fixed by what its removal would foreclose. (An earlier
 > draft floated a fourth, `share`, a claim on a scope's commons. It is **dropped as a right**: a claim on
 > shared assets is not part of the inalienable floor. Where it has substance it belongs in the data layer
 > as ownership of a Meadowcap communal namespace (§5.10), not in the rights set. What survives of that idea
 > is the communal-asset model, not a right.)
 >
-> The remaining open check is **`tenure` under re-key**: can the §7 survivor / re-key path leave a peer
+> The remaining open check is **`tenure` under re-key**: can the §7 survivor / re-key path leave a persona
 > formally a member but unable to re-establish its standing after a re-key? If so, tenure is not yet a
 > clean right and the set cannot harden. This needs a concrete test (see Appendix B for what to exercise).
 > *design* (Appendix B). The Meadowcap distinction between **communal** namespaces (authority from owning a
@@ -458,9 +470,9 @@ is *blind*, that is the absence of a key and of any role conferring read, never 
 ### 5.4. Resources: node facilities, descriptive, not delegable
 
 A **resource** is what a **node has**, a facility intrinsic to the hardware and its configured intent.
-Resources are a property of **any node in the distributed system**, not only of a peer's clients: a peer's
+Resources are a property of **any node in the distributed system**, not only of a persona's clients: a persona's
 client devices have resources, and so do meers (the blind store-and-forward nodes, below) and relays. The
-peer/meer distinction is drawn in the **identity** model (§5.2), never in resources; resources are a
+persona/meer distinction is drawn in the **identity** model (§5.2), never in resources; resources are a
 physical fact about a box, blind to whether that box is an identity. Resources are **descriptive** (they
 report what is possible), **unequal across nodes**, and **not delegable**: a node cannot hand another node
 its storage, uptime, or radio. A resource enables a principal to *fulfil* a role (§5.5), or makes it
@@ -482,7 +494,7 @@ weight.
 The pairing rule (for the resources that matter to *governance*, namely a principal's own clients): a
 **role** (the governance authority, §5.5) is only useful to a principal whose **client** has the
 **resource** to exercise it. Granting a read role to a device with no decryption capacity is inert. Roles
-and resources are matched at the **PeerSet** layer (§5.5), which is exactly why a PeerSet bundles a role
+and resources are matched at the **PrincipalSet** layer (§5.5), which is exactly why a PrincipalSet bundles a role
 set *with an expectation of resources*. The anti-capture consequence is in the words: a node may have more
 resources, and that buys it no rights and no weight, only the ability to be *useful*, never to *count for
 more*.
@@ -490,7 +502,7 @@ more*.
 **The meer: blind store-and-forward infrastructure.** "Meer" is a **colloquialism**, not a model entity:
 it is just a short name for a **blind store-and-forward node**. Such a node accepts, retains, and serves a
 scope's encrypted objects, seeing ciphertext plus routing metadata only. It is **not a principal, member,
-or peer**, holds **no role**, **no rights floor**, and **no weight**. It is named by a scope's
+or persona**, holds **no role**, **no rights floor**, and **no weight**. It is named by a scope's
 configuration (the scope records which store-and-forward endpoints it uses), not granted a role and not
 enrolled as an identity. Its blindness is **structural**: it is never issued a decryption key, so there is
 no "decrypt" to forbid and no role to strip. A Tier-0 meer can prove it holds zero payload keys (§8).
@@ -508,7 +520,7 @@ from an iroh relay** (§6): the relay is a transport-layer blind packet forwarde
 traversal), holding nothing; the meer is an application-layer store that persists encrypted objects for
 later delivery. Both are blind; they sit at different layers and neither is mandatory.
 
-### 5.5. Role, capability, PeerSet, and delegation: the governance and data-access planes
+### 5.5. Role, capability, PrincipalSet, and delegation: the governance and data-access planes
 
 Two distinct kinds of grant sit above the rights floor, at two different planes, and a third construct
 bundles them. None touches the inherent rights floor or the flat weight.
@@ -536,7 +548,7 @@ bundles them. None touches the inherent rights floor or the flat weight.
   intends Meadowcap (or a Meadowcap-shaped mechanism) as the data-access realization, and renaming it
   would fight the prior art.
 
-- **PeerSet, a named, pinned, group-recognized bundle** of roles, the capabilities they imply, and the
+- **PrincipalSet, a named, pinned, group-recognized bundle** of roles, the capabilities they imply, and the
   **resources expected to fulfil them**, with an **enforced composition**: a **required** set, a
   **forbidden** set, and optionally **mutually-exclusive** roles (two that may never travel together).
   Prescriptive; it answers "what is a principal of this name supposed to hold, and never hold." Drift
@@ -556,13 +568,13 @@ bundles them. None touches the inherent rights floor or the flat weight.
 
 All of these live in the **grant planes** and **none alters weight or the rights floor.** A principal
 carrying any role or capability still holds its complete inherent floor and its single unit of weight. The
-mechanical check: every PeerSet **MUST** be definable as `floor + [explicit role set] + [implied
+mechanical check: every PrincipalSet **MUST** be definable as `floor + [explicit role set] + [implied
 capabilities] + [expected resources]`; a name meaning "entitled to fewer **rights**" is **forbidden**;
-that would be a smuggled rights distinction. **Rights have no presets; roles, capabilities, and PeerSets
+that would be a smuggled rights distinction. **Rights have no presets; roles, capabilities, and PrincipalSets
 do.**
 
-A PeerSet's pinning is enforced by a **drift check**: the group gathers the role grants in force for a
-principal from the governance log and compares them against the declared PeerSet's required / forbidden /
+A PrincipalSet's pinning is enforced by a **drift check**: the group gathers the role grants in force for a
+principal from the governance log and compares them against the declared PrincipalSet's required / forbidden /
 mutually-exclusive composition. Mismatch in **any** direction is the alarm, a principal that *acquired* a
 forbidden role (dangerous), *lost* a required one (failing the job relied on), or *combined* two
 mutually-exclusive roles (a restricted combination). The check is mechanical, because every side is a fact
@@ -579,55 +591,55 @@ role set: a Tier-0 store node can prove it holds zero payload keys, §8.)
 > group*, which is precisely the kind of standing contradiction that is a utility judgment, not a
 > computation. *design, decided; the loud-failure rung ties to §7.6.*
 
-Worked example, a **moderator** (a PeerSet):
+Worked example, a **moderator** (a PrincipalSet):
 
 ```
-moderator (a PeerSet) ::= floor                               // full inherent rights, unchanged
+moderator (a PrincipalSet) ::= floor                               // full inherent rights, unchanged
                         + requires role { admit, remove }     // governance authority granted by consent
                         + expects  resource { reachability }  // device facts that help fulfil it
                         + forbids  role { act-for-the-group }  // kept separate from group-signing authority
                         + holds    capability { }              // no standing data-access grant by default
 ```
 
-A moderator is a **peer** holding a moderation role: its rights floor and unit of weight are unchanged by
-the grant, and revoking the role returns it to a bare peer. The PeerSet pinning makes drift an integrity
+A moderator is a **persona** holding a moderation role: its rights floor and unit of weight are unchanged by
+the grant, and revoking the role returns it to a bare persona. The PrincipalSet pinning makes drift an integrity
 event: acquiring the forbidden `act-for-the-group` role, or losing a required one, is flagged. Delete the
-PeerSet name and nothing about any peer's rights changes. *design (PeerSet drift-check and mutual-exclusion
+PrincipalSet name and nothing about any persona's rights changes. *design (PrincipalSet drift-check and mutual-exclusion
 formalism).*
 
-A **meer** is *not* a PeerSet, because it is not a principal: it is blind store-and-forward infrastructure
+A **meer** is *not* a PrincipalSet, because it is not a principal: it is blind store-and-forward infrastructure
 configured by the scope (§5.4), with no role to pin and no rights to bundle.
 
 ### 5.6. Weight: flat by default, conserved under delegation, anchored to personhood
 
-**Weight** is the second of the two equalities (§5.0): how much a peer counts when the group decides
-something. It attaches to the **peer**, and its default is **flat, one per distinct peer**,
-regardless of how many clients, devices, resources, capabilities, or roles that peer holds. It is equal
+**Weight** is the second of the two equalities (§5.0): how much a persona counts when the group decides
+something. It attaches to the **persona**, and its default is **flat, one per distinct persona**,
+regardless of how many clients, devices, resources, capabilities, or roles that persona holds. It is equal
 **by necessity, not by separate decree**; it follows from the equal rights floor (§5.3): equal
 standing-to-participate is the same fact as equal standing-to-be-counted. Resources and roles are the two
 legitimate inequalities (§5.0); rights and weight are the two equalities, and weight is the governance
 image of the right.
 
-**The default model is one-peer-one-vote.** Other governance models are explicit variations layered on top
+**The default model is one-persona-one-vote.** Other governance models are explicit variations layered on top
 of the flat default, not separate primitives (the multi-model intent from the open-thread review,
 governance at scale):
 
-- **Liquid delegation.** A peer **MAY** delegate the *exercise* of its weight to a delegate-principal,
-  revocably. The delegate then exercises several peers' weight, but every unit still traces to a distinct
-  peer (by lineage).
+- **Liquid delegation.** A persona **MAY** delegate the *exercise* of its weight to a delegate-principal,
+  revocably. The delegate then exercises several personae's weight, but every unit still traces to a distinct
+  persona (by lineage).
 
 - **Elected admins.** A scope **MAY** vest decision roles in a small elected set (closer to forum
-  moderation), with peers retaining equal weight to elect, recall, and ultimately fork.
+  moderation), with personae retaining equal weight to elect, recall, and ultimately fork.
 
 - **Broadcast-only.** A scope **MAY** define a rights model where most principals receive rather than
   decide; weight is near-vestigial in such a scope, but the floor (voice, exit) is retained.
 
-**The conservation invariant, which holds across every model:** weight is **allocated one-per-recognized-peer
-at the source and is never minted, only moved.** A delegate exercising five peers' weight still reduces to
-five distinct peers the group recognizes. The total weight in a scope equals the count of its recognized
-peers, no matter how delegated, pooled, or elected. **Delegation moves weight; it never creates it.** This
+**The conservation invariant, which holds across every model:** weight is **allocated one-per-recognized-persona
+at the source and is never minted, only moved.** A delegate exercising five personae's weight still reduces to
+five distinct personae the group recognizes. The total weight in a scope equals the count of its recognized
+personae, no matter how delegated, pooled, or elected. **Delegation moves weight; it never creates it.** This
 is the anti-capture property, and it is *stronger* and *more honest* than "everyone votes equally" (some
-scopes won't): the claim is not equal exercise, it is **non-inflatable total over the peers the group
+scopes won't): the claim is not equal exercise, it is **non-inflatable total over the personae the group
 recognizes.**
 
 > **What the protocol guarantees vs what the group judges, and why this split is the honest one.** The
@@ -636,32 +648,44 @@ recognizes.**
 > exists to prevent (§2.0).
 >
 > 1. *Protocol guarantee (provenance, technical, airtight):* messages from a key-lineage are provably from
->    that lineage; governance weight is **flat per recognized peer and conserved under delegation**, never
+>    that lineage; governance weight is **flat per recognized persona and conserved under delegation**, never
 >    minted by adding clients or resources. Adding devices adds resources, never weight. This Drystone
 >    guarantees by mechanism.
 >
-> 2. *Group judgment (personhood, social, contextual):* whether a recognized peer corresponds to a
+> 2. *Group judgment (personhood, social, contextual):* whether a recognized persona corresponds to a
 >    distinct person is a **utility judgment the group makes at its own confidence**, on the same
->    trust-to-do gradient as every other delegation. The protocol does **not** attempt to guarantee
->    one-lineage-one-human, **by design**, because the binding between a key and a breathing person is
->    precisely the kind of truth the system structurally cannot and should not certify (§2.0), and because
->    identity-presentation variety is part of the social substrate worth preserving (below).
+>    trust-to-do gradient as every other delegation. The protocol does **not** guarantee
+>    one-lineage-one-human, and **could not**: there is no fact for it to deliver (the binding has no
+>    technical representation, §5.2) and no authority tier above the group from which to impose it (§3.1, §8).
+>    Both impossibilities are the same §2.0 limit, seen from the delivery side and the enforcement side. So
+>    the judgment does not get handed to the group; it **necessarily falls** to it. (This is distinct from a
+>    group **gating its own entry** to its own standard, which is legitimate and often desirable: gating is
+>    the group's recognition dial operating at the door, not the protocol enforcing a binding from above.)
 >
 > So the load-bearing claim is **not** "you cannot forge personhood." It is: *given the group's recognition
-> of who its peers are, weight is flat and uninflatable by resources.* The equality holds over the peers
+> of who its personae are, weight is flat and uninflatable by resources.* The equality holds over the personae
 > the group recognizes, and the recognition is the group's own.
 
-> **Sybil resistance is contextual, not global, stated honestly rather than overclaimed.** In a
-> low-binding context (an open broadcast scope), one human may hold many peer-lineages, and that is an
-> **accepted property of that context**, not a bug. Sybil resistance is supplied by the group's chosen
-> personhood-confidence mechanism, not by the protocol, and it ranges across the trust gradient:
+> **Sybil resistance is contextual, not global, stated honestly rather than overclaimed.** Multiplicity has
+> two cases that must not be conflated. *Across discrete systems*, one human holding many personae (one per
+> group) is the intended design, not a flaw. *Within a single group*, the intent is one persona per human;
+> the protocol cannot enforce that binding (above), so two personae for one human is **possible**, and its
+> consequence is **degraded governance**: weight that should be one unit counts as two, so per-persona
+> equality stops corresponding to per-human equality. Whether this is tolerated is the group's call, and the
+> **strength of binding a group requires before recognizing a persona as a distinct human is proportional to
+> the group's function and goals**: a scope with access to financials sets a tighter standard than a casual
+> messaging scope, which sets a tighter one than a public-but-registered event invite. This proportionality
+> is on **recognition**, never on weight: a stronger binding requirement, not a heavier vote; once recognized,
+> weight is flat, one per persona, regardless of how strong the binding was. Sybil resistance is supplied by
+> the group's chosen personhood-confidence mechanism, not by the protocol, and it ranges across the trust
+> gradient:
 >
 > - **High**, a family scope where a partner scans a QR code to join: the binding of social identity to
->   key provenance is high-confidence, so flat-per-peer is flat-per-person in practice.
+>   key provenance is high-confidence, so flat-per-persona is flat-per-person in practice.
 >
 > - **Medium, and anonymous**, an activist or privacy-sensitive scope that delegates the personhood check
 >   to a verifiable-credential service which enforces "one personhood per government ID" *without ever
->   revealing the ID*: one-peer-per-person **and** real-world anonymity, simultaneously. Provenance is
+>   revealing the ID*: one-persona-per-person **and** real-world anonymity, simultaneously. Provenance is
 >   guaranteed (these messages came from one root key chain); real-world identity is never disclosed.
 >
 > - **Low**, an open broadcast scope where binding is loose and Sybil resistance is weak, accepted as the
@@ -690,7 +714,7 @@ recognizes.**
 > ActivityPub lineage. Quotations verified verbatim against the primary page.)*
 
 > **This is not a Drystone quirk, cryptographic trust always grounds out in a social judgment. Three
-> irrefutable cases.** The peer/personhood split restates a pattern every deployed cryptographic-trust
+> irrefutable cases.** The persona/personhood split restates a pattern every deployed cryptographic-trust
 > system already exhibits: the math guarantees *continuity, integrity, and authorship*; it never
 > guarantees what a key *means*; that final binding is always social.
 >
@@ -725,7 +749,7 @@ recognizes.**
 > The throughline: cryptography can prove *this key signed this*, *this is the same key as before*, *the
 > chain is valid*; it can never prove *this is the right person / a distinct human / a trustworthy party*.
 > Every real system either makes a human decide (SSH, PGP) or delegates to an institution whose authority
-> is itself social (TLS CA). Drystone's peer/personhood split is that universal pattern, stated honestly,
+> is itself social (TLS CA). Drystone's persona/personhood split is that universal pattern, stated honestly,
 > with the binding made an explicit **per-group dial** instead of a hidden default. *(PGP web-of-trust and
 > the GnuPG TOFU / trust-level descriptions verified against GnuPG documentation and the proof-of-personhood
 > literature. **[confirm before publish, TLS/X.509 CA wording against RFC 5280, and the SSH
@@ -748,7 +772,7 @@ authorized iff its author held standing on a branch sharing the relevant lineage
 the revoked party's subsequent branches and **MUST NOT** claw back history contributed before removal
 (standing ≠ membership; history is not erased). *green-real.*
 
-**Revocation/add authority is a threshold dial** (k-of-n, **counted by distinct peer (by lineage),
+**Revocation/add authority is a threshold dial** (k-of-n, **counted by distinct persona (by lineage),
 never by client**): default 1-of-any, up to k-of-any or role-restricted admins. A membership op is
 authorized iff it carries signatures meeting the scope's **current, replicated** policy; policy lives in
 versioned scope state and is itself changed by governance ops under the current policy. The canonical form
@@ -757,14 +781,14 @@ freshness-gated (§7.4); proposal-plus-votes is an optional deliberative mode. *
 bundle verified over live transport: an authorized 2-of-≥2 revoke accepted, an under-threshold revoke
 rejected).*
 
-> **Threshold counts peers, not clients, the same spine as §5.2/§5.6.** A k-of-n membership threshold is
-> evaluated over **distinct peers (by lineage)**, so a single peer's multiple clients cannot
+> **Threshold counts personae, not clients, the same spine as §5.2/§5.6.** A k-of-n membership threshold is
+> evaluated over **distinct personae (by lineage)**, so a single persona's multiple clients cannot
 > together satisfy a multi-signer threshold. This is the mechanical face of "more devices does not grant
 > more rights": the lineage of each signing key is resolved to its principal before the count, and
 > co-signatures from clients of the same principal count once.
 
 **The admin floor is derived from policy, anti-brick only.** A threshold `k_op` **MUST** be ≤ eligible
-signers by distinct peer (by lineage) at the epoch it is set (solo genesis ⇒ `k_op = 1`; a scope
+signers by distinct persona (by lineage) at the epoch it is set (solo genesis ⇒ `k_op = 1`; a scope
 **MAY** be born "create with 10, need 5"); raising above headcount self-bricks and is rejected. Once set,
 the scope **MUST** retain `n ≥ k_op`; a membership op whose post-state breaches the floor is **structurally
 invalid** (rejected by every verifier from replicated policy alone). `k` **MUST NOT** auto-track `n`
@@ -810,18 +834,18 @@ implying otherwise.
 #### 5.8.1. Open item: gating against the read right
 
 The availability and read/search-offload roles are clean additive permissions. **Gating** is different: it
-acts on the distribution or visibility of content, which bears on other peers' ability to exercise their
+acts on the distribution or visibility of content, which bears on other personae's ability to exercise their
 read right, so the additive framing does not automatically dissolve the tension. The likely resolution, to
 be *specified* rather than assumed: gating acts on distribution/visibility within the scope's own governed
 rules, **not** on the underlying right to read what one legitimately holds; every gating action is itself a
-governed, attributable governance fact; and a gated peer's right to its own local history (including what
+governed, attributable governance fact; and a gated persona's right to its own local history (including what
 it already holds) is untouched.
 
 > `ENABLING:` The precise relationship between a gating action and the read right MUST be specified, what
 > it can and cannot affect, how it relates to content already held locally, and how it is bounded by the
 > scope's rules so it cannot become a backdoor for suppressing a right under the guise of a role. This is
 > the one role that, specified carelessly, could re-introduce a rights distinction through the permission
-> layer, and therefore the one most needing an explicit forbidden clause wherever it appears in a PeerSet.
+> layer, and therefore the one most needing an explicit forbidden clause wherever it appears in a PrincipalSet.
 
 A content-visible gating role also weakens the system's "cannot comply" property (compellability): a
 principal that has seen content cannot un-see it on revocation. The default **MUST** therefore remain blind
@@ -864,7 +888,7 @@ genuinely lossless-in-rights *in the default case* and not only at the unused ma
 > `Realizes: P-Peer-Equality, P-Local-Truth, P-Durable-Enablement`
 >
 > Cross-references: §5.2 (kinds of principal), §5.5 (roles and capabilities), §7.1 (data model), §7.6
-> (fork), Part 1 §2.3 (recursive peer-is-a-group), Appendix C (Meadowcap communal/owned).
+> (fork), Part 1 §2.3 (recursive principal-is-a-group), Appendix C (Meadowcap communal/owned).
 
 A **group is a principal** (§5.2): a collective that can hold a role, own artifacts, be granted to, and be
 referred to, a composable unit, not only a key-agreement context. This subsection fixes how that works,
@@ -890,12 +914,12 @@ legitimate for the narrow case of a single author owning a sub-namespace of cont
 (the boundary between governing-the-group and owning-your-own-data: group governance is communal, while a
 single author's own sub-content may be owned, §5.3).
 
-**Worked mechanism, the forked artifact.** Three peers collaborate on a document by automatic merge
+**Worked mechanism, the forked artifact.** Three personae collaborate on a document by automatic merge
 (a convergent, monotonic data structure, §7.1). They disagree in a way that is a genuine standing
 contradiction, and the scope forks (§7.6). Who owns the document?
 
 - **Both layers own it, and that is why it survives.** The artifact lives in the group's **communal
-  namespace**: the group-principal owns it *as a collective*, and each contributing peer owns its own
+  namespace**: the group-principal owns it *as a collective*, and each contributing persona owns its own
   **subspace** of contributions *as an individual*. Ownership was never solely at either layer.
 
 - **At the fork, both descendant groups carry the whole artifact**: exactly as an open-source fork
@@ -908,7 +932,7 @@ contradiction, and the scope forks (§7.6). Who owns the document?
   the document. Both do. The fork is the dignified exit, and the artifact comes along on both sides.
 
 **Composition, a group-principal can be a member of another group-principal.** Because a group is a
-principal, the structure nests: a **user is a group of clients**, a **community is a group of users (peer
+principal, the structure nests: a **user is a group of clients**, a **community is a group of users (persona
 or group principals)**, a **federation is a group of communities**. Each layer is a communal namespace
 with a referable identity, each ownable and grantable, each forkable with its artifacts intact. A
 group-principal can therefore be granted a capability (§5.5), hold a role, or be referred to as a unit,
@@ -923,9 +947,9 @@ structural right, and no grant of it may make itself irrevocable.
 
 **The recursion bottoms out, and that is what keeps weight honest.** Composition could otherwise be a
 laundering path for governance weight, a principal pooling many sub-groups to manufacture standing. It
-cannot, because **weight (§5.6) is anchored at the leaves: flat, one per distinct peer, never
+cannot, because **weight (§5.6) is anchored at the leaves: flat, one per distinct persona, never
 minted, only delegated.** However deep the composition, the total weight in any scope reduces to the count
-of distinct peers (by lineage) at the bottom. A group-principal's weight in a parent scope is
+of distinct personae (by lineage) at the bottom. A group-principal's weight in a parent scope is
 *defined by its members' delegated weight*, conserved through every layer, never inflated by the act of
 composing. So the group-as-principal model gives Drystone composable collective identity **without**
 opening the door composition would otherwise open, because the personhood-anchored leaf is the floor of
@@ -936,7 +960,7 @@ the recursion.
 > changes, is designed-not-frozen (the §5.2 open seam, now given a concrete shape: a communal namespace
 > rather than a derived central credential). The motivation is concrete: when forking and merging are cheap
 > but a group is collaborating on a shared asset, honoring a fork requires the asset to be owned jointly by
-> the clients (and so the peers) *and* the group, so both forks carry the whole thing like an open-source
+> the clients (and so the personae) *and* the group, so both forks carry the whole thing like an open-source
 > repository fork. A Meadowcap **communal namespace** fits that model well, which is why the group-principal
 > is shaped as one. What is unworked is the **key rotation scheme** (how the group and its members jointly
 > own the namespace and how the key rotates under churn) and whether the communal namespace is **primary**
@@ -1057,7 +1081,7 @@ Whatever role/capability mechanism Drystone adopts **MUST** provide:
 - **R5, Forward read exclusion.** After expulsion, the member **MUST NOT** read entries authored after
   the expulsion folds in (past entries out of scope, §7.5).
 
-- **R6, Attributable acceptance.** A peer accepting a write under a capability **MUST** record the causal
+- **R6, Attributable acceptance.** A participant accepting a write under a capability **MUST** record the causal
   frontier of governance facts it had synced at acceptance, so a later-synced revocation makes the stale
   acceptance **detectable and attributable** rather than silent (§7.5).
 
@@ -1070,8 +1094,8 @@ No normative text here assumes a track. *design.*
 A governance decision (admit / expel / grant / revoke / amend) is a **signed, append-only entry**. Entries
 are never modified or deleted; a reversal is a new entry referencing the one it reverses. There is no
 "current state" to reset, only a monotonically growing fact set and a deterministic **left fold** from it
-to an effective authority state. A peer that has seen fewer facts computes a **stale** authority state,
-never a wrong one, and never one another peer could weaponize by replaying old entries (`Realizes:
+to an effective authority state. A participant that has seen fewer facts computes a **stale** authority state,
+never a wrong one, and never one another participant could weaponize by replaying old entries (`Realizes:
 P-Knowable-Truth`). *design, the append-only-fold property is the load-bearing invariant the rest of §7
 depends on; if it is relaxed, termination (§7.5.2), no-state-reset, and attributability all fall together.*
 
@@ -1209,19 +1233,19 @@ never neither, and the loser's fact remains in the log as a valid-but-superseded
 The governance log is the **imperative** source of truth; "current state" (membership, roles, the rules
 in force) is a **declarative snapshot**, a deterministic fold of the log carrying the governance head it
 was computed from. The snapshot **MUST** be treated as a cache: it is **never authoritative, never
-independently writable, never synced as truth, never trusted from a peer**, and it is **valid only while
+independently writable, never synced as truth, never trusted from a participant**, and it is **valid only while
 its recorded head equals the group's current governance head** (otherwise re-fold the tail). It is not
 "latest values" but "latest values that passed authorization at each step", the log is **self-validating
 under replay**, since each fact is admitted only if authorized under the rules in force at its position.
 Peers reconcile by exchanging the **imperative log** and each deriving the snapshot independently;
 agreement is verified by reaching the same state from the same head, and disagreement is explicit, there
-is **no point at which a peer accepts another's declared state without local validation.**
+is **no point at which a participant accepts another's declared state without local validation.**
 
 To bound replay cost without breaking that discipline, the log **MAY** be truncated by a **roll-up**: a
 signed checkpoint committing to `(governance_head_hash, state_commitment)`. Because the head is hash-linked,
 committing to it transitively commits to the whole prefix, so a roll-up is a **re-expandable, back-verifiable
 truncation**, not a trusted summary. The sound posture (and the one that needs no quorum to stay live):
-**each peer independently folds and self-checkpoints**; where roll-ups are co-signed, a co-signature is
+**each participant independently folds and self-checkpoints**; where roll-ups are co-signed, a co-signature is
 *corroboration of an independent identical fold*, never a substitute for local validation. Compaction is set
 at genesis in **two tiers**, the **governance spine is permanent and uncompacted** (it is exactly what a
 returning/dormant node needs to reconstruct the authorized signer set and validate everything else), while
@@ -1231,10 +1255,10 @@ Appendix B. Local snapshot/rollback mechanics, e.g. savepoint cadence, are an im
 
 ### 7.4. Freshness: no false "current"
 
-A peer/helper **SHOULD** periodically emit a signed, **content-free** tip beacon
-`{scope_id, epoch, head, seq_high, sig}` (head/epoch/routing only, safe for a meer). A peer
+A participant/helper **SHOULD** periodically emit a signed, **content-free** tip beacon
+`{scope_id, epoch, head, seq_high, sig}` (head/epoch/routing only, safe for a meer). A participant
 **MUST** track time-since-last-heard *locally* (liveness is a local measurement, never trust in another
-peer's wall-clock) and **MUST NOT** display a view as "current" unless it is both caught up to the
+participant's wall-clock) and **MUST NOT** display a view as "current" unless it is both caught up to the
 best-seen tip **and** has heard a beacon within the tier's freshness horizon; otherwise the view **MUST**
 surface as "behind" or "unverified." Silence **MUST NOT** be rendered as currency. *green-model.*
 
@@ -1249,11 +1273,11 @@ surface as "behind" or "unverified." Silence **MUST NOT** be rendered as currenc
 > Currency is not provenance; liveness-over-a-window and causal-independence are. This rule is also the
 > mechanism realization of the **legibility** property of field-integrity (Part 1 §2.6): refusing to
 > render silence or a stale view as currency is, at the relational layer, the protocol declining to
-> present a partial slice as the whole and current field, which is what keeps a peer's **voice** a right
+> present a partial slice as the whole and current field, which is what keeps a persona's **voice** a right
 > rather than a center-shaped capacity.
 
 **Membership/governance acts require strict CURRENT + corroboration.** To originate or co-sign an
-add/remove/policy-change, a peer **MUST** be (a) caught up and (b) corroborated-fresh, agreement on the
+add/remove/policy-change, a participant **MUST** be (a) caught up and (b) corroborated-fresh, agreement on the
 same head from ≥k distinct lineages observed stable, and after any unverified lapse re-checked at signing.
 Ordinary content has no such precondition (it MAY be authored from a behind/unverified view, honestly
 labeled). This **narrows, does not close**, the fresh-but-wrong-partition window; the residual is the §7.6
@@ -1298,26 +1322,26 @@ against a real deployment, not protocol constants. *design.*
 #### 7.5.1. Attributable acceptance (R6)
 
 The guarantee is **detection and attribution, never prevention.** The acceptance record is a governance
-fact signed by the accepting peer, whose signed body includes (1) the accepted entry's content digest
+fact signed by the accepting participant, whose signed body includes (1) the accepted entry's content digest
 (binding *what* was accepted, via the authorized-write hook), (2) a **frontier commitment**, a commitment
-over the set of governance-fact digests the peer claims as its synced frontier, signed as part of the
-acceptance body (signing over prior signed state rather than a mutable timestamp), and (3) the peer's own
+over the set of governance-fact digests the participant claims as its synced frontier, signed as part of the
+acceptance body (signing over prior signed state rather than a mutable timestamp), and (3) the participant's own
 prior acceptance-record digest, chaining its acceptances.
 
 Against the attack of lying about one's knowledge state: **frontier omission** is defeated cryptographically
 (the commitment pins the set; the omitted revocation is provably in or out), and **equivocation** is
-defeated by the per-peer acceptance chain (two signed chain heads with the same predecessor are
+defeated by the per-persona acceptance chain (two signed chain heads with the same predecessor are
 non-repudiable proof). **Backdating** cannot be defeated by cryptography alone, there is no trustworthy
 internal clock (§2.0.1, again: a node's own clock is not corroborable), so the bound is **causal**: if the
-revocation is in the causal history of any fact the peer's frontier includes, the "didn't have it" claim is
-refuted; the only residual is a peer genuinely causally independent of the revocation, which is the
+revocation is in the causal history of any fact the participant's frontier includes, the "didn't have it" claim is
+refuted; the only residual is a participant genuinely causally independent of the revocation, which is the
 legitimate concurrent-partition case R4 exists to bound (by epoch/generation, not by time). Every stale
 acceptance therefore resolves into exactly one of two categories, **knowingly stale** (full attribution)
-or **concurrently stale** (no fault, R4-bounded), with no third category where a peer silently escapes both
+or **concurrently stale** (no fault, R4-bounded), with no third category where a participant silently escapes both
 prevention and attribution. *design.*
 
 > `ENABLING:` The frontier-commitment construction (a Merkle root over sorted governance-fact digests), the
-> acceptance-record wire format, and the per-peer chain linkage must be byte-specified before interoperation.
+> acceptance-record wire format, and the per-persona chain linkage must be byte-specified before interoperation.
 
 #### 7.5.2. Breaking the authority-ordering regress, and closing the resolution input set
 
@@ -1339,7 +1363,7 @@ consulted to *produce* the order, only checked against the partial state the ord
 
 It **terminates** (a single linear pass over a finite sorted list; the accumulator only grows; no fixpoint
 iteration) and **converges** (every step is a deterministic function of order-independent inputs grounded
-in an unconflictable base case; a lagging peer under-authorizes rather than diverging). *design.*
+in an unconflictable base case; a lagging participant under-authorizes rather than diverging). *design.*
 
 **The resolution input set MUST be closed under two distinct relations before sorting. These guard two
 different properties and neither subsumes the other.**
@@ -1368,7 +1392,7 @@ different properties and neither subsumes the other.**
 > (§7.3.1). The two are separable, the closure is a convergence prerequisite independent of how ties
 > break. **[confirm before publish, MSC4297 conflicted-subgraph mechanism against the primary text.]**
 
-> **A failure mode specific to Drystone's monotonic fold.** If a peer omits an in-between fact (incomplete
+> **A failure mode specific to Drystone's monotonic fold.** If a participant omits an in-between fact (incomplete
 > subgraph-closure), Drystone's monotonic fold will **not** produce Matrix's *reversion*; it produces two
 > honest peers stuck at **different heads**, which §7.6 would then surface as a *contradiction*. So an
 > incomplete-closure bug manifests as a **false trip of the human-escalation channel**, firing the
@@ -1447,7 +1471,7 @@ unrepresentable, a modelled target's connection shape has anonymity set 1).*
 namespace) and connection attempts; this surface **MUST** be surfaced, not hidden, and a
 Tier-0 helper **MUST** hold no payload key and **MUST be able to prove it** (assert-and-log
 `payload_keys_held = 0`). *green-real (Tier-0 meer proves zero payload keys; admission denies a non-listed
-peer).* (Note: earlier drafts listed "timestamp" among observed join-metadata; a relay observes *arrival
+node).* (Note: earlier drafts listed "timestamp" among observed join-metadata; a relay observes *arrival
 order at the relay*, which is the relay's own local observation, not an authored timestamp, the distinction
 matters per §2.0.1 and the metadata accounting should say "arrival ordering as locally observed," not
 "timestamp.")
@@ -1457,15 +1481,15 @@ dial, **loud** (signed, corroborated rejection → group immune memory), **silen
 **blackhole** (tarpit). A serious auto-response **SHOULD** require k-observer corroboration. Note "silent"
 is application-layer: the relay still observes the connection attempt. *design.*
 
-**Label, not enforce, a peerhood-preserving primitive.** Where content moderation or social adjudication
+**Label, not enforce, a personahood-preserving primitive.** Where content moderation or social adjudication
 is involved, the protocol's posture is to **label** (attach advisory, attributable metadata) and leave the
-*action* to scope governance or each peer's own client, rather than to **enforce** (act unilaterally and
+*action* to scope governance or each persona's own client, rather than to **enforce** (act unilaterally and
 irreversibly on the network's behalf). This is not only a safety choice; it is what keeps the system *made
 of peers* (§3.1). Enforcement relocates adjudication to whoever enforces, quietly converting peers into
-sensors by stripping their decision rights, whereas labeling leaves adjudication with the peer and
+sensors by stripping their decision rights, whereas labeling leaves adjudication with the principal and
 propagates only information. It is the same algedonic move as the §7.6 hard-stop and the same razor as Part
 1 §2.5: **surface the signal, don't seize the decision.** Each enforcement hook tends to look locally
-reasonable, which is exactly how a peer network can degrade into a centrally-adjudicated sensor mesh over
+reasonable, which is exactly how a network of peers can degrade into a centrally-adjudicated sensor mesh over
 time; the label-not-enforce default is the precommitment against that drift.
 
 ### 8.1. Honesty boundaries this specification still carries
@@ -1493,7 +1517,7 @@ append-only fold and total order (§7.3), and, once its `ENABLING` encodings are
 frontier-closure-and-
 subgraph-closure rule (§7.5.2), which is where two implementations are most likely to diverge. **Peer
 equality is shown to be enforced by mechanism, not convention, exactly here:** a conformant implementation
-cannot grant a peer a rights difference, because §5 makes every configuration `floor + roles +
+cannot grant a persona a rights difference, because §5 makes every configuration `floor + roles +
 capabilities + resources` and rejects anything that decomposes to fewer rights than the floor.
 
 A conformant implementation **MUST** pass the conformance vectors and must-reject cases. The reference
@@ -1941,13 +1965,13 @@ These are known-incomplete and tracked so they are not mistaken for settled:
     capture sound where apex-prevents-capture was their choice**", and the latter is what the test suite
     should target. **[confirm before publish, MSC4289 / MSC4291 / CVE-2025-54315.]**
 
-- **The open rights check** (§5.3): does the §7 survivor/re-key path strand `tenure` (leave a peer
+- **The open rights check** (§5.3): does the §7 survivor/re-key path strand `tenure` (leave a persona
   formally a member but unable to re-establish standing after a re-key)? This gates freezing the rights set
   (now three: tenure, voice, exit) into normative text. The candidate fourth right `share` has been
   **dropped**: a claim on shared assets is not part of the inalienable floor; where it has substance it is
   ownership of a Meadowcap communal namespace (§5.10), a data-layer matter, not a right. The concrete test
-  to run: take a peer with valid standing, drive a survivor re-key of the scope, and check whether that
-  peer can still re-establish its membership standing from its retained lineage and local state, or whether
+  to run: take a persona with valid standing, drive a survivor re-key of the scope, and check whether that
+  persona can still re-establish its membership standing from its retained lineage and local state, or whether
   the re-key leaves it unable to rejoin its own scope. If the latter, tenure is not yet clean.
 
 - **The false-positive escalation tolerance** (§7.4.1): the signals are corroborable provenance; the
@@ -1956,19 +1980,19 @@ These are known-incomplete and tracked so they are not mistaken for settled:
   guidance (not a default) on tailoring it to use case without inviting either fatigue or silent false
   resolution.
 
-- **What grounds a peer's authority, and what makes a right cost something to violate?** §3.1/§5.2 define
-  a peer as a locus of adjudication. The working position (refined from earlier candidate groundings): a
-  peer's authority is grounded in the **rights floor being variety-enabling, and therefore
-  system-sustaining**. The floor is what lets the system hold plurality; negating a peer's rights lowers
+- **What grounds a persona's authority, and what makes a right cost something to violate?** §3.1/§5.2 define
+  a principal as a locus of adjudication, and a persona as its human kind. The working position (refined from earlier candidate groundings): a
+  persona's authority is grounded in the **rights floor being variety-enabling, and therefore
+  system-sustaining**. The floor is what lets the system hold plurality; negating a persona's rights lowers
   the variety available to resist the next negation, so rights-negation is the self-amplifying move toward
-  collapse (Part 1 §2.3). That is precisely what makes a peer's authority *necessary* rather than granted:
-  violating a right is not a local wrong against one peer, it degrades the system's capacity to absorb the
-  next shock, and the cost is borne by everyone, not only by the peer whose right was negated. This is the
+  collapse (Part 1 §2.3). That is precisely what makes a persona's authority *necessary* rather than granted:
+  violating a right is not a local wrong against one persona, it degrades the system's capacity to absorb the
+  next shock, and the cost is borne by everyone, not only by the persona whose right was negated. This is the
   companion to "where do decision rights sit": rights cost something to violate because the cost is
-  systemic, which is the early detector of peer→sensor rot.
+  systemic, which is the early detector of principal→sensor rot.
 
-  Distinct from *why authority is necessary* is *what binds a human to a peer in the first place*. That
-  binding (mint-and-bind: tying a human identity to a fixed cryptographic peer identity) is **contextual**,
+  Distinct from *why authority is necessary* is *what binds a human to a persona in the first place*. That
+  binding (mint-and-bind: tying a human identity to a fixed cryptographic persona identity) is **contextual**,
   and the spec should say so explicitly rather than seek a single mechanism. A family group is simpler and
   higher-trust to bind (a QR scan in person suffices); a large group of disconnected strangers is harder
   and may need a credential service or a weaker, accepted binding (§5.6). The grounding of the binding is
@@ -2056,7 +2080,7 @@ the underlying mechanisms.
     cannot be computed."
 
   - Its authority **roots in a platform operator** ("all permissions derive from those the platform
-    administrators specify at the level of the Instance"). Drystone's roots in no node above the peer
+    administrators specify at the level of the Instance"). Drystone's roots in no node above the principal
     (`P-Peer-Equality`, §3.1). Modular Politics is governance-tooling for a hosted world; Drystone is
     governance for a center-free one.
 
@@ -2077,6 +2101,118 @@ Drystone fills, and citing them is corroboration of the values, not of the mecha
 intrinsically-personal nature of the §2.5 residue is *why* this gap is legitimate and not a failure of
 nerve: the protocol technicalizes only the provenance layer and **mechanizes the refusal** to technicalize
 the utility layer (the §7.6 hard-stop is a primitive whose content is "a human decides").
+
+## Appendix D. Term lattice and invariants (the vocabulary of record)
+
+This appendix is the single place that walks out every load-bearing noun and
+the exact relation each holds, so usage can be validated and misses reasoned
+about reliably. The prose definitions are in §5 (identity model) and §5.0/§5.5
+(properties); this is the consolidated lattice over them, not a second source
+of truth. Where this appendix and the §5 prose appear to differ, §5 governs
+and this appendix is in error and should be corrected to match.
+
+### D.1 Entities and genus
+
+**principal** is the genus: a role-holding entity identified by one
+key-lineage. Exactly three kinds:
+
+- **persona** is-a principal. The kind that manifests a human. Carries the
+  rights floor and one unit of weight. The locus at which non-computable
+  social utility is adjudicated, because a human stands behind it (§5.2).
+
+- **group** is-a principal. A collective that can hold a role as a single
+  principal (key-establishment identity is an open seam, §5.10, Appendix B).
+
+- **delegate** is-a principal as a **state**, not a species: a persona or
+  group currently holding a role delegated by another principal (§5.5).
+
+Not principals: **meer** (blind store-and-forward node, infrastructure; holds
+no role/right/weight; §5.4) and **relay** (iroh transport-layer blind
+forwarder; holds nothing; §6). Distinct layers; neither is a principal.
+
+### D.2 Hosting / realization chain
+
+human manifests-as persona (1:N across systems; one per group is the norm).
+persona is rooted-in exactly one root key pair at a time. The root key pair
+descends-to membership keys by signed credential (the lineage, §4.5). persona
+is realized-by 1..N clients; clients run-on devices; a device is-a node and
+may host 1..N clients; a human has 1..N devices. One line:
+human → devices → clients, folded by lineage to one persona.
+
+### D.3 MLS-carried terms (RFC 9420/9750, verbatim)
+
+**client** = software on a device that is a member of a group: one **leaf**,
+one **signature key**, one **credential**, authenticated as a **member** via
+the **AS**. **member** = the client as enrolled in a group; the group
+recognizes members (clients), and lineage folds a group's member-clients to
+one persona. Counting members ≠ counting personae; the fold is the bridge.
+
+### D.4 Lineage and the count
+
+**lineage** is a provenance object: the signature chain from a root key pair
+to each membership key; technically representable, verified and counted with
+certainty. The **fold** resolves all clients/devices of one lineage to **one
+persona per rooting key pair**. Governance counts personae by lineage, never
+clients or devices. The binding "this lineage is one human" has **no technical
+representation**; it is the group's judgment (§5.6).
+
+### D.5 The four properties and the non-property
+
+Asked of personae, *in what ways may one persona differ from another?*
+
+- **right** (EQUAL): inherent floor (voice, tenure, exit/fork). Attaches to
+  the **principal**, flows to clients. Unremovable, never delegated.
+
+- **weight** (EQUAL by necessity): how much a persona counts. Flat, one per
+  distinct persona by lineage, non-inflatable. Attaches to the **persona**.
+
+- **resource** (UNEQUAL, legitimate): what a node has. Attaches to the
+  **node/device**. Descriptive, not delegable.
+
+- **role** (UNEQUAL, legitimate): in-group governance authority granted to a
+  **principal** by consent. Scoped, attenuating, revocable. Rides above the
+  equalities.
+
+- **capability** (NOT a fifth property): a Meadowcap data-access grant,
+  issued **under a role**, living in the data plane, one level below the
+  equality question. Under roles, not beside resources.
+
+### D.6 The bundle, the relation, the reassigned senses
+
+**PrincipalSet** = a named, pinned, group-recognized bundle of roles and
+implied capabilities, bindable to **any principal**. Definable as
+`floor + [roles] + [implied capabilities] + [expected resources]`.
+
+**peer** = the **relation**: symmetric standing between principals. Also kept
+for transport (peer-to-peer) and the consensus sense ("every honest peer
+agrees"). Never a noun for the entity. **participant** = a single
+sync-protocol actor performing a mechanical step. **node** = the hardware box;
+device is-a node.
+
+### D.7 Invariants of record
+
+- **I1.** Only a principal holds a role, a right, or weight. A meer, relay,
+  node, device, or client holds none of these.
+
+- **I2.** weight→persona; right→principal (flows to clients);
+  resource→node/device; role→granted-to-principal.
+
+- **I3.** The fold counts personae per rooting key pair, never clients or
+  devices; thresholds and quorums count personae by lineage.
+
+- **I4.** capability is issued-under-a-role and lives in the data plane;
+  never one of the four equality-properties.
+
+- **I5.** The locus of adjudication is the principal (persona where the human
+  kind is specifically meant); never the retired entity-"peer."
+
+- **I6.** The persona-to-human binding is a group judgment, never a protocol
+  fact; to *recognize* is to decide to *treat as*, never to *verify*.
+
+Sanctioned exceptions (checked, deliberately kept): §3.1 "zero peers in the
+sense that matters" reads as the relation (absence of peer-standing in a
+sensor mesh), not the entity; the consensus-sense "peer"; and the compounds
+peer-to-peer / peer-governed / of peers / P-Peer-Equality.
 
 ## References
 

@@ -8,6 +8,47 @@ This changelog is organized by theme rather than by line, because several change
 
 ---
 
+## document-pass-4 (2026-07-06): persona/peer vocabulary migration + identity model
+
+**What changed, in one line.** The word *peer* was sharpened to name only the **relation** at an edge;
+the **entity** a human is manifested as, a key pair by which a system represents a person, is now
+**persona** (plural **personae**, Latin form used strictly). A new companion `persona-definition.md`
+carries the vocabulary of record, and Part 2 gains Appendix D (the term lattice and invariants) plus
+identity-model sections.
+
+**The load-bearing distinction (verbatim-consistent across all docs):** *peer is the relation, persona is
+the entity.* Persona is defined in **both** parts at each part's register, consistency of concept without
+duplication of text: Part 1 (the "why") defines persona as the commitment form (the human layer's
+manifestation, the entity rights and weight attach to, standing in peer relation), with a labeled
+definition note added in §1 *before* the term's first load-bearing use; Part 2 (the "certifiable design")
+defines it as the mechanical form (principal by virtue of a key pair, one rooting key pair, lineage fold,
+flat weight, in §5.2). Neither competes to be the source of truth; the appendix defers to §5 if they ever
+differ.
+
+**Part 2 additions:** Appendix D (term lattice + six invariants, the vocabulary of record, before
+References); §4.5 (multi-client fold: client-count and device-count ≠ persona-count); §5.2 (principal /
+client / persona identity model); §5.5 (role, capability, PrincipalSet, delegation, the governance and
+data-access planes). A pointer from §5.2 to Appendix D.
+
+**The etymological congruence (ideological alignment, not a Latin lesson):** *persona* is per + sonare,
+"to sound through", the mask an actor's voice sounds through; and **voice** is one of the three
+fundamental rights (voice, tenure, exit). The word's root names the very right it carries: the thing that
+manifests a human is, at the root, the thing through which the human's voice sounds. Stated in
+`persona-definition.md` Note 2 and as a tight parenthetical in Part 1 §3 where voice is first made a
+right. The prior seam-note that hedged "the root doesn't imply the mechanics" was corrected: the
+congruence is *exact* for the voice right, while the other properties (rotation, lineage, multiplicity,
+flat weight) remain spec-assigned, not etymological, so the alignment is claimed only where it is real.
+
+**Persona multiplicity:** a human may hold multiple personae across multiple systems (a work graph, a
+volleyball team, a school district), same key pair or one-per, a personal-utility choice; the persona is
+not a proof-of-personhood and does not attempt one.
+
+**Companion filed:** `persona-definition.md` (vocabulary of record) added to the spec directory. Process
+artifacts (the delta, migration plan, session summary, per-part diffs, and the peer-inventory worksheet)
+are frozen under `../../alpha/seeds/drystone-persona-migration/`, not in the spec tree.
+
+---
+
 ## document-pass-3 (2026-07-06): voice/field-integrity bridge, RFC 9420 §16.4 reconciliation
 
 **What changed, in one line.** A new Part 1 §2.6 links the `voice` right to a field-integrity precondition (the joint between the protocol and the companion argument about who may own the substrate), and the RFC 9420 §16.4 metadata claims were reconciled against the spec's verbatim text, correcting one claim.
