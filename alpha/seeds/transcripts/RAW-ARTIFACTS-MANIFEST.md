@@ -427,4 +427,23 @@ header, threat is the DS not a generic observer), (d) membership verified as wri
 `generation` is inside AEAD-encrypted `SenderData`, not visible in framing; the "gap reveals a missed
 message" claim was unsourced in the RFC and removed. Drift grep clean; iroh cited at `1.0.0` per FACTCHECK
 SoT. Spec bodies went through the em-dash discipline already; the companion/activism bodies retain their
-em-dashes (finished companion docs, per the batch-three convention).
+em-dashes (finished companion docs, per the batch-three convention). *(Superseded 2026-07-06: em-dashes
+subsequently normalized across the companion/activism docs to match the spec convention — see the
+dropoff-cleanup note below.)*
+
+## 2026-07-06 — dropoff cleanup + em-dash normalization
+
+The `beta/drystone-spec/dropoff/` scratch area was removed once every batch was filed. Before deletion,
+the **pre-edit raw inputs** of the Drystone spec (dropoff batches 1 and 2, which differ from the edited
+tree) were frozen to `seeds/drystone-spec-inputs/` (`batch1-files.zip/`, `batch2-second.zip/`) as
+**preserved-verbatim**; see that folder's `README.md`. Batches three and four had been filed
+byte-identical, so their committed tree copies are the record and their zips were removed without a
+separate seed. The superseded `drystone-part1-voice-bridge.md` (standalone draft of the merged Part 1
+§2.6) was intentionally not preserved.
+
+Em-dashes were then normalized across the companion/activism docs to match the spec's em-dash discipline
+(role-based replacement: bullet-label/heading colons, appositive commas, clause-join semicolons,
+parenthetical parens). Applied to `governance/structural-argument-principles.md` (30) and the three
+`activism/` docs (`structural-argument-narrative.md` 29, `relational-field-research-brief.md` 57,
+`reference-index.md` 46), plus the layer `README.md` files; the peer-standing, session-summary,
+tilling-the-soil, and pitch docs had already arrived em-dash-free in batch four.

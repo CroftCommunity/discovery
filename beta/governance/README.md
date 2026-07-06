@@ -1,4 +1,4 @@
-# discovery / beta / governance — Layer 4 (co-op / stewardship)
+# discovery / beta / governance: Layer 4 (co-op / stewardship)
 
 date: 2026-07-06
 
@@ -13,7 +13,7 @@ peer-standing → cooperative-form argument filed below.
 
 | doc | what it is | audience |
 |---|---|---|
-| `peer-standing-and-the-cooperative-form.md` | The full grounded argument — the **source of record**. Etymology → relational-equality → non-domination → group-agency impossibility → Delaware corporate law → the domain mismatch → the cooperative form. Every claim carries an epistemic tag (`[settled]` / `[cited]` / `[premise]` / `[ours]` / `[tension]`); full reference list. | rigorous / critical |
+| `peer-standing-and-the-cooperative-form.md` | The full grounded argument, the **source of record**. Etymology → relational-equality → non-domination → group-agency impossibility → Delaware corporate law → the domain mismatch → the cooperative form. Every claim carries an epistemic tag (`[settled]` / `[cited]` / `[premise]` / `[ours]` / `[tension]`); full reference list. | rigorous / critical |
 | `structural-argument-principles.md` | The compressed, claim-first version of the same argument across nine numbered sections. Premises and tensions flagged inline; conclusion stated as a spec requirement. | aligned or critical reader who wants the spine |
 | `peer-standing-session-summary.md` | Index + record of the argument's ten-step arc, the sources grounded vs. flagged, and the epistemic discipline. The map into the whole set. | anyone entering the set |
 
@@ -34,13 +34,13 @@ expanded (555→820 lines) to fold that empirical grounding into the argument.
 ## Provenance & status
 
 - **Assembled from conversation** (multi-session), delivered 2026-07-06 via `drystone-spec/dropoff/third.zip`
-  (scratch, since removed after byte-identical copies were confirmed here — **these committed copies are the
+  (scratch, since removed after byte-identical copies were confirmed here: **these committed copies are the
   verbatim record**). See `../../alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md` for the intake entry and
   the honest note on what raw is / is not preserved.
 - The bodies are preserved **verbatim** (not run through the Drystone-spec em-dash pass, and not
-  reshaped to the beta per-theme template — they are finished companion arguments, not theme docs).
-- The argument's genuinely open engineering problem — **edge-preserving capital formation** (funding
-  the infrastructure without issuing any claim that reinstalls the extractive edge) — is tracked in
+  reshaped to the beta per-theme template: they are finished companion arguments, not theme docs).
+- The argument's genuinely open engineering problem, **edge-preserving capital formation** (funding
+  the infrastructure without issuing any claim that reinstalls the extractive edge), is tracked in
   `../OPEN-THREADS.md`.
 - Two grounding gaps the argument flags as not-yet-sourced: the Rochdale / ICA cooperative legal
   mechanics (non-transferable member shares, patronage returns) and the platform-cooperativism
@@ -49,8 +49,8 @@ expanded (555→820 lines) to fold that empirical grounding into the argument.
 ## What this layer establishes (and does not)
 
 Establishes that an advertising-funded, publicly-traded securitized corporation **cannot constitute**
-a peer relationship of equal standing with the participants whose relationships it brokers — a
-determinative claim about what the form can represent, not a moral claim about any actor's intent —
+a peer relationship of equal standing with the participants whose relationships it brokers (a
+determinative claim about what the form can represent, not a moral claim about any actor's intent)
 and that hosting genuine peer standing therefore requires a cooperative form adopted from inception.
 Does **not** resolve the capital-formation problem, ground the cooperative legal mechanics, or settle
 the standing license/legal-review gates carried in the beta README and theme `07`.

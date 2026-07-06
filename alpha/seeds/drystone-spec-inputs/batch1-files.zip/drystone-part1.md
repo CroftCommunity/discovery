@@ -1,0 +1,792 @@
+# Drystone — Part 1: Reasoning Underpinnings
+
+`Status: beta`
+
+`Defines: P-Local-Truth, P-Knowable-Truth, P-Peer-Equality, P-Durable-Enablement (the principles Part 2 realizes)`
+
+This part is the "why." It is prose, deliberately, and it earns its place by ending every principle on a
+consequence the mechanics in Part 2 must satisfy. Each principle states a commitment, gives its grounded
+reasoning, and names the obligation it places on the wire. A principle that does not cash out into a
+mechanic does not belong here.
+
+---
+
+## 1. Introduction
+
+A system that puts a server in the middle of people's relationships makes that server the arbiter of
+what is true: it holds the canonical copy, decides what is current, and can certify, revise, or revoke
+any of it. That arrangement is convenient until the operator's interests and the participants' diverge —
+at which point the participants discover the thing they were standing on was never theirs. Every layer
+that depended on the center (who you are, what was said, who may act, who can be reached) fails at once,
+and there is no local ground to fall back to.
+
+Local-first restores that ground: the primary copy lives with the unit that authored it, complete and
+usable alone, and the system reconciles between units rather than constituting them. **But local-first is
+not merely an engineering preference about where bytes live — it is forced by what a distributed system
+can and cannot know.** This part argues that claim and follows it down into the obligations the protocol
+must meet. Therefore the protocol must be designed so that no participant ever has to take the center's
+word for the state of the world, because there is no center whose word could be taken.
+
+A **distributed system**, throughout this specification, is a set of **nodes** communicating remotely
+about some shared state. No node can prove it holds complete and current knowledge of the others.
+That single fact — not a value judgment, a structural limit — is where the principles below come from.
+
+> **A note on what Drystone is, in one sentence, and on the word we do not use.** Drystone is a
+> **center-free peer protocol**: peers connect directly (the transport is genuinely peer-to-peer), and —
+> the load-bearing property — **no node holds privileged or canonical authority over the shared state.**
+> We deliberately avoid the word *serverless*: in current usage it names managed ephemeral compute
+> (the cloud-functions sense), which is nearly the inverse of what we mean. We also use *peer-to-peer*
+> only for the transport, never as the identity of the design, because topology does not capture the
+> property that matters. The distinction — connectivity versus where adjudication lives — is the whole
+> subject of Part 2 §3.1. Where we need the precise authority claim we say *center-free* or *no node
+> holds privileged or canonical state*; where we mean the wiring we say *peer-to-peer*.
+
+### 1.1. Scope
+
+This specification defines Drystone, the protocol, and nothing above it: no governance policy for any
+particular community, no application semantics, no product. Part 1 defines the principles; Part 2
+defines the mechanics that realize them. Where a principle has political or economic consequences beyond
+the wire, those are out of scope for this specification. Keeping the spec tethered to mechanics is what
+stops the principles from drifting into general theory.
+
+Drystone is **vendor-neutral by construction.** Ecosystems, applications, and hosting operators may be
+built on it — Croft is one such ecosystem, and is intended to be one of several rather than the only one —
+but no named ecosystem, brand, or operator is part of the protocol's definition. Where this document
+refers to a consuming ecosystem it does so as an example, never as a dependency.
+
+### 1.2. Where Drystone sits (and the one move that is genuinely its own)
+
+This is stated here, up front, so the rest of Part 1 is read against an honest backdrop rather than as a
+claim of inventing-from-nothing. The full prior-art accounting is in Part 2 Appendix C; the short version:
+
+The field split into two camps, and Drystone occupies the seam between them.
+
+One camp solved the **data layer** by abandoning global coordination — CRDTs, local-first
+(Kleppmann / Ink & Switch), and the Willow data model. The CALM theorem (Hellerstein & Alvaro) even
+proved the exact boundary: a problem has a consistent, coordination-free distributed implementation if
+and only if it is monotonic **[confirm before publish — CALM statement against the primary paper]**.
+This camp is mature and correct, and it deliberately stops at data: it has no notion of
+expulsion-as-social-event, contested authority, or what a conflict *means*.
+
+The other camp solved the **governance layer** but kept a coordinator — Matrix resolves conflicts by
+folding authority and a wall-clock into the ordering; blockchains reach global consensus on a canonical
+chain and treat forks as failures to avert. Both, under pressure, conclude you need an apex.
+
+The nearest neighbor in *intent* is **Modular Politics** (Schneider, De Filippi, Frey, Tan, Zhang),
+which explicitly calls for governance as an open, portable protocol standard — but roots all permissions
+in a platform operator and brackets the cryptographic resolution and wire encodings as future work. It
+drew the map and left the territory.
+
+Drystone carries the **causal-and-cryptographic, no-coordination** premise of the first camp up into the
+**governance** layer of the second, removes the wall-clock and authority from the ordering spine
+entirely, and builds the resolution mechanics Modular Politics left unspecified — as a center-free peer
+protocol, not a layer atop a platform.
+
+**What is genuinely Drystone's own is not the mechanisms** (those are largely prior art, cited in Part 2
+Appendix C) **but two things:** the **vertical synthesis** — a single derivation in which the epistemic
+limit forces the data model, which forces the equality constraint, which forces the human-adjudicated
+fork — and the **terminus**: *fork-not-verdict as a designed primitive, forced by an intrinsic-utility
+argument* (§2.0, realized in Part 2 §7.6). The honest claim is not "first ever" but "unoccupied against
+the closest published neighbors in every adjacent field, for a structural reason: the synthesis demands
+fluency in several fields that rarely meet, plus a willingness to treat an impossibility result as
+*generative* rather than as a problem to engineer around."
+
+---
+
+## 2. Design Principles
+
+### 2.0. The razor: compute provenance, never utility
+
+This is the master claim the four named principles descend from.
+
+**A node in a distributed system can only ever establish *provenance* — what is consistent and
+corroborated — never *truth*.** The distributed system exists to facilitate nodes acquiring the view
+they need; it is not itself a knower. A node sees two things: **assertions** (what peers say, signed and
+positioned) and **agreement patterns** (who corroborates whom). It never sees the world the assertions
+are *about*. So "is this true?" is a question about something structurally outside any node's reach. The
+only questions answerable inside the system are whether a node's view is internally consistent (**local
+consistency**) and who else asserts the same (**alignment**) — neither of which is a truth claim.
+
+From this follows one design imperative, the razor:
+
+> **Nodes establish, through the system, what is consistent and corroborated — *provenance*. Humans, at
+> the edges, supply what is true and right — *utility*.**
+
+Provenance is a closed, determinate question: *given a record, does its chain of signatures and
+references verify?* — a question a node can answer alone, with no appeal to any authority. Utility is
+open in principle: it lives in plural, revisable human values, and no node can compute it. A system that
+tried to certify utility as if it were provenance would have to encode some fixed conclusion — often a
+single one — as objective fact, and in doing so would marginalize every node that corroborated a
+different local state, including the dissenter later judged, by humans, to have had the better view. (We
+say "later judged" deliberately: a node cannot be shown *objectively* right against the others, only
+subsequently corroborated or preferred. The razor does not promise that truth is discoverable; it
+promises that disagreement is survivable.) **The honest mission is therefore not truth, but trustworthy
+disagreement** — and that single line is the whole protocol's posture, lifted to a principle about
+knowledge itself. Part 2's refusal to algorithmically adjudicate a social dispute (the *no-adjudication
+rule*, §7) and its content-blind safety posture (§8) are this same razor at the mechanism layer.
+
+**The razor extends to identity, and this is where most systems quietly cheat.** Cryptography answers
+*provenance* with certainty — "is this the same key that made that earlier assertion" — but it cannot
+answer "is this key the person I mean." **That second question is a utility call, not a provenance one,
+and it is always a human judgment.** All trust ultimately roots in social trust: even the root
+certificate authorities that secure the rest of the web are trusted because a community of people vouches
+for them and polices them, not because of any cryptographic fact at the bottom. A deliberate human act —
+scanning a code to add a device, exchanging keys in person — does not *establish* trust; it **binds
+existing trust to a key** so that provenance can carry it forward. Pretending cryptography *establishes*
+trust rather than *recording and amplifying* a human decision is itself a failure mode, because it leads
+people to trust the math exactly where the human judgment was weak. So the protocol's job is to give
+**certain provenance** as a substrate and to leave **graded, contextual trust** to humans — never to
+compute a trust verdict. Where the system carries trust signals between peers (one peer vouching for
+another), those signals **MUST** be graded, **MUST** be indexed by purpose ("trusted for *what*"), and
+**MUST NOT** be treated as automatically transitive or as an automatic grant — they are input to a human
+or policy decision, never a verdict. (This is the lesson of PGP's web of trust, which failed by making
+trust scalar, context-free, and automatically transitive; the fix is to keep a vouch an honestly-weighted
+signal, never a computed conclusion. See Part 2 §5 `vouch` and `get_trust_signals`.)
+
+#### 2.0.1. Time is an assertion, never a fact — the razor's sharpest edge
+
+A wall-clock timestamp is the case where the assertion/provenance distinction bites hardest, and naming
+it precisely matters because it drives a concrete mechanism (Part 2 §7.3.1, the timestamp-free ordering).
+
+The weak reason to distrust timestamps is that **a peer can lie about its clock** — deception. True, but
+not the deep reason. The deep reason is that **a timestamp is not a fact in the first place, even from a
+perfectly honest node.** Time discernment is a shared construct, *locally represented*: each node holds
+its own proxy for a clock, and a node can be **objectively wrong about its own time and have no way,
+locally, to know it.** No node can ever prove *when* an event occurred on another node, because there is
+no shared clock to appeal to — only each node's local instance of one. A timestamp therefore fails the
+corroboration test at the root: it is structurally an **assertion**, on the utility side of the razor,
+never **provenance**.
+
+The consequence that Part 2 must honor: **timestamps cannot enter any computation that must converge or
+resolve authority.** And — this is the part that survives even a hardened deployment — **this is a
+social-engineering vector even when membership is gated.** Membership gating answers *who* is acting; it
+says nothing about *whether their clock is real*. An authorized, honest member with a skewed clock can
+manufacture a favorable causal position with no malice at all, and a malicious member can do it
+deliberately while passing every membership check. So excluding the wall-clock from the ordering spine is
+**not merely a defense against attackers** — it is a consequence of the razor: time is not corroborable,
+therefore it is not provenance, therefore it cannot order what must converge. What *can* be corroborated —
+causal precedence (did this fact reference that one), per-device logical clocks, and liveness over a
+window (Part 2 §7.4) — is what the protocol orders by instead.
+
+There is a "right tool for the job" lesson folded into this, and it is worth stating because it is easy to
+miss. A timestamp is a perfectly serviceable *convenience* for the **data plane** — ordering chat messages
+for display, where being slightly wrong is cosmetic and nothing downstream depends on it being
+adversarially sound. The error is carrying that same convenience into the **control plane** — the path
+that decides *who won a governance conflict*, where a forgeable ordering input becomes a capture vector. A
+value's acceptability depends on the job: tolerable when it only sequences what is *shown*, disqualifying
+when it sequences what is *decided*. This is why a system can reasonably timestamp messages and yet must
+never timestamp the resolution of authority (the concrete contrast with Matrix's `origin_server_ts`
+tiebreak is in Part 2 §7.3.1).
+
+One honesty note about the scope of that "must," because it is **architecture-relative, not a universal law
+of distributed systems.** The disqualification follows from two properties of Drystone that are two sides
+of one coin. *First:* every node is responsible for its own canonical view, with **no authority tier above
+the peer** to appeal to — so a corrupted governance resolution **cannot be overridden in place**, because
+there is no higher authority to do the overriding. *Second, the same fact from the other side:* Drystone's
+**only remedy for a bad governance outcome is the fork** (§2.5, Part 2 §7.6) — exit, not override. A system
+that *does* have an authority tier (Matrix's homeservers and room admins) can correct a bad resolution
+cheaply, in place, by issuing a new authority event ("start a new epoch," de-op, ban), and can therefore
+*rationally tolerate* a routinely-corruptible ordering input, absorbing the occasional gamed result with a
+cheap administrative correction. Drystone cannot: with the fork as its only correction, letting routine
+ordering be forgeable would mean a heavyweight schism every time the input is gamed. So the constraint is
+not "every system must exclude forgeable ordering inputs"; it is "**a system whose nodes each hold their
+own canonical view and whose only remedy is exit rather than in-place override must**," which is our case
+and the case of any design sharing those two properties — not a claim about systems we are not building.
+*(Realized in Part 2 §4.5.1, §7.3.1, §7.4.)*
+
+The four principles below are what the razor requires of the wire.
+
+### 2.1. P-Local-Truth — the only canonical state is local
+
+**Commitment.** A device can honestly know exactly one thing: its own local state. Its local store is
+**canonical for that device** — the only state it can *prove* rather than infer. Any belief about
+another node's state is **comparative** (a reconciliation against another node's asserted state) or
+**asserted** (a signed claim it has accepted), never canonical. There is no global canonical state, by
+design, because a claim of global state is a claim no node in a distributed system can honestly make.
+
+**Reasoning.** This is the same sentence as the epistemology, said in engineering terms: *the primary
+copy lives with the unit; the network reconciles* is the same concept restated as *truth is local and
+corroborated, never certified from a center.* Because the architecture and its justification run on the
+same engine, the protocol earns belief the way it describes belief being earned. Just as a person can
+only decide from the experience they actually hold, every node decides from the local state it actually
+has at the time; the system's job is to keep that state honest and to deliver more of it, not to
+substitute a center's state for the node's. Local state is the unit of decision-making because it is the
+only state any participant can stand on.
+
+**Consequence.** Therefore the protocol **MUST NOT** depend on any node holding privileged or canonical
+state. A node that has seen fewer facts **MUST** compute a *stale-but-honest* view, never a false one.
+The comparative and asserted layers are how nodes converge; the local layer is the only thing any of
+them stands on. *(Part 2 §4, §5.1, §7.)*
+
+### 2.2. P-Knowable-Truth — verify for yourself; the record is auditable, never silently mutable
+
+**Commitment.** What a node takes on trust must be minimized and what it can verify for itself must be
+maximized. A node verifies an entry's integrity and authorship without consulting any central authority,
+and the history a node relies on is **append-only and auditable** — facts accrete and can be audited;
+they are never silently revised or reset to an earlier value.
+
+**Reasoning.** Certainty *for a node in a distributed system* is unreachable: a node cannot know what
+else is happening beyond its own view and can only work from what it has. The honest response is not to
+manufacture certainty but to make the record self-describing, so that what a node cannot personally
+witness it can at least cryptographically check, and so that no decision can be quietly unmade. The
+provenance the razor leaves us — a survivable record of what was asserted and corroborated — is exactly
+what a system that cannot certify truth *can* honestly compute.
+
+**Consequence.** Therefore state **MUST** be cryptographically self-describing (integrity and authorship
+checkable from the bytes), and authority **MUST** be a monotonic fold over an append-only fact set rather
+than a recomputed mutable value — so a lagging node under-authorizes (acts on less) but never
+mis-authorizes (acts on a reverted or forged state). Every superseded or stale decision **MUST** remain
+in the record, attributable. *(Part 2 §4.3, §7.3, §8.)*
+
+> **This consequence has a deployed cautionary tale.** The append-only-monotonic-fold requirement is not
+> abstract caution. A peer protocol in the same design space (Matrix) that instead recomputed a mutable
+> state map shipped, in 2025, a state-reset vulnerability class (CVE-2025-49090) in which room state
+> could revert to an earlier value with no event validly producing that reversal. The monotonic-fold
+> rule is the structural defense against precisely that class: a lagging node under-authorizes, it never
+> reverts. See Part 2 §7.3 and Appendix C for the grounded comparison. **[confirm before publish — CVE
+> root-cause against MSC4297 primary text]**
+
+### 2.3. P-Peer-Equality — equal in rights and (by necessity) weight; unequal in resources and revocable roles
+
+**Commitment.** There is **one kind of peer**, and "equal" is made precise by asking *in what ways may one
+peer differ from another?* — and answering with **four properties, two necessarily equal and two
+legitimately unequal**, that an older, looser "peers are equal" had tangled into one phrase.
+
+The two **equalities**, equal for every peer always:
+
+- **Right** — what a **principal** *inherently holds*: the floor of voice, tenure, and exit/fork. Held
+  **identically by every peer, and unremovable.** A right is precisely the thing that *cannot* be delegated
+  or revoked — the tell is that exit/fork survives even when every role is stripped and even when a quorum
+  captures the group.
+
+- **Weight** — how much a **peer** *counts* in governance. **Flat: one per personhood-verified peer**, and
+  equal **by necessity, not by separate decree**: it follows from the equal right. If standing-to-participate
+  is equal, standing-to-be-counted is equal — weight is the governance image of the rights floor.
+
+The two **inequalities**, legitimately different between peers:
+
+- **Resource** — what a peer's **device** *has* (storage, uptime, reachability, a radio). Intrinsic to the
+  device, descriptive, **expected to be unequal**, and not delegable. A device with more resources can *do*
+  more.
+
+- **Role** — what governance authority a **principal** has been *granted* (admin, moderation, gating, the
+  authority to act for a group). **Granted by consent, scoped, attenuating, and always revocable.** This is
+  the one *operational* inequality the design permits — and it rides **entirely above** the two equalities:
+  granting or revoking a role never touches a peer's rights floor or its unit of weight.
+
+The sentence that replaces every earlier formulation: **peers are equal in rights and (by necessity) weight,
+and unequal in resources and revocable roles.** The moment more resources, more devices, or any granted role
+buys more *rights* or more *weight*, the design has leaked. (The Meadowcap **capability** — a read/write
+data-access grant — is *not* a fifth property here; it is the mechanism a role operates through, one layer
+down in the data plane. See Part 2 §5.0, §5.5.)
+
+**Reasoning.** What separates an inherent **right** from a granted **role** is an intrinsic property, not a
+list: **a right is standing that must survive for any dispute about it to remain contestable — remove it and
+the holder loses the very means to object.** A **role** — a delegated governance authority, a moderation
+power, the authority to act for a group — is a power whose removal leaves the holder's standing to object
+intact (lose admin on a scope and you can still contest the loss through your tenure, voice, and exit; that
+is the tell it was a role, not a right). And **weight** is not a third thing to be clamped by fiat: it is the
+governance image of the equal right, the flat count of one per personhood-verified peer that no role grant
+and no device count may inflate, equal *because* rights are equal. Equality of *weight*, over a floor of
+equal *rights*, is what lets equal nodes hold and reconcile divergent views — the whole job of nodes that
+stand in for a human's experience. So the rights floor and the weight that follows from it are a
+**consistency-and-equality requirement, not a moral overlay**: together they make "no center can certify
+truth" hold at the level of who-may-act and who-counts, not just what-is-true.
+
+The load-bearing anti-capture claim, stated honestly as what the protocol *guarantees* versus what the
+group *judges* (the provenance/utility split of §2.0, applied to identity):
+
+- *Protocol guarantee (provenance):* **weight is flat per recognized peer and conserved under
+  delegation** — allocated one-per-peer at the source, only ever moved, never minted. Adding devices adds
+  resources, never weight. This holds by mechanism.
+
+- *Group judgment (personhood, contextual):* whether a recognized peer is a distinct person is a
+  **utility judgment the group makes at its own confidence**, on the same trust-to-do gradient as every
+  other delegation — high in a QR-scan family scope, deliberately decoupled-but-still-one-per-person via a
+  verifiable-credential service in an anonymous scope, loose in an open broadcast scope. Drystone does
+  **not** attempt to guarantee one-lineage-one-human, **by design**: that binding is the kind of truth the
+  system structurally cannot certify (§2.0), and enforcing it would prune the legitimate **multiple
+  presentation** — the same person as parent, pseudonymous activist, anonymous participant — that is part
+  of the social substrate (the variety argument, applied to identity). So the claim is not "you cannot
+  forge personhood"; it is *given the group's recognition of its peers, weight is flat and uninflatable by
+  resources.* Sybil resistance is contextual, supplied by the group's chosen confidence mechanism, not
+  global and not the protocol's. *(Part 2 §5.6 carries the full treatment and the Spritely / ActivityPub
+  grounding.)*
+
+This yields **one negative boundary** the whole protocol refuses to cross — *no peer may remove another's
+standing to hold variety* — distinct from the several positive **rights** that define what a peer is.
+Rights-removal is the only self-amplifying move toward collapse: it lowers the variety available to resist
+the next removal, the way a monoculture lowers a system's capacity to absorb the next shock. The
+discriminating test for any proposed action is whether, generalized, it would remove the conditions of its
+own contestation; if so it is illegitimate by nature, and the tell is self-cancellation.
+
+**Consequence.** Therefore equality **MUST** be enforced by mechanism, not convention. **Rights have no
+presets; roles, capabilities, and PeerSets do, and weight is flat.** Every named configuration of a peer
+**MUST** be expressible as `floor + [explicit role set] + [implied capabilities] + [expected resources]`;
+any configuration meaning "this peer is entitled to *fewer rights*" is rejected as a smuggled rights
+distinction, and any meaning "this peer *counts for more*" is rejected as smuggled weight. Delegation
+**MUST** attenuate (a subset of held authority, never a superset). Governance thresholds **MUST** count
+personhood-verified peers, never clients. *(Part 2 §5, §7.)*
+
+> **A note on vocabulary against the prior art.** Drystone uses three distinct nouns at distinct planes,
+> none colliding with the systems it builds on: **resource** (a device facility — one of the two
+> inequalities), **role** (an in-group **governance authority** — the other inequality, the layer MLS
+> deliberately leaves to the application), and **capability** (Meadowcap's term, kept verbatim: an
+> unforgeable read/write **data-access** grant). The capability sits **beneath** roles, not beside
+> resources: a role may carry the authority to issue capabilities, and the capabilities themselves are
+> data-plane tokens, one level below the peer-equality question. So Meadowcap's "capability" is Drystone's
+> capability — unchanged — the device facility is a "resource," and the governance authority is a "role."
+> Detailed in Part 2 §5.0 / §5.4 / §5.5.
+
+> **An equal-and-opposite design exists, and it is worth naming as the steelman.** Under adversarial
+> security review, Matrix concluded the opposite of P-Peer-Equality: that sound decentralized
+> conflict-resolution requires an *uncapped* root (room creators with "infinite" power), reasoning that
+> an attacker who can backdate events can already exercise de facto apex control, so the apex must be
+> made explicit to be bounded **[confirm before publish — MSC4289]**. Drystone's wager is that this
+> conclusion is *forced by their inputs, not by the problem*: their ordering consumes a wall-clock, so
+> backdating manufactures authority, so they pin authority to an apex. Drystone removes the wall-clock
+> from the ordering spine (§2.0.1), so the specific attack that forced their apex has no purchase here.
+> Whether that fully discharges their attack class is an explicit open item, not a settled claim — see
+> Part 2 §7.3 and Appendix B. The deeper difference is one of *design philosophy*: Matrix **prevents**
+> capture with an apex; Drystone **permits** capture by a legitimate quorum and makes **exit (the fork)
+> the remedy** (§2.4, Part 2 §5.7 "Capture ≠ brick"). The two are different answers to the same threat,
+> and Drystone's is the one consistent with peer-equality.
+
+**A peer is recursively a group — and two edge types keep the recursion honest.** A peer is a *locus of
+adjudication* (it holds authority others must respect), not merely a node that senses and relays; and the
+same primitive nests: a **principal can be a group** — a **user is a group of devices (clients)**, a
+**community is a group of users**, a federation a group of communities. The recursion is held together by
+**two distinct kinds of relationship that must not be conflated**: **composition** — members co-deriving
+shared authoritative state (a device pool, a scope's membership; this is the MLS-lineage / shared-key
+relationship) — and **valuation** — one group directionally *weighting* another group's assertions without
+any shared key (trust between cryptographically-separate principals). Composition merges state; valuation
+weights signals. Blur them and trust leaks into key access. A consequence the rest of the design leans on:
+**adversarial posture is a per-edge property, not a global stance** — your own device pool is, *by
+default*, a high-trust composition edge that needs little Byzantine defense, while a stranger valuation
+edge needs more; forcing strong-adversarial rigor where it doesn't fit is as wrong as omitting it where it
+does. But *by default* is load-bearing: **even the device-group edge is a dial, not a fixed truth.** A
+person whose threat model includes a single device being seized or coerced — an activist, a journalist,
+someone in an unsafe household — may rationally want Byzantine-style suspicion *within their own device
+group*, treating a captured device as a hostile signer. The family-tablet case and the seized-device case
+are two settings of one dial; a design that hardcodes "device group = trusted" prunes the second case out
+of existence, which is the variety failure in miniature — and it bites hardest exactly when the stakes are
+highest. *(Part 2 §3.1, §5.)*
+
+> **The dial-discipline principle — 80/20 defaults, and the 20% must stay representable.** Once every
+> trust relationship is recognized as a dial, a real risk appears: *if everything is a dial, nothing is
+> usable.* Preserving variety is not exposing every knob to everyone — that collapses under its own
+> complexity. The discipline is: **default the common case hard** (most groups never touch the dial), and
+> **keep the uncommon case representable without ceremony** (the person who needs the unusual setting can
+> reach it), and **never let a default calcify into a structural assumption that forecloses the
+> alternative.** Variety is preserved by the 20% being *expressible*, not by it being *foregrounded*. This
+> is not a footnote: the whole point of refusing a hardcoded center is undone if the defaults quietly
+> become a center by foreclosing the settings the minority depends on.
+
+**Why this matters concretely — who owns a shared artifact when a group forks.** A group, being a
+principal, can *own* things, and that ownership is what makes the fork humane rather than destructive.
+Picture three peers collaborating on a document by automatic merge; they hit a genuine disagreement and
+the scope forks (§2.5). Who keeps the document? The honest answer is **both layers own it, and so both
+forks keep the whole thing.** The artifact lives in the group's *communal* space — the group-principal
+owns it as a collective, and each peer owns its own contributions as an individual — so when the group
+splits, neither half is orphaned (there was no center holding the artifact to sever) and neither half is
+left with fragments (the shared object was communal all along). Each fork walks away with a complete copy
+and full standing to continue, exactly as an open-source fork carries the entire repository rather than a
+slice. This is *fork-not-verdict* (§2.5) seen at the data layer: the system does not rule on who deserves
+the document; it lets both continue. The mechanism — a Meadowcap *communal* namespace, the act-for-the-group
+authority as a revocable role, and the recursion bottoming out at flat-weight peers so composition cannot
+launder governance weight — is specified in Part 2 §5.10. The reason it is peer-equal and not apex is the
+same reason this whole principle is: a communal namespace gives every member equal authority and no one the
+whole, which is `P-Peer-Equality` expressed in who-owns-the-data.
+
+> **Open seams left before the model fully hardens** (carried, not resolved): whether `share` (a claim on
+> a scope's commons) is fully a right or partly a membership-class **role**; whether the survivor / re-key
+> path can strand a peer's `tenure`; and the precise **communal-namespace key construction** for a
+> group-as-principal (Part 2 §5.10 gives it a concrete shape — a communal namespace rather than a derived
+> central credential — but the key establishment and rotation under membership change are
+> designed-not-frozen, and cross-group grants are `ENABLING`). These gate freezing the model into
+> normative text; see Part 2 §5.2, §5.6, §5.10, and Appendix B.
+
+### 2.4. P-Durable-Enablement — participation, and exit, must be real on a bare node
+
+**Commitment.** Participation **MUST** be possible on a bare node — ordinary device, no purchased
+infrastructure required — and any default delegation a peer or scope adopts **MUST** be revocable and
+restructurable down to the rights floor at any time, with **no loss of rights** and only **graceful
+degradation of capacity**. The enabling set is mostly restraints, not features: secure standing; a real,
+cheap, dignified exit; an honest, non-equivocating record; resolution that defers judgment to humans; and
+a refusal to optimize toward a single legible perspective. **The negative space — what the protocol
+declines to do — is an intentional and critical part of the design.**
+
+**Reasoning.** A delegated role is only meaningfully different from a captive structural dependency
+if the delegation can be withdrawn and restructured without loss of rights. A good default helper and a
+server you cannot leave can look identical right up until trust fails — and that is exactly the moment
+the difference must hold: the Drystone scope restructures or exits and loses only capacity; the captive
+scope loses everything and starts over. The guarantee is measured not by how often it is exercised but by
+being unconditionally available to the minority who do; a right you cannot afford to exercise elsewhere
+is not a right you hold. Giving up the authority to decide outcomes is also the protocol's falsifiability
+discipline: you can be observably corrected when the conditions you set fail to keep variety alive.
+
+**Consequence.** Therefore the no-helper path **MUST** stay exercised and real (a scope **MUST NOT**
+structurally depend on any single peer's presence to act), delegation **MUST** be materially reversible
+(encrypted state the group holds keys to; a re-issuable grant, not a box), and the fork / re-formation
+exit **MUST** remain available as the final backstop, preserving history and provenance to the point of
+departure. *(Part 2 §5.4, §5.8, §6, §7.)*
+
+### 2.5. The forced terminus — why fork, not verdict
+
+This subsection is new emphasis, not a new principle: it makes explicit the single conclusion that the
+razor and the four principles jointly force, because it is the move that most distinguishes Drystone and
+it should not be left implicit.
+
+Most conflicts in any shared state are resolvable by codified logic. Anything monotonic, anything where
+causal-and-cryptographic ordering yields a determinate answer, resolves by the fold with no human and no
+clock (Part 2 §7.3). **But there is an irreducible residue, and it is provably non-empty.** Genuine
+concurrent contradictions over standing — A expels B while B expels A at equal standing; a
+removed-then-included merge — cannot be totally ordered without folding back in one of exactly two
+forgeable inputs: a **wall-clock** (not corroborable, §2.0.1) or an **authority ranking** (the very thing
+being contested). This is the CALM boundary applied to governance: a total social order over concurrent
+non-monotonic operations is itself a non-monotonic problem, so it has no coordination-free determinate
+resolution. You either coordinate (an apex, a consensus round, a delivery service) or you accept the
+order is partial and something must resolve the residue.
+
+**And the residue is not merely uncomputable-by-this-machine; it is not a computation at all.** When A
+and B each expel the other at equal standing, there is no fact about the world that makes one correct.
+Both assertions verify; the causal structure is symmetric; "who should remain" is not a question with a
+truth-value waiting to be discovered. It is a question about whose continued participation the *people*
+want — a value, not a fact. No additional sensing closes the gap because there is nothing there to sense.
+The residue is exactly the set where **provenance is fully determined and utility is still open** — the
+razor's seam, made operational. This is why "intrinsically personal" is doing real work and not
+emphasis: the resolution input must come from the people whose relationships are at stake because *they
+are the only locus where the value being adjudicated exists.* They do not have privileged access to the
+answer; they **constitute** it.
+
+**Therefore the terminus is a fork, not a verdict.** A verdict would presuppose the question had an answer
+the loser should accept; the fork presupposes it did not, and lets divergence persist as two communities
+rather than forcing one false resolution. When even the humans cannot agree — because they irreducibly
+want different things, both legitimately — the protocol's last service is to make the split **clean**
+(history and provenance preserved to the point of departure, nothing legitimized or erased
+retroactively), not to manufacture a consensus that was never available. This is Mill's dissenter, made
+mechanical: when people irreducibly disagree about a value, the humane move is not to compute a winner
+but to stop pretending there is one. *(Realized in Part 2 §7.6; the machine's job ends at surfacing the
+contradiction with full provenance — Part 2 §8's label-not-enforce — and the humans supply utility.)*
+
+A note on what this is *not*. It is **not** "send every conflict to humans" — that would drown the
+escalation channel and destroy the one thing that has to stay trustworthy (Part 2 §7.4, §7.6). Codified
+logic resolves everything it determinately can; only the provably-non-empty non-monotonic residue is
+handed to people. And whether a given concurrent contradiction is a genuine social dispute versus a
+benign sync artifact is *itself* partly a utility judgment, vulnerable to alarm-fatigue, and therefore a
+per-scope governed tolerance over verifiable provenance signals — not a hardcoded constant (Part 2 §7.4,
+§7.6).
+
+---
+
+## 3. Why these principles are corroborated, not invented
+
+The razor is underrepresented in shipped systems, but it is not a wilderness. Thinkers who never
+collaborated, arguing from different starting points, independently arrived at pieces of the same
+conclusion. That cross-field corroboration is the strongest support the design has — and notably, *how
+long ago* any of them wrote is not the argument. A claim is not stronger for being old; one node right
+against all the others is still right, and correctness does not accrue with time. What matters is that
+independent witnesses, with no shared agenda, describe the same structure. The grounding below leads with
+the conclusion each discipline supplies, then the verbatim source as the outside corroboration, in the
+spirit of: state the ground, then show who else, unprompted, found it.
+
+Each quote is preserved whole, with its citation and a per-quote verification flag.
+
+> **Why this convergence persisted unassembled — the structural reason Drystone's synthesis was
+> available to find.** The grounding below spans six fields that rarely cite one another: distributed
+> systems, ethics, economics, systems science, epistemology, and political science — plus the
+> governance-theory frontier (Part 2 Appendix C). Each field stops before the fusion for its own reason.
+> The distributed-systems camp stops at the data layer because governance is not its problem. The
+> governance-theory camp (e.g. Modular Politics) stops at the conceptual layer because wire protocols are
+> not its craft — its own scope note brackets "security and database structures." The blockchain camp
+> cannot take the fork as a first-class *good* because its economics treat chain splits as
+> value-destroying. The multi-agent camp stays in a knowledge-locality framing and keeps trying to
+> compute a verdict. Assembling the fusion requires fluency across all of them plus the disposition to
+> treat an impossibility as generative. That is why the convergence below was real and yet unassembled
+> into a wire obligation with conformance vectors — which is the gap Drystone fills, and the honest scope
+> of its novelty. **This is not a claim of technical supremacy. It is a claim that established technical
+> results, taken seriously, *force* a humane shape for social governance — the references below are the
+> shoulders this stands on, named so the lineage is transparent.**
+
+**Distributed systems — the formal spine: no global truth is an established result, not a design taste.**
+This is the field Drystone most directly lives in, and it supplies the *formal* grounding for the razor:
+the impossibility results below are why local-first is **forced**, not preferred (§1, §2.0). They are
+listed first because the four named principles are, in large part, these theorems read as obligations.
+
+*There is no global clock; causal order is partial.* Lamport's foundational result establishes that a
+distributed system has no shared time reference and that the only honest ordering of events is the partial
+"happened-before" relation — a total order requires *adding* an arbitrary tiebreak the causal structure
+does not itself contain:
+
+> "The concept of time is fundamental to our way of thinking... we will see that it is not always
+> possible to say that one of two events occurred first. The relation 'happened before' is therefore only
+> a partial ordering of the events in the system."
+> — L. Lamport, "Time, Clocks, and the Ordering of Events in a Distributed System," *CACM* 21(7) (1978) ·
+> **[confirm before publish — verbatim against the primary paper].**
+
+This is the field's own statement of §2.0.1 (time is not a corroborable fact) and §7.3.1 (order causally,
+break ties cryptographically — the deliberately-arbitrary-but-deterministic total-order extension, never
+a wall-clock). *The seam, kept honest:* Lamport also showed how clocks can be used to **build** a total
+order; he was not arguing that wall-clocks are an attack surface. He supplies the structural fact (no
+global clock; happened-before is partial); the design consequence (therefore exclude the wall-clock from
+authority) is Drystone's inference built on his foundation, not his claim.
+
+*Under partition, you cannot have both consistency and availability.* The CAP theorem is the impossibility
+that forces the local-first choice: a center-free system that stays available when the network splits
+**must** give up a single always-consistent global state — which is exactly why local-canonical-plus-
+reconciliation is the honest model and not a preference:
+
+> a shared-data system cannot simultaneously provide Consistency, Availability, and Partition tolerance;
+> since partitions are unavoidable, a system must trade consistency against availability.
+> — S. Gilbert & N. Lynch, "Brewer's Conjecture and the Feasibility of Consistent, Available,
+> Partition-Tolerant Web Services," *ACM SIGACT News* 33(2) (2002), formalizing E. Brewer's 2000 PODC
+> conjecture · **[confirm before publish — statement against the primary paper].**
+
+*The seam:* CAP is specifically about linearizable reads/writes on shared storage under network partition;
+Drystone stretches it exactly as far as "no always-consistent global state while staying available," not
+to "no shared truth of any kind."
+
+*Coordination-free consistency is exactly the monotonic fragment — and this is the formal statement of the
+razor's resolvable/irreducible split.* The CALM theorem is the spine of both §2.2 (the fold resolves the
+monotonic majority with no coordination) and §2.5 (the non-monotonic residue provably cannot):
+
+> "A program has a consistent, coordination-free distributed implementation if and only if it is
+> monotonic." Monotonic problems are safe under missing information and need no coordination; non-monotonic
+> problems must wait for all information to arrive, and so require coordination.
+> — J. M. Hellerstein & P. Alvaro, "Keeping CALM: When Distributed Consistency is Easy," *CACM* 63(9)
+> (2020); conjectured at PODS 2010, proven by Ameloot, Neven & Van den Bussche · **[confirm before
+> publish — statement against the primary paper].**
+
+Read forward, CALM justifies the coordination-free fold; read backward (the *only-if*), it says the
+genuinely non-monotonic case has no coordination-free resolution — which is §2.5's forced terminus stated
+as a theorem rather than a preference. *The seam:* CALM is about *consistency*; Drystone's application to
+*social* non-monotonic operations (mutual expulsion) is "the CALM boundary applied to governance," a
+defensible application, not a claim that CALM itself speaks to social adjudication.
+
+*Convergence without a coordinator is not hypothetical — it is formalized and proven.* CRDTs are the
+existence proof that the center-free data plane is buildable, and they illustrate the boundary from the
+mechanism side:
+
+> under a Strong Eventual Consistency model, replicas of a Conflict-free Replicated Data Type are
+> guaranteed to converge, with no need for consensus or remote synchronisation, despite any number of
+> failures.
+> — M. Shapiro, N. Preguiça, C. Baquero & M. Zawirski, "Conflict-free Replicated Data Types," *SSS 2011*
+> (Stabilization, Safety, and Security of Distributed Systems) · **[confirm before publish — statement
+> against the primary paper].**
+
+*The seam, and it is the instructive one:* CRDTs converge precisely *because* they are restricted to
+operations whose merge is deterministic — the same monotonic class CALM describes, and exactly **not** the
+social-contradiction residue. So CRDTs ground Drystone's data plane (§4, §7.1) and simultaneously show
+*why* governance needs the §7.6 escalation: the convergence guarantee holds for the resolvable class and
+stops exactly where utility begins. Same boundary, seen from the mechanism side.
+
+Taken together, these four results are why Part 1 says local-first is *derived, not chosen*: no global
+clock (Lamport), no consistent-and-available global state under partition (CAP), coordination-free only in
+the monotonic fragment (CALM), and convergence-without-a-coordinator demonstrably real for that fragment
+(CRDTs). The humane consequences — equal peers, surfaced disagreement, the fork — are what these technical
+facts *force* once you decline to hide the center.
+
+**Ethics — silencing the dissenter is a cost no center can justify.** This is the moral spine of *let the
+dissenter fork.* Mill names the cost directly:
+
+> "If all mankind minus one were of one opinion, and only one person were of the contrary opinion,
+> mankind would be no more justified in silencing that one person, than he, if he had the power, would
+> be justified in silencing mankind."
+> — J. S. Mill, *On Liberty* (1859) · *Verified.*
+
+So the fork must always stay available as the dignified exit — which is why the protocol refuses to
+algorithmically adjudicate a social dispute (Part 2 §7) and refuses moderation-as-surveillance (§8),
+accepting instead that each node determines its own relationship to moderation and to the outcomes of
+adjudication. This is the ethical statement of the forced terminus of §2.5: the fork is not a fallback,
+it is the only non-coercive output when a value is genuinely contested.
+
+**Economics — the knowledge a center would need cannot be centralized.** Decisions belong at the edges
+because the relevant knowledge only exists there:
+
+> "The peculiar character of the problem of a rational economic order is determined precisely by the
+> fact that the knowledge of the circumstances of which we must make use never exists in concentrated or
+> integrated form but solely as the dispersed bits of incomplete and frequently contradictory knowledge
+> which all the separate individuals possess."
+> — F. A. Hayek, "The Use of Knowledge in Society" (1945) · *Verified verbatim.*
+
+"Incomplete and frequently contradictory" is a distributed system's actual condition, named in 1945.
+Much of the judgment a human brings to a divergence is inarticulable local knowledge no center can
+capture — which is *why utility cannot be computed* and decisions, and value judgments, belong at the
+edges. Note the careful boundary, which the razor demands of itself: this is an argument that the
+*utility* layer is irreducibly local, **not** a claim that everything is local — the provenance layer is
+exactly what *can* be made global and checkable, and §2.5's residue is precisely the part Hayek's
+argument bites and the fold does not.
+
+**Systems science — plurality is a survival condition, not a preference.** Plurality is a necessary
+condition for the health of nodes that are equal peers and that, by nature, hold diverging views of what
+is corroborated and what is merely asserted:
+
+> "Only variety can destroy variety."
+> — W. R. Ashby, *An Introduction to Cybernetics* (1956), p. 207 (the Law of Requisite Variety) · *Verified.*
+
+A regulator that collapses plural perspectives into one certified truth is brittle by formal law: it
+sits below the variety it governs, so it cannot represent every state, and it survives only by *pruning*
+the variety it cannot hold — removing from the system the very parts reality will later require.
+Preserving plural perspectives — allowing forks, refusing to collapse divergence — is requisite variety
+made architectural. **Plurality is the robustness.**
+
+Stafford Beer turned this law into a design discipline, and it is the formal grounding for Part 2's
+*escalate-the-hard-case-to-a-human* posture. Beer's rule was to **not over-specify**:
+
+> "instead of trying to specify in full detail, you specify it only somewhat. You then ride on the
+> dynamics of the system in the direction you want to go."
+> — S. Beer, *Brain of the Firm* (1972) · **[confirm before publish]** (defensible verbatim; confirm
+> against the primary edition).
+
+Because you have not specified every case in advance, the system will meet cases the rules never
+anticipated — so you need a channel for those cases to surface. Beer named it the **algedonic** channel
+(Greek *algos*, pain + *hedone*, pleasure): a low-bandwidth, high-priority alarm that **bypasses the
+normal hierarchy and carries no analysis** — "this hurts, a human needs to look now." It is not a fallback
+or an admission of failure; it is a designed channel, as load-bearing as the automated path, because no
+filter is perfect and the cost of silently absorbing a missed hard case is too high. In Drystone this is
+exactly the **hard-stop-and-escalate** rule (Part 2 §7.6) and the **label-not-enforce** posture (§8): the
+machine *annotates rather than acts*, surfacing the signal and leaving the decision with a person — which
+is also what keeps adjudication, and therefore peerhood, distributed (Part 2 §3, §5.2). The §2.5 residue
+*is* Beer's "case the rules never anticipated," and the fork is what the dynamics ride toward when the
+rules correctly decline to decide.
+
+The historical natural experiment that grounds this is **Cybersyn vs OGAS** — two early-1970s attempts to
+run an economy by computer, with opposite assumptions about *where judgment lives*. Beer's Cybersyn
+(Chile) pushed autonomy to the edge and escalated only the residue to humans in a room; during the October
+1972 truckers' strike it let the government move what mattered on **10–30% of normal transport capacity**.
+The Soviet OGAS routed adjudication to a Moscow apex and was strangled before it ran — not by a technical
+limit but by the institutional self-interest a single point of control invites. The lesson is not
+"decentralized vs centralized infrastructure" (both had distributed sensing) but **where adjudication
+lives** — which is the thread Part 2 §3 makes structural. (Beer's stance that the computer should serve
+human autonomy rather than excuse automatic command is the spine here; the often-quoted "aids to human
+viability, not excuses for automatic command" phrasing is a synthesis gloss, not a verbatim Beer line.)
+**[confirm before publish — Cybersyn capacity figures and the OGAS history against primary sources.]**
+
+**Epistemology — finitude is the design condition.** That every node is permanently, structurally
+ignorant of most of what the others are doing is not a defect to engineer away but the condition to
+design *for*:
+
+> "Our knowledge can be only finite, while our ignorance must necessarily be infinite."
+> — K. Popper, *Conjectures and Refutations* (1963), §XVII (p. 30) · *Verified.*
+
+A node has effectively infinite ignorance about what other nodes are doing. Accepting that is what lets
+the protocol design for real conditions instead of a pretended global view: theories are never verified,
+only corroborated by surviving refutation, so a peer's history is a conjecture, agreement is
+corroboration, and a claim is only ever *not-yet-overturned*. That is precisely the shape of provenance.
+
+**Political science — self-governance without a sovereign arbiter is documented to work.** This is the
+empirical answer to "is this utopian?" — no. Ostrom's Nobel-recognized study of long-lived commons
+records communities governing shared resources for generations without privatization or a central
+authority. Two of her eight design principles map directly onto Drystone, and these are confirmable to the
+primary 1990 text:
+
+> Principle 6 — "Conflict-resolution mechanisms: appropriators and their officials have rapid access to
+> low-cost local arenas to resolve conflicts among appropriators or between appropriators and officials."
+> Principle 7 — "Minimal recognition of rights to organize: the rights of appropriators to devise their
+> own institutions are not challenged by external governmental authorities."
+> — E. Ostrom, *Governing the Commons: The Evolution of Institutions for Collective Action* (1990),
+> design principles 6 and 7 · **[confirm before publish — verbatim wording against the 1990 primary].**
+
+Principle 6 is Drystone's accessible conflict-resolution-at-the-edge (the §7.6 hard-stop surfaces to the
+affected scope, not to a center); principle 7 is `P-Peer-Equality`'s right to self-organize and
+`P-Durable-Enablement`'s fork (no external authority may forbid a scope from devising or re-forming its
+own institutions).
+
+The capstone, **subsidiarity**, comes from the *later* generalization and must be cited as such, not
+attributed to the 1990 book:
+
+> governance tasks are assigned "by default to the lowest jurisdiction, unless explicitly determined to
+> be ineffective."
+> — D. S. Wilson, E. Ostrom & M. E. Cox, "Generalizing the core design principles for the efficacy of
+> groups," *Journal of Economic Behavior & Organization* 90S (2013) · **[confirm before publish — verbatim
+> against the 2013 paper; this wording is the 2013 generalization, distinct from the 1990 principles
+> above].**
+
+In a peer-to-peer system the "lowest jurisdiction" is the edge node — and every node is an edge node, so
+governance stays local where consent is cheap and federates only the irreducible minimum. Note that
+Ostrom's work is *governance theory* — it documents the principles durable commons exhibit (and the
+digital-commons literature observes communities implement them "often without naming them"), but it
+stops short of a wire protocol. The move from "these principles work" to "here is the byte-level
+obligation a conforming implementation must meet" is exactly the value-to-mechanism gap Drystone is built
+to close, and the reason citing Ostrom is corroboration of the *values*, not of the mechanics.
+
+**The convergence is the corroboration.** Witnesses who never met — formal results from distributed
+systems and arguments from ethics, economics, systems science, epistemology, and political science — give
+the design its strongest support: no center can hold the truth; plurality is a survival condition for a
+system of equal nodes; and the honest design surfaces disagreement and leaves judgment at the edges. The
+distributed-systems theorems make the shape *forced* (you cannot build the center even if you wanted to);
+the human-sciences arguments make it *humane* (you should not, even where you could). That pairing —
+technical necessity meeting humane alignment — is the ground Part 2 is built to stand on, and it is the
+whole of the claim: not technical supremacy, but principled delivery of an established technical reality
+in a form that matches how human governance actually has to work.
+
+---
+
+## What Part 1 establishes (and does not)
+
+**Establishes:** the protocol's shape is *derived*, not preferred — from a structural fact about what a
+node in a distributed system can know. The razor (provenance, not utility), the time-is-not-a-fact
+corollary (§2.0.1), and the four principles (`P-Local-Truth`, `P-Knowable-Truth`, `P-Peer-Equality`,
+`P-Durable-Enablement`) are the obligations the wire must meet, each ending in a consequence Part 2
+realizes. The forced terminus (§2.5) — fork-not-verdict for the provably-non-empty, intrinsically-utility
+residue — is the move that most distinguishes the design, and it is *derived*, not chosen: it is what the
+razor plus the CALM boundary jointly require.
+
+**Does not establish:** that local-first *guarantees* a humane system — it is necessary, not sufficient
+(the edge can be wrong too; honest friction between real nodes is the cost, distinct from the
+manufactured friction a center imposes). Nor does it settle the two open checks on the rights set
+(`share`, `tenure` under re-key), or the capped-vs-uncapped-root question against the Matrix steelman
+(§2.3, Part 2 §7.3, Appendix B), or supply the still-pending verbatim grounding (Beer) and the
+primary-source confirmations (Ostrom, Cybersyn/OGAS, and the Matrix/CALM external-fact claims) flagged
+above. The novelty claim is scoped honestly: *synthesis and terminus, unoccupied against the closest
+published neighbors*, not "first ever" — see Part 2 Appendix C.
+
+---
+
+## References (Part 1)
+
+These references exist for transparency and to acknowledge connected and prior art. **Nothing here is a claim of technical supremacy or priority.** The thesis of this document is the opposite: that established results across several fields, taken seriously, *force* a humane shape for social governance, and that Drystone's contribution is the synthesis and the delivery — principled delivery of a technical reality in a form aligned to how human governance actually works — not the invention of the underlying results. Where a source grounds a *value* rather than a *mechanism*, that is noted; where this document leans on a secondary or recent source rather than the primary, that is noted too.
+
+Verification legend: *Verified* — quoted/checked against the primary this round or a prior round; **[confirm]** — load-bearing and to be confirmed against the cited primary before any external publication. Per the document's own discipline, no specific date, attribution, or wording flagged **[confirm]** should be treated as settled until pulled from the primary.
+
+### Distributed systems (the formal spine — §2.0.1, §2.2, §2.5, and Part 2 §7)
+
+- Lamport, L. "Time, Clocks, and the Ordering of Events in a Distributed System." *Communications of the ACM* 21(7), 1978. — Grounds: no global clock; "happened-before" is a partial order; total order requires an arbitrary tiebreak. Supports §2.0.1 and §7.3.1. **[confirm — verbatim]**. *Seam:* supplies the structural fact, not the design consequence that wall-clocks are an attack surface (that inference is Drystone's).
+
+- Gilbert, S. & Lynch, N. "Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services." *ACM SIGACT News* 33(2), 2002 — formalizing Brewer, E., PODC 2000 keynote ("Towards Robust Distributed Systems"); see also Brewer, E., "CAP Twelve Years Later," *IEEE Computer* 45(2), 2012. — Grounds: under partition, consistency and availability cannot both hold, which forces local-first (§1, §2.1). **[confirm — statement]**. *Seam:* about linearizable shared storage under partition; not "no shared truth of any kind."
+
+- Hellerstein, J. M. & Alvaro, P. "Keeping CALM: When Distributed Consistency is Easy." *Communications of the ACM* 63(9), 2020. Conjectured at PODS 2010 (Hellerstein, "The Declarative Imperative"); proven for queries by Ameloot, T. J., Neven, F. & Van den Bussche, J., "Relational Transducers for Declarative Networking," *J. ACM* 60(2), 2013. — Grounds: coordination-free consistency iff monotonic — the formal statement of the razor's resolvable/irreducible split (§2.2 forward, §2.5 backward). **[confirm — statement]**. *Seam:* about consistency; the application to social non-monotonic operations is "CALM applied to governance," not a CALM claim.
+
+- Shapiro, M., Preguiça, N., Baquero, C. & Zawirski, M. "Conflict-free Replicated Data Types." *SSS 2011* (13th Int'l Symposium on Stabilization, Safety, and Security of Distributed Systems). See also the companion INRIA RR-7506, "A Comprehensive Study of Convergent and Commutative Replicated Data Types," 2011. — Grounds: convergence without consensus is real and proven for the monotonic class — the existence proof for the center-free data plane (§4, §7.1). **[confirm — statement]**. *Seam:* converges precisely because restricted to deterministic-merge operations — the same boundary that makes the governance residue need §7.6.
+
+### Ethics (§2.5, §3, and Part 2 §7.6, §8)
+
+- Mill, J. S. *On Liberty*, 1859. — Grounds the value: silencing the dissenter is an unjustifiable cost, hence the fork as the dignified exit. *Verified.*
+
+### Economics (§2.0, §3)
+
+- Hayek, F. A. "The Use of Knowledge in Society." *American Economic Review* 35(4), 1945. — Grounds the value: the knowledge a center would need is irreducibly dispersed, so utility cannot be computed centrally. *Verified verbatim.* *Seam:* an argument about the *utility* layer; the *provenance* layer is exactly what can be made global and checkable.
+
+### Systems science (§2.3, §3, and Part 2 §7.6, §8)
+
+- Ashby, W. R. *An Introduction to Cybernetics*, 1956 (the Law of Requisite Variety, p. 207). — Grounds: only variety can absorb variety; collapsing plurality is brittle by formal law. *Verified.*
+
+- Beer, S. *Brain of the Firm*, 1972 (the algedonic channel; the "specify only somewhat" design discipline). — Grounds the escalate-the-hard-case posture (§2.5, Part 2 §7.6). **[confirm — the "specify only somewhat" verbatim against the primary edition]**. The Cybersyn/OGAS natural experiment and its capacity figures are **[confirm]** against primary sources; the "aids to human viability, not excuses for automatic command" phrasing is a synthesis gloss, not a verbatim Beer line, and is labeled as such.
+
+### Epistemology (§2.0, §2.2, §3)
+
+- Popper, K. *Conjectures and Refutations*, 1963 (§XVII). — Grounds: knowledge is finite, ignorance infinite; theories are corroborated by surviving refutation, never verified — which is the shape of provenance (a claim is only ever *not-yet-overturned*). *Verified.*
+
+### Political science / commons governance (§2.3, §2.4, §3, and Part 2 §7.6)
+
+- Ostrom, E. *Governing the Commons: The Evolution of Institutions for Collective Action.* Cambridge University Press, 1990 (design principles 6 — conflict-resolution mechanisms; and 7 — minimal recognition of the right to organize). — Grounds: self-governance without a sovereign arbiter is empirically durable; the two mirrored principles map to §7.6 escalation-at-the-edge and to the right to self-organize/fork. **[confirm — verbatim wording of principles 6 and 7 against the 1990 primary]**.
+
+- Wilson, D. S., Ostrom, E. & Cox, M. E. "Generalizing the core design principles for the efficacy of groups." *Journal of Economic Behavior & Organization* 90S, 2013 (subsidiarity: lowest jurisdiction unless ineffective). — Grounds the subsidiarity capstone. **[confirm — verbatim; distinct from the 1990 book, do not conflate]**.
+
+### Governance-as-protocol frontier (the nearest neighbor in intent — see Part 2 Appendix C.4)
+
+- Schneider, N., De Filippi, P., Frey, S., Tan, J. Z. & Zhang, A. X. "Modular Politics: Toward a Governance Layer for Online Communities." *Proc. ACM Human-Computer Interaction* 5 (CSCW1), 2021. — The closest published governance-as-protocol work; shares the ambition, roots authority in a platform operator, and brackets the resolution mechanics and wire encodings — the layer Drystone's Part 2 builds. **[confirm — quotations against the CSCW paper]**.
+
+- Spritely Institute (Lemmer-Webber, C., Executive Director), "Technical Values and Design Goals" (spritely.institute/about) and the W3C ActivityPub lineage (Lemmer-Webber lead author). — Grounds the **contextual-identity** posture of §2.3 / Part 2 §5.6: no global town square, contextual flows over context collapse, the principle that one should not claim guarantees one cannot provide, and trust as contextual/revocable rather than all-or-nothing. Supports Drystone's stance that personhood is a contextual group judgment, not a protocol guarantee, and that legitimate multiple self-presentation is part of the social substrate. The petname tradition (Spritely Brux; Stiegler) is the nearest prior art for human-meaningful naming over non-human-meaningful keys, relevant where Drystone later addresses naming. Quotations verified verbatim against the primary page.
+
+> **A consolidated, component-by-component prior-art map — covering the data layer (CALM, CRDTs, Willow/Meadowcap/Keyhive), the resolution layer (Matrix State Resolution and the 2025 CVEs, MSC4289/4291/4297), the cryptographic group-state layer (MLS, decentralized-MLS / FREEK), and the governance-as-protocol frontier — lives in Part 2 Appendix C, and the substrate requirement-vs-realization treatment (MLS, iroh, and the primitives) is Part 2 §10.** Part 1's references are the *principled* lineage; Part 2's are the *mechanism* lineage. Both exist for the same reason: to name the shoulders this stands on, transparently, and to make clear that the claim is synthesis and humane delivery, not invention or supremacy.
