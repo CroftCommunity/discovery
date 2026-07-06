@@ -1,14 +1,16 @@
-# discovery / beta / activism: Layer 7 (the case against the status quo)
+# discovery / beta / activism: Layer 8 (the case against the status quo)
 
 date: 2026-07-06
 
 **What this layer is.** The evidence-grounded indictment of the incumbent model: *why*
-advertising-funded, engagement-optimized platforms are harmful. It is the **empirical** register of
-the argument: where `governance/` (Layer 4) carries the **structural / legal** case (peer standing,
-corporate law, the cooperative form that fixes it) and `socialization/` (Layer 6) carries the
-**presentation** (brand, voice, adoption), this layer carries the sourced harm case that motivates
-both. The reading arc across the three: **activism (the problem) → governance (the solution) →
-socialization (the invitation).**
+advertising-funded, engagement-optimized platforms are harmful. It is the **empirical** register of the
+"why": where `philosophy/` (Layer 2) carries the **structural / principled** case (peer standing,
+corporate law, the cooperative form that fixes it), `governance/` (Layer 6) is its **manifestation** (the
+foundation + cooperative that build it), and `socialization/` (Layer 7) carries the **presentation**
+(brand, voice, adoption), this layer carries the sourced harm case that motivates all three. In the
+three-part "why": history = why it resonates, philosophy = why it is right, **activism = why not the status
+quo.** The reading arc: **activism (the problem) → philosophy (why the alternative is right) → governance
+(building it) → socialization (the invitation).**
 
 ## Contents
 
@@ -20,8 +22,8 @@ socialization (the invitation).**
 
 ## Relationship to the spec and the other layers
 
-The Drystone spec's **Part 1 §2.6** (voice requires field-integrity) points at this layer for the
-*empirical* grounding of the failure case and at `governance/peer-standing-and-the-cooperative-form.md`
+The Drystone spec's (Layer 3) **Part 1 §2.6** (voice requires field-integrity) points at this layer for the
+*empirical* grounding of the failure case and at `../philosophy/peer-standing-and-the-cooperative-form.md`
 for the *structural* grounding. Per the spec's open-items, this companion set carries its **own source
 discipline and verification state** and is **not** part of the spec's `[confirm before publish]` list;
 the spec depends on it only for motivation, never for a mechanism.

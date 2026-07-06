@@ -734,13 +734,14 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   constrains the financing design space. Couples with the two grounding gaps the argument flags: the
   Rochdale / ICA cooperative legal mechanics (non-transferable member shares, patronage returns) and the
   platform-cooperativism capital-formation literature.
-- **Promotion target:** `governance/` (Layer 4) — extends `peer-standing-and-the-cooperative-form.md` §6
-  and theme `07`; sits under the bannered cooperative legal-review gate in `README.md`.
+- **Promotion target:** `governance/` (Layer 6, the manifestation) — extends
+  `philosophy/peer-standing-and-the-cooperative-form.md` §6 and theme `07`; sits under the bannered
+  cooperative legal-review gate in `README.md`.
 - **Gates:** ground the platform-cooperativism capital-formation literature; ground the ICA/Rochdale
   member-share mechanics; the broader cooperative/foundation legal-review gate (README) is the call this
   sits under.
-- **Provenance:** `governance/peer-standing-and-the-cooperative-form.md` §6 + §8 (the `[tension]` on
-  capital formation) and `structural-argument-principles.md` §IX(32); assembled from conversation,
+- **Provenance:** `philosophy/peer-standing-and-the-cooperative-form.md` §6 + §8 (the `[tension]` on
+  capital formation) and `philosophy/structural-argument-principles.md` §IX(32); assembled from conversation,
   delivered 2026-07-06 (via `dropoff/third.zip`, since removed — the committed governance docs are the record).
 
 ### T34 — Project Mercury: re-check the litigation docket before any external publication (time-sensitive)
@@ -767,6 +768,28 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   Plank 2; `drystone-spec/open-items.md` (companion-tracked-separately note). Non-load-bearing follow-ups
   also flagged in `activism/README.md`: Tristan Harris to primary, the "63 break-glass" count to a Meta
   document, and the ~35-study internal corpus traced from the aggregator to individual exhibits.
+
+### T35 — The uncompensated community labor + data-opacity indictment (a distinct activism thread)
+
+- **Status:** `open · surfaced` (surfaced 2026-07-06).
+- **Type:** `needs-research` (couples-with `needs-content`).
+- **What it is:** a *second*, distinct activism indictment, separate from the "platforms author the
+  relational field" harm case (Layer 8, already filed). The charge: closed platforms run on near-universal
+  **community moderation and good-faith community interaction that is never published anywhere**, so the
+  platforms **absorb the labor and hide the scale** at once. You cannot even see how much moderation effort
+  and healthy interaction you are producing for them, because the metrics (average group sizes, activity
+  and moderation volumes on closed platforms) are not disclosed. Two harms compounded: **uncompensated
+  community labor** (extraction of unpaid moderation/curation) and **epistemic opacity** (the scale of that
+  labor, and of the interaction it sustains, is structurally invisible). A cooperative/edge-free form makes
+  both legible and returns the value to the members who produce it, which is the constructive counterpoint.
+- **Promotion target:** `activism/` (Layer 8), as a companion indictment to
+  `structural-argument-narrative.md`; likely its own brief once sourced.
+- **Gates:** find sourceable figures on closed-platform group sizes and activity/moderation volumes (or
+  document that they are undisclosed, which is itself part of the claim); establish what *is* publishable
+  vs. structurally hidden. Hold the same source discipline as the existing activism set (primary or
+  clearly-flagged, conflicts shown).
+- **Provenance:** user articulation 2026-07-06 (the layering discussion); seed examples: Facebook average
+  group size, activity metrics on closed platforms, unpublished community moderation.
 
 ## Promoted & closed (provenance retained)
 
