@@ -103,7 +103,7 @@ to the edges. The canonical layer model, the two traversals, and the register di
 | 1 | `history/` | MATERIAL history: crofting, dry-stone, cairns, the space itself (theme 02 to migrate) | not yet created |
 | 2 | `philosophy/` | INTELLECTUAL history: the principles + thinkers, the pure peer-standing argument | **seeded 2026-07-06** (peer-standing → cooperative-form set) |
 | 3 | `drystone-spec/` | Protocol spec (Parts 1+2, persona-definition, CHANGELOG, open-items, review-handoff) | populated |
-| 4 | `impl/` | Reference implementation, experiment-informed (themes 04/05/06 to migrate) | not yet created |
+| 4 | `impl/` | Reference implementation, experiment-informed (themes 04/05/06 to migrate) | **seeded 2026-07-06** (`delivery-layer/`: the messaging/delivery-layer design corpus 00–12) |
 | 5 | `croft/` | Product thinking, Croft as a "flavor" (theme 08 to migrate) | not yet created |
 | 6 | `governance/` | The manifestation: foundation + cooperative, legal/financial actualization (theme 07 to migrate) | **seeded 2026-07-06** (reserved; peer-standing argument moved to `philosophy/`) |
 | 7 | `socialization/` | Brand / voice / adoption, *presentation* register (T4 / T11 terrain) | **seeded 2026-07-06** (human-facing peer-standing pieces) |
