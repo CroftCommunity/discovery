@@ -331,3 +331,24 @@ iroh relay-blindness; decentralized-MLS/FREEK. No drift markers vs existing FACT
 (protocol), `impl/` is Layer 2 (reference implementation, experiment-informed — themes 04/05/06), `croft/`
 Layer 3, `governance/` Layer 4, `history/` Layer 5, `socialization/` Layer 6. Layer directories to be
 populated across subsequent sessions.
+
+## 2026-07-06 intake — Drystone spec review session (document-pass-2)
+
+A structured consistency review against the review-handoff.md brief, followed by author rulings
+applied from a voice transcript, and a complete em-dash removal pass.
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| **Drystone spec review session (2026-07-06)** — A2 peer/member/lineage model correction; A3/A4/A5 meer optional store-and-forward vs iroh relay (RFC 9750 verified); B1 rights floor reduced to three (tenure/voice/exit, share dropped); B2 group-principal/communal-namespace open seam; B5 escalation tolerance default; B6 capability mechanism deferral + Keyhive lean; B8 grounds of authority (variety-enabling, contextual mint-and-bind); D1–D3 citation fixes; 562 em-dashes removed | `seeds/transcripts/raw/drystone-spec-review-session-2026-07-06.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)**. Voice transcript paraphrased faithfully; tool-call UI chrome stripped. |
+
+**Outputs filed:**
+- `discovery/beta/drystone-spec/part-1-reasoning-underpinnings.md` — updated (792→796 lines)
+- `discovery/beta/drystone-spec/part-2-certifiable-design.md` — updated (1983→2095 lines)
+- `discovery/beta/drystone-spec/open-items.md` — new companion (read-and-decide ledger)
+- `discovery/beta/drystone-spec/CHANGELOG.md` — document-pass-2 entry prepended
+
+**Confirmation status changes:** RFC 9750 §6.4 (DS optionality) and MLS asynchronous delivery model
+verified. Tenure-under-rekey test shape written into Appendix B (B1). No drift vs FACTCHECK SoT.
+Still `[confirm before publish]`: Beer, Ostrom, decentralized-MLS/FREEK, TLS/X.509, SSH, Keyhive,
+Lamport, CALM, CAP, CRDTs, Matrix CVE/MSC specifics; capped-root soundness (B4) remains priority
+security open item.
