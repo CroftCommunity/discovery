@@ -481,6 +481,82 @@ benign sync artifact is *itself* partly a utility judgment, vulnerable to alarm-
 per-scope governed tolerance over verifiable provenance signals, not a hardcoded constant (Part 2 §7.4,
 §7.6).
 
+### 2.6. The voice right requires field-integrity: why the substrate's ownership form is in scope
+
+This subsection adds no new principle and no new wire obligation. It names one dependency that the four
+principles jointly imply but none states outright, because it is the joint between the protocol and the
+larger question of who may own the substrate the protocol runs on. It is kept short on purpose: the full
+grounding, including the empirical case, lives in a companion argument (*Peer Standing, the Securitized
+Corporation, and the Cooperative Form*, §7) and is not re-argued here. What belongs in the spec is only
+the structural claim and the existing mechanisms that already realize it.
+
+**The claim.** `P-Peer-Equality` (§2.3) makes **voice** a right: the standing to assert into the record
+and be corroborated or refuted *on the assertion's own terms*. By §2.3's own test, a right is standing
+whose removal leaves the holder unable to contest the removal. Voice meets that test only if one further
+condition holds: that the field a peer asserts into, and perceives in order to respond, is not itself
+authored by a party with an interest the peer does not share and cannot see. Call this **field-integrity**.
+The two are not separate requirements. **A peer cannot hold the voice right on a substrate where a center
+authors the field, because the right and field-integrity are the same precondition seen from two sides.**
+If a center decides which of your assertions propagate, to whom, and with what salience, against an
+objective that is not yours, then your voice has been quietly demoted from a right you hold to a capacity
+the center grants and shapes, which is exactly the right-to-role leak §2.3 names as the tell of a broken
+design, instantiated in the communication layer rather than the governance layer.
+
+**What field-integrity does and does not require.** The field is *always* ordered: there is no unordered
+feed, and removing a center does not remove the need to decide what a peer sees first. So field-integrity
+is **not** "an unshaped field." It is three properties of the *shaping*:
+
+- **Peer-governed.** The ordering objective is set by the peers, not installed by an external party with
+  a non-peer interest. A default ordering is legitimate and expected (the dial-discipline of §2.3: default
+  the common case hard, keep the uncommon case representable). What is illegitimate is the objective being
+  structurally someone else's and unremovable.
+
+- **Legible.** A view is knowable *as a view*. The system must not present a curated slice as if it were
+  the unmediated field. This is the relational-layer instance of `P-Knowable-Truth` (§2.2, no silent
+  mutation) and of the freshness rule (Part 2 §7.4: silence must not be rendered as currency): the
+  protocol already refuses to present a partial or stale state as the whole and current one.
+
+- **Exitable.** A peer who rejects how the field is ordered can change it or leave with standing intact.
+  This is `P-Durable-Enablement`'s fork (§2.4) seen from the perception layer. Capture you can see and
+  leave is not domination in the §2.3 sense; capture you cannot see or cannot escape is.
+
+**Why "especially silent" is load-bearing.** The failure mode is not that a field is shaped; it is that
+the fact and objective of the shaping are concealed, so a peer cannot form the intent to contest it. This
+is not incidental to an attention-optimizing center; it is required by it. A curator that announced "this
+ordering is selected to maximize your time here against your stated preferences" would defeat its own
+objective. The opacity is structural, which is why the legibility property is not a nicety but the
+specific defense: the center can only farm the field if the peer cannot see the plough.
+
+**The full-stack dependency, in one line.** The protocol guarantees a peer-governed, legible, exitable
+field by removing the center that would otherwise author it; an aligned ownership form (the companion's
+argument for the cooperative) guarantees that nothing external is installed to re-author it, because the
+member is who the entity serves and the member's attention is therefore not the salable good. **You need
+both:** the protocol can be deployed under an ownership form that reintroduces a curating center, and the
+ownership form can be adopted over a substrate that still has one. Neither layer alone closes the gap, and
+that mutual dependence is why this specification treats the substrate's ownership form as in scope for the
+*motivation* even though it is out of scope for the *mechanics* (§1.1).
+
+> **A note on the ownership claim's status.** The companion argues that the aligned form is the
+> cooperative, not because the cooperative is automatically aligned (it is only as aligned as its charter
+> and governance make it), but because it is the form in which alignment can be made a binding, enforceable
+> commitment held by the people who use the thing, rather than a discretion an external capital
+> constituency may revoke. That is a claim argued in the companion, not a protocol guarantee, and it is
+> named here only to mark where the dependency points.
+
+> **[tension] Field-integrity is not a pure good, and the center-free field does not escape all shaping.**
+> Some shaping is endemic to any delivery system that must order what a peer sees: even an altruistic
+> re-ranker is pulled toward engagement absent better signal on true utility (the revealed-preference
+> trap; companion §7). Removing the external-objective curator does **not** yield an unshaped field; it
+> removes the *structurally adverse* curator and returns the ordering to peer governance. So the claim is
+> the narrower, defensible one, peer-governed-legible-exitable shaping, not no shaping, and the protocol's
+> job is to make the ordering contestable and the curator absent, not to pretend ordering away. The
+> reflexive harm by which concealed shaping degrades the collective correction that would otherwise
+> contest it is grounded in the companion (§7) and is not re-argued here.
+
+*(Realized by: §2.2 no-silent-mutation; §2.4 fork-as-exit; Part 2 §7.4 silence-is-not-currency, §7.6 fork.
+This subsection adds no wire obligation; it names why the existing ones are the realization of the voice
+right's field-integrity precondition.)*
+
 ---
 
 ## 3. Why these principles are corroborated, not invented
@@ -734,7 +810,10 @@ corollary (§2.0.1), and the four principles (`P-Local-Truth`, `P-Knowable-Truth
 `P-Durable-Enablement`) are the obligations the wire must meet, each ending in a consequence Part 2
 realizes. The forced terminus (§2.5), fork-not-verdict for the provably-non-empty, intrinsically-utility
 residue, is the move that most distinguishes the design, and it is *derived*, not chosen: it is what the
-razor plus the CALM boundary jointly require.
+razor plus the CALM boundary jointly require. A bridging dependency (§2.6) names that the **voice** right
+requires field-integrity, peer-governed, legible, exitable ordering, which is why the substrate's
+ownership form is in scope for the motivation; it adds no new principle and no wire obligation, only the
+link from voice to the field it is asserted into.
 
 **Does not establish:** that local-first *guarantees* a humane system; it is necessary, not sufficient
 (the edge can be wrong too; honest friction between real nodes is the cost, distinct from the
