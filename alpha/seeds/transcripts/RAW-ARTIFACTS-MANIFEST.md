@@ -597,3 +597,45 @@ formula remains, per the source session). MLS-ecosystem facts flagged at source:
 reference list not Discord's own blog; PQ-for-MLS from SEO-grade pages (unverified). Batch **8 of 11**;
 peer→persona and em-dash sweeps still deferred. `eight-mls.zip` + `eight-modular.zip` removed after
 byte-identical filing.
+
+## 2026-07-06 intake — batch nine: the consolidation (p9), document-pass-6 (nine-consolidate.zip)
+
+The definitive synthesis: a self-contained, consistent Part 1 + Part 2 with the transport/delivery and
+deep-MLS designs folded in, delivered as a `p9-` prefixed set. **This supersedes the committed spec**
+(overwrites part-1/part-2). The user flagged that the web agent had been **losing/missing content** across
+iterations, so a content audit of the consolidated docs against all previously-incorporated material
+follows this filing (to confirm nothing was dropped).
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| **consolidated spec set (7 docs)** — `p9-drystone-part1-principles`, `p9-drystone-part2-mechanics`, `p9-drystone-conventions-and-decisions`, `p9-drystone-doc-method`, `p9-drystone-part1-changelog`, `p9-drystone-part2-changelog`, `p9-drystone-session-summary` | `nine-consolidate.zip`; filed to `beta/drystone-spec/` (canonical names, not p9-prefixed) + `impl/doc-writing-method.md` (updated) + `seeds/drystone-consolidation/` (session summary) | **preserved-verbatim** (byte-identical, `diff -q`; em-dash-clean, drift-clean) |
+| **originating conversation (consolidation reasoning, apex, proof-of-personhood, licensing)** | `seeds/transcripts/raw/drystone-consolidation-and-personhood-2026-07-06.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)** |
+
+**Outputs filed (batch nine, document-pass-6):**
+- `beta/drystone-spec/part-1-reasoning-underpinnings.md` (890→975) + `part-2-certifiable-design.md` (2751→3961) — **overwritten** with the consolidation
+- `beta/drystone-spec/conventions-and-decisions.md`, `part-1-changelog.md`, `part-2-changelog.md` — new
+- `beta/drystone-spec/CHANGELOG.md` (document-pass-6 entry) + `README.md` (status → consolidated/pending-design-review; file list; terminology `PrincipalSet`→`Group Role Set`; superseded companions flagged)
+- `beta/impl/doc-writing-method.md` — updated to the newest (p9, 279-line) canonical
+- `seeds/drystone-consolidation/` (+README), raw transcript
+
+**On the p9 naming:** filed under **canonical filenames**, not `p9-` prefixed. The p9 marker was the
+consolidation session's way of tagging "current, pending-design-review"; in the repo, git + the CHANGELOG
+carry that provenance and the README status line records "consolidated (p9), pending design review." (Flag
+for the user: if they want the `p9-` prefix preserved on the tree filenames, easy to rename.)
+
+**Deferred reconciliation (NOT executed — user deferred the sweeps; kept as a flagged temporary
+inconsistency):** the consolidation subsumes several standalone companions, which are **retained pending
+go-ahead to retire**: `persona-definition.md` (→ Part 2 §5.2 + Appendix D; still uses the retired
+`PrincipalSet`), `open-items.md` (→ Appendix B), `bounded-contexts-and-vocabulary.md` (→
+`conventions-and-decisions.md`), `review-handoff.md` (predates the persona migration). The two SVGs are
+retained though Part 2 no longer references them by figure number. The `impl/doc-writing-method.md`
+duplication (batch-8 decision) was resolved by updating it to the newest version.
+
+**Honest provenance note (§4).** Deliverables verbatim, em-dash/drift-clean. The consolidation's own
+verification (per the per-part changelogs) corrected two facts: RoQ is a draft not RFC 9714; Sigstore is
+signature-transparency not countersigning. **Content audit pending** (this filing's follow-on): confirm the
+p9 consolidation did not drop anything landed in document-passes 1–5 or the companions, given the web
+agent's known content-loss. Not distilled into docs: the proof-of-personhood survey research (Shilina;
+Siddarth et al. "Who Watches the Watchmen"; the decentralized-identity trilemma; web-of-trust/PGP lineage;
+Idena) and the protocol-licensing analysis (CC BY + AGPL + trademark/conformance) — both in the raw
+transcript, candidates for `philosophy/prior-art` and the governance layer. Batch **9 of 11**.
