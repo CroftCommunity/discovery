@@ -1,0 +1,832 @@
+Drystone spec integration — unified diff against uploaded originals
+Generated: 2026-06-29T21:05:14Z
+
+Scope of changes:
+  - Integrated the transport/identity/encryption research into Part 2 section 6.
+  - Reconciled terminology (mailbox -> meer), resolved placeholder cross-refs, fixed
+    two source-grounded errors (HyParView/PlumTree two-paper split; MLS-not-transport-dependent).
+  - Applied iroh 1.0 (June 2026) differentiation: transport-plane claims verified against
+    stable 1.0 core; gossip/discovery flags rescoped to the separately-versioned crates.
+
+Files changed:
+  drystone-part1.md          Part 1: Reasoning Underpinnings (no content change)
+  drystone-part2.md          Part 2: The Certifiable Design
+  drystone-exposure.svg      Fig. 1: exposure map
+  drystone-catchup-flow.svg  Fig. 2: returning-member catch-up (unchanged)
+
+The transport research file (drystone-transport-section.md) was a source input, not an
+output. Its material was folded into Part 2 section 6 and is not emitted as a separate file.
+
+================================================================================
+
+
+################################################################################
+# drystone-part1.md
+################################################################################
+(no changes)
+
+
+################################################################################
+# drystone-part2.md
+################################################################################
+--- a/drystone-part2.md
++++ b/drystone-part2.md
+@@ -11,9 +11,16 @@
+ 
+ > **A note on two maturity layers inside this part.** The message/history/transport layer (§4, §6) is
+ > matured from a reference implementation that is **green-real** on real crypto and real iroh transport.
+-> The governance-conflict-resolution layer (§7.3–§7.5) is matured from a **design/ENABLING** draft whose
+-> reasoning is complete but whose wire encodings and one comparative dependency are not yet pinned. The
+-> two layers also differ today in hash function (§4 proven on SHA-256; §7 designed on BLAKE3), a real
++> Within §6, the MLS-architecture claims (the two identity planes, the two-layer encryption stack, the
++> DS/AS trust model, the metadata exposure) are **verified against the RFC 9420 / RFC 9750 primaries**, and
++> the iroh transport-plane claims are **verified against iroh 1.0** (wire-and-API-stable as of June 2026:
++> public-key identity, direct-first-with-blind-relay-fallback, post-handshake authentication). The items
++> still left **[confirm]** are confined to the layers iroh's 1.0 guarantee does **not** cover, the
++> separately-versioned `iroh-gossip` crate (pre-1.0: its event surface and overlay tuning) and the
++> address-lookup crates (republish/expiry specifics, and the Pkarr-spec record model). The
++> governance-conflict-resolution layer (§7.3–§7.5) is matured from a **design/ENABLING** draft whose
++> reasoning is complete but whose wire encodings and one comparative dependency are not yet pinned. The §4
++> and §7 layers also differ today in hash function (§4 proven on SHA-256; §7 designed on BLAKE3), a real
+ > reconciliation item, surfaced in Appendix B rather than papered over.
+ 
+ > **Naming: center-free, not serverless.** Drystone is a **center-free peer protocol**. *Peer-to-peer*
+@@ -985,48 +992,480 @@
+ 
+ ---
+ 
+-## 6. Transport
++## 6. Transport, Identity Planes, and the Encryption Stack
+ 
+-> `Realizes: P-Local-Truth, P-Peer-Equality, P-Durable-Enablement`
+->
+-> External transport facts (iroh / QUIC) cite the FACTCHECK SoT, iroh `1.0.0`, do not re-verify.
+-> The transport layer is the one place *peer-to-peer* is the precise word (§3.1, naming note).
++> `Realizes: P-Local-Truth, P-Knowable-Truth, P-Peer-Equality, P-Durable-Enablement`
+ >
+-> **Requirement vs realization:** this section specifies the iroh-based reference. The abstract transport
+-> requirement (T1–T7), the compliance bar a non-iroh candidate must meet, and the topology question
+-> (why point-to-point-with-blind-relay is the reference and why pure mesh is a permitted-but-not-required
+-> divergence) are consolidated in **§10.3**.
+-
+-### 6.1. Connection establishment and routing
+-
+-The transport is **iroh**: encrypted QUIC with relay fallback for NAT'd peers, routed by `EndpointId`
+-(public-key endpoint identity; renamed from `NodeId`, per FACTCHECK SoT). Scope membership maps to a
+-gossip **topic** (§4.2), carried over **iroh-gossip** (HyParView/Plumtree, per FACTCHECK SoT). A relay
+-forwards opaque frames and **MUST NOT** be required to read content; it routes by endpoint, not by topic.
+-*green-real, NAT path via relay; the meer (blind store-and-forward node) sees only ciphertext plus routing metadata.*
+-
+-**Co-location** (reference deployment): two peers reach each other over relay fallback only if they share
+-a home relay (no relay-to-relay mesh); relay placement is server-published and authoritative, keyed on the
+-rendezvous/namespace, not on identity. A relay process **SHOULD** meter and isolate per tenant and
+-**MUST** degrade *visibly* under stress, never silently. *green-real (measured).*
++> Cross-references: §3.1 (where adjudication lives), §4.5.1 (per-client membership), §5.4 (the meer and the
++> relay, two distinct blind roles), §5.9 (the meer is optional; exitability), §7.4 (freshness and the
++> returning-member catch-up), §8 (the relay/meer as blind forwarders), §10.2 (the MLS requirement), §10.3
++> (the transport/overlay requirement). External transport facts (iroh core / QUIC) are verified against
++> the released iroh 1.0 primaries this round; the FACTCHECK SoT remains the internal cross-check of record.
++>
++> **Requirement vs realization.** This section specifies the iroh + MLS reference at the wire. The abstract
++> transport requirement (T1–T7) and the abstract group-key requirement (K1–K8), with the compliance bars a
++> non-iroh or non-MLS candidate must meet, are consolidated in §10.3 and §10.2. The transport layer is the
++> one place *peer-to-peer* is the precise word (§3.1, naming note).
++>
++> **Figures.** Fig. 1 (`drystone-exposure.svg`) is the exposure map: who sees what, by layer. Fig. 2
++> (`drystone-catchup-flow.svg`) is the returning-member governance catch-up, the §7.4 flow at the wire.
++>
++> **Verification legend.** *Verified*, checked against the cited primary this round; **[confirm]**,
++> load-bearing and version-dependent or not yet pulled from the cited primary this round. **iroh reached
++> 1.0 (June 2026), and the version split is now itself a differentiator this section relies on.** iroh core
++> (the `Endpoint` / `Connection` / `Router` / ALPN surface, the QUIC + TLS 1.3 transport, the relay,
++> key-based addressing) is wire-and-API-stable under the 1.0 guarantee, so the transport-plane claims here
++> are pinned, not provisional. The overlay and discovery layers Drystone uses are **separately-versioned
++> crates that the 1.0 guarantee does not cover**, `iroh-gossip` (pre-1.0, its own repo and release cadence)
++> and the address-lookup crates (`iroh-mainline-address-lookup`, `iroh-mdns-address-lookup`); their internal
++> specifics are therefore still **[confirm]** against each crate's pinned version even though iroh core is
++> stable. Each flag below says which layer it belongs to.
++
++This section specifies how Drystone peers find each other, how messages move between them, and what each
++cryptographic layer does and does not protect. It is written against the two substrates §10 names: **MLS**
++(RFC 9420 / RFC 9750) for group key agreement and message protection, and **iroh** for transport,
++discovery, and the gossip overlay. The organizing claim is that **identity and encryption each operate at
++two distinct planes, the peer and the group, and conflating them is the failure mode this section exists
++to prevent.** This is the same composition-vs-valuation discipline of Part 1 §2.3 carried to the wire:
++keeping the planes separate is what stops trust from leaking into key access.
++
++### 6.1. Two planes of identity
++
++Drystone has two identity planes, and they answer two different questions. Keeping them separate is not
++pedantry; it is the mechanism realization of the composition-vs-valuation distinction (Part 1 §2.3).
++
++#### 6.1.1. Peer-level identity (the transport plane)
++
++A peer is addressed by a long-lived public key, an iroh **`EndpointId`** (the public half of an Ed25519
++keypair). This key is the peer's network identity: you dial a key, not an address, and iroh resolves the
++key to a current network location on demand (§6.4). *(Verified against iroh 1.0: each endpoint holds an
++Ed25519 keypair whose public half is the `EndpointId`, and that key is also the endpoint's TLS identity, so
++it cannot be impersonated. `EndpointId` is the 1.0 term; pre-1.0 iroh called it `NodeId`, and a reader of
++older material will see the old name.)*
++
++What this plane establishes is **provenance of the channel**: when a connection opens to an `EndpointId`,
++the transport's TLS 1.3 handshake authenticates that the peer on the other end holds the private key for
++that `EndpointId`. This is a certain, computable fact (Part 1 §2.0): the connection either authenticates
++the key or it does not.
++
++What this plane does **not** establish is *who that key belongs to in human terms*. The binding
++"this `EndpointId` is my co-organizer Dana" is a **utility judgment** supplied by a human act (a QR scan, an
++in-person exchange), exactly as Part 1 §2.0 argues, and exactly the principal-as-its-own-CA act of §4.5.1.
++The transport plane carries that binding forward once a human has made it; it never computes it.
++
++#### 6.1.2. Group-level identity (the MLS plane)
++
++Membership in a governed scope is a separate fact from peer reachability. In MLS, a member is a **leaf** in
++the group's ratchet tree, holding the group's continuously-rotated key material. RFC 9420 §2 defines a
++member as a client included in the shared state of a group, with access to the group's secrets, and an
++epoch as the state of a group in which a specific set of authenticated clients hold shared cryptographic
++state. *(Verified, RFC 9420 §2 terminology.)* A peer's `EndpointId` says it can be *reached*; its MLS leaf
++says it is a *member of this group at this epoch*. This is the wire form of the §4.5.1 model: each
++**client** is its own MLS member (one leaf, one signature key, one credential), and a principal's clients
++are folded to one persona by lineage (§4.5), never by sharing a key.
++
++These planes are deliberately decoupled. A single principal may hold several `EndpointId`s (a phone, a
++laptop, the device-pool composition edge of Part 1 §2.3) that together act through several clients in one
++scope, and the same person may be a member of many scopes under different presentations (the
++multiple-presentation argument of Part 1 §2.3 / §5.6). Peer identity is per-device-key; group identity is
++per-membership. The recursion of Part 1 §2.3 (device → user → community) lives here: composition at the
++MLS plane (shared group key) is distinct from valuation across planes (one group weighting another's
++assertions with no shared key).
++
++> **The seam, stated plainly.** Peer identity authenticates a *channel*; group identity authorizes an
++> *actor in a scope*. A correctly-authenticated channel from a peer who is not a member of scope S grants
++> nothing in S. A member of S whose channel cannot currently be authenticated is still a member; you simply
++> cannot talk to them right now. **Reachability and membership fail independently**, and the design **MUST
++> NOT** treat "I have a verified connection" as "this peer may act here." This is the §4.4 separation
++> (integrity-and-ordering vs authorship-and-standing) seen from the transport side.
++>
++> The reference transport reinforces the seam by construction: in iroh the remote `EndpointId` is known
++> only *after* the mutual-TLS handshake completes, so a peer is admitted to the channel before any
++> scope-membership question is asked, and the membership check is necessarily a *later, application-layer*
++> step. There is no point at which "channel authenticated" and "may act in S" are the same event. *(Verified
++> against iroh 1.0: a `Connection` can only be constructed after successful handshake and authentication,
++> and `Connection::remote_id()` is infallible precisely because the connection it is called on is already
++> authenticated; the application then decides separately whether that identity may act in the scope. This is
++> stable 1.0 core API, not a provisional detail.)*
++
++### 6.2. The encryption stack: two layers, different jobs
++
++Calling this "double encryption" is close but imprecise. There are two encryption layers, but they are not
++redundant wrappings of one secret; they protect **different things**, and the security argument depends on
++knowing which protects what.
++
++RFC 9750 states the division of labor directly, and it is sharper than "the transport adds security":
++*the security guarantees of MLS do not depend on the transport*, MLS is designed to hold even against a
++compromised transport, especially a compromised Delivery Service. The transport is there for a
++**complementary** job: RFC 9750 §8 puts it as the transport keeping metadata private from network
++observers, while MLS provides confidentiality, integrity, and authentication for the application data
++itself, which may pass through multiple untrusted systems. *(Verified, RFC 9750 §8, primary text this
++round.)* So the layers do not stack one security claim on another; each covers a gap the other leaves
++open.
++
++#### 6.2.1. Layer A, transport encryption (iroh QUIC / TLS 1.3)
++
++**Scope:** the *link* between two peers, hop by hop.
++
++**Protects:** the metadata of a single connection, which `EndpointId` is talking to which, and (with
++padding) message sizes, from a *network observer on that link*. It also authenticates the peer-level
++identity of §6.1.1.
++
++**Does not protect:** anything Layer A would have hidden, once the bytes reach an intermediary you handed
++them to. The two intermediary roles see different amounts. A **meer** you dial directly *is* a TLS
++endpoint of your connection, so it sees everything Layer A protects on that link (your `EndpointId`, the
++timing and sizes of what you deposit or drain), though never Layer B content. An **iroh relay** does
++**not** terminate the peer-to-peer QUIC/TLS session; it routes encrypted packets by `EndpointId` and
++cannot decode them, so it sees the `EndpointId`-to-`EndpointId` envelope and timing but not even the
++Layer A record contents. Either way, the point holds: transport encryption is hop-by-hop, so its metadata
++protection is against a *network observer*, not against the intermediary in the path. This is exactly why
++transport encryption alone is insufficient for a center-free design where messages pass through other
++peers, and exactly why Layer B is not optional.
++
++RFC 9750's own recommendation names this layer: use transports providing reliability and metadata
++confidentiality, such as TLS or QUIC, for carrying MLS messages. *(Verified, RFC 9750 §8 recommendation,
++primary text this round.)* iroh's transport is QUIC with TLS 1.3, so the recommendation is satisfied by
++construction.
++
++#### 6.2.2. Layer B, message encryption (MLS PrivateMessage)
++
++**Scope:** the *content*, end-to-end across the whole group, independent of how many hops or relays it
++traverses.
++
++**Protects:** confidentiality, integrity, and authenticity of the application payload, and (when
++configured) the handshake, to the group's current epoch. RFC 9420 §2 defines a `PrivateMessage` as signed,
++authenticated as coming from a member in a particular epoch, and encrypted so that it is confidential to
++the members of the group in that epoch; an application message is a `PrivateMessage` carrying application
++data. *(Verified, RFC 9420 §2 terminology.)* A `PrivateMessage` is AEAD-sealed under per-sender,
++per-message keys derived from the ratchet. Anyone who is not a member at that epoch, including every relay,
++meer, and gossip-forwarding non-member, sees ciphertext only.
++
++**Provides what transport cannot:** end-to-end protection that survives passing through untrusted
++intermediaries. This is the layer that makes the blind-relay (§6.5.2) and blind-meer (§6.5.3) roles safe.
++A meer holds `PrivateMessage` bytes it cannot read precisely because Layer B sealed them before they ever
++reached Layer A.
++
++**Provides, uniquely:** forward secrecy and post-compromise security across epochs (§10.2 K1, K2), because
++MLS actively deletes and replaces keying material as the group advances. Transport encryption gives
++session forward secrecy; MLS gives *group-history* forward secrecy that survives membership changes.
++
++#### 6.2.3. Why both, and what neither gives
++
++The layers compose because they cover complementary gaps:
++
++- **Transport-only (Layer A alone)** would expose content to every intermediary peer, fatal in a
++  center-free topology where peers relay for each other.
++
++- **Message-only (Layer B alone)** would protect content end-to-end but leak the full contact graph and
++  timing to any network observer, because the ciphertext would travel over an observable channel.
++
++- **Together:** Layer B keeps content secret from intermediaries and the network; Layer A keeps the *fact
++  and shape* of a given link's traffic secret from a network observer on that link. Content secrecy is
++  end-to-end; metadata secrecy is hop-by-hop.
++
++> **The honest limits, neither layer defeats traffic analysis, and metadata is only hop-private.** Three
++> cautions the design carries rather than papers over.
++>
++> *First, MLS minimizes but does not eliminate metadata.* RFC 9420 §16.4 lists fields it does not protect:
++> the unencrypted header fields of a `PrivateMessage`, the lengths of encrypted messages, anything sent as
++> a `PublicMessage`, and the `KeyPackage` / `GroupInfo` / `Welcome` distribution. From these a party can
++> infer the group ID, the current epoch and the frequency of epoch changes, message frequency within an
++> epoch, group extensions, and membership. §16.4.1 is explicit that MLS provides no mechanism to protect
++> the group ID and epoch from the Delivery Service, so those and the change frequencies are not protected
++> against DS inspection, though any modification to them causes decryption failure. *(Verified, RFC 9420
++> §16.4 / §16.4.1.)* The named adversary is the DS and a party observing the unprotected header fields, not
++> a generic observer of the ciphertext.
++>
++> Note what is **not** exposed: the per-sender `generation` counter rides inside `SenderData`, which is
++> AEAD-encrypted (RFC 9420 §6.3.2), and RFC 9420 §16.3's purpose is precisely to conceal which member sent
++> a message. So sender identity within the group is protected in the framing, and there is no RFC-sourced
++> claim that an outside observer can detect a missed message from a counter gap. *(Verified, RFC 9420
++> §6.3.2 and §16.3. An earlier Drystone draft asserted the opposite, that a `PrivateMessage` exposes the
++> generation counter and a counter gap reveals a missed message to an observer; that claim was unsourced
++> and is removed.)*
++>
++> *Second, transport metadata privacy is hop-by-hop, not end-to-end.* A relay carrying the fallback path,
++> or a meer you dial directly, sits *inside* Layer A and sees the contact metadata for the traffic it
++> handles. It still cannot read content (Layer B), but "metadata-private" means private from the *network*,
++> not from the *intermediary you handed the bytes to*. This is the leak drawn in Fig. 1, and it is
++> inherent, not a defect to fix.
++>
++> *Third, neither layer conceals packet timing, sizes, rate, and bursts from a determined traffic-analysis
++> adversary.* TLS 1.3 provides a length-concealment *mechanism* (record padding) but no guarantee against
++> traffic analysis. **[confirm, RFC 8446 padding mechanism; corroboration arXiv:2406.15686.]** For the
++> high-threat dials of Part 1 §2.3 (activist, journalist), this is the residue that needs additional
++> measures (cover traffic, mix routing) outside the scope of this section.
++
++> **Membership inference, and the mitigation the RFC names.** Of the metadata exposures, group membership
++> is the most consequential for the high-threat dial, and RFC 9420 §16.4.3 is precise about it: membership
++> is represented directly by the ratchet tree, so exposing the tree leaks membership; `Add` / `Remove`
++> proposals sent as `PublicMessage` leak membership changes, and a party seeing all changes can reconstruct
++> the membership; and a party holding a pool of `KeyPackage`s who observes a `Welcome` can identify the new
++> member. *(Verified, RFC 9420 §16.4.3.)* The critical caveat dovetails with the multiple-presentation
++> argument of Part 1 §2.3: these leaks reveal membership only to the degree a member's `LeafNode` is
++> identifying, and the RFC offers the explicit mitigation of pseudonymous credentials with frequently
++> rotated encryption and signature keys. So the protocol-level defense for the activist/journalist dial is
++> to keep the `LeafNode` minimally identifying, a deployment choice the spec sanctions, not a gap. (This is
++> the same client-correlation cost §10.2 logs against K5, named there as an accepted tradeoff.)
++
++### 6.3. Connection establishment, routing, and interaction tiers
++
++The transport is **iroh**: encrypted QUIC with relay fallback for NAT'd peers, routed by `EndpointId`.
++Scope membership maps to a gossip **topic** (§4.2), carried over **iroh-gossip** (§6.6). A relay forwards
++opaque frames and **MUST NOT** be required to read content; it routes by endpoint, not by topic.
++*green-real, NAT path via relay; the relay sees only ciphertext plus routing metadata.* iroh attempts a
++direct hole-punched QUIC path first and falls back to a stateless encrypted relay only when that fails; in
++iroh's own production figures the direct path succeeds for the large majority of connections and carries
++the bulk of data volume, so the relay is the exception path, not the common one. *(Verified against iroh
++1.0: direct-first with relay fallback, and the relay is stateless and content-blind. The exact
++success-rate percentages are iroh's reported production numbers, not a Drystone guarantee, and are cited as
++corroboration only.)*
++
++**Co-location** (reference deployment): two peers reach each other over relay fallback only if they share a
++home relay (no relay-to-relay mesh); relay placement is server-published and authoritative, keyed on the
++rendezvous/namespace, not on identity. A relay process **SHOULD** meter and isolate per tenant and **MUST**
++degrade *visibly* under stress, never silently. *green-real (measured).*
++
++**Interaction tiers** are chosen at scope creation, not toggled at runtime: **interactive** (prompt
++delivery + real failure signal), **quiet-large** (eventual, "it will arrive or you will be told it did
++not"), and **broadcast** (best-effort rolling log). The broadcast tier **MUST** disable the embedded
++group-key ratchet tree (O(N) commits) and ship the tree out of band. *design (tiers) + green-real (the
++O(N) ratchet-tree cost is measured).*
++
++### 6.4. Discovery: resolving a key to a location
++
++Discovery is the lookup that turns a bare `EndpointId` (identity) into a current network location so a peer
++can be dialed at all. It is distinct from the gossip overlay's *internal* peer-learning (§6.6): discovery
++is key-to-address resolution; the gossip overlay's internal mechanism is intra-swarm peer sampling.
++Discovery gets you to the door; gossip is the room.
++
++One integrity property is constant across all three mechanisms below and worth stating once: discovery
++records are **self-signed by the endpoint's own key**, and the lookup key *is* that public key, so no
++resolver can forge a peer's address; a tampered record fails signature verification against the key being
++looked up. What varies between mechanisms is *who can observe or withhold* lookups, never whether they can
++lie. Two notes on status after iroh 1.0: the three mechanisms are now **separately-versioned address-lookup
++crates** (`iroh-mainline-address-lookup` for the DHT path, `iroh-mdns-address-lookup` for mDNS) rather than
++options inside the core crate, so they are real shipped components, not "wire-it-yourself" gaps; the
++self-signed-record integrity model itself is **[confirm against the Pkarr record-signing spec]**, which is
++a Pkarr-level primary, not an iroh-version question.
++
++#### 6.4.1. DNS / Pkarr (default; a soft center)
++
++Self-signed records served through DNS servers operated by n0. Fast (globally cached) and zero-config. The
++soft-center caveat: n0's servers cannot forge a record (integrity holds) but can observe which keys are
++looked up and published, and can withhold or go down (an availability and metadata-concentration point). A
++center for observation, never for integrity.
++
++#### 6.4.2. Pkarr-on-mainline-DHT (center-free, global)
++
++The same self-signed records published into the no-owner BitTorrent mainline DHT. This removes the single
++observation/censorship point: no party sees all lookups or can globally withhold a record. Costs: higher
++lookup latency, lower reliability than cached DNS, and records expire and require periodic republishing.
++This is the discovery path that keeps an internet-scale Drystone deployment from depending on n0. Post-1.0
++this path ships as the `iroh-mainline-address-lookup` crate. **[confirm, the mainline-DHT publishing and
++republish-interval behavior against that crate's pinned version.]**
++
++#### 6.4.3. mDNS (center-free, local / airgapped)
++
++Local-link multicast resolution: no internet, no server, no DHT. Every member on the LAN segment is
++discoverable without publishing anywhere, so there is no bootstrap seed at all (§6.6.2). Bounded to the
++broadcast domain (does not cross routers), a feature for airgapped and family-LAN scopes, a hard limit for
++cross-network reach. Same key-authenticated integrity: a malicious LAN responder returning a wrong address
++causes a failed dial, never an impersonation. Post-1.0 this ships as the `iroh-mdns-address-lookup` crate,
++so it is a turnkey discovery mechanism, not something a deployment must build itself; the earlier "is mDNS
++mature enough to rely on" question is resolved by its existence as a maintained crate. **[confirm, the
++crate's exact behavior, e.g. whether it republishes on interface change, against its pinned version.]**
++
++### 6.5. Delivery: direct, relayed, and via the meer
++
++A non-member that routes ciphertext it cannot read is, in MLS terms, a **Delivery Service (DS)**; RFC 9420
++§3 states that MLS assumes a trusted Authentication Service but a largely untrusted DS, and is designed to
++protect the confidentiality and integrity of group data even against a compromised DS, which is in general
++only expected to deliver messages reliably. *(Verified, RFC 9420 §3.)* Even a malicious DS cannot add
++itself to a group or recover the group key; at most it observes membership metadata or suppresses messages
++by withholding them. **[confirm, RFC 9420 §16.9 DS-compromise specifics beyond the §3 summary.]** This
++bounds the blind-forwarder threat model precisely: a Drystone relay or meer can **censor** (drop, delay)
++and **observe** (contact graph), but never **forge** or **decrypt**.
++
++Drystone splits the DS's two functions, ordering and store-and-forward, and keeps only the second
++(§10.2): there is **no DS in its ordering role** (ordering is the timestamp-free causal-cryptographic fold
++of §7.3.1, with forks first-class, §7.6), and the store-and-forward function is the optional **meer**
++(§5.4, §6.5.3).
++
++#### 6.5.1. Direct peer-to-peer (the common case)
++
++Two online peers exchange `PrivateMessage` bytes over a direct, hole-punched iroh QUIC connection. No
++intermediary holds the bytes. This is the default and the majority path (Fig. 1 puts it at the common-case
++~90–95% of traffic). Layer A authenticates the channel and hides the link metadata from the network; Layer
++B protects the content end-to-end (redundant for *content* here, since there is no intermediary, but still
++the source of FS/PCS and group authentication).
++
++#### 6.5.2. Relay-assisted (NAT traversal)
++
++When two peers cannot hole-punch a direct path, iroh's relay coordinates the connection and, in the
++residual case, forwards encrypted packets. The relay is *inside* Layer A for the traffic it carries (it
++sees `EndpointId`-to-`EndpointId` flow and timing) but never *inside* Layer B (content stays sealed). The
++relay is **stateless and content-blind**: a transport-layer metadata observer, not a message store. This
++is the **iroh relay**, distinct from the meer (§5.4): the relay is a transport-layer blind packet forwarder
++for reachability, holding nothing; the meer is an application-layer store that persists encrypted objects
++for later delivery. Both are blind; they sit at different layers; neither is mandatory.
++
++#### 6.5.3. The meer (offline durability, the additive role)
++
++A **meer** (§5.4) persists sealed `PrivateMessage` bytes for members who were offline, and serves them on
++dial-home, the §7.4 returning-member catch-up: the member reports its `(G, D)` cursor (the
++governance-commit and dataplane positions it last held), drains the missed governance commits and retained
++dataplane backlog, then verifies forward (Fig. 2). A meer holds Layer-B ciphertext it cannot read. Per
++Part 1 §2.4 and §5.9, the meer is a **revocable role held redundantly, never a structural dependency**: the
++no-meer path stays real, and losing a meer costs offline-durability only, never function or standing.
++
++> **Design rule, the meer stores byte-identical sealed messages, never re-sealed copies.** Dual delivery (a
++> member receiving the same commit once via gossip and once via meer drain) is benign because gossip
++> de-duplicates beneath MLS and MLS applies commits forward-only and idempotently: a duplicate commit no
++> longer matches current state and is dropped, the monotonic-fold property of Part 1 §2.2 / §7.3. But this
++> safety holds **only if the meer returns the identical `PrivateMessage` bytes.** A meer that re-encrypts
++> or re-frames a message could induce ratchet key/nonce reuse, which MLS does not permit. The meer **MUST**
++> store and forward the sealed bytes unchanged. *(This is why §5.4 insists the meer is never issued a key:
++> there is no decrypt, so there is nothing to re-seal.)*
++
++### 6.6. The gossip overlay (HyParView + PlumTree)
++
++Once a peer can reach one swarm member (via §6.4), the gossip layer disseminates messages and maintains a
++fresh neighbor picture with no coordinator. iroh-gossip stacks two algorithms, each from its own 2007
++paper by Leitão, Pereira & Rodrigues: **HyParView** for membership ("HyParView: A Membership Protocol for
++Reliable Gossip-Based Broadcast," DSN 2007) and **PlumTree** for broadcast ("Epidemic Broadcast Trees,"
++SRDS 2007, pp. 301–310). *(Verified, attribution and the two-paper split against the primaries this round;
++the SRDS paper is PlumTree, the DSN paper is HyParView, they are not one paper, and iroh-gossip's own crate
++docs name both papers as its basis.)*
++
++**A version-status note that matters here.** Unlike iroh core, **`iroh-gossip` is a separate crate on its
++own pre-1.0 release line** (it was split out of the iroh crate before 1.0 and explicitly no longer receives
++"special treatment"), so the iroh 1.0 wire-and-API stability guarantee **does not extend to it**. Its
++mapping of HyParView/PlumTree, its event surface, and its tuning constants can still change between
++releases. The flags in this subsection are therefore scoped to `iroh-gossip`'s own pinned version, not to
++iroh core, which is stable. **[confirm, iroh-gossip internals against its pinned (pre-1.0) version.]**
++
++#### 6.6.1. HyParView, the membership layer
++
++Each node keeps two views: a small **active view** (the live connections that messages flow over) and a
++larger **passive view** (a reserve address book, not connected). Periodic background shuffles swap view
++samples between nodes, keeping the passive view stocked. When an active link dies, a passive peer is
++promoted to refill it, so the overlay reheals locally with no central coordinator. **[confirm, the
++active/passive view-size constants are illustrative; verify iroh-gossip's configured values, the SRDS
++paper used a small fanout, e.g. 4, but iroh may differ.]**
++
++This is the source of the "gossip has its own internal discovery" property: within a swarm, a node learns
++of *other members* from peers it already knows, via shuffles. This is intra-swarm peer learning, **not**
++key-to-address resolution; it cannot bootstrap a node into a swarm from nothing, which is why `subscribe`
++takes a bootstrap-peer set (§6.6.2). *(Verified against the iroh-gossip crate API: `subscribe` is called
++with a `TopicId` and a set of bootstrap peers, confirming a swarm cannot be joined from a topic id alone.)*
++
++#### 6.6.2. Bootstrap and the seed role
++
++To join a topic, a node hands `subscribe` one or more bootstrap `EndpointId`s already in the swarm;
++HyParView grows its view from that seed. The seed shares peer *knowledge* (samples from its views), not its
++live connections; the newcomer forms its own active view by dialing peers directly. The seed is a
++phonebook, not a switchboard.
++
++> **The seed is a join-time center if singular, make it plural and rotating.** A swarm runs fine without
++> the seed once members are woven in (PlumTree and HyParView need no bootstrap thereafter). But a *new*
++> member, or one that lost its passive view while offline, cannot re-enter if the only discoverable peer is
++> down. Per Part 1 §2.4 this is the structural-dependency hazard relocated to the join path, and the fix
++> mirrors the meer fix (§5.9): several members publish as seeds, newcomers bootstrap from any, the set
++> rotates. In Mode 2 (mDNS, §6.7.2) this is automatic, every member is discoverable, so there is no single
++> seed. A starved active view (e.g. "1 active, many passive") makes a seed especially fragile and is not
++> recommended for a peer others rely on to join.
++
++#### 6.6.3. PlumTree, the broadcast layer
++
++Each node splits neighbors into **eager-push** peers (which get the full message immediately) and
++**lazy-push** peers (which get only an `IHAVE(message-id)` digest). Eager links self-organize into a
++spanning tree; lazy links are the redundant edges held in reserve. **[confirm, eager/lazy semantics
++against the SRDS primary and the iroh-gossip implementation.]**
++
++Pruning is the efficiency engine: a duplicate arriving over an eager link (already received from the
++tree-parent) triggers a `PRUNE` that demotes the link to lazy. After a few messages the eager links
++collapse to a tree carrying one copy per node, and the redundant links carry only cheap digests. Healing
++is why the lazy links exist: if a tree branch breaks, downstream nodes still receive `IHAVE` digests over
++lazy links, notice a digest for a message they never received, and send a `GRAFT` to pull it and re-attach
++the tree. *(The payload-via-tree-branches, recover-via-remaining-links design is verified against the SRDS
++primary; the exact `PRUNE`/`GRAFT`/`IHAVE` wire behavior in iroh-gossip is* **[confirm].**)
++
++#### 6.6.4. What gossip does and does not guarantee
++
++Delivery is best-effort and probabilistic: the tree usually reaches everyone and healing usually repairs
++breaks, but a node that is *entirely offline* during a broadcast is not in the tree and receives neither
++eager pushes nor `IHAVE` digests; there is no branch to heal. This is the structural reason gossip cannot
++be the durability layer: PlumTree repairs *transient* breaks in a live tree; it offers nothing to an absent
++node. Offline durability is the meer's job (§6.5.3), and catch-up validity is the returning member's local
++check (§7.4, Fig. 2).
++
++The event surface a subscriber sees at the network layer is `NeighborUp`, `NeighborDown`, `Received`, and
++`Lagged`, note the absence of any delivery confirmation. *(Verified against a recent iroh-gossip release:
++the net-layer subscriber event set is exactly these four, and `Lagged` carries no information about *what*
++was missed. The protocol-layer `ProtoEvent` is narrower still, `NeighborUp` / `NeighborDown` / `Received`,
++with no `Lagged` at all.)* The event enum has changed shape across versions (an earlier `Joined` event was
++folded into `NeighborUp`; the enum was later flattened), so the exact variants remain **[confirm]** against
++the pinned release, as does the send-side `broadcast` return semantics, whether any completion signal
++exists beyond "queued." The load-bearing property is version-stable regardless of the enum's exact shape:
++there is **no per-recipient ack**, so "what to drop" decisions cannot read a gossip confirmation; they ride
++MLS epoch acknowledgement and dial-home acks instead (§6.5.3, §7.4). `Lagged` tells a receiver it fell
++behind but not what it lost, a reason to drain from a meer, not a data-loss signal in itself.
++
++### 6.7. The two deployment modes
++
++The modes run the **same protocol**; the differences are entirely in the discovery substrate (§6.4) and the
++presence of the meer (§6.5.3). MLS sealing, the gossip overlay, local commit verification, and the cursor
++catch-up are identical in both.
++
++#### 6.7.1. Mode 1, relay/meer (internet-scale, members scattered, often offline)
++
++- **Discovery:** DNS/Pkarr or Pkarr-on-DHT (§6.4.1 / §6.4.2).
++
++- **Live delivery:** direct hole-punched QUIC where possible (§6.5.1); relay-assisted fallback (§6.5.2).
++
++- **Catch-up:** returning members dial a redundant, rotating meer (§6.5.3), report the `(G, D)` cursor,
++  drain missed governance commits and retained dataplane backlog, then verify forward (§7.4 catch-up flow,
++  Fig. 2).
++
++- **Meer-absent behavior:** liveness and cursor comparison still work peer-to-peer; governance validity is
++  still locally checkable; only long-gap backlog (a member offline while its corroborating peers were also
++  away) is lost. Governance currency degrades to a corroborated estimate, which is safe because
++  incompleteness can only **under-authorize** (§7.4).
++
++- **Gossip:** the swarm spans the internet; bootstrap from a known stable seed (an always-on meer is a
++  natural seed) or a rotating seed set (§6.6.2). Best-effort fan-out; the meer captures for offline
++  members.
++
++#### 6.7.2. Mode 2, direct P2P, local network (LAN, airgapped, family-tablet, field)
++
++- **Discovery:** mDNS (§6.4.3), every member discoverable, no seed.
++
++- **Live delivery:** pure direct QUIC on the LAN; no relay (no NAT problem on a flat segment), no meer.
++
++- **Catch-up:** peer-to-peer, a briefly-absent member rejoins the topic, asks reachable members for
++  cursors, pulls missed commits from any member that has them, verifies locally (§7.4).
++
++- **Missing vs Mode 1:** durability across a *total-absence* window only. If all members cycled off, no one
++  holds the backlog. Governance stays safe (under-authorize); the dataplane may gap.
++
++- **Gossip:** same protocol; bootstrap from mDNS rather than a seed; small swarm, so fan-out is fast and
++  `Lagged` is unlikely; `NeighborUp` / `NeighborDown` do real work as broker-free liveness.
++
++> **The through-line.** Mode 2 is Mode 1 minus offline durability, with every other function preserved,
++> `P-Durable-Enablement` made concrete. The meer and the relay are **additive conveniences, not structural
++> requirements** (§5.9): discovery swaps substrate; the cryptographic and governance machinery is
++> invariant. This is the §5.9 exitability claim seen at the transport layer, the rigid single-keeper
++> deployment is one *setting* of this model, never a different architecture.
+ 
+-### 6.2. Interaction tiers
+-
+-Interaction tiers are chosen at scope creation, not toggled at runtime: **interactive** (prompt delivery +
+-real failure signal), **quiet-large** (eventual, "it will arrive or you will be told it did not"), and
+-**broadcast** (best-effort rolling log). The broadcast tier **MUST** disable the embedded group-key
+-ratchet tree (O(N) commits) and ship the tree out of band. *design (tiers) + green-real (the O(N)
+-ratchet-tree cost is measured).*
+-
+-### 6.3. Real-time media
++### 6.8. Real-time media
+ 
+ Real-time media (voice/video/stage) rides the **same iroh transport** as messaging but over **QUIC
+ datagrams** (unreliable, no retransmit) carried as RTP-over-QUIC. Media frames **MUST** use the datagram
+ flow (latency over reliability) and **MUST** be end-to-end encrypted via per-sender keys derived from the
+-group key epoch, so a forwarding helper stays blind. A group-scale call **SHOULD** use a **blind
+-forwarding helper** (header-only routing) rather than full mesh past a handful of peers; server-side
+-mixing that requires plaintext is **forbidden**. Media keys rotate on membership change exactly as messages
+-do.
++group key epoch, so a forwarding helper stays blind. A group-scale call **SHOULD** use a **blind forwarding
++helper** (header-only routing) rather than full mesh past a handful of peers; server-side mixing that
++requires plaintext is **forbidden**. Media keys rotate on membership change exactly as messages do.
+ 
+ Two media congestion-control rules are **normative**: (1) the media engine's bitrate estimator **MUST** be
+ authoritative and back off on the path-RTT trend (plus per-stream loss and jitter); it **MUST NOT** rely on
+@@ -1283,6 +1722,37 @@
+ labeled). This **narrows, does not close**, the fresh-but-wrong-partition window; the residual is the §7.6
+ hard-stop's, by design. *design, decided; tests specified, not yet run.*
+ 
++**The returning-member catch-up: the `(G, D)` cursor and the verify-fold-escalate sequence (Fig. 2).** A
++member that was offline rejoins and reconciles against whatever it can reach (a meer in Mode 1, §6.5.3;
++reachable peers in Mode 2, §6.7.2). The returning member reports a **`(G, D)` cursor**, the position it
++last held on the **governance** stream (`G`) and on the **dataplane** stream (`D`), and drains what it
++missed from that cursor forward. The source of the commits **does not matter to validity**: a commit
++arriving from a meer, a peer, or the gossip overlay is checked identically, because a forged one will not
++verify. The local sequence, drawn in Fig. 2, is:
++
++- **Verify each commit against group state** (signature + binding to the prior epoch) and **apply
++  forward-only**. An invalid commit is **dropped and logged attributably**; a validity failure is the
++  boring case and is **not** an escalation (§7.5.1).
++
++- **Fold the valid, non-conflicting commits** by the monotonic merge (§7.3): no clock, no human.
++
++- **Test concurrency** for any pair of valid operations (neither in the other's causal history, §7.3.1).
++  Sequential operations are not the residue; only genuinely concurrent, mutually-exclusive-over-standing
++  operations are.
++
++- For a concurrent contradiction, apply the per-scope **benign-vs-dispute tolerance** (§7.4.1). A
++  provably-benign sync artifact is auto-reconciled or held as a **stale-but-honest** view pending
++  corroboration; a case that cannot be proven benign **escalates to humans with full provenance** (§7.6),
++  where the machine annotates and does not decide.
++
++The safety property the cursor inherits from the monotonic fold (§7.3): a returning member that cannot
++reach a complete backlog **under-authorizes** (acts on less) but never **mis-authorizes** (acts on a
++reverted or forged state). Incompleteness is therefore always safe, which is why meer-absent and
++total-absence windows (§6.7) degrade governance currency to a corroborated estimate rather than to a
++hazard. *(design; the byte-level `(G, D)` cursor and checkpoint encodings are `ENABLING`, Appendix B. The
++catch-up validity check reuses the §7.3 fold and §7.5 attributable-acceptance machinery, adding no new
++authority-bearing input.)*
++
+ #### 7.4.1. The false-positive tolerance is a governed utility judgment, not a constant
+ 
+ A genuine concurrent contradiction (a real social dispute the fold cannot resolve, §7.6) and a benign
+@@ -1571,8 +2041,8 @@
+ ### 10.2. Messaging backplane: group key agreement and the secure-messaging properties
+ 
+ > Cross-references: §4.5.1 (per-client authorship, client-as-member), §5.7 (revocation rotates epoch),
+-> §6.3 (media keys from the group epoch), Appendix A.1 (decentralized-MLS forward-secrecy cost),
+-> Appendix C.3.
++> §6.2 (the two-layer encryption stack and the MLS metadata treatment), §6.8 (media keys from the group
++> epoch), Appendix A.1 (decentralized-MLS forward-secrecy cost), Appendix C.3.
+ 
+ **(R) Requirement.** Drystone requires a **group key agreement** mechanism that lets a dynamic set of
+ devices derive shared symmetric secrets, asynchronously (members need not be online together), with the
+@@ -1689,15 +2159,16 @@
+ 
+ ### 10.3. Transport and overlay: point-to-point reachability, and the topology question
+ 
+-> Cross-references: §6 (transport), §6.3 (media datagrams), §3.1 (where adjudication lives), §8 (the
+-> relay is a blind forwarder), Appendix C.
++> Cross-references: §6 (transport), §6.4 (discovery), §6.5 (delivery: relay and meer), §6.6 (the gossip
++> overlay), §6.7 (deployment modes), §6.8 (media datagrams), §3.1 (where adjudication lives), §8 (the relay
++> and meer as blind forwarders), Appendix C.
+ 
+ **(R) Requirement.** Drystone requires a **transport** that lets two peers, identified by **public key**
+ (not by IP or location), establish a **mutually-authenticated, end-to-end-encrypted** channel, with a
+ **fallback path** when a direct connection is impossible (NAT/firewall), where **any intermediary is a
+ blind forwarder** that cannot read content and routes by endpoint, not by topic. It additionally requires
+ an **overlay** by which scope members find and exchange with each other, and an **unreliable datagram**
+-mode for real-time media (§6.3).
++mode for real-time media (§6.8).
+ 
+ **Compliance table, a candidate transport/overlay MUST:**
+ 
+@@ -1707,7 +2178,7 @@
+ | T2 | Provide end-to-end encryption such that intermediaries see ciphertext + routing metadata only | a relay/meer stays blind (§8); supports the meer (§5.4) |
+ | T3 | Attempt a direct peer-to-peer path, with a **fallback relay** when direct fails | participation on a bare node behind a NAT must be real (`P-Durable-Enablement`) |
+ | T4 | Ensure any relay/intermediary is a **blind packet forwarder** (no session-content knowledge, routes by endpoint) | an intermediary must not become a center or an adjudicator (§3.1) |
+-| T5 | Provide a reliable stream mode **and** an unreliable datagram mode | messaging needs reliability; real-time media needs latency-over-reliability (§6.3) |
++| T5 | Provide a reliable stream mode **and** an unreliable datagram mode | messaging needs reliability; real-time media needs latency-over-reliability (§6.8) |
+ | T6 | Provide (or admit) an overlay for scope-member discovery/exchange keyed on the scope topic (§4.2) | members must find each other without a central directory |
+ | T7 | Not require a wall-clock for any authority-bearing decision | §2.0.1 |
+ 
+@@ -1717,13 +2188,13 @@
+   impersonable).
+ 
+ - Requires a **content-reading** intermediary, any relay/SFU/mixer that must see plaintext to function
+-  (breaks T2/T4; server-side media mixing on plaintext is already **forbidden**, §6.3).
++  (breaks T2/T4; server-side media mixing on plaintext is already **forbidden**, §6.8).
+ 
+ - Makes the fallback path a **mandatory permanent hop** (a relay that cannot be bypassed by a direct
+   connection is a structural center, breaking T3/T4).
+ 
+ - Offers only reliable streams, forcing real-time media through retransmit (breaks T5, starves media,
+-  the measured failure in §6.3).
++  the measured failure in §6.8).
+ 
+ **Reference realization: iroh (1.0), and why it currently wins.**
+ 
+@@ -1732,10 +2203,12 @@
+ cannot be impersonated, T1), all connections are **end-to-end encrypted with concurrent streams and a
+ datagram transport** (T2, T5), it **attempts a direct hole-punched connection and falls back to a relay**
+ when that fails (T3), and, the property that matters most for §3.1, its **relay is a stateless blind
+-forwarder**: it carries encrypted packets without knowing whether they contain application data or
+-coordination, and the payload is always encrypted to the destination endpoint (T4). *External transport
+-facts cite the FACTCHECK SoT, iroh `1.0.0`.* **[confirm before publish, iroh relay-blindness and
+-public-key-identity claims against iroh 1.0 primary docs.]**
++forwarder**: it carries encrypted packets and routes them by `EndpointId` without being able to decode
++them, and the payload is always encrypted to the destination endpoint (T4). *(Verified against iroh 1.0:
++public-key TLS identity that cannot be impersonated, direct-first with stateless relay fallback, and a
++relay that sees only endpoint identifiers and not content. These are stable 1.0 core properties.)* The
++overlay (§6.6) and discovery (§6.4) layers it pairs with are separately-versioned crates outside the 1.0
++guarantee, tracked in Appendix B.
+ 
+ **The topology question, stated surgically, because "p2p" does not cleanly capture the design.** This is
+ the point that motivated dropping *serverless* and reserving *peer-to-peer* for the transport (naming
+@@ -1748,7 +2221,7 @@
+ 
+ - **What is a legitimate, compliant divergence:** a **pure peer-to-peer mesh** (every member maintains a
+   direct path to every other) is fully Drystone-compliant, nothing in the spec prevents it. So is a
+-  relay-assisted star, a gossip overlay (HyParView/Plumtree, the iroh-gossip reference, §6.1), a
++  relay-assisted star, a gossip overlay (HyParView/Plumtree, the iroh-gossip reference, §6.6), a
+   hub-and-spoke through a cooperative anchor, or any hybrid. All satisfy T1–T7 so long as the anchor/relay
+   stays blind and bypassable.
+ 
+@@ -1937,7 +2410,34 @@
+   (§4.2); frontier-commitment construction and acceptance-record format (§7.5.1);
+   **frontier-closure-and-subgraph-closure before sort** (§7.5.2, the highest-risk divergence point); the
+   gating-vs-read relationship (§5.8.1); the capability/membership-graph wire format (gated on the Track A/B
+-  decision).
++  decision); and the **returning-member `(G, D)` cursor and checkpoint encoding** (§6.5.3, §7.4), the
++  governance-position and dataplane-position a returning member reports on dial-home.
++
++- **iroh substrate confirmation, post-1.0 (§6.3, §6.4, §6.6, §10.3).** iroh reached **1.0 (June 2026)** with
++  a wire-and-API stability guarantee, which **resolves the transport-plane items** that were open while iroh
++  was pre-1.0: public-key (`EndpointId`/Ed25519) TLS identity that cannot be impersonated, the post-handshake
++  point at which the remote identity becomes known (the §6.1 seam), direct-first hole-punch with stateless
++  blind relay fallback, and the relay routing by endpoint without decoding content are now **verified against
++  iroh 1.0 core** and are no longer carried as open. What **remains [confirm]** is precisely the set the 1.0
++  guarantee does **not** cover, because those components are **separately-versioned crates**:
++
++  - **`iroh-gossip` (pre-1.0, own release line):** the `Event` surface and the absence of any per-recipient
++    delivery confirmation (the four net-layer events are verified at a recent version, but the enum has
++    changed shape across versions, so the exact variants are version-pinned); the send-side `broadcast`
++    return semantics; the HyParView active/passive view-size constants; and the PlumTree
++    `PRUNE`/`GRAFT`/`IHAVE` wire behavior as iroh-gossip configures it (§6.6.1, §6.6.3, §6.6.4). The
++    `subscribe(TopicId, bootstrap_peers)` shape is verified against the crate API.
++
++  - **The address-lookup crates (`iroh-mainline-address-lookup`, `iroh-mdns-address-lookup`):** these now
++    exist as shipped, maintained crates (which resolves the earlier "is mDNS mature / turnkey" question);
++    what remains is their exact republish-and-expiry behavior against each crate's pinned version (§6.4.2,
++    §6.4.3), plus the Pkarr self-signed-record integrity model, which is a **Pkarr-spec** primary, not an
++    iroh-version question (§6.4).
++
++  The *algorithm attribution* (the two 2007 Leitão, Pereira & Rodrigues papers) and the *RFC 9420 / RFC 9750
++  architecture claims* in §6 are verified against primaries and are **not** in this set. The honest summary:
++  iroh core stability is now load-bearing for the transport plane and the overlay/discovery crates'
++  pre-1.0 status is the remaining surface to pin.
+ 
+ - **Root-authority succession** (§7.3): deferred to a Lifecycle section; the most dangerous operation in
+   the system.
+@@ -2217,7 +2717,11 @@
+ ## References
+ 
+ **Normative:** BCP 14 (RFC 2119 / RFC 8174); the signature and hash suites of the committed wire profile
+-(§4.1); QUIC (RFC 9000) and the iroh transport (iroh `1.0.0`, FACTCHECK SoT); RTP-over-QUIC for media (§6.3).
++(§4.1); QUIC (RFC 9000) and TLS 1.3 (RFC 8446); the iroh transport (iroh core **1.0**, wire-and-API-stable,
++June 2026), with the overlay and discovery layers supplied by the separately-versioned `iroh-gossip`,
++`iroh-mainline-address-lookup`, and `iroh-mdns-address-lookup` crates (pinned versions tracked in Appendix
++B); RTP-over-QUIC for media (§6.8). The FACTCHECK SoT remains the internal cross-check of record for these
++external facts.
+ 
+ **Informative (and [confirm before publish] where load-bearing; consolidated in Appendix C):** the CALM
+ theorem (Hellerstein & Alvaro) as the formal boundary for the escalation cut; CRDTs / local-first
+@@ -2233,3 +2737,15 @@
+ Modular Politics (Schneider, De Filippi, Frey, Tan, Zhang, CSCW 2021) and Ostrom's IAD/polycentric work as
+ the governance-as-protocol neighbor; Sigstore countersigning as the sign-over-prior-state pattern adopted
+ for the frontier commitment (§7.5.1).
++
++**Transport, secure-messaging architecture, and overlay (the §6 mechanism lineage):** MLS (RFC 9420, July
++2023) for the group-key core and the `PublicMessage`/`PrivateMessage` framing; the MLS Architecture (RFC
++9750, April 2025) for the AS/DS trust model and the transport/MLS division of labor (§6.1, §6.2, §6.5,
++verified against the primaries this round); QUIC (RFC 9000) and TLS 1.3 (RFC 8446) for the transport and
++its record-padding mechanism; and, for the iroh-gossip overlay (§6.6), the two source algorithms, each its
++own 2007 paper by Leitão, Pereira & Rodrigues: **PlumTree** ("Epidemic Broadcast Trees," *Proc. 26th IEEE
++SRDS*, 2007, pp. 301–310) for the eager/lazy spanning-tree broadcast, and **HyParView** ("HyParView: A
++Membership Protocol for Reliable Gossip-Based Broadcast," *Proc. IEEE/IFIP DSN*, 2007) for the
++active/passive-view membership layer. The iroh-implementation specifics of all of the above are
++**[confirm]** against the pinned release (Appendix B); the RFC architecture claims and the algorithm
++attribution are verified.
+
+
+################################################################################
+# drystone-exposure.svg
+################################################################################
+--- a/drystone-exposure.svg
++++ b/drystone-exposure.svg
+@@ -22,7 +22,7 @@
+ 
+   <rect width="1120" height="760" fill="#f7f8fa"/>
+ 
+-  <text x="48" y="52" class="title">Drystone peer: DS-over-iroh-endpoint exposure map</text>
++  <text x="48" y="52" class="title">Drystone peer: exposure map over the iroh endpoint</text>
+   <text x="48" y="74" class="sub">Who can see what, by layer. Content stays sealed end-to-end; the leak surface is metadata and availability, not payload.</text>
+ 
+   <!-- ============ PUBLIC INTERNET ZONE ============ -->
+@@ -49,14 +49,14 @@
+   <text x="414" y="254" class="sees">✓ which EndpointIds are published</text>
+   <text x="414" y="270" class="sees">✗ group membership, payload</text>
+ 
+-  <!-- mailbox peer -->
++  <!-- meer (offline store-and-forward) -->
+   <rect x="720" y="148" width="328" height="128" rx="8" fill="#fdf6f6" stroke="#e3a9ab" stroke-width="1.5"/>
+-  <text x="738" y="174" class="node-title">Offline-mailbox host (another peer)</text>
++  <text x="738" y="174" class="node-title">Meer: offline store-and-forward</text>
+   <text x="738" y="196" class="node-line">Holds sealed ciphertext while you are</text>
+   <text x="738" y="212" class="node-line">down. The availability gap lives here.</text>
+   <text x="738" y="236" class="sees-h">Sees</text>
+   <text x="738" y="254" class="sees">✓ that it holds N msgs for your Id, when</text>
+-  <text x="738" y="270" class="sees">✗ payload (blind custodian)</text>
++  <text x="738" y="270" class="sees">✗ payload (blind custodian, never keyed)</text>
+ 
+   <!-- ============ LOCALHOST ZONE ============ -->
+   <rect x="48" y="430" width="1024" height="220" rx="10" fill="#fff" stroke="#9cc7b3" stroke-width="1.5"/>
+@@ -73,14 +73,14 @@
+   <text x="90" y="582" class="node-line">Inbound = "someone dialed my key,"</text>
+   <text x="90" y="598" class="node-line">never "I opened a port."</text>
+ 
+-  <!-- DS protocol handler -->
++  <!-- protocol handler -->
+   <rect x="396" y="478" width="300" height="150" rx="8" fill="#f1f9f5" stroke="#76bd99" stroke-width="1.5"/>
+-  <text x="414" y="504" class="node-title">DS protocol handler</text>
++  <text x="414" y="504" class="node-title">Drystone protocol handler</text>
+   <text x="414" y="526" class="node-line">Served as a custom ALPN over the</text>
+-  <text x="414" y="542" class="node-line">endpoint's QUIC streams. Replaces</text>
+-  <text x="414" y="558" class="node-line">the PoC's HTTP + bearer token:</text>
+-  <text x="414" y="582" class="node-line">caller identity = dialing EndpointId,</text>
+-  <text x="414" y="598" class="node-line">authenticated by the transport.</text>
++  <text x="414" y="542" class="node-line">endpoint's QUIC streams. Caller</text>
++  <text x="414" y="558" class="node-line">identity = dialing EndpointId,</text>
++  <text x="414" y="582" class="node-line">authenticated by the transport,</text>
++  <text x="414" y="598" class="node-line">not by any bearer credential.</text>
+ 
+   <!-- MLS client + store -->
+   <rect x="720" y="478" width="328" height="150" rx="8" fill="#f1f9f5" stroke="#76bd99" stroke-width="1.5"/>
+@@ -107,13 +107,13 @@
+   <path d="M 360 478 C 430 430, 500 330, 520 276" class="edge" stroke="#8a93a3" marker-end="url(#arr)"/>
+   <text x="430" y="430" class="pill" fill="#8a93a3">publish / resolve key</text>
+ 
+-  <!-- endpoint <-> mailbox -->
++  <!-- endpoint <-> meer -->
+   <path d="M 600 478 C 720 420, 840 330, 880 276" class="edge" stroke="#8a93a3" marker-end="url(#arr)"/>
+   <text x="690" y="430" class="pill" fill="#8a93a3">deposit / drain (offline)</text>
+ 
+   <!-- direct peer path callout -->
+   <rect x="396" y="668" width="652" height="34" rx="6" fill="#eaf3fb" stroke="#9cc1e0" stroke-width="1.2"/>
+-  <text x="412" y="690" class="legend" fill="#2c5278"><tspan font-weight="700">Common case (~90–95%):</tspan> two online peers hole-punch a direct QUIC path. No relay, no mailbox in the middle — endpoint to endpoint.</text>
++  <text x="412" y="690" class="legend" fill="#2c5278"><tspan font-weight="700">Common case (~90–95%):</tspan> two online peers hole-punch a direct QUIC path. No relay, no meer between them.</text>
+ 
+   <!-- legend bottom-left -->
+   <text x="72" y="690" class="sees-h" fill="#7a8290">✓ can observe   ✗ cannot</text>
+
+
+################################################################################
+# drystone-catchup-flow.svg
+################################################################################
+(no changes)
+

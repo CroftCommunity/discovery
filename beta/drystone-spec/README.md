@@ -37,6 +37,13 @@ application layer, no product surface):
 
 - **Part 1** — `part-1-reasoning-underpinnings.md`
 - **Part 2** — `part-2-certifiable-design.md`
+- **Vocabulary of record** — `persona-definition.md` (the term lattice + invariants for the identity
+  model; principal / client / persona / peer, single-sourced with Part 2 §5)
+- **Vocabulary discipline** — `bounded-contexts-and-vocabulary.md` (spec-layer design/language note: why
+  a term like *peer* legitimately means different things in different contexts, and the test for when to
+  rename)
+- **Figures** — `drystone-exposure.svg` (Fig. 1, the trust/exposure map) and `drystone-catchup-flow.svg`
+  (Fig. 2, the returning-member catch-up flow), referenced from Part 2 §6 and §7
 - **Changelog** — `CHANGELOG.md` (running revision log; newest entry first)
 - **Reviewer brief** — `review-handoff.md` (standalone summary for cross-session review)
 - **Open items** — `open-items.md` (read-and-decide ledger; settled items + genuinely open items)
@@ -54,7 +61,7 @@ protocol works.
 **Drystone is the protocol; Croft is an ecosystem built on it.** They must not be conflated. Drystone is
 intended to carry more than one ecosystem; Croft is the first, comprising (at least) a Croft-branded
 application, and a Drystone-compliant cooperative hosting operator that participates as an ordinary
-`Peer` / `PeerSet`. The protocol text is CC0 and names no ecosystem in its normative content. (Stewardship
+`principal` / `PrincipalSet`. The protocol text is CC0 and names no ecosystem in its normative content. (Stewardship
 of the protocol's IP and marks is intended to sit with an independent foundation — candidate name *Noria*,
 pending clearance, a project decision not settled by this spec.)
 
@@ -92,16 +99,18 @@ third party's patent; implementers are responsible for their own due diligence.
 
 | term | meaning |
 |---|---|
-| **peer** | A participant. There is exactly one kind (Part 2 §5.2). Peers differ in *capabilities*, never in *rights* or *standing*. |
-| **device** | A keypair-holding endpoint. Several devices may act under one peer's lineage. |
-| **scope** | The unit of shared state a set of peers holds in common (the "common pasture"); a group. A peer's own local store is its private croft. |
-| **right** | A claim every peer is entitled to, universal and never delegated (Part 2 §5.3). |
+| **principal** | The genus of the identity model: a role-holding entity identified by one key-lineage (Part 2 §5.2). A persona or a group is a principal. Rights, roles, and weight attach to principals. |
+| **persona** | The entity a human is manifested as: a principal that folds one human's clients and devices to a single identity by lineage (Part 2 §5.2; `persona-definition.md` is the vocabulary of record). One human may hold several personae across systems. Personae differ in *capabilities*, never in *rights* or *standing*. |
+| **peer** | The **relation** of equal standing across an edge, not the entity (Part 2 §3.1, §5.2). *Peer* names the relation; the entity in relation is a persona. The word also carries a distinct transport-plane sense (peer = iroh EndpointId, §6.1); see `bounded-contexts-and-vocabulary.md`. |
+| **client / device** | A **client** is software that is a group member: one MLS leaf, one signature key, one credential (Part 2 §5.2). A **device** is hardware (a node, §5.4). The hosting chain is human → devices → clients, folded to one persona; client-count and device-count are not persona-count (§4.5). |
+| **scope** | The unit of shared state a set of principals holds in common (the "common pasture"); a group. A principal's own local store is its private croft. |
+| **right** | A claim every principal is entitled to, universal and never delegated (Part 2 §5.3). |
 | **capability** | A delegated, additive, revocable means to *do* something, sitting on top of the rights floor (Part 2 §5.4). |
-| **role** | The descriptive, free-composing set of capabilities a peer holds right now (Part 2 §5.5). |
-| **PeerSet** | A named, pinned, group-recognized bundle of capabilities with a required *and* forbidden composition, drift-checked against the governance log (Part 2 §5.5). The compound word is always the defined concept, never the ordinary "set." |
+| **role** | The descriptive, free-composing set of capabilities a principal holds right now (Part 2 §5.5). |
+| **PrincipalSet** | A named, pinned, group-recognized bundle of roles and the capabilities they imply, with a required *and* forbidden composition, drift-checked against the governance log (Part 2 §5.5). The compound word is always the defined concept, never the ordinary "set." (Formerly "PeerSet.") |
 | **governance fact** | A signed, append-only entry recording a governance decision (admit / expel / grant / revoke / amend). Authority is a fold over these (Part 2 §7). |
-| **meer** | An always-on, governed, blind helper peer — formally a PeerSet (`floor + requires{availability} + forbids{read}`). |
-| **fork / re-formation** | A peer or minority's lossless-in-rights exit into a differently-shaped scope, preserving history and provenance. The backstop that makes delegation exitable. |
+| **meer** | Infrastructure, **not** a principal: a blind store-and-forward node offering availability capacity, configured by a scope to serve ciphertext (Part 2 §5.4, §6). Holds no rights, no role, no identity; the legacy labels "blind peer / blind member" are retired. |
+| **fork / re-formation** | A persona or minority's lossless-in-rights exit into a differently-shaped scope, preserving history and provenance. The backstop that makes delegation exitable. |
 
 ## Provenance of this synthesis
 

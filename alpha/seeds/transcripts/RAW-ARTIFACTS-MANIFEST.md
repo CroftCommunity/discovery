@@ -482,3 +482,40 @@ the standalone would remove it (deferred, the user's call). The peer-standing do
 use *peer* in the relational sense throughout, a reconciliation pass against the new persona vocabulary is a
 worthwhile later check (flagged in `philosophy/README.md`), not done this session. `five-persona.zip` left in
 the discovery root as scratch (filed byte-identical; can be removed like prior batches on request).
+
+## 2026-07-06 intake — batch six: transport/identity integration + iroh 1.0 + §16.4 correction (six-transport.zip + six-integrating.zip)
+
+**`six-integrating.zip`** is the final integrated Drystone spec (built on top of the batch-five persona
+work, no regression): Part 2 §6 expanded from a 3-subsection stub to a full transport/identity/encryption
+section (§6.1–6.8, +516 lines), iroh flags resolved against the released 1.0, and the RFC 9420 §16.4
+metadata analysis corrected. **`six-transport.zip`** is the intermediate (the standalone transport-section
+draft + the two figures), superseded by the merged §6. Part 1 is **byte-identical** to the tree (its only
+iroh reference is version-agnostic); not overwritten.
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| **integrated spec + figures + artifacts (7 files)** — `drystone-part1/part2.md`, `drystone-integration.diff`, `drystone-integration-summary.md`, `drystone-exposure.svg`, `drystone-catchup-flow.svg`, `drystone-messaging-layer-research-prompt.md` | `six-integrating.zip`; part2 + figures → `beta/drystone-spec/`, diff+summary → `seeds/drystone-transport-integration/`, prompt → `seeds/generated-prompts/` (below) | **preserved-verbatim** (byte-identical, `diff -q` confirmed) |
+| **transport-section intermediate (3 files)** — `drystone-transport-section.md` + the two SVGs | `six-transport.zip` (superseded; the draft not filed, figures identical to the integrated ones) | superseded; not separately preserved (figures carried via the integrated set) |
+| **originating conversation (RFC §16.4 verify + iroh 1.0 + messaging prompt + DDD)** | `seeds/transcripts/raw/drystone-transport-integration-and-ddd-2026-07-06.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)** |
+
+**Outputs filed (batch six):**
+- `beta/drystone-spec/part-2-certifiable-design.md` (2235→2751: §6 expanded) — overwritten; `part-1` untouched (identical)
+- `beta/drystone-spec/drystone-exposure.svg`, `drystone-catchup-flow.svg` — figures added
+- `beta/drystone-spec/bounded-contexts-and-vocabulary.md` — new spec-layer DDD/vocabulary note (per the user: DDD is spec-layer design/language input, not philosophy)
+- `beta/drystone-spec/CHANGELOG.md` — document-pass-5 prepended
+- `beta/drystone-spec/README.md` — file list updated (persona-definition, vocabulary note, figures) **and terminology table reconciled to the persona model** (peer = relation; persona/principal added; PeerSet → PrincipalSet; meer = infrastructure, not a principal) — a consistency gap that had been open since document-pass-4
+- `seeds/drystone-transport-integration/` (+README) — integration diff + summary (process, frozen)
+- `seeds/generated-prompts/drystone-messaging-layer-research-prompt.md` — forward handoff (MLS-over-iroh delivery models, the DS/meer/push-host question)
+
+**Honest provenance note (§4).** Deliverables preserved verbatim; batch six arrived em-dash-clean (part2,
+the research prompt). **Correctness result:** the RFC 9420 §16.4 generation-counter claim was **wrong and
+removed** (`generation` is inside AEAD-encrypted `SenderData`); a false MLS statement caught before it
+shipped. iroh 1.0 treated as the FACTCHECK SoT (`1.0.0`); the 1.0-vs-gossip-crate split is the organizing
+fact; still `[confirm before publish]`: pin the three iroh subcrate versions, pull the Pkarr spec / RFC
+8446 §5.4 / RFC 9420 §16.9, and lift the canonical §16.4 running-header line from rfc-editor.org.
+**Remaining consistency debt, flagged not fixed:** (1) `review-handoff.md` predates the persona migration
+(doc-pass-4) entirely (0 "persona", still "PeerSet") and needs a full reconciliation pass, not a one-word
+patch; (2) a full peer→persona sweep of the theme/companion bodies that still use "peer" as the entity
+noun; (3) optional em-dash tidy of the pre-existing docs never in the normalization scope (spec README,
+CHANGELOG, beta README). All three zips (`five-persona`, `six-transport`, `six-integrating`) removed after
+byte-identical filing, per the user's "clean up all the zips when done."

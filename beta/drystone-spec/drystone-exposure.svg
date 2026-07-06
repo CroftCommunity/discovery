@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 760" font-family="'IBM Plex Sans', 'Segoe UI', sans-serif">
+  <defs>
+    <style>
+      .title { font-size: 23px; font-weight: 700; fill: #1a1f2b; }
+      .sub { font-size: 13px; fill: #5b6472; }
+      .zone-label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+      .node-title { font-size: 15px; font-weight: 700; fill: #11151c; }
+      .node-line { font-size: 12px; fill: #3a4250; }
+      .sees-h { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; fill: #7a8290; text-transform: uppercase; }
+      .sees { font-size: 11.5px; fill: #2f3742; }
+      .pill { font-size: 11px; font-weight: 600; }
+      .legend { font-size: 12px; fill: #3a4250; }
+      .edge { stroke-width: 2; fill: none; }
+    </style>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#8a93a3"/>
+    </marker>
+    <marker id="arrG" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#1f9d6b"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="760" fill="#f7f8fa"/>
+
+  <text x="48" y="52" class="title">Drystone peer: exposure map over the iroh endpoint</text>
+  <text x="48" y="74" class="sub">Who can see what, by layer. Content stays sealed end-to-end; the leak surface is metadata and availability, not payload.</text>
+
+  <!-- ============ PUBLIC INTERNET ZONE ============ -->
+  <rect x="48" y="100" width="1024" height="196" rx="10" fill="#fff" stroke="#e6b8b8" stroke-width="1.5"/>
+  <rect x="48" y="100" width="1024" height="28" rx="10" fill="#fbeeee"/>
+  <rect x="48" y="114" width="1024" height="14" fill="#fbeeee"/>
+  <text x="64" y="119" class="zone-label" fill="#b4565a">Public internet  ·  untrusted, content-blind, metadata-visible</text>
+
+  <!-- iroh relay -->
+  <rect x="72" y="148" width="300" height="128" rx="8" fill="#fdf6f6" stroke="#e3a9ab" stroke-width="1.5"/>
+  <text x="90" y="174" class="node-title">iroh relay (n0 or self-hosted)</text>
+  <text x="90" y="196" class="node-line">Bootstraps connection, assists hole</text>
+  <text x="90" y="212" class="node-line">punch, then steps aside. Stateless.</text>
+  <text x="90" y="236" class="sees-h">Sees</text>
+  <text x="90" y="254" class="sees">✓ EndpointIds talking, timing</text>
+  <text x="90" y="270" class="sees">✗ payload (forwards sealed QUIC)</text>
+
+  <!-- discovery -->
+  <rect x="396" y="148" width="300" height="128" rx="8" fill="#fdf6f6" stroke="#e3a9ab" stroke-width="1.5"/>
+  <text x="414" y="174" class="node-title">Address lookup (DNS / Pkarr / DHT)</text>
+  <text x="414" y="196" class="node-line">Resolves EndpointId → current</text>
+  <text x="414" y="212" class="node-line">addresses. Records are self-signed.</text>
+  <text x="414" y="236" class="sees-h">Sees</text>
+  <text x="414" y="254" class="sees">✓ which EndpointIds are published</text>
+  <text x="414" y="270" class="sees">✗ group membership, payload</text>
+
+  <!-- meer (offline store-and-forward) -->
+  <rect x="720" y="148" width="328" height="128" rx="8" fill="#fdf6f6" stroke="#e3a9ab" stroke-width="1.5"/>
+  <text x="738" y="174" class="node-title">Meer: offline store-and-forward</text>
+  <text x="738" y="196" class="node-line">Holds sealed ciphertext while you are</text>
+  <text x="738" y="212" class="node-line">down. The availability gap lives here.</text>
+  <text x="738" y="236" class="sees-h">Sees</text>
+  <text x="738" y="254" class="sees">✓ that it holds N msgs for your Id, when</text>
+  <text x="738" y="270" class="sees">✗ payload (blind custodian, never keyed)</text>
+
+  <!-- ============ LOCALHOST ZONE ============ -->
+  <rect x="48" y="430" width="1024" height="220" rx="10" fill="#fff" stroke="#9cc7b3" stroke-width="1.5"/>
+  <rect x="48" y="430" width="1024" height="28" rx="10" fill="#eef7f2"/>
+  <rect x="48" y="444" width="1024" height="14" fill="#eef7f2"/>
+  <text x="64" y="449" class="zone-label" fill="#1f9d6b">Your device  ·  localhost, no public port, dial-by-key only</text>
+
+  <!-- iroh endpoint -->
+  <rect x="72" y="478" width="300" height="150" rx="8" fill="#f1f9f5" stroke="#76bd99" stroke-width="1.5"/>
+  <text x="90" y="504" class="node-title">iroh Endpoint</text>
+  <text x="90" y="526" class="node-line">The only network-facing surface.</text>
+  <text x="90" y="542" class="node-line">Identity = public key, not IP.</text>
+  <text x="90" y="558" class="node-line">QUIC + TLS 1.3 in the transport.</text>
+  <text x="90" y="582" class="node-line">Inbound = "someone dialed my key,"</text>
+  <text x="90" y="598" class="node-line">never "I opened a port."</text>
+
+  <!-- protocol handler -->
+  <rect x="396" y="478" width="300" height="150" rx="8" fill="#f1f9f5" stroke="#76bd99" stroke-width="1.5"/>
+  <text x="414" y="504" class="node-title">Drystone protocol handler</text>
+  <text x="414" y="526" class="node-line">Served as a custom ALPN over the</text>
+  <text x="414" y="542" class="node-line">endpoint's QUIC streams. Caller</text>
+  <text x="414" y="558" class="node-line">identity = dialing EndpointId,</text>
+  <text x="414" y="582" class="node-line">authenticated by the transport,</text>
+  <text x="414" y="598" class="node-line">not by any bearer credential.</text>
+
+  <!-- MLS client + store -->
+  <rect x="720" y="478" width="328" height="150" rx="8" fill="#f1f9f5" stroke="#76bd99" stroke-width="1.5"/>
+  <text x="738" y="504" class="node-title">MLS client + group state</text>
+  <text x="738" y="526" class="node-line">Ratchet tree, secrets, signature key.</text>
+  <text x="738" y="542" class="node-line">Seals app data as PrivateMessage</text>
+  <text x="738" y="558" class="node-line">before it ever reaches the endpoint.</text>
+  <text x="738" y="582" class="node-line">This is the leaf. Plaintext exists</text>
+  <text x="738" y="598" class="node-line">here and nowhere else off-device.</text>
+
+  <!-- seam strip between zones -->
+  <text x="48" y="340" class="sees-h" fill="#b07a2e">The seam</text>
+  <text x="48" y="360" class="sees" fill="#6a5326">Content is sealed at the MLS layer (bottom right) before crossing into anything public. So every public-zone actor is content-blind by construction.</text>
+  <text x="48" y="378" class="sees" fill="#6a5326">What they still learn: contact graph by EndpointId, timing, and message counts. And none of them guarantees you are reachable while offline —</text>
+  <text x="48" y="396" class="sees" fill="#6a5326">that is the availability gap, and it is the one thing the localhost trick does not solve.</text>
+
+  <!-- edges: localhost to public -->
+  <!-- endpoint <-> relay -->
+  <path d="M 200 478 C 200 420, 222 360, 222 276" class="edge" stroke="#8a93a3" marker-end="url(#arr)"/>
+  <path d="M 240 276 C 240 360, 220 420, 220 478" class="edge" stroke="#8a93a3" marker-end="url(#arrG)" opacity="0"/>
+  <text x="150" y="440" class="pill" fill="#8a93a3">bootstrap / fallback</text>
+
+  <!-- endpoint <-> discovery -->
+  <path d="M 360 478 C 430 430, 500 330, 520 276" class="edge" stroke="#8a93a3" marker-end="url(#arr)"/>
+  <text x="430" y="430" class="pill" fill="#8a93a3">publish / resolve key</text>
+
+  <!-- endpoint <-> meer -->
+  <path d="M 600 478 C 720 420, 840 330, 880 276" class="edge" stroke="#8a93a3" marker-end="url(#arr)"/>
+  <text x="690" y="430" class="pill" fill="#8a93a3">deposit / drain (offline)</text>
+
+  <!-- direct peer path callout -->
+  <rect x="396" y="668" width="652" height="34" rx="6" fill="#eaf3fb" stroke="#9cc1e0" stroke-width="1.2"/>
+  <text x="412" y="690" class="legend" fill="#2c5278"><tspan font-weight="700">Common case (~90–95%):</tspan> two online peers hole-punch a direct QUIC path. No relay, no meer between them.</text>
+
+  <!-- legend bottom-left -->
+  <text x="72" y="690" class="sees-h" fill="#7a8290">✓ can observe   ✗ cannot</text>
+  <text x="72" y="722" class="sub">Sealed payload travels the whole way; only the green zone ever holds plaintext or the signing key.</text>
+</svg>
