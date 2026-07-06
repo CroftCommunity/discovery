@@ -8,6 +8,58 @@ This changelog is organized by theme rather than by line, because several change
 
 ---
 
+## document-pass-5 (2026-07-06): transport/identity/encryption integration + iroh 1.0 pass + RFC 9420 §16.4 correction
+
+**What changed, in one line.** Part 2 §6 was expanded from a thin three-subsection stub into a full
+transport/identity/encryption section (§6.1–6.8, +516 lines), flags were resolved against the released
+iroh 1.0, and a real error in the RFC 9420 §16.4 metadata analysis was corrected. **Part 1 unchanged**
+(its only iroh reference is a version-agnostic pointer to §10).
+
+**Part 2 §6 (was "Transport", 3 subsections; now "Transport, Identity Planes, and the Encryption
+Stack", §6.1–6.8):** the old §6.1–6.3 content is reorganized, not lost, into: §6.1 two identity planes
+(peer = iroh EndpointId authenticating a channel; group = MLS leaf authorizing an actor in a scope; the
+seam that reachability and membership fail independently); §6.2 the two-layer encryption stack (Layer A
+iroh QUIC/TLS 1.3 hop-by-hop; Layer B MLS PrivateMessage end-to-end; why both, what neither gives);
+§6.3 connection establishment + interaction tiers; §6.4 discovery (DNS/Pkarr soft-center,
+Pkarr-on-mainline-DHT, mDNS); §6.5 delivery (direct, relay-assisted, the meer as additive offline
+durability); §6.6 the gossip overlay (HyParView + PlumTree, and what it does/does not guarantee); §6.7
+the two deployment modes; §6.8 real-time media. Two figures added: `drystone-exposure.svg` (the
+trust/exposure map) and `drystone-catchup-flow.svg` (returning-member governance catch-up).
+
+**RFC 9420 §16.4 correction (a real error caught, not a polish).** The prior draft claimed a
+`PrivateMessage` exposes a per-sender **generation counter** and that a gap reveals a missed message to
+an observer. Verified against §16.4 verbatim: **that claim was wrong and is removed.** `generation` lives
+inside the AEAD-encrypted `SenderData` (§6.3.2), and §16.3 exists precisely to hide the sender, so it is
+not visible in the framing; the "gap reveals non-delivery" assertion has no home in the RFC. Group ID (a)
+and epoch (b) are verified but **rescoped**: they leak through the *cleartext `PrivateMessage` header* and
+are unprotected against the *DS specifically*, not "any observer of the ciphertext." Membership inference
+(d) verified at full strength with its RFC-named mitigation (pseudonymous credentials, frequent key
+rotation), which dovetails with the §2.3 multiple-persona argument.
+
+**iroh 1.0 differentiation pass.** iroh core reached 1.0 (wire + API stable; consistent with the
+FACTCHECK SoT, iroh `1.0.0`). Resolved to Verified where 1.0 is load-bearing: EndpointId = Ed25519 public
+key as TLS identity; the post-handshake seam (remote identity known only after the authenticated
+handshake, `Connection::remote_id()` infallible); direct-first hole-punch with stateless content-blind
+relay; `subscribe(TopicId, bootstrap_peers)`. Correctly **kept `[confirm]`, rescoped** to separately
+versioned pre-1.0 crates: `iroh-gossip` internals (event surface, view sizes, PRUNE/GRAFT) and the
+discovery crates (`iroh-mainline-address-lookup`, `iroh-mdns-address-lookup`); the old "is mDNS mature?"
+flag resolved (it is a shipped crate now). §6 balance: 15 Verified / 12 `[confirm]`, each remaining flag
+confirmed legitimately open (gossip-crate internals, Pkarr record spec, RFC 8446 traffic-analysis, RFC
+9420 §16.9). **Still `[confirm before publish]`:** pin the three iroh subcrate versions in a build
+manifest; pull the Pkarr spec, RFC 8446 §5.4, and RFC 9420 §16.9; lift the canonical "Barnes et al., July
+2023" running-header line from rfc-editor.org for the §16.4 citation (the extraction came from a PDF
+carrying Datatracker chrome).
+
+**Companion added:** `bounded-contexts-and-vocabulary.md` (spec-layer design/language note): the DDD
+bounded-context rationale for why terms like *peer* legitimately carry different meanings in different
+parts of the design, and the test for when overload is fine vs. when to rename (as *peer* → *persona*
+was). Process artifacts (the integration diff and summary) frozen to
+`../../alpha/seeds/drystone-transport-integration/`; the messaging-layer research prompt filed to
+`../../alpha/seeds/generated-prompts/`; the `drystone-transport-section.md` draft is superseded by the
+merged §6 and not kept.
+
+---
+
 ## document-pass-4 (2026-07-06): persona/peer vocabulary migration + identity model
 
 **What changed, in one line.** The word *peer* was sharpened to name only the **relation** at an edge;
