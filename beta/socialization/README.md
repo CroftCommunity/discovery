@@ -1,8 +1,8 @@
-# discovery / beta / socialization: Layer 6 (brand / voice / adoption)
+# discovery / beta / socialization: Layer 7 (brand / voice / adoption)
 
 date: 2026-07-06
 
-**What this layer is.** Layer 6 of the beta layer-cake: the *how-this-reaches-people* layer:
+**What this layer is.** Layer 7 of the beta layer-cake: the *how-this-reaches-people* layer:
 brand, voice, messaging, and the adoption argument. It is the home the beta plan reserved for the
 brand/voice terrain currently staged as open threads **T4** (a brand / voice / messaging chapter)
 and **T11** (the adoption-chasm thesis) in `../OPEN-THREADS.md`. The first documents filed here are
@@ -15,12 +15,12 @@ the human-facing presentations of the peer-standing → cooperative-form argumen
 | `tilling-the-soil-essay.md` | "Tilling the Soil of Our Relationships": the attention-farming metaphor essay. Walks the farmer/field/crop/buyer analogy, lands the monocropping-reshapes-the-field point with the empirical finding, turns on the perspective inversion (the metaphor is true from the farmer's seat and false about what we are), and hands off to the full argument. The human-facing lead-in. | general reader |
 | `sixty-second-pitch.md` | "The Sixty-Second Version": the elevator pitch. No jargon, no ideology: you are the product on the shelf, the field being reshaped is your relationships, no villain is required, and a member-owned co-op is the credit-union-shaped alternative. Reads aloud in about a minute. | anyone |
 
-**The grounded argument these present lives in Layer 4** (`../governance/`):
+**The grounded argument these present lives in Layer 2** (`../philosophy/`):
 `peer-standing-and-the-cooperative-form.md` (source of record) and
 `structural-argument-principles.md` (the compressed version). The two pieces here necessarily assert
 with more confidence than a footnoted paper; their load-bearing factual claims (engagement-ranking
 amplifies charged content beyond users' choices and stated preferences) trace back to the citations
-in the governance documents.
+in the philosophy documents.
 
 ## Provenance & status
 

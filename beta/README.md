@@ -93,29 +93,36 @@ protocol; Croft is one ecosystem built on it (see `drystone-spec/README.md`).
 
 ## The layer-cake (emerging structure, populated across sessions)
 
-Alongside the theme docs, beta is being organized into a **maturity layer-cake** — the themes migrate
-into layers as they settle. Layer directories are seeded as material arrives, not all at once:
+Alongside the theme docs, beta is being organized into a **maturity layer-cake**: the themes migrate into
+layers as they settle. The ordering runs from the "why" that grounds everything, up through the build, out
+to the edges. The canonical layer model, the two traversals, and the register distinctions live in
+**`LAYERS.md`**; this table is the index. Layer directories are seeded as material arrives, not all at once:
 
 | Layer | Dir | What it holds | State |
 |---|---|---|---|
-| 1 | `drystone-spec/` | Protocol spec (Parts 1+2, CHANGELOG, open-items, review-handoff) | populated |
-| 2 | `impl/` | Reference implementation, experiment-informed (themes 04/05/06 to migrate) | not yet created |
-| 3 | `croft/` | Product thinking (theme 08 to migrate) | not yet created |
-| 4 | `governance/` | Co-op / stewardship — the ownership-form argument, *structural/legal* register (theme 07 to migrate) | **seeded 2026-07-06** (peer-standing → cooperative-form set) |
-| 5 | `history/` | Enclosure / commons / peer-rights (theme 02 to migrate) | not yet created |
-| 6 | `socialization/` | Brand / voice / adoption, *presentation* register (T4 / T11 terrain) | **seeded 2026-07-06** (human-facing peer-standing pieces) |
-| 7 | `activism/` | The case against the status quo — why incumbent platforms are harmful, *empirical* register | **seeded 2026-07-06** (the "platforms author the relational field" research set) |
+| 1 | `history/` | MATERIAL history: crofting, dry-stone, cairns, the space itself (theme 02 to migrate) | not yet created |
+| 2 | `philosophy/` | INTELLECTUAL history: the principles + thinkers, the pure peer-standing argument | **seeded 2026-07-06** (peer-standing → cooperative-form set) |
+| 3 | `drystone-spec/` | Protocol spec (Parts 1+2, persona-definition, CHANGELOG, open-items, review-handoff) | populated |
+| 4 | `impl/` | Reference implementation, experiment-informed (themes 04/05/06 to migrate) | not yet created |
+| 5 | `croft/` | Product thinking, Croft as a "flavor" (theme 08 to migrate) | not yet created |
+| 6 | `governance/` | The manifestation: foundation + cooperative, legal/financial actualization (theme 07 to migrate) | **seeded 2026-07-06** (reserved; peer-standing argument moved to `philosophy/`) |
+| 7 | `socialization/` | Brand / voice / adoption, *presentation* register (T4 / T11 terrain) | **seeded 2026-07-06** (human-facing peer-standing pieces) |
+| 8 | `activism/` | The case against the status quo: why incumbent platforms are harmful, *empirical* register | **seeded 2026-07-06** (the "platforms author the relational field" research set) |
+
+**The ordering.** The "why" sits at the base (Layers 1–2: history = why it resonates, philosophy = why it
+is right), because the spec is built *on* the principles. Then the build (3 spec → 4 impl → 5 croft → 6
+governance), then the outward edges (7 socialization = get the message out; 8 activism = why not the status
+quo, the *present* "why"). Read `LAYERS.md` for the build-order vs justification-order traversals.
 
 The `02`–`08` theme docs at beta root remain the current reading spine; layer dirs carry their own
-`README.md` index. The peer-standing companion work (2026-07-06) was **split by register** per the
-layer plan: the empirical harm case → `activism/` (Layer 7), the structural/legal argument →
-`governance/` (Layer 4), the human-facing presentation → `socialization/` (Layer 6). The reading arc
-across the three is **activism (the problem) → governance (the solution) → socialization (the
-invitation).** `history/` is not yet seeded (none of that set is primarily a history document; the
-enclosure/peer-rights lineage stays with theme `02`). The Drystone spec's Part 1 §2.6 (voice requires
-field-integrity, added in document-pass-3) is the joint that ties the protocol to this companion set —
-pointing at `governance/` for structural grounding and `activism/` for empirical grounding, while
-depending on neither for a mechanism.
+`README.md` index. The peer-standing companion work (2026-07-06) was **split by register**: the pure
+argument → `philosophy/` (Layer 2), the empirical harm case → `activism/` (Layer 8), the human-facing
+presentation → `socialization/` (Layer 7); `governance/` (Layer 6) holds the *manifestation* of that
+argument (foundation + co-op), not the argument itself. `history/` (Layer 1) is not yet seeded (the
+material crofting/dry-stone lineage; theme `02` is its seed). The Drystone spec's Part 1 §2.6 (voice
+requires field-integrity, document-pass-3) is the joint tying the protocol to this set: it points at
+`philosophy/` for structural grounding and `activism/` for empirical grounding, depending on neither for a
+mechanism.
 
 ## Structural decisions taken for this synthesis (2026-06-24)
 

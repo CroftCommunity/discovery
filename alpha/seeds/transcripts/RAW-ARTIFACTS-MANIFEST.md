@@ -447,3 +447,38 @@ parenthetical parens). Applied to `governance/structural-argument-principles.md`
 `activism/` docs (`structural-argument-narrative.md` 29, `relational-field-research-brief.md` 57,
 `reference-index.md` 46), plus the layer `README.md` files; the peer-standing, session-summary,
 tilling-the-soil, and pitch docs had already arrived em-dash-free in batch four.
+
+## 2026-07-06 intake — batch five: persona/peer vocabulary migration (five-persona.zip) + layer restructure
+
+**`five-persona.zip`** is the persona/peer vocabulary migration (Drystone spec document-pass-4): *peer* is
+sharpened to name only the relation; **persona** (plural **personae**, Latin form strict) names the entity
+a human is manifested as (a key pair by which a system represents a person, one human may hold many across
+many systems). Full spec snapshot + a new vocabulary-of-record companion + tracking artifacts. Overwrites
+the spec per the clean-history workflow.
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| **persona migration set (9 files)** — `drystone-part1/part2.md`, `persona-definition.md`, `drystone-persona-{session-summary,delta,migration}.md`, `drystone-part1/part2.diff`, `peer-inventory-worksheet.txt` | delivered via `five-persona.zip` (discovery root scratch); spec + companion filed to `beta/drystone-spec/`, process artifacts frozen to `seeds/drystone-persona-migration/` (below) | **preserved-verbatim** (byte-identical, `diff -q` confirmed) |
+| **originating conversation (persona naming + personae + voice congruence)** | `seeds/transcripts/raw/drystone-persona-vocabulary-migration-2026-07-06.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)** |
+
+**Outputs filed (batch five):**
+- `beta/drystone-spec/part-1-reasoning-underpinnings.md` (875→890: persona definition note in §1), `part-2-certifiable-design.md` (2099→2235: Appendix D term lattice + §4.5/§5.2/§5.5 identity model) — overwritten; `CHANGELOG.md` (document-pass-4 prepended)
+- `beta/drystone-spec/persona-definition.md` — new vocabulary-of-record companion
+- `seeds/drystone-persona-migration/` (+README) — the 3 tracking docs, 2 diffs, worksheet frozen (process, not spec)
+
+**Layer restructure (same session, from the user's layering refinements):**
+- **New ordering** (why-first): 1 `history/` · 2 `philosophy/` · 3 `drystone-spec/` · 4 `impl/` · 5 `croft/` · 6 `governance/` · 7 `socialization/` · 8 `activism/`. (Supersedes the earlier "spec=Layer 1" numbering used in the third/fourth-batch entries above; those entries are left as dated records.)
+- **Two histories** split: `history/` (Layer 1) = material (crofting, dry-stone, cairns); `philosophy/` (Layer 2) = intellectual (principles + thinkers).
+- **`philosophy/` created** and the peer-standing argument set (`peer-standing-and-the-cooperative-form.md`, `structural-argument-principles.md`, `peer-standing-session-summary.md`) **moved from `governance/` → `philosophy/`** (git mv). `governance/` (Layer 6) rewritten as the *manifestation* layer (foundation + cooperative), now reserved (README only).
+- **`beta/LAYERS.md`** created: canonical layer model, two traversals (build / justification), register discipline, the two-histories and philosophy-vs-manifestation splits.
+- Cross-references repointed (spec §2.6 companion, `activism/README`, `socialization/README`, beta README table, OPEN-THREADS T33) from `governance/` → `philosophy/`.
+- **OPEN-THREADS T35** added: the uncompensated-community-labor + data-opacity activism indictment (distinct from the relational-field harm case).
+
+**Honest provenance note (§4).** Deliverables preserved verbatim; batch five arrived em-dash-clean. The
+vocabulary migration did **not** touch the spec's `[confirm before publish]` external-source flags (Lamport,
+Ostrom, Matrix CVEs, MLS, Spritely). Intentional near-duplication flagged by the source session: the term
+oracle lives in both `persona-definition.md` and Part 2 Appendix D, both carry a "§5 governs" note; retiring
+the standalone would remove it (deferred, the user's call). The peer-standing docs now in `philosophy/` still
+use *peer* in the relational sense throughout, a reconciliation pass against the new persona vocabulary is a
+worthwhile later check (flagged in `philosophy/README.md`), not done this session. `five-persona.zip` left in
+the discovery root as scratch (filed byte-identical; can be removed like prior batches on request).
