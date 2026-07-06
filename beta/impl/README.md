@@ -11,7 +11,27 @@ here as they settle.
 
 ## Contents
 
-### `delivery-layer/` — the messaging/delivery-layer design corpus (00–12)
+### `doc-writing-method.md`: the shared design-doc writing method
+
+The single canonical writing method both corpora below follow (end-state rule, layer separation, epistemic
+tags, the posture-summary-table practice, and the search-first / quote-discipline / no-orphaned-concepts
+rules). It lives at the layer root, not inside a bundle, because it is shared. Where a corpus doc refers to
+"doc 11" or "the method," it means this file. (It was formerly `delivery-layer/11-doc-method.md`; promoted
+here 2026-07-06 as the single source of truth when the MLS bundle arrived with a newer copy.)
+
+### `mls/`: the MLS-substrate understanding bundle
+
+A self-contained study of MLS (RFC 9420 / RFC 9750) as the messaging substrate, and its Drystone-boundary
+hazards. Grounded entirely in primary RFC text (every claim section-anchored, no secondary-source leans).
+
+| doc | what it is |
+|---|---|
+| `mls-overview-and-terms.md` | The vocabulary + architecture reference. Pins client / member / group / epoch / leaf(LeafNode) / device / credential and the message verbs, each anchored to a specific RFC 9420/9750 section; the ratchet-tree invariant, the two-service (AS/DS) architecture, and an Alice-and-Bob narrative. Resolves the leaf-vs-client-vs-device conflation (leaf = the key a member holds; client = software on a device; device may host many clients; a user may have many devices; each client has one leaf). |
+| `mls-hardcases-and-posture.md` | The MLS-to-Drystone design and posture doc: nine numbered hazard sections (linear chain, fork-as-escalation, under-determination, rights-vs-roles staleness, external-join, replay/nonce, FS-and-durability, DMLS, ReInit non-atomicity), the §10 concept-alignment map (direct / partial / Drystone-only / underused-MLS), and the §11 posture summary table. Twelve open items. |
+| `side-histories-and-threading.md` | Candidate note: the three-tier threading model (subid / inherited side history / subgroup branch) with the entitlement-divergence selector rule; cross-references `mls-hardcases-and-posture.md §9` for tier-3 cost. |
+| `mls-session-summary.md` | The MLS-session history and reasoning record (the "how the thinking went" register, per the method's rule that history lives in the log, not the design docs). |
+
+### `delivery-layer/`: the messaging/delivery-layer design corpus (00–10, 12)
 
 The design of Drystone's messaging and delivery layer: the layer on top of the two settled substrate
 choices, MLS (RFC 9420 / RFC 9750) for group key agreement and message protection, and iroh (core 1.0,
@@ -30,7 +50,8 @@ self-numbered set; start at `delivery-layer/00-session-summary.md`.
 | `07-history-modes.md` | History/durability modes. |
 | `08-experiment-methodology.md` | The fidelity-ladder methodology the experiments are tagged against (Rung A real-stack vs Rung B model). |
 | `09-provenance.md` | Provenance ledger for the corpus. |
-| `11-doc-method.md` | The design-doc writing method these docs follow. |
+
+(The corpus's former `11-doc-method.md` is now the shared `../doc-writing-method.md`; internal "doc 11" references resolve there.)
 
 ## Key design results (from the corpus, grounded this round)
 
