@@ -1,10 +1,10 @@
-# discovery / beta / activism — Layer 7 (the case against the status quo)
+# discovery / beta / activism: Layer 7 (the case against the status quo)
 
 date: 2026-07-06
 
 **What this layer is.** The evidence-grounded indictment of the incumbent model: *why*
 advertising-funded, engagement-optimized platforms are harmful. It is the **empirical** register of
-the argument — where `governance/` (Layer 4) carries the **structural / legal** case (peer standing,
+the argument: where `governance/` (Layer 4) carries the **structural / legal** case (peer standing,
 corporate law, the cooperative form that fixes it) and `socialization/` (Layer 6) carries the
 **presentation** (brand, voice, adoption), this layer carries the sourced harm case that motivates
 both. The reading arc across the three: **activism (the problem) → governance (the solution) →
@@ -14,8 +14,8 @@ socialization (the invitation).**
 
 | doc | what it is | discipline |
 |---|---|---|
-| `structural-argument-narrative.md` | "Platforms author the relational field" — the five-plank spine, claims in dependency order: (1) the environment is engineered, not natural; (2) the objective is not the user's; (3) the shaping is industrialized, not trivial; (4) it is not self-correcting; (5) the reflexive claim — the corrective faculty is the damaged faculty. Sourced steps named inline; synthesis steps marked as ours. | argument, seams shown |
-| `relational-field-research-brief.md` | The evidence brief — 14 gaps, each with the claim, its primary source, a verbatim quotable line (under the quote limit) with attribution, and an epistemic-status tag. Includes the Meta teen-research conflict (gap 13) and Project Mercury (gap 14). Closes with a "do not use / could not source" pruning list. | evidence, primary-sourced |
+| `structural-argument-narrative.md` | "Platforms author the relational field": the five-plank spine, claims in dependency order: (1) the environment is engineered, not natural; (2) the objective is not the user's; (3) the shaping is industrialized, not trivial; (4) it is not self-correcting; (5) the reflexive claim: the corrective faculty is the damaged faculty. Sourced steps named inline; synthesis steps marked as ours. | argument, seams shown |
+| `relational-field-research-brief.md` | The evidence brief: 14 gaps, each with the claim, its primary source, a verbatim quotable line (under the quote limit) with attribution, and an epistemic-status tag. Includes the Meta teen-research conflict (gap 13) and Project Mercury (gap 14). Closes with a "do not use / could not source" pruning list. | evidence, primary-sourced |
 | `reference-index.md` | Every source across the brief, sorted into four quality tiers: strongest (peer-reviewed / sworn), use-with-caveat, alleged-disputed-not-adjudicated (Project Mercury), and do-not-use-until-sourced. Markers: PRIMARY / PRIMARY-VENUE / SECONDARY / NOT-YET-PULLED. | source ledger |
 
 ## Relationship to the spec and the other layers
@@ -23,7 +23,7 @@ socialization (the invitation).**
 The Drystone spec's **Part 1 §2.6** (voice requires field-integrity) points at this layer for the
 *empirical* grounding of the failure case and at `governance/peer-standing-and-the-cooperative-form.md`
 for the *structural* grounding. Per the spec's open-items, this companion set carries its **own source
-discipline and verification state** and is **not** part of the spec's `[confirm before publish]` list —
+discipline and verification state** and is **not** part of the spec's `[confirm before publish]` list;
 the spec depends on it only for motivation, never for a mechanism.
 
 ## Provenance & status (source discipline is the point here)
@@ -31,7 +31,7 @@ the spec depends on it only for motivation, never for a mechanism.
 - **Assembled from conversation** (multi-session), delivered 2026-07-06 via `drystone-spec/dropoff/four-research.zip`.
   Filed byte-verbatim. Raw transcript preserved at
   `../../alpha/seeds/transcripts/raw/platforms-author-relational-field-research-2026-07-06.md`
-  (cleaned-paste, content-faithful — §4). See `../../alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`.
+  (cleaned-paste, content-faithful, §4). See `../../alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`.
 - **The strongest sources** (peer-reviewed / company-primary): Bak-Coleman et al. (PNAS 2021),
   Milano et al. (Nature Machine Intelligence 2021), Milano & Prunkl (Philosophical Studies 2024),
   Kramer et al. (PNAS 2014, with the Editorial Expression of Concern), the Burton/Lorenz-Spreen
@@ -39,9 +39,9 @@ the spec depends on it only for motivation, never for a mechanism.
 - **Handled as conflicts, not quotes** (both primaries shown): the Meta "one in three teen girls"
   slide vs. Meta's published rebuttal (gap 13); Project Mercury vs. Meta's methodological rebuttal
   (gap 14).
-- **Time-sensitive — must re-check before external publication:** Project Mercury is **live litigation
+- **Time-sensitive, must re-check before external publication:** Project Mercury is **live litigation
   at the knowledge edge** (Nov 2025 filing; hearing set Jan 26 2026; underlying docs sealed). Pull the
-  PACER docket directly before relying on it publicly — tracked in `../OPEN-THREADS.md`.
+  PACER docket directly before relying on it publicly, tracked in `../OPEN-THREADS.md`.
 - **Own the synthesis:** the five-plank reflexivity claim's final decomposition is *ours*, a
   structuring of sourced parts, not itself a sourced finding. Cite Milano for the mechanism; the
   four-faculty decomposition is argument.
@@ -54,6 +54,6 @@ the spec depends on it only for motivation, never for a mechanism.
 Establishes a defensible, primary-sourced case that engagement-optimized platforms knowingly shape the
 content and perceived social reality of users' relationships toward an objective the users did not
 choose, and that the distortion is structurally disadvantaged against its own correction. Does **not**
-rest on a single large causal effect (by design — the case is cumulative), does not treat Project
+rest on a single large causal effect (by design: the case is cumulative), does not treat Project
 Mercury or the X-platform study (Nature 2026) as banked, and does not claim the population-level
 attitude effects are large (they are small or contested, and the brief says so).

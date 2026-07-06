@@ -12,7 +12,7 @@ One framing note before the items, flagged as mine, not the literature's: the st
 
 ## Gap 1. On-record insider admissions
 
-### 1a. Sean Parker — "exploiting a vulnerability in human psychology"
+### 1a. Sean Parker: "exploiting a vulnerability in human psychology"
 
 Claim: Facebook's founding president stated the platform's design goal was to maximize time and attention via a dopamine-driven validation loop, and that the designers knew this.
 
@@ -24,7 +24,7 @@ Second verbatim line (Parker, same interview): "The inventors, creators ... unde
 
 Epistemic status: on-record-testimony (reported by the venue at which the remarks were made; widely corroborated across outlets the same day). Note: this is Allen's published account of spoken remarks, not a court transcript. It is as close to primary as exists for this quote.
 
-### 1b. Chamath Palihapitiya — "ripping apart the social fabric"
+### 1b. Chamath Palihapitiya: "ripping apart the social fabric"
 
 Claim: Facebook's former VP of user growth said the engagement tools the company built are damaging social cohesion and that the team had a sense this could happen.
 
@@ -36,7 +36,7 @@ Second verbatim line (same talk): "The short-term, dopamine-driven feedback loop
 
 Epistemic status: on-record-testimony (video primary exists on Stanford's channel). Caveat worth stating in your text: Facebook publicly pushed back, noting Palihapitiya left in 2011 and the company "was a very different company back then" (Facebook statement, via CNET/CBS, Dec 2017). Palihapitiya himself later partially walked back the tone.
 
-### 1c. Frances Haugen — sworn Senate testimony
+### 1c. Frances Haugen: sworn Senate testimony
 
 Claim: A former Facebook product manager testified under oath that the company knowingly chose engagement-driven growth over user safety.
 
@@ -72,7 +72,7 @@ Primary source: Kevin Reuning, Anne Whitesell & A. Lee Hannah, "Facebook algorit
 
 Verbatim line (Reuning et al., 2022): "By April of 2019 Facebook knew that some European political parties had changed the content of their posts because of the algorithmic change."
 
-Epistemic status: peer-reviewed-finding (the paper) citing company-internal-admission (the documents). The paper's own causal claim about US parties is correlational and hedged ("may have amplified") — represent it as suggestive, not proven.
+Epistemic status: peer-reviewed-finding (the paper) citing company-internal-admission (the documents). The paper's own causal claim about US parties is correlational and hedged ("may have amplified"); represent it as suggestive, not proven.
 
 ### 2c. Causal experiment: reranking partisan animosity changes out-party feeling
 
@@ -90,7 +90,7 @@ Epistemic status: peer-reviewed-finding. Strong because it manipulates the live 
 
 ### 3a. What the study did and found
 
-Claim: Facebook ran a one-week experiment on 689,003 users in January 2012, suppressing emotional content in News Feeds, and found people's own posting shifted to match the manipulated emotional tone — experimental evidence of large-scale emotional contagion.
+Claim: Facebook ran a one-week experiment on 689,003 users in January 2012, suppressing emotional content in News Feeds, and found people's own posting shifted to match the manipulated emotional tone: experimental evidence of large-scale emotional contagion.
 
 Primary source: Adam D. I. Kramer, Jamie E. Guillory & Jeffrey T. Hancock, "Experimental evidence of massive-scale emotional contagion through social networks," *PNAS* 111(24): 8788–8790, June 2014. DOI: 10.1073/pnas.1320040111. Full text: https://pmc.ncbi.nlm.nih.gov/articles/PMC4066473/
 
@@ -104,7 +104,7 @@ The effect sizes were tiny. The paper reports the positive-words effect at Cohen
 
 The authors' own defense of relevance (verbatim, Kramer et al. 2014): "given the massive scale of social networks such as Facebook, even small effects can have large aggregated consequences."
 
-Mechanism caveat to keep you honest: the outcome measured was the emotional valence of users' *words in subsequent posts*, scored by LIWC software — not a measured change in internal mood. The "contagion" is an effect on expression, which the authors treat as their operationalization of emotion.
+Mechanism caveat to keep you honest: the outcome measured was the emotional valence of users' *words in subsequent posts*, scored by LIWC software, not a measured change in internal mood. The "contagion" is an effect on expression, which the authors treat as their operationalization of emotion.
 
 Epistemic status: peer-reviewed-finding, with documented small effect sizes.
 
@@ -116,11 +116,11 @@ Primary source: Inder M. Verma, "Editorial Expression of Concern," *PNAS* 111(29
 
 Verbatim line (Verma, PNAS Editorial Expression of Concern, 2014): it is "a matter of concern that the collection of the data by Facebook may have involved practices that were not fully consistent with the principles of obtaining informed consent and allowing participants to opt out."
 
-Epistemic status: documented-fact (the Expression of Concern is itself a primary published document). This is your "platform deliberately altered emotional state at scale and published it" narrative — airtight, with the small-effect caveat attached.
+Epistemic status: documented-fact (the Expression of Concern is itself a primary published document). This is your "platform deliberately altered emotional state at scale and published it" narrative, airtight, with the small-effect caveat attached.
 
 ---
 
-## Gap 4. Selective presentation / pruning — documented vs folklore
+## Gap 4. Selective presentation / pruning: documented vs folklore
 
 This is the gap where the distinction matters most. Three tiers, tagged separately.
 
@@ -134,19 +134,19 @@ Epistemic status: documented-fact (company description in a peer-reviewed paper)
 
 ### 4b. Deliberate down-ranking of categories of content (documented)
 
-Claim: Facebook deliberately demotes "borderline" content — material that approaches but does not cross its rules — specifically because engagement rises as content nears the policy line, and the company has internal data showing higher predicted engagement correlates with lower quality.
+Claim: Facebook deliberately demotes "borderline" content (material that approaches but does not cross its rules) specifically because engagement rises as content nears the policy line, and the company has internal data showing higher predicted engagement correlates with lower quality.
 
 Primary source: Mark Zuckerberg, "A Blueprint for Content Governance and Enforcement," Facebook public note, November 15, 2018. Reported and excerpted by TechCrunch (Nov 15, 2018): https://techcrunch.com/2018/11/15/facebook-borderline-content/
 
-Verbatim line (Zuckerberg, 2018 Blueprint note): "as a piece of content gets close to that line, people will engage with it more on average — even when they tell us afterwards they don't like the content."
+Verbatim line (Zuckerberg, 2018 Blueprint note): "as a piece of content gets close to that line, people will engage with it more on average, even when they tell us afterwards they don't like the content."
 
 Corroborating internal finding: an internal 2019 analysis by Facebook's Jeff Allen found items with higher predicted engagement were significantly more likely to be classified low-quality by Facebook's own "Feed Unified Scoring System" (reported via the Integrity Institute literature review, arXiv:2402.06831).
 
 Epistemic status: company-internal-admission (Zuckerberg's signed note; the FUSS finding is from leaked internal analysis). This directly supports your "stated preference vs revealed engagement" divergence with the company's own words.
 
-### 4c. "Shadowbanning" / conversation-level manipulation (largely folklore — tag carefully)
+### 4c. "Shadowbanning" / conversation-level manipulation (largely folklore: tag carefully)
 
-Claim status: Specific claims that platforms silently demote individual users ("shadowbanning") or reorder within a conversation to manufacture a false sense of consensus are mostly user-reported and treated by researchers as "algorithmic imaginary" — stories users tell to explain unexplained engagement drops, not documented mechanisms.
+Claim status: Specific claims that platforms silently demote individual users ("shadowbanning") or reorder within a conversation to manufacture a false sense of consensus are mostly user-reported and treated by researchers as "algorithmic imaginary", stories users tell to explain unexplained engagement drops, not documented mechanisms.
 
 Primary source for the framing: Taina Bucher, "The algorithmic imaginary," *Information, Communication & Society* 20(1), 2017, and subsequent platform-governance literature describing these as user stories sourced from social posts and interviews.
 
@@ -156,7 +156,7 @@ Epistemic status: contested-or-disputed / anecdote-illustrative-only. Recommenda
 
 ## Gap 5. The honest other side (counter-evidence at full strength)
 
-### 5a. The Meta / 2020 election collaboration — chronological feed did not move attitudes
+### 5a. The Meta / 2020 election collaboration: chronological feed did not move attitudes
 
 Claim: In large preregistered experiments run with Meta during the 2020 US election, switching consenting users from the algorithmic feed to a reverse-chronological feed sharply changed what they saw and how much they engaged, but did not significantly change political attitudes over three months.
 
@@ -176,13 +176,13 @@ The null result is contested on two grounds, both worth surfacing.
 
 First: during the experiment window, Meta introduced dozens of "break-glass" emergency changes to the algorithmic feed (around the 2020 election and Jan 6), which were not reported in the original Guess et al. paper. Critics argue the "algorithmic" baseline was therefore an unusually dampened feed, weakening the comparison. Source: critique discussed in TechPolicy.Press primer (https://www.techpolicy.press/a-primer-on-the-meta-2020-us-election-research-studies/) and the *Science* paper's own later correspondence.
 
-Second: a 2026 field experiment on X (Twitter) found the opposite direction — switching users *onto* an algorithmic feed shifted opinion and increased engagement, while switching off did not. Source: Nature, "The political effects of X's feed algorithm," 2026 (https://www.nature.com/articles/s41586-026-10098-2).
+Second: a 2026 field experiment on X (Twitter) found the opposite direction: switching users *onto* an algorithmic feed shifted opinion and increased engagement, while switching off did not. Source: Nature, "The political effects of X's feed algorithm," 2026 (https://www.nature.com/articles/s41586-026-10098-2).
 
-How I'd frame it (this is my synthesis, not a source's): the honest reading is that short-term feed swaps don't reliably move stable attitudes like party identity, but they robustly change exposure, emotion, and engagement — which is exactly the relational/expression layer your thesis targets, not the deep-attitude layer.
+How I'd frame it (this is my synthesis, not a source's): the honest reading is that short-term feed swaps don't reliably move stable attitudes like party identity, but they robustly change exposure, emotion, and engagement, which is exactly the relational/expression layer your thesis targets, not the deep-attitude layer.
 
-### 5c. Bail — exposure to the other side can backfire
+### 5c. Bail: exposure to the other side can backfire
 
-Claim: Paying people to follow opposing-view accounts did not reduce polarization and, for Republicans, increased it — complicating the simple "echo chamber" story and showing user response is not a passive readout of exposure.
+Claim: Paying people to follow opposing-view accounts did not reduce polarization and, for Republicans, increased it, complicating the simple "echo chamber" story and showing user response is not a passive readout of exposure.
 
 Primary source: Christopher A. Bail et al., "Exposure to opposing views on social media can increase political polarization," *PNAS* 115(37): 9216–9221, 2018. DOI: 10.1073/pnas.1804840115.
 
@@ -196,7 +196,7 @@ Epistemic status: peer-reviewed-finding. Use this to show you understand the mec
 
 ## Gap 6. Two airtight human narratives (relational harm)
 
-### 6a. Myanmar — engagement ranking and anti-Rohingya violence (primary anecdote)
+### 6a. Myanmar: engagement ranking and anti-Rohingya violence (primary anecdote)
 
 Claim: In the years before the 2017 ethnic cleansing of the Rohingya, Facebook's engagement-based ranking amplified anti-Rohingya hate content; a UN fact-finding mission found social media played a "determining role," and Amnesty International's investigation attributes proactive amplification to Meta's profit-driven algorithms.
 
@@ -221,7 +221,7 @@ Primary source: Amnesty International, *The Social Atrocity*, 2022 (same documen
 
 Verbatim line (Amnesty International, 2022): the algorithms interpreted the stickers "as a sign that people were enjoying a post and began promoting them ... the stickers actually made the posts more visible."
 
-Why this is your best single anecdote: it is small, concrete, verifiable, and it captures the authorship harm precisely — users tried to use the platform to repair a relational field, and the engagement logic overrode their intent and did the opposite. No attitude-effect-size debate touches it.
+Why this is your best single anecdote: it is small, concrete, verifiable, and it captures the authorship harm precisely: users tried to use the platform to repair a relational field, and the engagement logic overrode their intent and did the opposite. No attitude-effect-size debate touches it.
 
 Epistemic status: investigative-reporting (Amnesty, corroborated by contemporaneous coverage of the Panzagar campaign).
 
@@ -231,21 +231,21 @@ Epistemic status: investigative-reporting (Amnesty, corroborated by contemporane
 
 These are the live threads that surfaced while assembling gaps 1–6. Listed in rough order of how much they strengthen the case.
 
-The rabbit-hole / radicalization debate (gap 8 below). The Amnesty Myanmar material and the engagement-vs-quality admission both lean on the idea that ranking pulls people toward more extreme content. The cleanest peer-reviewed battleground for that claim is the YouTube recommender literature, and it is genuinely split. Worth its own section — done below as gap 8.
+The rabbit-hole / radicalization debate (gap 8 below). The Amnesty Myanmar material and the engagement-vs-quality admission both lean on the idea that ranking pulls people toward more extreme content. The cleanest peer-reviewed battleground for that claim is the YouTube recommender literature, and it is genuinely split. Worth its own section, done below as gap 8.
 
 The reinforcement-spiral mechanism (gap 9 below). Your item-2 examples (party messaging shifting toward negativity) and the contagion study are both instances of a feedback loop, but none of the gap 1–6 items name the loop. There is a peer-reviewed model for it (Slater's Reinforcing Spirals Model). Pulling it in gives you a mechanism to hang the anecdotes on rather than a pile of separate effects. Done below as gap 9.
 
-The "engagement diverges from stated preference" internal evidence. Zuckerberg's 2018 note (item 4b) and the Kleinberg/Mullainathan revealed-preference paper you already have are two ends of the same claim. The missing middle is Facebook's own internal "Feed Unified Scoring System" (FUSS) finding — that higher predicted engagement correlated with lower quality. Source surfaced: Jeff Allen internal analysis (2019), summarized in the Integrity Institute's "What We Know About Using Non-Engagement Signals in Content Ranking" (arXiv:2402.06831). Follow-up: this is a primary-adjacent corroboration; the original internal doc is not public. Tag as company-internal-admission via secondary summary.
+The "engagement diverges from stated preference" internal evidence. Zuckerberg's 2018 note (item 4b) and the Kleinberg/Mullainathan revealed-preference paper you already have are two ends of the same claim. The missing middle is Facebook's own internal "Feed Unified Scoring System" (FUSS) finding: that higher predicted engagement correlated with lower quality. Source surfaced: Jeff Allen internal analysis (2019), summarized in the Integrity Institute's "What We Know About Using Non-Engagement Signals in Content Ranking" (arXiv:2402.06831). Follow-up: this is a primary-adjacent corroboration; the original internal doc is not public. Tag as company-internal-admission via secondary summary.
 
-The "break-glass" measures thread. The fact that Meta keeps a library of emergency demotion levers it can pull (and pulled ~63 times during the 2020 election window, per the critique of Guess et al.) is itself evidence that the company believes its normal ranking amplifies harm — otherwise the brakes would be unnecessary. Follow-up worth doing: locate the primary for the "63 break-glass changes" figure (currently sourced to the Science correspondence/TechPolicy.Press primer, not yet to a Meta document).
+The "break-glass" measures thread. The fact that Meta keeps a library of emergency demotion levers it can pull (and pulled ~63 times during the 2020 election window, per the critique of Guess et al.) is itself evidence that the company believes its normal ranking amplifies harm; otherwise the brakes would be unnecessary. Follow-up worth doing: locate the primary for the "63 break-glass changes" figure (currently sourced to the Science correspondence/TechPolicy.Press primer, not yet to a Meta document).
 
 Tristan Harris / Center for Humane Technology. Named in your original brief as a "type" example but not yet sourced. His on-record framing ("a race to the bottom of the brainstem") is widely quoted; a primary would be his 2019 Senate Commerce testimony or the original 2016 Medium essay. Follow-up: retrieve the primary before using any quote. Not yet pulled this session.
 
-The teen mental-health internal research thread. You already hold the Haugen MSI material; the adjacent body is Meta's own internal Instagram-and-teen-girls research ("we make body image issues worse for one in three teen girls"). This is relational/self-perception harm with a company-internal-admission tag. NOW PULLED to primary — see gap 13, including Meta's own context rebuttal and the mandatory framing caveat. Later disclosures (Béjar 2023, litigation discovery 2025) remain follow-up threads.
+The teen mental-health internal research thread. You already hold the Haugen MSI material; the adjacent body is Meta's own internal Instagram-and-teen-girls research ("we make body image issues worse for one in three teen girls"). This is relational/self-perception harm with a company-internal-admission tag. NOW PULLED to primary: see gap 13, including Meta's own context rebuttal and the mandatory framing caveat. Later disclosures (Béjar 2023, litigation discovery 2025) remain follow-up threads.
 
 ---
 
-## Gap 8. Attention farming → echo chambers → the rabbit-hole question (CONTESTED — present both sides)
+## Gap 8. Attention farming → echo chambers → the rabbit-hole question (CONTESTED: present both sides)
 
 This is the thread you asked to develop, and it is the one where the literature most actively disagrees. The honest structure is a genuine split that turns on method.
 
@@ -255,9 +255,9 @@ Claim: Because content that approaches the policy line gets disproportionate eng
 
 Primary source: Mark Zuckerberg, "A Blueprint for Content Governance and Enforcement," Nov 15, 2018 (same primary as item 4b).
 
-Verbatim line (Zuckerberg, 2018): "no matter where we draw the lines for what is allowed, as a piece of content gets close to that line, people will engage with it more on average — even when they tell us afterwards they don't like the content."
+Verbatim line (Zuckerberg, 2018): "no matter where we draw the lines for what is allowed, as a piece of content gets close to that line, people will engage with it more on average, even when they tell us afterwards they don't like the content."
 
-Epistemic status: company-internal-admission. This is the company stating the mechanism exists. What it does NOT establish is that the recommender actually drives users to extreme content in practice — that is the contested empirical question below.
+Epistemic status: company-internal-admission. This is the company stating the mechanism exists. What it does NOT establish is that the recommender actually drives users to extreme content in practice; that is the contested empirical question below.
 
 ### 8b. Audit studies: the algorithm does lean congenial / extreme
 
@@ -279,13 +279,13 @@ Verbatim line (Chen et al., 2023): exposure to extremist channel videos "is heav
 
 Verbatim line (same paper): "our findings suggest that YouTube's algorithms were not sending people down 'rabbit holes' during our observation window in 2020."
 
-Companion primary: Homa Hosseinmardi et al., "Examining the consumption of radical content on YouTube," *PNAS* 118(32): e2101967118, 2021 — finds radical-content consumption tracks off-platform preferences more than the recommender. And the causal follow-up, Hosseinmardi et al., "Causally estimating the effect of YouTube's recommender system using counterfactual bots," *PNAS* 121, 2024.
+Companion primary: Homa Hosseinmardi et al., "Examining the consumption of radical content on YouTube," *PNAS* 118(32): e2101967118, 2021, finds radical-content consumption tracks off-platform preferences more than the recommender. And the causal follow-up, Hosseinmardi et al., "Causally estimating the effect of YouTube's recommender system using counterfactual bots," *PNAS* 121, 2024.
 
 Epistemic status: peer-reviewed-finding. Strength: real users, matched survey + behavior. Limit: 2020 window, after YouTube's 2019 recommender changes, so it may not describe the 2016–2018 period when the rabbit-hole concern originated.
 
 ### 8d. How to represent the split (this framing is mine, not a source's)
 
-The disagreement is not noise; it is a method gap. Audits isolate the algorithm and find a lean toward congenial/extreme; trace studies watch real people and find demand dominates. Both can be true: the recommender tilts the field, and the people who walk all the way down the field are mostly those already inclined to. The defensible synthesis for your thesis is narrow and strong: the platform shapes the *choice architecture* (what is easy, default, and adjacent), even where it does not manufacture the underlying preference. That is the authorship harm in its honest form — not "the algorithm radicalized an average user," which the trace studies do not support. The 2019 recommender changes also matter: YouTube itself acted as if the rabbit hole was real, which is its own quiet admission.
+The disagreement is not noise; it is a method gap. Audits isolate the algorithm and find a lean toward congenial/extreme; trace studies watch real people and find demand dominates. Both can be true: the recommender tilts the field, and the people who walk all the way down the field are mostly those already inclined to. The defensible synthesis for your thesis is narrow and strong: the platform shapes the *choice architecture* (what is easy, default, and adjacent), even where it does not manufacture the underlying preference. That is the authorship harm in its honest form, not "the algorithm radicalized an average user," which the trace studies do not support. The 2019 recommender changes also matter: YouTube itself acted as if the rabbit hole was real, which is its own quiet admission.
 
 ---
 
@@ -295,7 +295,7 @@ You asked for the reinforcement spiral as dissociation from reality. The rigorou
 
 ### 9a. The mechanism: the Reinforcing Spirals Model
 
-Claim: Media selection and media effects are not a one-way street; they form a mutually reinforcing positive feedback loop, in which people select identity-consistent content, which strengthens the identity, which drives further selection — especially under identity threat.
+Claim: Media selection and media effects are not a one-way street; they form a mutually reinforcing positive feedback loop, in which people select identity-consistent content, which strengthens the identity, which drives further selection, especially under identity threat.
 
 Primary source: Michael D. Slater, "Reinforcing Spirals: The Mutual Influence of Media Selectivity and Media Effects and Their Impact on Individual Behavior and Social Identity," *Communication Theory* 17(3): 281–303, 2007. DOI: 10.1111/j.1468-2885.2007.00296.x.
 
@@ -312,15 +312,15 @@ Claim: People systematically perceive the political out-group as more extreme, m
 Primary sources:
 (1) Jeffrey Lees & Mina Cikara, "Inaccurate group meta-perceptions drive negative out-group attributions in competitive contexts," *Nature Human Behaviour* 4(3): 279–286, 2020.
 
-(2) Review framing: "false polarization" — the perception that out-group views are more extreme and less diverse than reality (see the data-visualization correction literature, e.g. arXiv:2508.00233, which summarizes the construct and primaries).
+(2) Review framing: "false polarization", the perception that out-group views are more extreme and less diverse than reality (see the data-visualization correction literature, e.g. arXiv:2508.00233, which summarizes the construct and primaries).
 
 Verbatim framing line (false-polarization literature): people's "perception of the extent of partisan polarization is far more extreme than warranted," and "Democrats overestimate the proportion of Republicans who express support for political violence (and vice versa)."
 
-Epistemic status: peer-reviewed-finding for the meta-perception gap (Lees & Cikara is the cleanest primary). The specific causal claim that *algorithmic feeds* produce false polarization is weaker — most of this work is about partisan media and interpersonal exposure generally, not feed ranking specifically. Tag the link to platforms as plausible-but-not-yet-isolated, and lean on item 2c (the reranking experiment that did move out-party feeling) as the closest causal bridge.
+Epistemic status: peer-reviewed-finding for the meta-perception gap (Lees & Cikara is the cleanest primary). The specific causal claim that *algorithmic feeds* produce false polarization is weaker: most of this work is about partisan media and interpersonal exposure generally, not feed ranking specifically. Tag the link to platforms as plausible-but-not-yet-isolated, and lean on item 2c (the reranking experiment that did move out-party feeling) as the closest causal bridge.
 
 ### 9c. How the two connect (my synthesis, labeled)
 
-The spiral (9a) is the mechanism; false polarization (9b) is one of its products. An engagement feed that amplifies emotional and out-group-hostile content (which your Milli et al. material already establishes) feeds the spiral, and the spiral's output is a distorted picture of who the other side is. "Detachment from reality" is defensible if you scope it to *social* reality — misperceiving the distribution of others' views — rather than clinical dissociation. That scoping keeps the claim inside what the literature supports.
+The spiral (9a) is the mechanism; false polarization (9b) is one of its products. An engagement feed that amplifies emotional and out-group-hostile content (which your Milli et al. material already establishes) feeds the spiral, and the spiral's output is a distorted picture of who the other side is. "Detachment from reality" is defensible if you scope it to *social* reality, misperceiving the distribution of others' views, rather than clinical dissociation. That scoping keeps the claim inside what the literature supports.
 
 ---
 
@@ -340,23 +340,23 @@ Verbatim line (same paper, the load-bearing one): "human social dynamics cannot 
 
 Verbatim parallel the authors draw (same paper): the situation "parallels challenges faced in conservation biology and climate science, where insufficiently regulated industries optimize profits while undermining the stability of ecological and earth systems."
 
-Epistemic status: peer-reviewed-finding (a Perspective in PNAS; argument-driven, but authored by a large interdisciplinary group of collective-behavior scientists and peer-reviewed). This is your strongest single citation for the structural claim, because it states — in a top venue — that (a) the information environment is now engineered, (b) the objective is ad revenue rather than user wellbeing, and (c) such a system is not reliably self-correcting.
+Epistemic status: peer-reviewed-finding (a Perspective in PNAS; argument-driven, but authored by a large interdisciplinary group of collective-behavior scientists and peer-reviewed). This is your strongest single citation for the structural claim, because it states, in a top venue, that (a) the information environment is now engineered, (b) the objective is ad revenue rather than user wellbeing, and (c) such a system is not reliably self-correcting.
 
 ### 10b. What this source does and does not establish (read carefully)
 
 It DOES establish: the misaligned objective, the engineered (not natural) character of the environment, and the claim that self-correction cannot be assumed.
 
-It does NOT, by itself, establish the stronger reflexive claim — that engagement optimization *actively erodes* the collective-correction capacity that would otherwise regulate it. Bak-Coleman argues the system needs stewardship because it is not reliably self-correcting; it does not prove the system attacks its own correction mechanism. That reflexive step is the synthesis developed in the narrative document, built on top of this foundation plus the false-polarization and reinforcing-spiral material. Keep the two clearly separated: 10a is sourced; the reflexivity claim is argued from sourced parts.
+It does NOT, by itself, establish the stronger reflexive claim: that engagement optimization *actively erodes* the collective-correction capacity that would otherwise regulate it. Bak-Coleman argues the system needs stewardship because it is not reliably self-correcting; it does not prove the system attacks its own correction mechanism. That reflexive step is the synthesis developed in the narrative document, built on top of this foundation plus the false-polarization and reinforcing-spiral material. Keep the two clearly separated: 10a is sourced; the reflexivity claim is argued from sourced parts.
 
 ### 10c. Adjacent corroboration on the algorithmic-feedback point
 
-The same paper directly names the mechanism: algorithms that "filter, curate, and display the vast amount of information available online, combined with people's tendency to seek friendly social environments, may induce biases in perceived reality." That is the platform-side half of the reinforcing spiral (gap 9), stated by the collective-behavior literature itself — useful because it connects the engineering layer to the perception-distortion layer without you having to bridge them yourself.
+The same paper directly names the mechanism: algorithms that "filter, curate, and display the vast amount of information available online, combined with people's tendency to seek friendly social environments, may induce biases in perceived reality." That is the platform-side half of the reinforcing spiral (gap 9), stated by the collective-behavior literature itself, useful because it connects the engineering layer to the perception-distortion layer without you having to bridge them yourself.
 
 ---
 
 ## Gap 11. The reflexive harm: epistemic fragmentation (the corrective faculty is the damaged faculty)
 
-This is the sourced anchor for the sharpest claim in the structural argument — that the optimization degrades the very capacity that would otherwise correct it.
+This is the sourced anchor for the sharpest claim in the structural argument: that the optimization degrades the very capacity that would otherwise correct it.
 
 ### 11a. The concept and the reflexive claim
 
@@ -384,7 +384,7 @@ Epistemic status: peer-reviewed-finding, built on Miranda Fricker's established 
 
 ### 11c. The one scope caveat (state it)
 
-Both Milano papers develop the claim for targeted advertising and algorithmic profiling, not for engagement-based recommender ranking specifically. The structural mechanism is the same — personalization isolates, isolation disables collective correction — and extending it to feed ranking is defensible, but it is an extension. When citing, attribute the reflexive claim to Milano et al. for the targeting/profiling case, and mark the generalization to ranking as your step.
+Both Milano papers develop the claim for targeted advertising and algorithmic profiling, not for engagement-based recommender ranking specifically. The structural mechanism is the same (personalization isolates, isolation disables collective correction) and extending it to feed ranking is defensible, but it is an extension. When citing, attribute the reflexive claim to Milano et al. for the targeting/profiling case, and mark the generalization to ranking as your step.
 
 ---
 
@@ -394,7 +394,7 @@ These two close the loop between the structural argument and the empirical base:
 
 ### 12a. Curation changes causally affect belief formation and consensus
 
-Claim: In a controlled collaborative-filtering experiment, simple changes to how posts are sampled and ranked changed the beliefs participants formed and the consensus they reached — and the same machinery can be retuned for prosocial outcomes using only natural engagement signals.
+Claim: In a controlled collaborative-filtering experiment, simple changes to how posts are sampled and ranked changed the beliefs participants formed and the consensus they reached, and the same machinery can be retuned for prosocial outcomes using only natural engagement signals.
 
 Primary source: Jason W. Burton, Stefan M. Herzog & Philipp Lorenz-Spreen, "Simple changes to content curation algorithms affect the beliefs people form in a collaborative filtering experiment," 46th Annual Meeting of the Cognitive Science Society (CogSci 2024), pp. 811–818; published version in Proceedings of the 2026 CHI Conference on Human Factors in Computing Systems. DOI: 10.1145/3772318.3790602.
 
@@ -418,7 +418,7 @@ Epistemic status: peer-reviewed-finding (systematic review, preregistered protoc
 
 ---
 
-## Gap 13. Meta's internal teen-wellbeing research (relational/self-perception harm — handle the context carefully)
+## Gap 13. Meta's internal teen-wellbeing research (relational/self-perception harm: handle the context carefully)
 
 This is the most-cited single line in the whole debate, and it is the one most often used without its context. Both the line and Meta's rebuttal are primary documents. The honest move is to show the conflict, because the context genuinely complicates the line without neutralizing it.
 
@@ -432,25 +432,25 @@ Verbatim line (internal Meta slide, 2019): "We make body image issues worse for 
 
 Epistemic status: company-internal-admission. The line is authentically Meta's own internal wording. Its strength as evidence is that the company said this to itself, in a headline, before any external pressure.
 
-### 13b. Meta's own context (the rebuttal — also primary)
+### 13b. Meta's own context (the rebuttal, also primary)
 
 Claim: Meta argues the WSJ stripped the line of context: the "one in three" is one in three of the teen girls who already reported body-image struggles, not all teen girls; and on 11 of 12 well-being issues, struggling girls more often said Instagram made things better than worse.
 
 Primary source: Pratiti Raychoudhury (VP, Head of Research), "What Our Research Really Says About Teen Well-Being and Instagram," Meta Newsroom, Sept 26/29, 2021.
 
-Verbatim line (Meta, 2021): the research shows "one in three of those teenage girls who told us they were experiencing body image issues reported that using Instagram made them feel worse — not one in three of all teenage girls."
+Verbatim line (Meta, 2021): the research shows "one in three of those teenage girls who told us they were experiencing body image issues reported that using Instagram made them feel worse, not one in three of all teenage girls."
 
 Verbatim line (same, the headline counter-claim): "on 11 of 12 well-being issues, teenage girls who said they struggled with those issues also said that Instagram made them better rather than worse."
 
-Important limits in Meta's own account (state these): Meta concedes body image "was the only area" where struggling girls said Instagram made it worse rather than better. The studies were small (one relied on input from "only 40 teens") and Meta states they "did not measure causal relationships." So the rebuttal also concedes the research is non-causal and self-report — which cuts against over-using the line as proof of effect, in either direction.
+Important limits in Meta's own account (state these): Meta concedes body image "was the only area" where struggling girls said Instagram made it worse rather than better. The studies were small (one relied on input from "only 40 teens") and Meta states they "did not measure causal relationships." So the rebuttal also concedes the research is non-causal and self-report, which cuts against over-using the line as proof of effect, in either direction.
 
 ### 13c. How to use this (this guidance is mine)
 
-Use the line for what it cleanly is: a company-internal-admission that Meta's own researchers, unprompted, framed the product as worsening body image for a meaningful share of vulnerable teen girls. Do not present "one in three teen girls" without the "who already reported body-image issues" qualifier — that is the error Meta correctly flagged, and making it hands critics a clean rebuttal. Do not present it as causal proof; both the WSJ documents and Meta agree the research was self-report and non-causal. The defensible claim is narrow and still striking: the company studied its own relational/self-perception harm, named it in plain language internally, and the existence of that internal language is itself the evidence — independent of the effect size. Note also that later disclosures (Arturo Béjar, 2023; litigation discovery, 2025) expanded the internal-research record well beyond this one deck; those are follow-up threads, not pulled to primary here.
+Use the line for what it cleanly is: a company-internal-admission that Meta's own researchers, unprompted, framed the product as worsening body image for a meaningful share of vulnerable teen girls. Do not present "one in three teen girls" without the "who already reported body-image issues" qualifier: that is the error Meta correctly flagged, and making it hands critics a clean rebuttal. Do not present it as causal proof; both the WSJ documents and Meta agree the research was self-report and non-causal. The defensible claim is narrow and still striking: the company studied its own relational/self-perception harm, named it in plain language internally, and the existence of that internal language is itself the evidence, independent of the effect size. Note also that later disclosures (Arturo Béjar, 2023; litigation discovery, 2025) expanded the internal-research record well beyond this one deck; those are follow-up threads, not pulled to primary here.
 
 ---
 
-## Gap 14. Project Mercury: internal causal deactivation evidence (2025 litigation — recent, contested, handle with status flags)
+## Gap 14. Project Mercury: internal causal deactivation evidence (2025 litigation: recent, contested, handle with status flags)
 
 This is the causal internal evidence the earlier teen-research material lacked. It is also the newest and most contested item in the brief, so the status flags matter as much as the content.
 
@@ -466,11 +466,11 @@ Verbatim line (Meta staff researcher, per the filing): "The Nielsen study does s
 
 Verbatim line (Meta employee, per the filing): keeping quiet would risk looking like "tobacco companies doing research and knowing cigs were bad and then keeping that info to themselves."
 
-Epistemic status: company-internal-admission surfaced via litigation filing. This is the closest thing to internal causal evidence in the entire brief — an internal randomized-deactivation design plus an internal staffer calling the effect causal. But see the status flags below; do not treat it as settled.
+Epistemic status: company-internal-admission surfaced via litigation filing. This is the closest thing to internal causal evidence in the entire brief: an internal randomized-deactivation design plus an internal staffer calling the effect causal. But see the status flags below; do not treat it as settled.
 
-### 14b. Meta's rebuttal (on record — the honest other side)
+### 14b. Meta's rebuttal (on record, the honest other side)
 
-Claim: Meta says the study was a flawed pilot whose design could not overcome "expectation effects," so the finding reflects only that people who already believed Facebook was bad for them felt better when they stopped — not a real causal effect of the platform.
+Claim: Meta says the study was a flawed pilot whose design could not overcome "expectation effects," so the finding reflects only that people who already believed Facebook was bad for them felt better when they stopped, not a real causal effect of the platform.
 
 Primary source: Andy Stone (Meta spokesman), statement to CNBC and posts on X, Nov 22–24, 2025.
 
@@ -482,11 +482,11 @@ Epistemic status: on-record company rebuttal. The expectation-effects objection 
 
 ### 14c. Status flags (mandatory when using this)
 
-This is litigation, not adjudicated fact. The underlying Meta documents are not public; Meta filed a motion to strike. The quotes reach us through the plaintiffs' brief, which selects and frames them. The hearing was set for Jan 26, 2026, which is at or past the edge of what this brief can verify — check the current docket and any ruling before relying on it.
+This is litigation, not adjudicated fact. The underlying Meta documents are not public; Meta filed a motion to strike. The quotes reach us through the plaintiffs' brief, which selects and frames them. The hearing was set for Jan 26, 2026, which is at or past the edge of what this brief can verify; check the current docket and any ruling before relying on it.
 
 The internal "causal" claim is a staff researcher's line in a chat, not a peer-reviewed causal finding; Meta's expectation-effects rebuttal is a real limit on a deactivation design.
 
-How to use it (this guidance is mine): cite Project Mercury as a contested-but-striking company-internal-admission — Meta ran an internal deactivation study, an internal researcher called the social-comparison effect causal, and the company chose not to publish. Pair it always with Meta's expectation-effects rebuttal. Do not state as established fact that Meta "buried causal proof"; state that the filing alleges this, that an internal staffer used causal language, and that Meta disputes the methodology. The defensible and still-powerful claim is the non-publication plus the internal "tobacco" worry, which speaks to motive regardless of the effect size.
+How to use it (this guidance is mine): cite Project Mercury as a contested-but-striking company-internal-admission: Meta ran an internal deactivation study, an internal researcher called the social-comparison effect causal, and the company chose not to publish. Pair it always with Meta's expectation-effects rebuttal. Do not state as established fact that Meta "buried causal proof"; state that the filing alleges this, that an internal staffer used causal language, and that Meta disputes the methodology. The defensible and still-powerful claim is the non-publication plus the internal "tobacco" worry, which speaks to motive regardless of the effect size.
 
 ### 14d. The corroborating pattern (same filing)
 
@@ -516,6 +516,6 @@ The "63 break-glass changes" figure. Currently sourced to the Science correspond
 
 Tristan Harris quotes. Named as a follow-up thread (gap 7) but not pulled to primary this session. Do not quote until the primary (Harris's 2019 Senate testimony or 2016 essay) is retrieved.
 
-The Meta teen-girls "one in three" line — now sourced (gap 13), but with a mandatory framing caveat. It is one in three of teen girls who already reported body-image issues, NOT one in three of all teen girls; and the research is self-report and non-causal by Meta's own statement. Use it as a company-internal-admission (Meta named the harm in its own words), never as a causal effect size, and never without the "who reported body-image issues" qualifier.
+The Meta teen-girls "one in three" line: now sourced (gap 13), but with a mandatory framing caveat. It is one in three of teen girls who already reported body-image issues, NOT one in three of all teen girls; and the research is self-report and non-causal by Meta's own statement. Use it as a company-internal-admission (Meta named the harm in its own words), never as a causal effect size, and never without the "who reported body-image issues" qualifier.
 
-The reflexivity claim as a citation. The core reflexive structure — "the correction strategies fail because they don't address the isolation that disabled correction" — IS now sourced, to Milano et al. 2021 (NMI) and Milano & Prunkl 2024 (Phil Studies). Cite them. What remains your synthesis is only the extension from their case (targeted advertising / profiling) to engagement-ranking generally, and the four-faculty decomposition in the narrative. Attribute the reflexive claim; mark the ranking extension as your step. Bak-Coleman separately supports the weaker "not self-correcting / needs stewardship" half.
+The reflexivity claim as a citation. The core reflexive structure, "the correction strategies fail because they don't address the isolation that disabled correction", IS now sourced, to Milano et al. 2021 (NMI) and Milano & Prunkl 2024 (Phil Studies). Cite them. What remains your synthesis is only the extension from their case (targeted advertising / profiling) to engagement-ranking generally, and the four-faculty decomposition in the narrative. Attribute the reflexive claim; mark the ranking extension as your step. Bak-Coleman separately supports the weaker "not self-correcting / needs stewardship" half.
