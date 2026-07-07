@@ -168,3 +168,26 @@ The theme numbers (`0N`) some older entries reference resolve to layers per `../
 - **Provenance:** user articulation 2026-07-06 (the layering discussion); seed examples: Facebook average
   group size, activity metrics on closed platforms, unpublished community moderation.
 
+### T21 — Is `share` fully a right, or partly a membership-class capability?  (folded into T31, 2026-07-07)
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (couples T31 — rights/role/capability disentanglement).
+- **Review (2026-06-26):** part of this is the capability-vs-role confusion (see T31). Also question the
+  **word "share"** itself — peers have a right, but **you cannot have a right to someone else's
+  resources** in this model, so "share" may misframe it. The real question is whether peers have a
+  **right to communicate** with others and **what the boundary is** that still respects the right to exit
+  and the right to fork. "There's something there; needs more thinking." (See also T22 — tenure may be
+  the user's version of this.)
+- **What it is:** of the four rights named in `drystone-spec` (Part 2 §5.3 — tenure / exit / voice / share),
+  **`share`** — a claim on the collective's commons — is the least-settled. If `share` can be legitimately
+  diluted by governance or membership class (a real possibility under the cooperative model), then part of
+  it behaves like a *capability*, not a right. The boundary "no right to remove the rights of others" needs
+  to know **which portion of `share` is the inviolable floor** and which portion is a class-varying
+  entitlement.
+- **Promotion target:** `drystone-spec` Part 2 §5.3 (sharpen the `share` definition; it is already flagged
+  open there and in Part 2 Appendix B) + **07** (the cooperative membership / patronage model decides the
+  dilutable portion).
+- **Gates:** decide, in the cooperative model, the inviolable-floor vs class-varying split of `share`; then
+  the four-rights closed set can harden into the spec.
+- **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
+  `../alpha/ROADMAP_TODO.md` **E32 (b)**; `drystone-spec` Part 2 §5.3; `beta/07` Pillar A.

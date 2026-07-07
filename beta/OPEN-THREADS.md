@@ -299,6 +299,94 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 ### Drystone-spec / impl (Layers 4, 5)
 
+**Rights, roles, and capabilities.**
+
+#### T31 — Disentangle rights / roles / capabilities / delegation (+ PeerSet, restricted combinations)
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (absorbs the former T21; informs T20, T3).
+- **What it is:** the review found these four conflated in places and asked to clear them up. The author's
+  working definitions, to be reconciled with the spec (they are mostly settled in the user's mind, not yet
+  uniformly worded in `drystone-spec` Part 2 §5):
+  - **Rights — inherent.** The combination of factors that makes a valid peer; remove them and the system
+    itself degrades. Never delegated, never conferred.
+  - **Capabilities — intrinsic.** What a peer *can do* by virtue of what it is (a radio, a push-notification
+    token, 16 cores / 10 TB RAM). They differ peer-to-peer and make a peer more/less suited to a role, but
+    **never** confer governance dominance — a high-capability peer has the same rights as any other.
+  - **Roles — delegated.** Assigned, de-facto or by governance (e.g. the Creator role, reassignable by
+    vote). Can be **mutually exclusive**; a role may be single-instance.
+  - **PeerSet — a named bundle of roles + capabilities with a functional expectation** (e.g. the meer /
+    blind-broker), packaged so governance can reason about and assign it as one named thing.
+  - **Restricted combinations — fail noisy, not silently forbid.** Rather than hard-forbidding a role
+    combination (the "must-never" case), if mutually-exclusive roles are voted together the group should
+    **fail loudly** (lock / notify everyone / pause), surface "this combination puts your communication at
+    risk," and offer human adjudication — e.g. fork the group excluding the peers who made that vote. (The
+    motivating case: a group voting to make a known high-availability meer *no longer blind* changes the
+    trust dynamics of the whole group — that is a human-trust situation, handled gracefully, not a silent
+    capability flip.) The meer's decrypt-vs-blind line should be settled in terms of **MLS capabilities**.
+  - **The `share` right (absorbs the former T21).** Of the four rights (Part 2 §5.3: tenure / exit / voice /
+    share), `share` is the least-settled: if governance or a membership class can dilute it, part of it
+    behaves like a *capability*, not a right. The sharper reframe from the review: a peer has no right to
+    another peer's resources, so the real question is whether a peer has a **right to communicate** and what
+    boundary still respects the right to exit and the right to fork. Settle `share` against this line.
+- **Promotion target:** `drystone-spec` Part 2 §5 (sharpen rights/role/capability/PeerSet wording + add the
+  restricted-combination / fail-noisy handling, and settle the `share` right/capability question absorbed
+  from T21); informs **T20** (C10 ban-evasion / moderation) and **T3** (the meer's moderation boundary).
+- **Gates:** reconcile the definitions against the current spec §5 wording (avoid duplication); decide
+  whether restricted-combination fail-noisy handling is substrate or app layer; settle the meer decrypt
+  capability in MLS terms.
+- **Alpha provenance:** `beta/thinking/raw/open threads review Jun 26 at 8-17 PM.txt`;
+  `../alpha/thinking/rights-vs-capabilities-definitions.md`; `drystone-spec` Part 2 §5.
+
+#### T3 — Moderation & abuse under a blind broker (the constructive design body)
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (couples T31).
+- **Review (2026-06-26):** the meer PeerSet holds the **same rights as a full peer** but has no local
+  history and **never sees content** — so you **cannot moderate on content** through it. Moderation is
+  therefore **separate from the meer PeerSet**, scoped to abuse / side-channel signals (a distinct
+  delegation stack). Pin the meer's decrypt-vs-blind line in terms of **MLS capabilities** (see T31).
+- **What it is:** the operational complement to 06's "safe by structure, not inspection" thesis — what a
+  content-blind broker actually *does* about spam / CSAM / coordinated harm: client-side
+  report-with-reveal, metadata-based rate-limiting, reputation, and the `{pending,released,rejected}`
+  predicate-gated **hold/release plane** + **crypto-shred** — "must be designed in, not bolted on." Plus
+  the **kid-friendly-vs-uninspectable** product tension.
+- **Promotion target:** **06** (the design body it currently only gestures at). The CSAM/jurisdiction
+  *legal* posture is already surfaced (06→07); this is the distinct *engineering/design* thread.
+- **Gates:** decide the abuse-handling toolkit; reconcile with the geer's consented-visibility role;
+  decide whether crypto-shred + hold/release ship in the substrate or app layer; the legal/CSAM piece
+  (the user's) gates the rest.
+- **Alpha provenance:** `../alpha/thinking/open-considerations.md` §5 + §9; `../alpha/ROADMAP_TODO.md`
+  **D3 / D6 / E18**; `../alpha/COHESION.md` §18.
+
+#### T20 — Conflict-reason corpus gaps (C4 / C7 / C8 / C9 / C10)
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (expand per S2 — too terse to reason from).
+- **Review (2026-06-26):** too terse — needs a plain-language **problem statement** per gap plus the
+  **solutions we already preferred** when we discussed them, not just the C-codes.
+- **What it is:** `merge-split-corpus.md` §4 enumerates the full conflict-reason space and surfaces five
+  real, **unmodeled/partial reconcile-semantics gaps**: **C4** add-vs-add of the same person on different
+  device keys across a partition (must fold by lineage, not double-count — interacts with multi-device
+  E2.10); **C7** dissolve-vs-continue (hard-stop or resting-state, *undefined*); **C8** diamond-recombine
+  conflict over a multi-parent DAG (topology proven, conflict-detection untested); **C9** equivocation
+  hardening (A2.2 partial); **C10** ban-evasion re-add via a new device leaf (must not silently re-confer
+  standing — the moderation surface).
+- **Promotion target:** **04** (widens "what was proved" toward the full conflict space). **Overlaps T5**
+  (scale/churn) but is a distinct surface (reconcile *semantics*, not scale) — confirm and fold where
+  subsumed by T5.
+- **Gates:** define C7's intended resolution; extend `detect` to multi-parent ancestry (C8); harden
+  equivocation attribution (C9); model the ban-evasion re-add (C10).
+- **Alpha provenance:** `../alpha/thinking/merge-split-corpus.md` §4 + §6 ("Tier 1b — reconcile-case corpus").
+
+> **T21–T22 added 2026-06-26** from the rights-vs-capabilities grounding (was folded into `01` §5, K17;
+> now in the Drystone spec — `drystone-spec` Part 1 §2.3 + Part 2 §5.3). The discriminating test and the
+> four-rights cut are settled and in the spec; these are the two **verify-before-hardening** checks
+> deliberately kept out of the spec's normative rights set — they gate hardening the four-rights *closed
+> set*. (Were ROADMAP_TODO E32 b/c.)
+
+**Scale validation.** T2, T5, and T38 share one test harness; T5's descriptive failure-modes now live in `../fenced/group-chat-failure-modes.md`.
+
 #### T2 — Governance at scale (subsidiarity + liquid delegation; the concentration default)
 
 - **Status:** `open · gated`.
@@ -323,27 +411,6 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   `../alpha/COHESION.md` **§22**; `../alpha/thinking/open-considerations.md` §4 (load-bearing superpeer);
   `../alpha/thinking/local-first-as-design-imperative.md` (open frontiers).
 
-#### T3 — Moderation & abuse under a blind broker (the constructive design body)
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (couples T31).
-- **Review (2026-06-26):** the meer PeerSet holds the **same rights as a full peer** but has no local
-  history and **never sees content** — so you **cannot moderate on content** through it. Moderation is
-  therefore **separate from the meer PeerSet**, scoped to abuse / side-channel signals (a distinct
-  delegation stack). Pin the meer's decrypt-vs-blind line in terms of **MLS capabilities** (see T31).
-- **What it is:** the operational complement to 06's "safe by structure, not inspection" thesis — what a
-  content-blind broker actually *does* about spam / CSAM / coordinated harm: client-side
-  report-with-reveal, metadata-based rate-limiting, reputation, and the `{pending,released,rejected}`
-  predicate-gated **hold/release plane** + **crypto-shred** — "must be designed in, not bolted on." Plus
-  the **kid-friendly-vs-uninspectable** product tension.
-- **Promotion target:** **06** (the design body it currently only gestures at). The CSAM/jurisdiction
-  *legal* posture is already surfaced (06→07); this is the distinct *engineering/design* thread.
-- **Gates:** decide the abuse-handling toolkit; reconcile with the geer's consented-visibility role;
-  decide whether crypto-shred + hold/release ship in the substrate or app layer; the legal/CSAM piece
-  (the user's) gates the rest.
-- **Alpha provenance:** `../alpha/thinking/open-considerations.md` §5 + §9; `../alpha/ROADMAP_TODO.md`
-  **D3 / D6 / E18**; `../alpha/COHESION.md` §18.
-
 #### T5 — Protocol behavior at scale / group-chat failure modes
 
 - **Status:** `open · gated`.
@@ -366,39 +433,123 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Alpha provenance:** `../alpha/research/group-chat-failure-modes.md` (+ `-plain.md`);
   `../alpha/crystallized/conclusions.md`; the test-plan backlog.
 
-#### T6 — The per-platform trust-model doc (05's "highest-leverage next artifact")
+#### T38 - The two unearned measurements and the §11.10.1 experiment matrix (turn the scaling envelope into a sized one)
+
+- **Status:** `open · gated` (specified in the Part 2 §11 large-group-scaling section, not yet run).
+- **Type:** `needs-experimentation` (couples-with `needs-proving`).
+- **What it is:** the Part 2 §11 large-group-scaling section tags two measurements `Load-bearing, unearned` (§11.11):
+  (1) per-commit and fan-out cost at hot-N = 500 / 1000 / 2000 on representative hardware (sets the real
+  hot-N comfort ceiling, provisionally ~1500, and whether the 3–7k / 7–10k hot trees need sharding; extends
+  to attesting-N 5,000 / 10,000 / 20,000 for the experimental public regime, to place the single-tree
+  attesting-core ceiling in the band between the measured ~5,000 (Soler 2025) and RFC 9750's
+  tens-of-thousands design target); and (2) return-backfill time as a function of dormancy-gap size (sets
+  whether the §11.6 liveness windows are right). §11.10.1 states the full buildable experiment matrix
+  (Experiments A–G, symbols, fixed policy, sweep points, pass/fail thresholds) against an OpenMLS-on-aarch64
+  harness plus a gossip testbed.
+- **Promotion target:** the section's tier numbers and the hot-N comfort ceiling move from reasoned envelope
+  to measured once the matrix runs; the `[gates-release]` marker clears for any figure that becomes a
+  stated SLA.
+- **Gates:** build/instrument the OpenMLS harness and the gossip testbed; run Experiments A–G; pin and
+  record ciphersuite, credential type, library version, and device SoC with every result set.
+- **Provenance:** Part 2 §11 (large-group scaling), §11.10.1 + §11.11; document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
+
+#### T36 — Verify the re-plant instantiation mechanism folded into Drystone spec §7.6.4 (run the E12 set)
+
+- **Status:** `open · gated` (folded into the spec 2026-07-07 with a `needs verification` tag, on the user's
+  instruction to fold in-context now rather than hold it in `impl/`).
+- **Type:** `needs-proving` (couples-with `needs-experimentation`).
+- **What it is:** the detailed MLS re-plant / atomic-swap mechanism (from `impl/delivery-layer/` and
+  `impl/mls/`) was folded into Drystone spec **Part 2 §7.6.4** as design-in-context: unilateral O(N)
+  instantiation, KeyPackage-per-member seating with the last-resort availability floor, fresh-stamp
+  group-wide key refresh (PCS) with the last-resort exception, blank-node cost reset, planter
+  byte-nondeterminism as dedup-not-fork, stale-`GroupInfo` external-commit PCS integrity, and the
+  `epoch_authenticator` fold-not-parallel candidate. Every mechanism claim is grounded against a named RFC
+  section, but the **composed operation is not yet exercised end-to-end on a real stack**, so §7.6.4 carries
+  `[confirm before publish]` throughout.
+- **Promotion target:** Drystone spec Part 2 §7.6.4 (already folded in-context); this thread tracks moving
+  its status from `design; needs verification` to `green-real` once validated.
+- **Gates:** run the **E12 experiment set** (E12.1–E12.7) against `mls-rs 0.55.2` (Rung A for MLS mechanics;
+  Rung B for Drystone's own governance-chain and dataplane hash structures, which are not yet built, so
+  E12.7 is modeled). Resolve the two library questions: whether `mls-rs` exposes ReInit as a first-class op
+  emitting the resumption PSK (vs. fresh-create + manual PSK), and whether it surfaces resolution/blank
+  counts directly (vs. a byte-size proxy). Resolve the spec's Appendix B re-plant items (intent ordering
+  before the ReInit freeze; seating default Welcome vs external-commit; PSK cross-group linking; epoch-number
+  metadata vs re-plant frequency; `epoch_authenticator` overlap).
+- **Provenance:** folded from `impl/delivery-layer/12-replant-experiments.md` + `01-delivery-architecture.md`
+  and `impl/mls/mls-hardcases-and-posture.md` (batches 7–8); the fold is Drystone spec document-pass-7
+  (2026-07-07). The impl/ design corpus is retained as the derivation + experiment plan.
+
+#### T22 — Does the `04` survivor re-key strand a peer's `tenure`?
 
 - **Status:** `open · gated`.
-- **Type:** `needs-content` (couples T14; structural directive S4).
-- **Review (2026-06-26):** still deferred; subsumed by the **per-platform design-files** directive (S4) —
-  the per-network trust write-up is one slice of the per-platform design thinking.
-- **What it is:** the per-network (Bluesky/AP/Mastodon/GoToSocial/Threads/Hive) write-up — the field used,
-  what Croft claims / doesn't claim, the backlink mechanism, exact verifier steps + pseudocode. 05 *names*
-  it as the highest-leverage next artifact but cannot assert its content because it does not exist.
-- **Promotion target:** **05** (completes the identity theme).
-- **Gates:** write it; confirm `alsoKnownAs` extra-entry persistence (`[UNVERIFIED]`, E14); resolve the
-  anchor-URI stability contract (A9) and the PDS-vs-self-controlled rotation key (A10), which determine
-  what each spoke can claim; depends partly on T7.
-- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **E13** (+ A9/A10/E14);
-  `../alpha/thinking/cross-platform-identity-provenance.md:222`; `beta/05` boundary. **Per-platform home
-  (S4, started 2026-06-26):** `../alpha/thinking/app/platforms/`.
+- **Type:** `needs-proving` (run the test).
+- **Review (2026-06-26):** **tenure** may be the user's version of the "right to share" (T21) — *tenure =
+  the ability to functionally be a peer to other peers*. This needs **testing** against the survivor /
+  re-key path — "we should just do that."
+- **What it is:** `tenure` (standing to remain a peer) is stated in `drystone-spec` (Part 2 §5.3) as an
+  absolute right. But the `04` survivor / re-key mechanism could, in implementation, **strand a peer** (leave
+  it unable to rejoin a re-keyed group). If so, `tenure` has an implementation-level exception that must be
+  **named explicitly** rather than left absolute — otherwise the boundary over-claims.
+- **Promotion target:** **04** (the survivor/re-key mechanism — does it preserve tenure, and under what
+  bound) + a precise caveat back into `drystone-spec` Part 2 §5.3 if an exception is real.
+- **Gates:** a protocol-level check of the re-key/survivor path against the tenure claim; if an exception
+  exists, specify its bound; then the four-rights closed set can harden.
+- **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
+  `../alpha/ROADMAP_TODO.md` **E32 (c)**; `drystone-spec` Part 2 §5.3; `beta/04` (survivor re-key) / `beta/05` §7.
 
-#### T8 — Forward-only revocation under irreversible commitments
+> **Folded into existing, not new threads:** the inter-collective peering *settled shape* (BGP-autonomy +
+> postal-hierarchy + signed routing) → add to **T2**'s provenance so T2 doesn't re-derive it. **Borderline
+> (engineering, likely ROADMAP not a beta thread):** the Automerge-over-application audit, and the Wire
+> `core-crypto` (GPL-3.0) vs `openmls`/`mls-rs` engine+license decision (the latter couples to 07's
+> flagged MPL-vs-AGPL substrate item).
 
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (likely co-promotes with T1).
-- **Review (2026-06-26):** the work, restated plainly — define the **reversible-vs-committing decision
-  tag**, spec the **permanent attribution record**, and reconcile it with T1's append-only fold.
-- **What it is:** revoking consent cannot rewind a spent action; decisions must be tagged
-  reversible-or-committing **at decision time**, and the record must permanently, honestly attribute which
-  consent supported which irreversible consequence. The governance-plane face of the recovery/consent
-  problem; `drystone-spec` (Part 2 §5.6) states the *principle* (irreversible → maximal protection of rights where exit cannot help) but never
-  names the *mechanism*.
-- **Promotion target:** **04 / 06** (the governance log + revocation ladder); **01** (the
-  protection-rigidity principle). **Likely co-promotes with T1.**
-- **Gates:** define the reversible-vs-committing decision tag; spec the permanent attribution record;
-  reconcile with T1's append-only fold.
-- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D10**; `../alpha/COHESION.md` **§22**; `drystone-spec` Part 2 §5.6.
+> **T24 added 2026-06-26** from the Beer/OGAS intake — the unsettled design question that fell out of
+> peerhood-as-adjudication. (Distinct from the now-closed T23, which was just the verbatim-Beer sourcing.)
+
+**The public-by-default regime.** T39 is the cryptographic gate the T40 regime rests on.
+
+#### T39 - Non-member-verifiable membership attestation (the mechanical core of the experimental public regime)
+
+- **Status:** `open · gated` (`Load-bearing, unearned`; the whole §11.9.3 public regime is gated on it).
+- **Type:** `needs-proving` (a real cryptographic design problem, sketched not solved).
+- **What it is:** the experimental public-by-default regime (§11.9.3) routes a group's public message stream
+  through an MLS-aware relay bridge into an AppView-shaped read view (§11.9.3.1). The open problem: let a
+  *non-member* reader verify "attested member at standing X authored this item" from a forwarded artifact,
+  without trusting the bridge and without the reader being an MLS member (which would defeat the
+  read-outside-the-tree model). It may reduce to signing authored items with a credential chain verifiable
+  against the group's published membership and governance state, but that is a sketch, and it composes with
+  the lineage-attestation questions already open (the two-part credential and its ban-lineage interlock,
+  the resume-vs-fresh identity fork, single-member time-delayed resumption-PSK presentation).
+- **Promotion target:** on a proven mechanism, §11.9.3 moves from Design-experimental toward Design; until
+  then the entire public regime is a candidate direction to prototype, not a committed part of the spec.
+- **Gates:** solve and adversarially analyze the attestation-extraction; prototype the bridge; confirm the
+  read path stays in the "helper cannot lie, only stall" box (content-addressed, governance-positioned
+  items, gap-detectable omission).
+- **Provenance:** Part 2 §11 (large-group scaling), §11.9.3.1 + §11.11 item 7; document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
+
+#### T40 - The public-by-default regime as a whole: status and the confidentiality-inversion posture
+
+- **Status:** `open · experimental` (more speculative than the rest of the section; a candidate direction).
+- **Type:** `design-experimental`.
+- **What it is:** above roughly 7k members the section permits inverting the confidentiality model
+  (§11.9.3): messages public by default (the AppView read view is the primary surface), MLS retained not to
+  encrypt messages but for attestation and membership. The regime concedes Force 2 on purpose while keeping
+  Force 1 (cryptographic membership), which is the honest inversion of the incumbent large-platform posture
+  (payloads-encrypted-yet-server-can-inject-a-member). It carries a heavier honest-residual burden than the
+  tiers below it: forward/post-compromise security relocate from message content to the attestation layer;
+  a member MUST be able to tell unmistakably that the space is public; governance is more exposed against a
+  public backdrop; the performance win is real on fan-out (indexed reads) and on the rate of expensive
+  operations, but NOT on MLS's per-operation cost. It rests on a chain of plausible-but-unvalidated
+  propositions and is gated by T39.
+- **Promotion target:** prototype and stress the regime; if it holds, it graduates from candidate direction
+  to a specified optional tier. It interacts with the T37 placement decision (a whole experimental
+  subsection).
+- **Gates:** T39 (the bridge attestation); a UX/consent design for the public-space clarity requirement; a
+  decision on whether governance events are public at this tier; the §11.9.3.3 attesting-core ceiling
+  measurements (part of T38).
+- **Provenance:** Part 2 §11 (large-group scaling), §11.9.3 (and §11.9.3.1–§11.9.3.3); document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
+
+**Real-time media.**
 
 #### T10 — Real-time media-layer hardening (finishes 04's media leg)
 
@@ -434,6 +585,42 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Promotion target:** the **04/08 (media) ↔ 07 (survivability-fund costing)** seam.
 - **Gates:** decide the storage/dedup posture and re-cost the fund accordingly.
 - **Alpha provenance:** `../alpha/thinking/open-considerations.md` (the dedup item); `../alpha/experiments/encrypted-blob-share/`.
+
+**Substrate and other.**
+
+#### T6 — The per-platform trust-model doc (05's "highest-leverage next artifact")
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (couples T14; structural directive S4).
+- **Review (2026-06-26):** still deferred; subsumed by the **per-platform design-files** directive (S4) —
+  the per-network trust write-up is one slice of the per-platform design thinking.
+- **What it is:** the per-network (Bluesky/AP/Mastodon/GoToSocial/Threads/Hive) write-up — the field used,
+  what Croft claims / doesn't claim, the backlink mechanism, exact verifier steps + pseudocode. 05 *names*
+  it as the highest-leverage next artifact but cannot assert its content because it does not exist.
+- **Promotion target:** **05** (completes the identity theme).
+- **Gates:** write it; confirm `alsoKnownAs` extra-entry persistence (`[UNVERIFIED]`, E14); resolve the
+  anchor-URI stability contract (A9) and the PDS-vs-self-controlled rotation key (A10), which determine
+  what each spoke can claim; depends partly on T7.
+- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **E13** (+ A9/A10/E14);
+  `../alpha/thinking/cross-platform-identity-provenance.md:222`; `beta/05` boundary. **Per-platform home
+  (S4, started 2026-06-26):** `../alpha/thinking/app/platforms/`.
+
+#### T8 — Forward-only revocation under irreversible commitments
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (likely co-promotes with T1).
+- **Review (2026-06-26):** the work, restated plainly — define the **reversible-vs-committing decision
+  tag**, spec the **permanent attribution record**, and reconcile it with T1's append-only fold.
+- **What it is:** revoking consent cannot rewind a spent action; decisions must be tagged
+  reversible-or-committing **at decision time**, and the record must permanently, honestly attribute which
+  consent supported which irreversible consequence. The governance-plane face of the recovery/consent
+  problem; `drystone-spec` (Part 2 §5.6) states the *principle* (irreversible → maximal protection of rights where exit cannot help) but never
+  names the *mechanism*.
+- **Promotion target:** **04 / 06** (the governance log + revocation ladder); **01** (the
+  protection-rigidity principle). **Likely co-promotes with T1.**
+- **Gates:** define the reversible-vs-committing decision tag; spec the permanent attribution record;
+  reconcile with T1's append-only fold.
+- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D10**; `../alpha/COHESION.md` **§22**; `drystone-spec` Part 2 §5.6.
 
 #### T18 — LTS-for-interfaces / shapeability-paired-with-stability
 
@@ -475,83 +662,6 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   decrypting") is the hard, possibly-defer-able piece.
 - **Alpha provenance:** `../alpha/thinking/local-first-as-design-imperative.md` (storage-substrate /
   discovery-fulfillment / "what's new" sections).
-
-#### T20 — Conflict-reason corpus gaps (C4 / C7 / C8 / C9 / C10)
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (expand per S2 — too terse to reason from).
-- **Review (2026-06-26):** too terse — needs a plain-language **problem statement** per gap plus the
-  **solutions we already preferred** when we discussed them, not just the C-codes.
-- **What it is:** `merge-split-corpus.md` §4 enumerates the full conflict-reason space and surfaces five
-  real, **unmodeled/partial reconcile-semantics gaps**: **C4** add-vs-add of the same person on different
-  device keys across a partition (must fold by lineage, not double-count — interacts with multi-device
-  E2.10); **C7** dissolve-vs-continue (hard-stop or resting-state, *undefined*); **C8** diamond-recombine
-  conflict over a multi-parent DAG (topology proven, conflict-detection untested); **C9** equivocation
-  hardening (A2.2 partial); **C10** ban-evasion re-add via a new device leaf (must not silently re-confer
-  standing — the moderation surface).
-- **Promotion target:** **04** (widens "what was proved" toward the full conflict space). **Overlaps T5**
-  (scale/churn) but is a distinct surface (reconcile *semantics*, not scale) — confirm and fold where
-  subsumed by T5.
-- **Gates:** define C7's intended resolution; extend `detect` to multi-parent ancestry (C8); harden
-  equivocation attribution (C9); model the ban-evasion re-add (C10).
-- **Alpha provenance:** `../alpha/thinking/merge-split-corpus.md` §4 + §6 ("Tier 1b — reconcile-case corpus").
-
-> **T21–T22 added 2026-06-26** from the rights-vs-capabilities grounding (was folded into `01` §5, K17;
-> now in the Drystone spec — `drystone-spec` Part 1 §2.3 + Part 2 §5.3). The discriminating test and the
-> four-rights cut are settled and in the spec; these are the two **verify-before-hardening** checks
-> deliberately kept out of the spec's normative rights set — they gate hardening the four-rights *closed
-> set*. (Were ROADMAP_TODO E32 b/c.)
-
-#### T21 — Is `share` fully a right, or partly a membership-class capability?
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (couples T31 — rights/role/capability disentanglement).
-- **Review (2026-06-26):** part of this is the capability-vs-role confusion (see T31). Also question the
-  **word "share"** itself — peers have a right, but **you cannot have a right to someone else's
-  resources** in this model, so "share" may misframe it. The real question is whether peers have a
-  **right to communicate** with others and **what the boundary is** that still respects the right to exit
-  and the right to fork. "There's something there; needs more thinking." (See also T22 — tenure may be
-  the user's version of this.)
-- **What it is:** of the four rights named in `drystone-spec` (Part 2 §5.3 — tenure / exit / voice / share),
-  **`share`** — a claim on the collective's commons — is the least-settled. If `share` can be legitimately
-  diluted by governance or membership class (a real possibility under the cooperative model), then part of
-  it behaves like a *capability*, not a right. The boundary "no right to remove the rights of others" needs
-  to know **which portion of `share` is the inviolable floor** and which portion is a class-varying
-  entitlement.
-- **Promotion target:** `drystone-spec` Part 2 §5.3 (sharpen the `share` definition; it is already flagged
-  open there and in Part 2 Appendix B) + **07** (the cooperative membership / patronage model decides the
-  dilutable portion).
-- **Gates:** decide, in the cooperative model, the inviolable-floor vs class-varying split of `share`; then
-  the four-rights closed set can harden into the spec.
-- **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
-  `../alpha/ROADMAP_TODO.md` **E32 (b)**; `drystone-spec` Part 2 §5.3; `beta/07` Pillar A.
-
-#### T22 — Does the `04` survivor re-key strand a peer's `tenure`?
-
-- **Status:** `open · gated`.
-- **Type:** `needs-proving` (run the test).
-- **Review (2026-06-26):** **tenure** may be the user's version of the "right to share" (T21) — *tenure =
-  the ability to functionally be a peer to other peers*. This needs **testing** against the survivor /
-  re-key path — "we should just do that."
-- **What it is:** `tenure` (standing to remain a peer) is stated in `drystone-spec` (Part 2 §5.3) as an
-  absolute right. But the `04` survivor / re-key mechanism could, in implementation, **strand a peer** (leave
-  it unable to rejoin a re-keyed group). If so, `tenure` has an implementation-level exception that must be
-  **named explicitly** rather than left absolute — otherwise the boundary over-claims.
-- **Promotion target:** **04** (the survivor/re-key mechanism — does it preserve tenure, and under what
-  bound) + a precise caveat back into `drystone-spec` Part 2 §5.3 if an exception is real.
-- **Gates:** a protocol-level check of the re-key/survivor path against the tenure claim; if an exception
-  exists, specify its bound; then the four-rights closed set can harden.
-- **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
-  `../alpha/ROADMAP_TODO.md` **E32 (c)**; `drystone-spec` Part 2 §5.3; `beta/04` (survivor re-key) / `beta/05` §7.
-
-> **Folded into existing, not new threads:** the inter-collective peering *settled shape* (BGP-autonomy +
-> postal-hierarchy + signed routing) → add to **T2**'s provenance so T2 doesn't re-derive it. **Borderline
-> (engineering, likely ROADMAP not a beta thread):** the Automerge-over-application audit, and the Wire
-> `core-crypto` (GPL-3.0) vs `openmls`/`mls-rs` engine+license decision (the latter couples to 07's
-> flagged MPL-vs-AGPL substrate item).
-
-> **T24 added 2026-06-26** from the Beer/OGAS intake — the unsettled design question that fell out of
-> peerhood-as-adjudication. (Distinct from the now-closed T23, which was just the verbatim-Beer sourcing.)
 
 #### T25 — The Drystone redb storage-and-projection layer (vetted, adaptable local component)
 
@@ -623,125 +733,6 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 > **T30 added 2026-06-26** — consolidates the scattered spec-maturation work (spec App-B `ENABLING` items +
 > `[confirm before publish]` flags + T1/T23/T29 residuals) into one tracked path-to-publication thread, so
 > it is flagged here rather than only living inside the spec.
-
-#### T31 — Disentangle rights / roles / capabilities / delegation (+ PeerSet, restricted combinations)
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (sharpens T21; informs T20, T3).
-- **What it is:** the review found these four conflated in places and asked to clear them up. The author's
-  working definitions, to be reconciled with the spec (they are mostly settled in the user's mind, not yet
-  uniformly worded in `drystone-spec` Part 2 §5):
-  - **Rights — inherent.** The combination of factors that makes a valid peer; remove them and the system
-    itself degrades. Never delegated, never conferred.
-  - **Capabilities — intrinsic.** What a peer *can do* by virtue of what it is (a radio, a push-notification
-    token, 16 cores / 10 TB RAM). They differ peer-to-peer and make a peer more/less suited to a role, but
-    **never** confer governance dominance — a high-capability peer has the same rights as any other.
-  - **Roles — delegated.** Assigned, de-facto or by governance (e.g. the Creator role, reassignable by
-    vote). Can be **mutually exclusive**; a role may be single-instance.
-  - **PeerSet — a named bundle of roles + capabilities with a functional expectation** (e.g. the meer /
-    blind-broker), packaged so governance can reason about and assign it as one named thing.
-  - **Restricted combinations — fail noisy, not silently forbid.** Rather than hard-forbidding a role
-    combination (the "must-never" case), if mutually-exclusive roles are voted together the group should
-    **fail loudly** (lock / notify everyone / pause), surface "this combination puts your communication at
-    risk," and offer human adjudication — e.g. fork the group excluding the peers who made that vote. (The
-    motivating case: a group voting to make a known high-availability meer *no longer blind* changes the
-    trust dynamics of the whole group — that is a human-trust situation, handled gracefully, not a silent
-    capability flip.) The meer's decrypt-vs-blind line should be settled in terms of **MLS capabilities**.
-- **Promotion target:** `drystone-spec` Part 2 §5 (sharpen rights/role/capability/PeerSet wording + add the
-  restricted-combination / fail-noisy handling); sharpens **T21** (the `share` confusion is partly this) and
-  informs **T20** (C10 ban-evasion / moderation) and **T3** (the meer's moderation boundary).
-- **Gates:** reconcile the definitions against the current spec §5 wording (avoid duplication); decide
-  whether restricted-combination fail-noisy handling is substrate or app layer; settle the meer decrypt
-  capability in MLS terms.
-- **Alpha provenance:** `beta/thinking/raw/open threads review Jun 26 at 8-17 PM.txt`;
-  `../alpha/thinking/rights-vs-capabilities-definitions.md`; `drystone-spec` Part 2 §5.
-
-#### T36 — Verify the re-plant instantiation mechanism folded into Drystone spec §7.6.4 (run the E12 set)
-
-- **Status:** `open · gated` (folded into the spec 2026-07-07 with a `needs verification` tag, on the user's
-  instruction to fold in-context now rather than hold it in `impl/`).
-- **Type:** `needs-proving` (couples-with `needs-experimentation`).
-- **What it is:** the detailed MLS re-plant / atomic-swap mechanism (from `impl/delivery-layer/` and
-  `impl/mls/`) was folded into Drystone spec **Part 2 §7.6.4** as design-in-context: unilateral O(N)
-  instantiation, KeyPackage-per-member seating with the last-resort availability floor, fresh-stamp
-  group-wide key refresh (PCS) with the last-resort exception, blank-node cost reset, planter
-  byte-nondeterminism as dedup-not-fork, stale-`GroupInfo` external-commit PCS integrity, and the
-  `epoch_authenticator` fold-not-parallel candidate. Every mechanism claim is grounded against a named RFC
-  section, but the **composed operation is not yet exercised end-to-end on a real stack**, so §7.6.4 carries
-  `[confirm before publish]` throughout.
-- **Promotion target:** Drystone spec Part 2 §7.6.4 (already folded in-context); this thread tracks moving
-  its status from `design; needs verification` to `green-real` once validated.
-- **Gates:** run the **E12 experiment set** (E12.1–E12.7) against `mls-rs 0.55.2` (Rung A for MLS mechanics;
-  Rung B for Drystone's own governance-chain and dataplane hash structures, which are not yet built, so
-  E12.7 is modeled). Resolve the two library questions: whether `mls-rs` exposes ReInit as a first-class op
-  emitting the resumption PSK (vs. fresh-create + manual PSK), and whether it surfaces resolution/blank
-  counts directly (vs. a byte-size proxy). Resolve the spec's Appendix B re-plant items (intent ordering
-  before the ReInit freeze; seating default Welcome vs external-commit; PSK cross-group linking; epoch-number
-  metadata vs re-plant frequency; `epoch_authenticator` overlap).
-- **Provenance:** folded from `impl/delivery-layer/12-replant-experiments.md` + `01-delivery-architecture.md`
-  and `impl/mls/mls-hardcases-and-posture.md` (batches 7–8); the fold is Drystone spec document-pass-7
-  (2026-07-07). The impl/ design corpus is retained as the derivation + experiment plan.
-
-#### T38 - The two unearned measurements and the §11.10.1 experiment matrix (turn the scaling envelope into a sized one)
-
-- **Status:** `open · gated` (specified in the Part 2 §11 large-group-scaling section, not yet run).
-- **Type:** `needs-experimentation` (couples-with `needs-proving`).
-- **What it is:** the Part 2 §11 large-group-scaling section tags two measurements `Load-bearing, unearned` (§11.11):
-  (1) per-commit and fan-out cost at hot-N = 500 / 1000 / 2000 on representative hardware (sets the real
-  hot-N comfort ceiling, provisionally ~1500, and whether the 3–7k / 7–10k hot trees need sharding; extends
-  to attesting-N 5,000 / 10,000 / 20,000 for the experimental public regime, to place the single-tree
-  attesting-core ceiling in the band between the measured ~5,000 (Soler 2025) and RFC 9750's
-  tens-of-thousands design target); and (2) return-backfill time as a function of dormancy-gap size (sets
-  whether the §11.6 liveness windows are right). §11.10.1 states the full buildable experiment matrix
-  (Experiments A–G, symbols, fixed policy, sweep points, pass/fail thresholds) against an OpenMLS-on-aarch64
-  harness plus a gossip testbed.
-- **Promotion target:** the section's tier numbers and the hot-N comfort ceiling move from reasoned envelope
-  to measured once the matrix runs; the `[gates-release]` marker clears for any figure that becomes a
-  stated SLA.
-- **Gates:** build/instrument the OpenMLS harness and the gossip testbed; run Experiments A–G; pin and
-  record ciphersuite, credential type, library version, and device SoC with every result set.
-- **Provenance:** Part 2 §11 (large-group scaling), §11.10.1 + §11.11; document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
-
-#### T39 - Non-member-verifiable membership attestation (the mechanical core of the experimental public regime)
-
-- **Status:** `open · gated` (`Load-bearing, unearned`; the whole §11.9.3 public regime is gated on it).
-- **Type:** `needs-proving` (a real cryptographic design problem, sketched not solved).
-- **What it is:** the experimental public-by-default regime (§11.9.3) routes a group's public message stream
-  through an MLS-aware relay bridge into an AppView-shaped read view (§11.9.3.1). The open problem: let a
-  *non-member* reader verify "attested member at standing X authored this item" from a forwarded artifact,
-  without trusting the bridge and without the reader being an MLS member (which would defeat the
-  read-outside-the-tree model). It may reduce to signing authored items with a credential chain verifiable
-  against the group's published membership and governance state, but that is a sketch, and it composes with
-  the lineage-attestation questions already open (the two-part credential and its ban-lineage interlock,
-  the resume-vs-fresh identity fork, single-member time-delayed resumption-PSK presentation).
-- **Promotion target:** on a proven mechanism, §11.9.3 moves from Design-experimental toward Design; until
-  then the entire public regime is a candidate direction to prototype, not a committed part of the spec.
-- **Gates:** solve and adversarially analyze the attestation-extraction; prototype the bridge; confirm the
-  read path stays in the "helper cannot lie, only stall" box (content-addressed, governance-positioned
-  items, gap-detectable omission).
-- **Provenance:** Part 2 §11 (large-group scaling), §11.9.3.1 + §11.11 item 7; document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
-
-#### T40 - The public-by-default regime as a whole: status and the confidentiality-inversion posture
-
-- **Status:** `open · experimental` (more speculative than the rest of the section; a candidate direction).
-- **Type:** `design-experimental`.
-- **What it is:** above roughly 7k members the section permits inverting the confidentiality model
-  (§11.9.3): messages public by default (the AppView read view is the primary surface), MLS retained not to
-  encrypt messages but for attestation and membership. The regime concedes Force 2 on purpose while keeping
-  Force 1 (cryptographic membership), which is the honest inversion of the incumbent large-platform posture
-  (payloads-encrypted-yet-server-can-inject-a-member). It carries a heavier honest-residual burden than the
-  tiers below it: forward/post-compromise security relocate from message content to the attestation layer;
-  a member MUST be able to tell unmistakably that the space is public; governance is more exposed against a
-  public backdrop; the performance win is real on fan-out (indexed reads) and on the rate of expensive
-  operations, but NOT on MLS's per-operation cost. It rests on a chain of plausible-but-unvalidated
-  propositions and is gated by T39.
-- **Promotion target:** prototype and stress the regime; if it holds, it graduates from candidate direction
-  to a specified optional tier. It interacts with the T37 placement decision (a whole experimental
-  subsection).
-- **Gates:** T39 (the bridge attestation); a UX/consent design for the public-space clarity requirement; a
-  decision on whether governance events are public at this tier; the §11.9.3.3 attesting-core ceiling
-  measurements (part of T38).
-- **Provenance:** Part 2 §11 (large-group scaling), §11.9.3 (and §11.9.3.1–§11.9.3.3); document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
 
 ### Croft (Layer 6)
 
@@ -828,10 +819,12 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 ### Socialization (Layer 8)
 
-#### T4 — A brand / voice / messaging chapter (a missing theme)
+#### T4 — Brand / voice / messaging (chapter landed; brand-direction decision open)
 
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (structural directive S3 — start now, twinned with T11).
+- **Status:** `open · partially resolved 2026-07-07`. The brand/voice chapter landed as
+  `../socialization/brand-and-voice.md` (it folded the reservoir plus the app-side notes). What stays open
+  is only the **brand-name / direction DRIFT decision** and the clearance/verification gates below.
+- **Type:** `needs-content` (structural directive S3; twinned with T11).
 - **Review (2026-06-26):** **start the doc now** — a brand/voice/messaging working folder that accretes
   taglines, ideas, links, and "ammo" over time (twin to the adoption-enablement doc, T11), so nothing is
   forgotten and we can say "here's what we've been looking at" when it's time. (Brand-name DRIFT gate
@@ -839,9 +832,10 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **What it is:** `narrative/messaging-and-quotes.md` is a mature, provenance-tagged (OURS / CITE /
   CLEARANCE / UNVERIFIED) reservoir — taglines, the corporation-vs-person crowding-out framing (Gneezy &
   Rustichini, Ostrom, Ariely), the digital-living-room / IYKYK positioning, the Euphoria tie-in with a
-  fair-use/trademark analysis. A chapter's worth of brand voice that no beta theme absorbs.
-- **Promotion target:** a **new brand/voice theme** (none of the eight is one); the rollup itself
-  anticipates it.
+  fair-use/trademark analysis. Now consolidated into `../socialization/brand-and-voice.md`; the open work
+  is the brand-direction decision, not the chapter.
+- **Promotion target:** landed at `../socialization/brand-and-voice.md`; this thread now tracks only the
+  residual brand-direction DRIFT decision and the clearances.
 - **Gates:** brand/product-name **DRIFT reconciled vs `NAMING.md`** (the 08/07 dependency — 08 says "must
   be reconciled before any brand chapter"); CLEARANCE items (Euphoria line) cleared with counsel;
   `[UNVERIFIED]` anecdotes confirmed or dropped.
@@ -854,13 +848,15 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T11 — Adoption-chasm thesis + the institutional-mandate "fourth bridge"
 
-- **Status:** `open · gated` (provenance-gated finding + an undone design directive).
-- **Type:** `needs-content` (structural directive S3 — twin doc to T4).
+- **Status:** `open · partially resolved 2026-07-07`. The adoption strategy landed as
+  `../socialization/adoption-strategy.md`. What stays open is the survey's **primary-source verification**
+  and the undone **design-for-institutional-mandate** directive.
+- **Type:** `needs-content` (structural directive S3; twin doc to T4).
 - **Review (2026-06-26):** **start the doc now** — adoption-enablement is the **twin** of the brand/voice
   doc (T4); both accrete thinking, references, and "ammo" over time so we don't forget and can pull the
   thread when the moment comes.
 - **What it is:** a survey of ~16 P2P/local-first projects concluding **only Signal crossed the chasm**, and that crossing needs three conditions — product parity, a non-extractive sustaining org, an inciting event (which produces *spikes*, not sustained migration). Plus a discovered **fourth bridge: institutional mandate** (Matrix's 25+ government adoptions were top-down) "worth designing for explicitly," and the **embedded-trust** corollary (P2P tools must embed in *existing* trust networks, not expect trust to form around the tool).
-- **Promotion target:** **07** (the institutional-adoption path as a sustainability lever) and **03** (close the field map with the "only Signal crossed, and why" verdict).
+- **Promotion target:** landed at `../socialization/adoption-strategy.md`; the descriptive why-incumbents-win map is at `../fenced/platform-dominance-and-adoption.md`. This thread now tracks the survey verification and the institutional-mandate design directive.
 - **Gates:** the survey carries a `[needs primary-source verification]` caveat (confirm before asserting); "design for institutional mandate" is an undone directive.
 - **Alpha provenance:** `../alpha/research/p2p-founder-motivations-adoption.md` (RQ2 synthesis); `../alpha/SOVEREIGN-COMMONS-DOSSIER.md` §7; `../alpha/narrative/long-form.md` (adoption-curve risk, named not analyzed). **Accreting home (S3, started 2026-06-26):** `../alpha/narrative/adoption-enablement.md`.
 
