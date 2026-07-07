@@ -43,28 +43,23 @@ Boundary calls:
 
 | doc | what it is |
 |---|---|
+| `mls-and-mimi.md` | MLS (RFC 9420) and MIMI as building blocks: the group-E2EE core, the TreeSync/TreeKEM/TreeDEM decomposition and its proofs (plus the external-ops weakening), MIMI's per-room hub (the seam Drystone occupies), the scaling reality (commit-serialization + Delivery-Service, not crypto; Soler 2025; CoCoA; the designated-committer fix), and how Drystone uses MLS as a subordinate key-distribution backplane. |
+| `willow-meadowcap.md` | Willow and Meadowcap, mental model corrected: Willow is a state-based CRDT (join-semilattice) held locally and reconciled by range, not an object shipped whole; the Entry/subspace/merge model, the writer-claimed-timestamp wrinkle (no causality, silent loss), what that means for a governance fold, and Meadowcap's unforgeable attenuable capabilities. Drystone is built Willow-shaped. |
+| `blacksky-and-atproto-community.md` | Blacksky (Rudy Fraser): atproto community infrastructure. People's-Assembly/Polis governance, paid community moderators, subscription funding; the thin-AppView-fork + Rust rsky-wintermute path; Community Posts inverting PDS-as-source-of-truth; the transferable ideas (traffic-class queue separation, invariant-inversion honesty) and the governance-vs-corporate-form tension. |
+| `adjacent-systems.md` | The privacy-forward / capture-resistant landscape rated on two axes: Roomy and p2panda (and their opposite postures), the MLS/MIMI standards seam, and SimpleX / Briar / Cwtch / Matrix / Session / Nostr. Conclusion: the "both" corner is niche-and-young or mature-and-metadata-leaky, the structural reason it is empty and the space Drystone occupies. |
 | `atproto-ecosystem.md` | The atproto/AT ecosystem survey: the repository model, lexicons, sync semantics, and the field of atproto-native projects (Frontpage, Roomy, the Arbiter, and others). |
 | `social-lexicon-group-research-brief.md` | The research brief mapping social-application lexicons and group feature models (Bluesky lexicon catalog, cross-platform group features, membership/moderation lifecycle) onto a per-author, membership-scoped substrate. |
 
-## Migration backlog (ecosystem material living elsewhere that belongs here)
-
-Filed elsewhere in earlier batches, to migrate into cairn when the consistency sweeps run:
-- The **MLS scaling survey** (guarantees vs demonstrated reality; commit-serialization and Delivery-Service
-  bottlenecks; CoCoA/SAIK; OpenMLS and Soler et al. 2025 benchmarks; Wire/Webex/Cloudflare/Matrix
-  deployments) — in a raw transcript.
-- The **Willow / Meadowcap analysis** (the state-based-CRDT data model, the timestamp-tiebreak wrinkle,
-  maturity status) — in a raw transcript and the local-authority notes.
-- The **Blacksky research** (People's-Assembly/Polis governance, the thin-AppView-fork + Rust path, Community
-  Posts) — in a raw transcript.
-- The **ecosystem landscape** section of the local-authority collaboration notes (SimpleX, Briar, Cwtch,
-  Matrix, Session, Nostr rated on the capture-resistance and privacy axes; MLS/MIMI as the seam).
-- **Roomy / p2panda** tracking (the customer-changing-suppliers vs supplier-releasing-hard-parts contrast).
-
 ## Provenance & status
 
-Seeded 2026-07-07 (batch ten). `atproto-ecosystem.md` and `social-lexicon-group-research-brief.md` filed
-byte-verbatim from the p10 corpus (`ten-willlow.zip`); the full p10/p11 corpus is frozen at
-`../../alpha/seeds/p10-p11-corpus/`. See `../../alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`.
+Seeded 2026-07-07 (batch ten); the migration backlog was distilled the same day. `atproto-ecosystem.md` and
+`social-lexicon-group-research-brief.md` filed byte-verbatim from the p10 corpus (`ten-willlow.zip`). The
+four survey docs (`mls-and-mimi`, `willow-meadowcap`, `blacksky-and-atproto-community`, `adjacent-systems`)
+were distilled from the raw transcripts (`../../alpha/seeds/transcripts/raw/mls-scaling-willow-ecosystem-and-cairn-2026-07-07.md`
+and `../../alpha/seeds/transcripts/raw/mls-blacksky-modular-prior-art-2026-07-06.md`), which remain the
+provenance. The full p10/p11 corpus is frozen at `../../alpha/seeds/p10-p11-corpus/`. The former migration
+backlog (MLS scaling, Willow/Meadowcap, Blacksky, the ecosystem landscape, Roomy/p2panda) is now filed as
+those four docs. See `../../alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`.
 
 ## What this layer establishes (and does not)
 

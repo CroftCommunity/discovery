@@ -719,3 +719,21 @@ coffee-shop + elevator-pitch → `beta/socialization/`; `conventions-and-decisio
 `beta/drystone-spec/open-threads.md`. Superseded standalones (persona-definition, open-items,
 bounded-contexts, review-handoff, SVGs) still retained pending retirement (p11 subsumes them via Appendix
 D / B). Full corpus stays frozen at `seeds/p10-p11-corpus/`. Committed and pushed.
+
+**Superseded-standalone handling + cairn migration (2026-07-07, on the user's direction).** (1) The
+superseded spec standalones (`persona-definition`, `open-items`, `bounded-contexts-and-vocabulary`,
+`review-handoff`, the two SVGs) were **moved to `beta/drystone-spec/superseded/`** (+README) and marked as
+provenance, treated as raw transcripts would be, kept not retired. (2) Items 2 (peer→persona reconciliation)
+and 3 (em-dash tidy of pre-existing docs) deferred to the end, current-versions-only, per the user. (4) The
+**cairn migration backlog was distilled into four survey docs** in `beta/cairn/`: `mls-and-mimi.md` (MLS +
+MIMI + the scaling survey + the TreeSync/TreeKEM/TreeDEM decomposition), `willow-meadowcap.md` (the
+state-based-CRDT mental model + the timestamp wrinkle + Meadowcap), `blacksky-and-atproto-community.md`
+(Blacksky governance/AppView/transferable ideas), and `adjacent-systems.md` (Roomy, p2panda, SimpleX, Briar,
+Cwtch, Matrix, Session, Nostr on the two axes). Drafted by four parallel opus subagents grounded strictly in
+two raw transcripts: the batch-8 `mls-blacksky-modular-prior-art` and the newly-filed batch-10
+`mls-scaling-willow-ecosystem-and-cairn-2026-07-07.md` (which preserves the MLS-scaling, Willow, adjacent-
+systems, ATProto-lexicon, feasibility, and cairn-proposal threads that had not yet been captured). All four
+em-dash-clean. cairn README + LAYERS.md updated (backlog → filed). Modular Politics stays in
+`philosophy/prior-art/`. Honest note on scope: of the 30-file `ten-willlow.zip`, ~2 were swapped live, ~18
+routed into layers, and the superseded/duplicate versions live only in the frozen seed, not made live.
+Committed and pushed.
