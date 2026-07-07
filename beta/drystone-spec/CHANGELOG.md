@@ -8,6 +8,38 @@ This changelog is organized by theme rather than by line, because several change
 
 ---
 
+## document-pass-7 (2026-07-07): fold the re-plant instantiation mechanism into §7.6.4 (needs verification)
+
+**What changed, in one line.** The content audit (below) confirmed the p9 consolidation dropped nothing, and
+surfaced one "not yet folded" item: the detailed MLS re-plant/atomic-swap **mechanism** lived only in the
+`impl/` design corpus (never in Part 2). On the user's instruction, it is folded into **Part 2 §7.6.4** now,
+in-context for the protocol, with a `needs verification` tag throughout, and tracked as OPEN-THREADS T36.
+
+**New §7.6.4 "The re-plant instantiation mechanism, and its validation status"** (after the §7.6.3
+MLS-subordinate treatment and the ReInit-non-atomicity hazard, both already present). Folds, each grounded
+against a named RFC section but carrying `[confirm before publish]` because the composed operation is not
+yet exercised end-to-end: unilateral O(N) instantiation (KeyPackage-per-member, batched Adds + Welcomes);
+the **last-resort KeyPackage** as the center-free availability floor (RFC 9420 §10, §16.8), so a re-plant
+never blocks on an unreachable member; a fresh stamp as a **group-wide leaf-key refresh** (PCS) with the
+last-resort exception, plus the blank-node cost reset; **planter byte-nondeterminism as a dedup, not a
+fork** (nothing downstream reads the tree, §7.6.3); stale-`GroupInfo` external-commit PCS integrity (RFC
+9420 §12.1.6); and the **`epoch_authenticator` fold-not-parallel candidate** for whole-group consistency
+(RFC 9420 §8.7, `[confirm]`). Names the **E12 experiment set** (E12.1–E12.7 on `mls-rs 0.55.2`, Rung A for
+MLS mechanics / Rung B for Drystone's own structures) as the validation path, and points at
+`impl/delivery-layer/12-replant-experiments.md` + `impl/mls/mls-hardcases-and-posture.md` for the full
+derivation.
+
+**Content audit result (recorded as durable provenance).** The p9 consolidation (document-pass-6) was
+audited against the pre-consolidation spec (git `22982ea`) and every companion, at heading and content
+level. **Nothing was dropped.** Every heading the diff flagged as "missing" is a renumber/retitle confirmed
+present by content: §6 transport was expanded (three-plane Carriage/Durability/Presence), real-time media
+→ §6.12, honesty boundaries → §8.2, Group-as-principal → §5.10, the escalation two-member shape → §7.6.1.
+The subsumed companions are genuinely absorbed (`persona-definition.md` → §5.2 + Appendix D incl. "D.7
+Invariants of record"; `open-items.md` → Appendix B). The only "not yet folded" item was the re-plant
+mechanism (this pass closes it). The `impl/` design corpus (re-plant experiments, MLS hard-cases) is intact.
+
+---
+
 ## document-pass-6 (2026-07-06): the consolidation (p9) — self-contained Part 1 + Part 2, transport + MLS folded in
 
 **What changed, in one line.** The definitive synthesis pass: the transport/delivery design and the deep MLS

@@ -639,3 +639,33 @@ agent's known content-loss. Not distilled into docs: the proof-of-personhood sur
 Siddarth et al. "Who Watches the Watchmen"; the decentralized-identity trilemma; web-of-trust/PGP lineage;
 Idena) and the protocol-licensing analysis (CC BY + AGPL + trademark/conformance) — both in the raw
 transcript, candidates for `philosophy/prior-art` and the governance layer. Batch **9 of 11**.
+
+## 2026-07-07 — post-consolidation content audit + re-plant mechanism fold (document-pass-7)
+
+**Content audit (durable record, per the user's request after batch 9).** The user flagged the web agent
+had lost/missing content across iterations, so the p9 consolidation (document-pass-6) was audited against
+the pre-consolidation spec (git `22982ea`, document-pass-5) and every companion, at both heading and
+content level. **Result: nothing was dropped.** Every heading the diff flagged "missing" is a
+renumber/retitle, confirmed present by content-search: §6 transport was *expanded* into the three-plane
+model (Carriage/Durability/Presence + discovery §6.9, gossip §6.10, deployment §6.11); real-time media →
+§6.12; honesty boundaries → §8.2; Group-as-principal → §5.10; the escalation two-member shape (contradiction
++ under-determination) → §7.6.1. Subsumed companions genuinely absorbed: `persona-definition.md` → §5.2 +
+Appendix D (incl. "D.7 Invariants of record", 63 concept hits, *more* comprehensive than the standalone);
+`open-items.md` → Appendix B (35 structured lines vs 20). The `impl/` design corpus (re-plant experiments,
+MLS hard-cases) is intact in place. The single "not yet folded" item was the detailed re-plant mechanism
+(closed by the fold below).
+
+**Re-plant mechanism fold (document-pass-7).** On the user's instruction ("fold it now with needs-verification
+tag; track it in open threads but meaningfully in context for the protocol"), the detailed MLS
+re-plant/atomic-swap mechanism was folded from `impl/delivery-layer/12-replant-experiments.md` +
+`01-delivery-architecture.md` and `impl/mls/mls-hardcases-and-posture.md` into **Drystone spec Part 2
+§7.6.4** (new subsection), carrying `[confirm before publish] / needs verification` throughout: O(N)
+instantiation, last-resort KeyPackage availability floor, group-wide leaf-key refresh (PCS) with the
+last-resort exception, blank-node cost reset, planter-byte-nondeterminism-is-dedup, stale-`GroupInfo`
+external-commit PCS integrity, and the `epoch_authenticator` fold-not-parallel candidate. Validation path
+named (the E12.1–E12.7 experiment set on `mls-rs 0.55.2`; Rung A MLS mechanics, Rung B Drystone's own
+structures). Tracked as **OPEN-THREADS T36** (status `open · gated`, needs the E12 run + the Appendix B
+re-plant items). CHANGELOG document-pass-7 records both the audit and the fold. The `impl/` corpus is
+retained as the derivation and experiment plan (not deleted). Part 2 stays em-dash-clean; the fold is
+grounded per-claim against named RFC sections. **Committed and pushed** to `origin/main`
+(`CroftCommunity/discovery`).
