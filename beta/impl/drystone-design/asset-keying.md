@@ -114,7 +114,7 @@ Neither term is a duration. A node evaluates the predicate against the fact grap
 
 **How it satisfies Part 2 §7.2.**
 
-- **R3 (convergent revocation):** provisioning follows the convergent fold, so honest peers converge on the same current asset key for the same frontier.
+- **R3 (convergent revocation):** provisioning follows the convergent fold, so honest nodes converge on the same current asset key for the same frontier.
 
 - **R4 (bounded stale exposure):** the bound is "until the frontier quiesces and the fresh key converges," expressed in fold generation, not wall-clock.
 

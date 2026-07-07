@@ -116,17 +116,17 @@ The argument is a chain, and each link is necessary:
 
 - Local-first gives each persona possession of their own side of every relationship: their identity, their keys, their copy of the history, their graph of who-knows-whom, independent of any shared server.
 
-- Real, portable edges make exit lossless. A peer who leaves takes their keys, their copies, their identity, and their relationships, and re-forms elsewhere losing nothing but the disagreement.
+- Real, portable edges make exit lossless. A persona who leaves takes their keys, their copies, their identity, and their relationships, and re-forms elsewhere losing nothing but the disagreement.
 
-- Lossless exit makes fork a genuine resolution rather than a punishment. When peers genuinely and irreconcilably disagree about the rules of their shared space, the fork costs the departing side nothing it held, so it is a real option and not a threat.
+- Lossless exit makes fork a genuine resolution rather than a punishment. When personae genuinely and irreconcilably disagree about the rules of their shared space, the fork costs the departing side nothing it held, so it is a real option and not a threat.
 
 - Fork-as-resolution is the only center-free way irreconcilable disagreement can settle. There is no cosmic referee to decide which faction was right; there is the fact that people can walk and take their relationships with them and re-form. The disagreement is not adjudicated, it is resolved by reconfiguration.
 
 - Therefore any governance concentration is safe to permit (§4), because it is always revocable and exitable, and the exit is real precisely because local-first made the edges portable.
 
-This is why a centralized architecture cannot represent genuine social conflict resolution, and the impossibility is structural, not a matter of will. On a central server, exit is not real: leaving means losing your history, your identity in that space, and your connections, because the server owned them. So a centralized system can only offer adjudication-by-the-host, which is exactly what real peers do not have and do not want. The host becomes a referee by default, because it holds what you would need to take with you. Real social conflict, historically and socially, resolves by reconfiguration, congregations split, co-ops fracture, communities fork, and only local-first can reflect that, because only local-first gives the peers the real edges that make reconfiguration lossless.
+This is why a centralized architecture cannot represent genuine social conflict resolution, and the impossibility is structural, not a matter of will. On a central server, exit is not real: leaving means losing your history, your identity in that space, and your connections, because the server owned them. So a centralized system can only offer adjudication-by-the-host, which is exactly what personae in genuine peer standing do not have and do not want. The host becomes a referee by default, because it holds what you would need to take with you. Real social conflict, historically and socially, resolves by reconfiguration, congregations split, co-ops fracture, communities fork, and only local-first can reflect that, because only local-first gives personae the real edges that make reconfiguration lossless.
 
-So the chain closes on itself: local-first gives peers real edges, real edges make exit lossless, lossless exit makes fork a genuine resolution, fork-as-resolution is the only center-free settlement of disagreement, and that is what makes it safe to permit any governance a group chooses. The permissiveness at the top is underwritten by the necessity at the bottom. `Synthesis.`
+So the chain closes on itself: local-first gives personae real edges, real edges make exit lossless, lossless exit makes fork a genuine resolution, fork-as-resolution is the only center-free settlement of disagreement, and that is what makes it safe to permit any governance a group chooses. The permissiveness at the top is underwritten by the necessity at the bottom. `Synthesis.`
 
 ## 7. Faithful representation, and the protocol/product division
 
