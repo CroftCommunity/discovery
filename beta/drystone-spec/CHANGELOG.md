@@ -8,6 +8,38 @@ This changelog is organized by theme rather than by line, because several change
 
 ---
 
+## document-pass-10 (2026-07-07): fold the large-group-scaling section into Part 2 as §11 (resolves the §7 collision, T37)
+
+**What changed, in one line.** The standalone `large-group-scaling.md` (filed at document-pass-9, titled
+"Part 2 §7") was folded into `part-2-certifiable-design.md` as a new section **§11**, resolving the
+numbering collision with the existing Part 2 §7 (Synchronization and governance-conflict resolution). On
+the user's decision.
+
+**The fold.** The section's content moved verbatim into Part 2 immediately after §10 (Substrate
+Requirements) and before Appendix A, with three mechanical transforms and nothing else:
+
+- **Self-references renumbered §7.N → §11.N** throughout (the section's own §7.1–§7.14, §7.9.1–§7.9.3.3,
+  §7.10.1). Headings became `## 11.` / `### 11.N` / `#### 11.N.M` / `##### 11.N.M.P`, nested one level
+  under the new `## 11.` section header so they sit correctly within Part 2.
+
+- **External references to the real §7 were preserved as `§7.x`.** Every citation of the existing §7
+  (both the `Part 2 §7.x` form and the bare `§7.3.1 / §7.3.2 / §7.3.5 / §7.3.6 / §7.4.2 / §7.5.2 / §7.6.4 /
+  §7.6.7` forms, which name subsections that exist in the real §7 and not in this section) was left
+  pointing at §7. These are the dependencies §11 builds on, unchanged.
+
+- **The §0 Map gained a §11 entry**; no other Part 2 text was touched.
+
+**Nothing lost, nothing else altered.** The byte-identical original remains frozen at
+`../../alpha/seeds/large-group-scaling-batch11/eleven.zip`; the standalone live file was removed because its
+content now lives in Part 2 §11. The companion research prompt (`research-prompt-operational-rates.md`)
+stays a separate artifact, now pointed to by §11.14. Downstream cross-references were updated to §11 in the
+current docs (`README.md`, `../LAYERS.md`, `../README.md`, `../fenced/README.md`, `../OPEN-THREADS.md`).
+Open thread **T37 (placement/numbering) is resolved**; T38–T40 (the experiment matrix, non-member-verifiable
+attestation, the public-by-default regime) remain open design work and now cite §11.x. The document-pass-9
+entry below is retained as the historical record of the initial standalone filing.
+
+---
+
 ## document-pass-9 (2026-07-07): the large-group-scaling section filed as a standalone companion, plus the operational-rates research prompt
 
 **What changed, in one line.** Two new spec-side artifacts were filed from batch eleven (byte-identical to

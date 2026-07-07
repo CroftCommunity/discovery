@@ -28,7 +28,7 @@ Layer  Dir              Holds                                                   
                         Reddit, X, iMessage, Messenger, LINE, WeChat. Roster/
                         call/broadcast ceilings, E2EE stance by surface+layer,
                         per-group rates, economics. A descriptive map, no
-                        argument; feeds the spec (§7.9.1, §7.13) and activism.
+                        argument; feeds the spec (§11.9.1, §11.13) and activism.
 4      drystone-spec/   the protocol (principles → certifiable spec)                the WHAT (protocol)
 5      impl/            reference core: pragmatic, maintainable, cross-platform     the WHAT (built)
 6      croft/           product + brand; Croft as one "flavor" on the neutral core  the WHAT (product)
@@ -53,7 +53,7 @@ stands on*, so it sits at the base:
   spec because **the spec had to survey the field first**, to know whether the ecosystem held the parts to
   assemble a safe amount of novelty practically (designing iroh, MLS, CBOR-DAG, or Willow from scratch would
   have been too heavy a blocker), and to know what the centered incumbents can and cannot do (the fenced
-  map's E2EE-vs-scale tradeoff and per-group rates ground the spec's scaling posture at §7.9.1 and §7.13).
+  map's E2EE-vs-scale tradeoff and per-group rates ground the spec's scaling posture at §11.9.1 and §11.13).
   The spec is built on the principles *and* on both halves of the surveyed field.
 - **Layers 4–7 are the build.** Protocol (4) → reference implementation (5) → product/brand (6) →
   manifestation as a running institution (7). Define the protocol from the principles and the field,
@@ -167,8 +167,8 @@ root remain the reading spine until their content migrates into layers.
 3′), the descriptive counterpart to `cairn/` and the substrate `activism/` reads its harm case from. First
 population is two survey docs distilled from the batch-11 raw transcript: `group-scale-versus-e2ee.md` (the
 14-platform capability map and the two forces) and `operational-rates-and-platform-economics.md` (the three
-per-group rates plus the Telegram economics). Both feed the Drystone spec's large-group-scaling section
-(§7.9.1 encryption posture, §7.13 empirical basis).
+per-group rates plus the Telegram economics). Both feed the Drystone spec's §11 (large-group scaling)
+(§11.9.1 encryption posture, §11.13 empirical basis).
 
 **cairn migration: done (2026-07-07).** The former backlog is now filed as four survey docs distilled from
 the raw transcripts: `mls-and-mimi.md` (incl. the scaling survey), `willow-meadowcap.md`,

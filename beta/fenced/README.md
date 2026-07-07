@@ -30,7 +30,7 @@ its own register, and none competes to be the source of truth for another's clai
 
 `fenced` is the descriptive counterpart to `cairn` (the two halves of the existing landscape, open and
 fenced) and the descriptive substrate `activism` reads its harm case off of. It also feeds the spec:
-`drystone-spec/` §7.9.1 (the encryption posture, why Drystone can be large *and* encrypted) and §7.13
+`drystone-spec/` §11.9.1 (the encryption posture, why Drystone can be large *and* encrypted) and §11.13
 (the empirical basis for "most members dormant, bans rare, cost scales on the live set") read the
 E2EE-vs-scale tradeoff and the per-group rates straight off this map.
 
@@ -55,7 +55,7 @@ Boundary calls:
   the response. A ban-rate number or a roster cap is fenced; "what platform power does to community labor,
   and what we do about it" is activism.
 
-- **vs `drystone-spec/`.** The spec *cites* the tradeoff and the rates it uses (§7.9.1, §7.13). Fenced
+- **vs `drystone-spec/`.** The spec *cites* the tradeoff and the rates it uses (§11.9.1, §11.13). Fenced
   holds the *whole surveyed field* behind those citations, including the platforms and figures the spec
   did not need, so the map is tracked in one place rather than scattered across justifying clauses.
 
@@ -63,15 +63,15 @@ Boundary calls:
 
 | doc | what it is |
 |---|---|
-| `group-scale-versus-e2ee.md` | The capability map: roster, mutual-call, and broadcast ceilings across 14 platforms; the E2EE stance by surface (1-to-1 / group / broadcast) and layer (text / voice-video); and the two forces that make roster size and group-text E2EE trade off (Force 1, the key-agreement cost curve; Force 2, server-mediated core function). The load-bearing map behind spec §7.9.1. |
-| `operational-rates-and-platform-economics.md` | The internal dynamics and economics of the fenced field: the three per-group operational rates (member-ban, member-join, live-fraction) triangulated across source tiers with explicit confidence, and the platform-economics notes (Telegram's monetization, Premium, and boost model as the worked example). The empirical basis behind spec §7.13. |
+| `group-scale-versus-e2ee.md` | The capability map: roster, mutual-call, and broadcast ceilings across 14 platforms; the E2EE stance by surface (1-to-1 / group / broadcast) and layer (text / voice-video); and the two forces that make roster size and group-text E2EE trade off (Force 1, the key-agreement cost curve; Force 2, server-mediated core function). The load-bearing map behind spec §11.9.1. |
+| `operational-rates-and-platform-economics.md` | The internal dynamics and economics of the fenced field: the three per-group operational rates (member-ban, member-join, live-fraction) triangulated across source tiers with explicit confidence, and the platform-economics notes (Telegram's monetization, Premium, and boost model as the worked example). The empirical basis behind spec §11.13. |
 
 ## Provenance & status
 
 Seeded 2026-07-07 (batch eleven), the layer's first population. Both survey docs were distilled from the
 raw transcript
 `../../alpha/seeds/transcripts/raw/drystone-large-group-scaling-e2ee-operational-rates-and-telegram-2026-07-07.md`
-(the research report the Part 2 §7.14 prompt produced, plus the Telegram field-notes tail), which remains
+(the research report the Part 2 §11.14 prompt produced, plus the Telegram field-notes tail), which remains
 the provenance. The as-received batch is frozen at `../../alpha/seeds/large-group-scaling-batch11/`. Every
 figure carries its source tier (T1 primary / T2 peer-reviewed-or-direct-reporting / T3 secondary) and a
 confidence; caps and rates change, so re-verify any single number before it enters an SLA. See
