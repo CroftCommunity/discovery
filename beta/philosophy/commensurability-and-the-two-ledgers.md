@@ -212,7 +212,35 @@ standing capacity over the participants it renders legible, which is domination 
 even where it is never abused, and it denies them the relational equality Anderson names, because
 it apprehends them as input variables rather than as parties whose vantage counts.
 
-## XI. The design bridge
+## XI. Two operating systems: linear/extractive versus cyclical/relational
+
+Underneath the two ledgers sits a deeper values contrast, a third framing of the "why" distinct from the
+epistemic one (no center can hold the truth) and the political one (non-domination): two opposed operating
+systems for a society. This is manifesto-grade framing, stated as a values commitment rather than a
+technical inevitability. [UNVERIFIED: confirm against a primary before publish.]
+
+- Time: the linear system reads time as a line (history running to an end point); the cyclical system reads
+  it as continuous renewal.
+
+- Nature: the linear system treats nature as machine and resource to subdue; the cyclical system treats it
+  as kin, dominion giving way to relationship.
+
+- Waste: the linear system runs extract-to-product-to-discard; the cyclical system holds that there is "no
+  such thing as waste."
+
+- The value of a person: the linear system tethers worth to labor, net worth, or class and treats people as
+  expendable; the cyclical system holds worth as inherent, with a flat hierarchy.
+
+- Cognition: the linear system privileges an abstract model over lived experience; the cyclical system is
+  present, relational, and lived.
+
+The thesis chooses the cyclical/relational system, and this is what the whole ledger argument cashes out to
+at the level of values: the Ledger of State is the linear system's instrument (make everything commensurate,
+extract, discard), and the Ledger of Meaning is the cyclical system's (worth is inherent and non-fungible,
+and the "waste" the linear system would prune is the relationship itself). Naming it as a values choice,
+rather than smuggling it in as an inevitability, is the honest form of the argument.
+
+## XII. The design bridge
 
 Every strand converges on one sentence: **social value is a local-authority concern; a central,
 legible, capital-and-ledger-first optimizer cannot hold the variety of the lifeworld without
