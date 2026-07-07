@@ -170,6 +170,18 @@ population is two survey docs distilled from the batch-11 raw transcript: `group
 per-group rates plus the Telegram economics). Both feed the Drystone spec's §11 (large-group scaling)
 (§11.9.1 encryption posture, §11.13 empirical basis).
 
+**Multi-layer intake (2026-07-07).** A batch of web-session material was distilled across layers (raw
+transcripts frozen in `../alpha/seeds/transcripts/raw/`): **philosophy** gained three docs, the Lifeworld/
+System and public-sphere argument (Habermas + Arendt/Postman/Debord/Morozov), the commensurability / two-
+ledgers / legibility-and-metis grounding (Polanyi, Sandel, Georgescu-Roegen, Taleb, Putnam, Scott, Jacobs;
+"social value is a local-authority concern," "why a ledger cannot be the social backplane"), and an
+epistemics note (Rosenhan, the replication crisis, provenance-first verification); **governance** gained its
+first content doc (the improvement paradox and making preventative work visible); **socialization** gained a
+logo brand-asset stub (drystone-stacking, brief only); **impl** gained transport (iroh-gossip/QUIC) and
+Kleppmann-DDIA reference notes plus a diagrams section in the doc-writing method; **drystone-spec** gained a
+dag-cbor / content-addressing companion primer; and **fenced** gained a Facebook group-size data point. The
+arecipe project material from the same batch was skipped (filed under `CroftC/arecipe`).
+
 **cairn migration: done (2026-07-07).** The former backlog is now filed as four survey docs distilled from
 the raw transcripts: `mls-and-mimi.md` (incl. the scaling survey), `willow-meadowcap.md`,
 `blacksky-and-atproto-community.md`, and `adjacent-systems.md` (Roomy/p2panda/SimpleX/Briar/Cwtch/Matrix/
