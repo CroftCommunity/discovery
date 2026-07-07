@@ -1,5 +1,10 @@
 # Alpha → beta rollup ledger (the maturity-transition trace)
 
+> **SUPERSEDED as the live map (2026-07-07).** This ledger is theme-keyed (01–08). The beta themes are being
+> discarded and the corpus re-filed onto the layer-cake, so the live source→landing map now lives in
+> `LAYER-ROLLUP.md` (layer-keyed). This file is retained frozen as the historical record of the theme era;
+> do not update it. See `plans/2026-07-07-refile-alpha-into-layers.md`.
+
 date: 2026-06-24
 
 purpose: the auditable record of how `alpha/` content and semantics were rolled up into the `beta/`
