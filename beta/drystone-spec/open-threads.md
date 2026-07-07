@@ -149,6 +149,15 @@ Footprints, heaviest first:
   chunks, is a durability-layer choice independent of the primitives. `Design`, open, with the chunking
   granularity `[confirm]`.
 
+- **Total-device-loss recovery: the lock versus the trust (the bannered recovery-anchor decision).**
+  Recovery splits into two separable tiers. Tier 1, the lock, is a mechanism (threshold or Shamir shares,
+  sealed, released on a predicate, optional timelock); it is buildable now, and the release predicate should
+  be a threshold across independent trust domains, never a single gate. Tier 2, the trust, is who and when a
+  release is legitimate; this is the genuinely-unsolved-in-general social problem (the TLS
+  certificate-chain-versus-issuer analogy). The consequence for the recovery anchor: the mechanism is
+  shippable and only the trust predicate is undecided, which is a sharper framing of the open decision than
+  backup-versus-delegation. `Design`, open (the trust predicate is the user's call).
+
 ## 3. Confirmations against primaries or stress-tests (`[confirm]`, reasoned not proven)
 
 - **iroh crates past core-1.0 (§6.5, §6.9, §6.10, §10.3).** iroh core 1.0 is verified. The
