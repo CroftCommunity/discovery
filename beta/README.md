@@ -106,7 +106,7 @@ to the edges. The canonical layer model, the two traversals, and the register di
 | 3′ | `fenced/` | THE FIELD (fenced half): the centered commercial platforms (Telegram, Discord, WhatsApp, Signal, Slack, Teams, Reddit, X, iMessage, Messenger, LINE, WeChat). Roster/call/broadcast ceilings, E2EE stance, per-group rates, economics. A descriptive map (no argument); feeds the spec (§11.9.1, §11.13) and activism. | **seeded 2026-07-07** (batch eleven: capability map + operational-rates/economics) |
 | 4 | `drystone-spec/` | Protocol spec (Parts 1+2, persona-definition, CHANGELOG, open-items, feasibility review, §11 (large-group scaling)) | populated |
 | 5 | `impl/` | Reference implementation, experiment-informed (themes 04/05/06 to migrate) | **seeded** (`delivery-layer/` + `mls/` bundles + shared `doc-writing-method.md`) |
-| 6 | `croft/` | Product thinking, Croft as a "flavor" (theme 08 to migrate) | not yet created |
+| 6 | `croft/` | Product thinking, Croft as a "flavor" on the neutral core: the garden of ponds/pads, the social-graph-as-substrate reframe | **seeded 2026-07-07** (product-shape + social-graph-as-substrate, folded from theme 08 + alpha) |
 | 7 | `governance/` | The manifestation: foundation + cooperative, legal/financial actualization (theme 07 to migrate) | **seeded** (reserved; peer-standing argument moved to `philosophy/`) |
 | 8 | `socialization/` | Brand / voice / adoption, *presentation* register (T4 / T11 terrain) | **seeded** (human-facing peer-standing pieces) |
 | 9 | `activism/` | The case against the status quo: why incumbent platforms are harmful, *empirical* register | **seeded** (the "platforms author the relational field" research set) |

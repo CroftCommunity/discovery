@@ -161,7 +161,8 @@ centered-platform capability map + the per-group operational rates and platform 
 `governance/` (reserved; README only), `socialization/` (essay + pitch), `activism/` (research set),
 `drystone-spec/` (populated), `impl/` (delivery-layer + mls bundles + the shared doc-writing-method).
 Seeded 2026-07-07 as part of the alpha->layers re-file: `history/` (Layer 1, the material
-crofting/dry-stone/enclosure-inversion record). Not yet created: `croft/` (theme 08). The `02`–`08` theme docs at beta
+crofting/dry-stone/enclosure-inversion record) and `croft/` (Layer 6, the product: the garden of ponds/pads
+and the social-graph-as-substrate reframe). Both net-new layers now exist. The `02`–`08` theme docs at beta
 root remain the reading spine until their content migrates into layers.
 
 **`fenced/` created (2026-07-07, batch eleven).** The tenth layer and the fenced half of the field (tier
