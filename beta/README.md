@@ -62,34 +62,18 @@ No `Sources (alpha)` footer, no `Provenance trace`, no "do not carry forward" li
 rollup table inside a beta doc — all of it lives at the prior level (`../alpha/BETA-ROLLUP.md`), per the
 tier discipline above.
 
-## The themes (reading order)
+## The synthesis is the layer-cake (themes retired 2026-07-07)
 
-The seven lineages of thinking (G1–G7) resolved into narrative themes. Reading order runs
-why → history → field → protocol → identity → safety → sustainability → product.
+The synthesis was first drafted as eight narrative **themes** (`02`–`08`, plus a `01` that became the
+spec). That structure was superseded: a theme cut *across* maturity layers, so a single conclusion ended up
+split between layers or duplicated, and the one-home-per-claim invariant could not hold. The corpus has been
+**re-filed directly onto the layer-cake** (below) and the theme docs **discarded**. The former `01`
+(epistemic foundation) is **Part 1 of the Drystone spec** (`drystone-spec/`). Drystone is the protocol;
+Croft is one ecosystem built on it (see `drystone-spec/README.md`).
 
-**The "why" is now the Drystone protocol spec.** Theme `01` (the epistemic foundation) was
-**superseded 2026-06-26**: its reasoning became **Part 1 (Reasoning Underpinnings)** of the
-vendor-neutral **Drystone protocol specification** (`drystone-spec/`), which pairs it with **Part 2 (The
-Certifiable Design)** — the build-against, certify-against mechanics. The `02`–`08` numbering is retained
-for stability (cross-references are stable); there is intentionally no `01` theme doc. Drystone is the
-protocol; Croft is one ecosystem built on it (see `drystone-spec/README.md`).
-
-| # | doc | thesis (one line) | lineage | status |
-|---|---|---|---|---|
-| — | `drystone-spec/` (Part 1) | The "why": no center can hold the truth; compute provenance, never utility; local-first is the generative premise; a peer is a locus of adjudication. | N1 / G1 | **spec — Part 1** (supersedes the former `01`) |
-| 02 | `02-enclosure-and-its-inversion.md` | Every era's commons gets enclosed; the croft is the rare halt — a private plot coupled to a surviving common. | N2 / G3a+G1 | **drafted** |
-| 03 | `03-the-living-ecosystem.md` | Against the live field (atproto/Solid/DSNP/Nostr/Matrix/Germ), Croft's bet is "different, not weaker." | N3 / G3b | **drafted** |
-| 04 | `04-the-protocol-we-proved.md` | A group is a navigable lineage, not an eternal room — and it is green-real on openmls 0.8.1, not a sketch. (The *narrative* of proving the protocol; the spec itself is `drystone-spec/`.) | N5 / G4 | **drafted** |
-| 05 | `05-identity-you-carry.md` | Keys are not identity; a person is a DID lineage; cross-platform continuity is attestation, never a master key. | N6 / G5 | **drafted** |
-| 06 | `06-safety-without-surveillance.md` | A content-blind system stays safe by structure, not inspection; membership ≠ access. | N8 / G6 | **drafted** (graduated to its own theme) |
-| 07 | `07-sustainability-and-stewardship.md` | Non-extraction is anti-fragile — if a cooperative mechanism *and* an IP-stewardship structure carry it. | N4 / G2 | **drafted** — **decision-gated** |
-| 08 | `08-croft-the-product.md` | The social graph is the substrate; chat is a tenant; a durable group carries co-equal sibling activities — surfaced as a composable garden of ponds + pads on one core, thin shells. | N7 / G7 | **drafted** — **decision-gated** |
-
-```
-  drystone-spec ─► 02 ─► 03 ─► 04 ─► 05 ─► 06 ─► 07 ─► 08
-  why + design     history field protocol identity safety sustainability product
-  └─ the protocol ─┘  └──── what we built & proved ────┘  └── how it survives & ships ─┘
-```
+The complete source-to-layer trace (every alpha and theme source, its treatment, and the conclusion-
+coverage gate) is `../alpha/LAYER-ROLLUP.md`. The theme-keyed `../alpha/BETA-ROLLUP.md` is retained frozen
+as the historical record of the theme era.
 
 ## The layer-cake (emerging structure, populated across sessions)
 
@@ -107,7 +91,7 @@ to the edges. The canonical layer model, the two traversals, and the register di
 | 4 | `drystone-spec/` | Protocol spec (Parts 1+2, persona-definition, CHANGELOG, open-items, feasibility review, §11 (large-group scaling)) | populated |
 | 5 | `impl/` | Reference implementation, experiment-informed (themes 04/05/06 to migrate) | **seeded** (`delivery-layer/` + `mls/` bundles + shared `doc-writing-method.md`) |
 | 6 | `croft/` | Product thinking, Croft as a "flavor" on the neutral core: the garden of ponds/pads, the social-graph-as-substrate reframe | **seeded 2026-07-07** (product-shape + social-graph-as-substrate, folded from theme 08 + alpha) |
-| 7 | `governance/` | The manifestation: foundation + cooperative, legal/financial actualization (theme 07 to migrate) | **seeded** (reserved; peer-standing argument moved to `philosophy/`) |
+| 7 | `governance/` | The manifestation: foundation + cooperative, legal/financial actualization | **seeded 2026-07-07** (foundation/co-op + IP-stewardship + preventative-work, folded from theme 07 + alpha) |
 | 8 | `socialization/` | Brand / voice / adoption, *presentation* register (T4 / T11 terrain) | **seeded** (human-facing peer-standing pieces) |
 | 9 | `activism/` | The case against the status quo: why incumbent platforms are harmful, *empirical* register | **seeded** (the "platforms author the relational field" research set) |
 
@@ -120,12 +104,11 @@ field-and-response triad:** cairn is the inverse of activism in valence (credit 
 the neutral descriptive map both are drawn against, and activism reads its harm case off the fenced half.
 Read `LAYERS.md` for the triad and the build-order vs justification-order traversals.
 
-The `02`–`08` theme docs at beta root remain the current reading spine; layer dirs carry their own
+The layer dirs are now the sole structure (the theme docs are retired); each layer carries its own
 `README.md` index. The peer-standing companion work (2026-07-06) was **split by register**: the pure
 argument → `philosophy/` (Layer 2), the empirical harm case → `activism/` (Layer 9), the human-facing
 presentation → `socialization/` (Layer 8); `governance/` (Layer 7) holds the *manifestation* of that
-argument (foundation + co-op), not the argument itself. `history/` (Layer 1) is not yet seeded (the
-material crofting/dry-stone lineage; theme `02` is its seed). The Drystone spec's Part 1 §2.6 (voice
+argument (foundation + co-op), not the argument itself. The Drystone spec's Part 1 §2.6 (voice
 requires field-integrity, document-pass-3) is the joint tying the protocol to this set: it points at
 `philosophy/` for structural grounding and `activism/` for empirical grounding, depending on neither for a
 mechanism.
@@ -157,11 +140,12 @@ never silently resolves them:
 
 ## State
 
-Themes `02`–`08` are drafted, and the former `01` is now the **Drystone protocol spec** (`drystone-spec/`,
-Parts 1 & 2). Built without touching `alpha/` corpus content; verbatim quotes preserved whole with citation
-+ verification flag; the user's decisions surfaced, not resolved (the gates are listed below and bannered in
-`07` and `08`). The auditable alpha→beta trace and the coverage view of alpha sources not yet pulled up live
-in `../alpha/BETA-ROLLUP.md`.
+The corpus is now filed on the layer-cake; the narrative themes (`02`–`08`) were re-filed into layers and
+discarded (2026-07-07), and the former `01` is the **Drystone protocol spec** (`drystone-spec/`, Parts 1 &
+2). Built without touching `alpha/` corpus content; verbatim quotes preserved whole with citation +
+verification flag; the user's decisions surfaced, not resolved (the gates are listed below). The auditable
+source→layer trace and the conclusion-coverage gate live in `../alpha/LAYER-ROLLUP.md` (the theme-keyed
+`../alpha/BETA-ROLLUP.md` is retained frozen as the historical record).
 
 Companion artifacts:
 
