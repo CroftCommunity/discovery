@@ -737,3 +737,34 @@ em-dash-clean. cairn README + LAYERS.md updated (backlog → filed). Modular Pol
 `philosophy/prior-art/`. Honest note on scope: of the 30-file `ten-willlow.zip`, ~2 were swapped live, ~18
 routed into layers, and the superseded/duplicate versions live only in the frozen seed, not made live.
 Committed and pushed.
+
+**Batch 11 of 11 (large-group scaling), 2026-07-07.** `eleven.zip` (parent-dir drop) carried two
+deliverables, filed byte-identical (`diff -q` clean) with no existing spec text altered (purely additive):
+(1) `drystone-large-group-scaling.md` -> `beta/drystone-spec/large-group-scaling.md`, a section-length
+Drystone Part 2 large-group-scaling treatment (internal §7.1-§7.14: cost-on-live-set, scaled PCS, the
+hot/cold split, the two-part re-entry credential, the single governance chain with lineage-scoped bans,
+delivery-as-a-race, the §7.9.1 encryption posture and two forces, the experimental §7.9.3 public-by-default
+regime, tiered performance with the §7.10.1 experiment matrix, §7.13 empirical basis, §7.14 research
+obligation); and (2) `research-prompt-operational-rates.md` -> `beta/drystone-spec/`, the companion research
+prompt §7.14 points to. Both em-dash- and drift-clean. **Audit finding (not a swap):** the section is
+titled "Part 2 §7" and numbers itself §7.1-§7.14, but it depends on and cites the *existing* Part 2 §7
+(Synchronization); both cannot be §7, so it was filed as a standalone section companion pending a
+placement/renumber decision (open thread T37), nothing renumbered unilaterally. **New layer `fenced/`
+created (on the user's call).** The batch surfaced a category the corpus had no home for: the centered
+commercial platforms (Telegram, Discord, WhatsApp, Signal, Slack, Teams, Reddit, X, iMessage, Messenger,
+LINE, WeChat), which are not a cairn building block and not the activism argument. `beta/fenced/` is the
+descriptive map of that fenced field (extent, shape, capability, economics), the fenced-half counterpart to
+cairn's open field and the substrate activism reads its harm case from; named "fenced" not "enclosure"
+because these platforms were never an open commons that got enclosed, they were built fenced. Seeded with
+two survey docs distilled by two parallel opus subagents grounded strictly in the batch-11 raw transcript:
+`group-scale-versus-e2ee.md` (the 14-platform capability map + Force 1/Force 2) and
+`operational-rates-and-platform-economics.md` (the three per-group rates + the Telegram economics). Both
+em-dash-clean, no alpha refs, no drift. **The originating conversation** (the research report the §7.14
+prompt produced, plus a Telegram broadcast-vs-discussion / monetization / Premium-features field-notes tail)
+is not in the zip; it is preserved content-faithful (§4 caveat) as
+`raw/drystone-large-group-scaling-e2ee-operational-rates-and-telegram-2026-07-07.md`, which is the
+provenance the two fenced surveys were distilled from and the full-detail source behind spec §7.13/§7.9.1.
+As-received batch frozen at `../large-group-scaling-batch11/eleven.zip`. Coherence updated: `fenced/README`,
+`LAYERS.md` (field now two-halved, the triad), `beta/README.md`, `drystone-spec/README.md` +
+`CHANGELOG.md` (document-pass-9), `cairn/README.md` (vs-fenced boundary), OPEN-THREADS T37-T40. Committed
+and pushed.

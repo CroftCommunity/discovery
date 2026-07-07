@@ -2,23 +2,33 @@
 
 date: 2026-07-06
 
-**What this is.** The canonical description of the beta layer-cake: the nine layers, what each holds, the
+**What this is.** The canonical description of the beta layer-cake: the layers, what each holds, the
 two ways the stack is traversed, and the register distinctions that keep adjacent layers from duplicating
 each other. `README.md` carries the index table; this file carries the reasoning. When the model and a
 layer `README` disagree, this file governs.
 
-## The nine layers
+## The layers
+
+The field (tier 3) has **two halves**: `cairn/` (the open field we build among) and `fenced/` (the fenced
+field we are an alternative to). They are the same activity, surveying the landscape, on opposite sides of
+the fence, so they share a tier rather than each taking their own integer.
 
 ```
 Layer  Dir              Holds                                                       Register / role
 ──────────────────────────────────────────────────────────────────────────────────────────────────
 1      history/         crofting, dry-stone stacking, cairns, the space itself      MATERIAL history
 2      philosophy/      the principles + thinkers; the pure peer-standing argument  INTELLECTUAL history
-3      cairn/           the field of existing bolstering tech we build on:          THE FIELD (what exists)
+3      cairn/           the OPEN field, existing bolstering tech we build among:     THE FIELD (open)
                         iroh, MLS, Willow/Meadowcap, CBOR-DAG, atproto/AT, AP,
                         CRDT, QUIC, p2p; products Roomy, Blacksky, p2panda,
                         SimpleX, Matrix. Some bubbles into the spec; some is
                         tracked for network-effect and homage.
+3′     fenced/          the FENCED field, the centered commercial platforms:        THE FIELD (fenced)
+                        Telegram, Discord, WhatsApp, Signal, Slack, Teams,
+                        Reddit, X, iMessage, Messenger, LINE, WeChat. Roster/
+                        call/broadcast ceilings, E2EE stance by surface+layer,
+                        per-group rates, economics. A descriptive map, no
+                        argument; feeds the spec (§7.9.1, §7.13) and activism.
 4      drystone-spec/   the protocol (principles → certifiable spec)                the WHAT (protocol)
 5      impl/            reference core: pragmatic, maintainable, cross-platform     the WHAT (built)
 6      croft/           product + brand; Croft as one "flavor" on the neutral core  the WHAT (product)
@@ -37,11 +47,14 @@ stands on*, so it sits at the base:
 - **Layers 1–2 are the "why-in-principle."** History (why the form *resonates*: material and cultural
   precedent, the croft, the commons, the drystone wall) and philosophy (why the form is *right*: peer
   standing, non-domination, the cooperative conclusion).
-- **Layer 3 is the field.** `cairn/` is the survey of the existing bolstering tech, the building blocks and
-  products that already exist. It sits between the principles and the spec because **the spec had to survey
-  the field first**, to know whether the ecosystem held the parts to assemble a safe amount of novelty
-  practically (designing iroh, MLS, CBOR-DAG, or Willow from scratch would have been too heavy a blocker).
-  The spec is built on the principles *and* on the surveyed field.
+- **Layer 3 is the field, in two halves.** `cairn/` is the survey of the existing *open* bolstering tech,
+  the building blocks and products we build among. `fenced/` is the survey of the *fenced* field, the
+  centered commercial platforms we are an alternative to. The field sits between the principles and the
+  spec because **the spec had to survey the field first**, to know whether the ecosystem held the parts to
+  assemble a safe amount of novelty practically (designing iroh, MLS, CBOR-DAG, or Willow from scratch would
+  have been too heavy a blocker), and to know what the centered incumbents can and cannot do (the fenced
+  map's E2EE-vs-scale tradeoff and per-group rates ground the spec's scaling posture at §7.9.1 and §7.13).
+  The spec is built on the principles *and* on both halves of the surveyed field.
 - **Layers 4–7 are the build.** Protocol (4) → reference implementation (5) → product/brand (6) →
   manifestation as a running institution (7). Define the protocol from the principles and the field,
   implement a maintainable core, wrap it as a product, then ground it in the world as a foundation-sponsored
@@ -49,12 +62,29 @@ stands on*, so it sits at the base:
 - **Layers 8–9 are the outward edges.** Socialization carries the message outward; activism is the
   present-tense "why not the status quo", the current-state indictment that motivates a newcomer.
 
-**cairn is the inverse of activism.** Both survey the field; they differ in valence. Activism (Layer 9) is
-the case *against* the incumbents, the extractive tech we refuse. Cairn (Layer 3) is the catalogue of what
-we build *on*, the enabling tech we credit and reuse. Same activity, opposite sign. The name is deliberate:
-a cairn is dry-stacked waymarker stones raised by many hands to mark a path for those who come after, which
-is exactly what an index of this space is, and it shares the dry-stone construction family with `drystone`
-itself (cairn catalogues the stones; drystone builds the wall).
+**The field-and-response triad: cairn, fenced, activism.** Three layers touch "the field," each in its own
+register, and none competes to be the source of truth for another's claim:
+
+- **cairn (Layer 3, the open field):** the catalogue of what we build *among*, the enabling composable tech
+  we credit and reuse. The name is deliberate: a cairn is dry-stacked waymarker stones raised by many hands
+  to mark a path for those who come after, which is exactly what an index of this space is, and it shares
+  the dry-stone construction family with `drystone` itself (cairn catalogues the stones; drystone builds
+  the wall).
+
+- **fenced (Layer 3′, the fenced field):** the descriptive map of the centered commercial platforms, their
+  extent and shape (how large rosters/calls/broadcasts can grow, what each can and cannot do, how
+  communities behave inside them, how they are monetized). It makes no argument; it draws the map. The
+  name is exact: these platforms were never an open commons that got *enclosed*, they were built *fenced*
+  from the start, so the accurate word is the state (fenced), not the act (enclosing). That leaves
+  "enclosure" free for its true historical meaning in `philosophy/` and `activism/`.
+
+- **activism (Layer 9, harm and response):** what the fenced map *means* in harm terms and anti-society
+  terms, and what we do about it (up to and including education). It reads its harm case off the fenced map.
+
+So cairn and fenced are the two halves of the field survey (open and fenced, same activity on opposite
+sides of the fence), and activism is the normative reading that sits atop the fenced half. cairn is the
+inverse of activism in valence (credit vs indictment); fenced is the neutral map both of them are drawn
+against.
 
 ## The "why" is three layers, split by tense
 
@@ -100,9 +130,10 @@ implementation; Croft is one product built on top; the cooperative operates it.
 
 The layer *numbers* are a stack of concerns, not a schedule. Two different orders run over the same stack:
 
-- **Justification order (bottom-up, = the numbering):** history → philosophy → cairn → spec → impl → croft →
-  governance → socialization → activism. "What rests on what." The why and the field ground the spec; the
-  spec grounds the build; the build grounds the manifestation and the outward edges.
+- **Justification order (bottom-up, = the numbering):** history → philosophy → (cairn + fenced) → spec →
+  impl → croft → governance → socialization → activism. "What rests on what." The why and the field (both
+  halves) ground the spec; the spec grounds the build; the build grounds the manifestation and the outward
+  edges. Activism, at the top, reads its harm case off the fenced half of the field.
 - **Build order (where you actually start):** you *start at the spec* (Layer 4), "define and build the
   protocol everything else rests on," principles-first and field-informed, then implementation → product →
   governance. The why-layers (1, 2) and the field survey (3) and the outward-edge layers (8, 9) are written
@@ -125,11 +156,19 @@ for the same claim:
 ## Current state (2026-07-07)
 
 Seeded: `philosophy/` (peer-standing set + prior-art), `cairn/` (atproto-ecosystem + the social-lexicon
-research brief; more ecosystem material to migrate), `governance/` (reserved; README only),
-`socialization/` (essay + pitch), `activism/` (research set), `drystone-spec/` (populated),
-`impl/` (delivery-layer + mls bundles + the shared doc-writing-method). Not yet created: `history/`
-(theme 02 is its seed), `croft/` (theme 08). The `02`–`08` theme docs at beta root remain the reading
-spine until their content migrates into layers.
+research brief; more ecosystem material to migrate), `fenced/` (seeded 2026-07-07 batch eleven: the
+centered-platform capability map + the per-group operational rates and platform economics),
+`governance/` (reserved; README only), `socialization/` (essay + pitch), `activism/` (research set),
+`drystone-spec/` (populated), `impl/` (delivery-layer + mls bundles + the shared doc-writing-method).
+Not yet created: `history/` (theme 02 is its seed), `croft/` (theme 08). The `02`–`08` theme docs at beta
+root remain the reading spine until their content migrates into layers.
+
+**`fenced/` created (2026-07-07, batch eleven).** The tenth layer and the fenced half of the field (tier
+3′), the descriptive counterpart to `cairn/` and the substrate `activism/` reads its harm case from. First
+population is two survey docs distilled from the batch-11 raw transcript: `group-scale-versus-e2ee.md` (the
+14-platform capability map and the two forces) and `operational-rates-and-platform-economics.md` (the three
+per-group rates plus the Telegram economics). Both feed the Drystone spec's large-group-scaling section
+(§7.9.1 encryption posture, §7.13 empirical basis).
 
 **cairn migration: done (2026-07-07).** The former backlog is now filed as four survey docs distilled from
 the raw transcripts: `mls-and-mimi.md` (incl. the scaling survey), `willow-meadowcap.md`,

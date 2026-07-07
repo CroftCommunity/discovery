@@ -46,7 +46,22 @@ application layer, no product surface):
   term definitions at Appendix D)
 - **Conventions + decisions** — `conventions-and-decisions.md` (the synthesis conventions and the
   cross-session design decisions; includes the vocabulary discipline)
-- **Changelogs** — `CHANGELOG.md` (filing-side revision log, document-pass-0..6, newest first) plus
+- **Large-group scaling**: `large-group-scaling.md` (a standalone section-length treatment of
+  large-group scaling, dormancy, and re-entry: the hot/cold split, scaled post-compromise security, the
+  two-part re-entry credential, the governance chain and lineage-scoped bans, delivery under scale, the
+  encryption posture and the two forces, the experimental public-by-default regime above ~7k, tiered
+  performance expectations with a buildable experiment matrix, and an empirical-basis section). It
+  **builds on** Part 2 §7 (Synchronization and governance-conflict resolution), §5, and §6, and carries
+  its own §7.13 empirical basis + §7.14 research obligation. **Numbering caveat (open decision):** this
+  doc is authored with an internal §7.1–§7.14 numbering and titles itself "Part 2 §7," but Part 2 already
+  has a §7 (Synchronization), which this doc *depends on and cites*. It is therefore filed as a standalone
+  section companion pending a decision on final placement/renumber (fold into Part 2 as a later section,
+  e.g. §11, or keep as a module). Tracked in `../OPEN-THREADS.md` (T37).
+- **Research prompt**: `research-prompt-operational-rates.md` (the companion the large-group-scaling
+  §7.14 points to: the standing research task to quantify the three per-group operational rates from
+  ancillary evidence, with its source-tiering and anti-fabrication guardrails). Its research *output* (the
+  centered-platform survey) is distilled into `../fenced/`; the raw report is preserved as a transcript.
+- **Changelogs** — `CHANGELOG.md` (filing-side revision log, document-pass-0..9, newest first) plus
   `part-1-changelog.md` and `part-2-changelog.md` (the consolidation's detailed per-part content-pass logs)
 
 **Superseded companions** are moved to **`superseded/`** and kept as provenance, marked superseded and

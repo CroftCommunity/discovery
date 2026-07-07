@@ -817,6 +817,91 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   and `impl/mls/mls-hardcases-and-posture.md` (batches 7–8); the fold is Drystone spec document-pass-7
   (2026-07-07). The impl/ design corpus is retained as the derivation + experiment plan.
 
+### T37 - Placement and numbering of the large-group-scaling section (it collides with Part 2 §7)
+
+- **Status:** `open · decision` (filed 2026-07-07 as a standalone companion; the placement call is the
+  user's).
+- **Type:** `structure` (a spec-organization decision, not a proving or experimentation gate).
+- **What it is:** the batch-11 spec deliverable (`drystone-spec/large-group-scaling.md`) is titled "Part 2
+  §7, Large-Group Scaling, Dormancy, and Re-entry" and numbers itself §7.1–§7.14, but Part 2 already has a
+  §7 (Synchronization and governance-conflict resolution) that this section **depends on and cites** (its
+  "Part 2 §7.3.1 / §7.3.2 / §7.3.5 / §7.3.6 / §7.4.2 / §7.6.4 / §7.6.7 / §7.8 / §7.9 / §7.9.2 / §7.9.3"
+  references all resolve against the existing §7). Both cannot be §7. It was filed byte-identical as a
+  standalone section companion (keeping its authored numbering, nothing overwritten, nothing renumbered
+  unilaterally) rather than merged, precisely so the numbering choice stays the user's.
+- **The decision to make:** (a) fold it into `part-2-certifiable-design.md` as a new later section (Part 2
+  currently ends at §10 + Appendices A–D, so §11 is the natural slot), renumbering its internal §7.x to
+  §11.x and leaving the "Part 2 §7.x" external citations as-is; or (b) keep it as a standalone module and
+  give it a non-colliding module name/number; or (c) some other placement. Option (a) is the larger edit
+  (every internal §7.N → §11.N) but yields one coherent Part 2; option (b) is zero-edit but leaves a
+  section titled "§7" alongside the real §7.
+- **Promotion target:** whichever placement is chosen; on resolution the `drystone-spec/README.md`
+  numbering caveat and the `CHANGELOG.md` document-pass-9 note are updated to match.
+- **Gates:** the user's placement call. No proving or experimentation needed.
+- **Provenance:** filed from `../alpha/seeds/large-group-scaling-batch11/eleven.zip`
+  (`drystone-large-group-scaling.md`); document-pass-9 (2026-07-07).
+
+### T38 - The two unearned measurements and the §7.10.1 experiment matrix (turn the scaling envelope into a sized one)
+
+- **Status:** `open · gated` (specified in the large-group-scaling section, not yet run).
+- **Type:** `needs-experimentation` (couples-with `needs-proving`).
+- **What it is:** the large-group-scaling section tags two measurements `Load-bearing, unearned` (§7.11):
+  (1) per-commit and fan-out cost at hot-N = 500 / 1000 / 2000 on representative hardware (sets the real
+  hot-N comfort ceiling, provisionally ~1500, and whether the 3–7k / 7–10k hot trees need sharding; extends
+  to attesting-N 5,000 / 10,000 / 20,000 for the experimental public regime, to place the single-tree
+  attesting-core ceiling in the band between the measured ~5,000 (Soler 2025) and RFC 9750's
+  tens-of-thousands design target); and (2) return-backfill time as a function of dormancy-gap size (sets
+  whether the §7.6 liveness windows are right). §7.10.1 states the full buildable experiment matrix
+  (Experiments A–G, symbols, fixed policy, sweep points, pass/fail thresholds) against an OpenMLS-on-aarch64
+  harness plus a gossip testbed.
+- **Promotion target:** the section's tier numbers and the hot-N comfort ceiling move from reasoned envelope
+  to measured once the matrix runs; the `[gates-release]` marker clears for any figure that becomes a
+  stated SLA.
+- **Gates:** build/instrument the OpenMLS harness and the gossip testbed; run Experiments A–G; pin and
+  record ciphersuite, credential type, library version, and device SoC with every result set.
+- **Provenance:** large-group-scaling.md §7.10.1 + §7.11; document-pass-9 (2026-07-07).
+
+### T39 - Non-member-verifiable membership attestation (the mechanical core of the experimental public regime)
+
+- **Status:** `open · gated` (`Load-bearing, unearned`; the whole §7.9.3 public regime is gated on it).
+- **Type:** `needs-proving` (a real cryptographic design problem, sketched not solved).
+- **What it is:** the experimental public-by-default regime (§7.9.3) routes a group's public message stream
+  through an MLS-aware relay bridge into an AppView-shaped read view (§7.9.3.1). The open problem: let a
+  *non-member* reader verify "attested member at standing X authored this item" from a forwarded artifact,
+  without trusting the bridge and without the reader being an MLS member (which would defeat the
+  read-outside-the-tree model). It may reduce to signing authored items with a credential chain verifiable
+  against the group's published membership and governance state, but that is a sketch, and it composes with
+  the lineage-attestation questions already open (the two-part credential and its ban-lineage interlock,
+  the resume-vs-fresh identity fork, single-member time-delayed resumption-PSK presentation).
+- **Promotion target:** on a proven mechanism, §7.9.3 moves from Design-experimental toward Design; until
+  then the entire public regime is a candidate direction to prototype, not a committed part of the spec.
+- **Gates:** solve and adversarially analyze the attestation-extraction; prototype the bridge; confirm the
+  read path stays in the "helper cannot lie, only stall" box (content-addressed, governance-positioned
+  items, gap-detectable omission).
+- **Provenance:** large-group-scaling.md §7.9.3.1 + §7.11 item 7; document-pass-9 (2026-07-07).
+
+### T40 - The public-by-default regime as a whole: status and the confidentiality-inversion posture
+
+- **Status:** `open · experimental` (more speculative than the rest of the section; a candidate direction).
+- **Type:** `design-experimental`.
+- **What it is:** above roughly 7k members the section permits inverting the confidentiality model
+  (§7.9.3): messages public by default (the AppView read view is the primary surface), MLS retained not to
+  encrypt messages but for attestation and membership. The regime concedes Force 2 on purpose while keeping
+  Force 1 (cryptographic membership), which is the honest inversion of the incumbent large-platform posture
+  (payloads-encrypted-yet-server-can-inject-a-member). It carries a heavier honest-residual burden than the
+  tiers below it: forward/post-compromise security relocate from message content to the attestation layer;
+  a member MUST be able to tell unmistakably that the space is public; governance is more exposed against a
+  public backdrop; the performance win is real on fan-out (indexed reads) and on the rate of expensive
+  operations, but NOT on MLS's per-operation cost. It rests on a chain of plausible-but-unvalidated
+  propositions and is gated by T39.
+- **Promotion target:** prototype and stress the regime; if it holds, it graduates from candidate direction
+  to a specified optional tier. It interacts with the T37 placement decision (a whole experimental
+  subsection).
+- **Gates:** T39 (the bridge attestation); a UX/consent design for the public-space clarity requirement; a
+  decision on whether governance events are public at this tier; the §7.9.3.3 attesting-core ceiling
+  measurements (part of T38).
+- **Provenance:** large-group-scaling.md §7.9.3 (and §7.9.3.1–§7.9.3.3); document-pass-9 (2026-07-07).
+
 ## Promoted & closed (provenance retained)
 
 Threads that have left the live queue — `promoted` (integrated into a matured doc) or `closed` (resolved

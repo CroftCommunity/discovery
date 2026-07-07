@@ -36,8 +36,17 @@ Boundary calls:
 - **vs `philosophy/prior-art/`.** Philosophy holds academic *frames* and principles (e.g. Modular Politics,
   Ostrom-rooted governance theory). Cairn holds shippable *tech*. Test: can you install it, call it, or
   build on it? → cairn. Is it an idea or frame you reason with? → philosophy.
-- **vs `activism/`.** Activism holds the harm case against incumbent platforms. Cairn holds the enabling
-  building blocks. The valence is opposite.
+- **vs `fenced/`.** Cairn is the *open* field, the composable/decentralized tech Drystone builds among.
+  `fenced/` is the *fenced* field, the centered commercial platforms Drystone is an alternative to (their
+  roster/call/broadcast ceilings, E2EE stance, per-group rates, economics). Test: can you build Drystone
+  out of it? → cairn. Is it a centered provider whose limits and posture you measure against? → fenced.
+  atproto appears in both registers: the *protocol* is a cairn building block; the hosted *Bluesky
+  platform's* posture is a fenced data point.
+
+- **vs `activism/`.** Activism holds the harm case against incumbent platforms and the response to it.
+  Cairn holds the enabling building blocks. The valence is opposite. (Activism reads its harm case off the
+  `fenced/` map; cairn is the open-field twin of that map. See the field-and-response triad in
+  `../LAYERS.md`.)
 
 ## Contents
 
