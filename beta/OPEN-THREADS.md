@@ -46,7 +46,7 @@ point here). Division of labor:
 
 Each thread carries:
 
-- **Layer** — which layer(s) it belongs to, for grep and grouping (a cross-cutting thread lists several):
+- **Layer**: which layer(s) it belongs to, for grep and grouping (a cross-cutting thread lists several):
   `history` · `philosophy` · `cairn` · `fenced` · `drystone-spec` · `impl` · `croft` · `governance` ·
   `socialization` · `activism`, plus `cross-cutting` for project-level decision gates. This tag is
   authoritative; the group headings below are a rendered view of it.
