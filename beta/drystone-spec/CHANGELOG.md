@@ -8,6 +8,40 @@ This changelog is organized by theme rather than by line, because several change
 
 ---
 
+## document-pass-8 (2026-07-07): the p10/p11 swap — part-1 ← p10, part-2 ← p11 rebuild, with the §7.6.4 re-plant fold preserved
+
+**What changed, in one line.** The canonical spec was swapped to the web session's newest iteration
+(`p10-full-part1-principles` for Part 1, the `p11-full-part2-mechanics` rebuild for Part 2), superseding the
+batch-9 p9 consolidation, **after a content-loss audit** that caught one real divergence and preserved it.
+
+**The audit (the batch-9 lesson applied, and it bit).** p11 came from the web session's p9→p10→p11 lineage,
+**parallel** to the tree-side document-passes. Comparing p11 against the committed part-2 before swapping:
+Part 1's p10 version is a clean heading-level superset (nothing dropped), safe to swap straight. Part 2's
+p11 is the richer rebuild (470 KB vs 325 KB; complete §0 Map + §1–§10 + Appendices A–F; §7.6 expanded from
+4 to 10 subsections: ban-as-fork, three registers mute/governance/fork, fork mechanics, hold/enactment/
+audience split, permanent-both + cheap-merge, posture/dials, re-composition-as-view). **But p11 did not
+carry the tree-side document-pass-7 §7.6.4 re-plant instantiation fold** (E12 0 vs 13, last-resort 1 vs 7,
+planter 1 vs 4). A wholesale swap would have silently dropped it. The re-plant block was extracted from the
+committed part-2 before overwrite and **re-folded into the p11 structure as §7.6.11** ("The re-plant
+instantiation mechanism, and its validation status"), with a note that it was preserved across the swap.
+Post-swap the re-plant content is intact (E12 back to 13). Both parts are em-dash-clean and drift-clean.
+
+**Companions routed** from the frozen p10 corpus: the ten p10 design companions (asset-keying,
+history-durability, fold-semantics, governance-finality, liveness-freshness, authority-and-complement,
+fact-and-chain-representation, scaling-and-ordering, cast-beat-map, social-mapping) →
+`../impl/drystone-design/`; the experiment corpus (experiments-consolidated, convergence-brief-v3,
+reviews-and-experiments-log, fold-coverage-audit) → `../impl/experiments/`; the shorter tellings
+(coffee-shop, elevator-pitch) → `../socialization/`. `conventions-and-decisions.md` updated to the newer
+p10 version; `../impl/doc-writing-method.md` updated to the newest p10 doc-method. The p11 spec open-threads
+tracker filed as `open-threads.md` (distinct from the beta-level `../OPEN-THREADS.md`).
+
+**Still superseded-pending-retirement** (unchanged from document-pass-6; p11 subsumes them via Appendix D /
+Appendix B): `persona-definition.md`, `open-items.md`, `bounded-contexts-and-vocabulary.md`,
+`review-handoff.md`, the two SVGs. The full p10/p11 corpus stays frozen at
+`../../alpha/seeds/p10-p11-corpus/`.
+
+---
+
 ## document-pass-7 (2026-07-07): fold the re-plant instantiation mechanism into §7.6.4 (needs verification)
 
 **What changed, in one line.** The content audit (below) confirmed the p9 consolidation dropped nothing, and

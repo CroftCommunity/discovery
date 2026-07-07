@@ -31,6 +31,20 @@ hazards. Grounded entirely in primary RFC text (every claim section-anchored, no
 | `side-histories-and-threading.md` | Candidate note: the three-tier threading model (subid / inherited side history / subgroup branch) with the entitlement-divergence selector rule; cross-references `mls-hardcases-and-posture.md §9` for tier-3 cost. |
 | `mls-session-summary.md` | The MLS-session history and reasoning record (the "how the thinking went" register, per the method's rule that history lives in the log, not the design docs). |
 
+### `drystone-design/`: the p10 deep-design companions (folded into the spec)
+
+The ten p10 design companions the consolidated spec draws from: `asset-keying`, `history-durability`,
+`fold-semantics`, `governance-finality`, `liveness-freshness`, `authority-and-complement`,
+`fact-and-chain-representation`, `scaling-and-ordering`, `cast-beat-map`, `social-mapping`. These carry the
+deeper design detail behind Part 2's sections; the spec cites the conclusions, these hold the working-out.
+Filed 2026-07-07 (document-pass-8, the p10/p11 swap).
+
+### `experiments/`: the convergence/fold experiment corpus
+
+`drystone-experiments-consolidated`, `drystone-convergence-experiment-brief-v3`,
+`drystone-reviews-and-experiments-log`, `drystone-fold-coverage-audit`. The validation corpus behind the
+spec's `green-real` / `green-model` claims and the completeness-beam discharge path.
+
 ### `delivery-layer/`: the messaging/delivery-layer design corpus (00–10, 12)
 
 The design of Drystone's messaging and delivery layer: the layer on top of the two settled substrate

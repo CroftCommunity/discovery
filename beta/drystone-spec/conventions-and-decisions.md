@@ -4,7 +4,7 @@
 
 `Two jobs: (1) a decision record for the consolidation of the twelve-document suite into a self-contained Part 1 and Part 2, and (2) a terminology-and-conventions primer that folds into the document-structure guidance (companion to 11-doc-method.md) and that a later consistency pass reads the docs *against*.`
 
-`Companion to: drystone-part1.md, drystone-part2.md, 11-doc-method.md`
+`Companion to: p10-full-part1-principles.md, p10-full-part2-mechanics.md, 11-doc-method.md`
 
 ---
 
@@ -34,7 +34,7 @@ The organizing idea, and the reason this section is framed the way it is: severa
 
 - **Group** (capital G) is that same collective *once it is a principal in the system*: a bounded entitlement-and-governance unit that can hold assets, be granted to, and act as a single unit, with fixed boundaries that make its tradeoffs real. The capital-G Group is what Part 2 realizes over an MLS group (§5.10). Governance and entitlement facts attach here.
 
-**The test.** Is the sentence about the collective *as a body of people* (they communicate, they raise a hand and decide), or about the collective *as a bounded principal in the system* (it holds assets, its governance strips a grant, it forks with its history intact)? People → lowercase group. In-system actor → capital-G Group.
+**The test.** Is the sentence about the collective *as a body of people* (they communicate, they raise a hand and decide), or about the collective *as a bounded principal in the system* (it holds assets, its governance strips a grant, it forks with its history intact)? People → lowercase group. In-system principal → capital-G Group.
 
 **The seam that makes the distinction load-bearing.** A social group of people can raise a hand and decide "Bob hosts the relay." The capital-G Group can make the *same* decision, but its mechanics are fixed by technical truth: it is either a Group-governance act (a Group Role grant) or a change to the scope (below). Same human decision, different mechanical realization; the case marks which layer the sentence describes.
 
@@ -74,17 +74,17 @@ The organizing idea, and the reason this section is framed the way it is: severa
 
 ### A.4 principal, and permission across planes
 
-**principal is the broad frame** (deliberately AWS-shaped): the actor we reason about in the system, reasoned about *through the permissions it carries*. The genus definition is therefore **permission-holding entity, identified by one key-lineage**, not "role-holding entity", because "role" (Group Role) is a governance-plane term and a non-Group principal like a meer holds permissions but no Group Role. Its **Group-governance instance** is the tightened definition, a role-holding entity identified by one key-lineage. These are not in tension: the tightened version is the broad frame inside the governance-bounded context.
+**principal is the broad frame** (deliberately AWS-shaped): the entity we reason about in the system, reasoned about *through the permissions it carries*. The genus definition is therefore **permission-holding entity, identified by one key-lineage**, not "role-holding entity", because "role" (Group Role) is a governance-plane term and a non-Group principal like a meer holds permissions but no Group Role. Its **Group-governance instance** is the tightened definition, a role-holding entity identified by one key-lineage. These are not in tension: the tightened version is the broad frame inside the governance-bounded context.
 
 **There are principals not within any Group, and principals within a Group whose authority does not reach outside it.** The spec must say which is which rather than letting one word flatten them.
 
-- A **meer** is a principal in the *broad* sense (an actor with permissions) and *not* a principal in the *Group-governance* sense (it holds no Group Role, right, or weight in any Group). Both are true because they are claims on two different planes. The earlier apparent contradiction ("is the meer a principal?") was a plane confusion, not a real conflict.
+- A **meer** is a principal in the *broad* sense (an entity with permissions) and *not* a principal in the *Group-governance* sense (it holds no Group Role, right, or weight in any Group). Both are true because they are claims on two different planes. The earlier apparent contradiction ("is the meer a principal?") was a plane confusion, not a real conflict.
 
-**"Permission" spans planes; role/right/weight are Group-governance-plane terms.** A meer holds enumerable **ecosystem permissions** (be-in-swarm, talk-to-a-push-node, and that push node in turn talk-to-an-external-third-party), which are connectivity/delivery permissions, not in-Group governance. Pinning "Group Role," "right," and "weight" to the governance plane is what keeps the meer infrastructure while still letting the spec reason about it as an actor with real, enumerable, revocable ecosystem permissions.
+**"Permission" spans planes; role/right/weight are Group-governance-plane terms.** A meer holds enumerable **ecosystem permissions** (be-in-swarm, talk-to-a-push-node, and that push node in turn talk-to-an-external-third-party), which are connectivity/delivery permissions, not in-Group governance. Pinning "Group Role," "right," and "weight" to the governance plane is what keeps the meer infrastructure while still letting the spec reason about it as a principal with real, enumerable, revocable ecosystem permissions.
 
 ### A.5 The two revocation planes
 
-Revocation is not one mechanism; it lives at two layers with different actors, different mechanics, and different authority sources. Both are grounded in the same place: whether and how to revoke is a **social-utility judgment** about trust and tradeoffs, not a computation (the §2.0 razor, one layer down). The machinery makes each response cheap and available; which response is right (move to a new relay, split across several, pull it in-house, one of *n* combinations) is a judgment, which is exactly why it cannot be deterministic.
+Revocation is not one mechanism; it lives at two layers with different principals, different mechanics, and different authority sources. Both are grounded in the same place: whether and how to revoke is a **social-utility judgment** about trust and tradeoffs, not a computation (the §2.0 razor, one layer down). The machinery makes each response cheap and available; which response is right (move to a new relay, split across several, pull it in-house, one of *n* combinations) is a judgment, which is exactly why it cannot be deterministic.
 
 - **Group-governance revocation.** Acts *inside* a capital-G Group, on Group facts: a Group Role, or membership. Runs through the Group's replicated policy and the k-of-n threshold counted per persona; evaluated against the Group's governance. Global to the Group by construction. (Part 2 §5.7, §5.8.)
 
@@ -98,6 +98,8 @@ Revocation is not one mechanism; it lives at two layers with different actors, d
 
 Part 2's definition is correct and load-bearing; the synthesis does **not** loosen it. A **persona** is the human layer's manifestation in the system, a principal by virtue of *one root key pair* (its lineage root), from which its devices' and clients' membership keys descend by signed credential, counted **one per rooting key pair** regardless of device or client count. The root key pair is the persona's representation in the world, which is what lets an escalation terminate in a decidable locus (a persona can make representable decisions only because it has a representation) and what lets weight be counted per-lineage so governance stays consistent. "Persona" and "personhood" stay separate words: the lineage is technically representable and counted with certainty; whether a lineage corresponds to a distinct human is a group judgment, never a protocol fact.
 
+**`actor`, `persona`, and `node` kept distinct.** `actor` is reserved for a named member of the demonstrative running-example cast (Part 2 §3.1); the identity term proper is `persona` (plural `personae`), and a clause stating an identity or authority mechanic uses persona, or `principal` (A.4) in the broad frame, never actor. A `node` is a device or a helper (A.7, and the node-role cast fixed in Part 2 §3.2), never the person. So the running example says "Alice," the mechanics say "the persona," and the wire says "the node," and the three never substitute for one another.
+
 ### A.7 Coinages promoted to first-class Part 2 vocabulary
 
 These originate in the delivery suite (`01`, `09`) and are promoted into Part 2 §6 and the Appendix D term lattice:
@@ -108,7 +110,71 @@ These originate in the delivery suite (`01`, `09`) and are promoted into Part 2 
 
 - **gap-aware history convergence**: the one named mechanism behind C-swarm hole-detection, D-peer, and device-Group sync: detect a nameable gap (via the per-author high-water mark, which *is* the dataplane half of the (G, D) cursor) and fill it from a self-verifying source (via range-based set reconciliation).
 
+- **The node-role cast**: the non-adjudicating node roles a Group's traffic uses are a fixed, closed set, named once in Part 2 §3.2 and referenced by name thereafter: relay and swarm node (carriage), meer and durable history store (durability), push notifier (presence), and the read/search helper (a read scope). Each is a scope participant holding a capability or offering a resource but no standing, and every role but the read/search helper is content-blind. Part 2 §3.2 is the canonical home, and a later section names a role rather than re-describing it.
+
 Naming discipline (from `09`): established literature terms for inherited primitives (gossip / epidemic dissemination, anti-entropy / state reconciliation, eventual consistency); coinage only for Drystone's own compositions (Delivery Fabric, gap-aware history convergence). "DS" stays the upstream MLS role; the meer is Drystone's store-and-forward instantiation of the half it keeps; the DF is the routing overlay, a distinct concept.
+
+### A.8 peer (the edge relation, never a principal)
+
+**peer is a *relation*, not a kind of principal.** It is the symmetric standing between two participants on the **transport plane**: two nodes are peers when neither holds privileged or canonical authority over the other, which is the property §3.1 uses to diagnose the system as center-free and §6.1.1 names as *peer-level identity (the transport plane)*. "peer" therefore describes an **edge** (the relationship across a link), not a node and not a principal. Writing "a peer decides" or "the peer holds a Group Role" is a category error: the entity that decides, holds rights and weight, and is escalated to is a **persona** (A.6), a governance-plane principal; the peer is the relation that persona's node stands in with another node.
+
+**The test.** Is the sentence about a *symmetric transport relationship between two endpoints* (they connect, reconcile, gossip, relay for each other), or about an *entity that holds authority and is counted* (it decides, it holds a Group Role, its weight is one)? Relationship on the wire, use **peer** (and *peer-to-peer* for the wiring itself, §6, and *peer-symmetric* or *center-free* for the property). Authority-holding entity, use **persona** (A.6) or, in the broad frame, **principal** (A.4).
+
+**Why the boundary matters, and why the word was easy to slip.** Colloquial "peer-to-peer" uses *peer* as a noun for "one of the machines," which invites the slide from *peer* (a machine at the other end of a link) to *peer* (a principal with standing). Drystone keeps the two apart because its authority model lives on personae counted **one per root key pair** (A.6), while its transport model is symmetric across nodes: the same human can run several nodes (several peers-on-the-wire) that remain **one persona**, one unit of standing. Collapsing the two would let "more nodes" read as "more standing," which is exactly the property the identity model refuses (§5.2, §5.6). So *peer* stays a transport-plane relation, and standing is always spoken of in persona or principal terms.
+
+### A.9 The canonical status-flag ladder (the tag set both parts defer to)
+
+Part 1 and Part 2, and the working documents as they fold, carry **one** status-flag vocabulary, recorded here so a reader who lands in either part reads the same ladder. An earlier draft of Part 2 used a parallel set (`green-real`, `green-model`, `design`, `ENABLING`, `[confirm before publish]`); those are unified into the canonical rungs below (the mapping is in B.6). Each normative claim carries exactly one status flag:
+
+- **`Verified`**: demonstrated against real crypto or real transport in a running reference implementation. (Absorbs the former `green-real`.)
+
+- **`Verified-RFC`**: verified against a normative primary source, for example RFC 9420 or RFC 9750.
+
+- **`Modeled`**: a reference model exists and is reasoning-complete, but is not yet backed by real crypto. (Absorbs the former `green-model`; kept as a distinct rung because "modeled" is more mature than "specified but unbuilt.")
+
+- **`Measured`**: an empirical or benchmark measurement.
+
+- **`Established`**: an established result in the literature, or an inherited primitive used as-is.
+
+- **`Design`**: specified but unproven, a design decision the spec commits to. (Absorbs the former lowercase `design`.)
+
+- **`Synthesis`**: a claim assembled across several sources rather than resting on a single citation.
+
+- **`Load-bearing, unearned`**: a property the design leans on that is not yet earned or proven, flagged honestly rather than smoothed over.
+
+- **`[gates-release]`**: a byte-level encoding or specification item that must be pinned before a publication-final release, and before two implementations can interoperate. (Absorbs the former `ENABLING`; renamed so the reason it blocks release is legible in the tag itself.)
+
+- **`[confirm]`**: rests on an external fact not yet independently verified. (Absorbs the former `[confirm before publish]`.)
+
+Two linkage markers sit alongside the ladder and are **not** status flags: **`Realizes: P-X`** (a Part 2 section names the Part 1 principle it discharges) and the **`P-X` principle codes** themselves (`P-Local-Truth`, `P-Knowable-Truth`, `P-Peer-Equality`, `P-Durable-Enablement`). Normative keywords are **MUST / SHOULD / MAY** (BCP 14).
+
+### A.10 Normative clauses carry their grounding (both MUST and MUST NOT)
+
+A normative clause **MUST** be stated with an affirmative account of *why*, and the requirement is
+two-sided. A **MUST NOT** names the concrete failure its breach causes. A **MUST** names why it is
+required: what it secures, or what would be lost without it. Neither is a bare directive. The spec is not a
+list of things to do and not do; each clause carries the reasoning that makes it a requirement, so a reader
+can (1) recognize an inadvertent breach by its symptom, and (2) reason about the impact if the clause was
+misunderstood rather than only that it was broken.
+
+Both directions ground out in the same place: the overall design and its principles, which in large part
+flow from Part 1. A Part 2 **MUST** discharges a Part 1 imperative (often the one its section `Realizes`),
+so its "why" traces to that imperative rather than being invented locally; a **MUST NOT** excludes a
+failure those same imperatives forbid. Grounding a clause in Part 1 is therefore the norm, and a clause
+whose justification does not trace to a principle is a signal that either the clause or the principle is
+missing.
+
+**The test, two-sided.** For a **MUST NOT**, ask: what breaks, concretely, if a node does this anyway? For
+a **MUST**, ask: why is this required, what does it secure, and which principle does it serve? If the text
+does not answer, the grounding is missing and **MUST** be supplied. "MUST NOT X" fails; "MUST NOT X,
+because doing X causes Y" passes. "MUST Z" fails; "MUST Z, because Z secures W (Part 1 §...)" passes.
+
+**Why the rule earns its place.** The whole spec is built on a contrast, what Drystone requires and refuses
+and what each buys, so a clause whose grounding is left implicit hides exactly the reasoning the design
+rests on. Naming it also makes the clause falsifiable in operation: an implementer who observes symptom Y
+has a named clause to look to, and a reviewer can check whether a change quietly reopens Y or drops what a
+MUST secured. This convention applies going forward and is the standard a later consistency pass reads the
+normative clauses against; a `[confirm]` may mark a clause whose grounding is not yet pinned.
 
 ---
 
@@ -134,6 +200,8 @@ Naming discipline (from `09`): established literature terms for inherited primit
 
 - **PrincipalSet renamed to Group Role Set** (capital S, first-class three-word term): a named bundle of Group Roles that travel together, grantable/revocable as one unit, with mutual-exclusion constraints for separation of powers inside a Group ("a holder of this Set may not also hold that Group Role"). Motivated by the human-fatigue goal: people reason about "admin," not fifteen individual dials, even though the dials are tracked individually at the provenance level. Carried as a **named-but-settling** concept (design-flagged); full mechanism shakes out in Part 2 §5. The old name wrongly suggested a set of principals; it is a set of Group Roles.
 
+- **peer (newly bounded, not a supersession)**: "peer" was used throughout Part 2 (§3.1's *system of peers*, §6.1.1's *peer-level identity*) with no glossary entry. It is now bounded in A.8 as the **transport-plane edge relation, never a principal**. No prior definition existed to supersede, so this closes a gap rather than resolving a conflict, and it is consistent with the existing §5.2 identity model (standing is counted per persona, never per node), so no §5.2 text changes on its account.
+
 ### B.2.1 Clarifications and rewrites (not renames, but improvements surfaced during the pass)
 
 - **"By necessity" weight-equality phrasing rewritten.** The carried phrase "equal in rights and (by necessity) weight" read as a *constraint tolerated* ("stuck with") when the intended meaning is the opposite: weight-equality is a *consequence* of rights-equality (standing-to-participate and standing-to-be-counted are the same fact), and specifically a consequence the design's *principles entail*, not an independent rule imposed. Rewritten across Part 1 (§2.3 header, Weight bullet, summary aphorism) to carry the consequence-of-principle logic. Carry the same fix into any Part 2 echo.
@@ -142,7 +210,7 @@ Naming discipline (from `09`): established literature terms for inherited primit
 
 - **Ostrom grounding: lowercase group preserved, capital-G Group linked as realization.** Ostrom's principles are about human communities (the social plane); capitalizing "group" there would overwrite her semantics and break the homage. The fix links the two planes instead: her value stated in the lowercase social sense, with the capital-G Group named as the *realization* of the value (the §7.6 hard-stop surfacing to the affected group, adjudicated within the Group that manifests them; the unforbiddable fork). General rule: when referencing an external source that grounds a *value*, keep the source's own (social) semantics and link the technical realization rather than recasting the source in system terms.
 
-- **"The Group holds keys" avoided in favor of "the members hold the keys."** Because a capital-G Group can itself be a principal (a possible actor), any sentence like "the Group holds keys" is ambiguous between the Group-as-principal holding a credential and the member clients (leaf nodes) holding the group key. Where the intended referent is the latter (e.g. material reversibility: no helper holds the data hostage because the members hold the decryption keys), name the actual key-holders. **Standing vigilance note:** the Group-as-possible-principal is a recurring source of actor-ambiguity; wherever the Group could be read as the actor, differentiate explicitly (member clients vs Group-principal).
+- **"The Group holds keys" avoided in favor of "the members hold the keys."** Because a capital-G Group can itself be a principal, any sentence like "the Group holds keys" is ambiguous between the Group-as-principal holding a credential and the member clients (leaf nodes) holding the group key. Where the intended referent is the latter (e.g. material reversibility: no helper holds the data hostage because the members hold the decryption keys), name the actual key-holders. **Standing vigilance note:** the Group-as-possible-principal is a recurring source of referent-ambiguity; wherever the Group could be read as the acting principal, differentiate explicitly (member clients vs Group-principal).
 
 ### B.3 Retractions carried forward
 
@@ -165,6 +233,18 @@ Confirmed for the fold:
 Carried to Part 2 Appendix B rather than smoothed: tenure-under-re-key; the KeyPackage-exhaustion seating trilemma; the ReInit non-atomicity completion (intent-recorded-before-freeze); the re-plant seating default; the communal-namespace key construction under membership change; history-mode migration (forward-only vs Willow-mutable, suspected fixed-at-creation); whether tier-2 side histories deserve a first-class construct; self-destruct semantics; the resumption-PSK cross-group linking; the RBSR production construction; and the standing `[confirm]` external-fact set (Matrix MSCs/CVEs, Beer/Cybersyn/OGAS, decentralized-MLS drafts, and the iroh-gossip/address-lookup crate specifics).
 
 **Helper governance and alignment (a first-class concern, newly named).** Because scope is broader than a Group and a single helper (meer, relay, push-notify node) can be in scope for many Groups at once, and because scope includes these helper roles, the **operation and governance of helper nodes meaningfully shapes the scope of exposure across the whole system**, at a layer no individual persona's node-local withdrawal of use can dissolve. A persona declining to interact is the individual backstop (the exit exercised at the client); it is not a substitute for the question of who runs these helpers and whether they are ideologically and operationally aligned. That question is therefore first-class in its own right, not something each Group settles internally. Named here and flagged in Part 2 §5.4; the mechanism is deliberately not specified in the terminology pass (capture-and-defer, not solve).
+
+### B.6 Tag ladder unified to the canonical set (the p10 pass)
+
+Part 2's parallel status vocabulary was unified to the canonical ladder (A.9). Mechanical mappings applied across Part 2, with counts from this pass: `green-real` to `Verified` (34), `green-model` to `Modeled` (3), the lowercase inline `design` tag to `Design` (17), `ENABLING` to `[gates-release]` (17), and `[confirm before publish]` to `[confirm]` (14, several carrying an inline note, for example `[confirm, the DS/AS trust model against RFC 9420/9750]`). Part 1's single `ENABLING` was mapped the same way. Prose uses of the word "design" (83 occurrences in Part 2) and the emphasis forms `*designed*` and `*design philosophy*` were left untouched, since only the tag forms were in scope. The status-flag legend at the head of Part 2 now points here as the single source.
+
+### B.7 Governance-ordering reconciliations (decided in the p10 pass; applied in the §7.3 fold)
+
+Two loose spots in Part 2 §7.3.1 were reconciled against this session's matured governance work, and both are now applied in the §7.3.1 order (governance fold, sub-pass 2a-i). The decisions, as applied:
+
+- **C1: authorization is a gate, not a ranking (the "issuer authority rank" sort key is absorbed, not retained).** §7.3.1's first sort key was phrased as "issuer authority rank at the causal frontier," which read as though a single author's standing orders governance outcomes. That verbiage was loose. The matured model separates an **asserted fact** (authored by one persona, ordered among conflicting facts), a **k-of-n quorum decision** (the assembly that *is* the governance act), and **the fold's handling** of the authorized decisions. The resolution is that authority is established **structurally, as a precondition**: the §7.5.2 forward pass decides who may act at each causal position, a slot moves only on an authorized k-of-n quorum, and a sub-threshold or unauthorized fact never enters the order at all. Authority is therefore **not** a comparator key, and issuer rank does **not** survive as a sort key, because ranking conflicting decisions by their author's standing would let authority tip an outcome, a center living in the comparator, which the peer-symmetry premise and the configurable-tiebreak principle both forbid. Among authorized decisions the order is operation-type precedence, then causal precedence, then the concurrent tiebreak. Applied in §7.3.1, sub-pass 2a-i.
+
+- **C2: causal-length and causal-precedence are one relation (unify the statement).** §7.3.1 step 3 ("causal length, more-informed wins") and the working fold-semantics rule ("causal precedence, a causally-later fact supersedes") describe the **same** causal-DAG relation from two ends. The merged text states it once, precisely, as causal-DAG precedence, with "more-informed / longer referenced history" and "causally-later" as two descriptions of that single relation rather than two separate keys. This session's rule set (fold-semantics R1 through R4) is the mature statement; §7.3.1 step 3 was a conceptual stub. Applied in §7.3.1, sub-pass 2a-i (causal precedence stated once, as key 2 of the order).
 
 ---
 

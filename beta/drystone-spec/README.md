@@ -2,10 +2,13 @@
 
 **Version:** 0.1.0 (beta maturity — draft / defensive-publication track)
 
-**Status:** Draft, consolidated (the "p9" set, document-pass-6): Part 1 and Part 2 are self-contained and
-consistent, with the transport/delivery and deep-MLS designs folded in. **Pending design review** — the
-remaining open work is the design decisions and `ENABLING` wire encodings tracked in Part 2, Appendix B,
-not editorial cleanup. Build-against shape complete.
+**Status:** Draft, consolidated (Part 1 = the p10 principles set; Part 2 = the p11 rebuild; document-pass-8):
+self-contained and consistent, with the transport/delivery and deep-MLS designs folded in, and the §7.6
+reconcile/fork treatment expanded (ten subsections incl. ban-as-fork and the re-plant instantiation
+mechanism at §7.6.11). **Pending design review** — the remaining open work is the design decisions and
+`ENABLING` wire encodings tracked in Part 2, Appendix B, not editorial cleanup. Build-against shape complete.
+(The prior batch-9 p9 consolidation was superseded here after a content-loss audit; the full p10/p11 corpus
+is frozen at `../../alpha/seeds/p10-p11-corpus/`.)
 
 **License (text):** CC0 1.0 Universal (Public Domain Dedication).
 

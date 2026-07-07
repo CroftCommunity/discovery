@@ -705,3 +705,17 @@ corpus is frozen so nothing is lost; the swap is the next spec pass once the use
 migration backlog** also recorded (MLS scaling survey, Willow/Meadowcap analysis, Blacksky research, the
 local-authority ecosystem landscape, Roomy/p2panda tracking — all in raw transcripts, to migrate into
 cairn). Batch **10 of 11**. Committed and pushed.
+
+**Spec swap executed (document-pass-8, 2026-07-07, on the user's go).** After the content-loss audit: Part 1
+← `p10-full-part1-principles` (clean heading-superset of the committed p9 part-1), Part 2 ←
+`p11-full-part2-mechanics` (the richer rebuild, 470 KB, complete §0–§10 + Appendices, §7.6 expanded to ten
+subsections). **The audit caught a real divergence:** p11 (parallel web lineage) did **not** carry the
+tree-side document-pass-7 §7.6.4 re-plant fold (E12 0 vs 13). The block was extracted before overwrite and
+**re-folded as §7.6.11**, so nothing was lost (E12 back to 13; both parts em-dash- and drift-clean). This is
+exactly the web-agent content-loss the user warned about, caught by the audit gate. Companions routed:
+ten p10 design companions → `beta/impl/drystone-design/`; four experiment docs → `beta/impl/experiments/`;
+coffee-shop + elevator-pitch → `beta/socialization/`; `conventions-and-decisions.md` and
+`impl/doc-writing-method.md` updated to the newer p10 versions; the p11 spec open-threads →
+`beta/drystone-spec/open-threads.md`. Superseded standalones (persona-definition, open-items,
+bounded-contexts, review-handoff, SVGs) still retained pending retirement (p11 subsumes them via Appendix
+D / B). Full corpus stays frozen at `seeds/p10-p11-corpus/`. Committed and pushed.
