@@ -2701,6 +2701,68 @@ RFC 9420 §8.6: the resumption PSK proves prior co-membership, not content.)*
 > this hazard is discharged or merely bounded. **[confirm against the delivery and governance-chain
 > ordering; carried to Appendix B.]**
 
+#### 7.6.4. The re-plant instantiation mechanism, and its validation status
+
+`design; needs verification. This subsection folds the mechanism worked out in the delivery-layer and MLS
+design corpora into the spec in context. Every mechanism claim here is grounded against the named RFC
+section but the composed operation is not yet exercised end-to-end on a real stack; the validation path is
+the E12 experiment set (below), and the whole subsection carries [confirm before publish] until those run.
+Tracked as an open thread (Appendix B; OPEN-THREADS).`
+
+The three arities all reduce to one instantiation: **stamp a fresh MLS group over a member set read from the
+governance chain, then atomically repoint the conversation to it.** The mechanics and their costs:
+
+- **Instantiation is unilateral and O(N).** A planter creates the first epoch with no interaction, then
+  batches an Add per member into one Commit and emits per-member Welcomes. So each boundary pays an O(N)
+  instantiation (Commit size, Welcome count and bytes), the cost that tunes the boundary interval N.
+  *(Grounded, RFC 9420 protocol overview; the per-boundary cost is unmeasured, E12.1.)*
+
+- **Seating needs a KeyPackage per member, and the last-resort package is the center-free availability
+  floor.** KeyPackages are single-use and SHOULD NOT be reused, except a **last-resort** KeyPackage that
+  exists precisely for the case where no fresh package is fetchable. *(Grounded, RFC 9420 §10, §16.8.)* In a
+  center-free setting a member's fresh package must have been pre-published and be reachable at boundary
+  time; when it is not, the last-resort package seats them anyway, so the swap **never blocks on an
+  unreachable member**. It only trades that member's key refresh for availability until they republish
+  (E12.6).
+
+- **A fresh stamp is a group-wide key refresh, not only a structural reset.** Because each fresh group draws
+  a fresh KeyPackage per member, the re-plant rotates every member's leaf key, so it heals per-member key
+  staleness across the whole Group at once, the favorable post-compromise-security property, **with one
+  honest exception**: a member seated on a last-resort (reused) package does not rotate until they republish
+  (E12.5). Separately, a fresh tree has no blanks or unmerged leaves, so the O(log n)→O(n) re-key drift an
+  evolved tree accumulates through removals is reset to the pristine baseline (E12.4).
+
+- **Planter byte-nondeterminism is a dedup, not a fork.** Two members stamping independently from the same
+  governance-chain member set may produce different tree bytes (different KeyPackage selection). Nothing
+  downstream reads the tree's shape (continuity lives in the dataplane and governance hash structures, §7.6.3),
+  so the divergence is resolved by the same content-hash tie-break used for delivery dedup (§6), never
+  escalated as a fork (E12.3). This is the core correctness claim of the approach.
+
+- **A stale `GroupInfo` cannot defeat PCS on re-form.** External-commit rejoin (the join path a client drives
+  with a published `GroupInfo` when members hold no KeyPackage for it, RFC 9420 §12.1.6) is the one place a
+  stale view could matter; because the re-plant rotates keys, a stale `GroupInfo` an adversary replays cannot
+  re-admit a removed party into the fresh group. *(Grounded, RFC 9420 §12.1.6; the composed guarantee needs
+  verification.)*
+
+- **The whole-group consistency check is a candidate to fold onto MLS's own, not rebuild.** Drystone must
+  detect that all members share one group state (no silent partition). MLS derives a per-epoch
+  **`epoch_authenticator`** members compare out of band for exactly this, and two members on different
+  branches compute different values. Whether Drystone's consistency check uses it directly (rather than a
+  separately-built comparison), and how it relates to the governance chain's own consistency signal, is the
+  fold-not-parallel question. **[confirm against RFC 9420 §8.7 and the delivery-layer consistency design.]**
+
+**Validation path (the E12 set, pending execution).** The mechanism above is demonstrated by seven
+experiments against `mls-rs 0.55.2`: E12.1 baseline stamp (records the O(N) cost); E12.2 the atomic swap
+preserves conversation continuity with no replay; E12.3 planter byte-nondeterminism is a dedup; E12.4
+fresh-tree cost reset; E12.5 group-wide leaf-key rotation with the last-resort exception; E12.6 KeyPackage
+availability bounded by last-resort; E12.7 governance continuity across the swap (Drystone-side). The MLS
+mechanics are **Rung A** (real library); Drystone's own governance-chain and dataplane hash structures are
+**Rung B** (model-form, not yet built), so E12.7 is explicitly modeled. Two library questions surface during
+execution and are not yet settled: whether `mls-rs` exposes ReInit as a first-class op that emits the
+resumption PSK (vs. fresh-create plus a manually derived PSK), and whether it surfaces resolution / blank
+counts directly (vs. a byte-size proxy for E12.4). **[confirm]** The full experiment plan and the design
+derivation live in `impl/delivery-layer/12-replant-experiments.md` and `impl/mls/mls-hardcases-and-posture.md`.
+
 ### 7.7. Dataplane history: two modes
 
 The governance fold above (§7.3) is one structure; a Group's **dataplane history** (the conversation

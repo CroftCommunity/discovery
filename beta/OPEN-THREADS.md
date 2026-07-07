@@ -791,6 +791,32 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Provenance:** user articulation 2026-07-06 (the layering discussion); seed examples: Facebook average
   group size, activity metrics on closed platforms, unpublished community moderation.
 
+### T36 — Verify the re-plant instantiation mechanism folded into Drystone spec §7.6.4 (run the E12 set)
+
+- **Status:** `open · gated` (folded into the spec 2026-07-07 with a `needs verification` tag, on the user's
+  instruction to fold in-context now rather than hold it in `impl/`).
+- **Type:** `needs-proving` (couples-with `needs-experimentation`).
+- **What it is:** the detailed MLS re-plant / atomic-swap mechanism (from `impl/delivery-layer/` and
+  `impl/mls/`) was folded into Drystone spec **Part 2 §7.6.4** as design-in-context: unilateral O(N)
+  instantiation, KeyPackage-per-member seating with the last-resort availability floor, fresh-stamp
+  group-wide key refresh (PCS) with the last-resort exception, blank-node cost reset, planter
+  byte-nondeterminism as dedup-not-fork, stale-`GroupInfo` external-commit PCS integrity, and the
+  `epoch_authenticator` fold-not-parallel candidate. Every mechanism claim is grounded against a named RFC
+  section, but the **composed operation is not yet exercised end-to-end on a real stack**, so §7.6.4 carries
+  `[confirm before publish]` throughout.
+- **Promotion target:** Drystone spec Part 2 §7.6.4 (already folded in-context); this thread tracks moving
+  its status from `design; needs verification` to `green-real` once validated.
+- **Gates:** run the **E12 experiment set** (E12.1–E12.7) against `mls-rs 0.55.2` (Rung A for MLS mechanics;
+  Rung B for Drystone's own governance-chain and dataplane hash structures, which are not yet built, so
+  E12.7 is modeled). Resolve the two library questions: whether `mls-rs` exposes ReInit as a first-class op
+  emitting the resumption PSK (vs. fresh-create + manual PSK), and whether it surfaces resolution/blank
+  counts directly (vs. a byte-size proxy). Resolve the spec's Appendix B re-plant items (intent ordering
+  before the ReInit freeze; seating default Welcome vs external-commit; PSK cross-group linking; epoch-number
+  metadata vs re-plant frequency; `epoch_authenticator` overlap).
+- **Provenance:** folded from `impl/delivery-layer/12-replant-experiments.md` + `01-delivery-architecture.md`
+  and `impl/mls/mls-hardcases-and-posture.md` (batches 7–8); the fold is Drystone spec document-pass-7
+  (2026-07-07). The impl/ design corpus is retained as the derivation + experiment plan.
+
 ## Promoted & closed (provenance retained)
 
 Threads that have left the live queue — `promoted` (integrated into a matured doc) or `closed` (resolved
