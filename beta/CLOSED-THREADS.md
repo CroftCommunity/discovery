@@ -13,6 +13,7 @@ The theme numbers (`0N`) some older entries reference resolve to layers per `../
 
 ### T37 - Placement and numbering of the large-group-scaling section (it collides with Part 2 §7)
 
+- **Layer:** drystone-spec
 - **Status:** `promoted · resolved 2026-07-07`. The user chose to fold it into Part 2 as **§11**. Done at spec document-pass-10: the section moved into `../drystone-spec/part-2-certifiable-design.md` as §11 (after §10, before Appendix A), its internal §7.N renumbered to §11.N, external real-§7 refs preserved, the §0 Map given a §11 line, and the standalone `large-group-scaling.md` removed (byte-identical original frozen in the batch-11 seed zip). Downstream refs updated to §11.
 - **Type:** `structure` (a spec-organization decision, not a proving or experimentation gate).
 - **What it is:** the batch-11 spec deliverable (`drystone-spec/large-group-scaling.md`) is titled "Part 2
@@ -36,6 +37,7 @@ The theme numbers (`0N`) some older entries reference resolve to layers per `../
 
 ### T1 — Drystone governance & peer model (§2 peers/rights/capabilities + §X governance conflicts) — PROMOTED → drystone-spec
 
+- **Layer:** drystone-spec
 - **Status:** `promoted` **2026-06-26 → `drystone-spec`** (built this session; residual gates carried into the
   spec, see below). The 2026-06-25 "design we have NOT built / `P-*` unwritten" framing below is **superseded**.
 - **Resolution:** the §2/§X drafts were matured into the **beta Drystone protocol spec** — the `P-*`
@@ -87,6 +89,7 @@ The theme numbers (`0N`) some older entries reference resolve to layers per `../
 
 ### T26 — Social-graph-as-substrate: the product reframe (chat as a tenant) — PROMOTED → 08
 
+- **Layer:** croft
 - **Status:** `promoted` **2026-06-26 → `08`** (user-approved "yes we should reframe this way"). The reframe
   is folded into `08`: theme narrative + charter re-anchored on the social graph as substrate; new **§1**
   (the social graph is the substrate; the garden grows from it) with **§1.1** (the durable group made
@@ -119,6 +122,7 @@ The theme numbers (`0N`) some older entries reference resolve to layers per `../
 
 ### T23 — Verbatim grounding quotes for the systems-science section (Ashby gloss, Beer paraphrase) — CLOSED
 
+- **Layer:** drystone-spec, philosophy
 - **Status:** `closed` **2026-06-26** (source supplied + incorporated). One verification flag carries
   forward (below).
 - **What it was:** the systems-science grounding carried two non-verbatim blocks — an Ashby
@@ -139,6 +143,7 @@ The theme numbers (`0N`) some older entries reference resolve to layers per `../
 
 ### T16 — Matrix close-cousin E2EE operational lessons (UTD invariant, mandatory-recovery onboarding, expectation-gap)  (promoted 2026-07-07 → fenced/group-chat-failure-modes.md)
 
+- **Layer:** fenced
 - **Status:** `open · gated` (lessons settled; design responses unbuilt).
 - **Type:** `needs-content` (expand per S2).
 - **What it is:** Matrix's production-paid E2EE lessons as direct design commitments — treat "every current member can decrypt every current-epoch message" as a **continuously-tested invariant** with a friendly key-request/healing path (never a dead "Unable to decrypt" tile); make **recovery setup near-mandatory in onboarding** with a blocking warning before any single-device-no-recovery state; and the **expectation-gap list** (instant full-history search, link previews, read receipts, "all my history on a new phone") Croft makes Hard — "planned, not discovered late." Beyond T5 (scale) and T1 (governance).
@@ -148,6 +153,7 @@ The theme numbers (`0N`) some older entries reference resolve to layers per `../
 
 ### T35 — The uncompensated community labor + data-opacity indictment (a distinct activism thread)  (promoted 2026-07-07 → activism/platform-extraction-and-captured-labor.md)
 
+- **Layer:** activism
 - **Status:** `open · surfaced` (surfaced 2026-07-06).
 - **Type:** `needs-research` (couples-with `needs-content`).
 - **What it is:** a *second*, distinct activism indictment, separate from the "platforms author the
@@ -170,6 +176,7 @@ The theme numbers (`0N`) some older entries reference resolve to layers per `../
 
 ### T21 — Is `share` fully a right, or partly a membership-class capability?  (folded into T31, 2026-07-07)
 
+- **Layer:** drystone-spec
 - **Status:** `open · gated`.
 - **Type:** `needs-content` (couples T31 — rights/role/capability disentanglement).
 - **Review (2026-06-26):** part of this is the capability-vs-role confusion (see T31). Also question the
