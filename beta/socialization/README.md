@@ -14,6 +14,7 @@ the human-facing presentations of the peer-standing → cooperative-form argumen
 |---|---|---|
 | `tilling-the-soil-essay.md` | "Tilling the Soil of Our Relationships": the attention-farming metaphor essay. Walks the farmer/field/crop/buyer analogy, lands the monocropping-reshapes-the-field point with the empirical finding, turns on the perspective inversion (the metaphor is true from the farmer's seat and false about what we are), and hands off to the full argument. The human-facing lead-in. | general reader |
 | `sixty-second-pitch.md` | "The Sixty-Second Version": the elevator pitch. No jargon, no ideology: you are the product on the shelf, the field being reshaped is your relationships, no villain is required, and a member-owned co-op is the credit-union-shaped alternative. Reads aloud in about a minute. | anyone |
+| `logo-drystone-stacking.md` | Brand-asset stub for the project mark: drystone stacking (dry-stacked stones, no mortar, no keystone, tying to the drystone/cairn family) in a natural context, on a circular badge, with a hard embroidery constraint (few colors, simplifiable stitch geometry, legible small). **Brief and direction only, no rendered asset yet.** | brand / design |
 
 **The grounded argument these present lives in Layer 2** (`../philosophy/`):
 `peer-standing-and-the-cooperative-form.md` (source of record) and

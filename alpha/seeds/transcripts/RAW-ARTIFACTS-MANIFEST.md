@@ -777,3 +777,27 @@ nested one level under `## 11.`; the §0 Map given a §11 line; the standalone l
 byte-identical original stays frozen in `../large-group-scaling-batch11/eleven.zip`). Spec document-pass-10;
 downstream refs updated to §11 across README/LAYERS/beta-README/fenced-README/OPEN-THREADS; open thread T37
 resolved and moved to Promoted & closed. Its own commit.
+
+**Multi-layer intake (2026-07-07): "the rest of yesterday's material".** A batch of web-session
+conversations (Gemini "deep-discussion" + technical Q&A) was extracted to discovery, skipping the arecipe
+project (already filed under `CroftC/arecipe`). Eleven grouped raw transcripts were preserved
+content-faithful (§4 caveat) in `raw/`: `philosophy-lifeworld-system-and-the-public-sphere-`,
+`philosophy-commensurability-ledger-and-legibility-`, `epistemics-rosenhan-replication-crisis-async-comms-`,
+`drystone-transport-iroh-gossip-quic-`, `rfc9420-metadata-floor-verbatim-`, `dag-cbor-and-merkle-primer-`,
+`doc-tooling-rfc-diagrams-ascii-svg-mermaid-`, `kleppmann-designing-data-intensive-applications-notes-`,
+`governance-improvement-paradox-and-preventative-work-`, `fenced-facebook-group-size-data-`, and
+`drystone-logo-drystone-stacking-` (all `-2026-07-07.md`). Distilled by parallel opus subagents into layer
+docs (all em-dash- and drift-clean, no alpha refs; AI-sourced quotes tagged [UNVERIFIED] confirm-vs-primary):
+**philosophy/** `lifeworld-and-the-system.md`, `commensurability-and-the-two-ledgers.md`,
+`epistemics-provenance-and-verification.md`; **governance/** `making-preventative-work-visible.md` (the
+layer's first content doc); **socialization/** `logo-drystone-stacking.md` (brief only, no rendered asset);
+**impl/** `transport-iroh-gossip-and-quic.md`, `references-designing-data-intensive-applications.md`, plus a
+§17 Diagrams section in `doc-writing-method.md`; **drystone-spec/** `dag-cbor-and-content-addressing.md`
+(companion primer). Augmented **fenced/** `operational-rates-and-platform-economics.md` with a Facebook
+group-size data point. Two technical items (the RFC 9420 §16.4 metadata-floor verbatim, and the
+iroh-gossip/QUIC mechanism) were found to CORROBORATE already-`Verified-RFC`/`Verified` spec text (Part 2
+§6.3/§6.4 line-level and §6.10, §11.9), so they landed as raw provenance + an impl reference rather than a
+spec edit; the RFC 9420 §16.4 verbatim confirms the spec correctly excludes the unsupported
+"sender-generation-gap reveals a missed message" claim. Routing overrides on the user's call: Kleppmann ->
+impl, dag-cbor -> spec companion, Rosenhan -> its own epistemics note, logo -> its own socialization stub.
+Coherence: philosophy/impl/governance/socialization READMEs + LAYERS.md updated. Committed and pushed.

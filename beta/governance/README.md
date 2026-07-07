@@ -17,7 +17,11 @@ only one that can host peer standing", lives in **Layer 2 `philosophy/`**
 
 ## Contents
 
-Currently a reserved layer: the manifestation docs are not yet written. What lands here:
+| doc | what it is |
+|---|---|
+| `making-preventative-work-visible.md` | The improvement paradox (Repenning & Sterman, CMR 2001): the Work-Harder vs Work-Smarter balancing loops, capability as an eroding stock, and why successful prevention gets no credit; plus the applied how-to (leading indicators, counterfactual/cost-of-inaction reporting, normalized reliability sprints, the Work-Smarter dividend). Why the operating body must protect and make legible the preventative work that non-extractive sustainability depends on. Figures/quotes [UNVERIFIED]. |
+
+Still to land (the manifestation docs proper):
 
 - **Theme `07-sustainability-and-stewardship.md`** (currently at beta root) migrates here: the cooperative
   mechanism and the IP-stewardship structure, the "non-extraction is anti-fragile" case at the level of a

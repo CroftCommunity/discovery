@@ -17,7 +17,19 @@ The single canonical writing method both corpora below follow (end-state rule, l
 tags, the posture-summary-table practice, and the search-first / quote-discipline / no-orphaned-concepts
 rules). It lives at the layer root, not inside a bundle, because it is shared. Where a corpus doc refers to
 "doc 11" or "the method," it means this file. (It was formerly `delivery-layer/11-doc-method.md`; promoted
-here 2026-07-06 as the single source of truth when the MLS bundle arrived with a newer copy.)
+here 2026-07-06 as the single source of truth when the MLS bundle arrived with a newer copy.) A **§17
+"Diagrams: author once, render to text and vector"** section was added 2026-07-07: author diagrams as
+Mermaid or grid-clean ASCII and generate both a text/ASCII form (terminal-legible, archival, matching the
+RFC discipline) and an SVG, rather than downscaling a vector into text.
+
+### Reference notes (added 2026-07-07)
+
+Grounded reference notes for the reference core, distilled from filed raw transcripts:
+
+| doc | what it is |
+|---|---|
+| `transport-iroh-gossip-and-quic.md` | How the transport/delivery layer works, corroborating spec §6 (gossip overlay §6.10) and §11.9: control plane vs data plane (NeighborUp/Down = local routing-table membership; Received = the only data event; Lagged = backpressure); gossip has no verified delivery, so peer state comes from the QUIC transport layer (keep-alive heartbeats, not a gossip ping); the one-time TLS 1.3 handshake derives session keys and keep-alives reuse that verified trust; connection migration keeps the peer table stable. iroh core 1.0.0 (FACTCHECK SoT); iroh-gossip pre-1.0 specifics `[confirm]`. |
+| `references-designing-data-intensive-applications.md` | Design-guidance notes on Kleppmann's DDIA: the three imperatives (reliability/scalability/maintainability), B-Trees vs LSM-Trees, non-uniform ACID isolation, hostile distributed systems, the Twitter fan-out and doctors-on-call examples, and the mapping onto Drystone's delivery-as-race, history-DAG / governance-log, and commit-liveness posture. Quotes [UNVERIFIED]. |
 
 ### `mls/`: the MLS-substrate understanding bundle
 

@@ -108,6 +108,18 @@ The consequence: most communities are tiny and nearly dormant, while a small num
 
 **Residual.** The number is only as meaningful as its window, and "active" is reported against incompatible windows (online-now, seven-day, monthly) that differ by an order of magnitude. The size-independent-core finding is a strong shape result but comes from Reddit; whether the absolute core size transfers to other platforms is not established. What is solid: never size live infrastructure to the roster. Presence and fan-out load tracks the active fraction (roughly 1-10%, often less), and real-time subsystems track a call-concurrency ceiling that sits two-to-three orders of magnitude below the roster.
 
+### Platform data point: Facebook group-size distribution (a fenced platform)
+
+A clean external instance of the heavy-tailed shape the whole doc rests on, on a platform where the numbers are unusually hard to pin. Meta publishes no official average or median (it treats backend group-size statistics as effectively secret), so every figure below is triangulated across platform metrics, academic scrapes, and admin trackers, and is mixed-tier. Because the distribution is heavy-tailed, the three summary statistics must be reported separately; a single headline number is meaningless here for the same reason it is in the size-band breakdowns above.
+
+- **Maximum: about 8.3M-8.6M members (T3, tracker-tier, indicative only).** There is no software cap on join count; named giants include an English-learning group at about 8.6M (private) and a relationship-counseling group at about 8.3M (public). Groups past roughly 1M typically run 5-10+ moderators plus heavy admin-automation. This bounds the tail; it does not describe a typical group.
+
+- **Mean, distorted upward: about 1,000-2,500 members from global platform math (T3), and about 8,727 (public) / 13,277 (private) from academic cross-section scrapes (T2).** The platform-math figure divides 10M+ groups against roughly 1.8-2.5B monthly-interacting users (average user in 5+ groups); the scrape figures are inflated by top-tier viral groups in the sample. The mean is the wrong statistic here for the same reason the doc reports medians and ranges everywhere else.
+
+- **Median, the honest typical: about 1,400 members for niche/thematic groups (IQR about 765-2,800, JMIR-style mapping across hundreds of active groups; T2, the stronger anchor here), dropping to about 25-100 members for high-engagement groups people interact with daily (local, buy/sell, close friends).** Admin rule of thumb: past about 1,400 members a group is larger than half of active thematic groups; past 100,000 it is in the top fraction of a percent.
+
+The design point: this is a clean instance of the two gaps the "most of the roster is dormant, size on the live set" warrant rests on. The mean-vs-median gap (a mean of ~1-2.5k dragged up by multi-million-member outliers against a thematic median of ~1,400) and the membership-vs-daily-engagement gap (thematic ~1,400 versus a daily-interaction median of ~25-100) are the same pattern the live-fraction rate above describes from the platform side, and it feeds spec Part 2 §11.13. Facebook groups (the forum object) are non-E2EE and admin-flat-symmetric.
+
 ## Part 2: platform economics (Telegram as the worked example)
 
 Telegram is the worked example because it is a centered community platform that recently turned its rosters into revenue, and its filings expose both the model and its dependency. Telegram is now for-profit and, on the underlying business, profitable, which is a recent shift: roughly its first decade ran on the founders' money and earned essentially nothing.

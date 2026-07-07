@@ -21,11 +21,15 @@ argument itself lives here, not there.
 | `peer-standing-and-the-cooperative-form.md` | The full grounded argument, the **source of record**. Etymology (Latin *par*) → relational-equality (Anderson) → non-domination (Pettit) → group-agency impossibility (List & Pettit) → Delaware corporate law → the domain mismatch → the cooperative form. Every claim carries an epistemic tag (`[settled]` / `[cited]` / `[premise]` / `[ours]` / `[tension]`); full reference list. | rigorous / critical |
 | `structural-argument-principles.md` | The compressed, claim-first version across nine numbered sections. Premises and tensions flagged inline; conclusion stated as a spec requirement. | reader who wants the spine |
 | `peer-standing-session-summary.md` | Index + record of the argument's ten-step arc, sources grounded vs. flagged, and the epistemic discipline. The map into the set. | anyone entering the set |
+| `lifeworld-and-the-system.md` | Habermas's Lifeworld vs System and the colonization of the lifeworld (communicative vs strategic rationality; the public sphere and its refeudalization; the ideal speech situation and bracketing money/power; deliberative democracy; Arendt, Postman, Debord, Morozov). Grounds why a system of peers must preserve individual weight across money and power. Quotes are AI-surfaced and [UNVERIFIED]. | why the harm is real |
+| `commensurability-and-the-two-ledgers.md` | The deepest grounding: capitalism as a tool not a totalizer; the Ledger of State (price, commensurability) vs the Ledger of Meaning (trust, non-fungible); why a ledger/crypto cannot be the social backplane; monoculture-fragility and slack-as-reserves (Polanyi, Sandel, Georgescu-Roegen, Taleb-with-ballast, Putnam, Scott's legibility/metis/high-modernism, Jacobs); Anderson 1999 + Pettit 1996 primaries. Quotes [UNVERIFIED]. | why social value is a local-authority concern |
+| `epistemics-provenance-and-verification.md` | The epistemics note: why closed-loop institutional authority let flawed data survive (Rosenhan; the replication crisis; the collapse of verification latency), and why a provenance-first, locally-verifiable substrate is the structural answer, paired with real-humanity grounding. | why "compute provenance, never utility" |
 
-**Reserved for migration:** the broader intellectual lineage the project leans on (relational
-egalitarianism, republican non-domination, Ostrom's commons governance, Beer's cybernetics and the
-variety/viability principles) belongs here as it is filed. Theme material that is *principle*-shaped
-migrates to this layer; theme material that is *material/cultural*-shaped migrates to `history/` (Layer 1).
+**Migration in progress:** the broader intellectual lineage the project leans on (relational egalitarianism,
+republican non-domination, Ostrom's commons governance, Beer's cybernetics) is landing here as it is filed;
+the three docs above (added 2026-07-07) are the first of it (Habermas, the commensurability/legibility
+tradition, and the epistemics of verification). Theme material that is *principle*-shaped migrates to this
+layer; theme material that is *material/cultural*-shaped migrates to `history/` (Layer 1).
 
 **`prior-art/`** holds source-grounded analyses of the nearest-neighbor academic frames, what they
 established and where they stopped. First entry (2026-07-06): *Modular Politics* (governance as a portable
