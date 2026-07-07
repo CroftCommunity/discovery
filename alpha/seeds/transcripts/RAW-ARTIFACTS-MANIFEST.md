@@ -768,3 +768,12 @@ As-received batch frozen at `../large-group-scaling-batch11/eleven.zip`. Coheren
 `LAYERS.md` (field now two-halved, the triad), `beta/README.md`, `drystone-spec/README.md` +
 `CHANGELOG.md` (document-pass-9), `cairn/README.md` (vs-fenced boundary), OPEN-THREADS T37-T40. Committed
 and pushed.
+
+**Batch 11 follow-up (2026-07-07): §7 -> §11 fold.** On the user's decision, the standalone
+`large-group-scaling.md` was folded into `beta/drystone-spec/part-2-certifiable-design.md` as **§11**
+(after §10, before Appendix A), resolving the numbering collision with the existing Part 2 §7
+(Synchronization). Self-refs renumbered §7.N -> §11.N; external real-§7 citations preserved; headings
+nested one level under `## 11.`; the §0 Map given a §11 line; the standalone live file removed (the
+byte-identical original stays frozen in `../large-group-scaling-batch11/eleven.zip`). Spec document-pass-10;
+downstream refs updated to §11 across README/LAYERS/beta-README/fenced-README/OPEN-THREADS; open thread T37
+resolved and moved to Promoted & closed. Its own commit.
