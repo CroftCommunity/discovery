@@ -49,15 +49,12 @@ application layer, no product surface):
 - **Changelogs** — `CHANGELOG.md` (filing-side revision log, document-pass-0..6, newest first) plus
   `part-1-changelog.md` and `part-2-changelog.md` (the consolidation's detailed per-part content-pass logs)
 
-**Superseded companions, retained pending the user's go-ahead to retire them** (document-pass-6 folded
-their content into Part 2; kept in place for now, a flagged temporary duplication, not an oversight):
-- `persona-definition.md` — superseded by Part 2 §5.2 + Appendix D (and still uses the retired term
-  `PrincipalSet`, now `Group Role Set`)
-- `open-items.md` — superseded by Part 2 Appendix B
-- `bounded-contexts-and-vocabulary.md` — reflected in `conventions-and-decisions.md`
-- `review-handoff.md` — predates the persona migration; needs a full reconciliation pass
-- `drystone-exposure.svg`, `drystone-catchup-flow.svg` — the trust/exposure map and catch-up flow;
-  retained, though the consolidated Part 2 no longer references them by figure number
+**Superseded companions** are moved to **`superseded/`** and kept as provenance, marked superseded and
+treated as raw transcripts would be (do not read as current). Their content is folded into the consolidated
+spec: `persona-definition.md` → §5.2 + Appendix D; `open-items.md` → Appendix B + `open-threads.md`;
+`bounded-contexts-and-vocabulary.md` → `conventions-and-decisions.md`; `review-handoff.md` (predates the
+persona migration); the two SVGs (Part 2 no longer references them by figure number). See
+`superseded/README.md`.
 
 Each Part 2 section names the Part 1 principle(s) it `Realizes`, so the two halves are traceable
 against each other: every mechanic should cash out a principle, and every principle should bind a

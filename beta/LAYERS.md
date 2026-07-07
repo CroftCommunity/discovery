@@ -131,7 +131,8 @@ research brief; more ecosystem material to migrate), `governance/` (reserved; RE
 (theme 02 is its seed), `croft/` (theme 08). The `02`–`08` theme docs at beta root remain the reading
 spine until their content migrates into layers.
 
-**cairn migration backlog** (ecosystem material currently living elsewhere that belongs here): the MLS
-scaling survey, the Willow/Meadowcap analysis, the Blacksky research (in raw transcripts), the ecosystem
-landscape in the local-authority notes, and the Roomy/p2panda/SimpleX/Matrix tracking. Modular Politics
-stays in `philosophy/prior-art/` (it is an academic governance *frame*, not a shippable building block).
+**cairn migration: done (2026-07-07).** The former backlog is now filed as four survey docs distilled from
+the raw transcripts: `mls-and-mimi.md` (incl. the scaling survey), `willow-meadowcap.md`,
+`blacksky-and-atproto-community.md`, and `adjacent-systems.md` (Roomy/p2panda/SimpleX/Briar/Cwtch/Matrix/
+Session/Nostr, the ecosystem landscape). Modular Politics stays in `philosophy/prior-art/` (an academic
+governance *frame*, not a shippable building block).
