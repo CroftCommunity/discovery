@@ -85,7 +85,7 @@ Every carry-forward conclusion is placed or verified-present:
 | CM-A1 relationships-as-newest-enclosure | PLACED | history/crofting-dry-stone-and-the-enclosure-inversion §6 |
 | CM-A2 recovery lock-vs-trust | PLACED | drystone-spec/open-threads.md §2 (recovery-anchor sharpening) |
 | CM-A3 non-mimicry moat | PLACED | governance/foundation-cooperative-and-sustainability |
-| CM-A4 linear/cyclical operating systems | PARKED | keep-vs-retire; the adjacent value-systems frame is touched by philosophy/commensurability-and-the-two-ledgers; the explicit manifesto framing stays alpha-only (SOVEREIGN-COMMONS-DOSSIER), a later keep-vs-retire call, low rank |
+| CM-A4 linear/cyclical operating systems | PLACED | philosophy/commensurability-and-the-two-ledgers §XI (folded 2026-07-07 on the user's keep call, as a values-commitment section tied to the two ledgers; [UNVERIFIED] manifesto-grade) |
 | CM-P1 rollup trilemma / MMR | COVERED | drystone-spec/part-2 + conventions + open-threads |
 | CM-P2 no-convergence honest claim | COVERED | drystone-spec/part-2 + CHANGELOG (social-legibility invariant) |
 | CM-P3 geer 3-rung enumeration | COVERED | drystone-spec/part-2 + impl |
@@ -95,9 +95,9 @@ Every discarded theme's conclusions are captured across layers (table above): th
 sources, so the theme conclusions are in the layers by construction; the mature layers (spec, impl, cairn,
 philosophy, activism) were always the theme targets and are verified-covered.
 
-**Gate verdict: PASS, with one parked item (CM-A4, keep-vs-retire, non-blocking).** No unique theme
-conclusion is lost if `beta/02`..`beta/08` are discarded. Phase 4 (discard) is therefore safe, pending the
-user's go-ahead and the CM-A4 keep-vs-retire call.
+**Gate verdict: PASS. All carry-forward conclusions are placed or verified-covered** (CM-A4 folded into
+philosophy on the user's keep call, 2026-07-07). No unique theme conclusion is lost if `beta/02`..`beta/08`
+are discarded. Phase 4 (discard) executed 2026-07-07 on the user's go-ahead.
 
 ## What stays alpha (not re-filed), for the record
 
