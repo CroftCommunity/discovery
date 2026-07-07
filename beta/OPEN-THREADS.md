@@ -108,156 +108,14 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 ## Open threads
 
-> **T2–T10 added 2026-06-25** from a sweep of the alpha backlog (`ROADMAP_TODO` A/D/E), the seam/edge
-> trackers (`COHESION` OPEN/DRIFT, `open-edges.md`, `open-considerations.md`), the beta themes'
-> "establishes / does not" boundaries, and the rollup coverage view — the under-staged, beta-bound
-> threads that the eight resolved themes correctly dropped (because unsettled) and that had no home
-> before this ledger existed. Ranked by alpha→beta maturation impact. Already-bannered gates (recovery
-> anchor, MPL, cooperative legal review, Noria, CroftC IP, genome-vs-strategy, V3 republish-UX,
-> cold-start, brand-name DRIFT) are deliberately **not** duplicated here — they are already visible in
-> their themes.
+> **Structure (2026-07-07).** Open-only. Threads are grouped by the layer they most belong to, plus a
+> cross-cutting group for project-level decision gates. Closed and promoted threads live in
+> `CLOSED-THREADS.md`; the spec keeps its own deeper open-items in `drystone-spec/open-threads.md`. When a
+> thread closes or promotes, move its block to `CLOSED-THREADS.md` (do not delete it).
 
-### T2 — Governance at scale (subsidiarity + liquid delegation; the concentration default)
+### Cross-cutting: decision gates and publication
 
-- **Status:** `open · gated`.
-- **Type:** `needs-experimentation` (couples T5 — the test harness).
-- **Review (2026-06-26):** likely **more than one large-scale governance model**, to hypothesize then
-  play out on the test harness: (a) revocable/movable **delegate-vote** (liquid democracy); (b)
-  **elected-admin / Reddit-style moderation** ("all-or-nothing" participation where peers still hold
-  rights and vote with their feet); (c) **broadcast-only groups** (a different rights model entirely).
-  Needs the harness to test scale across variety + quantity + peer count.
-- **What it is:** how a centerless federation governs at scale (the ~200k breakpoint) without the
-  cheap-fork Sybil defense getting expensive and without quietly growing a center — likely subsidiarity +
-  instantly-revocable **liquid delegation**, with **concentration as the default failure** (the
-  Pirate-Party lesson) resisted by decay/caps/bounded-chains/expiry/visibility, and **member ≠
-  governance-constituent** modeled explicitly. Includes the honest admission that the membership
-  sequencer / superpeer is a **load-bearing centralization point** whose funding/uptime/governance must
-  be named as core, and the federation/inter-collective peering design surface.
-- **Promotion target:** completes the federation handoff that the spec's peer-equality principle opens (`drystone-spec` Part 1 §2.3, Part 2 §5) and **07 B5** gives a legal
-  shape to; touches **06** (Sybil softening). Likely a dedicated governance theme alongside T1.
-- **Gates:** decide the delegation model; pick concentration-resistance levers; model
-  member-vs-constituent; spec federation/peering; name the center's funding/governance honestly.
-- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D9** (+ D8 residual, E16 design surface);
-  `../alpha/COHESION.md` **§22**; `../alpha/thinking/open-considerations.md` §4 (load-bearing superpeer);
-  `../alpha/thinking/local-first-as-design-imperative.md` (open frontiers).
-
-### T3 — Moderation & abuse under a blind broker (the constructive design body)
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (couples T31).
-- **Review (2026-06-26):** the meer PeerSet holds the **same rights as a full peer** but has no local
-  history and **never sees content** — so you **cannot moderate on content** through it. Moderation is
-  therefore **separate from the meer PeerSet**, scoped to abuse / side-channel signals (a distinct
-  delegation stack). Pin the meer's decrypt-vs-blind line in terms of **MLS capabilities** (see T31).
-- **What it is:** the operational complement to 06's "safe by structure, not inspection" thesis — what a
-  content-blind broker actually *does* about spam / CSAM / coordinated harm: client-side
-  report-with-reveal, metadata-based rate-limiting, reputation, and the `{pending,released,rejected}`
-  predicate-gated **hold/release plane** + **crypto-shred** — "must be designed in, not bolted on." Plus
-  the **kid-friendly-vs-uninspectable** product tension.
-- **Promotion target:** **06** (the design body it currently only gestures at). The CSAM/jurisdiction
-  *legal* posture is already surfaced (06→07); this is the distinct *engineering/design* thread.
-- **Gates:** decide the abuse-handling toolkit; reconcile with the geer's consented-visibility role;
-  decide whether crypto-shred + hold/release ship in the substrate or app layer; the legal/CSAM piece
-  (the user's) gates the rest.
-- **Alpha provenance:** `../alpha/thinking/open-considerations.md` §5 + §9; `../alpha/ROADMAP_TODO.md`
-  **D3 / D6 / E18**; `../alpha/COHESION.md` §18.
-
-### T4 — A brand / voice / messaging chapter (a missing theme)
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (structural directive S3 — start now, twinned with T11).
-- **Review (2026-06-26):** **start the doc now** — a brand/voice/messaging working folder that accretes
-  taglines, ideas, links, and "ammo" over time (twin to the adoption-enablement doc, T11), so nothing is
-  forgotten and we can say "here's what we've been looking at" when it's time. (Brand-name DRIFT gate
-  still applies before any of it hardens into a chapter.)
-- **What it is:** `narrative/messaging-and-quotes.md` is a mature, provenance-tagged (OURS / CITE /
-  CLEARANCE / UNVERIFIED) reservoir — taglines, the corporation-vs-person crowding-out framing (Gneezy &
-  Rustichini, Ostrom, Ariely), the digital-living-room / IYKYK positioning, the Euphoria tie-in with a
-  fair-use/trademark analysis. A chapter's worth of brand voice that no beta theme absorbs.
-- **Promotion target:** a **new brand/voice theme** (none of the eight is one); the rollup itself
-  anticipates it.
-- **Gates:** brand/product-name **DRIFT reconciled vs `NAMING.md`** (the 08/07 dependency — 08 says "must
-  be reconciled before any brand chapter"); CLEARANCE items (Euphoria line) cleared with counsel;
-  `[UNVERIFIED]` anecdotes confirmed or dropped.
-- **Alpha provenance:** `../alpha/narrative/messaging-and-quotes.md`; the **app-side half of the same brand
-  DRIFT** — `../alpha/thinking/app/brand-and-voice-notes.md` (taglines, two-speed answer, "Grow your own",
-  message funnel) and `../alpha/assets/README.md` (draft wordmarks, license-gated) [added 2026-06-25
-  per-file audit]; `../alpha/BETA-ROLLUP.md` coverage view ("likely feeds a future brand chapter");
-  `../alpha/ROADMAP_TODO.md` C6 / A7. **Accreting home (S3, started 2026-06-26):**
-  `../alpha/narrative/brand-comms-workbook.md`.
-
-### T5 — Protocol behavior at scale / group-chat failure modes
-
-- **Status:** `open · gated`.
-- **Type:** `needs-experimentation` (couples T2 — same test harness).
-- **Review (2026-06-26):** flows together with T2 — the gating work is to **build the test harness** and
-  stand up conformance + performance + quality test cases (scale across variety, quantity, and peer
-  count).
-- **What it is:** the honest gap in 04's "we proved it" — 04 explicitly does **not** establish large-scale
-  behavior or real-world fold/unfold UX. The open design questions: does survivor-selection need the
-  superpeer to be deterministic (the project's honesty hinges on it); the superpeer-as-covert-ordering
-  risk (is the pure-P2P tier "a demo"); immutable genesis-threshold amendability vs regress-grounding; and
-  the **churn-fold Achilles heel** (governance-log noise from device churn making the member-list fold
-  unmaintainable) with its concrete, unactioned recommendation to add a **synthetic high-churn /
-  multi-partition test now**.
-- **Promotion target:** **04** (widens it from "proved at human scale" toward production-shaped claims).
-  **Overlaps T1's §X** conflict model — several questions may be T1's validation surface; confirm and fold
-  where subsumed.
-- **Gates:** survivor-selection determinism decision; pure-P2P-vs-superpeer ordering honesty; genesis
-  amendability; write + run the churn/partition test (the test itself is alpha validation).
-- **Alpha provenance:** `../alpha/research/group-chat-failure-modes.md` (+ `-plain.md`);
-  `../alpha/crystallized/conclusions.md`; the test-plan backlog.
-
-### T6 — The per-platform trust-model doc (05's "highest-leverage next artifact")
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (couples T14; structural directive S4).
-- **Review (2026-06-26):** still deferred; subsumed by the **per-platform design-files** directive (S4) —
-  the per-network trust write-up is one slice of the per-platform design thinking.
-- **What it is:** the per-network (Bluesky/AP/Mastodon/GoToSocial/Threads/Hive) write-up — the field used,
-  what Croft claims / doesn't claim, the backlink mechanism, exact verifier steps + pseudocode. 05 *names*
-  it as the highest-leverage next artifact but cannot assert its content because it does not exist.
-- **Promotion target:** **05** (completes the identity theme).
-- **Gates:** write it; confirm `alsoKnownAs` extra-entry persistence (`[UNVERIFIED]`, E14); resolve the
-  anchor-URI stability contract (A9) and the PDS-vs-self-controlled rotation key (A10), which determine
-  what each spoke can claim; depends partly on T7.
-- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **E13** (+ A9/A10/E14);
-  `../alpha/thinking/cross-platform-identity-provenance.md:222`; `beta/05` boundary. **Per-platform home
-  (S4, started 2026-06-26):** `../alpha/thinking/app/platforms/`.
-
-### T7 — atproto Permissioned/Private-Data watch-item (external dependency, gates 03 + 05)
-
-- **Status:** `open · gated` (gate is external, not Croft-internal work).
-- **Type:** `needs-research` (external watch-item).
-- **Review (2026-06-26):** still deferred forward — external dependency, nothing to action yet.
-- **What it is:** 03 calls atproto's Permissioned Data work "**the single most important external
-  development to track** — it could narrow or complement Croft's private path." The real ATProto Private
-  Data WG defers true E2EE / zero-knowledge; Croft sits on the harder ZK side. Couples to 05's `did:webvh`
-  native-support `[UNVERIFIED]` gate.
-- **Promotion target:** updates **03** (the field positioning) and **05** (preferred-DID-method choice)
-  when it lands.
-- **Gates:** the atproto WG reaches a settled E2EE/ZK posture; `did:webvh` native atproto support
-  confirmed against the FACTCHECK SoT.
-- **Alpha provenance:** `beta/03` §6; `beta/05` §3; FACTCHECK as SoT for the confirm.
-
-### T8 — Forward-only revocation under irreversible commitments
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (likely co-promotes with T1).
-- **Review (2026-06-26):** the work, restated plainly — define the **reversible-vs-committing decision
-  tag**, spec the **permanent attribution record**, and reconcile it with T1's append-only fold.
-- **What it is:** revoking consent cannot rewind a spent action; decisions must be tagged
-  reversible-or-committing **at decision time**, and the record must permanently, honestly attribute which
-  consent supported which irreversible consequence. The governance-plane face of the recovery/consent
-  problem; `drystone-spec` (Part 2 §5.6) states the *principle* (irreversible → maximal protection of rights where exit cannot help) but never
-  names the *mechanism*.
-- **Promotion target:** **04 / 06** (the governance log + revocation ladder); **01** (the
-  protection-rigidity principle). **Likely co-promotes with T1.**
-- **Gates:** define the reversible-vs-committing decision tag; spec the permanent attribution record;
-  reconcile with T1's append-only fold.
-- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D10**; `../alpha/COHESION.md` **§22**; `drystone-spec` Part 2 §5.6.
-
-### T9 — Publication-readiness verification pass (01 Ostrom + 02 Clearances colour quotes)
+#### T9 — Publication-readiness verification pass (01 Ostrom + 02 Clearances colour quotes)
 
 - **Status:** `open · gated`.
 - **Type:** `needs-research` (primary-source pass).
@@ -274,237 +132,96 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Alpha provenance:** `drystone-spec` Part 1 §3; `beta/02` §1/§4/§5. (Pass-2 fact-check left Ostrom as the one
   remaining 01 confirm.)
 
-### T10 — Real-time media-layer hardening (finishes 04's media leg)
+#### T27 — Promote "evidentiary, not operational" to a canonical principle?
 
-- **Status:** `open · gated` (largely de-risked — a "close the last decisions" thread).
-- **Type:** `needs-experimentation`.
-- **Review (2026-06-26):** still deferred for now.
-- **What it is:** 04 carries media only as *characterized* (E12 green-real on synthetic frames). str0m is
-  production-grade server-side (weak exactly on P2P ICE, which Croft routes around) and the RoQ/MoQ split
-  is adopted; the residual `[OPEN]` is whether str0m's strong/weak boundary is precisely tested, which
-  sets the browser-facing SFU-meer exposure — feeding the pending TC-ENG0 (engine API audit) and TC-INT3
-  (A1-vs-A2 engine/transport decision).
-- **Promotion target:** **04** (hardens the media leg from "characterized" toward production-shaped).
-- **Gates:** TC-ENG0 done; TC-INT3 decided; the str0m P2P-ICE boundary `[OPEN]` closed.
-- **Alpha provenance:** `../alpha/research/str0m-production-readiness.md`,
-  `../alpha/research/iroh-realtime-media-references.md`; `../alpha/thinking/realtime-media-over-iroh.md`.
+- **Status:** `open · gated` (a user curation decision).
+- **Type:** `needs-content` (curation call).
+- **What it is:** the rights-floor is **evidentiary, not operational** — it records and proves standing; it
+  does not operate things (stated clean in `beta/05` §5 and its charter). This is **settled as a conclusion**;
+  the open question is purely whether it should be **elevated to a named, canonical Tier-1 principle** in the
+  alpha principles set (`crystallized/principles.md`) — a curation call, not a design question.
+- **Promotion target:** `crystallized/principles.md` (alpha) if adopted; no beta-doc change needed (the
+  conclusion already reads clean in `05`).
+- **Gates:** the user's decision to name it as a principle (or leave it as a per-theme conclusion).
+- **Alpha provenance:** `beta/05` §5; `../alpha/BETA-ROLLUP.md` 05 §Deferred-decision note.
 
-> **T11–T17 added 2026-06-25** from a content-level completeness audit (four readers across
-> `crystallized/`, `thinking/`, `narrative/`+dossier, `research/`+index) hunting alpha material walked
-> out but not manifested in beta. These are the **unsettled** finds; the audit's **settled-but-unfolded
-> conclusions** (the bigger bucket) are tracked separately in `../alpha/BETA-ROLLUP.md` → "Settled
-> conclusions not yet folded," because they belong *in* the themes, not here.
+> **T28 added 2026-06-26** by the alpha left-behind audit — extracted from an inline "later call" that the
+> 2026-06-26 Hush-A-Phone relocation left at the bottom of `../alpha/thinking/historical-peer-rights.md`,
+> rather than leaving it as an inline deferral.
 
-### T11 — Adoption-chasm thesis + the institutional-mandate "fourth bridge"
+#### T30 — Mature the Drystone spec to publication-final (the path to the defensive-publication DOI)
 
-- **Status:** `open · gated` (provenance-gated finding + an undone design directive).
-- **Type:** `needs-content` (structural directive S3 — twin doc to T4).
-- **Review (2026-06-26):** **start the doc now** — adoption-enablement is the **twin** of the brand/voice
-  doc (T4); both accrete thinking, references, and "ammo" over time so we don't forget and can pull the
-  thread when the moment comes.
-- **What it is:** a survey of ~16 P2P/local-first projects concluding **only Signal crossed the chasm**, and that crossing needs three conditions — product parity, a non-extractive sustaining org, an inciting event (which produces *spikes*, not sustained migration). Plus a discovered **fourth bridge: institutional mandate** (Matrix's 25+ government adoptions were top-down) "worth designing for explicitly," and the **embedded-trust** corollary (P2P tools must embed in *existing* trust networks, not expect trust to form around the tool).
-- **Promotion target:** **07** (the institutional-adoption path as a sustainability lever) and **03** (close the field map with the "only Signal crossed, and why" verdict).
-- **Gates:** the survey carries a `[needs primary-source verification]` caveat (confirm before asserting); "design for institutional mandate" is an undone directive.
-- **Alpha provenance:** `../alpha/research/p2p-founder-motivations-adoption.md` (RQ2 synthesis); `../alpha/SOVEREIGN-COMMONS-DOSSIER.md` §7; `../alpha/narrative/long-form.md` (adoption-curve risk, named not analyzed). **Accreting home (S3, started 2026-06-26):** `../alpha/narrative/adoption-enablement.md`.
+- **Status:** `open · gated` (spec is beta-maturity; publication-final is the next stage up).
+- **Type:** `publish`.
+- **Review (2026-06-26):** reframe concretely — T30 is the **publish** thread: mature the spec, publish
+  the final spec, mint the DOI. The **attorney legal-review** piece was **split out into its own thread,
+  T32** (type `legal-review`), so the two kinds of work track separately.
+- **What it is:** two closures take `drystone-spec` from beta to a mintable defensive-publication record:
+  1. **Pin the `ENABLING` wire encodings, in sequence** (Part 2 App-B): the **canonical governance-fact byte
+     encoding** (the base all others extend) → **frontier-closure-before-sort** (the highest-risk divergence
+     point) → **frontier-commitment + acceptance-record format** → **§7.2 message formats field-by-field** →
+     the **capability wire format** (gated on the Track A/B decision). Per the spec README sequencing note,
+     **do not mint the v0.1 Zenodo DOI until §7.2 is buildable from the text alone** — that is when the
+     disclosure becomes *enabling* (protective as prior art).
+  2. **Confirm the `[confirm before publish]` external facts** against primary sources (currently
+     web-verified-in-dialogue only): Matrix State Resolution / room v12 / CVE-2025-49090, Willow, Meadowcap,
+     Keyhive (Part 2 §7 / App-A); the Beer quotes + Cybersyn/OGAS dates/figures (Part 1 §3); iroh cites the
+     FACTCHECK SoT. Also resolve the spec's own reconciliations: the **`croft-*` → `drystone-*` tag rename**
+     (re-prove, since the tag is signed over) and the **SHA-256 (§4) vs BLAKE3 (§7) hash-function** choice.
+- **Promotion target:** `drystone-spec` → an `rc`/publish-stage spec + a Zenodo DOI + OpenTimestamps + a
+  public Git release (the vehicle settled in **07 Pillar C / K9**; spec-text **CC0 1.0**, code **Apache-2.0**).
+- **Gates:** the Track A/B capability decision (couples T1/T24) blocks the capability wire format; the rest
+  is concrete spec-writing + a fact-confirmation sweep. Attorney review is **tracked separately in T32**
+  (it gates the publish, but it is legal-review work, not spec-writing).
+- **Provenance:** `drystone-spec` Part 2 Appendix A/B; `thinking/drystone-publication-and-defensive-disclosure.md`;
+  couples T1 (promoted), T22 (tenure/re-key), T24 (Track A/B), T29 (MLS↔log binding), T32 (legal review).
 
-### T12 — Consumer-pull economic inversion (M3) + the M0–M4 product-track sequencing
+> **T31–T32 added 2026-06-26** from the open-threads review read-through
+> (`../alpha/plans/2026-06-26-open-threads-review.md`). T31 captures the recurring rights/role/capability
+> disentanglement the review asked to clear up; T32 is the legal-review half split out of T30.
 
-- **Status:** `open · gated` (settled-as-direction; under-designed).
-- **Type:** `needs-content` (walk-through requested).
-- **Review (2026-06-26):** the user wants a **plain-language walk-through** of this thread — they thought
-  it was resolved and want to re-understand what is settled (the M0–M4 track) vs still open (M3, the
-  consumer-pull/demand-side broker, which is named but not designed).
-- **What it is:** the **fifth rung of the "recurring inversion"** — invert the ad model into a **consumer-side / demand-side broker** (the one economic pillar of the thesis with no home in 07 or 08). Plus the **M0–M4 product track** (M0 single-user vault → M1 secure group chat → M2 social graph you hold → M3 consumer-pull inversion → M4 the cooperative) — the staged delivery spine no theme carries.
-- **Promotion target:** **07** (a third economic mechanism) and **08** (the product-track roadmap).
-- **Gates:** M3 is named but not designed; the per-milestone shape needs work before it's resolved-beta.
-- **Alpha provenance:** `../alpha/crystallized/conclusions.md` (M0–M4); `../alpha/crystallized/principles.md` (the five-scale inversion list).
+#### T32 — Attorney legal-review of the Drystone defensive-publication (patent-non-assertion)
 
-### T13 — Encrypt-then-content-address kills cross-user dedup (media storage economics)
+- **Status:** `open · gated` (split out of T30, 2026-06-26).
+- **Type:** `legal-review`.
+- **What it is:** the **NOT-LEGAL-ADVICE** attorney review the defensive-publication path needs before it
+  ships — review of the **patent-non-assertion paragraph** (07 C3) and the disclosure framing — tracked as
+  its own typed thread so legal work and spec-writing don't blur together. Distinct from (but adjacent to)
+  the bannered cooperative legal-review gate in `README.md`, which it does not duplicate.
+- **Promotion target:** clears a gate on **T30** (publish) and **07 Pillar C**; no beta-doc content change.
+- **Gates:** engage counsel; the cooperative/foundation legal-review gate (README) is the broader call this
+  sits under.
+- **Provenance:** `beta/07` Pillar C (C3); `thinking/drystone-publication-and-defensive-disclosure.md`;
+  split from T30.
 
-- **Status:** `open · gated`.
-- **Type:** `needs-research` (needs a lot of thinking + comparative research; won't fit one file).
-- **Review (2026-06-26):** possible directions to think through (none decided): treat a **group as a
-  principal** and encrypt the asset once as a single **group blob** → dedup at group scale; or a
-  **key-envelope** scheme (encrypt the content once, wrap the content-key per recipient). Needs
-  comparative research — how do **Proton** (end-to-end encrypted file store) and **peergos** handle this.
-  Flagged as one of the threads that clearly needs its own file.
-- **What it is:** same media + different nonces ⇒ different ciphertext hashes ⇒ **no cross-user dedup**; for media-heavy use this breaks the storage math the survivability fund was costed on. A genuine seam between the media layer and the funding model (distinct from T10's media *transport* hardening).
-- **Promotion target:** the **04/08 (media) ↔ 07 (survivability-fund costing)** seam.
-- **Gates:** decide the storage/dedup posture and re-cost the fund accordingly.
-- **Alpha provenance:** `../alpha/thinking/open-considerations.md` (the dedup item); `../alpha/experiments/encrypted-blob-share/`.
+#### T34 — Project Mercury: re-check the litigation docket before any external publication (time-sensitive)
 
-### T14 — iOS opportunistic-only P2P as a named product limitation
+- **Status:** `open · gated` (surfaced 2026-07-06 by the activism-layer research set).
+- **Type:** `needs-research` (couples-with `publish`).
+- **What it is:** the strongest causal evidence in the `activism/` harm case — **Project Mercury**, a
+  2019–2020 internal Meta/Nielsen deactivation study alleged (in a Nov 2025 unredacted Motley Rice filing,
+  N.D. Cal. social-media MDL) to show users who stopped Facebook for a week "reported lower feelings of
+  depression, anxiety, loneliness and social comparison," with an internal staffer reportedly writing "the
+  Nielsen study does show causal impact on social comparison" and another reaching for a tobacco-companies
+  analogy. **It is live litigation at the knowledge edge:** the underlying documents are sealed, Meta filed
+  a motion to strike with a real methodological rebuttal (unblinded deactivation cannot separate the effect
+  of leaving from the belief that leaving helps), and a hearing was set for **Jan 26 2026**. A re-check of
+  public reporting as of late June 2026 surfaced no post-hearing ruling.
+- **Promotion target:** none — this is a **publication gate** on the `activism/` set (and, transitively, on
+  anything public-facing that leans on it), not beta-theme content. It does **not** gate the Drystone spec
+  (open-items records this explicitly).
+- **Gates:** pull the **PACER docket directly** (not aggregators) before external publication; retrieve the
+  unsealed exhibits if/when unsealed rather than relying on the plaintiffs' framing as relayed by Reuters /
+  CNBC / UPI; represent Meta's rebuttal at full strength every time. Same discipline applies to the
+  X-platform study (Nature 2026) if it becomes load-bearing.
+- **Provenance:** `activism/relational-field-research-brief.md` gap 14 + `structural-argument-narrative.md`
+  Plank 2; `drystone-spec/open-items.md` (companion-tracked-separately note). Non-load-bearing follow-ups
+  also flagged in `activism/README.md`: Tristan Harris to primary, the "63 break-glass" count to a Meta
+  document, and the ~35-study internal corpus traced from the aggregator to individual exhibits.
 
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (folds into the per-platform design files, S4; couples T6).
-- **Review (2026-06-26):** doesn't need to stay a one-off thread — the iOS app must **play to iOS
-  strengths** (event-driven from the system, push-triggered, sync) and that thinking belongs in a
-  dedicated **iOS design file**, one of the per-platform set (S4). Common core where possible, but
-  platforms differ; every not-yet-implemented platform needs its own version of this thinking.
-- **What it is:** on iOS you cannot hold a background socket, so device-to-device P2P is **opportunistic, not deterministic**, and spontaneous off-grid meshing is aspirational/unproven — which structurally argues the meer is the dependable backbone, not a bonus. The four-property impossibility is already in 03; the **iOS-background constraint as a stated limitation on the product's connectivity promise** is not.
-- **Promotion target:** **08 §9** (a peer asterisk to the "serverless"/relay-dependency one) and **03**.
-- **Gates:** decide what Croft promises about off-grid/background sync (the product consequence is undecided).
-- **Alpha provenance:** `../alpha/thinking/ios-opportunistic-p2p.md`. **Per-platform design file (S4,
-  started 2026-06-26):** `../alpha/thinking/app/platforms/ios.md`.
+### Philosophy (Layer 2)
 
-### T15 — P2P-games data layer (ephemeral-live / durable-outcome) + open attestation
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (per-app PRDs, S5).
-- **Review (2026-06-26):** game still called a **pond** (candidate). Wants per-app **PRDs/design docs** —
-  chat gets its own, games gets its own. Plus a new modest **starter use case** worth its own design
-  doc: a peer-to-peer **"thinking of you"** signal (instead of buying a connected bracelet, touch a spot
-  on your phone and it reaches out / signals the other person) — small but a good first concrete use case.
-- **What it is:** a settled-as-shape decision — **live play is always over iroh and always ephemeral; only the settled outcome is durable, by the players' choice** (one durable record per completed game). But the **outcome-attestation mechanism is explicitly open** and the games pond is "candidate, not committed."
-- **Promotion target:** **08 §7**.
-- **Gates:** the mutual-signed outcome-attestation mechanism; games-pond commitment.
-- **Alpha provenance:** `../alpha/thinking/app/design-philosophy.md` (data-layer shape); `../alpha/thinking/app/ponds/` (attestation set aside). **PRD stubs (S5, started 2026-06-26):** `../alpha/thinking/app/prds/games-pond.md` + `../alpha/thinking/app/prds/thinking-of-you.md` (+ `chat.md`).
-
-### T16 — Matrix close-cousin E2EE operational lessons (UTD invariant, mandatory-recovery onboarding, expectation-gap)
-
-- **Status:** `open · gated` (lessons settled; design responses unbuilt).
-- **Type:** `needs-content` (expand per S2).
-- **What it is:** Matrix's production-paid E2EE lessons as direct design commitments — treat "every current member can decrypt every current-epoch message" as a **continuously-tested invariant** with a friendly key-request/healing path (never a dead "Unable to decrypt" tile); make **recovery setup near-mandatory in onboarding** with a blocking warning before any single-device-no-recovery state; and the **expectation-gap list** (instant full-history search, link previews, read receipts, "all my history on a new phone") Croft makes Hard — "planned, not discovered late." Beyond T5 (scale) and T1 (governance).
-- **Promotion target:** **04** (the decrypt-invariant + healing path) and **08** (the onboarding-flow + expectation-setting UX). The recovery-onboarding *flow* is distinct from the bannered recovery-*anchor* gate.
-- **Gates:** decide the invariant/healing mechanism and the onboarding gate UX.
-- **Alpha provenance:** `../alpha/research/discord-matrix-groupchat.md` (Matrix lessons + expectation gaps).
-
-### T17 — Three-audiences settings model + the composable-interface ramp
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (lands in the per-platform design specs).
-- **Review (2026-06-26):** considered **fairly settled** as a design principle that impacts the
-  per-platform design specs (S4); the open part is "what does it look like" in each implementation, not
-  whether to adopt it.
-- **What it is:** settings serve **three audiences by relationship to the system** (never-touch / tune-a-few / full-surface), named by intent not depth, realized via a composable-interface ramp of self-authorship. Underpins 08's "composability is the user-respecting value" stance, which 08 currently asserts without the audience model beneath it. The composable-interface realization is explicitly a forward note (unproven).
-- **Promotion target:** **08**.
-- **Gates:** the composable-interface ramp has no proof/spec yet (a product-track concern).
-- **Alpha provenance:** `../alpha/crystallized/principles.md` (three-audiences + composable-interface note).
-
-> **T18–T20 added 2026-06-25** from the per-file alpha→beta coverage audit
-> (`../alpha/plans/2026-06-25-beta-coverage-per-file-audit.md`) — the long-tail unsettled finds a
-> grouped sweep missed: a settled-stance principle and two unbuilt design surfaces that beta correctly
-> dropped (because unsettled/unbuilt) and that had no home in T1–T17.
-
-### T18 — LTS-for-interfaces / shapeability-paired-with-stability
-
-- **Status:** `open · surfaced`.
-- **Type:** `needs-content` (impacts all platform implementations).
-- **Review (2026-06-26):** considered **pretty much settled** as a design ethos that impacts every
-  platform implementation; the open part is "what does it look like," not whether to adopt it.
-- **What it is:** `principles.md` Tier 3 carries a settled-*stance* principle absent from beta:
-  "**shapeability is only valuable paired with stability; constant UI change is quietly extractive**" —
-  with a concrete **LTS-for-interfaces** mechanism (alpha/beta/stable channels, ~3yr stable window, opt-in
-  change "trains" on a ~6mo cadence, the *learned surface* held stable, security changes the
-  over-communicated exception, multiple live UI generations carrying an honest documentation/support cost).
-  The product-layer twin of the non-extraction thesis: composability without stability *is* the extraction
-  lever ("change-it-back friction becomes an engagement lever").
-- **Promotion target:** **08** (a stability/shapeability product principle, paired with the composability
-  stance it already carries); seam to **07** (anti-extraction). **Distinct from T17** — T17 scopes the
-  three-audiences settings model + composable-interface ramp; this is the separate stability principle.
-- **Gates:** decide the LTS channel/cadence model as a product *commitment* vs aspiration ("name the
-  documentation/support cost or the principle dies in year two").
-- **Alpha provenance:** `../alpha/crystallized/principles.md` Tier 3.
-
-### T19 — Blind-peer encrypted-search / coverage-attestation substrate
-
-- **Status:** `open · gated`.
-- **Type:** `needs-experimentation` (optional / low appetite).
-- **Review (2026-06-26):** **low appetite** — the user doesn't want to get into this; "seems like a
-  losing game." Maybe some light experimentation to see if there's any utility, otherwise leave deferred.
-- **What it is:** a substantial *unbuilt* design surface — blind peers expose the **hash-tree skeleton**
-  (not payload); search is a bounded subtree scan where **the hash tree is the shard map** and the gather is
-  **cryptographically attestable** (each worker returns matches + subtree root hash; coverage is a checkable
-  set-cover over hashes); the two offload "animals" (HA-search-member with own copy = safe vs pure
-  search-mediator that must be enrolled with decryption = crown-jewel target); and encrypted-search **leakage
-  profiles** (deterministic leaks equality / SSE leaks access patterns — "you pick a leakage profile, not
-  avoid one"). The author flags **content-predicate search-coverage attestation** as a genuinely-new seam
-  wanting its own threat model before code.
-- **Promotion target:** **04** (a substrate capability) or a dedicated search/discovery theme; couples to
-  the meer roles (06).
-- **Gates:** write the threat model; the honest-plaintext-evaluation half ("didn't skip matches after
-  decrypting") is the hard, possibly-defer-able piece.
-- **Alpha provenance:** `../alpha/thinking/local-first-as-design-imperative.md` (storage-substrate /
-  discovery-fulfillment / "what's new" sections).
-
-### T20 — Conflict-reason corpus gaps (C4 / C7 / C8 / C9 / C10)
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (expand per S2 — too terse to reason from).
-- **Review (2026-06-26):** too terse — needs a plain-language **problem statement** per gap plus the
-  **solutions we already preferred** when we discussed them, not just the C-codes.
-- **What it is:** `merge-split-corpus.md` §4 enumerates the full conflict-reason space and surfaces five
-  real, **unmodeled/partial reconcile-semantics gaps**: **C4** add-vs-add of the same person on different
-  device keys across a partition (must fold by lineage, not double-count — interacts with multi-device
-  E2.10); **C7** dissolve-vs-continue (hard-stop or resting-state, *undefined*); **C8** diamond-recombine
-  conflict over a multi-parent DAG (topology proven, conflict-detection untested); **C9** equivocation
-  hardening (A2.2 partial); **C10** ban-evasion re-add via a new device leaf (must not silently re-confer
-  standing — the moderation surface).
-- **Promotion target:** **04** (widens "what was proved" toward the full conflict space). **Overlaps T5**
-  (scale/churn) but is a distinct surface (reconcile *semantics*, not scale) — confirm and fold where
-  subsumed by T5.
-- **Gates:** define C7's intended resolution; extend `detect` to multi-parent ancestry (C8); harden
-  equivocation attribution (C9); model the ban-evasion re-add (C10).
-- **Alpha provenance:** `../alpha/thinking/merge-split-corpus.md` §4 + §6 ("Tier 1b — reconcile-case corpus").
-
-> **T21–T22 added 2026-06-26** from the rights-vs-capabilities grounding (was folded into `01` §5, K17;
-> now in the Drystone spec — `drystone-spec` Part 1 §2.3 + Part 2 §5.3). The discriminating test and the
-> four-rights cut are settled and in the spec; these are the two **verify-before-hardening** checks
-> deliberately kept out of the spec's normative rights set — they gate hardening the four-rights *closed
-> set*. (Were ROADMAP_TODO E32 b/c.)
-
-### T21 — Is `share` fully a right, or partly a membership-class capability?
-
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (couples T31 — rights/role/capability disentanglement).
-- **Review (2026-06-26):** part of this is the capability-vs-role confusion (see T31). Also question the
-  **word "share"** itself — peers have a right, but **you cannot have a right to someone else's
-  resources** in this model, so "share" may misframe it. The real question is whether peers have a
-  **right to communicate** with others and **what the boundary is** that still respects the right to exit
-  and the right to fork. "There's something there; needs more thinking." (See also T22 — tenure may be
-  the user's version of this.)
-- **What it is:** of the four rights named in `drystone-spec` (Part 2 §5.3 — tenure / exit / voice / share),
-  **`share`** — a claim on the collective's commons — is the least-settled. If `share` can be legitimately
-  diluted by governance or membership class (a real possibility under the cooperative model), then part of
-  it behaves like a *capability*, not a right. The boundary "no right to remove the rights of others" needs
-  to know **which portion of `share` is the inviolable floor** and which portion is a class-varying
-  entitlement.
-- **Promotion target:** `drystone-spec` Part 2 §5.3 (sharpen the `share` definition; it is already flagged
-  open there and in Part 2 Appendix B) + **07** (the cooperative membership / patronage model decides the
-  dilutable portion).
-- **Gates:** decide, in the cooperative model, the inviolable-floor vs class-varying split of `share`; then
-  the four-rights closed set can harden into the spec.
-- **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
-  `../alpha/ROADMAP_TODO.md` **E32 (b)**; `drystone-spec` Part 2 §5.3; `beta/07` Pillar A.
-
-### T22 — Does the `04` survivor re-key strand a peer's `tenure`?
-
-- **Status:** `open · gated`.
-- **Type:** `needs-proving` (run the test).
-- **Review (2026-06-26):** **tenure** may be the user's version of the "right to share" (T21) — *tenure =
-  the ability to functionally be a peer to other peers*. This needs **testing** against the survivor /
-  re-key path — "we should just do that."
-- **What it is:** `tenure` (standing to remain a peer) is stated in `drystone-spec` (Part 2 §5.3) as an
-  absolute right. But the `04` survivor / re-key mechanism could, in implementation, **strand a peer** (leave
-  it unable to rejoin a re-keyed group). If so, `tenure` has an implementation-level exception that must be
-  **named explicitly** rather than left absolute — otherwise the boundary over-claims.
-- **Promotion target:** **04** (the survivor/re-key mechanism — does it preserve tenure, and under what
-  bound) + a precise caveat back into `drystone-spec` Part 2 §5.3 if an exception is real.
-- **Gates:** a protocol-level check of the re-key/survivor path against the tenure claim; if an exception
-  exists, specify its bound; then the four-rights closed set can harden.
-- **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
-  `../alpha/ROADMAP_TODO.md` **E32 (c)**; `drystone-spec` Part 2 §5.3; `beta/04` (survivor re-key) / `beta/05` §7.
-
-> **Folded into existing, not new threads:** the inter-collective peering *settled shape* (BGP-autonomy +
-> postal-hierarchy + signed routing) → add to **T2**'s provenance so T2 doesn't re-derive it. **Borderline
-> (engineering, likely ROADMAP not a beta thread):** the Automerge-over-application audit, and the Wire
-> `core-crypto` (GPL-3.0) vs `openmls`/`mls-rs` engine+license decision (the latter couples to 07's
-> flagged MPL-vs-AGPL substrate item).
-
-> **T24 added 2026-06-26** from the Beer/OGAS intake — the unsettled design question that fell out of
-> peerhood-as-adjudication. (Distinct from the now-closed T23, which was just the verbatim-Beer sourcing.)
-
-### T24 — What grounds a peer's authority, and what makes a right cost something to violate?
+#### T24 — What grounds a peer's authority, and what makes a right cost something to violate?
 
 - **Status:** `open · gated`.
 - **Type:** `needs-research` (expand per S2; couples T31, T1 Track A/B).
@@ -540,7 +257,303 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 > **PROMOTED → 08** (see "Promoted & closed" below). The protocol-level conclusions already landed in the
 > Drystone spec (Part 1 §2.0/§2.3, Part 2 §4.5.1/§7.3.3).
 
-### T25 — The Drystone redb storage-and-projection layer (vetted, adaptable local component)
+#### T28 — Maturity home for the historical peer-rights material (Hush-A-Phone lineage)
+
+- **Status:** `open · surfaced` (a placement decision).
+- **Type:** `needs-content`.
+- **Review (2026-06-26):** the **history of peer rights and distributed social systems** is itself a
+  topic, and there is enough material to possibly make it **its own theme** — leans toward option (a) /
+  (b) over staying alpha-only.
+- **What it is:** when the Hush-A-Phone / Bazelon "private benefit, not public detriment" legal ancestor was
+  relocated out of the reasoning core (it is **not** spec material — vendor-neutral, historical), the new
+  doc `../alpha/thinking/historical-peer-rights.md` was left with its eventual home undecided: (a) mature
+  into its own beta theme, (b) fold into the history theme **`02`** (enclosure / commons — closely adjacent),
+  or (c) stay alpha-only by design. It is also extensible (common-carrier, right-to-repair, interop
+  mandates) which weighs toward (a)/(b).
+- **Promotion target:** most likely **`02`** (historical-alignment is its register) or a small standalone
+  historical theme; or stays alpha.
+- **Gates:** the user's placement call; whether the lineage gets developed enough to warrant its own theme.
+- **Alpha provenance:** `../alpha/thinking/historical-peer-rights.md`; the "no right to remove" legal-ancestor
+  also lives in `crystallized/principles.md` (frozen) and was relocated out of the beta reasoning doc.
+
+> **T29 added 2026-06-26** by the alpha left-behind audit — a research-surfaced open question
+> (`research/messaging-solutions-landscape.md` §"top unresolved questions" #3) that was never surfaced as a
+> thread or a spec open item.
+
+### Cairn / fenced (Layer 3, 3')
+
+#### T7 — atproto Permissioned/Private-Data watch-item (external dependency, gates 03 + 05)
+
+- **Status:** `open · gated` (gate is external, not Croft-internal work).
+- **Type:** `needs-research` (external watch-item).
+- **Review (2026-06-26):** still deferred forward — external dependency, nothing to action yet.
+- **What it is:** 03 calls atproto's Permissioned Data work "**the single most important external
+  development to track** — it could narrow or complement Croft's private path." The real ATProto Private
+  Data WG defers true E2EE / zero-knowledge; Croft sits on the harder ZK side. Couples to 05's `did:webvh`
+  native-support `[UNVERIFIED]` gate.
+- **Promotion target:** updates **03** (the field positioning) and **05** (preferred-DID-method choice)
+  when it lands.
+- **Gates:** the atproto WG reaches a settled E2EE/ZK posture; `did:webvh` native atproto support
+  confirmed against the FACTCHECK SoT.
+- **Alpha provenance:** `beta/03` §6; `beta/05` §3; FACTCHECK as SoT for the confirm.
+
+### Drystone-spec / impl (Layers 4, 5)
+
+#### T2 — Governance at scale (subsidiarity + liquid delegation; the concentration default)
+
+- **Status:** `open · gated`.
+- **Type:** `needs-experimentation` (couples T5 — the test harness).
+- **Review (2026-06-26):** likely **more than one large-scale governance model**, to hypothesize then
+  play out on the test harness: (a) revocable/movable **delegate-vote** (liquid democracy); (b)
+  **elected-admin / Reddit-style moderation** ("all-or-nothing" participation where peers still hold
+  rights and vote with their feet); (c) **broadcast-only groups** (a different rights model entirely).
+  Needs the harness to test scale across variety + quantity + peer count.
+- **What it is:** how a centerless federation governs at scale (the ~200k breakpoint) without the
+  cheap-fork Sybil defense getting expensive and without quietly growing a center — likely subsidiarity +
+  instantly-revocable **liquid delegation**, with **concentration as the default failure** (the
+  Pirate-Party lesson) resisted by decay/caps/bounded-chains/expiry/visibility, and **member ≠
+  governance-constituent** modeled explicitly. Includes the honest admission that the membership
+  sequencer / superpeer is a **load-bearing centralization point** whose funding/uptime/governance must
+  be named as core, and the federation/inter-collective peering design surface.
+- **Promotion target:** completes the federation handoff that the spec's peer-equality principle opens (`drystone-spec` Part 1 §2.3, Part 2 §5) and **07 B5** gives a legal
+  shape to; touches **06** (Sybil softening). Likely a dedicated governance theme alongside T1.
+- **Gates:** decide the delegation model; pick concentration-resistance levers; model
+  member-vs-constituent; spec federation/peering; name the center's funding/governance honestly.
+- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D9** (+ D8 residual, E16 design surface);
+  `../alpha/COHESION.md` **§22**; `../alpha/thinking/open-considerations.md` §4 (load-bearing superpeer);
+  `../alpha/thinking/local-first-as-design-imperative.md` (open frontiers).
+
+#### T3 — Moderation & abuse under a blind broker (the constructive design body)
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (couples T31).
+- **Review (2026-06-26):** the meer PeerSet holds the **same rights as a full peer** but has no local
+  history and **never sees content** — so you **cannot moderate on content** through it. Moderation is
+  therefore **separate from the meer PeerSet**, scoped to abuse / side-channel signals (a distinct
+  delegation stack). Pin the meer's decrypt-vs-blind line in terms of **MLS capabilities** (see T31).
+- **What it is:** the operational complement to 06's "safe by structure, not inspection" thesis — what a
+  content-blind broker actually *does* about spam / CSAM / coordinated harm: client-side
+  report-with-reveal, metadata-based rate-limiting, reputation, and the `{pending,released,rejected}`
+  predicate-gated **hold/release plane** + **crypto-shred** — "must be designed in, not bolted on." Plus
+  the **kid-friendly-vs-uninspectable** product tension.
+- **Promotion target:** **06** (the design body it currently only gestures at). The CSAM/jurisdiction
+  *legal* posture is already surfaced (06→07); this is the distinct *engineering/design* thread.
+- **Gates:** decide the abuse-handling toolkit; reconcile with the geer's consented-visibility role;
+  decide whether crypto-shred + hold/release ship in the substrate or app layer; the legal/CSAM piece
+  (the user's) gates the rest.
+- **Alpha provenance:** `../alpha/thinking/open-considerations.md` §5 + §9; `../alpha/ROADMAP_TODO.md`
+  **D3 / D6 / E18**; `../alpha/COHESION.md` §18.
+
+#### T5 — Protocol behavior at scale / group-chat failure modes
+
+- **Status:** `open · gated`.
+- **Type:** `needs-experimentation` (couples T2 — same test harness).
+- **Review (2026-06-26):** flows together with T2 — the gating work is to **build the test harness** and
+  stand up conformance + performance + quality test cases (scale across variety, quantity, and peer
+  count).
+- **What it is:** the honest gap in 04's "we proved it" — 04 explicitly does **not** establish large-scale
+  behavior or real-world fold/unfold UX. The open design questions: does survivor-selection need the
+  superpeer to be deterministic (the project's honesty hinges on it); the superpeer-as-covert-ordering
+  risk (is the pure-P2P tier "a demo"); immutable genesis-threshold amendability vs regress-grounding; and
+  the **churn-fold Achilles heel** (governance-log noise from device churn making the member-list fold
+  unmaintainable) with its concrete, unactioned recommendation to add a **synthetic high-churn /
+  multi-partition test now**.
+- **Promotion target:** **04** (widens it from "proved at human scale" toward production-shaped claims).
+  **Overlaps T1's §X** conflict model — several questions may be T1's validation surface; confirm and fold
+  where subsumed.
+- **Gates:** survivor-selection determinism decision; pure-P2P-vs-superpeer ordering honesty; genesis
+  amendability; write + run the churn/partition test (the test itself is alpha validation).
+- **Alpha provenance:** `../alpha/research/group-chat-failure-modes.md` (+ `-plain.md`);
+  `../alpha/crystallized/conclusions.md`; the test-plan backlog.
+
+#### T6 — The per-platform trust-model doc (05's "highest-leverage next artifact")
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (couples T14; structural directive S4).
+- **Review (2026-06-26):** still deferred; subsumed by the **per-platform design-files** directive (S4) —
+  the per-network trust write-up is one slice of the per-platform design thinking.
+- **What it is:** the per-network (Bluesky/AP/Mastodon/GoToSocial/Threads/Hive) write-up — the field used,
+  what Croft claims / doesn't claim, the backlink mechanism, exact verifier steps + pseudocode. 05 *names*
+  it as the highest-leverage next artifact but cannot assert its content because it does not exist.
+- **Promotion target:** **05** (completes the identity theme).
+- **Gates:** write it; confirm `alsoKnownAs` extra-entry persistence (`[UNVERIFIED]`, E14); resolve the
+  anchor-URI stability contract (A9) and the PDS-vs-self-controlled rotation key (A10), which determine
+  what each spoke can claim; depends partly on T7.
+- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **E13** (+ A9/A10/E14);
+  `../alpha/thinking/cross-platform-identity-provenance.md:222`; `beta/05` boundary. **Per-platform home
+  (S4, started 2026-06-26):** `../alpha/thinking/app/platforms/`.
+
+#### T8 — Forward-only revocation under irreversible commitments
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (likely co-promotes with T1).
+- **Review (2026-06-26):** the work, restated plainly — define the **reversible-vs-committing decision
+  tag**, spec the **permanent attribution record**, and reconcile it with T1's append-only fold.
+- **What it is:** revoking consent cannot rewind a spent action; decisions must be tagged
+  reversible-or-committing **at decision time**, and the record must permanently, honestly attribute which
+  consent supported which irreversible consequence. The governance-plane face of the recovery/consent
+  problem; `drystone-spec` (Part 2 §5.6) states the *principle* (irreversible → maximal protection of rights where exit cannot help) but never
+  names the *mechanism*.
+- **Promotion target:** **04 / 06** (the governance log + revocation ladder); **01** (the
+  protection-rigidity principle). **Likely co-promotes with T1.**
+- **Gates:** define the reversible-vs-committing decision tag; spec the permanent attribution record;
+  reconcile with T1's append-only fold.
+- **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D10**; `../alpha/COHESION.md` **§22**; `drystone-spec` Part 2 §5.6.
+
+#### T10 — Real-time media-layer hardening (finishes 04's media leg)
+
+- **Status:** `open · gated` (largely de-risked — a "close the last decisions" thread).
+- **Type:** `needs-experimentation`.
+- **Review (2026-06-26):** still deferred for now.
+- **What it is:** 04 carries media only as *characterized* (E12 green-real on synthetic frames). str0m is
+  production-grade server-side (weak exactly on P2P ICE, which Croft routes around) and the RoQ/MoQ split
+  is adopted; the residual `[OPEN]` is whether str0m's strong/weak boundary is precisely tested, which
+  sets the browser-facing SFU-meer exposure — feeding the pending TC-ENG0 (engine API audit) and TC-INT3
+  (A1-vs-A2 engine/transport decision).
+- **Promotion target:** **04** (hardens the media leg from "characterized" toward production-shaped).
+- **Gates:** TC-ENG0 done; TC-INT3 decided; the str0m P2P-ICE boundary `[OPEN]` closed.
+- **Alpha provenance:** `../alpha/research/str0m-production-readiness.md`,
+  `../alpha/research/iroh-realtime-media-references.md`; `../alpha/thinking/realtime-media-over-iroh.md`.
+
+> **T11–T17 added 2026-06-25** from a content-level completeness audit (four readers across
+> `crystallized/`, `thinking/`, `narrative/`+dossier, `research/`+index) hunting alpha material walked
+> out but not manifested in beta. These are the **unsettled** finds; the audit's **settled-but-unfolded
+> conclusions** (the bigger bucket) are tracked separately in `../alpha/BETA-ROLLUP.md` → "Settled
+> conclusions not yet folded," because they belong *in* the themes, not here.
+
+#### T13 — Encrypt-then-content-address kills cross-user dedup (media storage economics)
+
+- **Status:** `open · gated`.
+- **Type:** `needs-research` (needs a lot of thinking + comparative research; won't fit one file).
+- **Review (2026-06-26):** possible directions to think through (none decided): treat a **group as a
+  principal** and encrypt the asset once as a single **group blob** → dedup at group scale; or a
+  **key-envelope** scheme (encrypt the content once, wrap the content-key per recipient). Needs
+  comparative research — how do **Proton** (end-to-end encrypted file store) and **peergos** handle this.
+  Flagged as one of the threads that clearly needs its own file.
+- **What it is:** same media + different nonces ⇒ different ciphertext hashes ⇒ **no cross-user dedup**; for media-heavy use this breaks the storage math the survivability fund was costed on. A genuine seam between the media layer and the funding model (distinct from T10's media *transport* hardening).
+- **Promotion target:** the **04/08 (media) ↔ 07 (survivability-fund costing)** seam.
+- **Gates:** decide the storage/dedup posture and re-cost the fund accordingly.
+- **Alpha provenance:** `../alpha/thinking/open-considerations.md` (the dedup item); `../alpha/experiments/encrypted-blob-share/`.
+
+#### T18 — LTS-for-interfaces / shapeability-paired-with-stability
+
+- **Status:** `open · surfaced`.
+- **Type:** `needs-content` (impacts all platform implementations).
+- **Review (2026-06-26):** considered **pretty much settled** as a design ethos that impacts every
+  platform implementation; the open part is "what does it look like," not whether to adopt it.
+- **What it is:** `principles.md` Tier 3 carries a settled-*stance* principle absent from beta:
+  "**shapeability is only valuable paired with stability; constant UI change is quietly extractive**" —
+  with a concrete **LTS-for-interfaces** mechanism (alpha/beta/stable channels, ~3yr stable window, opt-in
+  change "trains" on a ~6mo cadence, the *learned surface* held stable, security changes the
+  over-communicated exception, multiple live UI generations carrying an honest documentation/support cost).
+  The product-layer twin of the non-extraction thesis: composability without stability *is* the extraction
+  lever ("change-it-back friction becomes an engagement lever").
+- **Promotion target:** **08** (a stability/shapeability product principle, paired with the composability
+  stance it already carries); seam to **07** (anti-extraction). **Distinct from T17** — T17 scopes the
+  three-audiences settings model + composable-interface ramp; this is the separate stability principle.
+- **Gates:** decide the LTS channel/cadence model as a product *commitment* vs aspiration ("name the
+  documentation/support cost or the principle dies in year two").
+- **Alpha provenance:** `../alpha/crystallized/principles.md` Tier 3.
+
+#### T19 — Blind-peer encrypted-search / coverage-attestation substrate
+
+- **Status:** `open · gated`.
+- **Type:** `needs-experimentation` (optional / low appetite).
+- **Review (2026-06-26):** **low appetite** — the user doesn't want to get into this; "seems like a
+  losing game." Maybe some light experimentation to see if there's any utility, otherwise leave deferred.
+- **What it is:** a substantial *unbuilt* design surface — blind peers expose the **hash-tree skeleton**
+  (not payload); search is a bounded subtree scan where **the hash tree is the shard map** and the gather is
+  **cryptographically attestable** (each worker returns matches + subtree root hash; coverage is a checkable
+  set-cover over hashes); the two offload "animals" (HA-search-member with own copy = safe vs pure
+  search-mediator that must be enrolled with decryption = crown-jewel target); and encrypted-search **leakage
+  profiles** (deterministic leaks equality / SSE leaks access patterns — "you pick a leakage profile, not
+  avoid one"). The author flags **content-predicate search-coverage attestation** as a genuinely-new seam
+  wanting its own threat model before code.
+- **Promotion target:** **04** (a substrate capability) or a dedicated search/discovery theme; couples to
+  the meer roles (06).
+- **Gates:** write the threat model; the honest-plaintext-evaluation half ("didn't skip matches after
+  decrypting") is the hard, possibly-defer-able piece.
+- **Alpha provenance:** `../alpha/thinking/local-first-as-design-imperative.md` (storage-substrate /
+  discovery-fulfillment / "what's new" sections).
+
+#### T20 — Conflict-reason corpus gaps (C4 / C7 / C8 / C9 / C10)
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (expand per S2 — too terse to reason from).
+- **Review (2026-06-26):** too terse — needs a plain-language **problem statement** per gap plus the
+  **solutions we already preferred** when we discussed them, not just the C-codes.
+- **What it is:** `merge-split-corpus.md` §4 enumerates the full conflict-reason space and surfaces five
+  real, **unmodeled/partial reconcile-semantics gaps**: **C4** add-vs-add of the same person on different
+  device keys across a partition (must fold by lineage, not double-count — interacts with multi-device
+  E2.10); **C7** dissolve-vs-continue (hard-stop or resting-state, *undefined*); **C8** diamond-recombine
+  conflict over a multi-parent DAG (topology proven, conflict-detection untested); **C9** equivocation
+  hardening (A2.2 partial); **C10** ban-evasion re-add via a new device leaf (must not silently re-confer
+  standing — the moderation surface).
+- **Promotion target:** **04** (widens "what was proved" toward the full conflict space). **Overlaps T5**
+  (scale/churn) but is a distinct surface (reconcile *semantics*, not scale) — confirm and fold where
+  subsumed by T5.
+- **Gates:** define C7's intended resolution; extend `detect` to multi-parent ancestry (C8); harden
+  equivocation attribution (C9); model the ban-evasion re-add (C10).
+- **Alpha provenance:** `../alpha/thinking/merge-split-corpus.md` §4 + §6 ("Tier 1b — reconcile-case corpus").
+
+> **T21–T22 added 2026-06-26** from the rights-vs-capabilities grounding (was folded into `01` §5, K17;
+> now in the Drystone spec — `drystone-spec` Part 1 §2.3 + Part 2 §5.3). The discriminating test and the
+> four-rights cut are settled and in the spec; these are the two **verify-before-hardening** checks
+> deliberately kept out of the spec's normative rights set — they gate hardening the four-rights *closed
+> set*. (Were ROADMAP_TODO E32 b/c.)
+
+#### T21 — Is `share` fully a right, or partly a membership-class capability?
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (couples T31 — rights/role/capability disentanglement).
+- **Review (2026-06-26):** part of this is the capability-vs-role confusion (see T31). Also question the
+  **word "share"** itself — peers have a right, but **you cannot have a right to someone else's
+  resources** in this model, so "share" may misframe it. The real question is whether peers have a
+  **right to communicate** with others and **what the boundary is** that still respects the right to exit
+  and the right to fork. "There's something there; needs more thinking." (See also T22 — tenure may be
+  the user's version of this.)
+- **What it is:** of the four rights named in `drystone-spec` (Part 2 §5.3 — tenure / exit / voice / share),
+  **`share`** — a claim on the collective's commons — is the least-settled. If `share` can be legitimately
+  diluted by governance or membership class (a real possibility under the cooperative model), then part of
+  it behaves like a *capability*, not a right. The boundary "no right to remove the rights of others" needs
+  to know **which portion of `share` is the inviolable floor** and which portion is a class-varying
+  entitlement.
+- **Promotion target:** `drystone-spec` Part 2 §5.3 (sharpen the `share` definition; it is already flagged
+  open there and in Part 2 Appendix B) + **07** (the cooperative membership / patronage model decides the
+  dilutable portion).
+- **Gates:** decide, in the cooperative model, the inviolable-floor vs class-varying split of `share`; then
+  the four-rights closed set can harden into the spec.
+- **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
+  `../alpha/ROADMAP_TODO.md` **E32 (b)**; `drystone-spec` Part 2 §5.3; `beta/07` Pillar A.
+
+#### T22 — Does the `04` survivor re-key strand a peer's `tenure`?
+
+- **Status:** `open · gated`.
+- **Type:** `needs-proving` (run the test).
+- **Review (2026-06-26):** **tenure** may be the user's version of the "right to share" (T21) — *tenure =
+  the ability to functionally be a peer to other peers*. This needs **testing** against the survivor /
+  re-key path — "we should just do that."
+- **What it is:** `tenure` (standing to remain a peer) is stated in `drystone-spec` (Part 2 §5.3) as an
+  absolute right. But the `04` survivor / re-key mechanism could, in implementation, **strand a peer** (leave
+  it unable to rejoin a re-keyed group). If so, `tenure` has an implementation-level exception that must be
+  **named explicitly** rather than left absolute — otherwise the boundary over-claims.
+- **Promotion target:** **04** (the survivor/re-key mechanism — does it preserve tenure, and under what
+  bound) + a precise caveat back into `drystone-spec` Part 2 §5.3 if an exception is real.
+- **Gates:** a protocol-level check of the re-key/survivor path against the tenure claim; if an exception
+  exists, specify its bound; then the four-rights closed set can harden.
+- **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
+  `../alpha/ROADMAP_TODO.md` **E32 (c)**; `drystone-spec` Part 2 §5.3; `beta/04` (survivor re-key) / `beta/05` §7.
+
+> **Folded into existing, not new threads:** the inter-collective peering *settled shape* (BGP-autonomy +
+> postal-hierarchy + signed routing) → add to **T2**'s provenance so T2 doesn't re-derive it. **Borderline
+> (engineering, likely ROADMAP not a beta thread):** the Automerge-over-application audit, and the Wire
+> `core-crypto` (GPL-3.0) vs `openmls`/`mls-rs` engine+license decision (the latter couples to 07's
+> flagged MPL-vs-AGPL substrate item).
+
+> **T24 added 2026-06-26** from the Beer/OGAS intake — the unsettled design question that fell out of
+> peerhood-as-adjudication. (Distinct from the now-closed T23, which was just the verbatim-Beer sourcing.)
+
+#### T25 — The Drystone redb storage-and-projection layer (vetted, adaptable local component)
 
 - **Status:** **`in-progress`** (being built externally, 2026-06-26) — the build spec
   (`../alpha/seeds/generated-prompts/redb-social-graph-layer-build-prompt.md`) is being implemented in a
@@ -567,47 +580,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 > discipline and promoted to a tracked decision here. Logged to correct a pattern of leaving real decisions
 > as inline notes rather than surfacing them.
 
-### T27 — Promote "evidentiary, not operational" to a canonical principle?
-
-- **Status:** `open · gated` (a user curation decision).
-- **Type:** `needs-content` (curation call).
-- **What it is:** the rights-floor is **evidentiary, not operational** — it records and proves standing; it
-  does not operate things (stated clean in `beta/05` §5 and its charter). This is **settled as a conclusion**;
-  the open question is purely whether it should be **elevated to a named, canonical Tier-1 principle** in the
-  alpha principles set (`crystallized/principles.md`) — a curation call, not a design question.
-- **Promotion target:** `crystallized/principles.md` (alpha) if adopted; no beta-doc change needed (the
-  conclusion already reads clean in `05`).
-- **Gates:** the user's decision to name it as a principle (or leave it as a per-theme conclusion).
-- **Alpha provenance:** `beta/05` §5; `../alpha/BETA-ROLLUP.md` 05 §Deferred-decision note.
-
-> **T28 added 2026-06-26** by the alpha left-behind audit — extracted from an inline "later call" that the
-> 2026-06-26 Hush-A-Phone relocation left at the bottom of `../alpha/thinking/historical-peer-rights.md`,
-> rather than leaving it as an inline deferral.
-
-### T28 — Maturity home for the historical peer-rights material (Hush-A-Phone lineage)
-
-- **Status:** `open · surfaced` (a placement decision).
-- **Type:** `needs-content`.
-- **Review (2026-06-26):** the **history of peer rights and distributed social systems** is itself a
-  topic, and there is enough material to possibly make it **its own theme** — leans toward option (a) /
-  (b) over staying alpha-only.
-- **What it is:** when the Hush-A-Phone / Bazelon "private benefit, not public detriment" legal ancestor was
-  relocated out of the reasoning core (it is **not** spec material — vendor-neutral, historical), the new
-  doc `../alpha/thinking/historical-peer-rights.md` was left with its eventual home undecided: (a) mature
-  into its own beta theme, (b) fold into the history theme **`02`** (enclosure / commons — closely adjacent),
-  or (c) stay alpha-only by design. It is also extensible (common-carrier, right-to-repair, interop
-  mandates) which weighs toward (a)/(b).
-- **Promotion target:** most likely **`02`** (historical-alignment is its register) or a small standalone
-  historical theme; or stays alpha.
-- **Gates:** the user's placement call; whether the lineage gets developed enough to warrant its own theme.
-- **Alpha provenance:** `../alpha/thinking/historical-peer-rights.md`; the "no right to remove" legal-ancestor
-  also lives in `crystallized/principles.md` (frozen) and was relocated out of the beta reasoning doc.
-
-> **T29 added 2026-06-26** by the alpha left-behind audit — a research-surfaced open question
-> (`research/messaging-solutions-landscape.md` §"top unresolved questions" #3) that was never surfaced as a
-> thread or a spec open item.
-
-### T29 — MLS group state ↔ governance-log / Automerge state consistency
+#### T29 — MLS group state ↔ governance-log / Automerge state consistency
 
 - **Status:** `open · gated` (an open design binding, spec-relevant).
 - **Type:** `needs-experimentation` (scope unclear — experiments vs nail the spec/data shape).
@@ -651,38 +624,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 > `[confirm before publish]` flags + T1/T23/T29 residuals) into one tracked path-to-publication thread, so
 > it is flagged here rather than only living inside the spec.
 
-### T30 — Mature the Drystone spec to publication-final (the path to the defensive-publication DOI)
-
-- **Status:** `open · gated` (spec is beta-maturity; publication-final is the next stage up).
-- **Type:** `publish`.
-- **Review (2026-06-26):** reframe concretely — T30 is the **publish** thread: mature the spec, publish
-  the final spec, mint the DOI. The **attorney legal-review** piece was **split out into its own thread,
-  T32** (type `legal-review`), so the two kinds of work track separately.
-- **What it is:** two closures take `drystone-spec` from beta to a mintable defensive-publication record:
-  1. **Pin the `ENABLING` wire encodings, in sequence** (Part 2 App-B): the **canonical governance-fact byte
-     encoding** (the base all others extend) → **frontier-closure-before-sort** (the highest-risk divergence
-     point) → **frontier-commitment + acceptance-record format** → **§7.2 message formats field-by-field** →
-     the **capability wire format** (gated on the Track A/B decision). Per the spec README sequencing note,
-     **do not mint the v0.1 Zenodo DOI until §7.2 is buildable from the text alone** — that is when the
-     disclosure becomes *enabling* (protective as prior art).
-  2. **Confirm the `[confirm before publish]` external facts** against primary sources (currently
-     web-verified-in-dialogue only): Matrix State Resolution / room v12 / CVE-2025-49090, Willow, Meadowcap,
-     Keyhive (Part 2 §7 / App-A); the Beer quotes + Cybersyn/OGAS dates/figures (Part 1 §3); iroh cites the
-     FACTCHECK SoT. Also resolve the spec's own reconciliations: the **`croft-*` → `drystone-*` tag rename**
-     (re-prove, since the tag is signed over) and the **SHA-256 (§4) vs BLAKE3 (§7) hash-function** choice.
-- **Promotion target:** `drystone-spec` → an `rc`/publish-stage spec + a Zenodo DOI + OpenTimestamps + a
-  public Git release (the vehicle settled in **07 Pillar C / K9**; spec-text **CC0 1.0**, code **Apache-2.0**).
-- **Gates:** the Track A/B capability decision (couples T1/T24) blocks the capability wire format; the rest
-  is concrete spec-writing + a fact-confirmation sweep. Attorney review is **tracked separately in T32**
-  (it gates the publish, but it is legal-review work, not spec-writing).
-- **Provenance:** `drystone-spec` Part 2 Appendix A/B; `thinking/drystone-publication-and-defensive-disclosure.md`;
-  couples T1 (promoted), T22 (tenure/re-key), T24 (Track A/B), T29 (MLS↔log binding), T32 (legal review).
-
-> **T31–T32 added 2026-06-26** from the open-threads review read-through
-> (`../alpha/plans/2026-06-26-open-threads-review.md`). T31 captures the recurring rights/role/capability
-> disentanglement the review asked to clear up; T32 is the legal-review half split out of T30.
-
-### T31 — Disentangle rights / roles / capabilities / delegation (+ PeerSet, restricted combinations)
+#### T31 — Disentangle rights / roles / capabilities / delegation (+ PeerSet, restricted combinations)
 
 - **Status:** `open · gated`.
 - **Type:** `needs-content` (sharpens T21; informs T20, T3).
@@ -714,91 +656,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Alpha provenance:** `beta/thinking/raw/open threads review Jun 26 at 8-17 PM.txt`;
   `../alpha/thinking/rights-vs-capabilities-definitions.md`; `drystone-spec` Part 2 §5.
 
-### T32 — Attorney legal-review of the Drystone defensive-publication (patent-non-assertion)
-
-- **Status:** `open · gated` (split out of T30, 2026-06-26).
-- **Type:** `legal-review`.
-- **What it is:** the **NOT-LEGAL-ADVICE** attorney review the defensive-publication path needs before it
-  ships — review of the **patent-non-assertion paragraph** (07 C3) and the disclosure framing — tracked as
-  its own typed thread so legal work and spec-writing don't blur together. Distinct from (but adjacent to)
-  the bannered cooperative legal-review gate in `README.md`, which it does not duplicate.
-- **Promotion target:** clears a gate on **T30** (publish) and **07 Pillar C**; no beta-doc content change.
-- **Gates:** engage counsel; the cooperative/foundation legal-review gate (README) is the broader call this
-  sits under.
-- **Provenance:** `beta/07` Pillar C (C3); `thinking/drystone-publication-and-defensive-disclosure.md`;
-  split from T30.
-
-### T33 — Edge-preserving capital formation (funding the co-op without reinstalling the extractive edge)
-
-- **Status:** `open · surfaced` (surfaced 2026-07-06 by the peer-standing argument).
-- **Type:** `needs-research` (couples-with `legal-review`).
-- **What it is:** the one genuinely open engineering problem the peer-standing → cooperative-form
-  argument *generates* (not a flaw in it). A social-graph platform has real infrastructure costs
-  historically funded by exactly the securitized venture capital the argument rules out. Whether a
-  cooperative can raise sufficient capital **without issuing any claim** (non-voting preferred, outside
-  investor classes) that smuggles the asymmetric owner/user edge back in is contested and unresolved. If
-  edge-dissolution is the point, the funding instrument must itself be edge-preserving — which sharply
-  constrains the financing design space. Couples with the two grounding gaps the argument flags: the
-  Rochdale / ICA cooperative legal mechanics (non-transferable member shares, patronage returns) and the
-  platform-cooperativism capital-formation literature.
-- **Promotion target:** `governance/` (Layer 6, the manifestation) — extends
-  `philosophy/peer-standing-and-the-cooperative-form.md` §6 and theme `07`; sits under the bannered
-  cooperative legal-review gate in `README.md`.
-- **Gates:** ground the platform-cooperativism capital-formation literature; ground the ICA/Rochdale
-  member-share mechanics; the broader cooperative/foundation legal-review gate (README) is the call this
-  sits under.
-- **Provenance:** `philosophy/peer-standing-and-the-cooperative-form.md` §6 + §8 (the `[tension]` on
-  capital formation) and `philosophy/structural-argument-principles.md` §IX(32); assembled from conversation,
-  delivered 2026-07-06 (via `dropoff/third.zip`, since removed — the committed governance docs are the record).
-
-### T34 — Project Mercury: re-check the litigation docket before any external publication (time-sensitive)
-
-- **Status:** `open · gated` (surfaced 2026-07-06 by the activism-layer research set).
-- **Type:** `needs-research` (couples-with `publish`).
-- **What it is:** the strongest causal evidence in the `activism/` harm case — **Project Mercury**, a
-  2019–2020 internal Meta/Nielsen deactivation study alleged (in a Nov 2025 unredacted Motley Rice filing,
-  N.D. Cal. social-media MDL) to show users who stopped Facebook for a week "reported lower feelings of
-  depression, anxiety, loneliness and social comparison," with an internal staffer reportedly writing "the
-  Nielsen study does show causal impact on social comparison" and another reaching for a tobacco-companies
-  analogy. **It is live litigation at the knowledge edge:** the underlying documents are sealed, Meta filed
-  a motion to strike with a real methodological rebuttal (unblinded deactivation cannot separate the effect
-  of leaving from the belief that leaving helps), and a hearing was set for **Jan 26 2026**. A re-check of
-  public reporting as of late June 2026 surfaced no post-hearing ruling.
-- **Promotion target:** none — this is a **publication gate** on the `activism/` set (and, transitively, on
-  anything public-facing that leans on it), not beta-theme content. It does **not** gate the Drystone spec
-  (open-items records this explicitly).
-- **Gates:** pull the **PACER docket directly** (not aggregators) before external publication; retrieve the
-  unsealed exhibits if/when unsealed rather than relying on the plaintiffs' framing as relayed by Reuters /
-  CNBC / UPI; represent Meta's rebuttal at full strength every time. Same discipline applies to the
-  X-platform study (Nature 2026) if it becomes load-bearing.
-- **Provenance:** `activism/relational-field-research-brief.md` gap 14 + `structural-argument-narrative.md`
-  Plank 2; `drystone-spec/open-items.md` (companion-tracked-separately note). Non-load-bearing follow-ups
-  also flagged in `activism/README.md`: Tristan Harris to primary, the "63 break-glass" count to a Meta
-  document, and the ~35-study internal corpus traced from the aggregator to individual exhibits.
-
-### T35 — The uncompensated community labor + data-opacity indictment (a distinct activism thread)
-
-- **Status:** `open · surfaced` (surfaced 2026-07-06).
-- **Type:** `needs-research` (couples-with `needs-content`).
-- **What it is:** a *second*, distinct activism indictment, separate from the "platforms author the
-  relational field" harm case (Layer 8, already filed). The charge: closed platforms run on near-universal
-  **community moderation and good-faith community interaction that is never published anywhere**, so the
-  platforms **absorb the labor and hide the scale** at once. You cannot even see how much moderation effort
-  and healthy interaction you are producing for them, because the metrics (average group sizes, activity
-  and moderation volumes on closed platforms) are not disclosed. Two harms compounded: **uncompensated
-  community labor** (extraction of unpaid moderation/curation) and **epistemic opacity** (the scale of that
-  labor, and of the interaction it sustains, is structurally invisible). A cooperative/edge-free form makes
-  both legible and returns the value to the members who produce it, which is the constructive counterpoint.
-- **Promotion target:** `activism/` (Layer 8), as a companion indictment to
-  `structural-argument-narrative.md`; likely its own brief once sourced.
-- **Gates:** find sourceable figures on closed-platform group sizes and activity/moderation volumes (or
-  document that they are undisclosed, which is itself part of the claim); establish what *is* publishable
-  vs. structurally hidden. Hold the same source discipline as the existing activism set (primary or
-  clearly-flagged, conflicts shown).
-- **Provenance:** user articulation 2026-07-06 (the layering discussion); seed examples: Facebook average
-  group size, activity metrics on closed platforms, unpublished community moderation.
-
-### T36 — Verify the re-plant instantiation mechanism folded into Drystone spec §7.6.4 (run the E12 set)
+#### T36 — Verify the re-plant instantiation mechanism folded into Drystone spec §7.6.4 (run the E12 set)
 
 - **Status:** `open · gated` (folded into the spec 2026-07-07 with a `needs verification` tag, on the user's
   instruction to fold in-context now rather than hold it in `impl/`).
@@ -824,7 +682,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   and `impl/mls/mls-hardcases-and-posture.md` (batches 7–8); the fold is Drystone spec document-pass-7
   (2026-07-07). The impl/ design corpus is retained as the derivation + experiment plan.
 
-### T38 - The two unearned measurements and the §11.10.1 experiment matrix (turn the scaling envelope into a sized one)
+#### T38 - The two unearned measurements and the §11.10.1 experiment matrix (turn the scaling envelope into a sized one)
 
 - **Status:** `open · gated` (specified in the Part 2 §11 large-group-scaling section, not yet run).
 - **Type:** `needs-experimentation` (couples-with `needs-proving`).
@@ -844,7 +702,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   record ciphersuite, credential type, library version, and device SoC with every result set.
 - **Provenance:** Part 2 §11 (large-group scaling), §11.10.1 + §11.11; document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
 
-### T39 - Non-member-verifiable membership attestation (the mechanical core of the experimental public regime)
+#### T39 - Non-member-verifiable membership attestation (the mechanical core of the experimental public regime)
 
 - **Status:** `open · gated` (`Load-bearing, unearned`; the whole §11.9.3 public regime is gated on it).
 - **Type:** `needs-proving` (a real cryptographic design problem, sketched not solved).
@@ -863,7 +721,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   items, gap-detectable omission).
 - **Provenance:** Part 2 §11 (large-group scaling), §11.9.3.1 + §11.11 item 7; document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
 
-### T40 - The public-by-default regime as a whole: status and the confidentiality-inversion posture
+#### T40 - The public-by-default regime as a whole: status and the confidentiality-inversion posture
 
 - **Status:** `open · experimental` (more speculative than the rest of the section; a candidate direction).
 - **Type:** `design-experimental`.
@@ -885,141 +743,129 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   measurements (part of T38).
 - **Provenance:** Part 2 §11 (large-group scaling), §11.9.3 (and §11.9.3.1–§11.9.3.3); document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
 
-## Promoted & closed (provenance retained)
+### Croft (Layer 6)
 
-Threads that have left the live queue — `promoted` (integrated into a matured doc) or `closed` (resolved
-without promotion). Kept here for provenance and back-reference (other threads still cite their T-numbers);
-moved out of the open list above so it stays scannable (2026-06-26 review).
+#### T12 — Consumer-pull economic inversion (M3) + the M0–M4 product-track sequencing
 
-### T37 - Placement and numbering of the large-group-scaling section (it collides with Part 2 §7)
+- **Status:** `open · gated` (settled-as-direction; under-designed).
+- **Type:** `needs-content` (walk-through requested).
+- **Review (2026-06-26):** the user wants a **plain-language walk-through** of this thread — they thought
+  it was resolved and want to re-understand what is settled (the M0–M4 track) vs still open (M3, the
+  consumer-pull/demand-side broker, which is named but not designed).
+- **What it is:** the **fifth rung of the "recurring inversion"** — invert the ad model into a **consumer-side / demand-side broker** (the one economic pillar of the thesis with no home in 07 or 08). Plus the **M0–M4 product track** (M0 single-user vault → M1 secure group chat → M2 social graph you hold → M3 consumer-pull inversion → M4 the cooperative) — the staged delivery spine no theme carries.
+- **Promotion target:** **07** (a third economic mechanism) and **08** (the product-track roadmap).
+- **Gates:** M3 is named but not designed; the per-milestone shape needs work before it's resolved-beta.
+- **Alpha provenance:** `../alpha/crystallized/conclusions.md` (M0–M4); `../alpha/crystallized/principles.md` (the five-scale inversion list).
 
-- **Status:** `promoted · resolved 2026-07-07`. The user chose to fold it into Part 2 as **§11**. Done at spec document-pass-10: the section moved into `../drystone-spec/part-2-certifiable-design.md` as §11 (after §10, before Appendix A), its internal §7.N renumbered to §11.N, external real-§7 refs preserved, the §0 Map given a §11 line, and the standalone `large-group-scaling.md` removed (byte-identical original frozen in the batch-11 seed zip). Downstream refs updated to §11.
-- **Type:** `structure` (a spec-organization decision, not a proving or experimentation gate).
-- **What it is:** the batch-11 spec deliverable (`drystone-spec/large-group-scaling.md`) is titled "Part 2
-  §7, Large-Group Scaling, Dormancy, and Re-entry" and numbers itself §7.1–§7.14, but Part 2 already has a
-  §7 (Synchronization and governance-conflict resolution) that this section **depends on and cites** (its
-  "Part 2 §7.3.1 / §7.3.2 / §7.3.5 / §7.3.6 / §7.4.2 / §7.6.4 / §7.6.7 / §7.8 / §7.9 / §7.9.2 / §7.9.3"
-  references all resolve against the existing §7). Both cannot be §7. It was filed byte-identical as a
-  standalone section companion (keeping its authored numbering, nothing overwritten, nothing renumbered
-  unilaterally) rather than merged, precisely so the numbering choice stays the user's.
-- **The decision to make:** (a) fold it into `part-2-certifiable-design.md` as a new later section (Part 2
-  currently ends at §10 + Appendices A–D, so §11 is the natural slot), renumbering its internal §7.x to
-  §11.x and leaving the "Part 2 §7.x" external citations as-is; or (b) keep it as a standalone module and
-  give it a non-colliding module name/number; or (c) some other placement. Option (a) is the larger edit
-  (every internal §7.N → §11.N) but yields one coherent Part 2; option (b) is zero-edit but leaves a
-  section titled "§7" alongside the real §7.
-- **Promotion target:** whichever placement is chosen; on resolution the `drystone-spec/README.md`
-  numbering caveat and the `CHANGELOG.md` document-pass-9 note are updated to match.
-- **Gates:** the user's placement call. No proving or experimentation needed.
-- **Provenance:** filed from `../alpha/seeds/large-group-scaling-batch11/eleven.zip`
-  (`drystone-large-group-scaling.md`); document-pass-9 (2026-07-07).
+#### T14 — iOS opportunistic-only P2P as a named product limitation
 
-### T1 — Drystone governance & peer model (§2 peers/rights/capabilities + §X governance conflicts) — PROMOTED → drystone-spec
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (folds into the per-platform design files, S4; couples T6).
+- **Review (2026-06-26):** doesn't need to stay a one-off thread — the iOS app must **play to iOS
+  strengths** (event-driven from the system, push-triggered, sync) and that thinking belongs in a
+  dedicated **iOS design file**, one of the per-platform set (S4). Common core where possible, but
+  platforms differ; every not-yet-implemented platform needs its own version of this thinking.
+- **What it is:** on iOS you cannot hold a background socket, so device-to-device P2P is **opportunistic, not deterministic**, and spontaneous off-grid meshing is aspirational/unproven — which structurally argues the meer is the dependable backbone, not a bonus. The four-property impossibility is already in 03; the **iOS-background constraint as a stated limitation on the product's connectivity promise** is not.
+- **Promotion target:** **08 §9** (a peer asterisk to the "serverless"/relay-dependency one) and **03**.
+- **Gates:** decide what Croft promises about off-grid/background sync (the product consequence is undecided).
+- **Alpha provenance:** `../alpha/thinking/ios-opportunistic-p2p.md`. **Per-platform design file (S4,
+  started 2026-06-26):** `../alpha/thinking/app/platforms/ios.md`.
 
-- **Status:** `promoted` **2026-06-26 → `drystone-spec`** (built this session; residual gates carried into the
-  spec, see below). The 2026-06-25 "design we have NOT built / `P-*` unwritten" framing below is **superseded**.
-- **Resolution:** the §2/§X drafts were matured into the **beta Drystone protocol spec** — the `P-*`
-  principles are now **defined** in `drystone-spec` Part 1 §2 (`P-Local-Truth`, `P-Knowable-Truth`,
-  `P-Peer-Equality`, `P-Durable-Enablement`); §2 peers/rights/capabilities/PeerSets/meer/exitability →
-  Part 2 §5; §X governance log / timestamp-free order / R1–R6 / attributable acceptance / regress-free fold
-  → Part 2 §7. **Residual gates (now carried in the spec, not here):** the `ENABLING` wire formats
-  (canonical fact encoding, frontier-closure, frontier-commitment, capability wire format) → spec Part 2
-  **Appendix B**; **Track A (Meadowcap) vs Track B (Keyhive)** → spec **Appendix A** + couples T24;
-  **key-custody default (A12)** and **geer-name (A13)** → ROADMAP_TODO; the Matrix/Willow/Meadowcap/Keyhive
-  facts carry **[confirm before publish]** in the spec. Optional curation: whether to back-port the named
-  `P-*` principles into alpha `crystallized/principles.md` (they are canonical in the spec) — a curation
-  call, low-priority.
-- **What it was (pre-spec staging):** the governance-layer design distilled 2026-06-24 — one kind of peer;
-  **rights**
-  (universal, never delegated) vs **capabilities** (additive, delegated, revocable); the
-  **capability / role / PeerSet** layers (the meer recast as a PeerSet, satisfying read-your-own-history
-  vacuously); the **exitability** backstop + **asymmetry-of-expressible-range** framing; revocation as an
-  epoch-rotating expulsion-shaped fact; and the §X conflict-resolution model (**append-only fold →
-  no-state-reset**, a **timestamp-free causal order**, an unconflictable capped root, the R1–R6
-  capability interface, attributable-acceptance, and the regress-breaking termination construction). Its
-  spine is a deep **Matrix close-cousin contrast** (where Matrix's choices cost a CVE + a multi-week
-  outage; Croft's eventual-consistency bet dodges that class).
-- **Promotion target:** primarily **04 (the protocol we proved)** and **06 (safety without
-  surveillance)**; possibly a dedicated governance theme if it grows. The new principles
-  (`P-Local-Truth`, `P-Peer-Equality`, `P-Knowable-Truth`, **`P-Durable-Enablement`**, the
-  **peer-capability-floor**) would land in **01 / the principle set** once written.
-- **Gates — must settle before resolved-beta:**
-  1. **Status is DRAFT / ENABLING.** The wire formats are unspecified; the hardest piece
-     (**frontier-closure before sort**, §X.8.5) is open. Beta 04 is about what we *proved*; this is
-     design we have *not built*.
-  2. **Two core mechanisms undecided** — capability mechanism **Track A (Meadowcap) vs Track B
-     (Keyhive)** (`ROADMAP_TODO` **A11**); key-custody default **blind-relay vs trusted-delegate**
-     (**A12**, incl. the "does Option-B-as-default rebuild a readable homeserver?" question). The "geer"
-     name is also open (**A13**).
-  3. **Cited facts not yet SoT-confirmed.** The Matrix / Willow / Meadowcap / Keyhive claims were
-     web-verified *in the source dialogue only* — confirm (CVE-2025-49090; room v12 / MSC4289;
-     Megolm/UTD; Seshat desktop-only search; Meadowcap "no native revocation"; Willow unenforceable
-     timestamp + `is_authorised_write`; matrix.org Postgres postmortem; Karlsruhe SACMAT 2020; Element X
-     vs Classic) against a source of truth before any of it hardens into beta. **Do not** re-introduce
-     the dialogue's self-corrected false claim ("Matrix E2EE is bilaterally disable-able" — it is a
-     one-way latch).
-  4. **The `P-*` principles do not yet exist** in `../alpha/crystallized/principles.md` by these names;
-     §2/§X `Realizes` them but they are unwritten.
-- **Alpha provenance:** `../alpha/thinking/drystone-spec/section-2-peers-rights-capabilities.md`,
-  `…/section-x-governance-conflicts.md`, README; raw dialogue
-  `../alpha/seeds/transcripts/raw/drystone-peers-rights-governance-matrix-dialogue-2026-06-24.md`.
-  Backlog: `../alpha/ROADMAP_TODO.md` **E30** (+ A11/A12/A13); seam: `../alpha/COHESION.md` **§37**.
+#### T15 — P2P-games data layer (ephemeral-live / durable-outcome) + open attestation
 
-### T26 — Social-graph-as-substrate: the product reframe (chat as a tenant) — PROMOTED → 08
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (per-app PRDs, S5).
+- **Review (2026-06-26):** game still called a **pond** (candidate). Wants per-app **PRDs/design docs** —
+  chat gets its own, games gets its own. Plus a new modest **starter use case** worth its own design
+  doc: a peer-to-peer **"thinking of you"** signal (instead of buying a connected bracelet, touch a spot
+  on your phone and it reaches out / signals the other person) — small but a good first concrete use case.
+- **What it is:** a settled-as-shape decision — **live play is always over iroh and always ephemeral; only the settled outcome is durable, by the players' choice** (one durable record per completed game). But the **outcome-attestation mechanism is explicitly open** and the games pond is "candidate, not committed."
+- **Promotion target:** **08 §7**.
+- **Gates:** the mutual-signed outcome-attestation mechanism; games-pond commitment.
+- **Alpha provenance:** `../alpha/thinking/app/design-philosophy.md` (data-layer shape); `../alpha/thinking/app/ponds/` (attestation set aside). **PRD stubs (S5, started 2026-06-26):** `../alpha/thinking/app/prds/games-pond.md` + `../alpha/thinking/app/prds/thinking-of-you.md` (+ `chat.md`).
 
-- **Status:** `promoted` **2026-06-26 → `08`** (user-approved "yes we should reframe this way"). The reframe
-  is folded into `08`: theme narrative + charter re-anchored on the social graph as substrate; new **§1**
-  (the social graph is the substrate; the garden grows from it) with **§1.1** (the durable group made
-  invisible — group≠member-set, implicit/sticky/pruned lifecycle, the group's-face UX, local-vs-shared-anchor)
-  and **§1.2** (ponds/pads as a group's siblings); §4 re-pointed (`group-core` is the substrate core);
-  establishes-rewritten. **Residual gates kept open** (below) — the group's-face UX iteration (on the T25
-  local framework) and reconciling the sticky-group lifecycle with `06`/membership-vs-access remain design
-  work, but the *shape* is now settled in 08.
-- **What it was (the reframe, now in 08 §1):** invert the app pyramid — the **social graph is the substrate;
-  chat is one tenant**, peer to games/calls/photos hung off a durable **group** (the group is the index; a
-  chat can end while the group persists). **group identity ≠ member set**; **implicit/sticky group
-  lifecycle**; the **local-projection vs shared-anchor** seam; the **load-bearing-but-invisible graph** UX.
-  Dissolves the Delta-Chat "games pollute a thread / chats couple membership+governance" pain.
-- **What it is:** invert the app pyramid — the **social graph is the substrate; chat is one tenant**, peer
-  to games/calls/photos hung off a durable **group** (the group is the index; a chat can end while the group
-  persists; spin up a fresh chat with the same group, attachments intact). With it: **group identity ≠ member
-  set** (stable ID + locally-overridable presentation name); **implicit/sticky group lifecycle** (sticky =
-  matchable for reconciliation · live-non-sticky · pruned-never-resurrected; reconcile-vs-fresh-vs-prune is a
-  per-formation human choice); the **local-projection vs shared-anchor** seam (naming/stickiness local;
-  membership/cross-participant-identity/new-attachments need a shared anchor); and the **load-bearing-but-
-  invisible graph** UX (the group's "home/face," many-doors-one-room) — the hardest UX problem. Dissolves the
-  Delta-Chat "games pollute a thread / un-pinnable / chats live forever and couple membership+governance" pain.
-- **Promotion target:** **`08` (Croft the product)** — a significant reframe of its app shape; surfaced, not a
-  unilateral rewrite. The substrate claim is core Drystone (in the spec); the *product surfacing* is 08.
-- **Gates (residual, kept open):** the group's-face UX
-  (testable/iterative, built on the T25 local framework that "guides rather than binds"); reconcile the
-  sticky-group lifecycle with `06`/membership-vs-access.
-- **Alpha provenance:** `../alpha/thinking/social-graph-as-substrate.md` §1–3; raw
-  `../alpha/seeds/transcripts/raw/social-graph-substrate-redb-storage-dialogue-2026-06-26.md`.
+#### T17 — Three-audiences settings model + the composable-interface ramp
 
-### T23 — Verbatim grounding quotes for the systems-science section (Ashby gloss, Beer paraphrase) — CLOSED
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (lands in the per-platform design specs).
+- **Review (2026-06-26):** considered **fairly settled** as a design principle that impacts the
+  per-platform design specs (S4); the open part is "what does it look like" in each implementation, not
+  whether to adopt it.
+- **What it is:** settings serve **three audiences by relationship to the system** (never-touch / tune-a-few / full-surface), named by intent not depth, realized via a composable-interface ramp of self-authorship. Underpins 08's "composability is the user-respecting value" stance, which 08 currently asserts without the audience model beneath it. The composable-interface realization is explicitly a forward note (unproven).
+- **Promotion target:** **08**.
+- **Gates:** the composable-interface ramp has no proof/spec yet (a product-track concern).
+- **Alpha provenance:** `../alpha/crystallized/principles.md` (three-audiences + composable-interface note).
 
-- **Status:** `closed` **2026-06-26** (source supplied + incorporated). One verification flag carries
-  forward (below).
-- **What it was:** the systems-science grounding carried two non-verbatim blocks — an Ashby
-  survival-condition **gloss** and a **Beer** paraphrase. The spec build dropped both as quotations
-  (kept Ashby's real line "Only variety can destroy variety," *Intro to Cybernetics* p. 207) and held the
-  Beer grounding as prose pending a real source.
-- **Resolution:** the user supplied the Beer source (the Beer / algedonic / Cybersyn / OGAS dialogue,
-  `../alpha/seeds/transcripts/raw/beer-algedonic-cybersyn-ogas-dialogue-2026-06-25.md`). Incorporated into
-  **Drystone spec Part 1 §3** with two defensible-verbatim Beer quotes ("ride the dynamics," *Brain of the
-  Firm*; "their only hope," *Designing Freedom* 1974), the plain-language **algedonic** explanation, and
-  the **Cybersyn/OGAS** natural experiment. The "aids to human viability…" phrasing is confirmed a
-  synthesis gloss (not attributed to Beer). The richer thread — the **adjudication-locus axis**,
-  **peerhood-as-adjudication**, and **exit-backed authority** — landed in Part 2 §3/§5.2/§8/App-B and the
-  alpha synthesis `../alpha/thinking/algedonic-and-peerhood-as-adjudication.md`.
-- **Carried flag:** the two Beer quotes and the Cybersyn/OGAS dates/figures are web-verified in the
-  dialogue only and **[confirm before publish]** against primary editions before a publication-final
-  release. (Tracked in the spec's Part 2 Appendix B external-fact-confirmation item.)
+> **T18–T20 added 2026-06-25** from the per-file alpha→beta coverage audit
+> (`../alpha/plans/2026-06-25-beta-coverage-per-file-audit.md`) — the long-tail unsettled finds a
+> grouped sweep missed: a settled-stance principle and two unbuilt design surfaces that beta correctly
+> dropped (because unsettled/unbuilt) and that had no home in T1–T17.
+
+### Governance (Layer 7)
+
+#### T33 — Edge-preserving capital formation (funding the co-op without reinstalling the extractive edge)
+
+- **Status:** `open · surfaced` (surfaced 2026-07-06 by the peer-standing argument).
+- **Type:** `needs-research` (couples-with `legal-review`).
+- **What it is:** the one genuinely open engineering problem the peer-standing → cooperative-form
+  argument *generates* (not a flaw in it). A social-graph platform has real infrastructure costs
+  historically funded by exactly the securitized venture capital the argument rules out. Whether a
+  cooperative can raise sufficient capital **without issuing any claim** (non-voting preferred, outside
+  investor classes) that smuggles the asymmetric owner/user edge back in is contested and unresolved. If
+  edge-dissolution is the point, the funding instrument must itself be edge-preserving — which sharply
+  constrains the financing design space. Couples with the two grounding gaps the argument flags: the
+  Rochdale / ICA cooperative legal mechanics (non-transferable member shares, patronage returns) and the
+  platform-cooperativism capital-formation literature.
+- **Promotion target:** `governance/` (Layer 6, the manifestation) — extends
+  `philosophy/peer-standing-and-the-cooperative-form.md` §6 and theme `07`; sits under the bannered
+  cooperative legal-review gate in `README.md`.
+- **Gates:** ground the platform-cooperativism capital-formation literature; ground the ICA/Rochdale
+  member-share mechanics; the broader cooperative/foundation legal-review gate (README) is the call this
+  sits under.
+- **Provenance:** `philosophy/peer-standing-and-the-cooperative-form.md` §6 + §8 (the `[tension]` on
+  capital formation) and `philosophy/structural-argument-principles.md` §IX(32); assembled from conversation,
+  delivered 2026-07-06 (via `dropoff/third.zip`, since removed — the committed governance docs are the record).
+
+### Socialization (Layer 8)
+
+#### T4 — A brand / voice / messaging chapter (a missing theme)
+
+- **Status:** `open · gated`.
+- **Type:** `needs-content` (structural directive S3 — start now, twinned with T11).
+- **Review (2026-06-26):** **start the doc now** — a brand/voice/messaging working folder that accretes
+  taglines, ideas, links, and "ammo" over time (twin to the adoption-enablement doc, T11), so nothing is
+  forgotten and we can say "here's what we've been looking at" when it's time. (Brand-name DRIFT gate
+  still applies before any of it hardens into a chapter.)
+- **What it is:** `narrative/messaging-and-quotes.md` is a mature, provenance-tagged (OURS / CITE /
+  CLEARANCE / UNVERIFIED) reservoir — taglines, the corporation-vs-person crowding-out framing (Gneezy &
+  Rustichini, Ostrom, Ariely), the digital-living-room / IYKYK positioning, the Euphoria tie-in with a
+  fair-use/trademark analysis. A chapter's worth of brand voice that no beta theme absorbs.
+- **Promotion target:** a **new brand/voice theme** (none of the eight is one); the rollup itself
+  anticipates it.
+- **Gates:** brand/product-name **DRIFT reconciled vs `NAMING.md`** (the 08/07 dependency — 08 says "must
+  be reconciled before any brand chapter"); CLEARANCE items (Euphoria line) cleared with counsel;
+  `[UNVERIFIED]` anecdotes confirmed or dropped.
+- **Alpha provenance:** `../alpha/narrative/messaging-and-quotes.md`; the **app-side half of the same brand
+  DRIFT** — `../alpha/thinking/app/brand-and-voice-notes.md` (taglines, two-speed answer, "Grow your own",
+  message funnel) and `../alpha/assets/README.md` (draft wordmarks, license-gated) [added 2026-06-25
+  per-file audit]; `../alpha/BETA-ROLLUP.md` coverage view ("likely feeds a future brand chapter");
+  `../alpha/ROADMAP_TODO.md` C6 / A7. **Accreting home (S3, started 2026-06-26):**
+  `../alpha/narrative/brand-comms-workbook.md`.
+
+#### T11 — Adoption-chasm thesis + the institutional-mandate "fourth bridge"
+
+- **Status:** `open · gated` (provenance-gated finding + an undone design directive).
+- **Type:** `needs-content` (structural directive S3 — twin doc to T4).
+- **Review (2026-06-26):** **start the doc now** — adoption-enablement is the **twin** of the brand/voice
+  doc (T4); both accrete thinking, references, and "ammo" over time so we don't forget and can pull the
+  thread when the moment comes.
+- **What it is:** a survey of ~16 P2P/local-first projects concluding **only Signal crossed the chasm**, and that crossing needs three conditions — product parity, a non-extractive sustaining org, an inciting event (which produces *spikes*, not sustained migration). Plus a discovered **fourth bridge: institutional mandate** (Matrix's 25+ government adoptions were top-down) "worth designing for explicitly," and the **embedded-trust** corollary (P2P tools must embed in *existing* trust networks, not expect trust to form around the tool).
+- **Promotion target:** **07** (the institutional-adoption path as a sustainability lever) and **03** (close the field map with the "only Signal crossed, and why" verdict).
+- **Gates:** the survey carries a `[needs primary-source verification]` caveat (confirm before asserting); "design for institutional mandate" is an undone directive.
+- **Alpha provenance:** `../alpha/research/p2p-founder-motivations-adoption.md` (RQ2 synthesis); `../alpha/SOVEREIGN-COMMONS-DOSSIER.md` §7; `../alpha/narrative/long-form.md` (adoption-curve risk, named not analyzed). **Accreting home (S3, started 2026-06-26):** `../alpha/narrative/adoption-enablement.md`.
 
 ## How to use this file
 
 When a beta theme doc is tempted to assert something that is actually still in flight, park it here
 instead with its gates named, and reference it. When the gates clear, promote it per the rule above and
-record the trace in `../alpha/BETA-ROLLUP.md`. On promotion (or closure), move the thread down into
-"Promoted & closed" above — keep the open list short and scannable (2026-06-26 review).
+record the trace in `../alpha/LAYER-ROLLUP.md`. On promotion (or closure), move the thread block to `CLOSED-THREADS.md` — keep the open list short and scannable (2026-06-26 review).
