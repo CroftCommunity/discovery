@@ -12,6 +12,16 @@ through the theme->layer map, then reconciling against what each layer already h
 completeness items (the CM-A / CM-P carry-forwards) are tracked at the end; a `covered` mark is only valid
 when a cited layer section is verified to carry the conclusion.
 
+**The 2026-06-25 matrix is a SIGNAL, not a presumed-complete or authoritative set.** It seeds the
+hypothesis for where each doc goes; it does not settle it. Every disposition in this ledger is re-checked
+against the actual alpha file during Phase 2, and its conclusions are enumerated by *reading the file*, not
+by trusting the matrix's row. This matters most for the "file nothing new" verdicts (`covered`,
+`alpha-only`, `excluded`): those are precisely where a stale or wrong prior disposition would silently drop
+a conclusion, so each is independently verified from the source before it is honored. The matrix could have
+mis-folded, over-marked `alpha-only`, or missed a conclusion (the CM list is proof it missed several); we
+treat its verdicts as a prior to test, and the audit's own gaps as evidence it is fallible. Same posture as
+the epistemics note (do not trust a closed-loop authority; verify from the primary).
+
 **Treatment codes:** `copy` (byte-faithful into the layer) · `distill` (synthesize a new/updated layer doc)
 · `merge` (fold into an existing layer doc, keep the mature version) · `covered` (already in the layer;
 verified pointer required) · `alpha-only` (process/index/raw; stays alpha) · `excluded` (do-not-carry).

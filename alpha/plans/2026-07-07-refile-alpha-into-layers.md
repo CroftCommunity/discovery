@@ -163,9 +163,13 @@ theme references remain anywhere; carry out (or explicitly re-defer) the two sta
   each belong in different layers. That is the exact duplication/splitting the move to layers exists to fix.
   Re-keying to layers restores single-home-per-claim.
 
-- **Re-key, do not re-triage.** The 2026-06-25 audit already classified all 165 files once; discarding that
-  work would be wasteful and risk re-litigating settled dispositions. The theme->layer correspondence is
-  mostly mechanical, so Phase 0 is a re-keying with reconciliation, which is far cheaper and less error-prone.
+- **Re-key from a signal, do not blindly inherit.** The 2026-06-25 audit classified all 165 files once, so
+  it is a valuable *starting signal* that saves re-triaging from scratch. But it is not a presumed-complete
+  or authoritative set: it is a prior to test, not the answer. Its own CM list proves it missed conclusions,
+  so every disposition (especially the "file nothing new" verdicts: `covered`, `alpha-only`, `excluded`) is
+  re-checked against the actual alpha file in Phase 2, and conclusions are enumerated by reading the file,
+  not by trusting the matrix row. This is the same do-not-trust-a-closed-loop-authority discipline as the
+  epistemics layer: the matrix accelerates, the primary decides.
 
 - **Reconcile, do not blank-migrate.** Because the layers are already partly populated (from theme migration
   and batches), a naive "copy alpha into empty layers" would duplicate and would clobber more-mature layer
