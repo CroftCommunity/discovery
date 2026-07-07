@@ -102,8 +102,9 @@ to the edges. The canonical layer model, the two traversals, and the register di
 |---|---|---|---|
 | 1 | `history/` | MATERIAL history: crofting, dry-stone, cairns, the space itself (theme 02 to migrate) | not yet created |
 | 2 | `philosophy/` | INTELLECTUAL history: the principles + thinkers, the pure peer-standing argument (+ `prior-art/`) | **seeded** (peer-standing set; Modular Politics prior-art) |
-| 3 | `cairn/` | THE FIELD: the existing bolstering tech we build on (iroh, MLS, Willow/Meadowcap, CBOR-DAG, atproto/AT, ActivityPub, CRDT, QUIC; products Roomy, Blacksky, p2panda, SimpleX, Matrix). The inverse of activism: what we credit and reuse, not what we indict. | **seeded 2026-07-07** (atproto-ecosystem + social-lexicon research brief; more to migrate) |
-| 4 | `drystone-spec/` | Protocol spec (Parts 1+2, persona-definition, CHANGELOG, open-items, feasibility review) | populated |
+| 3 | `cairn/` | THE FIELD (open half): the existing bolstering tech we build among (iroh, MLS, Willow/Meadowcap, CBOR-DAG, atproto/AT, ActivityPub, CRDT, QUIC; products Roomy, Blacksky, p2panda, SimpleX, Matrix). What we credit and reuse. | **seeded 2026-07-07** (atproto-ecosystem + social-lexicon research brief; more to migrate) |
+| 3′ | `fenced/` | THE FIELD (fenced half): the centered commercial platforms (Telegram, Discord, WhatsApp, Signal, Slack, Teams, Reddit, X, iMessage, Messenger, LINE, WeChat). Roster/call/broadcast ceilings, E2EE stance, per-group rates, economics. A descriptive map (no argument); feeds the spec (§7.9.1, §7.13) and activism. | **seeded 2026-07-07** (batch eleven: capability map + operational-rates/economics) |
+| 4 | `drystone-spec/` | Protocol spec (Parts 1+2, persona-definition, CHANGELOG, open-items, feasibility review, large-group-scaling section) | populated |
 | 5 | `impl/` | Reference implementation, experiment-informed (themes 04/05/06 to migrate) | **seeded** (`delivery-layer/` + `mls/` bundles + shared `doc-writing-method.md`) |
 | 6 | `croft/` | Product thinking, Croft as a "flavor" (theme 08 to migrate) | not yet created |
 | 7 | `governance/` | The manifestation: foundation + cooperative, legal/financial actualization (theme 07 to migrate) | **seeded** (reserved; peer-standing argument moved to `philosophy/`) |
@@ -111,12 +112,13 @@ to the edges. The canonical layer model, the two traversals, and the register di
 | 9 | `activism/` | The case against the status quo: why incumbent platforms are harmful, *empirical* register | **seeded** (the "platforms author the relational field" research set) |
 
 **The ordering.** The "why" sits at the base (Layers 1–2: history = why it resonates, philosophy = why it
-is right), then the field survey (3 cairn = the existing tech we build on), because the spec is built *on*
-the principles and the surveyed field. Then the build (4 spec → 5 impl → 6 croft → 7 governance), then the
-outward edges (8 socialization = get the message out; 9 activism = why not the status quo, the *present*
-"why"). **Cairn is the inverse of activism**: both survey the field, but cairn credits the enabling tech
-while activism indicts the extractive incumbents. Read `LAYERS.md` for the build-order vs
-justification-order traversals.
+is right), then the field survey in two halves (3 cairn = the open tech we build among; 3′ fenced = the
+centered platforms we are an alternative to), because the spec is built *on* the principles and the
+surveyed field. Then the build (4 spec → 5 impl → 6 croft → 7 governance), then the outward edges (8
+socialization = get the message out; 9 activism = why not the status quo, the *present* "why"). **The
+field-and-response triad:** cairn is the inverse of activism in valence (credit vs indictment); fenced is
+the neutral descriptive map both are drawn against, and activism reads its harm case off the fenced half.
+Read `LAYERS.md` for the triad and the build-order vs justification-order traversals.
 
 The `02`–`08` theme docs at beta root remain the current reading spine; layer dirs carry their own
 `README.md` index. The peer-standing companion work (2026-07-06) was **split by register**: the pure

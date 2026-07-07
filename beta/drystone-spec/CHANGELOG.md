@@ -8,6 +8,53 @@ This changelog is organized by theme rather than by line, because several change
 
 ---
 
+## document-pass-9 (2026-07-07): the large-group-scaling section filed as a standalone companion, plus the operational-rates research prompt
+
+**What changed, in one line.** Two new spec-side artifacts were filed from batch eleven (byte-identical to
+the web-session deliverables): `large-group-scaling.md`, a section-length treatment of large-group scaling,
+dormancy, and re-entry, and `research-prompt-operational-rates.md`, the companion research prompt it points
+to. No existing spec text was altered; this pass is purely additive.
+
+**The large-group-scaling section (`large-group-scaling.md`).** A self-contained section (internal
+§7.1–§7.14) covering: the requirement that cost scale on the live set not the roster (MLS linear terms paid
+on a live-only tree); scaled post-compromise security (strict below 250, opportunistic above, on a fixed
+threshold coinciding with the substrate's "large" inflection); the hot/cold Group split with a
+liveness-driven migration window as the master scaling knob; the two-part re-entry credential (governance
+attestation + resumption-PSK ticket bound under one signature); the single governance chain with
+lineage-scoped bans resolved at head; delivery under scale as a store-and-forward/swarm race; the
+encryption posture (§7.9.1: the two forces, why Drystone can be large *and* encrypted) and the optional
+public-projection tier (§7.9.2) and the experimental public-by-default regime above ~7k (§7.9.3, with the
+MLS-aware relay bridge, the visibility/authority decoupling, and the attesting-core ceiling scaled via RFC
+9750 parallel groups); tiered performance expectations (0–1k / 1–3k / 3–7k / 7–10k) with a buildable
+experiment matrix (§7.10.1); the two unearned measurements and the sound-but-unvetted compositions
+(§7.11); the posture summary (§7.12); an empirical basis (§7.13); and the research obligation (§7.14).
+
+**It builds on Part 2 §7, and that creates a numbering collision to resolve.** The section is titled
+"Part 2 §7" and numbers itself §7.1–§7.14, but it depends on and cites the *existing* Part 2 §7
+(Synchronization and governance-conflict resolution): its "Part 2 §7.3.1 / §7.3.2 / §7.3.5 / §7.3.6 /
+§7.4.2 / §7.6.4 / §7.6.7 / §7.8 / §7.9.2" references all resolve against the existing §7 subsections. Both
+cannot be §7. It is therefore filed as a **standalone section companion** (byte-identical, keeping its
+authored numbering) pending a placement/renumber decision (fold into Part 2 as a later section, e.g. §11,
+or keep as a module). Tracked as open thread T37. No renumber was applied unilaterally.
+
+**The empirical basis and its research output.** §7.13 states the group-size and community-moderation
+evidence the design rests on (heavy-tailed distribution, activity concentration, content-moderation-frequent
+/ member-ban-rare), tagged for established-shape vs inferred-number. §7.14 records the standing obligation
+to quantify the inferred per-group rates; `research-prompt-operational-rates.md` is that prompt. The
+prompt's research *output* (a source-tiered survey of the centered commercial platforms: the E2EE-vs-scale
+tradeoff and the three per-group operational rates) is distilled into the new `../fenced/` layer and cited
+by §7.9.1 and §7.13; the raw report is preserved as a transcript, not folded into the spec verbatim.
+
+**Verification posture.** Both filed docs are em-dash-clean and drift-grep-clean. The section carries its
+own A.9 status tags inline (`Verified-RFC` / `Established` / `Design` / `Synthesis` / `Load-bearing,
+unearned` / `[confirm]` / `[gates-release]`); the two measurements of §7.11 and the non-member-verifiable
+attestation of §7.9.3.1 are `Load-bearing, unearned`. New open threads: T37 (numbering/placement), T38
+(the §7.10.1 experiment matrix / two measurements), T39 (non-member-verifiable membership attestation),
+T40 (the public-by-default regime status). RFC facts (9420, 9750) are cited as normative primaries per the
+section's legend.
+
+---
+
 ## document-pass-8 (2026-07-07): the p10/p11 swap — part-1 ← p10, part-2 ← p11 rebuild, with the §7.6.4 re-plant fold preserved
 
 **What changed, in one line.** The canonical spec was swapped to the web session's newest iteration
