@@ -46,6 +46,10 @@ point here). Division of labor:
 
 Each thread carries:
 
+- **Layer** — which layer(s) it belongs to, for grep and grouping (a cross-cutting thread lists several):
+  `history` · `philosophy` · `cairn` · `fenced` · `drystone-spec` · `impl` · `croft` · `governance` ·
+  `socialization` · `activism`, plus `cross-cutting` for project-level decision gates. This tag is
+  authoritative; the group headings below are a rendered view of it.
 - **Status** — the lifecycle state (2026-06-26 model):
   - `open` — live and unsettled. Two sub-states: `surfaced` (logged, gates not yet worked) ·
     `gated` (blocked on named decisions/work).
@@ -117,6 +121,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T9 — Publication-readiness verification pass (01 Ostrom + 02 Clearances colour quotes)
 
+- **Layer:** cross-cutting, philosophy, activism
 - **Status:** `open · gated`.
 - **Type:** `needs-research` (primary-source pass).
 - **Review (2026-06-26):** still need to get the raw/primary-source material to clear each cited quote.
@@ -134,6 +139,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T27 — Promote "evidentiary, not operational" to a canonical principle?
 
+- **Layer:** cross-cutting, philosophy
 - **Status:** `open · gated` (a user curation decision).
 - **Type:** `needs-content` (curation call).
 - **What it is:** the rights-floor is **evidentiary, not operational** — it records and proves standing; it
@@ -151,6 +157,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T30 — Mature the Drystone spec to publication-final (the path to the defensive-publication DOI)
 
+- **Layer:** cross-cutting, drystone-spec
 - **Status:** `open · gated` (spec is beta-maturity; publication-final is the next stage up).
 - **Type:** `publish`.
 - **Review (2026-06-26):** reframe concretely — T30 is the **publish** thread: mature the spec, publish
@@ -182,6 +189,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T32 — Attorney legal-review of the Drystone defensive-publication (patent-non-assertion)
 
+- **Layer:** cross-cutting, governance
 - **Status:** `open · gated` (split out of T30, 2026-06-26).
 - **Type:** `legal-review`.
 - **What it is:** the **NOT-LEGAL-ADVICE** attorney review the defensive-publication path needs before it
@@ -196,6 +204,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T34 — Project Mercury: re-check the litigation docket before any external publication (time-sensitive)
 
+- **Layer:** cross-cutting, activism
 - **Status:** `open · gated` (surfaced 2026-07-06 by the activism-layer research set).
 - **Type:** `needs-research` (couples-with `publish`).
 - **What it is:** the strongest causal evidence in the `activism/` harm case — **Project Mercury**, a
@@ -223,6 +232,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T24 — What grounds a peer's authority, and what makes a right cost something to violate?
 
+- **Layer:** philosophy, drystone-spec
 - **Status:** `open · gated`.
 - **Type:** `needs-research` (expand per S2; couples T31, T1 Track A/B).
 - **Review (2026-06-26):** needs a plain-language problem statement plus the directions already
@@ -259,6 +269,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T28 — Maturity home for the historical peer-rights material (Hush-A-Phone lineage)
 
+- **Layer:** philosophy, history
 - **Status:** `open · surfaced` (a placement decision).
 - **Type:** `needs-content`.
 - **Review (2026-06-26):** the **history of peer rights and distributed social systems** is itself a
@@ -284,6 +295,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T7 — atproto Permissioned/Private-Data watch-item (external dependency, gates 03 + 05)
 
+- **Layer:** cairn, fenced, drystone-spec
 - **Status:** `open · gated` (gate is external, not Croft-internal work).
 - **Type:** `needs-research` (external watch-item).
 - **Review (2026-06-26):** still deferred forward — external dependency, nothing to action yet.
@@ -303,6 +315,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T31 — Disentangle rights / roles / capabilities / delegation (+ PeerSet, restricted combinations)
 
+- **Layer:** drystone-spec, philosophy
 - **Status:** `open · gated`.
 - **Type:** `needs-content` (absorbs the former T21; informs T20, T3).
 - **What it is:** the review found these four conflated in places and asked to clear them up. The author's
@@ -340,6 +353,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T3 — Moderation & abuse under a blind broker (the constructive design body)
 
+- **Layer:** drystone-spec, impl
 - **Status:** `open · gated`.
 - **Type:** `needs-content` (couples T31).
 - **Review (2026-06-26):** the meer PeerSet holds the **same rights as a full peer** but has no local
@@ -361,6 +375,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T20 — Conflict-reason corpus gaps (C4 / C7 / C8 / C9 / C10)
 
+- **Layer:** drystone-spec
 - **Status:** `open · gated`.
 - **Type:** `needs-content` (expand per S2 — too terse to reason from).
 - **Review (2026-06-26):** too terse — needs a plain-language **problem statement** per gap plus the
@@ -389,6 +404,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T2 — Governance at scale (subsidiarity + liquid delegation; the concentration default)
 
+- **Layer:** drystone-spec, impl
 - **Status:** `open · gated`.
 - **Type:** `needs-experimentation` (couples T5 — the test harness).
 - **Review (2026-06-26):** likely **more than one large-scale governance model**, to hypothesize then
@@ -413,6 +429,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T5 — Protocol behavior at scale / group-chat failure modes
 
+- **Layer:** drystone-spec, impl, fenced
 - **Status:** `open · gated`.
 - **Type:** `needs-experimentation` (couples T2 — same test harness).
 - **Review (2026-06-26):** flows together with T2 — the gating work is to **build the test harness** and
@@ -435,6 +452,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T38 - The two unearned measurements and the §11.10.1 experiment matrix (turn the scaling envelope into a sized one)
 
+- **Layer:** drystone-spec, impl
 - **Status:** `open · gated` (specified in the Part 2 §11 large-group-scaling section, not yet run).
 - **Type:** `needs-experimentation` (couples-with `needs-proving`).
 - **What it is:** the Part 2 §11 large-group-scaling section tags two measurements `Load-bearing, unearned` (§11.11):
@@ -455,6 +473,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T36 — Verify the re-plant instantiation mechanism folded into Drystone spec §7.6.4 (run the E12 set)
 
+- **Layer:** drystone-spec, impl
 - **Status:** `open · gated` (folded into the spec 2026-07-07 with a `needs verification` tag, on the user's
   instruction to fold in-context now rather than hold it in `impl/`).
 - **Type:** `needs-proving` (couples-with `needs-experimentation`).
@@ -481,6 +500,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T22 — Does the `04` survivor re-key strand a peer's `tenure`?
 
+- **Layer:** drystone-spec, impl
 - **Status:** `open · gated`.
 - **Type:** `needs-proving` (run the test).
 - **Review (2026-06-26):** **tenure** may be the user's version of the "right to share" (T21) — *tenure =
@@ -510,6 +530,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T39 - Non-member-verifiable membership attestation (the mechanical core of the experimental public regime)
 
+- **Layer:** drystone-spec
 - **Status:** `open · gated` (`Load-bearing, unearned`; the whole §11.9.3 public regime is gated on it).
 - **Type:** `needs-proving` (a real cryptographic design problem, sketched not solved).
 - **What it is:** the experimental public-by-default regime (§11.9.3) routes a group's public message stream
@@ -529,6 +550,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T40 - The public-by-default regime as a whole: status and the confidentiality-inversion posture
 
+- **Layer:** drystone-spec
 - **Status:** `open · experimental` (more speculative than the rest of the section; a candidate direction).
 - **Type:** `design-experimental`.
 - **What it is:** above roughly 7k members the section permits inverting the confidentiality model
@@ -553,6 +575,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T10 — Real-time media-layer hardening (finishes 04's media leg)
 
+- **Layer:** drystone-spec, impl
 - **Status:** `open · gated` (largely de-risked — a "close the last decisions" thread).
 - **Type:** `needs-experimentation`.
 - **Review (2026-06-26):** still deferred for now.
@@ -574,6 +597,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T13 — Encrypt-then-content-address kills cross-user dedup (media storage economics)
 
+- **Layer:** drystone-spec, impl
 - **Status:** `open · gated`.
 - **Type:** `needs-research` (needs a lot of thinking + comparative research; won't fit one file).
 - **Review (2026-06-26):** possible directions to think through (none decided): treat a **group as a
@@ -590,6 +614,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T6 — The per-platform trust-model doc (05's "highest-leverage next artifact")
 
+- **Layer:** drystone-spec, impl
 - **Status:** `open · gated`.
 - **Type:** `needs-content` (couples T14; structural directive S4).
 - **Review (2026-06-26):** still deferred; subsumed by the **per-platform design-files** directive (S4) —
@@ -607,6 +632,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T8 — Forward-only revocation under irreversible commitments
 
+- **Layer:** drystone-spec
 - **Status:** `open · gated`.
 - **Type:** `needs-content` (likely co-promotes with T1).
 - **Review (2026-06-26):** the work, restated plainly — define the **reversible-vs-committing decision
@@ -624,6 +650,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T18 — LTS-for-interfaces / shapeability-paired-with-stability
 
+- **Layer:** drystone-spec, impl
 - **Status:** `open · surfaced`.
 - **Type:** `needs-content` (impacts all platform implementations).
 - **Review (2026-06-26):** considered **pretty much settled** as a design ethos that impacts every
@@ -644,6 +671,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T19 — Blind-peer encrypted-search / coverage-attestation substrate
 
+- **Layer:** drystone-spec, impl
 - **Status:** `open · gated`.
 - **Type:** `needs-experimentation` (optional / low appetite).
 - **Review (2026-06-26):** **low appetite** — the user doesn't want to get into this; "seems like a
@@ -665,6 +693,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T25 — The Drystone redb storage-and-projection layer (vetted, adaptable local component)
 
+- **Layer:** impl
 - **Status:** **`in-progress`** (being built externally, 2026-06-26) — the build spec
   (`../alpha/seeds/generated-prompts/redb-social-graph-layer-build-prompt.md`) is being implemented in a
   separate build environment by the user. Was `surfaced`.
@@ -692,6 +721,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T29 — MLS group state ↔ governance-log / Automerge state consistency
 
+- **Layer:** drystone-spec, impl
 - **Status:** `open · gated` (an open design binding, spec-relevant).
 - **Type:** `needs-experimentation` (scope unclear — experiments vs nail the spec/data shape).
 - **Review (2026-06-26):** "a lot going on; unsure what we need" — whether the next step is **more
@@ -738,6 +768,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T12 — Consumer-pull economic inversion (M3) + the M0–M4 product-track sequencing
 
+- **Layer:** croft
 - **Status:** `open · gated` (settled-as-direction; under-designed).
 - **Type:** `needs-content` (walk-through requested).
 - **Review (2026-06-26):** the user wants a **plain-language walk-through** of this thread — they thought
@@ -750,6 +781,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T14 — iOS opportunistic-only P2P as a named product limitation
 
+- **Layer:** croft, impl
 - **Status:** `open · gated`.
 - **Type:** `needs-content` (folds into the per-platform design files, S4; couples T6).
 - **Review (2026-06-26):** doesn't need to stay a one-off thread — the iOS app must **play to iOS
@@ -764,6 +796,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T15 — P2P-games data layer (ephemeral-live / durable-outcome) + open attestation
 
+- **Layer:** croft
 - **Status:** `open · gated`.
 - **Type:** `needs-content` (per-app PRDs, S5).
 - **Review (2026-06-26):** game still called a **pond** (candidate). Wants per-app **PRDs/design docs** —
@@ -777,6 +810,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T17 — Three-audiences settings model + the composable-interface ramp
 
+- **Layer:** croft
 - **Status:** `open · gated`.
 - **Type:** `needs-content` (lands in the per-platform design specs).
 - **Review (2026-06-26):** considered **fairly settled** as a design principle that impacts the
@@ -796,6 +830,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T33 — Edge-preserving capital formation (funding the co-op without reinstalling the extractive edge)
 
+- **Layer:** governance, philosophy
 - **Status:** `open · surfaced` (surfaced 2026-07-06 by the peer-standing argument).
 - **Type:** `needs-research` (couples-with `legal-review`).
 - **What it is:** the one genuinely open engineering problem the peer-standing → cooperative-form
@@ -821,6 +856,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T4 — Brand / voice / messaging (chapter landed; brand-direction decision open)
 
+- **Layer:** socialization
 - **Status:** `open · partially resolved 2026-07-07`. The brand/voice chapter landed as
   `../socialization/brand-and-voice.md` (it folded the reservoir plus the app-side notes). What stays open
   is only the **brand-name / direction DRIFT decision** and the clearance/verification gates below.
@@ -848,6 +884,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 #### T11 — Adoption-chasm thesis + the institutional-mandate "fourth bridge"
 
+- **Layer:** socialization, fenced
 - **Status:** `open · partially resolved 2026-07-07`. The adoption strategy landed as
   `../socialization/adoption-strategy.md`. What stays open is the survey's **primary-source verification**
   and the undone **design-for-institutional-mandate** directive.
