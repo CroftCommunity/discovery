@@ -1,4 +1,4 @@
-# discovery / beta — the resolved synthesis
+# discovery / beta: the resolved synthesis
 
 date: 2026-06-24
 
@@ -9,29 +9,29 @@ and harvests the conclusions that landed in a transcript but never got pulled up
 layer. It is built for synthesis + real validation, not for re-deriving the thinking. (Stage model:
 `../AGENTS.md` → "Maturity stages".)
 
-**What this stage is NOT.** Not new intake (that still lands in `alpha/`). Not a rewrite of `alpha/`
-— `alpha/` is the frozen provenance floor and is never moved, edited, or deleted (PLAYBOOK §4).
+**What this stage is NOT.** Not new intake (that still lands in `alpha/`). Not a rewrite of `alpha/`:
+`alpha/` is the frozen provenance floor and is never moved, edited, or deleted (PLAYBOOK §4).
 
 ## Tier discipline (the core invariant)
 
 - **Beta is cohesive within itself.** A beta doc references only *other beta docs* for its forward
   narrative. A reader should be able to walk beta end-to-end without dropping into alpha.
-- **No prior-tier references inside a beta doc.** A beta doc reads clean at its own maturity level — it
+- **No prior-tier references inside a beta doc.** A beta doc reads clean at its own maturity level; it
   carries **no links back to alpha**: no `Sources (alpha)` footer, no `Provenance trace` line, no inline
   `thinking/…`/`research/…` quote attributions, no `COHESION §` / `BETA-ROLLUP` pointers, no `../alpha/…`
   paths. The entire "what was lifted from each alpha source, how it was treated, where it landed" map
   lives **only** in `../alpha/BETA-ROLLUP.md` (the handoff doc at the prior level), so the two tiers can
   be laid side by side without the matured tier carrying the trail. A beta doc ends on "What this theme
   establishes (and does not)." The one exception is `OPEN-THREADS.md`: an unsettled thread keeps its alpha
-  connective tissue there until it lands — then the content goes into the (clean) beta doc and its mapping
+  connective tissue there until it lands; then the content goes into the (clean) beta doc and its mapping
   moves into the rollup.
 - **The discipline tightens with maturity.** Each stage carries fewer prior-tier traces than the last; by
-  `rc` and `publish` the documents are clean of prior-tier references *entirely* — even the markers a beta
+  `rc` and `publish` the documents are clean of prior-tier references *entirely*, even the markers a beta
   doc still carries (the `cite FACTCHECK SoT` pointer and per-claim verification flags) resolve as facts
   harden into settled statements. Beta applies the floor; rc/publish complete it.
 - **"Do not carry forward" means absent, not annotated.** Excluded material (the crofting "ancient free
   clan" myth; the REFUTED crypto-wars quotes; the MO §351 statute specifics; `did:key`
-  atproto-resolvability) simply **does not appear in beta** — that is what not carrying it forward
+  atproto-resolvability) simply **does not appear in beta**; that is what not carrying it forward
   means. *What* was excluded and *why* is recorded once, in the alpha rollup ledger (treatment code
   `excluded`), never as a list inside a beta doc.
 - **Alpha stays frozen.** Raw stays frozen forever; keeping vs. eventually retiring the alpha tier
@@ -42,24 +42,24 @@ layer. It is built for synthesis + real validation, not for re-deriving the thin
   `NOT-LEGAL-ADVICE`), and each verbatim quote keeps its citation + per-quote verification flag (e.g.
   "confirm against primary edition before publish"). For atproto / iroh / iOS facts, cite the
   source-of-truth FACTCHECK
-  (`../alpha/seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md`) — do not re-verify.
+  (`../alpha/seeds/transcripts/raw/atproto-atmospheric-web-iroh-mobile-FACTCHECK.md`); do not re-verify.
 
 ## The per-theme doc template
 
 Every theme doc follows the same shape (established on 01 and 04):
 
 1. **Title + status + verification line.**
-2. **Theme narrative (overview)** — a prose summary of what the doc covers and the arc it walks, so a
+2. **Theme narrative (overview)**: a prose summary of what the doc covers and the arc it walks, so a
    reader gets the whole shape before the sections.
-3. **Charter — what this theme covers** — explicit *in scope* / *out of scope (and where it lives)* /
+3. **Charter: what this theme covers**: explicit *in scope* / *out of scope (and where it lives)* /
    *boundary calls* against adjacent themes.
-4. **Body** — the resolved synthesis. **Direct quotes are preserved whole** as referenced block quotes
-   with a citation and a per-quote verification flag, each tied to the conclusion(s) it grounds — never
+4. **Body**: the resolved synthesis. **Direct quotes are preserved whole** as referenced block quotes
+   with a citation and a per-quote verification flag, each tied to the conclusion(s) it grounds, never
    paraphrased away.
 5. **What this theme establishes (and does not).** ← the doc ends here.
 
 No `Sources (alpha)` footer, no `Provenance trace`, no "do not carry forward" list, and no detailed
-rollup table inside a beta doc — all of it lives at the prior level (`../alpha/BETA-ROLLUP.md`), per the
+rollup table inside a beta doc; all of it lives at the prior level (`../alpha/BETA-ROLLUP.md`), per the
 tier discipline above.
 
 ## The synthesis is the layer-cake (themes retired 2026-07-07)
@@ -115,11 +115,11 @@ mechanism.
 
 ## Structural decisions taken for this synthesis (2026-06-24)
 
-- **N2 (history) and N3 (ecosystem) are two themes**, not one — a historical arc reads differently
+- **N2 (history) and N3 (ecosystem) are two themes**, not one; a historical arc reads differently
   from a present-day field comparison.
 - **N8 (safety-under-blindness) graduates to its own theme** (06), reinforced by the new
   membership-vs-access node; it is not folded into 04 as a mere adversarial chapter.
-- **N1 (epistemic) is its own theme** (01), upstream of the history (02) — splitting the old
+- **N1 (epistemic) is its own theme** (01), upstream of the history (02); splitting the old
   "civic-why" the alpha plan noted was conflated.
 - **Naming is distributed**: croft/Drystone meaning rides in 02; the Noria foundation-name candidate
   rides in 07. No standalone naming doc.
@@ -130,12 +130,12 @@ Themes 07 and 08 carry a "decision-gated" banner until these land. They are surf
 never silently resolves them:
 
 - **MPL-2.0 license** for the substrate (vs the AGPL-3.0-or-later choice for the app/foundation layer).
-- **Total-device-loss recovery anchor** (backup-vs-delegation fork — the headline open protocol problem).
-- **The cooperative legal-review gate** (MO Chapter 351; NOT-LEGAL-ADVICE — carry the reasoning, not
+- **Total-device-loss recovery anchor** (backup-vs-delegation fork, the headline open protocol problem).
+- **The cooperative legal-review gate** (MO Chapter 351; NOT-LEGAL-ADVICE: carry the reasoning, not
   the citations).
-- **The Noria foundation name** (CANDIDATE pending trademark clearance — not decided).
+- **The Noria foundation name** (CANDIDATE pending trademark clearance, not decided).
 - **The CroftC Phase-0 IP/ownership call** for the app body.
-- **The load-bearing-few principles (genome vs strategy)** — whether the compatibility badge is where
+- **The load-bearing-few principles (genome vs strategy)**: whether the compatibility badge is where
   the non-negotiable principles get their teeth.
 
 ## State
@@ -149,20 +149,20 @@ source→layer trace and the conclusion-coverage gate live in `../alpha/LAYER-RO
 
 Companion artifacts:
 
-- **`OPEN-THREADS.md`** (this level) — the staging queue at the beta gate: threads being pulled toward
+- **`OPEN-THREADS.md`** (this level): the staging queue at the beta gate: threads being pulled toward
   beta that are not yet settled enough to enter a theme doc (DRAFT / decision-gated / fact-unconfirmed
   material), each with its gates named and a promotion target. Keeps the need from being lost without
   letting it pollute the settled themes. A process artifact, not a theme doc.
-- **`../alpha/BETA-ROLLUP.md`** (prior level) — the auditable alpha→beta rollup ledger: per-source
+- **`../alpha/BETA-ROLLUP.md`** (prior level): the auditable alpha→beta rollup ledger: per-source
   treatment + landing, the exclusions, and the coverage gap still to close. Reflect on it to confirm
   nothing was missed or pulled up unexpectedly.
-- **`../MATURITY-ROLLUP.md`** (discovery root, cross-stage) — the repeatable *method* for maturing a
+- **`../MATURITY-ROLLUP.md`** (discovery root, cross-stage): the repeatable *method* for maturing a
   stage into the next, with accumulating learnings to recall at the beta→rc transition.
 
 ## Next two efforts (flagged, not started here)
 
-- **experiments-beta** — most spikes are still genuinely alpha-maturity; they stay in
+- **experiments-beta**: most spikes are still genuinely alpha-maturity; they stay in
   `experiments/alpha/` and keep being built up. Do not graduate yet.
-- **Proofs-beta** — a dedicated pass: strip the point-in-time / specific-conversation references in
+- **Proofs-beta**: a dedicated pass: strip the point-in-time / specific-conversation references in
   the proofs that don't read out of context, and build a comprehensive view of how the proofs relate
   to the discovery themes and the experiment content. Separate effort.

@@ -1,11 +1,11 @@
-# Drystone — an open peer-to-peer protocol for local-first state synchronization
+# Drystone: an open peer-to-peer protocol for local-first state synchronization
 
-**Version:** 0.1.0 (beta maturity — draft / defensive-publication track)
+**Version:** 0.1.0 (beta maturity, draft / defensive-publication track)
 
 **Status:** Draft, consolidated (Part 1 = the p10 principles set; Part 2 = the p11 rebuild; document-pass-8):
 self-contained and consistent, with the transport/delivery and deep-MLS designs folded in, and the §7.6
 reconcile/fork treatment expanded (ten subsections incl. ban-as-fork and the re-plant instantiation
-mechanism at §7.6.11). **Pending design review** — the remaining open work is the design decisions and
+mechanism at §7.6.11). **Pending design review**: the remaining open work is the design decisions and
 `ENABLING` wire encodings tracked in Part 2, Appendix B, not editorial cleanup. Build-against shape complete.
 (The prior batch-9 p9 consolidation was superseded here after a content-loss audit; the full p10/p11 corpus
 is frozen at `../../alpha/seeds/p10-p11-corpus/`.)
@@ -22,15 +22,15 @@ Drystone is the protocol. This specification defines it in **two parts**, and no
 application layer, no product surface):
 
 ```
-  ┌─ Part 1 — REASONING UNDERPINNINGS ───────────────────────────┐
+  ┌─ Part 1 - REASONING UNDERPINNINGS ───────────────────────────┐
   │   The "why." Named design principles, each stating a          │
   │   commitment, its grounded reasoning, and the consequence     │
   │   the mechanics MUST satisfy. A reviewer reads this to         │
   │   understand why the wire looks the way it does.              │
   │                                                               │
   │   P-Local-Truth · P-Knowable-Truth · P-Peer-Equality ·        │
-  │   P-Durable-Enablement — and the razor they share.            │
-  ├─ Part 2 — THE CERTIFIABLE DESIGN ────────────────────────────┤
+  │   P-Durable-Enablement - and the razor they share.            │
+  ├─ Part 2 - THE CERTIFIABLE DESIGN ────────────────────────────┤
   │   The "what." Normative mechanics: data model, identity,      │
   │   rights and capabilities, transport, synchronization and     │
   │   governance-conflict resolution, security, interoperability. │
@@ -40,11 +40,11 @@ application layer, no product surface):
   └───────────────────────────────────────────────────────────────┘
 ```
 
-- **Part 1** — `part-1-reasoning-underpinnings.md` (the consolidated "p9" set; document-pass-6)
-- **Part 2** — `part-2-certifiable-design.md` (the consolidated "p9" set; transport + MLS folded in;
+- **Part 1**: `part-1-reasoning-underpinnings.md` (the consolidated "p9" set; document-pass-6)
+- **Part 2**: `part-2-certifiable-design.md` (the consolidated "p9" set; transport + MLS folded in;
   identity model at §5.2, open items / `ENABLING` at Appendix B, external-fact confirmations at Appendix C,
   term definitions at Appendix D)
-- **Conventions + decisions** — `conventions-and-decisions.md` (the synthesis conventions and the
+- **Conventions + decisions**: `conventions-and-decisions.md` (the synthesis conventions and the
   cross-session design decisions; includes the vocabulary discipline)
 - **Large-group scaling (Part 2 §11)**: the section-length treatment of large-group scaling, dormancy,
   and re-entry, folded into `part-2-certifiable-design.md` as **§11** (cost-scales-on-the-live-set, scaled
@@ -61,7 +61,7 @@ application layer, no product surface):
   standing research task to quantify the three per-group operational rates from ancillary evidence, with
   its source-tiering and anti-fabrication guardrails). Its research *output* (the centered-platform survey)
   is distilled into `../fenced/`; the raw report is preserved as a transcript.
-- **Changelogs** — `CHANGELOG.md` (filing-side revision log, document-pass-0..10, newest first) plus
+- **Changelogs**: `CHANGELOG.md` (filing-side revision log, document-pass-0..10, newest first) plus
   `part-1-changelog.md` and `part-2-changelog.md` (the consolidation's detailed per-part content-pass logs)
 
 **Superseded companions** are moved to **`superseded/`** and kept as provenance, marked superseded and
@@ -76,7 +76,7 @@ against each other: every mechanic should cash out a principle, and every princi
 mechanic. A principle that binds no mechanic does not belong in Part 1; a mechanic that realizes no
 principle is unexplained.
 
-This document is **not** the narrative of how Drystone was designed and proved — that account is theme
+This document is **not** the narrative of how Drystone was designed and proved; that account is theme
 `04` of the Croft project's discovery synthesis, which reads as a story of the design process. The spec
 is the vendor-neutral artifact you build against; `04` is one project's account of why it believes the
 protocol works.
@@ -85,7 +85,7 @@ protocol works.
 intended to carry more than one ecosystem; Croft is the first, comprising (at least) a Croft-branded
 application, and a Drystone-compliant cooperative hosting operator that participates as an ordinary
 `principal` / `Group Role Set`. The protocol text is CC0 and names no ecosystem in its normative content. (Stewardship
-of the protocol's IP and marks is intended to sit with an independent foundation — candidate name *Noria*,
+of the protocol's IP and marks is intended to sit with an independent foundation, candidate name *Noria*,
 pending clearance, a project decision not settled by this spec.)
 
 ## Notice of defensive publication and open implementation
@@ -98,8 +98,8 @@ CC0 1.0 Universal; the author waives copyright in it, makes no patent claim over
 disclosed, and asserts no patent rights against any implementer. Nothing here grants rights under any
 third party's patent; implementers are responsible for their own due diligence.
 
-> **Sequencing (do not mint a DOI off this draft).** The defensive disclosure becomes *enabling* — and
-> therefore protective as prior art — only once a skilled implementer can build the synchronization layer
+> **Sequencing (do not mint a DOI off this draft).** The defensive disclosure becomes *enabling*, and
+> therefore protective as prior art, only once a skilled implementer can build the synchronization layer
 > from the text alone. Part 2 §7.2 (message formats) is not yet field-by-field, and the `ENABLING`
 > encodings in Part 2 Appendix B are open. Mint the v0.1 archival DOI off the first version where those
 > are closed, not off this one. (Spec-text license `CC0 1.0`; reference-code license `Apache-2.0`.)
@@ -111,7 +111,7 @@ third party's patent; implementers are responsible for their own due diligence.
 - **Proof / status flags** travel with each carried claim: `green-real` (demonstrated with real
   crypto/transport), `green-model` (proven in the reference model), `design` (specified, not yet
   proven), `ENABLING` (a byte-level encoding that must be pinned before two implementations can
-  interoperate — these gate a publication-final release). Where a claim rests on an external fact not
+  interoperate; these gate a publication-final release). Where a claim rests on an external fact not
   yet independently confirmed, it carries **[confirm before publish]**.
 - **External facts.** For atproto / iroh / iOS facts, the source of truth is the FACTCHECK SoT (iroh
   `1.0.0`); cite it, do not re-verify. Several comparative claims about other protocols (Matrix State
@@ -139,4 +139,4 @@ third party's patent; implementers are responsible for their own due diligence.
 
 Part 1 is the reasoning layer the design rests on. Part 2 is matured from the proven protocol mechanics
 and the governance/peer-model drafts. Verification flags travel inline; the full source-to-section
-trace lives in the prior-stage rollup ledger, per the maturity discipline — not in this document.
+trace lives in the prior-stage rollup ledger, per the maturity discipline, not in this document.
