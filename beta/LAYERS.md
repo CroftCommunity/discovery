@@ -160,7 +160,8 @@ research brief; more ecosystem material to migrate), `fenced/` (seeded 2026-07-0
 centered-platform capability map + the per-group operational rates and platform economics),
 `governance/` (reserved; README only), `socialization/` (essay + pitch), `activism/` (research set),
 `drystone-spec/` (populated), `impl/` (delivery-layer + mls bundles + the shared doc-writing-method).
-Not yet created: `history/` (theme 02 is its seed), `croft/` (theme 08). The `02`–`08` theme docs at beta
+Seeded 2026-07-07 as part of the alpha->layers re-file: `history/` (Layer 1, the material
+crofting/dry-stone/enclosure-inversion record). Not yet created: `croft/` (theme 08). The `02`–`08` theme docs at beta
 root remain the reading spine until their content migrates into layers.
 
 **`fenced/` created (2026-07-07, batch eleven).** The tenth layer and the fenced half of the field (tier

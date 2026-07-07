@@ -100,7 +100,7 @@ to the edges. The canonical layer model, the two traversals, and the register di
 
 | Layer | Dir | What it holds | State |
 |---|---|---|---|
-| 1 | `history/` | MATERIAL history: crofting, dry-stone, cairns, the space itself (theme 02 to migrate) | not yet created |
+| 1 | `history/` | MATERIAL history: crofting, dry-stone, cairns, the space itself, the enclosure story | **seeded 2026-07-07** (crofting/dry-stone/enclosure-inversion, folded from theme 02 + alpha) |
 | 2 | `philosophy/` | INTELLECTUAL history: the principles + thinkers, the pure peer-standing argument (+ `prior-art/`) | **seeded** (peer-standing set; Modular Politics prior-art) |
 | 3 | `cairn/` | THE FIELD (open half): the existing bolstering tech we build among (iroh, MLS, Willow/Meadowcap, CBOR-DAG, atproto/AT, ActivityPub, CRDT, QUIC; products Roomy, Blacksky, p2panda, SimpleX, Matrix). What we credit and reuse. | **seeded 2026-07-07** (atproto-ecosystem + social-lexicon research brief; more to migrate) |
 | 3′ | `fenced/` | THE FIELD (fenced half): the centered commercial platforms (Telegram, Discord, WhatsApp, Signal, Slack, Teams, Reddit, X, iMessage, Messenger, LINE, WeChat). Roster/call/broadcast ceilings, E2EE stance, per-group rates, economics. A descriptive map (no argument); feeds the spec (§11.9.1, §11.13) and activism. | **seeded 2026-07-07** (batch eleven: capability map + operational-rates/economics) |
