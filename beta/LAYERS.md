@@ -162,8 +162,9 @@ centered-platform capability map + the per-group operational rates and platform 
 `drystone-spec/` (populated), `impl/` (delivery-layer + mls bundles + the shared doc-writing-method).
 Seeded 2026-07-07 as part of the alpha->layers re-file: `history/` (Layer 1, the material
 crofting/dry-stone/enclosure-inversion record) and `croft/` (Layer 6, the product: the garden of ponds/pads
-and the social-graph-as-substrate reframe). Both net-new layers now exist. The `02`–`08` theme docs at beta
-root remain the reading spine until their content migrates into layers.
+and the social-graph-as-substrate reframe). Both net-new layers now exist. The `02`–`08` theme docs were
+re-filed into layers and **discarded 2026-07-07**; the layer-cake is now the sole structure. The
+source-to-layer trace is `../alpha/LAYER-ROLLUP.md`.
 
 **`fenced/` created (2026-07-07, batch eleven).** The tenth layer and the fenced half of the field (tier
 3′), the descriptive counterpart to `cairn/` and the substrate `activism/` reads its harm case from. First

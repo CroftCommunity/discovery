@@ -6,11 +6,18 @@ date: 2026-06-25 · last reviewed: 2026-06-26 (author read-through →
 ## What this is
 
 A holding ledger for threads that are **being pulled toward beta but are not yet settled enough to
-become resolved beta narrative**. It exists so a live need is never lost, while the resolved theme docs
-(`02`–`08`) and the Drystone protocol spec (`drystone-spec/`) stay a clean, settled synthesis. A thread
+become resolved beta narrative**. It exists so a live need is never lost, while the resolved layer docs
+and the Drystone protocol spec (`drystone-spec/`) stay a clean, settled synthesis. A thread
 lives here — referenced, not asserted
-— until its gates clear; only then does it graduate into a theme doc (and earn a row in
-`../alpha/BETA-ROLLUP.md`).
+— until its gates clear; only then does it graduate into a layer doc (and earn a row in
+`../alpha/LAYER-ROLLUP.md`).
+
+> **Theme retirement (2026-07-07).** The narrative themes `02`–`08` were re-filed onto the layer-cake and
+> discarded. Any `0N` reference below (promotion targets, `beta/0N §x` provenance) is historical and now
+> resolves to a layer: **02** to `history/` + `philosophy/`; **03** to `cairn/` + `fenced/`; **04 / 05 / 06**
+> to `drystone-spec/` + `impl/`; **07** to `governance/` + `philosophy/`; **08** to `croft/` +
+> `socialization/` (the former **01** is the spec's Part 1). The full trace is `../alpha/LAYER-ROLLUP.md`.
+> Threads are not individually rewritten; read any `0N` through this map.
 
 It is a **process artifact**, peer to `../alpha/BETA-ROLLUP.md` and `../alpha/COHESION.md` — **not** a
 theme doc and **not** part of beta's forward narrative. Unlike a theme doc, it may point down into
@@ -54,7 +61,7 @@ Each thread carries:
 - **What it is** — one or two lines. *(Migration target, per the 2026-06-26 review: expand the
   meatier threads into **Problem statement / Proposed directions / What's indeterminate** as they get
   worked — see structural decision S2 below. Not yet done across the board.)*
-- **Promotion target** — which beta theme(s)/section it would land in (or a proposed new theme).
+- **Promotion target** — which layer(s)/section it would land in.
 - **Gates — must settle before it becomes resolved beta narrative** — the explicit blockers
   (decisions, `ENABLING` spec work, fact-confirmation).
 - **Alpha provenance** — where the material lives now.
