@@ -105,6 +105,8 @@ are discarded. Phase 4 (discard) executed 2026-07-07 on the user's go-ahead.
 `COHESION`, `ROADMAP(_TODO)`, `TEST-PLAN`, `NAMING`, the fact-check logs); `BETA-ROLLUP.md` (superseded,
 historical); `SOVEREIGN-COMMONS-DOSSIER.md` (provenance/raw; durable conclusions CM-A1 pulled up, CM-A4
 parked); `narrative/long-form.md` + `short.md` (drafting skeletons). `beta/thinking/raw/` holds two raw
-review-note text files (`01_beta_review.txt`, `open threads review Jun 26...txt`), process/raw artifacts
-misfiled under beta, candidates to relocate to alpha provenance in a later cleanup; they do not gate the
-theme discard.
+review-note text files (`01_beta_review.txt`, `open threads review Jun 26...txt`); despite the odd location under
+beta, they are **retained in place**: several frozen alpha docs cite them by that exact path
+(`narrative/adoption-enablement.md`, `narrative/brand-comms-workbook.md`, the `thinking/app/*` READMEs, and
+the plans review docs), so relocating them would dangle citations in the frozen tier. They are cited raw
+provenance, not misfiled cruft, and gate nothing.
