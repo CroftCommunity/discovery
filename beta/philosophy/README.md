@@ -10,7 +10,7 @@ different arguments. In the three-part "why": **history = why it resonates, phil
 activism = why not the status quo.**
 
 History and philosophy sit at the base of the stack (Layers 1 and 2): the "why" grounds everything the
-spec is later built on. This layer holds the **pure philosophical argument**. Governance (Layer 6) is the
+spec is later built on. This layer holds the **pure philosophical argument**. Governance (Layer 7) is the
 *manifestation* (how the argument grounds in the world: foundation, cooperative, legal/financial), so the
 argument itself lives here, not there.
 
@@ -34,14 +34,14 @@ wire-encoding layers Drystone works in as future work.
 
 ## Where the argument connects
 
-- **Governance (Layer 6)** takes the conclusion (a cooperative form is required) and works its
+- **Governance (Layer 7)** takes the conclusion (a cooperative form is required) and works its
   *manifestation*: foundation, co-op mechanics, legal/financial actualization. The argument justifies the
   form; governance builds it.
-- **Activism (Layer 8)** carries the *empirical* register of the same indictment (the harm case, current
+- **Activism (Layer 9)** carries the *empirical* register of the same indictment (the harm case, current
   state). Philosophy is the principle; activism is the evidence.
-- **Socialization (Layer 7, `../socialization/`)** presents the argument for non-technical and
+- **Socialization (Layer 8, `../socialization/`)** presents the argument for non-technical and
   adoption-facing audiences (the metaphor essay, the pitch).
-- **The Drystone spec's (Layer 3) Part 1 §2.6** (voice requires field-integrity) points at
+- **The Drystone spec's (Layer 4) Part 1 §2.6** (voice requires field-integrity) points at
   `peer-standing-and-the-cooperative-form.md` for structural grounding and at `../activism/` for empirical
   grounding, depending on neither for a mechanism.
 

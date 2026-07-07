@@ -669,3 +669,39 @@ re-plant items). CHANGELOG document-pass-7 records both the audit and the fold. 
 retained as the derivation and experiment plan (not deleted). Part 2 stays em-dash-clean; the fold is
 grounded per-claim against named RFC sections. **Committed and pushed** to `origin/main`
 (`CroftCommunity/discovery`).
+
+## 2026-07-07 intake — batch ten: the cairn layer + p10/p11 corpus snapshot (ten-feasibility.zip + ten-willlow.zip)
+
+**New Layer 3 `cairn/`** (the user's proposal): the field of existing bolstering tech Drystone builds on,
+the inverse of `activism/`. Where activism indicts the extractive incumbents, cairn credits and catalogues
+the enabling tech (iroh, MLS, Willow/Meadowcap, CBOR-DAG, atproto/AT, ActivityPub, CRDT, QUIC; products
+Roomy, Blacksky, p2panda, SimpleX, Matrix). It sits between philosophy and the spec because the spec had to
+survey the field before it could assemble novelty practically. **Renumber:** cairn=3 inserted; drystone-spec
+4, impl 5, croft 6, governance 7, socialization 8, activism 9 (history 1, philosophy 2 unchanged).
+
+**`ten-willlow.zip` is a 30-file full-corpus snapshot**, not a clean incremental batch: it spans three
+maturity iterations (p9 → p10 → p11), including the **newest Part 2 rebuild (`p11-full-part2-mechanics`,
+470K)**, the current Part 1 (`p10-full-part1`), the ten p10 companions, the shorter tellings, the experiment
+corpus, and superseded p9 leftovers. `ten-feasibility.zip` is the two feasibility reviews (v2 current).
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| **ecosystem material** — `p10-drystone-atproto-ecosystem.md`, `social-lexicon-group-research-brief.md` | filed to `beta/cairn/` | **preserved-verbatim** (byte-identical; em-dash-clean) |
+| **feasibility review v2** — `drystone-feasibility-review-v2.md` | filed to `beta/drystone-spec/feasibility-review-v2.md` | preserved-verbatim (carries 13 em-dashes; deferred sweep) |
+| **full p10/p11 corpus (32 files)** | frozen at `alpha/seeds/p10-p11-corpus/` (+README) | **preserved-verbatim** (both zip payloads byte-identical) |
+
+**Outputs filed (batch ten):**
+- `beta/cairn/` — **new Layer 3** (+ `README`): `atproto-ecosystem.md`, `social-lexicon-group-research-brief.md`
+- `beta/drystone-spec/feasibility-review-v2.md` — the second-pass, spec-grounded feasibility review
+- `beta/LAYERS.md`, `beta/README.md`, and the layer READMEs (`impl`, `governance`, `socialization`, `activism`, `philosophy`) — **renumbered** for the cairn insertion; LAYERS.md gains the cairn row, the field-survey rationale, and the cairn-is-inverse-of-activism framing
+- `alpha/seeds/p10-p11-corpus/` (+README) — the full snapshot frozen
+
+**Deferred, flagged for the user (NOT executed this batch):** the **spec swap** — making
+`p10-full-part1` + `p11-full-part2` the canonical `beta/drystone-spec/` (superseding the batch-9 p9
+consolidation). Deferred because p11 was "authoritative *on confirmation*" (never confirmed in the source
+session), because the user's own batch-9 lesson was to audit a big consolidation for web-agent content-loss
+before trusting it, and because the p10 companions + experiments then need routing into `impl/`. The full
+corpus is frozen so nothing is lost; the swap is the next spec pass once the user confirms. **cairn
+migration backlog** also recorded (MLS scaling survey, Willow/Meadowcap analysis, Blacksky research, the
+local-authority ecosystem landscape, Roomy/p2panda tracking — all in raw transcripts, to migrate into
+cairn). Batch **10 of 11**. Committed and pushed.
