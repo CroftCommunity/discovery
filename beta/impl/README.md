@@ -1,10 +1,10 @@
-# discovery / beta / impl: Layer 4 (reference implementation, experiment-informed)
+# discovery / beta / impl: Layer 5 (reference implementation, experiment-informed)
 
 date: 2026-07-06
 
-**What this layer is.** Layer 4 of the beta layer-cake: the reference-implementation and
-experiment-informed design that sits between the protocol spec (Layer 3, `drystone-spec/`) and the
-product (Layer 5, `croft/`). It is where design work that is grounded in real experiments and real
+**What this layer is.** Layer 5 of the beta layer-cake: the reference-implementation and
+experiment-informed design that sits between the protocol spec (Layer 4, `drystone-spec/`) and the
+product (Layer 6, `croft/`). It is where design work that is grounded in real experiments and real
 libraries lives while it matures, some of it destined to fold back up into the spec, some of it staying
 as implementation guidance. Themes `04` / `05` / `06` (the protocol-we-proved, identity, safety) migrate
 here as they settle.

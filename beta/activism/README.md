@@ -1,12 +1,12 @@
-# discovery / beta / activism: Layer 8 (the case against the status quo)
+# discovery / beta / activism: Layer 9 (the case against the status quo)
 
 date: 2026-07-06
 
 **What this layer is.** The evidence-grounded indictment of the incumbent model: *why*
 advertising-funded, engagement-optimized platforms are harmful. It is the **empirical** register of the
 "why": where `philosophy/` (Layer 2) carries the **structural / principled** case (peer standing,
-corporate law, the cooperative form that fixes it), `governance/` (Layer 6) is its **manifestation** (the
-foundation + cooperative that build it), and `socialization/` (Layer 7) carries the **presentation**
+corporate law, the cooperative form that fixes it), `governance/` (Layer 7) is its **manifestation** (the
+foundation + cooperative that build it), and `socialization/` (Layer 8) carries the **presentation**
 (brand, voice, adoption), this layer carries the sourced harm case that motivates all three. In the
 three-part "why": history = why it resonates, philosophy = why it is right, **activism = why not the status
 quo.** The reading arc: **activism (the problem) → philosophy (why the alternative is right) → governance
@@ -22,7 +22,7 @@ quo.** The reading arc: **activism (the problem) → philosophy (why the alterna
 
 ## Relationship to the spec and the other layers
 
-The Drystone spec's (Layer 3) **Part 1 §2.6** (voice requires field-integrity) points at this layer for the
+The Drystone spec's (Layer 4) **Part 1 §2.6** (voice requires field-integrity) points at this layer for the
 *empirical* grounding of the failure case and at `../philosophy/peer-standing-and-the-cooperative-form.md`
 for the *structural* grounding. Per the spec's open-items, this companion set carries its **own source
 discipline and verification state** and is **not** part of the spec's `[confirm before publish]` list;

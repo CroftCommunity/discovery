@@ -101,23 +101,27 @@ to the edges. The canonical layer model, the two traversals, and the register di
 | Layer | Dir | What it holds | State |
 |---|---|---|---|
 | 1 | `history/` | MATERIAL history: crofting, dry-stone, cairns, the space itself (theme 02 to migrate) | not yet created |
-| 2 | `philosophy/` | INTELLECTUAL history: the principles + thinkers, the pure peer-standing argument | **seeded 2026-07-06** (peer-standing → cooperative-form set) |
-| 3 | `drystone-spec/` | Protocol spec (Parts 1+2, persona-definition, CHANGELOG, open-items, review-handoff) | populated |
-| 4 | `impl/` | Reference implementation, experiment-informed (themes 04/05/06 to migrate) | **seeded 2026-07-06** (`delivery-layer/` corpus + `mls/` substrate bundle + shared `doc-writing-method.md`) |
-| 5 | `croft/` | Product thinking, Croft as a "flavor" (theme 08 to migrate) | not yet created |
-| 6 | `governance/` | The manifestation: foundation + cooperative, legal/financial actualization (theme 07 to migrate) | **seeded 2026-07-06** (reserved; peer-standing argument moved to `philosophy/`) |
-| 7 | `socialization/` | Brand / voice / adoption, *presentation* register (T4 / T11 terrain) | **seeded 2026-07-06** (human-facing peer-standing pieces) |
-| 8 | `activism/` | The case against the status quo: why incumbent platforms are harmful, *empirical* register | **seeded 2026-07-06** (the "platforms author the relational field" research set) |
+| 2 | `philosophy/` | INTELLECTUAL history: the principles + thinkers, the pure peer-standing argument (+ `prior-art/`) | **seeded** (peer-standing set; Modular Politics prior-art) |
+| 3 | `cairn/` | THE FIELD: the existing bolstering tech we build on (iroh, MLS, Willow/Meadowcap, CBOR-DAG, atproto/AT, ActivityPub, CRDT, QUIC; products Roomy, Blacksky, p2panda, SimpleX, Matrix). The inverse of activism: what we credit and reuse, not what we indict. | **seeded 2026-07-07** (atproto-ecosystem + social-lexicon research brief; more to migrate) |
+| 4 | `drystone-spec/` | Protocol spec (Parts 1+2, persona-definition, CHANGELOG, open-items, feasibility review) | populated |
+| 5 | `impl/` | Reference implementation, experiment-informed (themes 04/05/06 to migrate) | **seeded** (`delivery-layer/` + `mls/` bundles + shared `doc-writing-method.md`) |
+| 6 | `croft/` | Product thinking, Croft as a "flavor" (theme 08 to migrate) | not yet created |
+| 7 | `governance/` | The manifestation: foundation + cooperative, legal/financial actualization (theme 07 to migrate) | **seeded** (reserved; peer-standing argument moved to `philosophy/`) |
+| 8 | `socialization/` | Brand / voice / adoption, *presentation* register (T4 / T11 terrain) | **seeded** (human-facing peer-standing pieces) |
+| 9 | `activism/` | The case against the status quo: why incumbent platforms are harmful, *empirical* register | **seeded** (the "platforms author the relational field" research set) |
 
 **The ordering.** The "why" sits at the base (Layers 1–2: history = why it resonates, philosophy = why it
-is right), because the spec is built *on* the principles. Then the build (3 spec → 4 impl → 5 croft → 6
-governance), then the outward edges (7 socialization = get the message out; 8 activism = why not the status
-quo, the *present* "why"). Read `LAYERS.md` for the build-order vs justification-order traversals.
+is right), then the field survey (3 cairn = the existing tech we build on), because the spec is built *on*
+the principles and the surveyed field. Then the build (4 spec → 5 impl → 6 croft → 7 governance), then the
+outward edges (8 socialization = get the message out; 9 activism = why not the status quo, the *present*
+"why"). **Cairn is the inverse of activism**: both survey the field, but cairn credits the enabling tech
+while activism indicts the extractive incumbents. Read `LAYERS.md` for the build-order vs
+justification-order traversals.
 
 The `02`–`08` theme docs at beta root remain the current reading spine; layer dirs carry their own
 `README.md` index. The peer-standing companion work (2026-07-06) was **split by register**: the pure
-argument → `philosophy/` (Layer 2), the empirical harm case → `activism/` (Layer 8), the human-facing
-presentation → `socialization/` (Layer 7); `governance/` (Layer 6) holds the *manifestation* of that
+argument → `philosophy/` (Layer 2), the empirical harm case → `activism/` (Layer 9), the human-facing
+presentation → `socialization/` (Layer 8); `governance/` (Layer 7) holds the *manifestation* of that
 argument (foundation + co-op), not the argument itself. `history/` (Layer 1) is not yet seeded (the
 material crofting/dry-stone lineage; theme `02` is its seed). The Drystone spec's Part 1 §2.6 (voice
 requires field-integrity, document-pass-3) is the joint tying the protocol to this set: it points at

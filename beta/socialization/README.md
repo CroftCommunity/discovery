@@ -1,8 +1,8 @@
-# discovery / beta / socialization: Layer 7 (brand / voice / adoption)
+# discovery / beta / socialization: Layer 8 (brand / voice / adoption)
 
 date: 2026-07-06
 
-**What this layer is.** Layer 7 of the beta layer-cake: the *how-this-reaches-people* layer:
+**What this layer is.** Layer 8 of the beta layer-cake: the *how-this-reaches-people* layer:
 brand, voice, messaging, and the adoption argument. It is the home the beta plan reserved for the
 brand/voice terrain currently staged as open threads **T4** (a brand / voice / messaging chapter)
 and **T11** (the adoption-chasm thesis) in `../OPEN-THREADS.md`. The first documents filed here are

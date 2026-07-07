@@ -1,9 +1,9 @@
-# discovery / beta / governance: Layer 6 (the manifestation: how it grounds in the world)
+# discovery / beta / governance: Layer 7 (the manifestation: how it grounds in the world)
 
 date: 2026-07-06
 
-**What this layer is.** The *manifestation* layer: given the protocol (Layer 3), the reference
-implementation (Layer 4), and the product (Layer 5), how does the whole thing ground in the world as a
+**What this layer is.** The *manifestation* layer: given the protocol (Layer 4), the reference
+implementation (Layer 5), and the product (Layer 6), how does the whole thing ground in the world as a
 running, sustainable entity? This is where the philosophical conclusion becomes a real structure:
 
 - a **foundation** that sponsors development of the neutral stack (protocol, implementation, and the
@@ -42,7 +42,7 @@ The peer-standing → cooperative-form argument set (`peer-standing-and-the-coop
 `structural-argument-principles.md`, `peer-standing-session-summary.md`) was filed here in batches three
 and four, then **moved to `../philosophy/` (Layer 2)** when the layering was refined: the *pure argument* is
 philosophy; governance is its *manifestation*. The human-facing presentations live in `../socialization/`
-(Layer 7); the empirical harm case in `../activism/` (Layer 8).
+(Layer 8); the empirical harm case in `../activism/` (Layer 9).
 
 ## What this layer establishes (and does not)
 
