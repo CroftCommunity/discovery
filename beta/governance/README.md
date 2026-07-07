@@ -19,13 +19,13 @@ only one that can host peer standing", lives in **Layer 2 `philosophy/`**
 
 | doc | what it is |
 |---|---|
-| `making-preventative-work-visible.md` | The improvement paradox (Repenning & Sterman, CMR 2001): the Work-Harder vs Work-Smarter balancing loops, capability as an eroding stock, and why successful prevention gets no credit; plus the applied how-to (leading indicators, counterfactual/cost-of-inaction reporting, normalized reliability sprints, the Work-Smarter dividend). Why the operating body must protect and make legible the preventative work that non-extractive sustainability depends on. Figures/quotes [UNVERIFIED]. |
+| `foundation-cooperative-and-sustainability.md` | The manifestation: the foundation-plus-cooperative structure (a foundation stewarding the neutral stack via three decoupled layers, AGPL+DCO, two-tier mark, entity phasing; a cooperative as the four-pillar Social Union with its failure lineage; the bankruptcy-remote steward + pre-funded archive runway); the non-extraction-is-anti-fragile case; and the non-mimicry moat (the affirmative case that non-extraction unlocks features competitors structurally cannot ship). Decision gates (MO Ch. 351 legal review, the Noria name, capital formation T33) surfaced, not resolved. The WHY is cross-referenced to `../philosophy/`. |
+| `open-publication-and-ip-stewardship.md` | The IP-stewardship and open-publication strategy: the license posture (CC0 spec text, Apache-2.0 reference code), the prior-art-first defensive-publication strategy and the DOI gate (cross-referenced to the spec), and the per-layer publication venue map. Facts [UNVERIFIED] / NOT-LEGAL-ADVICE where the sources are. |
+| `making-preventative-work-visible.md` | The improvement paradox (Repenning & Sterman, CMR 2001): the Work-Harder vs Work-Smarter balancing loops, capability as an eroding stock, and why successful prevention gets no credit; plus the applied how-to. Why the operating body must protect and make legible the preventative work that non-extractive sustainability depends on. Figures/quotes [UNVERIFIED]. |
 
-Still to land (the manifestation docs proper):
-
-- **Theme `07-sustainability-and-stewardship.md`** (currently at beta root) migrates here: the cooperative
-  mechanism and the IP-stewardship structure, the "non-extraction is anti-fragile" case at the level of a
-  running institution.
+The foundation/cooperative and sustainability manifestation is now filed (folded from theme 07 + the alpha
+foundation/co-op/IP corpus, 2026-07-07). Remaining governance work is the decision-gated legal/financial
+mechanics (surfaced above), not net-new synthesis.
 - The **Noria** foundation-name candidate (carried in theme `07`, pending trademark clearance).
 - The cooperative legal/financial mechanics once grounded: Rochdale / ICA principles, non-transferable
   member shares, patronage returns, and the jurisdiction-specific legal-review work (MO Chapter 351;
