@@ -120,3 +120,9 @@ quote — if no verbatim exists, the source's position is presented as labeled s
 - 2026-07-08 — Phase 3 exemplar landed: `philosophy/commensurability-and-the-two-ledgers.md` (four
   quotations elevated to standing block quotes; Polanyi/Jacobs term-fragments demoted to italics;
   resolution label added). Awaiting user reaction before the full sweep.
+- 2026-07-08 — **Phase 0 COMPLETE.** Citation inventory (raw): `2026-07-08-beta-citation-inventory-raw.md`.
+  Conclusion inventory (10-cluster transcript fan-out): `2026-07-08-beta-coverage-gap-ledger.md` — the
+  rollup gate was NOT exhaustive; mature layers carried cleanly, outer/late layers + all of `ECOSYSTEM.md`
+  have load-bearing gaps. `LAYER-ROLLUP.md` gate widened honestly (line 43–44 correction). The Phase-1
+  recovery work-list is organized by target layer in the ledger. Next: Phase 1 (recovery) — user's
+  depth/sequencing call.
