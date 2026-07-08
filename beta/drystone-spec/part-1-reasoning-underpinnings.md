@@ -579,7 +579,7 @@ The system guarantees you *can* fork, down to a group of one; it guarantees noth
 joins you. Whether others follow is the aggregate of many individual decisions, each persona choosing which
 lineage to corroborate going forward. The protocol furnishes the ability to leave with everything that is
 yours and stays deliberately silent on whether you leave alone or with company, because who-follows-whom is
-the peers' call, not the substrate's. This is a social-utility statement, not a system guarantee, and
+the personae's call, not the substrate's. This is a social-utility statement, not a system guarantee, and
 keeping the two apart is the same discipline the razor imposes everywhere (§2.0).
 
 **A ban is this same primitive seen from the other side.** A ban is a forced fork, equal in outcome to a
@@ -628,7 +628,7 @@ design, instantiated in the communication layer rather than the governance layer
 feed, and removing a center does not remove the need to decide what a persona sees first. So field-integrity
 is **not** "an unshaped field." It is three properties of the *shaping*:
 
-- **Peer-governed.** The ordering objective is set by the peers, not installed by an external party with
+- **Peer-governed.** The ordering objective is determined by personae judgement, not installed by an external party with
   a non-peer interest. A default ordering is legitimate and expected (the dial-discipline of §2.3: default
   the common case hard, keep the uncommon case representable). What is illegitimate is the objective being
   structurally someone else's and unremovable.
@@ -721,11 +721,11 @@ in standing though identical in content.
 This is the categorical difference from the surrounding ecosystem's access-control model, where a personal
 data server or an authorized view holds readable data **structurally**, as a property of the architecture
 that cannot be removed without removing the system, occupying a privileged tier by construction. In Drystone
-a helper holds readable data **by delegation**, a grant the peers extended and can revoke, occupying no
+a helper holds readable data **by delegation**, a grant personae extend and can always revoke, occupying no
 tier. The honest tradeoff, stated plainly: delegating clear text to a helper expands the confidentiality
 surface to that helper, since its compromise leaks what it was shown, but it never transfers authority and
 it is revocable, so a content-blind durability store and a clear-text search helper are two points on one
-spectrum, capability delegated without authority, differing only in how much the peers chose to reveal.
+spectrum, role delegated without authority, differing only in how much the personae chose to reveal.
 
 **Capability may consolidate freely, and the move is one-directional.** Because capability is not authority,
 Drystone may be arranged anywhere from fully peer-distributed, every persona on its own device holding its
@@ -772,7 +772,7 @@ permissiveness above rests on its being real:
 
 **The two asymmetries rest on one foundation.** Capability may consolidate freely because capability is not
 authority; authority may consolidate freely because authority is revocable and exitable. Both are safe for
-the same underlying reason: the peers hold their own edges (§2.1, local-first), so neither capability nor
+the same underlying reason:  peers of equal standing hold their own edges (§2.1, local-first), so neither capability nor
 authority can become a trap. The permissiveness at the top of the spectrum, that a group may concentrate
 authority almost arbitrarily, is underwritten by the floor at the bottom, that any concentration can always
 be escaped by a primitive the concentration cannot reach (§2.4, §2.5). `Synthesis.`
@@ -936,7 +936,7 @@ stops exactly where utility begins. Same boundary, seen from the mechanism side.
 Taken together, these four results are why Part 1 says local-first is *derived, not chosen*: no global
 clock (Lamport), no consistent-and-available global state under partition (CAP), coordination-free only in
 the monotonic fragment (CALM), and convergence-without-a-coordinator demonstrably real for that fragment
-(CRDTs). The humane consequences (equal peers, surfaced disagreement, the fork) are what these technical
+(CRDTs). The humane consequences (equal standing, surfaced disagreement, the fork) are what these technical
 facts *force* once you decline to hide the center.
 
 **Ethics, silencing the dissenter is a cost no center can justify.** This is the moral spine of *let the
