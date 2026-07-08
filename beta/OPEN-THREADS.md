@@ -321,6 +321,27 @@ is already carried in `governance/open-publication-and-ip-stewardship.md` and ne
 and rides T42/T48. **Refresh discipline applies to all:** volatile version/price/date facts must be
 re-confirmed before external use, and iroh version facts cite the FACTCHECK SoT (do not re-verify).
 
+> **PROMOTED 2026-07-08 (beta maturity; verification flags travel inline in the docs).** All eight threads
+> were promoted into real layer docs. They stay listed here for one review cycle, then move to
+> `CLOSED-THREADS.md` once the user has eyeballed the docs. Residual per-claim verification flags and the
+> coupled user-decisions (A9, A10, T7, T33, the legal-review gate) are carried in the docs / their own
+> trackers, not re-litigated here. Promotion map:
+>
+> | Thread | Promoted into |
+> |---|---|
+> | T41 | `cairn/substrate-prior-art.md` |
+> | T42 | `cairn/identity-and-data-ownership-poles.md` |
+> | T43 | `cairn/cross-platform-identity-provenance.md` |
+> | T44 | `cairn/atproto-selfhosting-appviews-and-bridges.md` |
+> | T45 | `cairn/atmospheric-web-and-aggregators.md` |
+> | T46 | `cairn/iroh-app-pond-building-blocks.md` |
+> | T47 | `cairn/object-capability-and-decentralized-mls-prior-art.md` |
+> | T48 | `governance/cooperative-and-governance-prior-art.md` |
+>
+> One residual to reconcile (from T47): `cairn/willow-meadowcap.md` documents Meadowcap but not Keyhive by
+> name, so T47's "Keyhive → willow-meadowcap" pointer runs slightly ahead of that file — add Keyhive there
+> or soften the pointer in a later pass.
+
 #### T41 — Substrate prior-art register (Peat + recursive-federation routing)
 
 - **Layer:** cairn, impl
