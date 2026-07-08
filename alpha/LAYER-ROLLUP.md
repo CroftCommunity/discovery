@@ -110,3 +110,35 @@ beta, they are **retained in place**: several frozen alpha docs cite them by tha
 (`narrative/adoption-enablement.md`, `narrative/brand-comms-workbook.md`, the `thinking/app/*` READMEs, and
 the plans review docs), so relocating them would dangle citations in the frozen tier. They are cited raw
 provenance, not misfiled cruft, and gate nothing.
+
+## Coverage-gate widening (2026-07-08, Phase-0 transcript re-read)
+
+The gate above is **theme-scoped**: it verified that the *enumerated* theme conclusions (CM-A*, CM-P*)
+were placed. It is correct at that scope and stays as the record. It does **not** establish that the
+enumeration was exhaustive against the raw transcripts. A Phase-0 conclusion-inventory re-read of the ~51
+dialogue transcripts (10-cluster fan-out; full result:
+`plans/2026-07-08-beta-coverage-gap-ledger.md`) found the enumeration was **not** exhaustive: the mature
+layers (drystone-spec, impl, cairn tech-primers) are near-exhaustively carried, but the outer/late layers
+have load-bearing gaps, and one claim below is wrong.
+
+- **Correction to the source map (line 43–44).** The assertion that `atproto-sovereign-appview`,
+  `atproto-atmospheric-web`, the private-data research, and **all of `ECOSYSTEM.md`** are "covered by the
+  existing cairn docs, verified by grep — no net-new cairn doc needed" **does not hold.** Only the
+  high-level framings landed. The concrete design conclusions (sovereign-AppView private-blocking,
+  asymmetric federation, encrypted-blob-vault, the private-data-WG engineering debates) and the entire
+  open-social breadth of `ECOSYSTEM.md` (Solid, DSNP, Farcaster, Peat, Groundmist, the did:webvh↔did:plc
+  identity chain, the aggregator license-map, iroh realtime/games) never reached beta. `ECOSYSTEM.md` is
+  the primary un-harvested source; `cairn/` needs net-new docs (backlog C9 treats cairn as a
+  projects-register).
+- **Systematic drop of a content *type*.** The gaps are not random: the rollup consistently kept the
+  *decision* but dropped the *rationale/illustration/prior-art body* behind it (IETF doc-shape rationale;
+  Platform Cooperativism as a named movement; Peat as the closest substrate prior-art; the four-property
+  impossibility that licenses the superpeer; the Rave-trap governance answer; the cross-platform
+  identity-provenance thesis; the Right-to-Roam present-day arc). See the ledger's "Headline findings" for
+  the full KIND taxonomy.
+
+**Widened verdict: PASS for the mature layers (spec, impl, cairn-primers, activism, most of philosophy);
+INCOMPLETE for the outer/late layers (cairn-ecosystem, governance, socialization, history, croft) and for
+the ECOSYSTEM.md breadth.** The Phase-1 recovery work-list (by target layer) is in the gap ledger; it does
+not reopen the theme-discard decision (no theme conclusion was lost — these gaps are transcript/alpha
+material the theme enumeration never captured).
