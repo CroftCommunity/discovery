@@ -153,6 +153,35 @@ for the same claim:
   record (`persona-definition.md`, Appendix D) is a *lattice* over the mechanism. Different altitudes, single
   source per claim.
 
+## Quote discipline and resolution labels (cross-layer, this file governs)
+
+Two conventions cut across every layer and are stated once here because two existing rules
+(`README.md` §4 "preserved whole as block quotes" and `impl/doc-writing-method.md` §103 "quote the
+shortest span") pull against each other on length, and per-doc improvisation had let quotes collapse
+into narrative prose. Where those two disagree, **this section is the tie-breaker.**
+
+- **Quotes stand alone; synthesis is labeled; terms of art are not quotes.** A source's words appear
+  as a **set-off block quote**, attributed to a precise locator, interleaved with the narrative
+  (the worked model is `philosophy/lifeworld-and-the-system.md`) — never folded into a sentence as a
+  bare fragment and never restated in our own words with only a citation appended (silent paraphrase
+  is a defect, per `doc-writing-method.md` §103). A **coined term of art** (Polanyi's *disembedding*,
+  Scott's *metis*, Jacobs's *organized complexity*) is rendered in *italics as a named concept*, not
+  in quotation marks, because a single term in quote marks masquerades as a quotation it is not. When
+  the block quote and shortest-span rules collide, the block quote wins: preserve the whole load-
+  bearing passage.
+- **AI-surfaced quotations never lose their flag.** Much of the corpus was surfaced in AI discussion
+  and is not verified against a primary edition. Elevating such a passage to a standing block quote
+  does **not** upgrade its epistemic status: every such quote keeps its per-quote
+  `[UNVERIFIED, confirm against primary edition before publish]` flag (README §4). Never manufacture a
+  clean-looking verbatim quote from material you cannot source; if no verbatim exists, present the
+  source's position as explicitly-labeled synthesis rather than as a quotation.
+- **Label the resolution and link the next rung.** A doc that is one grain of a `doc-writing-method.md`
+  §16 ladder (elevator pitch / coffee shop / library) states its own resolution and points to the rung
+  above and below it, the way `drystone-spec/part-1-reasoning-underpinnings.md` opens with
+  `Resolution: library ... for shorter tellings see the coffee-shop overview, then the elevator pitch.`
+  A doc that calls itself "the compressed version" MUST name its companion by a resolvable pointer, not
+  by prose title alone, so a reader is never left asking where the full version went.
+
 ## Current state (2026-07-07)
 
 Seeded: `philosophy/` (peer-standing set + prior-art), `cairn/` (atproto-ecosystem + the social-lexicon
