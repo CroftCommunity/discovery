@@ -165,3 +165,18 @@ missing reasoning the register must point at) and reinforces Phase 3 (the resolu
   whole not lossy; a single alpha pointer is a starting point not the boundary. **Follow-up (backlog C12):**
   a consolidation-completeness sweep over the recovered docs, since the recovery agents were pointed at the
   ledger-identified homes (one pointer each) rather than the full prior-tier scatter.
+- 2026-07-08 — **C12 (consolidation-completeness sweep) DONE.** 10-agent fan-out over the 20 recovery docs;
+  16 gained fold-ins, 4 already complete. Caught a thesis-correctness fix (fenced/app-store-survivability
+  had presented the raw central-control playbook the alpha synthesis *rejects*), added Jo Freeman as the
+  Princeps Problem's scholarly root, the CRDT/Automerge leg of substrate-prior-art, the full FREEK cost
+  curve, and more. All clean; one-home respected (cross-ref not import); 494+/148-.
+- 2026-07-08 — **Phase 2 (per-layer source-of-record) DONE (backlog C9).** All 10 layers now carry a
+  `reference-index.md` (cairn's is a ~95-entry projects register). Modeled on `activism/reference-index.md`;
+  every source grouped by type with epistemic tag + PRIMARY/SECONDARY marker + resolvable locator + the doc
+  it grounds, cross-checked against use. The indexing surfaced two defects → tracked as **C13** (the
+  AGPL-vs-Apache reference-code license conflict between the two governance docs) and **C14** (the
+  drystone-spec Part 1/Part 2 Project-Hydra `[confirm]` status inconsistency).
+- 2026-07-08 — **Remaining pass work:** Phase 3 (quote/resolution sweep, C10 — exemplar done); Phase 4
+  (`DECISIONS.md` register, C11); the deferred spec-rationale additions + governance mottos/PDS-revenue; the
+  move of promoted threads T41–T48 into `CLOSED-THREADS.md` after review; and the two new reconciliations
+  C13/C14.
