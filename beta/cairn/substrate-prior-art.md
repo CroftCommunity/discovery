@@ -24,7 +24,9 @@ recombination in the field.
   set each aside.
 - **Out of scope (and where it lives):** iroh's own mechanics (the impl transport notes); MLS and the
   decentralized-MLS siblings (`mls-and-mimi.md`); the Willow/Meadowcap capability layer
-  (`willow-meadowcap.md`); the atproto ecosystem (`atproto-ecosystem.md`).
+  (`willow-meadowcap.md`); the atproto ecosystem (`atproto-ecosystem.md`); the protocol-level CRDT /
+  local-first prior-art accounting and the fork/merge formal underpinning (the Drystone spec's prior-art
+  appendix, `drystone-spec` Part 2 Appendix C).
 - **Boundary call:** this is the "why these substrate choices, and among whom" register. The *how* of the
   chosen transport lives in impl; here we carry only what grounds the choice.
 
@@ -95,6 +97,24 @@ consensus-model mismatch) matures alongside it. `[dependency-selection rationale
   Drystone's peer-equality / capability layer. Compare it before the capability-mechanism decision (the
   Track A / Track B choice) hardens. `[dialogue-sourced 2026-06-24, pending verification.]`
 
+## The CRDT / local-first data layer
+
+The third named leg of the substrate bet — after Rust and iroh, and alongside MLS — is a CRDT / local-first
+data layer, and it has prior art the register owes credit to even though its protocol-level accounting lives
+elsewhere. **Automerge** (Ink & Switch) is the concrete CRDT the recombination leans on: it is the CRDT Peat
+already ships in the exact combination above, and the multi-writer-merge-with-history primitive Croft's
+fork/merge plane builds on. Beneath it sits the **"Local-first software"** thesis (Kleppmann et al., Ink &
+Switch, 2019) — its seven ideals and its core move, single-user value before any network effect with the
+primary copy living with the unit, are the intellectual root of the same premise the rest of Croft's
+architecture is one premise followed all the way up. Relationship: build-on, homage.
+
+This document credits the leg; it does not re-run the protocol-level accounting. The full prior-art
+comparison (CRDTs and the Willow data model vs Matrix's coordinator vs blockchains, and the CALM
+coordination-freeness boundary) lives in the Drystone spec's prior-art appendix (`drystone-spec` Part 2
+Appendix C), and the fork/merge plane's formal underpinning (Byzantine-fault-tolerant CRDTs, Blocklace)
+lives with the spec's ordering design, not here. `[Automerge's claimed order-of-magnitude memory reduction
+in its 3.x line is version-volatile; confirm CRDT version facts before external use.]`
+
 ## iroh itself
 
 iroh (n0) is the transport substrate Croft depends on, not a prior-art option to choose among, so its
@@ -109,9 +129,12 @@ re-verified here.
 
 Establishes that Croft's substrate is a recombination of proven parts rather than a novel gamble; that a
 production, defense-grade system (Peat) already ships the exact Rust + iroh + CRDT + MLS combination in
-denied and degraded conditions, which is the strongest available evidence the recombination holds; that the
-federation-routing direction has a formal lineage (RINA, NDN, Yggdrasil, cjdns); and that the substrates
-set aside were set aside for stated, checkable reasons that travel with the decision.
+denied and degraded conditions, which is the strongest available evidence the recombination holds; that
+each of the four legs is credited — iroh and MLS with their mechanics deferred to their own homes, and the
+CRDT / local-first leg (Automerge; the Ink & Switch local-first thesis) with its protocol-level accounting
+deferred to the spec; that the federation-routing direction has a formal lineage (RINA, NDN, Yggdrasil,
+cjdns); and that the substrates set aside were set aside for stated, checkable reasons that travel with the
+decision.
 
 Does **not** re-document iroh, MLS, or Willow mechanics (they live elsewhere in cairn and impl), does
 **not** resolve the capability-mechanism decision (the Track A / Track B choice), and does **not** certify

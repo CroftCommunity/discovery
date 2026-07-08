@@ -144,8 +144,9 @@ on portable, host-independent records. Relationship: learn↔, homage.
 
 **Verticals that prove the custom-lexicon pattern.** Tangled (decentralized Git collaboration, with self-host
 "Knots" for off-repo bulk data), Semble (a research knowledge network — not a Linktree clone), Smoke Signal
-(decentralized events/RSVP, MIT-licensed), Streamplace (livestreaming), and Flashes (an Instagram-like photo
-client) each show a distinct vertical riding the same public identity plus a custom lexicon. The lesson Croft
+(decentralized events/RSVP, MIT-licensed), Streamplace (livestreaming), Flashes (an Instagram-like photo
+client), and npmx (an npm-registry browser with AT-Proto sign-in — the developer-tooling vertical) each show a
+distinct vertical riding the same public identity plus a custom lexicon. The lesson Croft
 takes: the content plane is tractable and the reuse-plus-custom-lexicon split is standard practice, which is
 the shape an aggregator pond consumes. Relationship: learn↔.
 
@@ -165,6 +166,15 @@ via `getRepo` (events marked `live:false` until backfill completes; SQLite/Postg
 as build-on: if any Croft pond ever needs an AppView, indexer, or backfill path, Tap is the reference for how
 to hydrate from the firehose without re-inventing sync. Relationship: build-on.
 
+**Verified Rust AT-Proto tooling (ATrium, bsky_tui).** Two Rust items are web-verified and so belong with this
+register rather than the dialogue-sourced tooling in Register B. ATrium (atrium-rs) is the established Rust
+AT-Proto framework: atrium-lex plus atrium-codegen generate Rust types directly from lexicons, and a bsky-sdk
+sits on top — it is the reference Rust client path, and the baseline that the lower-boilerplate Jacquard
+(Register B) positions itself against. bsky_tui is a Rust TUI Bluesky client (Ratatui/Tokio over ATrium) — the
+working proof that presentation decouples cleanly from the AT-Proto core, which is exactly the port boundary a
+Croft client would draw. Relationship: build-on (ATrium, the Rust client path), homage (bsky_tui, the
+decoupled-presentation proof).
+
 `[All Register A rows web-verified 2026-06-22 against atproto.com and the projects' own sites. Maturity and
 roadmap facts are a mid-2026 snapshot and will drift — refresh before external use.]`
 
@@ -178,7 +188,8 @@ descriptions) all need confirmation.
 
 **AT-Proto and multi-fediverse client crates (the adapter layer behind a transport port).** Jacquard offers
 low-boilerplate AT-Proto Rust crates with zero-copy borrowed deserialization and ergonomic OAuth — the
-lower-boilerplate path for the Bluesky adapter. megalodon-rs gives one interface over many fediverse servers
+lower-boilerplate alternative to ATrium (the established Rust AT-Proto framework, web-verified in Register A)
+for the Bluesky adapter. megalodon-rs gives one interface over many fediverse servers
 (Mastodon, Pleroma, Friendica, Firefish, GoToSocial, Pixelfed) under Apache-2.0 — the multi-fediverse adapter.
 lemmy-client-rs is the official Rust Lemmy client, WASM-aware and version-skew-managing — the Lemmy pond
 adapter. Croft credits these as build-on candidates, each sitting behind a transport/source port so a pond can
@@ -192,8 +203,11 @@ framework wholesale. Relationship: homage, learn↔.
 **Shells and render paths.** Tauri v2 (Rust shell + web frontend across all five platforms including Android,
 webview-per-OS) is the desktop/mobile shell candidate; Leptos (fine-grained-reactive Rust web UI compiled to
 WASM, sharing a same-memory boundary with the core) is the web render path; Dioxus is registered as the Path-B
-alternative not chosen. Croft credits Tauri and Leptos as build-on for the client shell. Relationship:
-build-on (Tauri/Leptos), homage (Dioxus).
+alternative not chosen. Among crafted-app references (Zed, Excalidraw), Spacedrive is the closest twin to
+this architecture — a Rust core sharing a web UI across platforms — and carries the load-bearing caution that
+a shell demo is easy while finishing is hard, which is the honest cost estimate for the client-shell path.
+Croft credits Tauri and Leptos as build-on for the client shell. Relationship: build-on (Tauri/Leptos),
+homage (Dioxus), learn↔ (Spacedrive, the cautionary craft reference).
 
 **Values-aligned client references.** Phanpy (an open web Mastodon client that deliberately de-emphasizes
 engagement actions) is the closest values-aligned, multi-column client — the design reference for a client that

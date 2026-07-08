@@ -74,11 +74,15 @@ duplicate — for a successively harder adversary.
   technology does not abstract subjectivity away — it embraces it. The argument runs that proof-of-work
   collapses to one-CPU-one-vote and proof-of-stake to one-dollar-one-vote, both plutocratic, so any
   governance aiming at one-person-one-vote must reliably signal *unique humans*, which requires a
-  subjective human substrate rather than a purely objective computation. Identity in this frame must be
-  both **unique** (no two people share one identifier) and **singular** (no one person can obtain more than
-  one). The authors disclose a conflict of interest — they built systems in the space — so the review is
-  informed but not disinterested. `[UNVERIFIED, confirm before publish: authors, title, venue, year, and
-  the COI disclosure.]`
+  subjective human substrate rather than a purely objective computation. The substrate the review names is
+  *human entropy* — acts like voting, interpreting, being present, and interacting that are cheap to produce
+  once but hard to produce twice and hard for a machine to replicate — paired with an objective incentive
+  (a crypto-UBI-style reward that makes honest membership worth more than selling one's credential), so the
+  scarce human signal is not simply purchased back. Identity in this frame must be both **unique** (no two
+  people share one identifier) and **singular** (no one person can obtain more than one). The authors
+  disclose a conflict of interest — they built systems in the space — so the review is informed but not
+  disinterested. `[UNVERIFIED, confirm before publish: authors, title, venue, year, the COI disclosure, and
+  the "human entropy" / objective-incentive framing.]`
 
 - **Adler et al. / MIT–OpenAI (2024), personhood credentials.** The most recent restatement takes the
   same offline-physical-anchor bet and reframes it for an AI adversary: as machines get better at producing
@@ -141,10 +145,15 @@ personhood solved.
 
 The synthesis the survey itself offers — restated, not quoted — is that the taxonomy is somewhat
 artificial because real systems are hybrids, that perfect Sybil-resistance may be the wrong target
-(bounded, tolerable penetration is the realistic aim), and that these systems grow at a "human rate,"
-each verifying only hundreds-to-thousands of identities in its early years. The practical upshot is that
-personhood is expensive, contextual, and never absolute — which is the empirical backing for treating it
-as a Group-level utility judgment rather than a protocol guarantee.
+(bounded, tolerable penetration is the realistic aim), and that these systems grow only at a "human rate,"
+each verifying hundreds-to-thousands of identities in its early years. That human rate is what makes the
+wrong-target point bite: the adversary operates at industrial scale — the large platforms purge fake
+accounts by the billions each quarter, and by machine learning rather than by any web of hand-signed
+vouches. The order-of-magnitude gap between a billions-per-quarter attack and a thousands-per-year verifier
+is itself the argument that no hand-built personhood graph closes the problem at scale. `[UNVERIFIED,
+confirm before publish: the billions-per-quarter platform figure.]` The practical upshot is that personhood
+is expensive, contextual, and never absolute — which is the empirical backing for treating it as a
+Group-level utility judgment rather than a protocol guarantee.
 
 ## The identity layering that grounds the persona vocabulary
 

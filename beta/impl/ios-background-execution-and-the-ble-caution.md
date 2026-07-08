@@ -144,6 +144,14 @@ Two facts establish it, both citing the FACTCHECK source of truth:
   by Berty's own account, an unsolved constraint rather than a shipped feature. `[FACTCHECK: verified —
   Berty's own blog; source of truth, not re-verified.]`
 
+A second, independent leg reinforces the caution from the transport side. Even setting the iOS wake problem
+aside, BLE-over-iroh is not part of core iroh: it exists only as a **community transport crate**
+(`iroh-ble-transport` / `blew`), and the one public demonstration of it is unencrypted. So the device-to-device
+BLE substrate is itself unofficial and immature — the caution does not rest on the platform quirk alone. The
+usable path leans on `unstable-custom-transports` (QUIC over any sufficiently large datagram link) as the
+mechanism, but the specific BLE binding that a passing-strangers mesh would need is not first-party ground.
+`[FACTCHECK: PARTLY — BLE is a community crate, not core iroh; source of truth, not re-verified.]`
+
 What survives is narrow but real: the *opportunistic-wake* model of §2 is usable — SLC, BGAppRefresh,
 BGProcessing, silent push, and **established-connection** BLE restoration all work as budgeted wake-pulses.
 What does not survive is *spontaneous* off-grid meshing: an app cannot count on being woken by a peer it
@@ -183,8 +191,9 @@ socket, so the transport core must be opportunistic, waking on a fixed taxonomy 
 BGAppRefresh, BGProcessing, silent push + NSE, with geofence as a near relative) and doing short stateless
 bursts across an ephemeral iroh `Endpoint` via a Rust-core / Swift-shell bridge over UniFFI, on first-party
 iroh Swift bindings shipped with iroh 1.0. It establishes the BLE-scavenger negative result — that
-CoreBluetooth restoration does not wake on a new advertiser and that a backgrounded P2P node is killed
-within seconds — and shows that this negative result is *why* the delivery design anchors on an always-on
+CoreBluetooth restoration does not wake on a new advertiser, that a backgrounded P2P node is killed
+within seconds, and that BLE-over-iroh is a community crate rather than core, with its one public demo
+unencrypted — and shows that this negative result is *why* the delivery design anchors on an always-on
 meer with a content-free push actuator rather than a pure device-to-device mesh.
 
 Does **not** re-specify the push-notify node, the APNs / FCM payload and throttle facts, or the

@@ -52,6 +52,16 @@ pattern inverts public-by-default into private-by-index, and it is a buildable s
 blind-broker / honest-seams stance — Croft likewise puts a controlled read layer in front of a substrate it
 does not want to expose wholesale.
 
+The private-blocking case is worth stating precisely, because it splits and only half of it is winnable.
+*Inbound* blocking (keeping someone out of your sight) is fully effective and private when you own the AppView:
+you drop their posts, replies, likes, and quotes before they reach the client, and the blocklist is a private
+DB row rather than a public record — un-scrapable, unlike Bluesky's public `app.bsky.graph.block` ledger that
+third-party tools already harvest. *Outbound* blocking (stopping someone from seeing your public posts) is
+structurally impossible while federated: public data broadcasts to the firehose, and incognito, sockpuppet, or
+raw-API reads defeat any gate (X conceded the same point when it moved blocked users to view-but-not-interact).
+So owning the read layer buys experience-shaping — refusing to render or amplify — not a content shield, and
+that honest boundary is the same "structural, not runtime, enforcement" line Croft draws elsewhere.
+
 **Groundmist** (grjte, associated with Ink & Switch) is the headline relative. It is a private, local-first
 atproto layer — a *Personal Sync Server* (PSS) that is analogous to a PDS but private, using Automerge CRDT
 sync and publishing through the WhiteWind lexicon. It is the closest local-first-private relative to Croft's
@@ -94,7 +104,13 @@ own overlay has to clear rather than assert.
 Why load-bearing: these establish that self-running the read/index layer is not aspirational — there is a
 spectrum from lean (AppViewLite) to full reference (zeppelin) to the Rust private-community reference
 (rsky-wintermute), all fed by a standard ingestion path (Jetstream), and clients ready to sit in front of
-them. Croft's private-overlay direction inherits a working template rather than a blank sheet.
+them. Croft's private-overlay direction inherits a working template rather than a blank sheet. The cost split
+along that spectrum is the load-bearing part: a custom micro-lexicon AppView that discards ~99.9% of the
+firehose runs on a small VPS, whereas mirroring the whole network is heavy and can be uneconomic — the
+independent full-network Zeppelin deployment (distinct from zeppelin-social's live Docker reference stack above)
+ran ~16 TB / ~$200-mo on Hetzner before being **decommissioned in Fall 2025**, the cautionary footnote for
+anyone tempted to index everything rather than only the lexicons they need. `[web-verified; figures and
+decommission date are point-in-time — refresh before external use.]`
 
 ## PDS self-hosting: implementations, hosts, and blob backends
 
@@ -182,8 +198,9 @@ already carrying real users; the CC0 license on Bridgy Fed makes it reusable rat
 ## What this establishes (and does not)
 
 Establishes that owning the AppView / read-index layer is a real, buildable inversion of atproto's
-public-by-default posture, and that this inversion is the same shape as Croft's private-overlay / honest-
-seams stance; that a private, local-first atproto layer already exists in prototype (Groundmist) as the
+public-by-default posture — bounded honestly, since inbound blocking is private and un-scrapable but outbound
+blocking of public data is structurally impossible while federated — and that this inversion is the same shape
+as Croft's private-overlay / honest-seams stance; that a private, local-first atproto layer already exists in prototype (Groundmist) as the
 closest cousin to Croft's model, with its own honest not-yet-security caveat; that self-hosting a PDS has a
 real spectrum beyond the single-SQLite reference (Cocoon, rsky-pds, managed hosts) with checkable
 blob-backend traps; and that credible exit is buildable and shipping (Bridgy Fed, Bounce), backstopped

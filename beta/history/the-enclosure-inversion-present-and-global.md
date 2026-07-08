@@ -49,7 +49,8 @@ name is the thesis, feature for feature, not a pun.
 
 The clearest sign that the enclosure thesis is not history but a live condition is that a present-day
 movement has to break the law to make the argument the enclosure poets made three centuries ago. Nick
-Hayes, the British writer and printmaker who co-founded the Right to Roam campaign, structures his case
+Hayes, the British writer and printmaker who co-founded the Right to Roam campaign with Guy Shrubsole
+(author of *Who Owns England?*, the survey the land-ownership figures trace back to), structures his case
 around a single inversion: the wrong is the enclosure, not the crossing of it.
 
 > The fence creates the crime.
@@ -60,9 +61,10 @@ The inversion is load-bearing because it names exactly what the whole tradition 
 Winstanley's common treasury to the anonymous goose verse about who steals the common from the goose — that
 the transgression was committed by the enclosers, and the trespasser is only asserting a right that was
 taken. Hayes' headline figures make the scale concrete: the public is shut out of roughly 92 percent of the
-land in England and about 97 percent of its rivers `[confirm]`, and hereditary aristocrats still hold about
-a third of Britain `[confirm]`. Those numbers are why the point has to be made as a crime. In a country
-that never froze the balance, the only way to stand on the common is to trespass onto it.
+land in England and about 97 percent of its rivers `[confirm]`, hereditary aristocrats still hold about a
+third of Britain `[confirm]`, and the public footpath network has roughly halved, to around 118,000 miles,
+since the nineteenth century `[confirm]`. Those numbers are why the point has to be made as a crime. In a
+country that never froze the balance, the only way to stand on the common is to trespass onto it.
 
 The reason this belongs in the record, rather than reading as topical color, is the loop it closes. One of
 the estates Hayes crosses into is Boughton House in Northamptonshire, seat of the Duke of Buccleuch — the
@@ -72,8 +74,10 @@ Sir Edward Montagu was sent to suppress the Newton rebels in 1607, the rising th
 country. Hayes climbing that wall in 2020 closes a four-hundred-year loop in the same Northamptonshire
 soil: the family that enforced the enclosure still holds the ground, and the descendant of the commoners
 still has to climb the fence. The loop is not even metaphorical — the estate has sold firewood back to
-local people at premium prices, wood it was once a common right to gather, the identical move the project
-names when it describes platforms renting relationships back to the people who already hold them.
+local people at around £95 a cubic metre `[confirm]`, wood it was once a common right to gather, and moved
+to fell part of Weekley Hall Wood, walked by thousands of local people a week, on the very ground of the
+1607 rising. That is the identical move the project names when it describes platforms renting relationships
+back to the people who already hold them.
 
 The companion doc closes its enclosure story on the 1886 Act. This doc closes the present-day arc one step
 further on, on the fact that *Scotland won twice*. It froze the balance into statute with the croft and the
@@ -93,9 +97,12 @@ when you work with massive stone and unpredictable ground, flexibility and gravi
 time — is itself the evidence the metaphor needs.
 
 - **Incan ashlar (Peru).** Polyhedral stones shaped to interlock in three dimensions, with inward-sloping
-  walls and no mortar. Because Peru is highly seismic, the mortarless stones vibrate and settle back into
-  position under a quake, dissipating the energy; when Spanish colonial mortared structures collapsed in
-  major earthquakes, the Incan foundations beneath them were unscathed.
+  walls and no mortar. Because Peru is highly seismic, the mortarless joints let the stones shift
+  independently rather than shatter against a rigid bond; the vivid popular telling has them dancing and
+  resettling into place under a quake `[confirm — the dramatic "dancing stones" mechanism is popularized
+  and debated, not rigorously measured]`, but the durable, confirmed fact is the outcome: when Spanish
+  colonial mortared structures collapsed in major earthquakes, the Incan foundations beneath them stood
+  unscathed.
 - **Japanese *ishigaki* (castle foundations).** The massive curving foundation walls of castles such as
   Kumamoto and Himeji, built entirely without mortar, set tightly-fitted exterior stones over a loose
   gravel-packed core. The sloping profile distributes the timber castle's weight downward and outward, and
@@ -183,7 +190,11 @@ THE CROFT (material history)              THE ARCHITECTURE (the commitment)
   keystone. This is the defence against what can be called the *Princeps Problem*: the danger, seen from
   Augustus calling himself merely *primus inter pares* to Bitcoin's mining pools and BitTorrent's seeder
   oligarchy, that a system claiming everyone is identical lets the party with the most capability step into
-  the resulting vacuum and rule while wearing the skin of an ordinary peer. The croft's answer, and the
+  the resulting vacuum and rule while wearing the skin of an ordinary peer. The intellectual root of the
+  problem is Jo Freeman's *The Tyranny of Structurelessness* (1972): declaring that there is no structure
+  does not abolish power, it only hides it, so that the informal power that fills the vacuum answers to no
+  rule. The *Princeps Problem* is that thesis carried into peer-to-peer design — structurelessness among
+  peers is not equality; it is unaccountable authority waiting for its strongest node. The croft's answer, and the
   protocol's, is to bring the asymmetry into the light: design different slots for different capabilities
   while locking constitutional rights at one to one, so the big stone bears the weight it is built for and
   still cannot hold the wall together without the small stones wedged around it.
