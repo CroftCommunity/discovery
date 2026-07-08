@@ -181,6 +181,15 @@ into narrative prose. Where those two disagree, **this section is the tie-breake
   `Resolution: library ... for shorter tellings see the coffee-shop overview, then the elevator pitch.`
   A doc that calls itself "the compressed version" MUST name its companion by a resolvable pointer, not
   by prose title alone, so a reader is never left asking where the full version went.
+- **Reasoning travels with the decision (the anti-rollup rule).** A settled decision recorded at a terse
+  resolution (a current-state register, a decisions list, a charter line) MUST link to its full reasoning
+  at library resolution, and that reasoning MUST mature forward *with* the decision — never be left behind.
+  Recording the decision without its grounding is precisely the failure the 2026-07-08 coverage audit found
+  (`../alpha/plans/2026-07-08-beta-coverage-gap-ledger.md`): the alpha→beta rollup systematically kept the
+  decision and dropped the rationale, prior-art body, and illustration behind it, which reads as "over-
+  summarized" and, worse, cannot bring a newcomer along — a decision you cannot re-derive is one a reader
+  must take on faith. So a decision register is a *pitch-resolution index over the reasoning*, not a
+  replacement for it; every row points down to where the argument is carried whole.
 
 ## Current state (2026-07-07)
 

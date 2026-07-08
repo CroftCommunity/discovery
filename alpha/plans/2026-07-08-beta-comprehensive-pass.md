@@ -80,6 +80,18 @@ rung links to every ladder doc; and name every "compressed version" companion by
 not a prose title. **Honesty constraint:** AI-surfaced material is never upgraded to a clean verbatim
 quote — if no verbatim exists, the source's position is presented as labeled synthesis.
 
+### Phase 4 — Current-state decisions register (paired with reasoning)
+
+A beta-level `DECISIONS.md`: a scannable current-state register of every decision — both **settled**
+(pulled from `CLOSED-THREADS.md` and the layer docs) and **open gates** (the README "Standing decisions"
+and `ROADMAP_TODO.md` §A) — where each row states the decision at pitch resolution and **links down to
+its full reasoning at library resolution** in the layer doc that grounds it. It is a *pitch-resolution
+index over the reasoning*, never a replacement for it (the `LAYERS.md` "reasoning travels with the
+decision" rule). This is the user's "current-state doc with decisions," built so it cannot repeat the
+rollup's mistake: a decision may not enter the register unless its library-resolution reasoning exists and
+is linked, and that reasoning matures forward with the decision. Depends on Phase 1 (recovery restores the
+missing reasoning the register must point at) and reinforces Phase 3 (the resolution-ladder discipline).
+
 ## Sequencing and Reasoning
 
 - **Phase 0 first** because everything downstream is a function of the two inventories. The conclusion
@@ -126,3 +138,11 @@ quote — if no verbatim exists, the source's position is presented as labeled s
   have load-bearing gaps. `LAYER-ROLLUP.md` gate widened honestly (line 43–44 correction). The Phase-1
   recovery work-list is organized by target layer in the ledger. Next: Phase 1 (recovery) — user's
   depth/sequencing call.
+- 2026-07-08 — **Phase 1 started (biggest hole first): ECOSYSTEM.md → cairn, staged in OPEN-THREADS.**
+  Eight recovery threads staged in `beta/OPEN-THREADS.md` (T41–T47 cairn cohort + T48 governance), each a
+  proposed cairn/governance doc with target layer + gates + alpha provenance — content not yet promoted
+  into settled layer docs (per tier discipline). Covers the un-carried `ECOSYSTEM.md` §1–§6 (cairn) and §8
+  (governance); §9 already carried, §7 partial.
+- 2026-07-08 — **Phase 4 added on user steer:** "current-state doc with decisions, but the reasoning must
+  mature with it or we can't bring folks along." Codified as the `LAYERS.md` "reasoning travels with the
+  decision (anti-rollup rule)" and the `DECISIONS.md` deliverable (backlog C11).
