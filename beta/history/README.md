@@ -41,6 +41,7 @@ Boundary calls:
 | doc | what it is |
 |---|---|
 | `crofting-dry-stone-and-the-enclosure-inversion.md` | The material-history record: crofting and the smallholding, dry-stone/cairn construction, the enclosure of the commons and the croft as the rare halt, the naming (croft/drystone/cairn), John Clare, and the arc to the present, connection itself as the newest enclosure. Crofting-narrative claims carry [UNVERIFIED] flags where the source is unverified. |
+| `the-enclosure-inversion-present-and-global.md` | Extends the enclosure-inversion thesis into the present and the global: Nick Hayes / Right to Roam ("the fence creates the crime"; the 1607→2020 Buccleuch loop; "Scotland won twice"); worldwide independently-discovered dry-stone durability (Incan ashlar, Japanese *ishigaki*, Great Zimbabwe, Mediterranean *trulli*); the Bernera Riot 1874; the Thompson/Captain-Swing/Williams "moral economy" spine; and the name-is-thesis weld from history to architecture (incl. the *Princeps Problem*). Figures [confirm]; quotes [UNVERIFIED]. *(Phase-1 recovery.)* |
 
 ## Provenance & status
 

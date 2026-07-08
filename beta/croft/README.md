@@ -37,6 +37,7 @@ Boundary calls:
 |---|---|
 | `product-the-garden-of-ponds.md` | The product shape: the garden thesis (a composable garden of ponds and pads on one core, thin shells), the honest seams, the functional-core / imperative-shell spine, one-core-plus-thin-shells client architecture, the quality/craft bar, and the three inclusion pathways for activities (build-fresh / wrap / port). |
 | `social-graph-as-substrate.md` | The reframe that anchors the product: the social graph is the substrate and chat is one tenant; the durable group (group identity != member set; implicit/sticky/pruned lifecycle); the local-projection vs shared-anchor seam; and the load-bearing-but-invisible group's-face UX (the hardest product problem). |
+| `presence-ritual-and-composed-ponds.md` | Four product conclusions the taxonomy left as stubs: the Presence & Ritual pond ("the project's heart" — thinking-of-you ping, guestbook, and the **question-of-the-day with no streak**, "the whole ethic in miniature"); game-outcome-as-custom-lexicon (ephemeral over iroh, only the settled outcome durable; **attestation is the open hard part**); the iroh tiered-exposure product model (public bridge → browser-peer → native; relay as complete broker); and the **valuation edge** (directional weighted inter-group trust with no shared keys). Dialogue-sourced calls flagged. *(Phase-1 recovery.)* |
 
 ## Provenance & status
 
