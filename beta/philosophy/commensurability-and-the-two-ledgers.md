@@ -1,6 +1,7 @@
 # Commensurability and the Two Ledgers
 
-*Register: the deepest philosophy-layer grounding. This doc holds the pure argument for why
+*Resolution: library (the full grounding; no shorter telling exists yet — a coffee-shop condensation
+is an open item). Register: the deepest philosophy-layer grounding. This doc holds the pure argument for why
 social value cannot be run on a central, priced, legible ledger, and why resilience needs the
 slack that such a ledger prunes as waste. It is claim-first and marks where a claim rests on a
 definition being advanced rather than a settled finding. Every direct quotation is marked
@@ -46,7 +47,7 @@ is to mistake the tool for the terminal value.
 
 Karl Polanyi, *The Great Transformation* (1944), the embeddedness thesis: historically economies
 were *embedded* in social relations, in religion and family. The modern self-regulating market
-required a "disembedding," a subordination of social relations to market logic rather than the
+required a *disembedding*, a subordination of social relations to market logic rather than the
 reverse. Polanyi's sharpest move is the *fictitious commodities*: land, labor, and money are
 treated as though produced for sale, but they were not, and treating them as ordinary commodities
 threatens to destroy the social fabric they actually rest on. A market *economy* is a tool inside
@@ -132,8 +133,12 @@ C.S. Holling (resilience): the real question is not resistance to change but the
 *reorganize* in the face of it. Stripped of slack, a system loses plasticity and becomes brittle.
 
 Taleb, *Antifragile* (2012): eliminating variability in the name of efficiency removes the very
-volatility a system needs to learn. "The fragile wants tranquility, the antifragile grows from
-disorder, and the robust doesn't care too much" [UNVERIFIED]. The turkey fed every day is most
+volatility a system needs to learn.
+
+> The fragile wants tranquility, the antifragile grows from disorder, and the robust doesn't care
+> too much.
+
+*[UNVERIFIED, confirm against primary edition before publish.]* The turkey fed every day is most
 certain of its safety on the afternoon before slaughter. **Ballast, stated plainly:** the
 antifragile frame is sometimes deployed to launder a *capital-reinforcing* scheme ("markets are
 antifragile, so leave them alone"). Take the slack-as-reserves-for-beneficial-adaptation insight
@@ -157,8 +162,12 @@ James C. Scott, *Seeing Like a State* (1998), supplies the mechanism for why cen
 optimization is coercive and why it collapses.
 
 **Legibility is not passive seeing; it restructures reality so that reality can be grasped from the
-center.** "The state, or at least the high-modernist state, wants to see, is determined to see,
-only a world it can understand, a world that is legible" [UNVERIFIED]. The canonical example is
+center.**
+
+> The state, or at least the high-modernist state, wants to see, is determined to see, only a world
+> it can understand, a world that is legible.
+
+*[UNVERIFIED, confirm against primary edition before publish.]* The canonical example is
 Prussian *scientific forestry*: a diverse forest (fuel, fodder, building materials, ecological
 stability, a whole understory) was turned into monoculture spruce planted in geometric rows,
 because that forest was legible, calculable, and revenue-maximizing. It was then fragile (disease,
@@ -169,13 +178,20 @@ standardized identities and quantifiable "engagement."
 
 **Metis versus episteme.** *Episteme* is universal, scientific, standardized, transferable
 knowledge, which is exactly the Ledger-of-State logic. *Metis* is practical, local,
-context-dependent knowledge: the skill of navigating one specific messy human relationship, which
-"cannot be codified because it relies on the slack, the non-productive, redundant, informal
-interactions that define trust" [UNVERIFIED]. The completionist error is the attempt to turn metis
-into episteme. Converting "community" into data destroys the thing the data claims to capture.
+context-dependent knowledge: the skill of navigating one specific messy human relationship.
 
-**High modernism** is an ideology, not a set of tools: "a strong, one might even say muscle-bound,
-version of the self-confidence about scientific and technical progress" [UNVERIFIED]. Its posture
+> [Metis] cannot be codified because it relies on the slack, the non-productive, redundant, informal
+> interactions that define trust.
+
+*[UNVERIFIED, confirm against primary edition before publish.]* The completionist error is the
+attempt to turn metis into episteme. Converting "community" into data destroys the thing the data claims to capture.
+
+**High modernism** is an ideology, not a set of tools:
+
+> a strong, one might even say muscle-bound, version of the self-confidence about scientific and
+> technical progress.
+
+*[UNVERIFIED, confirm against primary edition before publish.]* Its posture
 is blank-slate, top-down engineering; its reflex is to reject tradition and local knowledge as
 mess; its claim is universal, and its "improvement" is imposed. Its schemes fail when they collide
 with the local authority of actual life.
@@ -183,16 +199,16 @@ with the local authority of actual life.
 ## IX. Jane Jacobs: organized complexity and the eyes on the street
 
 Scott invokes Jane Jacobs, *The Death and Life of Great American Cities* (1961), as the urban
-instance of the same failure. Planners treated the city as "organized simplicity," a machine to be
-zoned and sanitized, when it is in fact "organized complexity." Clearing diverse neighborhoods for
-single-use, legible zones destroyed the "ballet of the sidewalk" and with it the "eyes on the
-street," the self-policing trust that arose as a byproduct of overlapping uses. The planners
+instance of the same failure. Planners treated the city as *organized simplicity*, a machine to be
+zoned and sanitized, when it is in fact *organized complexity*. Clearing diverse neighborhoods for
+single-use, legible zones destroyed the *ballet of the sidewalk* and with it the *eyes on the
+street*, the self-policing trust that arose as a byproduct of overlapping uses. The planners
 (Robert Moses the antagonist) failed not because they planned badly but because they were too good
 at imposing the wrong order, destroying the metis that made the neighborhoods work. The features
 the plan read as decay (redundant small businesses, aged buildings, low-cost points of entry) were
 prerequisites for resilience. The contrast term is *unslumming*, a neighborhood organically
 increasing its own vitality when it is left the slack to evolve, the exact opposite of the
-high-modernist reflex of "slum clearance."
+high-modernist reflex of *slum clearance*.
 
 ## X. Peer standing and non-domination (the primary anchors)
 
