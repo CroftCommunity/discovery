@@ -50,6 +50,26 @@ excluded — their conclusions live in impl/experiments and Proofs.)
    - **Whole strategic arguments.** Aggregation-Theory enshittification-shield; the cross-platform
      identity-provenance thesis; the Solid↔PDS two-pole positioning.
 
+## Recovery status (updated 2026-07-08)
+
+Phase-1 recovery is under way against the by-layer work-list below. **Recovered so far (promoted to beta docs):**
+- **cairn / governance (ECOSYSTEM.md round):** the whole ECOSYSTEM.md hole → 7 cairn docs + 1 governance
+  doc (T41–T48; see `OPEN-THREADS.md` promotion map). Covers Peat, Solid/DSNP, the did:webvh chain,
+  self-hosting/AppViews/Groundmist, the aggregator license-map, iroh app-pond blocks, object-capability +
+  decentralized-MLS, and the cooperative prior-art register.
+- **outer/late layers (round 2):** 12 docs — philosophy (cybernetic-failure, proof-of-personhood,
+  peer-rights-razor-lineage), history (enclosure-inversion present+global), croft (presence-ritual +
+  composed ponds), socialization (adoption-tactics, durable-product/composability), fenced
+  (app-store/Rave-trap, aggregation-theory shield), impl (redb contract, iOS/BLE, four-property tension).
+
+**Still open:** a few items were deliberately deferred this pass — the drystone-spec rationale additions
+(IETF doc-shape rationale, Willow-interop mandate, Matrix one-way-latch grounding) which modify the mature
+spec and should be staged as spec open-threads; the governance founding-mottos and the PDS
+enterprise-compliance revenue model (carry as tracked input, not as Croft's answer); the AGPL-vs-Apache
+internal license conflict (a reconciliation, the user's call); and the superpeer/home-node topology note.
+Plus the **consolidation-completeness sweep** (backlog C12): the recovery docs were written from each
+conclusion's ledger-identified home, so a pass against the full prior-tier scatter is owed before rc.
+
 ## Cluster completion tracker
 
 | Cluster | Status | Verdict (one line) |

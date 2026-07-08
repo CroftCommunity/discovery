@@ -151,6 +151,17 @@ missing reasoning the register must point at) and reinforces Phase 3 (the resolu
   (reasoning carried whole per the anti-rollup rule; verification flags inline; user-decision gates
   surfaced, not resolved). Verified clean of prior-tier references; indexed in the cairn/governance
   READMEs; promotion map recorded in `OPEN-THREADS.md`. Awaiting user review before the threads move to
-  `CLOSED-THREADS.md`. Residual: reconcile the T47 Keyhive pointer in `willow-meadowcap.md`. **Remaining
-  Phase-1 recovery** = the other target layers' gaps in the ledger (governance rationale, socialization
-  tactics, history present-day arc, philosophy illustrations, croft ponds, spec rationale, impl storage).
+  `CLOSED-THREADS.md`. Residual: reconcile the T47 Keyhive pointer in `willow-meadowcap.md`.
+- 2026-07-08 — **Phase 1 recovery round 2 done (the outer/late layers).** 12 new docs written to beta
+  maturity across philosophy (cybernetic-failure, proof-of-personhood, peer-rights-razor-lineage), history
+  (enclosure-inversion present+global), croft (presence-ritual + composed ponds), socialization
+  (adoption-tactics, durable-product/composability), fenced (app-store/Rave-trap, aggregation-theory
+  shield), and impl (redb contract, iOS/BLE, four-property tension). All verified clean of prior-tier refs;
+  quotes standing alone; FACTCHECK-refuted material dropped (peer-rights); FACTCHECK SoT used for iOS facts.
+  Indexed in all six layer READMEs.
+- 2026-07-08 — **Consolidation principle codified on user steer:** "alpha had duplicate thinking from
+  context-setting on each dive; beta pulls it together WHOLE but cleaned up and clear." Added to `LAYERS.md`
+  as "Consolidate duplicate thinking into one whole (the beta synthesis job)" — consolidate don't lift;
+  whole not lossy; a single alpha pointer is a starting point not the boundary. **Follow-up (backlog C12):**
+  a consolidation-completeness sweep over the recovered docs, since the recovery agents were pointed at the
+  ledger-identified homes (one pointer each) rather than the full prior-tier scatter.

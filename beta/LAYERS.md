@@ -191,6 +191,25 @@ into narrative prose. Where those two disagree, **this section is the tie-breake
   must take on faith. So a decision register is a *pitch-resolution index over the reasoning*, not a
   replacement for it; every row points down to where the argument is carried whole.
 
+## Consolidate duplicate thinking into one whole (the beta synthesis job)
+
+A defining reason alpha matures into beta: alpha accumulated **duplicate thinking**. Each time a dive
+entered a particular area it re-set the context from scratch, so the same idea was re-derived, re-framed,
+and partly re-stated across several docs and transcripts. Beta's job is to **pull all of those scattered
+instances together into one WHOLE treatment — cleaned up and clear** — not to transcribe any single
+fragment.
+
+- **Consolidate, don't lift.** Recovering or maturing a claim means gathering *every* place the thinking
+  appears in the prior tier, reconciling them, and writing the union once, at full grain, in its one home
+  (the one-home-per-claim invariant). The best-stated version wins the framing; the others contribute any
+  detail it lacked; the repeated context-setting is dropped.
+- **Whole, not lossy.** "Cleaned up" means the *duplication* and the scaffolding each dive needed to
+  orient itself are removed — never that reasoning, prior art, or nuance is dropped. Completeness of the
+  argument is preserved (see "reasoning travels with the decision"); only the redundancy is cut.
+- **A single alpha pointer is a starting point, not the boundary.** When maturing an area, search the whole
+  prior tier for the other instances before writing; a doc that consolidates only the first source it was
+  handed is half-done and will read as thinner than the corpus actually supports.
+
 ## Current state (2026-07-07)
 
 Seeded: `philosophy/` (peer-standing set + prior-art), `cairn/` (atproto-ecosystem + the social-lexicon
