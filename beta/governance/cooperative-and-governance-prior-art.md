@@ -112,6 +112,15 @@ The existence-proofs show the form runs; these show it can be *governed* without
 tyranny-of-the-active-few or paralyzing under unfiltered consensus. This is where the co-op's governance
 design draws its patterns.
 
+- **The Rochdale Principles** (the Rochdale Society of Equitable Pioneers, 1844) — the founding governance
+  code of the modern cooperative movement and still the backbone of the International Co-operative
+  Alliance's statement of principles. **Proves** the member-governance discipline the whole form descends
+  from, and one principle is directly load-bearing for a platform brokering relationships: *Education of the
+  Members* — a cooperative cannot survive with an uninformed membership, because member-governance is only
+  real if members understand what they are governing. This is the 1844 root beneath both the credit-union
+  lineage and Platform Cooperativism, and the reason member education reads here as an operating obligation
+  rather than an optional nicety. `[established history; Rochdale Pioneers, 1844.]`
+
 - **Elinor Ostrom's commons work** — the empirical demonstration that communities sustain shared resources
   for centuries (the Törbel alpine commons, the Valencia *huertas*, the Bali Subak irrigation, the Maine
   lobster grounds), governed polycentrically rather than by a single central authority. **Proves** the scale
@@ -153,7 +162,10 @@ the solution itself.
   stake *vanishes* once the cap is reached. **Proves** the precise shape a non-capturing seed instrument can
   take: financial participation that terminates, never converts to control, and never creates a permanent
   constituency with standing to enforce a profit-maximizing pursuit. This is the "capped revenue-share for
-  seed capital" pillar of the *Social Union*, grounded in a real financing pattern. `[verified.]`
+  seed capital" pillar of the *Social Union*, grounded in a real financing pattern. Documented instances of
+  the capped-return structure in practice — Haferkater and Start.coop among them — matter to the WHY: the
+  pillar rests on an instrument that mission-driven ventures have actually raised on, not a theoretical
+  shape. `[verified.]`
 
 ## The fiscal-sponsor analysis: the concrete Phase-1 vehicle
 
@@ -164,7 +176,8 @@ must be confirmed against the organizations' own current terms before reliance.
 
 - **Software in the Public Interest (SPI)** — the trademark-stewardship proof-of-concept for Croft's exact
   plan. SPI *owns* the Debian trademark (a registered US mark), the mark is *managed by* the Debian project,
-  and SPI has licensed it to outside organizations; it holds other projects' marks as well. **Proves** the
+  and SPI has licensed it to outside organizations; it holds other projects' marks as well (ArduPilot's among
+  them). **Proves** the
   asset-holding-shell / community-runs-it model — a neutral body owning the mark while the project operates
   under it — which is exactly Croft's foundation-holds-the-marks / cooperative-operates-under-license
   intent. This is the best long-term asset-holding match and the single clearest existence proof that the
@@ -186,6 +199,13 @@ must be confirmed against the organizations' own current terms before reliance.
   verified: whether Aspiration will sponsor a *cooperatively-operated* project specifically — a charitable
   sponsor cannot house a member-owned business, so this is the seam to confirm. `[dialogue-sourced
   2026-06-23, verify before reliance.]`
+
+A fourth vehicle sits in the same 501(c)(3) tech-sponsor class and is carried so the landscape is complete:
+**Code for Science & Society (CS&S)** fiscally sponsors public-interest technology and open-science
+projects, and belongs to the same nonprofit-half register as SPI and SFC — the option to weigh for the
+grant-funded open-source-code side of a cooperative-plus-charitable tandem, distinct from the mark-holding
+and interim-foundation roles the three phased vehicles above carry. `[dialogue-sourced, verify before
+reliance.]`
 
 One correction to a commonly-assumed vehicle, carried so it is not reached for by mistake: the Open
 Collective *Foundation* dissolved at the end of 2024; the Open Source Collective is a separate 501(c)(6),
@@ -250,11 +270,12 @@ the empirical objections the necessity argument cannot reach on its own: that a 
 profitable and multi-class (Stocksy), out-margin a venture monopoly by paying contributors (The Drivers
 Cooperative), route value to ownership without a token (Resonate), run as a dues-funded social platform
 (Social.coop), scale into a federation (Mondragon), and endure as a community-owned institution (Green Bay
-Packers, the credit-union lineage). It grounds governance-at-scale in Ostrom's polycentric commons work and
-in liquid democracy carried with its own failure mode and antidotes; it grounds non-capturing seed capital
-in steward-ownership and capped-return *Demand Dividend* models; it names the concrete fiscal-sponsor
-vehicles for each phase (SPI as the trademark-holding proof-of-concept, SFC as the permanent home,
-Aspiration as the interim foundation); and it registers the failure lineage (Ello, Ampled, Steemit,
+Packers, the credit-union lineage). It grounds governance-at-scale in the Rochdale Principles' member-education
+discipline, in Ostrom's polycentric commons work, and in liquid democracy carried with its own failure mode
+and antidotes; it grounds non-capturing seed capital in steward-ownership and capped-return *Demand Dividend*
+models used in practice; it names the concrete fiscal-sponsor vehicles for each phase (SPI as the
+trademark-holding proof-of-concept, SFC as the permanent home, Aspiration as the interim foundation, with
+Code for Science & Society as a fourth same-class option); and it registers the failure lineage (Ello, Ampled, Steemit,
 Diaspora, Coomappa) as the negative specification each cooperative pillar answers.
 
 **Does not establish.** It does not re-argue *why* the cooperative form is required — that is the philosophy

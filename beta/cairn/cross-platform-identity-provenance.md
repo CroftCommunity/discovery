@@ -49,7 +49,12 @@ Each cryptographic-identity arena is self-certifying: it defines what a valid id
 it, and how that binding changes over time, and it will not delegate that authority outward. atproto will
 resolve its blessed DID methods and no others; a chain will honor its own key hierarchy; a web-of-trust honors
 its own signatures. There is no arena that says "whatever some other system vouches for, I accept as my own
-identity." So a key that is authoritative in one arena is inert in the next.
+identity." So a key that is authoritative in one arena is inert in the next. Worse than inert: reusing a single
+operational key across arenas is the *key-correlation* anti-pattern the did:plc spec warns against — the same
+key surfacing in each arena's public records is exactly what lets an observer prove two identities are the same
+person, collapsing the privacy the separation otherwise preserves. So the shared key is both structurally
+useless and actively harmful. `[did:plc key-correlation warning: cite the FACTCHECK source of truth, do not
+re-verify]`
 
 What *does* cross the boundary is a verifiable claim. If a principal controls a durable root anchor, and each
 platform identity carries a signed, mutually-referencing pointer to that root (and the root points back), then
@@ -59,6 +64,13 @@ produces evidence a verifier evaluates. It is explicitly **not authoritative** �
 cede control, and no single key is being presented as universally valid. The mental model to reject is "one
 key in many locks"; the model to keep is "one root whose ownership every arena-local identity can be shown to
 share."
+
+This is also why the linkage is *attestation*, not key derivation. The tempting shortcut — derive every
+platform key from one seed, BIP32-style — buys key-management convenience but not public provenance:
+hierarchical derivation is a secret-side relationship, provable only by revealing the parent. The link that
+crosses arenas has to be a signed *statement about* an independent key (the shape X.509 and verifiable
+credentials already use), so that anyone can verify it by checking signatures to the root, revocation is per
+child, and a compromised child exposes neither its siblings nor the root.
 
 This is why the architecture is hub-and-spoke rather than a mesh of peer equivalences. A mesh (every identity
 linked to every other) has no privileged point of recovery and degrades to as many trust roots as there are
@@ -118,10 +130,18 @@ The standards-compliant workaround is the bidirectional **`alsoKnownAs`** link. 
 W3C-standard equivalence field on a DID document. The principal's atproto spoke (`did:plc`) lists the
 `did:webvh` root in its `alsoKnownAs`, and the root's log lists the `did:plc` spoke in its `alsoKnownAs`; a
 verifier confirms the claim is asserted from both ends before trusting it. This is the equivalence ladder in
-practice: a mutually-referenced, checkable claim, not a shared key. A stronger field, `equivalentId` (which
-carries a mutually-*guaranteed* rather than merely-asserted meaning), exists and is worth noting, but
-`alsoKnownAs` is the widely-supported choice and so the pragmatic one.
-`[alsoKnownAs / equivalentId distinction: cite the FACTCHECK source of truth, do not re-verify]`
+practice: a mutually-referenced, checkable claim, not a shared key. Two stronger fields exist, and the reason
+they *cannot* be used is the reason `alsoKnownAs` is the right transport. `equivalentId` carries a
+mutually-*guaranteed* (not merely-asserted) meaning, and `canonicalId` names a single upstream canonical
+reference — but both must be *enforced by the governing DID method*, which makes them single-method-only and
+unable to span platforms. What the design actually wants is the *semantics* of `canonicalId` (one upstream root
+every spoke points back to) carried over the *transport* of `alsoKnownAs`, because only the weak, unenforced
+field crosses arena boundaries. Two mechanical consequences follow. First, the link has to live *inside*
+`alsoKnownAs` — atproto's PLC operations reject unknown top-level fields, so an invented `provenanceAnchor`
+field is not an option. Second, validation degrades gracefully: bidirectional presence is what the verifier
+checks, and the *absence* of the backlink means unverified, not false (per DID-Core, it is "best practice not
+to consider two identifiers equivalent in the absence of the inverse relationship").
+`[alsoKnownAs / equivalentId / canonicalId distinctions: cite the FACTCHECK source of truth, do not re-verify]`
 
 This is why the model is hub-and-spoke and not "run the root as your atproto identity": atproto structurally
 cannot host the root, so the root stays outside and the atproto-native spoke links back to it.
@@ -144,10 +164,31 @@ authority is the signing key, not the directory. But it is also where the soft s
 single well-known operator, and a single operator is a single point of availability and a single point of
 potential equivocation (serving different histories to different clients). A governance handoff of the
 directory to a nonprofit has been planned but **not done**. `[dialogue-sourced, pending independent
+verification]` A second, quieter property sharpens why the spoke is a spoke: the full PLC operation history is
+permanently public and non-redactable — every past handle and PDS URL a principal ever used stays exposed even
+after deactivation, so any PII in a handle is exposed forever. `[dialogue-sourced, pending independent
 verification]` So the spoke is a spoke by design: `did:plc` is where atproto resolution happens, but it is not
 the root of the principal's identity — the `did:webvh` hub is. The reason to keep the hub external is exactly
 this soft spot: if the spoke's directory misbehaves or disappears, the principal's durable identity is still
 anchored in a log they control.
+
+## The convergence bet: why keep the root anchored even though nothing reads it
+
+There is a reason to maintain the `did:webvh` root even while no atproto component resolves it, and it is less a
+prediction than cheap insurance. `did:plc` and `did:webvh` are structurally almost the same object: both are a
+self-certifying identifier (a hash of a genesis operation) over an append-only signed log, resolved by
+replaying that log. The only real differences are *where the log is hosted* and *whether the resolver checks
+the genesis hash against the identifier*. An atproto discussion (#2705) sketched the convergence: if a PDS
+served the full PLC operation log back to inception and validated the genesis op against the CID embedded in
+the `did:plc` string, each PDS-hosted `did:plc` would itself be a valid `did:webvh` — one identity, two
+resolution paths (though not every `did:webvh` would be intelligible to atproto). The design rule that falls out
+is to keep the `did:webvh` SCID as the anchor now, even though nothing reads it: if convergence ever lands, an
+already-SCID-anchored identity slots straight in; if it never lands, the SCID anchor is independently useful as
+the provenance root. This is hedge-positioning, not a roadmap bet — and it is consistent with the same Newbold
+stance recorded above: adopting `did:webvh` as a *method* is conditionally on the table (gated on validation
+complexity and library support), while `did:webvh` *portability* is what does not fit atproto's
+immutable-account-DID model. `[atproto #2705 sketch: dialogue-sourced 2026-06-20, pending independent
+verification]`
 
 ## Supporting prior art
 
@@ -213,8 +254,10 @@ spokes, tied by an `alsoKnownAs` equivalence ladder that is evidentiary and not 
 governing constraint is the negative result that atproto resolves only `did:plc` and `did:web`, so the root is
 not natively usable as an atproto identity and the standards-compliant workaround is the bidirectional
 `alsoKnownAs` link; that `plc.directory` is a self-certifying transparency-log rather than a CA, which is what
-makes `did:plc` acceptable as a spoke and also names its centralization soft spot; and that each piece has
-prior art — `didwebvh-rs`/`didtoolbox` tooling, the `goat` PLC-op flow, the DIDComm hold-and-forward delegate,
+makes `did:plc` acceptable as a spoke and also names its centralization soft spot (and its permanently-public,
+non-redactable history); that `did:plc` and `did:webvh` are structurally near-identical, which is the
+convergence bet that makes keeping the SCID anchor cheap insurance rather than wasted effort even though nothing
+reads it today; and that each piece has prior art — `didwebvh-rs`/`didtoolbox` tooling, the `goat` PLC-op flow, the DIDComm hold-and-forward delegate,
 and the CT/CONIKS equivocation-detection lineage — that makes the model buildable and its trust model
 center-free.
 

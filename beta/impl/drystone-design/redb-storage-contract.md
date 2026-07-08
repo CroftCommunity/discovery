@@ -57,7 +57,8 @@ must travel with the choice:
   not a constraint — the fold is meant to be the sole writer (below). `[confirm against redb docs]`
 
 - **Constant-time savepoints, purpose-built for the late-event rollback.** redb can capture a savepoint and
-  later roll the store back to it in constant time, at small marginal storage cost. This is the property
+  later roll the store back to it in constant time, at a small marginal storage cost — on the order of ~64 kB
+  per 1 GB of store `[confirm against redb docs]`. This is the property
   the derived tier is chosen *for*: when a causally-earlier event arrives late — after the projection has
   already folded past its position — the index must be rewound and re-folded from a point before that
   event. Savepoints make that rewind cheap and deterministic, rather than forcing a full rebuild from
@@ -69,8 +70,8 @@ must travel with the choice:
   reverse indexes are one-key-to-many-neighbors, and orderable values give range scans in a defined order.
   redb is an embedded KV engine, **not** a graph database — adjacency is *built on top* (composite-key
   ranges, or multimap tables, in both directions), never provided. Which of the two representations wins is
-  an empirical build-time measurement, and because edge tables are derived and rebuildable, switching later
-  is cheap. `[confirm against redb docs]`
+  an empirical build-time measurement — composite-key ranges are the default going in — and because edge
+  tables are derived and rebuildable, switching later is cheap. `[confirm against redb docs]`
 
 - **A stable, committed file format with per-transaction durability tuning.** The on-disk format is stable
   with an upgrade-path commitment, and durability is tunable per transaction (a non-durable commit keeps
@@ -177,7 +178,8 @@ authoritative-tier durability path that the derived tier's rebuildability only p
 
 Does **not** re-specify the abstract pattern, the wire fact representation, or the governance fold's
 semantics (they live in the sibling impl documents), does **not** finalize the edge-table representation
-(composite-key versus multimap is an explicit build-time measurement), and does **not** certify the redb
+(composite-key versus multimap is an explicit build-time measurement, composite-key the default going in),
+and does **not** certify the redb
 feature facts or discharge the linearizability caveat — those carry verification flags and the caveat
 remains an open risk until confirmed against redb's own documentation and, for crash-safety, against
 primary evidence.

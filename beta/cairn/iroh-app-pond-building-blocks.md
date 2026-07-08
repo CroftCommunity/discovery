@@ -5,8 +5,9 @@ external building blocks the games and media pads are assembled from, each carri
 matters (what it proves, what Croft reuses, ports, or rejects). The product design that consumes these
 blocks lives in `croft/product-the-garden-of-ponds.md` and is out of scope here. External facts carry
 verification flags inline; iroh version facts cite the FACTCHECK source of truth and are not re-verified
-here. Rows flagged Gemini/dialogue-sourced are suspect and need a refresh pass before external use;
-license notes want a final glance at bundle time.`
+here. The realtime-media ceiling, once carried as suspect, is now corroborated against shipping n0 work
+(callme, iroh-live, moq); residual flags are the volatile on-device-AI facts and the wrappable catalog's
+license notes, which want a final glance at bundle time.`
 
 ## Overview
 
@@ -131,8 +132,9 @@ reachable without it.
 ## Realtime media — the calls pond
 
 This section grounds the media claim the beta spec makes. The spec asserts that realtime media works over
-iroh; the in-the-wild reference that grounds that assertion is below. The floor is corroborated by a
-shipping n0 project; the ceiling material is suspect and flagged.
+iroh; the in-the-wild references that ground that assertion are below. The floor (conversational audio) is
+corroborated by a shipping n0 project (`callme`); the ceiling — broadcast media and browser reach — is
+**also corroborated by shipping n0 work**, correcting an earlier pass that carried it as suspect.
 
 - **callme / iroh-roq** (n0) — the proven audio floor: peer-to-peer audio over iroh with **no WebRTC**,
   using **iroh-roq** datagrams plus **Opus** encoding (and `cpal` for capture/playback). Why it matters:
@@ -140,21 +142,39 @@ shipping n0 project; the ceiling material is suspect and flagged.
   which is what a calls pad's floor needs. Relationship: build-on (the audio floor).
   `[corroborated: n0's callme uses iroh-roq + Opus; the audio floor is the reliable part of this section.]`
 
-The remaining media material describes the ceiling — group audio, video, and browser reach — and is
-**Gemini / dialogue-sourced and flagged suspect**. It is carried as direction, not as established fact, and
-wants an experimentation pass before any external use:
+The ceiling — group/broadcast media and browser reach — is **more corroborated than an earlier pass
+recorded**, and the correction is load-bearing: the broadcast path is a *second proven QUIC media protocol*,
+not a hypothesis. Media over iroh is two protocols for two use cases (the same "type at creation" shape as
+the interaction tiers): **RoQ** (RTP-over-QUIC) for symmetric, lowest-latency calls — the callme floor above
+— and **MoQ** (Media-over-QUIC) for one-to-many broadcast. The RoQ/MoQ transport mechanics, the meer's
+blind broadcast role, and the str0m fold's test plan live in the impl transport notes; here they are the
+building blocks the calls/stage pads assemble among.
 
-> The following media rows are Gemini/dialogue-sourced and unverified. Treat as hypothesis.
+- **iroh-live / MoQ** (n0; moq-rs) — the group/one-to-many broadcast ceiling. n0's `iroh-live` carries
+  h264 + Opus over iroh via **moq-rs**, with GStreamer/ffmpeg ingest and a room-ticket connect; the upstream
+  **moq** (moq-dev) has first-class iroh support (`iroh://` URL schemes, P2P-by-default with **optional relay
+  bridging to browsers via WebTransport over HTTP/3**). MoQ is **pub/sub and lazy** — a broadcaster publishes
+  named Tracks, viewers subscribe, and nothing is encoded or sent until a subscriber asks — which is the
+  battery/compute/privacy win and the media instance of "nothing to fan out if nobody is watching."
+  Corroborating adoption signal: the **Rave** watch-party app ships iroh + MoQ for video, chosen after
+  evaluating libp2p and WebRTC first. Relationship: build-on (the broadcast ceiling). `[corroborated: web
+  2026-06 — n0-computer/iroh-live, moq-dev/moq, iroh.computer/solutions. The specific per-relay connection
+  ceilings Rave's marketing cites are UNVERIFIED — trust measured numbers, not the order-of-magnitude.]`
+- **Browser reach splits by media type** — broadcast (MoQ) reaches browsers via **WebTransport over HTTP/3**
+  through a moq-relay, needing no WebRTC engine and likely the *easier* browser path; conversational (RoQ)
+  browser reach is the harder WebRTC-bridge path below. `[corroborated: web 2026-06.]`
+- **WebRTC-over-iroh (the str0m fold)** — the conversational path's route to browser reach and to a mature
+  adaptive engine at scale: keep WebRTC's media engine (a **sans-IO** engine such as **str0m** — the
+  codecs/jitter/FEC/echo-cancellation nobody should rebuild) and carry its packets over iroh datagrams, with
+  relay fallback when direct paths fail. str0m's production record is **strongest as a server-side SFU** and
+  thinnest in exactly the P2P-ICE agent iroh bypasses, so the maturity worry is narrower than it looks. A
+  characterized direction with two genuine unknowns — datagram congestion-control interaction and str0m's
+  **video** maturity (audio-first hedges the latter). Relationship: build-on / port substrate.
+  `[str0m server-SFU use corroborated; video maturity UNVERIFIED — audio-first.]`
 
-- **iroh-live / MoQ** — Media-over-QUIC-shaped live streaming over iroh, as the group/one-to-many ceiling.
-  `[Gemini/dialogue-sourced — suspect; verify before reliance.]`
-- **Group audio via a gossip bus** — using iroh-gossip as the membership/signalling bus for a group call.
-  `[Gemini/dialogue-sourced — suspect; verify before reliance.]`
-- **WebRTC-over-iroh feasibility** — keeping WebRTC's media engine (a sans-IO engine such as str0m) while
-  tunnelling RTP over iroh datagrams, with a DERP-style relay fallback when direct paths fail. Why it would
-  matter: it would reuse the one piece of the WebRTC stack nobody should rebuild (the media engine:
-  Opus/AV1, jitter buffer, echo cancellation) while owning the transport. `[Gemini/dialogue-sourced —
-  suspect; the "reuse the media engine, replace the transport" direction needs an experimentation pass.]`
+One embellishment from an earlier pass is corrected on the record: group media is **not** a "gossiped
+lateral chunk-sharing mesh." The confirmed model is **per-track QUIC streams, P2P-by-default over iroh with
+relay bridging**; iroh-gossip is the membership/signalling bus, not a chunk-distribution mesh.
 
 ## The anti-pattern — Bond Touch
 
@@ -171,16 +191,19 @@ Establishes that the games and media pads are an assembly of parts that already 
 iroh: direct-QUIC twitch play (ascii-royale), the exact Bevy + iroh + gossip + CRDT stack (libmarathon),
 virtual-LAN tunnelling for legacy games (iroh-lan), engine integration (godot-iroh), rollback netcode
 architecture-aligned with the Rust core (GGRS + matchbox), a wrappable open game catalog (webxdc), a
-device-drop reference (sendme / DataBeam), and a corroborated Opus audio floor over iroh (callme /
-iroh-roq). It carries the security lesson that grounds every wrapped or ported pad (the Cure53 audit →
-disable webview WebRTC), the two on-device-AI options behind the optional assistant framed detect-first,
-and the Bond Touch anti-pattern the free perpetual ping rebukes.
+device-drop reference (sendme / DataBeam), a corroborated Opus audio floor over iroh (callme / iroh-roq),
+and a corroborated MoQ broadcast path over iroh (iroh-live / moq-rs, with Rave as the adoption signal). It
+carries the security lesson that grounds every wrapped or ported pad (the Cure53 audit → disable webview
+WebRTC), the two on-device-AI options behind the optional assistant framed detect-first, and the Bond Touch
+anti-pattern the free perpetual ping rebukes.
 
 Does **not** design the product that consumes these blocks — the garden thesis, the build-fresh / wrap /
 port inclusion pathways, the deep-link resolver, the fair-reveal primitive, the pad security bar, and the
 assistant invariants all live in `croft/product-the-garden-of-ponds.md`. Does **not** re-document iroh's
 transport mechanics (impl transport notes) or re-verify iroh version facts (FACTCHECK source of truth).
-Does **not** certify the realtime-media ceiling rows (iroh-live/MoQ, group-audio-via-gossip, WebRTC-over-iroh)
-— those are Gemini/dialogue-sourced, flagged suspect, and need an experimentation pass — and does **not**
-clear the license traps in the wrappable catalog (mixed GPL-3.0, chess art CC-BY-SA-3.0) or the netcode
-dependencies, which want a final license glance at bundle time.
+Does **not** reproduce the RoQ/MoQ transport mechanics or the str0m fold's test plan (impl transport notes);
+the residual media unknowns it does **not** resolve are str0m's **video** maturity, real-browser interop
+fidelity, and Rave's specific per-relay ceiling numbers — the audio floor (callme / RoQ), the MoQ broadcast
+path (iroh-live), and browser-via-WebTransport are corroborated, correcting an earlier pass that carried the
+ceiling as suspect. Does **not** clear the license traps in the wrappable catalog (mixed GPL-3.0, chess art
+CC-BY-SA-3.0) or the netcode dependencies, which want a final license glance at bundle time.

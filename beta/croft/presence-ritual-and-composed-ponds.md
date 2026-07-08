@@ -79,11 +79,34 @@ activity in this pond, not a preference for the daily prompt alone — the momen
 frequency or punishes a lapse, the pond has stopped being the project's heart and become a retention
 mechanism wearing its skin.
 
+**Invites close the outward loop.** Where the ping and the guestbook turn a group in on itself, the invite
+points it outward to a gathering and then feeds the result back: a find-a-time settles *when*, the invite
+carries the details and reminds, and the gathering itself fills the guestbook. That arc is why the invite
+earns a place beside the ping and guestbook rather than sitting in a utility pond — it is the mechanism that
+turns present-tense activity into accreting memory, joining the pond's two ends. The honest caveats are
+operational and follow directly from having no server: reminders fire as local notifications per device (there
+is no push server to guarantee delivery), times are stored as absolute instants so a crossed time zone does
+not misfire the reminder, and a rendered map would reintroduce the map-tile dependency the product otherwise
+avoids. `[dialogue-sourced 2026-06-20 to 22; verify before external use.]`
+
 **The organizing axis is persist-vs-evaporate.** Every activity in the pond is placed on one axis, decided
-per activity: the ping evaporates, the guestbook accretes, an invite sits between (it matters until the event,
-then it is spent). The axis is load-bearing because it is what keeps a casual gesture from leaving an
+per activity: the ping evaporates, the guestbook accretes, the invite sits between (it matters until the
+event, then it is spent). The axis is load-bearing because it is what keeps a casual gesture from leaving an
 accidental permanent record and keeps a memory worth holding from being lost to ephemerality — getting the
-placement right per activity is the design work, not a default applied uniformly.
+placement right per activity is the design work, not a default applied uniformly. The axis is also concrete,
+not only editorial: the evaporate end rides gossip (live and unstored) and the persist end rides the
+document-and-blob store, so where an activity sits on the axis decides which substrate mechanism actually
+carries it. `[dialogue-sourced 2026-06-20 to 22.]`
+
+**The pond is a family of rituals, not a fixed three.** The ping, guestbook, question-of-the-day, and invite
+are the load-bearing set, but the same ethic and the same axis admit a wider roster of low-stakes rituals — a
+rose-thorn-bud check-in, a would-you-rather, a gratitude exchange, a countdown, an ambient status-glance, a
+collaborative playlist. Two properties hold across all of them: each is placed on the persist-vs-evaporate
+axis rather than defaulted onto one, and each obeys the no-engagement-trap rule. One carries a design point
+worth stating on its own — the collaborative playlist shares *references*, not audio: the pond passes pointers
+to tracks and never the media itself, which sidesteps both the licensing hazard and the blob-transport cost
+while still leaving a shared artifact behind. `[dialogue-sourced 2026-06-20 to 22; verify before external
+use.]`
 
 A reusable filter explains why this pond stays small-group and friends-only: the appetite problems that sink
 watch-together and similar features (discovery surfaces, stranger rooms, moderation burden, engagement metrics
@@ -200,8 +223,10 @@ source of truth.]`
 
 Establishes the specific product substance the sibling docs leave as stubs. The Presence & Ritual pond is the
 project's heart: a thinking-of-you ping delivered as a near-empty packet, a guestbook as accreting connective
-tissue, and a question-of-the-day whose *absence of a streak* is a voice decision carrying the whole
-no-engagement-trap ethic, all organized on a persist-vs-evaporate axis. Peer-game results use
+tissue, an invite that closes the loop from gathering back into that memory, and a question-of-the-day whose
+*absence of a streak* is a voice decision carrying the whole no-engagement-trap ethic — a family of rituals,
+not a fixed three, all organized on a persist-vs-evaporate axis that maps to the gossip-vs-store substrate
+split. Peer-game results use
 game-outcome-as-custom-lexicon: ephemeral play over the transport, only the settled outcome durable, rendering
 only where a client knows the lexicon (follow-or-ignore at the data layer). The web version is a three-tier
 exposure model (public read-only bridge as growth funnel, logged-in browser peer that is relayed but E2EE,

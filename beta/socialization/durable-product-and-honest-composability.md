@@ -3,9 +3,10 @@
 `Status: socialization layer (Layer 8, how this reaches people). Register: product principle /
 anti-extraction argument. Resolution: supplies the audience model and the stability discipline that
 ground the composability stance carried in brand-and-voice.md and adoption-strategy.md. The
-three-audiences model is treated as a settled design principle; the LTS-for-interfaces mechanism is a
-settled ethos whose channel/cadence *commitment* (versus aspiration) is still open. Dialogue-sourced
-lines carry verification flags.`
+three-audiences model is treated as a settled design principle; its composable-interface *realization*
+(the ramp of self-authorship) is a forward design note, not yet proven or specified; the
+LTS-for-interfaces mechanism is a settled ethos whose channel/cadence *commitment* (versus aspiration)
+is still open. Dialogue-sourced lines carry verification flags.`
 
 ## Overview
 
@@ -115,6 +116,18 @@ one of them, usually by handing the tune-a-few user either too little or the ful
 `[three-audiences framing dialogue-sourced 2026-06-15; treated as a settled design principle, but
 verify wording before external use.]`
 
+The three audiences are better read not as three fixed tiers but as positions on a single *ramp of
+self-authorship*. Never-touch, tune-a-few, and full-surface are postures a person occupies at a given
+moment, not castes; moving from one to the next is a user reaching up into owning more of their own
+experience — refining it by assembling composable units as far as they care to, not by hunting
+ever-more-obscure toggles. This is the mechanism that binds the audience model to the stability
+discipline above: composability is the *how* of climbing the ramp, and a held-still learned surface is
+what keeps the climb masterable rather than a perpetual reset. A surface that shifted underneath the
+climber would convert self-authorship back into the re-learning treadmill the first principle rejects,
+so the two principles are not merely adjacent — one is the means of ascent, the other the ground that
+makes ascent worth attempting. `[composable-interface realization dialogue-sourced 2026-06-16; a
+forward design note, not yet proven or specified.]`
+
 ## Why a growth-capital competitor cannot follow here
 
 Both principles converge on the non-extraction thesis that organizes this layer, and the convergence is
@@ -144,9 +157,11 @@ shapeability is only user-respecting when paired with stability (the *LTS-for-in
 channels, a multi-year stable window, opt-in paced change, the learned surface held still, security the
 over-communicated exception, and the honest multi-generation support cost named alongside it); that
 settings serve three audiences by relationship to the system (never-touch / tune-a-few / full-surface),
-named by intent rather than depth so the offer stays honest for each; and that a durable, stable,
-composable surface is something a growth-capital competitor is structurally disinclined to ship, which
-ties both principles to the non-extraction thesis and makes them a differentiator, not just a
+named by intent rather than depth so the offer stays honest for each — and better read as positions on a
+*ramp of self-authorship* that composability lets a user climb and stability keeps masterable, which is
+the mechanism binding the two principles rather than leaving them merely adjacent; and that a durable,
+stable, composable surface is something a growth-capital competitor is structurally disinclined to ship,
+which ties both principles to the non-extraction thesis and makes them a differentiator, not just a
 preference.
 
 Does **not** re-argue the brand voice or the tagline mechanics that express composability (those live

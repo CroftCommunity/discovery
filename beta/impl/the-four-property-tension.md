@@ -29,7 +29,8 @@ existing in its own file.
 
 ## Charter: what this document covers
 
-- **In scope:** the four-property tension, the field evidence for it (by name: MLS, Briar, SSB, Keet), the
+- **In scope:** the four-property tension, the field evidence for it (by name: MLS, Briar, SSB, Keet,
+  Matrix, Cwtch), the
   secondary dials that surround it, the correction from *impossibility* to *engineering tension*, and the
   conclusion that this licenses a chosen, revocable, blind Delivery Service.
 - **Out of scope (and where it lives):** the decentralized-MLS siblings that quantify the serverless cost —
@@ -98,9 +99,19 @@ by spending one property or seating an unequal peer.
   forward secrecy, and a hard dependency on an online DHT for live routing, so it is non-functional in an
   air-gapped local mesh. Keet's unequal element is the always-online coordinating infrastructure.
 
+- **Matrix (Olm/Megolm)** holds multi-device and moderation across federated homeservers, and pays with
+  offline-mesh and post-compromise strength: Megolm's shared sender-ratchet trades away some post-compromise
+  security, and the group forks badly across a network split. Its unequal element is the homeserver that
+  orders and relays for the group. `[confirm]`
+
+- **Cwtch** holds strong metadata privacy (Tor onion routing) over group chat, and pays by seating a single
+  anchor: the group runs through an untrusted server / host node, so it goes dark if that host drops. Cwtch's
+  unequal element is explicit and singular — the whole group depends on one node's uptime. `[confirm]`
+
 The pattern is uniform: reach for all four and you either seat an unequal peer (MLS's Delivery Service, Keet's
-DHT) or drop a property (Briar and SSB drop moderation, SSB also drops forward secrecy). No shipping system
-holds all four at full strength with every peer equal.
+DHT, Matrix's homeserver, Cwtch's host node) or drop a property (Briar and SSB drop moderation, SSB also drops
+forward secrecy, Matrix weakens post-compromise security). No shipping system holds all four at full strength
+with every peer equal.
 
 ## The secondary dials
 
@@ -163,7 +174,10 @@ distributed; it does not have to be seated in one node.
 theory claim. Every MLS deployment that actually ships orders commits through a central Delivery Service:
 Webex, Wire, Discord, and the Google/Apple RCS MLS-E2EE rollout are all server-ordered `[confirm]`. The
 serverless variants that break the privileged-peer dependency — DMLS / FREEK and `draft-xue-distributed-mls` —
-exist only as drafts and proof-of-concept code as of mid-2026 `[confirm]`. So the privileged ordering peer is
+exist only as drafts and proof-of-concept code as of mid-2026 `[confirm]`, and an independent late-2025 review
+of OpenMLS found a substantial gap between spec and production, with the server-side building blocks the escape
+would rest on not yet ready for use `[confirm]` — so even the components the escape needs are unshipped, not
+merely the escape itself. So the privileged ordering peer is
 empirically universal in deployment, theoretically escapable, and nobody has shipped the escape. The precise,
 defensible framing is therefore **"no production deployment we are aware of"** does serverless-ordered MLS —
 *not* "it is impossible." The strict-negative "impossible" is falsifiable and overclaims; the deployment
@@ -205,7 +219,8 @@ and the four-property tension is why the first is defensible.
 Establishes that four properties consumer messaging wants together — group moderation, multi-device, forward
 secrecy, and offline-mesh — stand in a real engineering tension that the field resolves uniformly by seating an
 unequal peer or dropping a property (MLS seats a Delivery Service; Briar and SSB drop moderation; SSB drops
-forward secrecy; Keet needs an online DHT); that the tension is surrounded by secondary dials (wire overhead,
+forward secrecy; Keet needs an online DHT; Matrix seats a homeserver and weakens post-compromise security;
+Cwtch anchors on a single host node); that the tension is surrounded by secondary dials (wire overhead,
 metadata-versus-scale, eviction lag, energy-depletion, Sybil, traffic analysis) that keep the surrounding
 engineering hard; that the tension is honestly a *quantifiable engineering tension*, not a mathematical
 impossibility, with a forward-secrecy cost that is measured and partly recoverable and an ordering role that can

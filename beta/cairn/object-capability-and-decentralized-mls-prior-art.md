@@ -74,11 +74,18 @@ the *empirical anchor* for how rare it is.
 
 **DMLS / FREEK (Phoenix R&D).** DMLS extends MLS to process **out-of-order Commits** — advancing group state
 without a single privileged node imposing a global order — with **reduced forward-secrecy loss** via
-**FREEK** (Fork-Resilient CGKA; Alwen, Mularczyk, Tselekounis). FREEK uses a **puncturable PRF** to recover
-most of the forward secrecy that naive out-of-order processing would forfeit, at a **storage cost that scales
-with fork frequency**: the more the group forks, the more key material each member must retain to heal.
-Status: an IETF draft plus a proof-of-concept OpenMLS fork, with **no production deployment as of mid-2026**.
-`[web 2026-06-26, confirm before publish.]` Relationship: learn↔.
+**FREEK** (Fork-Resilient CGKA; Alwen, Mularczyk, Tselekounis). FREEK uses a **puncturable PRF (PPRF)** to
+recover most of the forward secrecy that naive out-of-order processing would forfeit. The mechanism is
+selective deletion, not wholesale retention: per commit a client **punctures** its retained key material —
+deleting the direct-path secrets so the same output can no longer be re-derived (that deletion *is* the
+forward-secrecy property) while keeping the co-path secrets so other, concurrent commits still process. This
+is **cost-shifting, not magic**: the price is **storage** — on the order of **~8 kB per PPRF evaluation**,
+scaling with the **retention window, group size, key size, and fork frequency** (not fork frequency alone).
+The authors frame it modestly: a building block that *meaningfully improves* forward secrecy where forks are
+inevitable, **not** a full restoration of the on-schedule-deletion forward secrecy that server-ordered MLS
+gets for free. Status: an IETF draft plus a proof-of-concept OpenMLS fork (a Matrix-side DMLS fork also
+exists), with **no production deployment as of mid-2026**. `[web 2026-06-26, confirm before publish.]`
+Relationship: learn↔.
 
 **`draft-xue-distributed-mls` ("TwoMLS", Naval Postgraduate School).** A second, independent approach to
 serverless MLS, presented at **IETF 124**. It gives each member its own **"Send Group,"** achieving PCS and
@@ -88,9 +95,11 @@ where no node can be trusted to order for everyone. `[confirm before publish.]` 
 Why these are load-bearing for Drystone. They are the nearest kin to Drystone's serverless ordering, and the
 FREEK result in particular **quantifies the fork→forward-secrecy cost** that a fork-and-reconcile model
 incurs: recovering forward secrecy after out-of-order or forked commits is not free, and the price is storage
-that grows with how often the group forks. That is the honest cost curve Drystone's own fork/reconcile
-ordering sits on, stated by a sibling that measured it. Keeping the reason with the reference is the point —
-the sibling is credited not for being adjacent but for pricing the exact tradeoff Drystone makes.
+that grows with the retention window, group size, and how often the group forks. That is the honest cost
+curve Drystone's own fork/reconcile ordering sits on, stated by a sibling that measured it. Keeping the
+reason with the reference is the point — the sibling is credited not for being adjacent but for pricing the
+exact tradeoff Drystone makes. The engineering argument that *licenses* Croft's chosen ordering role sits in
+`the-four-property-tension.md`; this doc is the home for the measured cost curve that argument relies on.
 
 **The empirical anchor.** Set against these drafts, every MLS deployment that actually *ships* is
 **server-ordered** — a centralized delivery service picks the winning commit: **Webex**, **Wire**,

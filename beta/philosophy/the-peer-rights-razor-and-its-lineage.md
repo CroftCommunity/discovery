@@ -91,11 +91,16 @@ deliberately omitted (see the note that closes this section).
   introducing public-key exchange and breaking what had been an effective state monopoly on the field.
   `[confirmed]`
 - **The NSA pressure campaign of the 1970s.** In 1975 the NSA pressed the National Science Foundation to stop
-  funding civilian cryptographic research, asserting sole statutory authority over the field; and an NSA
-  employee, J.A. Meyer, warned the IEEE (in a real 1977 letter) that presenting cryptographic research to
-  audiences including foreign nationals could violate arms-export law. The campaign shifted from intimidation
-  toward engagement after Vice Admiral Bobby Ray Inman took over the NSA in late 1977. `[confirmed as events;
-  the Meyer letter's exact wording is unverifiable and is not quoted here]`
+  funding civilian cryptographic research, asserting sole statutory authority over the field. As public-key
+  cryptography reached a mass audience — RSA was described openly in Martin Gardner's *Scientific American*
+  column in 1977 — the pressure widened: an NSA employee, J.A. Meyer, warned the IEEE (in a real 1977 letter)
+  that presenting cryptographic research to audiences including foreign nationals could violate arms-export
+  law. The campaign's sharpest instrument was the Invention Secrecy Act, under which the NSA obtained
+  secrecy orders that classified civilian inventors' own cryptographic patents: George Davida's cipher patent
+  and Carl Nicolai's "Phasorphone" voice scrambler were both placed under such orders in 1978, each rescinded
+  within months after public backlash. The campaign shifted from intimidation toward engagement after Vice
+  Admiral Bobby Ray Inman took over the NSA in late 1977. `[confirmed as events; the Meyer letter's exact
+  wording is unverifiable and is not quoted here; the secrecy-order dates are per the corrected record]`
 - **Zimmermann and PGP, 1991.** Phil Zimmermann released Pretty Good Privacy free on the internet in June
   1991 — pushed by Senate Bill 266, which had proposed a government-access ("backdoor") mandate for secure
   communications equipment. Strong cryptography was then classified as "munitions" under export law, and
