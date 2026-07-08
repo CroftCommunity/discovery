@@ -801,3 +801,23 @@ spec edit; the RFC 9420 §16.4 verbatim confirms the spec correctly excludes the
 "sender-generation-gap reveals a missed message" claim. Routing overrides on the user's call: Kleppmann ->
 impl, dag-cbor -> spec companion, Rosenhan -> its own epistemics note, logo -> its own socialization stub.
 Coherence: philosophy/impl/governance/socialization READMEs + LAYERS.md updated. Committed and pushed.
+
+**atproto ecosystem intake (2026-07-08): Pixelfed backfill, Smoke Signal, NSID.** A web research
+session grounding several atproto mechanics was preserved content-faithful (§4 caveat) as
+`raw/atproto-pixelfed-backfill-smokesignal-nsid-2026-07-08.md`. Note: the session opened asking about
+stream.place but the transcript excerpt jumps straight to the Pixelfed-backfill answer without ever
+returning to it, so nothing about that site is captured. Distilled by two parallel opus subagents,
+grounded strictly in the raw transcript, into cairn (Layer 3, the open field), both em-dash- and
+drift-clean: `atproto-nsid-and-lexicon-mechanics.md` (NSID structure, the reverse-DNS authority binding,
+the h3/hthree naming-rule tension left unresolved, the fetchability gap; Smoke Signal as the worked
+example, incl. its founding motivation, the events.smokesignal.* to community.lexicon.* storage-path
+migration, and its Rust/Postgres/Redis/AIP stack, preserving an in-session SQLite-to-Postgres
+self-correction) and `atproto-content-portability-and-backdating.md` (the atproto write path for content
+backfill, backdated createdAt, the Pixelfed export-format gotcha as a migration case study, the
+tooling-gap survey (mastodon-to-bluesky/Bounce/Bridgy Fed), a preserved self-correction-discipline example
+where the session retracted an unsourced claim about a tool author's motive, and the
+@backdate.mozzius.dev labeler as a "detectable, not blocked" moderation-primitive example). Cross-references
+added: `atproto-ecosystem.md`'s one-line Smoke Signal table entry now points to the new deep-dive doc;
+`social-lexicon-group-research-brief.md`'s open research item A4 (lexicon/NSID mechanics) marked
+partially answered with a pointer, firehose-indexing/coexistence questions left open. cairn/README
+updated. Committed and pushed.

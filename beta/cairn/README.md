@@ -58,6 +58,8 @@ Boundary calls:
 | `adjacent-systems.md` | The privacy-forward / capture-resistant landscape rated on two axes: Roomy and p2panda (and their opposite postures), the MLS/MIMI standards seam, and SimpleX / Briar / Cwtch / Matrix / Session / Nostr. Conclusion: the "both" corner is niche-and-young or mature-and-metadata-leaky, the structural reason it is empty and the space Drystone occupies. |
 | `atproto-ecosystem.md` | The atproto/AT ecosystem survey: the repository model, lexicons, sync semantics, and the field of atproto-native projects (Frontpage, Roomy, the Arbiter, and others). |
 | `social-lexicon-group-research-brief.md` | The research brief mapping social-application lexicons and group feature models (Bluesky lexicon catalog, cross-platform group features, membership/moderation lifecycle) onto a per-author, membership-scoped substrate. |
+| `atproto-nsid-and-lexicon-mechanics.md` | NSID (Namespaced Identifier) mechanics: the reverse-DNS authority binding, the naming-rule tension (h3 vs hthree), and the fetchability gap; Smoke Signal as the worked example (founding motivation, PDS-plus-AppView architecture, the events.smokesignal.* to community.lexicon.* migration, and its Rust/Postgres/Redis/AIP stack). Answers research item A4 in `social-lexicon-group-research-brief.md`. |
+| `atproto-content-portability-and-backdating.md` | The atproto write path for content backfill (uploadBlob, embed.images, backdated createdAt, listMissingBlobs); the Pixelfed export gotcha as a migration case study; the tooling-gap survey (mastodon-to-bluesky, Bounce, Bridgy Fed); a self-correction discipline example (retracting an unsourced motive claim); and the backdated-post labeler as a "detectable, not blocked" moderation primitive. |
 
 ## Provenance & status
 
