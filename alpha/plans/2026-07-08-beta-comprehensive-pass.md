@@ -146,3 +146,11 @@ missing reasoning the register must point at) and reinforces Phase 3 (the resolu
 - 2026-07-08 — **Phase 4 added on user steer:** "current-state doc with decisions, but the reasoning must
   mature with it or we can't bring folks along." Codified as the `LAYERS.md` "reasoning travels with the
   decision (anti-rollup rule)" and the `DECISIONS.md` deliverable (backlog C11).
+- 2026-07-08 — **Phase 1 promotion round done (ECOSYSTEM.md → cairn/governance).** All eight staged threads
+  (T41–T48) promoted into real layer docs — 7 new cairn docs + 1 governance doc — written to beta maturity
+  (reasoning carried whole per the anti-rollup rule; verification flags inline; user-decision gates
+  surfaced, not resolved). Verified clean of prior-tier references; indexed in the cairn/governance
+  READMEs; promotion map recorded in `OPEN-THREADS.md`. Awaiting user review before the threads move to
+  `CLOSED-THREADS.md`. Residual: reconcile the T47 Keyhive pointer in `willow-meadowcap.md`. **Remaining
+  Phase-1 recovery** = the other target layers' gaps in the ledger (governance rationale, socialization
+  tactics, history present-day arc, philosophy illustrations, croft ponds, spec rationale, impl storage).
