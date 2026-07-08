@@ -56,7 +56,7 @@ This is qualitatively different from the forward-only fold. The fold is a linear
 
 Two limits, both load-bearing, both leaving the trust wall exactly where it was.
 
-- **Deletion is metadata-convergent, not existence-erasing.** The prune leaves a tombstone: the existence of the (now-removed) entry remains recorded even after the payload is gone. *Verified.* So deletion is *visible* (honest peers converge on knowing it happened), not *secret*. Good for honesty, but it means "a value was here and was removed" is itself a propagated fact.
+- **Deletion is metadata-convergent, not existence-erasing.** The prune leaves a tombstone: the existence of the (now-removed) entry remains recorded even after the payload is gone. *Verified.* So deletion is *visible* (honest nodes converge on knowing it happened), not *secret*. Good for honesty, but it means "a value was here and was removed" is itself a propagated fact.
 
 - **Convergence governs honest Willow nodes; it cannot reach a copy already taken.** Prefix pruning deletes the payload from the *store*. It does not and cannot reach a copy a node exported, screenshotted, or kept by running a modified client. This is the same irreversibility wall as cooperative chosen-ephemeral (design §8.1): Willow does **not** break it.
 
