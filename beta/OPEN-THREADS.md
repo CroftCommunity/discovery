@@ -377,13 +377,47 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
   governance-constituent** modeled explicitly. Includes the honest admission that the membership
   sequencer / superpeer is a **load-bearing centralization point** whose funding/uptime/governance must
   be named as core, and the federation/inter-collective peering design surface.
+- **Vote-accumulation under churn/partition sub-item (folded from alpha A6, 2026-07-09).** Two of the
+  three scale models above rely on *accumulated votes* — direction (a) revocable delegate-vote (liquid
+  democracy) and direction (b) elected-admin / Reddit-style moderation — so each depends on a
+  vote-accumulation mechanism whose semantics are **explicitly unmodeled**. The governance decision that
+  left this open: for threshold (k>1) membership authority the project chose **pattern A, the
+  self-certifying co-signed op**, as the canonical and only-v0 mechanism, and **deferred pattern B,
+  proposal+votes, as an opt-in per-group "deliberative mode" not built until a use case needs in-flight
+  vote visibility** (`revocation-authority.md` "Decision," 2026-06-17). A was chosen because it is already
+  green-real over the wire; it is self-certifying (authority from signed data, never observed side-state);
+  it carries no per-group tally state, so it scales and is partition-tolerant; and it does not lose the
+  hard case to B (two partitions each gathering a local quorum is identical for A and B, resolved by the
+  existing green-real `RemovedThenIncluded` hard-stop + freshness gating). B's only extra is *real-time*
+  visibility of an in-progress vote — valuable for a deliberative/contentious decision (admitting a
+  disputed member), not for the common revoke.
+  - **Problem statement.** Pattern B — and therefore any governance-at-scale model built on accumulated
+    votes — needs vote-accumulation semantics that are undefined: **when does a vote expire, can a vote be
+    retracted, and how is a stale vote rejected** under churn and partition. This is the same failure
+    surface that makes accumulated vote state "side-state, partition-sensitive," which is exactly why A
+    was preferred over B in the first place.
+  - **Proposed directions (none decided).** Bind each vote to the epoch it was cast against and reject on
+    epoch-staleness (the natural freshness gate A already gets, where a co-sign whose pre-image names a
+    stale epoch is rejected); a time/epoch expiry window after which un-accumulated votes lapse; explicit
+    retraction as a first-class signed op; treat divergent per-partition tallies as the
+    `RemovedThenIncluded`-class reconcile contradiction and hard-stop rather than silently merge.
+  - **What's indeterminate.** Whether pattern B is ever built at all (deferred until a deliberative use
+    case demands it); and if built, the expiry window, whether retraction is permitted, and how
+    accumulated votes spanning epochs are reconciled — none of which A's decision resolved ("What this
+    does NOT decide: vote-accumulation semantics if and when B is ever built"). The coupled
+    **policy-change race** (two concurrent policy edits) reduces to the same reconcile contradiction and
+    needs the hard-stop confirmed to cover it.
 - **Promotion target:** completes the federation handoff that the spec's peer-equality principle opens (`drystone-spec` Part 1 §2.3, Part 2 §5) and **07 B5** gives a legal
   shape to; touches **06** (Sybil softening). Likely a dedicated governance theme alongside T1.
 - **Gates:** decide the delegation model; pick concentration-resistance levers; model
-  member-vs-constituent; spec federation/peering; name the center's funding/governance honestly.
+  member-vs-constituent; spec federation/peering; name the center's funding/governance honestly; and
+  (folded A6) settle — or explicitly keep deferred — pattern-B vote-accumulation semantics (expiry /
+  retraction / stale-vote rejection) before any accumulated-vote scale model can harden.
 - **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D9** (+ D8 residual, E16 design surface);
   `../alpha/COHESION.md` **§22**; `../alpha/thinking/open-considerations.md` §4 (load-bearing superpeer);
-  `../alpha/thinking/local-first-as-design-imperative.md` (open frontiers).
+  `../alpha/thinking/local-first-as-design-imperative.md` (open frontiers). **A6 sub-item:**
+  `../alpha/thinking/revocation-authority.md` ("Decision" 2026-06-17 + "Open edges");
+  `../alpha/thinking/open-edges.md` §3 (vote-accumulation pattern B, `[decision]`).
 
 #### T5 — Protocol behavior at scale / group-chat failure modes
 
@@ -727,6 +761,57 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
 > `[confirm before publish]` flags + T1/T23/T29 residuals) into one tracked path-to-publication thread, so
 > it is flagged here rather than only living inside the spec.
 
+**Privacy properties (the social-layer safety invariants, as decisions).**
+
+#### T49 — Quiet membership (S3) and multi-identity with no forced linkage (S4): the two privacy properties as decisions
+
+- **Layer:** drystone-spec, fenced
+- **Status:** `open · gated` (surfaced 2026-07-09 from the social-layer reasoning-gap set).
+- **Type:** `needs-content` (couples the social-layer design gate; informs T31 rights).
+- **Problem statement.** The social layer adds adversaries the group-chat threat model does not — chiefly
+  the **inside adversary** (the person who vouched for you can see you; the family group that contains you
+  knows you are in it) and **deanonymization by topology** (the shape of your connections is close to a
+  fingerprint: "six people, two connecting to the Henderson family group, in a town of 4,000" re-identifies
+  fast). Two safety invariants are named to defend against them, and both are called out as the *unsolved*
+  ones where the inside-adversary problem lives:
+  - **S3 — quiet / asymmetric membership.** Be reachable without being mapped; **be in a group without that
+    group exposing all your other edges.** Real relationships have this texture — you can be close to
+    someone who does not know who else you are close to — and a graph that flattens it into mutual
+    visibility is the invasive version even with no company involved.
+  - **S4 — multi-identity, no forced linkage.** A person legitimately presents differently across contexts
+    and may need **hard separation** between them (the estranged relative, the person who left a community,
+    the custody situation, the marginalized person who cannot let context A see context B). Multiple
+    identities under a person's control, **with no provable linkage between them**, must be a first-class
+    assumption baked in early, not retrofitted.
+  The Drystone spec already establishes the **substrate** these would ride on — distinct **persona lineages**
+  as the unit governance resolves to (Part 2 §5.2 clients→persona by lineage; §5.6 the system attests the
+  *resolution* by provenance but does **not** attest whether a persona is a distinct *person*), with weight
+  counted one-per-distinct-persona-by-lineage. But it does **not** carry S3 or S4 as privacy
+  *properties/decisions*: that a persona may hold membership while withholding its other edges from a
+  group's view, or that two lineages may be run with no provable correlation.
+- **Proposed directions (open design questions, none decided).** For S3: can a leaf be in a group for
+  reachability while **withholding its other edges** from that group's view — i.e. quiet membership
+  expressed in the protocol rather than as a label-layer setting. For S4: does multi-identity compose as
+  **distinct lineages with deliberately no provable linkage**, versus **one lineage with scoped facets**?
+  Both interact with the graph/label layer separation (the graph layer is structural fact, local-first; the
+  label layer is the opt-in social skin where identifying information lives) and with the S2 scoped-visibility
+  rule (only consented, distance-scoped sharing is safe, because topology deanonymizes — "you cannot offer
+  visible structure with hidden identities").
+- **What's indeterminate.** Both require a **design gate** before any test (`open-edges.md` names it **G5**)
+  and are flagged as the invariants that **"must be present before this is usable by anyone at risk."**
+  Whether S3/S4 are substrate (protocol-expressible) or app/label-layer properties; how S4's
+  no-provable-linkage squares with the single-persona-by-lineage governance count (a person running two
+  unlinked lineages is, by design, two personae to the system); and the calibrated anonymity-set / distance
+  metric that S2 needs (who is at distance d, who decides) is itself unmodelled.
+- **Promotion target:** the Drystone spec's privacy/persona sections (Part 2 §5) and/or the `fenced/`
+  private-lane docs, once the design gate settles and each property is specified.
+- **Gates:** the social-layer design gate G5 (`social-layer.md` §7 open design questions); decide
+  substrate-vs-label-layer for each; reconcile S4 with the one-persona-per-lineage governance count; the S2
+  anonymity-set estimator is a coupled sub-problem.
+- **Alpha provenance:** `../alpha/thinking/social-layer.md` §4 (S2/S3/S4), §5 (adversary model), §7 (open
+  design questions incl. the G5 gate); `../alpha/thinking/open-edges.md` §5 (S3/S4 both `[decision]`, need
+  G5); `drystone-spec` Part 2 §5.2 / §5.6 (the persona-lineage substrate they would ride on).
+
 ### Croft (Layer 6)
 
 #### T12 — Consumer-pull economic inversion (M3) + the M0–M4 product-track sequencing
@@ -794,6 +879,44 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
 - **Gates:** the composable-interface ramp has no proof/spec yet (a product-track concern).
 - **Alpha provenance:** `../alpha/crystallized/principles.md` (three-audiences + composable-interface note).
 
+#### T51 — The republish / "can still quote" human-layer control (alpha A5): voice as assert-and-reach, not compelled amplification
+
+- **Layer:** croft, socialization
+- **Status:** `open · gated` (surfaced 2026-07-09 from the social-layer reasoning-gap set).
+- **Type:** `needs-content` (app/product layer, grounded in a settled spec principle).
+- **Problem statement.** The **structural** half of the republish problem is **done** (lineage-group-model
+  V3: content is born into a visibility regime and cannot silently change it — the "never overlay a
+  semi-private gate on a public plane" invariant, proven by the Twitter Circles leak, where posts gated to
+  ~150 people leaked into strangers' feeds when the ranking logic changed). What is unspecified is the
+  **human-layer control**: the UX governing republish/quote of another peer's material — including the
+  control that lets a peer **still quote** while stopping someone from pasting private-regime content into a
+  public republish. This is an **app-layer** decision, not a substrate one, and it is currently uncarried.
+- **Grounding (settled — the principle the control must honor).** Voice is the right to **assert into your
+  own record and reach willing peers** — it is **NOT** a right to compel amplification by others. The spec
+  makes this precise: the voice right is "the standing to assert into the record and be corroborated or
+  refuted on the assertion's own terms," realized as a **peer-governed, legible, exitable** field — the
+  protocol removes the adverse center that would author the field; it does not manufacture an unshaped feed
+  or oblige any peer to carry your assertion (Part 1 §2.6). The lineage is the peer-rights razor: you may do
+  what benefits you; you may not remove the rights of others. So a "can still quote" control is legitimate
+  as *a peer choosing to reach willing peers with a quote*, and illegitimate if it becomes a lever to
+  **compel** another peer's amplification or to leak content out of its birth-regime.
+- **Proposed directions (none decided).** Per-connection / per-content republish permissions with
+  non-exposing defaults (the S2 scoped-visibility posture); a hard structural boundary so private-regime
+  content cannot be lifted into a public republish (the V3 rule enforced at the UX seam, not as a runtime
+  gate that will leak); an explicit "quote reaches only willing peers" model mirroring the assert-and-reach
+  grounding rather than a broadcast/amplify default.
+- **What's indeterminate.** The concrete UX and its defaults; where the line sits between the settled
+  structural enforcement (substrate) and the human-layer control (app); and how quote/republish composes
+  with S3 quiet membership (T49) and the pruning-cannot-un-show-what-was-shown limit.
+- **Promotion target:** `croft/` (a product/app control), seam to `socialization/`; does not change the
+  spec's settled V3 / voice principle.
+- **Gates:** design the human-layer republish/quote control and its defaults honoring the assert-and-reach
+  (not compel-amplification) grounding; decide the substrate-vs-app boundary.
+- **Alpha provenance:** `../alpha/thinking/social-layer.md` §4 (S5 / the V3 structural rule) +
+  `../alpha/thinking/open-edges.md` §5 ("V3 republish UX control … a UX/product decision"); grounding in
+  `drystone-spec` Part 1 §2.6 (voice = field-integrity, assert-and-reach) +
+  `philosophy/the-peer-rights-razor-and-its-lineage.md`.
+
 > **T18–T20 added 2026-06-25** from the per-file alpha→beta coverage audit
 > (`../alpha/plans/2026-06-25-beta-coverage-per-file-audit.md`) — the long-tail unsettled finds a
 > grouped sweep missed: a settled-stance principle and two unbuilt design surfaces that beta correctly
@@ -824,6 +947,131 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
 - **Provenance:** `philosophy/peer-standing-and-the-cooperative-form.md` §6 + §8 (the `[tension]` on
   capital formation) and `philosophy/structural-argument-principles.md` §IX(32); assembled from conversation,
   delivered 2026-07-06 (via `dropoff/third.zip`, since removed — the committed governance docs are the record).
+
+#### T50 — The CroftC Phase-0 app-body IP/ownership call (invention-assignment / conflict-of-interest)
+
+- **Layer:** governance, croft
+- **Status:** `open · gated`. **Referenced, not duplicated:** the *gate itself* is the README "Standing
+  decisions surfaced, not resolved" item **"The CroftC Phase-0 IP/ownership call for the app body"** (the
+  user's call). This thread is that gate's **reasoned home** so `DECISIONS.md` can point here for the *why*;
+  per this file's intro, README gates stay tracked there and a thread may reference a gate and carry its
+  reasoning.
+- **Type:** `legal-review` (the user's decision).
+- **Problem statement.** The Phase-0 app code (functional core + CLI/web/desktop shells, 20/20 acceptance
+  tests green — the executable proof of the client-architecture ADR) was **built in a CroftC repo**
+  (`croftc/SecurityPolicy` PR #10, authored under the `cpettet_croftc` account) and imported byte-identical
+  to `experiments/croft-app-phase0/`. The **completed import is not the open question** — the open question
+  is the **invention-assignment / conflict-of-interest consideration** of code authored in an employer/CroftC
+  context vs. the author's **Head-of-Product-Security role there**: whether that origin creates an ownership
+  or assignment claim on the app body that must be cleared before the app body advances.
+- **Proposed directions (none resolved — the user's call).** The import was *directed by the user* as the
+  act that "exercises" the A8 decision (treating the material as the author's to place), with the full paper
+  trail preserved in the import's `PR-CONVERSATION.md`; but the **CroftC-side PR #10 remains OPEN (not
+  merged)**, the live, time-sensitive tail of the entanglement. Directions implicit in the corpus: obtain an
+  explicit assignment/waiver or a clean-room confirmation; keep the app body's provenance auditable
+  (byte-identical import + PR trail) so any later counsel review has the record; sequence any external use
+  behind this clearance.
+- **What's indeterminate.** Whether an assignment/CoI claim exists at all and its scope; the disposition of
+  the still-open CroftC PR #10; and how this composes with the broader foundation/IP-stewardship posture
+  (license the code AGPL-3.0-or-later, trademark the name, never let them touch) — a legal question reserved
+  to the user and counsel. **NOT-LEGAL-ADVICE.**
+- **Promotion target:** none as beta-doc content — clears a gate on the app body (`croft/` product work) and
+  feeds the governance/foundation IP-stewardship posture; the decision itself lives in the README register.
+- **Gates:** the user's IP/ownership determination (and, if needed, counsel); resolve the open CroftC PR
+  #10; sits under the broader foundation IP-stewardship / cooperative legal-review gate (README).
+- **Alpha provenance:** `../alpha/thinking/app/README.md` (Phase-0 import + the A8 note);
+  `../../experiments/alpha/croft-app-phase0/PR-CONVERSATION.md` (the verbatim import/IP paper trail; PR #10
+  OPEN); `../alpha/ROADMAP_TODO.md` A8/B11/C7; `../alpha/COHESION.md` §23; `README.md` "Standing decisions"
+  (the gate). IP-posture grounding: `../alpha/thinking/foundation-and-ip-stewardship.md` +
+  `../alpha/seeds/transcripts/raw/croft-foundation-coop-ip-naming-dialogue-2026-06-23.md`.
+
+#### T52 — Founding mottos as tracked governance input ("the means determine the end"; "the co-op is the maintenance plan")
+
+- **Layer:** governance, philosophy
+- **Status:** `open · gated` — carried as **tracked input**, not a resolved beta claim.
+- **Type:** `needs-content`.
+- **Problem statement.** Two mottos carry the thesis for **why the non-extractive structure is itself
+  non-negotiable** — why the *means* are load-bearing, not merely the outcome — and they have no reasoned
+  home in a beta doc:
+  - **"The means determine the end."** The argument: this can *only* be built this way; a principled end
+    reached by extractive means is just something else. The non-extraction must be **legible** as the source
+    of the experience (competitors can copy the *what*, not the *how-it's-governed*); the true principles
+    must be **few, load-bearing, and non-negotiable** — each "a knife that forbids a tempting pragmatic
+    decision." Better to demonstrate honest failure than to succeed despite itself.
+  - **"Every revolution has a maintenance phase" → the co-op IS the maintenance plan.** Answers "who's still
+    here in year seven, and why?" A social utility "structured not to extract but to reinforce — like a
+    **credit union, not a club**": nonprofit = grant-dependent; startup = investor-extraction; **co-op =
+    member-owned, dues-funded, surplus reinvested, indefinite self-sustenance.** The point is not to win but
+    to **persist as an option, an antidote available to those who want it.**
+- **Proposed directions (the reasoning already attached).** The fiscal resolution that keeps the second
+  motto honest: **separate the economic stake from the governance stake** — maintainers get durable fair
+  compensation for *labor* that does **not** dilute on the same schedule as governance *control*
+  ("compensation for labor is not capture; control over direction is"); the offramp is "keep doing the paid
+  work, let go of the steering on a bound schedule" — survivable, not the charity-martyr / caregiver-fatigue
+  model. Control dilutes structurally and costly-to-reverse early (board composition founder→member-elected
+  on a defined arc), never merely promised.
+- **What's indeterminate.** Whether/where these graduate into `governance/` or `philosophy/` narrative; the
+  final load-bearing-few principle list (the user deferred finalizing it); and the provenance caveat below.
+- **Promotion target:** `governance/` and/or `philosophy/` once the load-bearing-few list is settled; this
+  thread only tracks the mottos as input.
+- **Gates:** the load-bearing-few principle set finalized (the user's call); **provenance caveat
+  `[UNVERIFIED]`:** the quote "every revolution has a maintenance phase" is **unattributable folk wisdom**
+  and the Gemini-era dossier citations around it carry HIGH cap risk — primary-source-verify (or present as
+  a motto, not an attributed quotation) before any external use.
+- **Alpha provenance:** `../alpha/SOVEREIGN-COMMONS-DOSSIER.md` (the "credit union, not a club" thesis +
+  the mottos list + the provenance-debt note flagging the folk-wisdom quote); `../alpha/narrative/long-form.md`
+  ("Every revolution has a maintenance phase. Croft is the maintenance plan."); `../alpha/seeds/transcripts/raw/croft-foundation-coop-ip-naming-dialogue-2026-06-23.md`
+  Q8c (the means-determine-the-end reasoning + the labor-vs-control fiscal resolution);
+  `../alpha/plans/2026-07-08-beta-coverage-gap-ledger.md` (H10, flagged TRANSCRIPT/ALPHA-ONLY).
+
+#### T53 — Sovereign-PDS enterprise-compliance revenue model (tracked input — explicitly NOT Croft's committed answer)
+
+- **Layer:** governance
+- **Status:** `open · gated` — carried as **tracked input only**. The FACTCHECK's standing instruction
+  governs it: *"surface as input, do not let the model's for-profit framing silently become Croft's answer"*
+  — the non-extractive / cooperative stance is the user's call and is **not** displaced by this.
+- **Type:** `needs-research` (couples-with `legal-review`).
+- **Problem statement.** The most important unthought thing is **sustainability ↔ the cooperative
+  *mechanism*** (not merely the value). One concrete, real-demand model surfaced in dialogue: a
+  **managed-PDS hosting service** as the predictable utility anchor ($5–$10/mo), with value-add tiers
+  stacked on the same append-only cryptographic store — consumer (custom domains, an encrypted "vault"
+  backup, cross-posting relays), power-user/creator (firehose analytics, custom-feed hosting, one-click CAR
+  export / a "shadow mirror" outage insurance), operator/P2P (hosted iroh relays, headless
+  PDS-as-a-database, co-op family/team nodes), and — the highest-margin tier — **enterprise compliance.**
+- **The enterprise-compliance case (CONFIRMED demand).** In regulated spaces (finance/healthcare/government)
+  **SEC Rule 17a-4**, **FINRA Rule 4511**, and **FINRA Rule 2210** require corporate comms captured in
+  tamper-proof, time-stamped, un-deletable **WORM** (Write Once, Read Many) format with an immutable audit
+  trail, and for retail comms a principal pre-approval. Decentralization breaks the incumbent scraper model
+  (Smarsh, Global Relay, Pagefreezer): a corporate atproto account's identity is a DID, its data lives on an
+  external PDS, distribution runs through independent relays — so a "deleted" post can linger as a
+  tombstone/cache on untrusted relays, a compliance violation. A **"Sovereign PDS"** host *is the native
+  origin of the data* (it owns the source-of-truth repo where blocks are signed), so it can offer a **WORM
+  storage bridge** (mirror every commit to immutable storage, e.g. S3 Object Lock) and **pre-review air-gap
+  pipelines** (freeze a post in escrow until a compliance manager cryptographically approves it) — an
+  enterprise tier framed on real regulation.
+- **Proof of demand (FACTCHECK-CONFIRMED).** >$3.5B combined SEC/CFTC(+FINRA) off-channel-comms penalties
+  ~2021–2026; **Deloitte Corporate Finance $200k FINRA** fine (~676k un-archived iMessages after an iOS
+  update silently bypassed its own iMessage-disable policy); **Velox Clearing $1.8M** ($1.3M FINRA + $500k
+  SEC, Jun 2025) over WeChat; the **FINRA 2026 Annual Regulatory Oversight Report** (Dec 9 2025) flags
+  "electronic communications capture failures" as a top priority; legacy archivers charge ~$10–30/user/mo
+  basic, $50–150+/user/mo surveillance-tier. All CONFIRMED against SEC.gov / FINRA.org / vendor sources.
+- **What's indeterminate (and the discipline that governs it).** Whether **any** of this belongs in Croft's
+  model at all — the for-profit, per-seat-SaaS framing is structurally the extractive edge the peer-standing
+  → cooperative argument rules out (see T33 edge-preserving capital formation). It is surfaced as *evidence
+  that non-consumer revenue demand is real*, feeding the sustainability-mechanism question, **not** as a
+  decision. If any tier is adopted it must be squared with the non-extraction stance and the cooperative
+  form; and the permissioned-data piece (a standard PDS is public-by-default) is itself unsolved (couples T7,
+  atproto Permissioned Data).
+- **Promotion target:** none as beta content — input to the `governance/` sustainability-mechanism work
+  (T33) and the foundation/co-op economic model; sits under the README cooperative legal-review gate.
+- **Gates:** decide (the user's call) whether/how any revenue tier is compatible with the non-extractive
+  cooperative form; resolve the permissioned-data / public-by-default PDS gap (T7); **NOT-LEGAL-ADVICE** on
+  the compliance framing.
+- **Alpha provenance:** `../alpha/seeds/transcripts/raw/crypto-wars-to-p2p-pds-economics-dialogue-2026-06-22.md`
+  (~1457–1699: the tiered model + the enterprise-compliance case) + its FACTCHECK
+  (`../alpha/seeds/transcripts/raw/crypto-wars-to-p2p-pds-economics-FACTCHECK.md`, Cluster E CONFIRMED and
+  the "surface as input, do not let the for-profit framing become Croft's answer" instruction); couples T33
+  (edge-preserving capital formation) and T7 (atproto Permissioned Data).
 
 ### Socialization (Layer 8)
 
