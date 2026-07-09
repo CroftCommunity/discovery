@@ -326,10 +326,12 @@ are surfaced here, followed by the claims still not settled.
   (statement), **CRDT** (statement) all remain `[confirm]` in Part 1. CALM is the exception — verified
   this revision.
 
-- **Matrix MSC4289 steelman and the CVE-2025-49090 root-cause.** Part 2 Appendix C reports the Project
-  Hydra facts as now confirmed against Matrix primaries, but **Part 1 still carries inline `[confirm]`
-  flags** (§2.2: CVE-2025-49090 root-cause against the MSC4297 primary text; §2.3: the MSC4289
-  uncapped-creator steelman). This is a residual Part 1/Part 2 status inconsistency worth reconciling.
+- **Matrix MSC4289 steelman and the CVE-2025-49090 root-cause.** ✅ **RECONCILED 2026-07-09 (C14).** Part 2
+  Appendix C confirmed the Project Hydra facts against Matrix primaries; Part 1's two stale inline
+  `[confirm]` flags (§2.2 CVE-2025-49090 root-cause; §2.3 the MSC4289 uncapped-creator steelman) plus the
+  §5 status-summary line have been aligned up to the confirmed state, each pointing at Part 2 §7.5.2 /
+  §7.3 / Appendix C where the primary-source check lives. What genuinely remains `[confirm]` in Part 1 is
+  narrower: Beer/Cybersyn/OGAS history, Ostrom verbatim, and the CRDT/local-first attributions.
 
 - **Ostrom principles 6 and 7** (verbatim wording against the 1990 primary) and **Wilson-Ostrom-Cox
   2013** subsidiarity (verbatim, and distinct from the 1990 book).
