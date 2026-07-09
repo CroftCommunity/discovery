@@ -176,7 +176,12 @@ missing reasoning the register must point at) and reinforces Phase 3 (the resolu
   it grounds, cross-checked against use. The indexing surfaced two defects → tracked as **C13** (the
   AGPL-vs-Apache reference-code license conflict between the two governance docs) and **C14** (the
   drystone-spec Part 1/Part 2 Project-Hydra `[confirm]` status inconsistency).
-- 2026-07-08 — **Remaining pass work:** Phase 3 (quote/resolution sweep, C10 — exemplar done); Phase 4
-  (`DECISIONS.md` register, C11); the deferred spec-rationale additions + governance mottos/PDS-revenue; the
-  move of promoted threads T41–T48 into `CLOSED-THREADS.md` after review; and the two new reconciliations
-  C13/C14.
+- 2026-07-09 — **C13 DECIDED (AGPL-3.0-or-later + DCO reference impl) and C14 reconciled (spec Part1/Part2
+  Hydra flags).** Both propagated across the docs; A14's reference-code half superseded by C13.
+- 2026-07-09 — **Phase 4 DONE (C11): `beta/DECISIONS.md`** — 12 settled decisions + 11 open gates, each a
+  pitch-resolution row linking down to its beta reasoning home (anti-rollup rule); reasoning-gaps flagged
+  (A6 vote-accumulation, S3/S4 privacy properties, the A8 app-body IP call, A5 republish-UX). Indexed in
+  `beta/README.md` alongside LAYERS.md and the per-layer reference-indexes.
+- 2026-07-09 — **Remaining pass work:** Phase 3 (quote/resolution sweep, C10 — exemplar done; sweep the
+  older pre-recovery docs); the deferred spec-rationale additions + governance mottos/PDS-revenue; and the
+  move of promoted threads T41–T48 into `CLOSED-THREADS.md` after review.

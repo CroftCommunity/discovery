@@ -153,6 +153,17 @@ Companion artifacts:
   beta that are not yet settled enough to enter a theme doc (DRAFT / decision-gated / fact-unconfirmed
   material), each with its gates named and a promotion target. Keeps the need from being lost without
   letting it pollute the settled themes. A process artifact, not a theme doc.
+- **`DECISIONS.md`** (this level): the current-state decisions register — a *pitch-resolution index over
+  the reasoning*, one row per settled decision and open gate, each linking down to the beta doc + section
+  that carries the full argument (the `LAYERS.md` anti-rollup rule). Read it to see, at a glance, what is
+  decided (and why, via the link) versus what remains the user's call. Not a place decisions are argued or
+  resolved.
+- **`LAYERS.md`** (this level): the canonical layer model, the two traversals, and the cross-layer
+  discipline (quote/resolution, reasoning-travels-with-the-decision, consolidate-to-one-whole). Governs
+  when a layer README disagrees.
+- Each layer also carries a **`reference-index.md`** — the per-layer source-of-record (cairn's is a
+  projects register), every source with its epistemic tag, primary/secondary marker, resolvable locator,
+  and the doc it grounds.
 - **`../alpha/BETA-ROLLUP.md`** (prior level): the auditable alpha→beta rollup ledger: per-source
   treatment + landing, the exclusions, and the coverage gap still to close. Reflect on it to confirm
   nothing was missed or pulled up unexpectedly.
