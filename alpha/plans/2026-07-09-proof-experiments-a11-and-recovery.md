@@ -125,6 +125,21 @@ here — the spec establishes it holds identically either way.
 
 **Proposal (for review).** Adopt a **tiered `W_target`, expressed in epochs/generations**: interactive and small groups target **`W_target` = 1 epoch** (revocation effective by the next commit boundary); large/broadcast tiers tolerate a small bounded **`W_target` ≤ ~3 generations** to amortize rekey cost — because a tight interactive window is what makes a ban or expulsion credible while a broadcast tier cannot afford per-message rekey, so the bar should track the tier's actual safety need rather than a one-size compromise. The specific tier counts and the exact per-tier numbers are a product/safety judgment (how fast must a ban take effect) and are **the maintainer's call to accept or adjust** — this proposal fixes the *shape* (tiered, generation-denominated, loosest tier safe on its own) and offers defensible starting values, not a settled constant.
 
+**Decided refinement (2026-07-09, with the maintainer): revocation is two-phase, and the bar is a layered structure, not one latency.** Because *all state and representation is local*, split revocation into two layers:
+
+- **Phase 1 — experiential (immediate, local, free).** The moment the ban fact crosses the governance threshold, every peer's client **auto-ignores / filters** the revoked party as standard behavior. This needs no rekey and no round-trip — it is a local-representation change, so it is instant. This is the **ATProto-block-shaped layer**: exactly how an `app.bsky.graph.block` works today (AppView-layer experience-shaping, immediate in-app, *no* cryptographic exclusion) — see `../../beta/cairn/atproto-selfhosting-appviews-and-bridges.md` (the inbound/outbound blocking asymmetry, "experience-shaping, not visibility-control"). It couples the T3 moderation "block-as-revocation" lever and the `fenced/app-store-survivability-and-abuse-posture.md` blind-lever set.
+- **Phase 2 — cryptographic (epoch-bounded).** The revoked party loses the key and can no longer decrypt *new* state, effective at an epoch roll.
+
+**The force-immediate-roll lever (always available).** A group can force an epoch roll on demand, paying the rekey cost, to collapse phases 1 and 2 into one — closing the read-residual at once for the severe case.
+
+**Default phase-2 timing tiers on the force-roll cost, which = f(group size, connectivity):**
+- **Small (< ~50) or well-connected:** a forced/immediate roll is cheap, so *immediate* cryptographic revocation is viable as the norm — phase-2 effectively rides phase-1.
+- **Hundreds+ or poorly-connected:** an immediate roll is expensive (high MLS commit rate, bandwidth, more forks to reconcile), so the **slow natural epoch roll is the default** and force-roll is reserved for the severe case, paid knowingly. Here the epoch-bounding is a *feature*, not a limitation.
+
+**The honesty caveat (must be explicit in UX + governance).** Between phase 1 and phase 2 the revoked party can **still decrypt new messages** (including discussion of their own removal) — not merely "still appear." For an ordinary ban this is an acceptable awareness-residual with clear UX; for a **severe** case (a harasser, must-not-see-content) it is a genuine exposure, which is exactly what the force-roll lever is for. Never present phase 1 as cryptographic exclusion.
+
+**Consequence for A11.** With immediacy carried by phase 1 regardless of capability track, the phase-2 epoch latency is a read-residual, not an abuse/participation window — so **Track A (Meadowcap, epoch-bounded) is near-certainly adequate**, and Track B's generation-bounded near-immediate revocation is not required (it becomes the documented future upgrade). E-A11.A now measures the *force-roll cost curve vs group size/connectivity* (where the ~50 boundary and the ≤~3-generation loose-tier bound land), not merely a fixed epoch window. The tier numbers stay tunable and are confirmed in E-A11.A; the *shape* (two-phase, force-roll lever, cost-tiered default) is decided.
+
 ### E-A11.A — Meadowcap track: measure the effective revocation window vs epoch length
 
 - **Type / Rung:** `needs-experimentation`. **Rung A on `willow-rs` / Meadowcap if the real revocation-by-
