@@ -4,7 +4,7 @@
 prior-art and reasoning behind Croft's cross-platform identity model; the on-the-wire method choice and the
 per-platform verifier live in the identity spec, not here. External facts carry verification flags; the
 atproto-native-method-set fact cites the FACTCHECK source of truth and is not re-verified here. Two user
-decisions this design depends on (A9, A10) are surfaced as open, not resolved.`
+decisions this design depends on (A9, A10) are now decided and recorded below.`
 
 ## Overview
 
@@ -37,8 +37,8 @@ mutually-referencing set of claims a verifier walks and checks, not a single key
   `atproto-nsid-and-lexicon-mechanics.md`; the wider atproto ecosystem positioning lives in
   `atproto-ecosystem.md`. This document is the *why*, not the *how*.
 - **Boundary call:** this stops at the model and its prior art. Two design decisions it depends on (the
-  anchor-URI stability contract and the location of the rotation key) are the user's calls and are surfaced
-  below as open, not answered.
+  anchor-URI stability contract and the location of the rotation key) have now been decided and are recorded
+  below.
 
 ## The thesis: provenance attestation, not a shared key
 
@@ -225,23 +225,32 @@ CONIKS detect misbehavior by distributed monitoring; the delegate holds only a d
 log's authority is the log itself. The provenance chain is trustworthy because it is checkable from the edges,
 not because any node is believed.
 
-## Two decisions this depends on (surfaced, not resolved)
+## Two decisions this depends on (now decided)
 
-This design does not stand entirely on its own; it rests on two decisions that are the user's to make. They are
-named here as open so the dependency is visible, and they are deliberately left unanswered.
+This design does not stand entirely on its own; it rests on two decisions that were the user's to make. Both are
+now decided, and the resolutions are recorded here so the dependency and its answer are visible together.
 
 - **A9 — the anchor-URI stability contract.** What guarantee does the root's hosting URI carry over time, and
   who is on the hook for it? The `did:webvh` `portable:true` property makes moving the hosting *possible*, but
   the operational contract — how stable the anchor URI is expected to be, and what a verifier should assume
-  when it changes — is a policy decision, not a mechanism the method settles. Open; the user's call.
+  when it changes — is a policy decision, not a mechanism the method settles. **Decided:** the anchor is a
+  *stable logical URI* (mutable content at a domain/path committed to staying resolvable or redirecting), not a
+  content-addressed immutable identifier, **plus a portable, self-held offline proof-of-prior-identity** so that
+  a location change (`foo@bar` → `foo@baz`) or a domain lapsing or folding does not sever the provable link.
+  Mechanically this rests on what the model already carries: the `did:webvh` SCID over the `nextKeyHashes`
+  pre-rotation log is the portable, self-anchored history, and the bidirectional `alsoKnownAs` equivalence
+  ladder binds the old and new locations — so the old→new binding lives in a self-held signed chain and does
+  not depend on the old domain still resolving.
 
 - **A10 — PDS-held vs self-controlled `did:plc` rotation key.** Does the principal's atproto spoke rotation key
   live with the PDS (convenient, but the host can rotate you) or under the principal's sole control (sovereign,
   but the principal bears the recovery burden)? This directly sets how much the spoke depends on its host and
-  how "credible" the credible-exit really is in practice. Open; the user's call.
+  how "credible" the credible-exit really is in practice. **Decided:** rotation-key custody is *pluggable with
+  a safe default* — PDS-held is acceptable as a governance choice (not a protocol mandate), self-control is the
+  available sovereignty option, and both persist long-term. A9's portable proof preserves credible exit
+  regardless of which custody a principal runs.
 
-Both feed the identity spec's on-the-wire method choice and the per-platform verifier write-up; neither is
-resolved here.
+Both feed the identity spec's on-the-wire method choice and the per-platform verifier write-up.
 
 ## What this establishes (and does not)
 
@@ -265,6 +274,7 @@ Does **not** decide the on-the-wire preferred-DID-method or write the per-platfo
 the identity spec), does **not** re-verify the atproto native-method-set fact or the `alsoKnownAs`/`equivalentId`
 distinction (both cite the FACTCHECK source of truth, coupling thread T7), does **not** certify the
 dialogue-sourced `did:webvh` and prior-art rows (they carry verification flags and need a refresh pass against
-primary sources before external use), and does **not** resolve decisions A9 (the anchor-URI stability contract)
-and A10 (PDS-held vs self-controlled `did:plc` rotation key) — those are surfaced as open and are the user's
-calls.
+primary sources before external use). Decisions A9 (the anchor-URI stability contract) and A10 (PDS-held vs
+self-controlled `did:plc` rotation key) are now decided and recorded above — A9 as a stable logical URI plus a
+portable, self-held offline proof-of-prior-identity, and A10 as pluggable rotation-key custody with a safe
+default.

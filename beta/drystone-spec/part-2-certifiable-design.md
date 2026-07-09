@@ -1143,17 +1143,17 @@ What the gate cannot do is turn corroborated completeness into proven completene
 
 *Running example: an irreversible action premised on Bob's removal fails closed until that removal is final, never acting on a merely probable state (beat E7).*
 
-#### 7.3.9. Principal recovery and break-glass (to be determined)
+#### 7.3.9. Principal recovery and break-glass (decided direction; mechanism pending)
 
-`Design.` This subsection is a stub: it fixes the shape and the one binding invariant, and defers the mechanism.
+`Design.` This subsection fixes the shape and the binding invariants and records the decided recovery direction; the mechanism is deferred to the recovery-anchor prototype.
 
 Succession is not a distinct primitive. A Group Role is not intrinsic to its holder (§5.2), so a lost or vacated role, including the root, is reassigned by the ordinary fold (a revoke-then-grant that folds and converges) or, if contested, becomes a fork with full history on both sides (§7.6). A vacant role is not a brick, because survivors can always fork and re-establish authority among themselves (the exit and fork floor, §5.3). What remains is one primitive: recovering a principal whose key material is lost (death, lost keys, or incapacitation), without letting the recovery path become a center.
 
-Recovery is a ladder by strictness, from a limited-read custodian over a shared recovery secret (a capability, not authority, the standing of Part 1 §2.7), through a k-of-n guardian threshold, to a time-delayed contestable break-glass, with a survivor fork as the floor when no recovery quorum remains. The strictness rungs trade availability against resistance to abuse.
+The decided direction fixes the roles and how they compose, and leaves the settings to the prototype. The **meer is always blind**: it never holds *usable* key material, forwarding only sealed material, and it never becomes the recovery role (§5.4). Recovery is a **separate custodial role**, distinct from the meer, that holds the key material a recovery needs but accesses it only under defined conditions, a conditional break-glass rather than standing read access (a capability, not authority, the standing of Part 1 §2.7). It **composes** a social-recovery **quorum** and/or a **designated custodial delegate** over a **self-custody floor**, with a **group-level default** recovery arrangement and an optional **more-specific per-user** designation. The **`did:plc` rotation key** folds into this custody, as one of the secrets the recovery role protects. A survivor fork remains the floor when no recovery quorum remains (the exit and fork floor, §5.3).
 
 The one binding invariant, which any recovery mechanism specified here **MUST** satisfy, is that recovery restores or reassigns exactly the lost principal's authority and never more, because a recovery path that could grant more than the lost holder held would be an authority no quorum bounded and no fork escaped, which is a center (Part 1 §2.7); with a capped root, even root recovery is so bounded. The recovery delegate is itself revocable and forkable, like any role, so it is not a center either.
 
-Deferred: the concrete trigger, the guardian set and threshold defaults, the break-glass delay and contest window, and the recovery secret's encoding. This is a known pattern (social and threshold recovery), not open research, and the properties a specified mechanism must pass are enumerated in the consolidated experiments file, Stage 8 (recovery delegation and break-glass).
+Deferred `[to be determined by the recovery-anchor prototype]`: the exact access conditions, how the quorum and the delegate compose, the group-default arrangement's shape, the break-glass delay and contest window, and the recovery secret's encoding. This is a known pattern (social and threshold recovery), not open research, and the properties a specified mechanism must pass are enumerated in the consolidated experiments file, Stage 8 (recovery delegation and break-glass).
 
 ### 7.4. Freshness: no false "current"
 
