@@ -12,7 +12,7 @@ is frozen at `../../alpha/seeds/p10-p11-corpus/`.)
 
 **License (text):** CC0 1.0 Universal (Public Domain Dedication).
 
-**License (implementations):** Apache-2.0 (or any).
+**License (reference implementation):** AGPL-3.0-or-later + DCO (C13, 2026-07-09).
 
 ---
 
@@ -102,7 +102,7 @@ third party's patent; implementers are responsible for their own due diligence.
 > therefore protective as prior art, only once a skilled implementer can build the synchronization layer
 > from the text alone. Part 2 §7.2 (message formats) is not yet field-by-field, and the `ENABLING`
 > encodings in Part 2 Appendix B are open. Mint the v0.1 archival DOI off the first version where those
-> are closed, not off this one. (Spec-text license `CC0 1.0`; reference-code license `Apache-2.0`.)
+> are closed, not off this one. (Spec-text license `CC0 1.0`; reference-code license `AGPL-3.0-or-later + DCO`, C13.)
 
 ## How to read the normative text
 

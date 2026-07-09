@@ -176,7 +176,7 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
      FACTCHECK SoT. Also resolve the spec's own reconciliations: the **`croft-*` → `drystone-*` tag rename**
      (re-prove, since the tag is signed over) and the **SHA-256 (§4) vs BLAKE3 (§7) hash-function** choice.
 - **Promotion target:** `drystone-spec` → an `rc`/publish-stage spec + a Zenodo DOI + OpenTimestamps + a
-  public Git release (the vehicle settled in **07 Pillar C / K9**; spec-text **CC0 1.0**, code **Apache-2.0**).
+  public Git release (the vehicle settled in **07 Pillar C / K9**; spec-text **CC0 1.0**, code **AGPL-3.0-or-later + DCO**, C13).
 - **Gates:** the Track A/B capability decision (couples T1/T24) blocks the capability wire format; the rest
   is concrete spec-writing + a fact-confirmation sweep. Attorney review is **tracked separately in T32**
   (it gates the publish, but it is legal-review work, not spec-writing).
