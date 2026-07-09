@@ -1,0 +1,424 @@
+# Proof-experiment plan — A11 revocation-immediacy spike + A2/A12 recovery-anchor prototype
+
+date: 2026-07-09 · author-read source: `../../beta/DECISIONS.md` (2026-07-09 block);
+`2026-07-09-engineering-validation-plan.md` (WS2 recovery-anchor prototype, WS4 T40 attestation);
+`../../beta/OPEN-THREADS.md` (T22, T36, T40, T30); `../../beta/drystone-spec/part-2-certifiable-design.md`
+§5.3/§5.4/§5.5, §7.2, §7.3.9, §7.4.2, §11.9.3, Appendix A (Track A/B entry), Appendix B (the beam);
+`../../beta/cairn/willow-meadowcap.md` (Track A / Meadowcap); `../../beta/cairn/object-capability-and-decentralized-mls-prior-art.md`
+(Track B / Keyhive maturity + DMLS/FREEK cost curve); `../../beta/impl/delivery-layer/08-experiment-methodology.md`
+(the Rung A/B/C fidelity ladder); `../../beta/impl/experiments/drystone-experiments-consolidated.md`
+(Stage 8 recovery ladder, Stage 9 tenure); `../../beta/impl/delivery-layer/12-replant-experiments.md` (E12 set);
+`../../beta/drystone-spec/part-1-reasoning-underpinnings.md` §2.8 (faithful representation).
+
+> **What this is.** A PLAN — experiment designs, success criteria, and sequencing for two decided-but-unproven
+> items. It plans the proofs; it does **not** run them, and it edits no spec or thread doc. Thread numbers,
+> spec sections, and E-numbers are cited for traceability; beta docs are referenced by path. Beta-tier
+> discipline does not bind an `alpha/plans` doc, but the epistemic vocabulary here is the spec's own (§1.1
+> status ladder; `08-experiment-methodology.md` fidelity ladder A/B/C) so plan and corpus speak one language.
+> Every experiment below is tagged with its **Rung**, the **real library/tool** where applicable, the
+> **claim it tests**, and the **pass/fail criterion** — the four things `08-experiment-methodology.md` §5
+> requires of a result before it is admissible as evidence.
+
+---
+
+## Problem statement
+
+Two items were **decided in direction** in the 2026-07-09 open-gate walkthrough (`../../beta/DECISIONS.md`)
+but remain **unproven in mechanism**. Each is currently tagged `Design` / `[confirm]` / `Load-bearing,
+unearned` in the spec, not `Verified`. The proofs below are what turn them.
+
+1. **A11 — the capability mechanism.** Decision deferred to a **revocation-immediacy spike**: pick **Track A
+   (Meadowcap-shaped: delegated attenuable tokens + per-Group epoch keys; no native revocation — revoke =
+   decline-to-renew, revocation latency bounded by the epoch/expiry interval)** vs **Track B (Keyhive-shaped:
+   convergent membership/capability graph; removal + re-encryption first-class; generation-bounded near-
+   immediate revocation)**. Spec homes: §7.2 (R1–R6, the mechanism-neutral grant/revocation interface, tagged
+   `Design`), §5.5 (the Meadowcap grounding), Appendix A (the Track A/B "Alternatives Considered" entry, which
+   states plainly that **both satisfy R1/R2/R3/R6 identically — only revocation immediacy differs** — and
+   names the exact next step: *define Drystone's revocation needs concretely, then test each track against
+   them*). **On the v0.1 DOI critical path:** the **capability wire format is the last `ENABLING` encoding**
+   that makes §7.2 buildable from text alone, hence the last domino before the Zenodo DOI is mintable
+   (T30 sequencing; `2026-07-09-engineering-validation-plan.md` critical-path sketch).
+
+2. **A2 + A12 — the recovery anchor.** The **principles are decided and fixed** (do not re-decide): the meer
+   is **always blind** (invariant, never holds usable keys, §5.4); recovery is a **separate custodial role**
+   with **conditional / break-glass** access (not standing read); it **composes** a social-recovery **quorum
+   and/or a designated custodial delegate** over a **self-custody floor**; a **group-level default** plus an
+   optional **per-user** designation; the `did:plc` rotation key (A10) folds into this custody. §7.3.9 records
+   this as *decided direction; mechanism pending* and defers, verbatim, five parameters: *the exact access
+   conditions, how the quorum and the delegate compose, the group-default arrangement's shape, the break-glass
+   delay and contest window, and the recovery secret's encoding.* The prototype must fill exactly those.
+
+The proofs move A11 from `Design`/deferred → a **decision memo + chosen capability wire-format direction**
+(unblocking the DOI), and the recovery item from §7.3.9-pending → a **recovery mechanism spec (k, n, delay,
+conditions, encoding) + a working re-provision-after-total-loss prototype** → `Verified`.
+
+```
+        A11 decided ──► capability wire format pinned ──► §7.2 buildable from text ──► v0.1 DOI mintable
+                                                                                        (the publish road)
+
+        recovery mechanism proven ──► §7.3.9 five parameters filled ──► §7.3.9 Design → Verified
+                                                                        (the prove road, raises toward rc)
+```
+
+---
+
+## Approach
+
+### Fidelity discipline (binding on every experiment below)
+
+Per `08-experiment-methodology.md`: every result states its **Rung in the verdict line**, pins and prints
+exact library versions, and never substitutes a stand-in for the exact component a claim is about
+(XOR-as-MLS is the canonical forbidden move). Rung A = real library. Rung B = model-form, naming what was
+stood in; a Rung-B `CONFIRMED` does **not** retire a `[confirm]` about the real mechanism — it opens a
+tracked Rung-A follow-up. Rung C = static / spec-check. A **FALSIFIED result is a first-class success**.
+
+E-number namespaces below (`E-A11.*`, `E-REC.*`) are **new**, deliberately not colliding with the existing
+`E1`–`E12` delivery-layer sets or the Stage 1–9 consolidated-experiments series. Where an experiment restates
+a consolidated Stage as an executable measurement, the coupling is named (e.g. E-REC.1 ⇄ Stage 8 Group V).
+
+### Host: the reference-implementation workspace (not greenfield)
+
+Every Rung-A experiment below is built **in / against the existing reference implementation** —
+`experiments/alpha/croft-chat/` (the `social-graph-core` + `group-chat-core` crates behind the Transport
+port; the `croft-chat` CLI shell; substrate = the mutation-vetted `local_storage_projection` redb crate).
+This is **WS0** of the engineering-validation plan (`2026-07-09-engineering-validation-plan.md`): the
+workspace closed at P20 (2026-06-27) already proving multi-node iroh convergence + the §7.6 hard-stop, and
+these proofs extend it rather than spinning up throwaways. Concretely: the A11 capability layer is added to
+`social-graph-core` (or a `capability-core` sibling) and exercised through the CLI's real iroh transport;
+the recovery experiments extend the same session/identity surface and reuse the P18–P20 convergence +
+fingerprint/diff harness. Rung-A "real library" therefore means *the reference impl's own dependency-pinned
+stack* (mls-rs/openmls, willow-rs/Meadowcap, iroh, redb), not a separate rig. A throwaway rig is allowed
+only for a Rung-B model where the real component is unshippable (Keyhive, E-A11.B).
+
+---
+
+## Track A11 — revocation-immediacy spike
+
+The Appendix A entry already isolates the decision to **one axis: revocation immediacy at acceptable cost**.
+So the spike is (0) fix the bar, (A) measure Track A against it, (B) model Track B against it, then apply an
+explicit decision rule. Everything R1/R2/R3/R6-shaped is held constant across tracks and is **not** re-tested
+here — the spec establishes it holds identically either way.
+
+### E-A11.0 — Threat model: define the acceptable revocation window (the pass/fail bar)
+
+- **Type / Rung:** `needs-content` + adversarial analysis. **Rung C** (spec-check / static — this defines the
+  yardstick; it exercises no runtime).
+- **Claim it tests:** that Drystone *has* a concretely-stated revocation-immediacy requirement — the "needs
+  definition" Appendix A names as the precondition for settling A11. Without this, neither track can be
+  scored.
+- **What it produces.** The **acceptable revocation window** = the gap between decision-to-revoke (the
+  governance fact folds) and effective-revocation (no honest third party will accept the revoked grant),
+  stated as an **epoch / membership-graph-generation bound, never a wall-clock interval** (Part 1 §2.0.1;
+  §7.2 R4). Stated as a hard pass/fail latency bar against three threat scenarios:
+  - **C10 ban-evasion re-add** (§11, T5 sub-corpus) — a banned actor re-adds via a new device leaf; the
+    window in which a stale-but-unrevoked capability still reads.
+  - **Kick-a-bad-actor** (routine expulsion cadence) — the moderation baseline: how fast a normal expulsion
+    must take effect to be credible.
+  - **Equivocation** (§7.3.1 concurrent-tiebreak surface; consolidated Stage 5 C9) — a member acting on both
+    sides of a partition; the window a revoked-but-unsynced holder can exploit.
+- **Pass/fail criterion (the bar itself).** Output a single **target window `W_target`** expressed in epochs/
+  generations, plus a **complexity budget** and a **cost ceiling** (rekey frequency, bandwidth, MLS commit
+  rate the deployment can absorb). `W_target` is the number every downstream A11 experiment is scored against.
+- **Dependency:** **must complete before E-A11.A and E-A11.B** — it is the ruler they are measured with.
+
+### E-A11.A — Meadowcap track: measure the effective revocation window vs epoch length
+
+- **Type / Rung:** `needs-experimentation`. **Rung A on `willow-rs` / Meadowcap if the real revocation-by-
+  epoch path is exercisable**; else **Rung B model-form**, naming the stand-in (a faithful epoch-key +
+  attenuable-token model — Meadowcap's Data Model + capability layer are `Final` per `willow-meadowcap.md`,
+  but the Rust impl is pre-1.0, so real-lib exercise of the *epoch-key revocation* path may not be reachable;
+  if not, Rung B and say so). Per-Group epoch keys ride on **`mls-rs` (0.55.2, pinned)** for the actual rekey
+  — an epoch is an MLS commit — so the cost half is Rung A on real MLS regardless.
+- **Claim it tests:** that Track A's **revocation window is a function of epoch length**, and whether a
+  short-epoch configuration clears `W_target` (E-A11.0) at acceptable cost.
+- **What it measures.**
+  - **Effective revocation window as f(epoch length):** revoke = decline-to-renew at the next epoch boundary,
+    so the window ≈ one epoch. Sweep epoch length; record the window in generations/epochs.
+  - **Cost of short epochs:** rekey frequency, bandwidth per rekey, and **MLS commit rate** at
+    representative hot-N (couple the WS1 §11.10.1 A–G matrix; reuse its `mls-rs`-on-aarch64 rig rather than
+    duplicating). This is where the FREEK cost curve bites — see risks.
+- **Pass/fail criterion.** **PASS** iff there exists an epoch length such that the effective window ≤
+  `W_target` (E-A11.0) **and** the resulting rekey/commit cost ≤ the E-A11.0 cost ceiling. **FALSIFIED** (a
+  first-class result) if no epoch length satisfies both — i.e. Track A cannot clear the bar without cost that
+  exceeds budget. Verdict line names the Rung explicitly.
+
+### E-A11.B — Keyhive track: model generation-bounded revocation latency + convergence cost + maturity risk
+
+- **Type / Rung:** `needs-research` + `needs-experimentation`. **Rung B (model-form / paper-analysis)** — this
+  is the expected rung, because **Keyhive is IN-FLIGHT Ink & Switch research, not shipped** (per
+  `object-capability-and-decentralized-mls-prior-art.md`: Keyhive/Meadowcap references are `[dialogue-sourced
+  2026-06-24, pending verification]`; the DMLS/FREEK siblings are drafts/PoC with *no production deployment as
+  of mid-2026*). No Rung-A verdict is expected; any Rung-B `CONFIRMED` opens a tracked Rung-A follow-up that
+  cannot be closed until Keyhive ships.
+- **Claim it tests:** Track B's **generation-bounded revocation latency** (near-immediate: removal +
+  re-encryption are first-class convergent ops) and its **convergence + re-encryption cost**, plus an explicit
+  **research-maturity risk** estimate.
+- **What it estimates/models.**
+  - Generation-bounded revocation latency: the window ≈ one membership-graph generation to converge — model
+    it and compare to `W_target`.
+  - Convergence + re-encryption cost: the DMLS/FREEK cost curve is the honest anchor — recovering forward
+    secrecy after forked/out-of-order commits costs **storage that scales with retention window × group size ×
+    fork frequency** (~8 kB per PPRF evaluation; `object-capability-...` doc). Model this against the E-A11.0
+    complexity budget.
+  - **Research-maturity risk:** unshippability as a first-class output — Track B on the DOI critical path
+    means waiting on external in-flight research.
+  - **If feasible:** a *minimal convergent-capability-graph model* (Rung B) — enough to sanity-check the
+    generation-bound latency claim, not a production construction. Explicitly optional; do not block the memo
+    on it.
+- **Pass/fail criterion.** This experiment does not "pass/fail" a build; it **produces a scored estimate**:
+  (latency vs `W_target`, cost vs budget, maturity-risk rating). The scoring feeds the decision rule below.
+
+### The decision logic (explicit)
+
+```
+   ┌────────────────────────────────────────────────────────────────────────┐
+   │  E-A11.0 fixes W_target + cost ceiling                                   │
+   └───────────────┬────────────────────────────────────────────────────────┘
+                   ▼
+   ┌───────────────────────────────┐        short-epoch Track A clears
+   │  E-A11.A: does short-epoch     │  YES   the bar at acceptable cost
+   │  Track A window ≤ W_target     │ ─────► ┌──────────────────────────────┐
+   │  at cost ≤ ceiling?            │        │ PICK TRACK A NOW.            │
+   └───────────────┬───────────────┘        │ Unblocks the capability wire │
+                   │ NO                      │ format → the DOI, WITHOUT    │
+                   ▼                         │ waiting on Keyhive.          │
+   ┌───────────────────────────────┐        └──────────────────────────────┘
+   │  E-A11.B: invest in Track B    │
+   │  (Keyhive), accept the         │
+   │  in-flight-research timeline.  │
+   └───────────────────────────────┘
+```
+
+**One line:** *if short-epoch Track A clears the E-A11.0 threat-model bar at acceptable cost, pick A now (it
+unblocks the DOI without waiting on Keyhive); only if A cannot clear the bar do we invest in B and accept the
+timeline.*
+
+- **Deliverable:** a **decision memo** (which track, scored against E-A11.0, with the FALSIFIED/PASS evidence)
+  **+ the chosen capability wire-format direction** — the input that lets T30 pin the last `ENABLING` encoding
+  and mint the DOI. Feeds back into §7.2 (remove "the mechanism is deferred"), Appendix A (resolve the Track
+  A/B entry), and the T40 attestation-credential shape (WS4).
+
+---
+
+## Track A2 + A12 — recovery-anchor prototype
+
+The principles are fixed (§7.3.9; `../../beta/DECISIONS.md` A2+A12). These experiments work out the
+**mechanism** — the five deferred parameters — and prove the two must-hold invariants and the must-reject
+adversarial cases. They map onto and make executable the consolidated **Stage 8 (recovery ladder)** and
+**Stage 9 (tenure / survivor-re-key)** properties.
+
+### E-REC.1 — Quorum mechanism (threshold recovery)
+
+- **Type / Rung:** `needs-proving`. **Rung A** on a real **threshold-crypto library** for the secret-sharing
+  (candidate: a vetted Rust Shamir / VSS or threshold-signature crate — *choice is an open question, see
+  risks; the library must be real per the fidelity ladder, not a hand-rolled polynomial*) **+ Rung A on
+  `mls-rs 0.55.2`** for the MLS re-provision material. Drystone's own governance-chain structures are
+  **Rung B** until WS3 (redb) lands (couples `2026-07-09-engineering-validation-plan.md` WS3).
+- **Claim it tests:** that the recovery material — **the `did:plc` rotation key (A10) + the MLS re-provision
+  material** — can be **k-of-n threshold/Shamir-shared** among guardians, reconstructed only by k concordant
+  guardians, under a conditional-access trigger with a break-glass delay + contest window. (Consolidated
+  Stage 8 Rung 2 + Group V1/V2.)
+- **What it works out (fills §7.3.9 parameters).** The reconstruction protocol; **k and n** defaults; the
+  **conditional-access trigger** (what fact fires recovery); the **break-glass delay** and **contest window**
+  length (in epochs/generations, not wall-clock).
+- **Pass/fail criterion.** **PASS** iff: k concordant guardian shares reconstruct exactly the lost principal's
+  key material and **k-1 does not** (Stage 8 V1); the recovery decision **folds order-independently and
+  converges** (Stage 8 V3 / Stage 4 group-H shape); reconstruction restores **exactly the lost principal's
+  authority, never more** (Stage 8 U1 — the center test). **FALSIFIED** if any k-1 path reconstructs, or the
+  fold is order-dependent.
+
+### E-REC.2 — Custodial-delegate mechanism, and how it composes with the quorum
+
+- **Type / Rung:** `needs-proving`. **Rung A** on `mls-rs` for the sealed re-provision material; **Rung B**
+  for Drystone's governance-role structures until WS3.
+- **Claim it tests:** the **conditional-access custodial role** — holds sealed recovery material, releases
+  only under defined conditions — is a **capability, not authority** (Part 1 §2.7; §5.4), and that **delegate
+  and quorum compose** cleanly (Stage 8 Rung 1 + U2/U3).
+- **What it works out (fills §7.3.9 parameters).** How the release **conditions are defined and verified**
+  (attributable, revocable read — Stage 8 U3: reading the secret must move **no** governance slot for the
+  custodian); the **composition semantics** — delegate-as-guardian (delegate is one of the n)? both-required
+  (delegate ∧ quorum)? either (delegate ∨ quorum)? — resolved as a **group-default composition rule** with the
+  per-user override handled in E-REC.3.
+- **Pass/fail criterion.** **PASS** iff: the custodian can surface material to re-establish the lost lineage
+  but **holds no Group Role, cannot act as the principal, cannot govern** (Stage 8 U3); the delegate is itself
+  **revocable and forkable** (Stage 8 U2); the chosen composition rule (∧ / ∨ / delegate-as-guardian) is
+  stated and each mode folds convergently. **FALSIFIED** if a model where the custodian gains standing by
+  holding the secret passes.
+
+### E-REC.3 — Group-default + per-user designation
+
+- **Type / Rung:** `needs-proving`. **Rung B** (model-form on the governance-fact fold — this is a fold-
+  precedence property, not an MLS-mechanics property; name the stand-in). Re-run Rung A on the fold once WS3
+  redb lands.
+- **Claim it tests:** that a **group sets a default recovery arrangement** (default quorum/delegate/k/n/delay)
+  **and a user overrides with a more-specific per-user designation**, and the more-specific one wins
+  deterministically under the fold.
+- **What it works out (fills §7.3.9 parameters).** The **group-default arrangement's shape** (the exact
+  deferred parameter); the precedence rule that lets a per-user designation supersede the group default
+  without a wall-clock (a governance fact at the user's own causal position, §7.3.1 causal precedence).
+- **Pass/fail criterion.** **PASS** iff: a per-user designation deterministically overrides the group default
+  everywhere (order-independent, §7.3.2 projection-not-mutation), and absence of a per-user designation falls
+  back to the group default. **FALSIFIED** if two nodes fold the same facts to different effective recovery
+  arrangements.
+
+### E-REC.4 — Meer-blind invariant proof (must-hold)
+
+- **Type / Rung:** `needs-proving`. **Rung A on `mls-rs`** for the key-material path (this is the exact
+  component the claim is about — a stand-in is forbidden here). See risks re: whether the negative
+  ("never gains usable keys") is fully testable at Rung A.
+- **Claim it tests:** the **meer never gains usable key material via the recovery path** (§5.4 invariant), and
+  the **recovery role is provably distinct** from the meer PeerSet.
+- **What it verifies.** Through the real `mls-rs` sealing path: the meer forwards only sealed material (as in
+  §7.4.2's out-of-band convergence); the recovery custodian's material is separately held and separately
+  role-typed; there is **no path** by which meer + recovery custody collude to a usable key without satisfying
+  the E-REC.1 quorum / E-REC.2 conditions.
+- **Pass/fail criterion.** **PASS** iff the meer role, exercised through real MLS, is shown to hold **no
+  usable key material** at any point in the recovery flow, and the recovery role is a distinct, revocable
+  capability. This is a **must-hold** — a FALSIFIED here falsifies the A2/A12 principle set and stops the
+  prototype.
+
+### E-REC.5 — Adversarial (must-reject)
+
+- **Type / Rung:** `needs-proving` + adversarial analysis. **Rung A** where a real component is under attack
+  (`mls-rs` re-provision; the threshold lib); **Rung B** for the governance-fold-shaped attacks until WS3.
+- **Claim it tests:** the recovery mechanism **rejects** the following, all must-reject:
+  - **The §2.8 / A12 concern (the headline).** Does the delegate/recovery role **quietly rebuild a readable
+    homeserver** — a standing-read center by another name (Part 1 §2.8 faithful-representation capstone; A12
+    open gate: *what structurally resists Option B quietly rebuilding a readable homeserver*)? **Conditional
+    access + revocability + the meer-blind invariant (E-REC.4) must prevent standing read.** Must-reject: any
+    configuration where the recovery role yields continuous readable access rather than conditional break-glass.
+  - **Contested / hijack recovery** via the quorum: a break-glass **fired while the holder is in fact fine**
+    must be **detectable, contestable within the delay window, and revocable or out-forkable** before it takes
+    effect (Stage 8 V2). Concurrent rival recovery claims resolve by the §7.3.1 tiebreak + quorum, **never as
+    rival holders** (Stage 8 V3).
+  - **Recovery under partition:** a recovery quorum assembled in one partition must not silently diverge; a
+    divergent per-partition recovery is the `RemovedThenIncluded`-class contradiction and **hard-stops /
+    escalates** (§7.6), never silently merges.
+  - **The resume-vs-fresh identity fork:** recovery must be "**re-plant or re-join fresh, converge history out
+    of band**" and **never resurrect a live group's epoch secrets in place** (§7.4.2 residual — if any path
+    does the latter, the replay/nonce-reuse hazard returns). **Couples the E12 re-plant set** (E12.1–E12.7,
+    `12-replant-experiments.md`, T36): the recovery re-provision leg *is* an E12-style atomic re-plant, so
+    E-REC.5 shares that harness and must be run against the same `mls-rs 0.55.2` re-plant path.
+  - **Backstop always terminates:** even with no delegate and no quorum, **survivors fork with full history**
+    (Stage 8 V4 / the §5.3 exit-and-fork floor). Must-accept (the one accept inside this reject set): the
+    backstop never bricks.
+- **Pass/fail criterion.** **PASS** iff every must-reject above is rejected and the backstop terminates.
+  Any silent standing-read, silent partition-merge, in-place epoch-secret resurrection, or brick is a
+  **FALSIFIED** that reshapes the mechanism.
+
+### Recovery deliverable
+
+- **The recovery mechanism spec that fills §7.3.9's pending parameters:** **k, n, break-glass delay, contest
+  window, the exact access conditions, the quorum/delegate composition rule, the group-default shape, and the
+  recovery-secret encoding** — the five deferred items plus the composition and default shapes.
+- **A working re-provision-after-total-loss prototype** (Rung A on `mls-rs` re-provision + the threshold lib;
+  Rung B on Drystone's own structures until WS3), demonstrating total-device-loss → recover → rejoin with
+  tenure preserved (couples Stage 9 Group R — no stranded right — and T22).
+- Moves §7.3.9 from `Design (decided direction; mechanism pending)` → `Verified`, and discharges the A2 and
+  A12 open gates in `../../beta/DECISIONS.md` Section 2.
+
+---
+
+## Dependencies & sequencing
+
+```
+ A11 SPIKE (publish-road critical path):
+
+   E-A11.0 threat model (Rung C) ──► E-A11.A Meadowcap (Rung A/B) ─┐
+   (fixes W_target + cost ceiling)   E-A11.B Keyhive (Rung B)   ───┴─► DECISION MEMO
+                                                                       │
+                                                                       ▼
+                                             capability wire format ──► §7.2 buildable ──► v0.1 DOI mintable
+                                             (also shapes T40 attestation credential, WS4)
+
+ RECOVERY PROTOTYPE (prove-road; raises maturity toward rc):
+
+   uses A10 rotation-key custody ─┐
+   uses identity-provenance chain ┤
+   WS3 redb fold engine (Rung A) ─┤ (Rung B until it lands)
+                                  ▼
+   E-REC.1 quorum ─┐
+   E-REC.2 delegate + composition ─┤─► E-REC.3 group-default + per-user
+                                   │
+   E-REC.4 meer-blind (must-hold, gates the rest) ──► E-REC.5 adversarial (must-reject)
+                                                       └─ couples E12 re-plant set (T36)
+                                  ▼
+   recovery mechanism spec (k,n,delay,conditions,encoding) + re-provision prototype ──► §7.3.9 filled → Verified
+```
+
+- **E-A11.0 before A/B** — the threat model is the ruler; A and B are scored against it.
+- **Recovery prototype uses the A10 rotation-key custody** (the `did:plc` rotation key folds into recovery
+  custody, §7.3.9) **and the identity-provenance chain** (`cairn/cross-platform-identity-provenance.md`).
+- **A11's outcome shapes T40's attestation credential (WS4):** the capability track gates the credential
+  shape *and* the capability wire format (`2026-07-09-engineering-validation-plan.md` WS4; T40).
+- **E-REC.4 (meer-blind) gates E-REC.5** — no point running adversarial cases until the must-hold invariant
+  is proven; a FALSIFIED there stops the prototype.
+- **E-REC.5 couples the E12 re-plant set** (T36) — the recovery re-provision leg is an E12-style atomic
+  re-plant, shares that harness and `mls-rs 0.55.2`.
+- **WS3 (redb) coupling:** E-REC.1/.2/.3 run Rung B on Drystone's own governance-chain structures until WS3
+  lands, then re-run Rung A on the fold (per the fidelity ladder's stand-in-generates-follow-up rule).
+
+**Critical-path sketch:**
+
+```
+   E-A11.0 → E-A11.A/B → A11 DECIDED → capability wire format → §7.2 buildable → DOI mintable
+   E-REC.1..5 → recovery mechanism spec → §7.3.9 filled → §7.3.9 Verified
+```
+
+---
+
+## Reasoning — why this sequence, what each proof buys
+
+- **A11 is on the DOI critical path; recovery is not.** Two roads (`2026-07-09-engineering-validation-plan.md`):
+  the **publish road** gates on §7.2 being buildable from text alone, whose **last `ENABLING` encoding is the
+  capability wire format**, which cannot be pinned until A11 is decided. So the A11 spike is the single highest-
+  leverage unblock for the DOI. The recovery prototype rides the **prove road** — it raises maturity toward
+  rc and discharges the largest residual protocol risk, but the DOI does not wait on it.
+- **The A11 decision logic is asymmetric on purpose.** Appendix A already establishes that both tracks satisfy
+  R1/R2/R3/R6 identically — *only revocation immediacy differs*. Track A ships today (Meadowcap Data Model +
+  capability layer are `Final`); Track B waits on in-flight Ink & Switch research and carries the DMLS/FREEK
+  storage-cost curve. So the cheapest path to the DOI is: **prove A is good enough (E-A11.A vs E-A11.0), and
+  only fall to B if it is not.** Investing in B first would put the DOI behind external research it may not
+  need. E-A11.0 exists precisely because Appendix A says the deferral stands *until a needs-definition exists*
+  — this experiment set is that definition.
+- **The recovery prototype turns a known pattern into a specified one.** §7.3.9 and Stage 8 both note recovery
+  is a **known pattern (social + threshold recovery), not open research** — so the work is mechanism
+  specification and adversarial hardening, not invention. E-REC.4 (meer-blind) and E-REC.5 (the §2.8 "readable
+  homeserver" rejection) are what buy the trust: they prove the recovery role is a **conditional capability,
+  not a smuggled center** — the exact objection the A12 gate raises.
+- **What is on the DOI critical path vs parallel.** Critical path: E-A11.0 → E-A11.A/B → decision memo →
+  capability wire format. Parallel (prove road): the entire E-REC set, which can proceed as soon as its inputs
+  (A10 custody, identity-provenance chain, and WS3/WS1 harness) are available, independent of the DOI.
+
+---
+
+## Open questions / risks
+
+- **Keyhive un-shippability (Track B maturity risk).** Track B rests on in-flight Ink & Switch research with
+  no production deployment as of mid-2026 (`object-capability-and-decentralized-mls-prior-art.md`). E-A11.B is
+  therefore expected to be **Rung B / paper-analysis only** — no Rung-A verdict is reachable, and picking B
+  means accepting an external-research timeline on the DOI critical path. This is the strongest reason the
+  decision rule is biased toward proving A adequate first.
+- **Threshold-crypto library choice (E-REC.1).** The library is undecided. The fidelity ladder forbids a
+  hand-rolled stand-in for the exact component under test, so a **real, vetted** threshold/Shamir/VSS crate
+  must be selected before E-REC.1 can claim Rung A — this is a prerequisite decision, flagged here, not made
+  in this plan. Candidate selection should verify maintenance status and audit history before adoption.
+- **Is the meer-blind proof testable at Rung A (E-REC.4)?** The claim is a **negative** ("the meer *never*
+  gains usable keys"). Rung A can exercise the real `mls-rs` sealing path and show the meer handles only
+  sealed bytes, but a negative is proven by exhaustion/adversarial coverage, not by a single green run. The
+  honest bar may be Rung A for the constructive half + an adversarial-analysis (Rung C reasoning) for the
+  "no other path" half; if so, label it that way rather than over-claiming a Rung-A negative.
+- **Meadowcap real-lib reachability (E-A11.A).** Meadowcap's Data Model + capability layer are `Final`, but
+  the Rust impl is pre-1.0 and Confidential Sync / Willow'25 took breaking changes into 2026
+  (`willow-meadowcap.md`). The **epoch-key revocation** path specifically may not be exercisable at Rung A; if
+  not, E-A11.A's window measurement drops to Rung B (model-form) and the cost half stays Rung A on `mls-rs`.
+- **`W_target` is a judgment call, not a measurement (E-A11.0).** The acceptable revocation window against the
+  moderation/ban-evasion threat model is a threat-model decision (the spec declines to pick tolerance defaults,
+  §7.4.1). E-A11.0 must state it as a defensible bar with reasoning, and the A11 decision inherits whatever
+  conservatism that bar encodes — surface it as a decision, not smuggle it as a constant.
+- **Cost coupling to unproven §11.11 measurements.** E-A11.A's short-epoch cost half depends on the WS1
+  §11.10.1 A–G matrix, whose per-commit / fan-out numbers are themselves `Load-bearing, unearned`. E-A11.A
+  should reuse that rig but its cost verdict is only as firm as the matrix underneath it — note the dependency
+  rather than treating the cost numbers as settled.
+- **WS3 timing.** E-REC.1/.2/.3 are Rung B on Drystone's own structures until the redb fold engine (WS3)
+  lands; a slip in WS3 delays the Rung-A re-runs (not the Rung-B first passes).
