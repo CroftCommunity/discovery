@@ -137,19 +137,12 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Alpha provenance:** `drystone-spec` Part 1 §3; `beta/02` §1/§4/§5. (Pass-2 fact-check left Ostrom as the one
   remaining 01 confirm.)
 
-#### T27 — Promote "evidentiary, not operational" to a canonical principle?
+#### T27 → closed in beta, relocated to ROADMAP_TODO (2026-07-09)
 
-- **Layer:** cross-cutting, philosophy
-- **Status:** `open · gated` (a user curation decision).
-- **Type:** `needs-content` (curation call).
-- **What it is:** the rights-floor is **evidentiary, not operational** — it records and proves standing; it
-  does not operate things (stated clean in `beta/05` §5 and its charter). This is **settled as a conclusion**;
-  the open question is purely whether it should be **elevated to a named, canonical Tier-1 principle** in the
-  alpha principles set (`crystallized/principles.md`) — a curation call, not a design question.
-- **Promotion target:** `crystallized/principles.md` (alpha) if adopted; no beta-doc change needed (the
-  conclusion already reads clean in `05`).
-- **Gates:** the user's decision to name it as a principle (or leave it as a per-theme conclusion).
-- **Alpha provenance:** `beta/05` §5; `../alpha/BETA-ROLLUP.md` 05 §Deferred-decision note.
+The "evidentiary, not operational" conclusion is settled and reads clean in the spec/DECISIONS; the only
+open action — whether to *name* it a canonical Tier-1 principle — touches alpha `crystallized/principles.md`
+only, not any beta doc. So it is an alpha curation call, tracked in `../alpha/ROADMAP_TODO.md`, not a beta
+open thread. Full record in `CLOSED-THREADS.md`.
 
 > **T28 added 2026-06-26** by the alpha left-behind audit — extracted from an inline "later call" that the
 > 2026-06-26 Hush-A-Phone relocation left at the bottom of `../alpha/thinking/historical-peer-rights.md`,
@@ -327,10 +320,15 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Alpha provenance:** `beta/thinking/raw/open threads review Jun 26 at 8-17 PM.txt`;
   `../alpha/thinking/rights-vs-capabilities-definitions.md`; `drystone-spec` Part 2 §5.
 
-#### T3 — Moderation & abuse under a blind broker (the constructive design body)
+#### T3 — Moderation & abuse under a blind broker (narrowed: the hold/release + meer-decrypt engineering residual)
 
 - **Layer:** drystone-spec, impl
-- **Status:** `open · gated`.
+- **Status:** `open · partially resolved` (narrowed 2026-07-09). The abuse-*posture* body — deny-discovery,
+  scale caps, blind metadata-only admission choke, block-as-revocation + client-attested blind report, the
+  rejection of edge-AI content-scanning, the CSAM-corner limit, and fork blast-radius — is now homed in
+  `fenced/app-store-survivability-and-abuse-posture.md`. **This thread narrows to the remaining
+  *engineering* residual:** the `{pending,released,rejected}` predicate-gated **hold/release plane** +
+  **crypto-shred**, and pinning the meer's **decrypt-vs-blind** line in MLS-capability terms (couples T31).
 - **Type:** `needs-content` (couples T31).
 - **Review (2026-06-26):** the meer PeerSet holds the **same rights as a full peer** but has no local
   history and **never sees content** — so you **cannot moderate on content** through it. Moderation is
@@ -349,26 +347,10 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Alpha provenance:** `../alpha/thinking/open-considerations.md` §5 + §9; `../alpha/ROADMAP_TODO.md`
   **D3 / D6 / E18**; `../alpha/COHESION.md` §18.
 
-#### T20 — Conflict-reason corpus gaps (C4 / C7 / C8 / C9 / C10)
+#### T20 → merged into T5 (2026-07-09)
 
-- **Layer:** drystone-spec
-- **Status:** `open · gated`.
-- **Type:** `needs-content` (expand per S2 — too terse to reason from).
-- **Review (2026-06-26):** too terse — needs a plain-language **problem statement** per gap plus the
-  **solutions we already preferred** when we discussed them, not just the C-codes.
-- **What it is:** `merge-split-corpus.md` §4 enumerates the full conflict-reason space and surfaces five
-  real, **unmodeled/partial reconcile-semantics gaps**: **C4** add-vs-add of the same person on different
-  device keys across a partition (must fold by lineage, not double-count — interacts with multi-device
-  E2.10); **C7** dissolve-vs-continue (hard-stop or resting-state, *undefined*); **C8** diamond-recombine
-  conflict over a multi-parent DAG (topology proven, conflict-detection untested); **C9** equivocation
-  hardening (A2.2 partial); **C10** ban-evasion re-add via a new device leaf (must not silently re-confer
-  standing — the moderation surface).
-- **Promotion target:** **04** (widens "what was proved" toward the full conflict space). **Overlaps T5**
-  (scale/churn) but is a distinct surface (reconcile *semantics*, not scale) — confirm and fold where
-  subsumed by T5.
-- **Gates:** define C7's intended resolution; extend `detect` to multi-parent ancestry (C8); harden
-  equivocation attribution (C9); model the ban-evasion re-add (C10).
-- **Alpha provenance:** `../alpha/thinking/merge-split-corpus.md` §4 + §6 ("Tier 1b — reconcile-case corpus").
+The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics sub-corpus" of **T5**
+(same test harness). This anchor is retained for back-reference; see T5.
 
 > **T21–T22 added 2026-06-26** from the rights-vs-capabilities grounding (was folded into `01` §5, K17;
 > now in the Drystone spec — `drystone-spec` Part 1 §2.3 + Part 2 §5.3). The discriminating test and the
@@ -418,13 +400,25 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   the **churn-fold Achilles heel** (governance-log noise from device churn making the member-list fold
   unmaintainable) with its concrete, unactioned recommendation to add a **synthetic high-churn /
   multi-partition test now**.
+- **Reconcile-semantics sub-corpus (folded from T20, 2026-07-09).** Beyond scale/churn, the same harness
+  must exercise the five unmodeled/partial reconcile-semantics gaps from `merge-split-corpus.md` §4:
+  **C4** add-vs-add of the same person on different device keys across a partition (fold by lineage, not
+  double-count — interacts with multi-device E2.10); **C7** dissolve-vs-continue (hard-stop or resting-state,
+  *undefined*); **C8** diamond-recombine conflict over a multi-parent DAG (topology proven,
+  conflict-detection untested); **C9** equivocation hardening (A2.2 partial); **C10** ban-evasion re-add via
+  a new device leaf (must not silently re-confer standing — the moderation surface). These are reconcile
+  *semantics*, distinct from raw scale, but they are proven by the same conformance/adversarial test cases,
+  so they live here as sub-items rather than a separate thread.
 - **Promotion target:** **04** (widens it from "proved at human scale" toward production-shaped claims).
   **Overlaps T1's §X** conflict model — several questions may be T1's validation surface; confirm and fold
   where subsumed.
 - **Gates:** survivor-selection determinism decision; pure-P2P-vs-superpeer ordering honesty; genesis
-  amendability; write + run the churn/partition test (the test itself is alpha validation).
+  amendability; write + run the churn/partition test (the test itself is alpha validation); **and (from
+  T20)** define C7's intended resolution, extend `detect` to multi-parent ancestry (C8), harden
+  equivocation attribution (C9), and model the ban-evasion re-add (C10).
 - **Alpha provenance:** `../alpha/research/group-chat-failure-modes.md` (+ `-plain.md`);
-  `../alpha/crystallized/conclusions.md`; the test-plan backlog.
+  `../alpha/crystallized/conclusions.md`; the test-plan backlog; **and (T20)**
+  `../alpha/thinking/merge-split-corpus.md` §4 + §6 ("Tier 1b — reconcile-case corpus").
 
 #### T38 - The two unearned measurements and the §11.10.1 experiment matrix (turn the scaling envelope into a sized one)
 
@@ -504,48 +498,38 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 
 **The public-by-default regime.** T39 is the cryptographic gate the T40 regime rests on.
 
-#### T39 - Non-member-verifiable membership attestation (the mechanical core of the experimental public regime)
+#### T40 (merges T39) — The experimental public-by-default regime (§11.9.3), and its blocking crypto gate
 
 - **Layer:** drystone-spec
-- **Status:** `open · gated` (`Load-bearing, unearned`; the whole §11.9.3 public regime is gated on it).
-- **Type:** `needs-proving` (a real cryptographic design problem, sketched not solved).
-- **What it is:** the experimental public-by-default regime (§11.9.3) routes a group's public message stream
-  through an MLS-aware relay bridge into an AppView-shaped read view (§11.9.3.1). The open problem: let a
-  *non-member* reader verify "attested member at standing X authored this item" from a forwarded artifact,
-  without trusting the bridge and without the reader being an MLS member (which would defeat the
-  read-outside-the-tree model). It may reduce to signing authored items with a credential chain verifiable
-  against the group's published membership and governance state, but that is a sketch, and it composes with
-  the lineage-attestation questions already open (the two-part credential and its ban-lineage interlock,
-  the resume-vs-fresh identity fork, single-member time-delayed resumption-PSK presentation).
-- **Promotion target:** on a proven mechanism, §11.9.3 moves from Design-experimental toward Design; until
-  then the entire public regime is a candidate direction to prototype, not a committed part of the spec.
-- **Gates:** solve and adversarially analyze the attestation-extraction; prototype the bridge; confirm the
-  read path stays in the "helper cannot lie, only stall" box (content-addressed, governance-positioned
-  items, gap-detectable omission).
-- **Provenance:** Part 2 §11 (large-group scaling), §11.9.3.1 + §11.11 item 7; document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
-
-#### T40 - The public-by-default regime as a whole: status and the confidentiality-inversion posture
-
-- **Layer:** drystone-spec
-- **Status:** `open · experimental` (more speculative than the rest of the section; a candidate direction).
-- **Type:** `design-experimental`.
+- **Status:** `open · experimental` (more speculative than the rest of §11; a candidate direction, blocked on the crypto sub-item below). *(Merged 2026-07-09: former T39 — the non-member-verifiable membership attestation — is folded in as the named blocking sub-item; T39 is retained here as a back-reference, not a separate thread.)*
+- **Type:** `design-experimental`, with a `needs-proving` blocking sub-item.
 - **What it is:** above roughly 7k members the section permits inverting the confidentiality model
   (§11.9.3): messages public by default (the AppView read view is the primary surface), MLS retained not to
   encrypt messages but for attestation and membership. The regime concedes Force 2 on purpose while keeping
-  Force 1 (cryptographic membership), which is the honest inversion of the incumbent large-platform posture
+  Force 1 (cryptographic membership), the honest inversion of the incumbent large-platform posture
   (payloads-encrypted-yet-server-can-inject-a-member). It carries a heavier honest-residual burden than the
   tiers below it: forward/post-compromise security relocate from message content to the attestation layer;
   a member MUST be able to tell unmistakably that the space is public; governance is more exposed against a
   public backdrop; the performance win is real on fan-out (indexed reads) and on the rate of expensive
   operations, but NOT on MLS's per-operation cost. It rests on a chain of plausible-but-unvalidated
-  propositions and is gated by T39.
+  propositions.
+- **Blocking sub-item (was T39) — non-member-verifiable membership attestation (`Load-bearing, unearned`,
+  `needs-proving`).** The public stream routes through an MLS-aware relay bridge into an AppView-shaped read
+  view (§11.9.3.1). The open problem: let a *non-member* reader verify "attested member at standing X
+  authored this item" from a forwarded artifact, without trusting the bridge and without the reader being an
+  MLS member (which would defeat the read-outside-the-tree model). It may reduce to signing authored items
+  with a credential chain verifiable against the group's published membership and governance state — a
+  sketch, not a solution — and it composes with the open lineage-attestation questions (the two-part
+  credential and its ban-lineage interlock, the resume-vs-fresh identity fork, single-member time-delayed
+  resumption-PSK presentation). Solving this is what moves §11.9.3 from Design-experimental toward Design.
 - **Promotion target:** prototype and stress the regime; if it holds, it graduates from candidate direction
-  to a specified optional tier. It interacts with the T37 placement decision (a whole experimental
-  subsection).
-- **Gates:** T39 (the bridge attestation); a UX/consent design for the public-space clarity requirement; a
-  decision on whether governance events are public at this tier; the §11.9.3.3 attesting-core ceiling
-  measurements (part of T38).
-- **Provenance:** Part 2 §11 (large-group scaling), §11.9.3 (and §11.9.3.1–§11.9.3.3); document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
+  to a specified optional tier. Interacts with the T37 placement decision (a whole experimental subsection).
+- **Gates:** the blocking sub-item above (solve + adversarially analyze the attestation-extraction; prototype
+  the bridge; confirm the read path stays in the "helper cannot lie, only stall" box — content-addressed,
+  governance-positioned items, gap-detectable omission); a UX/consent design for the public-space clarity
+  requirement; a decision on whether governance events are public at this tier; the §11.9.3.3 attesting-core
+  ceiling measurements (part of T38).
+- **Provenance:** Part 2 §11 (large-group scaling), §11.9.3 (and §11.9.3.1–§11.9.3.3) + §11.11 item 7; document-pass-9, renumbered to §11 at document-pass-10 (2026-07-07).
 
 **Real-time media.**
 
@@ -624,10 +608,13 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
   reconcile with T1's append-only fold.
 - **Alpha provenance:** `../alpha/ROADMAP_TODO.md` **D10**; `../alpha/COHESION.md` **§22**; `drystone-spec` Part 2 §5.6.
 
-#### T18 — LTS-for-interfaces / shapeability-paired-with-stability
+#### T18 — LTS-for-interfaces (narrowed: the channel/cadence *commitment*)
 
-- **Layer:** drystone-spec, impl
-- **Status:** `open · surfaced`.
+- **Layer:** drystone-spec, impl, socialization
+- **Status:** `open · partially resolved` (narrowed 2026-07-09). The stance + mechanism are now homed in
+  `socialization/durable-product-and-honest-composability.md`. **Residual:** the actual LTS
+  channel/cadence *commitment* (the ~3yr window + ~6mo opt-in cadence as a shipped promise vs an aspiration)
+  is still open, per that doc's own closing note.
 - **Type:** `needs-content` (impacts all platform implementations).
 - **Review (2026-06-26):** considered **pretty much settled** as a design ethos that impacts every
   platform implementation; the open part is "what does it look like," not whether to adopt it.
@@ -755,10 +742,14 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Gates:** M3 is named but not designed; the per-milestone shape needs work before it's resolved-beta.
 - **Alpha provenance:** `../alpha/crystallized/conclusions.md` (M0–M4); `../alpha/crystallized/principles.md` (the five-scale inversion list).
 
-#### T14 — iOS opportunistic-only P2P as a named product limitation
+#### T14 — iOS opportunistic-only P2P (narrowed: the product connectivity-promise decision)
 
 - **Layer:** croft, impl
-- **Status:** `open · gated`.
+- **Status:** `open · partially resolved` (narrowed 2026-07-09). The platform mechanics (wake-hook taxonomy)
+  and the BLE-scavenger negative result are now homed in
+  `impl/ios-background-execution-and-the-ble-caution.md`. **Residual (croft/product):** the decision on what
+  Croft actually *promises* about off-grid/background sync — the product consequence that doc explicitly
+  leaves open.
 - **Type:** `needs-content` (folds into the per-platform design files, S4; couples T6).
 - **Review (2026-06-26):** doesn't need to stay a one-off thread — the iOS app must **play to iOS
   strengths** (event-driven from the system, push-triggered, sync) and that thinking belongs in a
@@ -770,10 +761,13 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Alpha provenance:** `../alpha/thinking/ios-opportunistic-p2p.md`. **Per-platform design file (S4,
   started 2026-06-26):** `../alpha/thinking/app/platforms/ios.md`.
 
-#### T15 — P2P-games data layer (ephemeral-live / durable-outcome) + open attestation
+#### T15 — P2P-games data layer (narrowed: the outcome-attestation mechanism)
 
 - **Layer:** croft
-- **Status:** `open · gated`.
+- **Status:** `open · partially resolved` (narrowed 2026-07-09). The data-layer shape (live play ephemeral
+  over iroh; only the settled outcome durable) and the "thinking of you" starter use case are now homed in
+  `croft/presence-ritual-and-composed-ponds.md`. **Residual:** the mutual-signed **outcome-attestation
+  mechanism** (surfaced-and-set-aside as the hard part) + the games-pond commitment.
 - **Type:** `needs-content` (per-app PRDs, S5).
 - **Review (2026-06-26):** game still called a **pond** (candidate). Wants per-app **PRDs/design docs** —
   chat gets its own, games gets its own. Plus a new modest **starter use case** worth its own design
@@ -784,10 +778,13 @@ a thread is promoted, beta theme docs may **not** assert its content as resolved
 - **Gates:** the mutual-signed outcome-attestation mechanism; games-pond commitment.
 - **Alpha provenance:** `../alpha/thinking/app/design-philosophy.md` (data-layer shape); `../alpha/thinking/app/ponds/` (attestation set aside). **PRD stubs (S5, started 2026-06-26):** `../alpha/thinking/app/prds/games-pond.md` + `../alpha/thinking/app/prds/thinking-of-you.md` (+ `chat.md`).
 
-#### T17 — Three-audiences settings model + the composable-interface ramp
+#### T17 — Three-audiences settings model (narrowed: the composable-interface ramp proof)
 
-- **Layer:** croft
-- **Status:** `open · gated`.
+- **Layer:** croft, socialization
+- **Status:** `open · partially resolved` (narrowed 2026-07-09). The three-audiences model (never-touch /
+  tune-a-few / full-surface) and the self-authorship-ramp framing are now homed in
+  `socialization/durable-product-and-honest-composability.md`. **Residual:** the composable-interface ramp
+  has no proof/spec yet (a product-track concern) — the forward note that doc carries.
 - **Type:** `needs-content` (lands in the per-platform design specs).
 - **Review (2026-06-26):** considered **fairly settled** as a design principle that impacts the
   per-platform design specs (S4); the open part is "what does it look like" in each implementation, not
