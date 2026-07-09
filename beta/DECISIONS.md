@@ -1,0 +1,85 @@
+# discovery / beta — decisions register (pitch-resolution index)
+
+date: 2026-07-09
+
+**Status / Register.** This is a **pitch-resolution index over the reasoning, never a replacement for
+it.** Every row states a decision at its tersest resolution and links *down* to the beta layer doc (and
+section) where the argument is carried whole, at library resolution. It obeys the anti-rollup rule in
+`LAYERS.md` → "Reasoning travels with the decision (the anti-rollup rule)": a settled decision recorded at
+a terse resolution must link to its full reasoning, and that reasoning must live in a beta doc — recording
+a decision without its grounding is the failure this register exists to prevent. Nothing here re-argues a
+decision or resolves an open gate; both would break the index-not-replacement discipline.
+
+## How to read
+
+- **Settled vs open.** Section 1 is decisions already made (with the date decided). Section 2 is the open
+  gates that are the user's calls, each with what is blocked on it. An open gate is *surfaced, not
+  resolved* here.
+- **Every row links to its reasoning home.** The "Reasoning home" column names a beta layer doc and the
+  section that carries the full argument (the library resolution). To act on or re-derive a decision, read
+  the home, not this row.
+- **A decision you cannot re-derive from its linked home is a defect, not an entry.** Where a decision's
+  reasoning is not yet carried in any beta doc, it is named in the closing "Reasoning-gaps" note as a
+  recovery residual rather than given a settled-decision row it cannot support.
+- **Markers travel.** `NOT-LEGAL-ADVICE` and `[UNVERIFIED]` flags are preserved on the rows they qualify;
+  the linked home carries them inline too.
+- The `A#` / `C#` labels are stable cross-reference identifiers for each decision, not file paths.
+
+## Section 1 — Settled decisions
+
+| Decision (pitch resolution) | Status (decided) | ID | Reasoning home (beta doc → section) |
+|---|---|---|---|
+| Neutral **reference implementation + product code = AGPL-3.0-or-later + DCO** (network-copyleft: forkable but never closeable; AGPLv3 §11 preserves the patent grant Apache-2.0 had offered). | decided 2026-07-09 | C13 | `governance/foundation-cooperative-and-sustainability.md` → "The two-body structure and its three decoupled layers" + "AGPL-3.0-or-later plus DCO: the structural-openness lock"; also `governance/open-publication-and-ip-stewardship.md` → "License posture (current project choices)" |
+| **Spec text = CC0 1.0 Universal** (maximal "no one can claim or restrict the idea"; CC-BY 4.0 was the earlier alternative, not chosen). | decided 2026-06-25 | A14 | `governance/open-publication-and-ip-stewardship.md` → "License posture (current project choices)" |
+| **The cooperative is the operating form** (the peer-standing argument concludes that only a cooperative, edge-free ownership form can constitute peer standing — the form is required, not preferred). | decided (argument settled) | — | `philosophy/peer-standing-and-the-cooperative-form.md` → §6 "Why the cooperative is the compatible form"; its manifestation → `governance/foundation-cooperative-and-sustainability.md` → "The two-body structure and its three decoupled layers" |
+| **Two tiers of mark:** the **house mark** (Croft, licensed only to the canonical instance; a fork must rename) and a **"Speaks Drystone" compatibility badge** (the honest place for forks; starts as an honor system, not a formal certification mark). | decided (design intent) | — | `governance/foundation-cooperative-and-sustainability.md` → "Two tiers of mark: the house mark and the compatibility badge" |
+| **Protocol name = Drystone** (taken from dry-stone-wall construction: equal-but-different stones, no load-bearing keystone). | pinned 2026-06-22 | A7 | `history/crofting-dry-stone-and-the-enclosure-inversion.md` → the dry-stone-wall passage (the material lineage of the name); the protocol meaning of the wall is argued in `philosophy/` |
+| **Croft app Phase-0 imported and its shape proven** — shared functional core + thin per-platform shells, the five binding client decisions green-real across CLI / web / desktop. | import done 2026-06-22; architecture decided 2026-06-22 | A8 · E19 | `croft/product-the-garden-of-ponds.md` → the shared-core / thin-shell spine and its five binding decisions (green-real, Phase 0) |
+| **Defensive-publication posture:** prior-art-first (a complete, enabling, third-party-timestamped disclosure is the load-bearing instrument, not the license), with a **Zenodo DOI + OpenTimestamps** as the timestamp vehicle (chosen over an IETF Internet-Draft). | decided (posture + vehicle) | A14 (vehicle half) · E31 | `governance/open-publication-and-ip-stewardship.md` → "Defensive-publication strategy (prior-art first)" + "The venue map (per-layer, then sequence) / Publication sequence" |
+| **Persona vocabulary** — the identity model is *principal · client · persona* (a persona is the human-layer identity rooted in one cryptographic lineage; client-count and device-count are not persona-count). | decided (spec vocabulary of record) | — | `drystone-spec/part-2-certifiable-design.md` → §5.2 "Principal, client, persona: the identity model" + Appendix D "Term lattice and invariants (the vocabulary of record)"; persona as principle in `drystone-spec/part-1-reasoning-underpinnings.md` → §2 |
+| **Governance model = append-only monotonic fold** (governance facts are entries, not mutations), a **timestamp-free causal-and-cryptographic total order** (no wall-clock in the ordering spine), **no state reset**, a **capped / delegable / revocable-by-succession root** (never infinite), and a **regress-free fold with attributable acceptance**. | decided (Design-stage, complete) | — | `drystone-spec/part-2-certifiable-design.md` → §7.3 "Governance facts are entries, not mutations" (incl. "The unconflictable root"), §7.3.1 "The total order … causal and cryptographic only, never temporal", §7.5 "Attributable acceptance and the regress-free fold" |
+| **Committed hash = BLAKE3** — §7 is designed on BLAKE3 and §4 (proven on SHA-256) is re-based onto it, making SHA-256 the legacy side. | decided (committed; end-to-end re-proof pending) | — | `drystone-spec/part-2-certifiable-design.md` → §6 introduction (maturity paragraph) + §4.1 "cryptographic foundation"; the end-to-end BLAKE3 re-proof of §4 is tracked in Appendix B |
+| **Peer-rights floor = tenure / voice / exit**, each fixed by what its removal forecloses; the floor is **evidentiary, not operational**; a claim on a Group's commons ("share") is **not** a right. | decided (floor; two verify-before-harden checks open) | E32 | `drystone-spec/part-2-certifiable-design.md` → §5.3 "Rights: the inherent, equal floor …"; lineage in `philosophy/the-peer-rights-razor-and-its-lineage.md`. (Open residuals: tenure-under-re-key and the `share` boundary — Section 2 / reasoning-gaps.) |
+| **Large-group-scaling section placement** — folded into Part 2 as **§11** (resolving the §7 numbering collision). | decided 2026-07-07 | T37 | `drystone-spec/part-2-certifiable-design.md` → §11 "Large-Group Scaling, Dormancy, and Re-entry" |
+
+## Section 2 — Open decision gates (the user's calls)
+
+| Decision to make | Status | ID | Blocked on it | Reasoning home (beta doc → section) |
+|---|---|---|---|---|
+| **Substrate license acceptance — MPL-2.0** (`hpke-rs` is mandatory for RFC 9420 HPKE; no permissive substitute). A compliance call, not code. | OPEN | A1 | Sign-off that the MPL-2.0 substrate dependency is acceptable alongside the AGPL reference code. | `governance/open-publication-and-ip-stewardship.md` → "License posture" (the `hpke-rs` MPL-2.0 note); `governance/foundation-cooperative-and-sustainability.md` → the "Code" row |
+| **Total-device-loss recovery anchor** — the concrete recovery/break-glass mechanism (custodian ladder / k-of-n guardian / time-delayed break-glass / survivor fork). Largest residual protocol risk. | OPEN | A2 | The publication-final recovery guarantee; the guardian-set / break-glass / recovery-secret defaults. | `drystone-spec/part-2-certifiable-design.md` → §7.3.9 "Principal recovery and break-glass (to be determined)" (shape + binding invariant fixed, mechanism deferred) |
+| **Capability mechanism — Track A (Meadowcap-shaped, delegated tokens) vs Track B (Keyhive-shaped, convergent membership graph).** Decided on the revocation-immediacy criterion. | OPEN | A11 | The capability wire format, which in turn gates minting the v0.1 archival DOI. | `drystone-spec/part-2-certifiable-design.md` → Appendix A "Alternatives Considered" (the Track A/B entry) + §5.5 (the Meadowcap grounding) + Appendix B |
+| **Key-custody default — blind-relay (Option A) vs revocable trusted delegate (Option B).** | OPEN | A12 | Device re-provisioning UX; and what, if anything, structurally resists Option B quietly rebuilding a readable homeserver. | `drystone-spec/part-2-certifiable-design.md` → §6.5.2 / §6.6.2 (the blind-relay / blind-meer roles) + §7.3.9 (recovery) |
+| **Rename the "geer" gating peer** — gating is the one capability that bumps the read right; role names decompose to `floor + [capabilities]`. | OPEN | A13 | The read-gating capability and its role name. | `drystone-spec/part-2-certifiable-design.md` → §5.8.1 "Open item: gating against the read right" |
+| **Foundation name — candidate Noria** (must be independent of the flagship name so the foundation's neutrality holds). `[UNVERIFIED]` trademark clearance. | OPEN | — | Naming the foundation; trademark clearance. | `governance/foundation-cooperative-and-sustainability.md` → "Entity phasing …" + "Decision-gated: surfaced, not resolved"; also `governance/open-publication-and-ip-stewardship.md` (closing note) |
+| **Cooperative legal-review gate** — Missouri Chapter 351 LCA + foundation legal structure; statute sections, tax codes, fees are dialogue-sourced and need counsel. **NOT-LEGAL-ADVICE.** | OPEN | — | Any entity filing or reliance on the specific §/fee figures. | `governance/foundation-cooperative-and-sustainability.md` → "Decision-gated: surfaced, not resolved" + "The four-pillar Social Union" |
+| **Load-bearing-few principles (genome vs strategy)** — does flying the compatibility badge assert only *technical* interoperability, or also adherence to the non-negotiable principles (i.e. is the badge where the principles get their teeth)? | OPEN | — | Badge semantics; the seam between the mark and the protocol specification. | `governance/foundation-cooperative-and-sustainability.md` → "Two tiers of mark …" (the surfaced, unresolved question); `README.md` → "Standing decisions surfaced, not resolved" |
+| **Republish / "can still quote" UX control** — structural V3 is done; the human-layer control that lets a peer still quote is unspecified. | OPEN | A5 | The republish/quote product control at the app layer. | Philosophical grounding: `drystone-spec/part-1-reasoning-underpinnings.md` → §2 (voice = assert into your own record + reach willing peers, **not** compel amplification) + `philosophy/the-peer-rights-razor-and-its-lineage.md`. The UX control itself is app-layer and not yet carried (see reasoning-gaps). |
+| **Anchor-URI stability contract** — the cross-platform provenance anchor must be a stable logical URI with mutable content, not a content-addressed/immutable target. | OPEN | A9 | The cross-platform provenance-anchor design. | `cairn/cross-platform-identity-provenance.md` → the A9 surfacing (the `alsoKnownAs` equivalence ladder is evidentiary, not authoritative) |
+| **PDS-held vs self-controlled `did:plc` rotation key** — changes who can issue future operations and whether the `did:webvh` root truly functions as a recovery anchor for the Bluesky spoke. Relates A2. | OPEN | A10 | Whether the Bluesky spoke's root genuinely functions as a recovery anchor. | `cairn/cross-platform-identity-provenance.md` → the rotation-key / A10 surfacing |
+
+## Reasoning-gaps (recovery residuals — decision surfaced, reasoning not yet in a beta doc)
+
+Per the anti-rollup rule, these are decisions or open user-calls whose full reasoning is **not yet carried
+in any beta layer doc** (it lives only in the prior tier). They are named here as recovery residuals, not
+given settled rows they cannot support:
+
+- **A6 — vote-accumulation under churn/partition** (vote expiry, retraction, stale-vote handling). No beta
+  reasoning home found; the governance-at-scale voting model is not yet consolidated into a beta doc.
+- **S3 — quiet membership** (be in a group without exposing other edges) and **S4 — multi-identity, no
+  forced linkage** (distinct lineages, no provable correlation). The spec establishes that personae are
+  always distinct lineages (`drystone-spec/part-2-certifiable-design.md` → §5.0/§5.2), but the S3/S4
+  *privacy properties as decisions* are not carried into a beta doc — they remain prior-tier open edges.
+- **A8, the app-body IP/ownership call** — distinct from the completed Phase-0 import (settled above). The
+  code-license posture is in `governance/`, but the specific ownership/assignment call for the imported app
+  body is surfaced only in `README.md` → "Standing decisions", with no library-resolution reasoning home
+  yet.
+
+**Status ambiguities noted across sources:**
+
+- **A14** is settled for the *spec text* (CC0 1.0), but A14's original *reference-code* half (Apache-2.0)
+  is **superseded by C13** (AGPL-3.0-or-later + DCO). The register carries the current state; A14 should be
+  read as the spec-text decision only.
+- **A1 (MPL-2.0)** is marked both "mandatory" (forced by the `hpke-rs` dependency) and a surfaced
+  compliance call. It is listed as an open gate (the acceptance sign-off is the user's), while noting the
+  technical constraint itself is not in dispute.
