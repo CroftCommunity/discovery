@@ -19,6 +19,17 @@ don't resolve), **[doable]** (no blocker), **[resource]** (blocked on hardware/a
 
 ## A. Decisions — gates that are the user's to make (surface, don't resolve)
 
+> **Open-gate walkthrough outcomes (2026-07-09).** The user walked these; the authoritative record with
+> reasoning homes is `../beta/DECISIONS.md` → "Decisions taken 2026-07-09". Summary:
+> **A1** accepted (MPL-2.0 dep) · **A2+A12** recovery architecture decided — meer-blind invariant, separate
+> custodial conditional-access recovery role, quorum and/or delegate, group-default + per-user, *mechanism →
+> prototype* · **A5** kept as product item T51 · **A9** stable logical URI + portable offline
+> proof-of-prior-identity · **A10** pluggable custody, safe default (PDS-held-default acceptable), self-control
+> option · **A11** spike-then-decide (revocation-immediacy; DOI critical path) · **A13** deferred (placeholder
+> "gating role"). Non-A: **Noria** adopted pending clearance · cooperative **legal-review** deferred to Phase-1 ·
+> **T4** Croft = product / reference impl neutrally branded (vendor-neutral `drystone-*`) · **badge-teeth** =
+> technical conformance with principles encoded as conformance requirements · **C15** closed (leave as per-conclusion).
+
 | # | Item | Type | Origin (file:line) | Also tracked |
 |---|---|---|---|---|
 | A1 | **MPL-2.0 license gate** — `hpke-rs` mandatory for RFC 9420 HPKE; no permissive substitute. Compliance call, not code. | [decision] | `ROADMAP.md:102` | `AGENTS.md:56` |

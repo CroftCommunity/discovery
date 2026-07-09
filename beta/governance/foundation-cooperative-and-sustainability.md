@@ -82,16 +82,25 @@ code monopoly.
 ### Two tiers of mark: the house mark and the compatibility badge
 
 Tier 1 is the **house mark** (Croft), held by the foundation and licensed tightly to the canonical
-cooperative-run instance; a fork must rename. Tier 2 is a **compatibility badge** for the published
+cooperative-run instance; a fork must rename. The **brand split is decided (2026-07-09): Croft is the
+app/product/consumer brand** (Croft-forward branding), **while the reference implementation is neutrally
+branded** — a distro-style separation of a neutral upstream from the "Croft distro," not a Croft-branded
+reference. This confirms the vendor-neutral `drystone-*` domain-separation-tag direction the specification
+already flags (Part 2, Appendix B). What remains open: the neutral reference implementation's own name,
+and its taglines and voice. Tier 2 is a **compatibility badge** for the published
 protocol ("Speaks Drystone"), the honest place for forks: a fork cannot use the house mark but can fly
 the badge if it implements the protocol. The specification itself is the unowned commons (open spec,
 controlled badge). The badge **starts as an honor system, not a formal certification mark** (a USPTO
 certification mark carries heavyweight obligations: control the standard, do not use it on your own
 goods, do not discriminate among qualifiers), with transparency as the early enforcement and a
-revocation clause. One question is surfaced and not resolved: does flying the badge assert only
-*technical* interoperability, or also adherence to the non-negotiable principles (that is, is the badge
-where the principles get their teeth). That sits at the seam with the protocol specification and is
-carried, not settled.
+revocation clause. What the badge asserts is now settled (decided 2026-07-09): flying the badge asserts
+**technical conformance** — objective and testable — not a subjective judgment of virtue. The
+load-bearing-few principles get their teeth by being encoded *as* conformance requirements: the
+peer-equality invariants, no-apex/capped-root, and the rights floor are testable protocol properties, so
+flying the badge means honoring those principles precisely because the conformance tests exercise them,
+with **no subjective "who certifies adherence" gatekeeping**. Principles that cannot be encoded as tests
+stay aspirational and are not badge-gated. This resolves the previously-open question of whether the badge
+is where the principles get their teeth.
 
 *Verification:* design intent.
 
@@ -121,8 +130,8 @@ does not mean uncontrolled; active control is what preserves the mark), and the 
 repeatable for future cooperatives*. Even footing is thereby made mechanical: no cooperative owns the
 name, and the first has no structural privilege over the second. This is precisely why the foundation
 must be named independently of the flagship: its neutrality collapses the moment it stewards a non-Croft
-asset under a Croft-derived name. The foundation-name candidate (Noria) is carried below as pending, not
-decided.
+asset under a Croft-derived name. Noria is **adopted as the working foundation name (decided 2026-07-09),
+pending trademark clearance** [UNVERIFIED]; it is carried in the decision register below.
 
 *Verification:* design intent.
 
@@ -309,10 +318,10 @@ These are the user's calls, not engineering's. They are registered here and not 
   dialogue-sourced and require a cooperative, nonprofit, and IP attorney before any filing or reliance.
   This doc carries the reasoning, not the citations.
 
-- **The foundation-name candidate (Noria).** Carried as pending trademark clearance, not decided. Its
-  independence from the flagship name is a structural requirement (neutrality collapses if the foundation
-  stewards a non-Croft asset under a Croft-derived name), which is *why* a separately-cleared name is
-  needed.
+- **The foundation name (Noria).** Adopted as the working name (decided 2026-07-09), pending trademark
+  clearance [UNVERIFIED]. Its independence from the flagship name is a structural requirement (neutrality
+  collapses if the foundation stewards a non-Croft asset under a Croft-derived name), which is *why* a
+  separately-cleared name is needed.
 
 - **Edge-preserving capital formation (T33 in `../OPEN-THREADS.md`).** The one genuinely open engineering
   problem the peer-standing argument *generates* rather than a flaw in it: a social-graph platform has
@@ -321,9 +330,10 @@ These are the user's calls, not engineering's. They are registered here and not 
   the asymmetric owner/user edge back in is contested and unresolved. It is the central design constraint
   on any financial structure proposed here, and it couples with the cooperative legal-review gate above.
 
-Two further items sit at seams and are carried, not resolved: whether the compatibility badge is where
-the non-negotiable principles get their teeth (a seam with the protocol specification), and the
-fiscal-sponsor selection and single-cooperative-versus-cooperative-plus-charitable-tandem entity form.
+One further item sits at a seam and is carried, not resolved: the fiscal-sponsor selection and the
+single-cooperative-versus-cooperative-plus-charitable-tandem entity form. (The earlier badge-teeth
+question — whether the compatibility badge is where the non-negotiable principles get their teeth — is now
+resolved: the badge tests principles encoded as conformance requirements; see the two-tier mark section.)
 
 ## What this establishes (and does not)
 

@@ -301,6 +301,22 @@ prove road. Everything else can advance without it; the DOI cannot.
 Workstreams (or sub-items) that cannot start or cannot finish until a #1 gate (`../alpha/ROADMAP_TODO.md`
 A-series; `../../beta/README.md` "Standing decisions surfaced") is decided:
 
+> **Decision update (2026-07-09).** Most of these gates were decided in the open-gate walkthrough (record:
+> `../../beta/DECISIONS.md`). The table below is retained as the shaping map; the outcomes recast it:
+> - **A11 → spike-then-decide.** Add a **revocation-immediacy spike** to WS1/WS4 as the *deciding action*:
+>   measure the Track-A epoch revocation window against the moderation/ban-evasion threat model, then pick
+>   Track A vs B from data. Still the DOI critical-path gate — now with a defined task that unblocks it.
+> - **A2 + A12 → recovery architecture decided (principles); mechanism → prototype.** The
+>   **recovery-anchor prototype** is now a named WS2 deliverable: meer-blind invariant; a separate custodial
+>   conditional-access recovery role; quorum and/or delegate; group-default + per-user; self-custody floor.
+>   It shapes T22 (strand case), T36 (re-provision leg), and T40 (resume-vs-fresh fork) with the direction set.
+> - **A10 → decided (pluggable custody, safe default; PDS-held-default acceptable).** WS5's per-spoke claims
+>   proceed on the pluggable-custody framing; the A9 portable proof carries credible exit either way.
+> - **A1 → accepted.** No longer a publication blocker on the substrate-license axis.
+> - **Badge-teeth → decided:** WS1's conformance suite carries a **mandate to encode the load-bearing
+>   principle-invariants** (peer-equality, no-apex/capped-root, rights-floor) as testable cases — that
+>   encoding is what gives the "Speaks Drystone" badge its teeth.
+
 | Gate | What it is | Blocks / shapes |
 |---|---|---|
 | **A11** — capability mechanism: Track A (Meadowcap) vs Track B (Keyhive) | revocation-immediacy call; §X.5 deliberately UNCOMMITTED | **Blocks** the capability wire format → **the DOI's last encoding (T30)**; **blocks** T40's non-member attestation (WS4); shapes the capability-conformance cases in WS1 and the T29 binding (WS2). *The critical-path gate.* |
