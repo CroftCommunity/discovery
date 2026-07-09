@@ -238,6 +238,63 @@ Footprints, heaviest first:
   re-composition at E10 and §7.6.10). Candidates for more: §5.9 exitability and a partition-view example,
   pending a read on whether four is the right density.
 
+## 7. Spec-shape and rationale residuals (Phase-0 coverage-audit staging, `needs-content`)
+
+Three residuals from the drystone-spec-layer Phase-0 coverage audit: the reasoning behind the spec's
+document shape was executed in beta but never captured in the spec itself, so it is staged here rather than
+lost. These are `needs-content` items awaiting a reasoned home in a spec §/appendix, not resolved threads.
+
+- **IETF-norm rationale for the spec's document shape.** Why Drystone is a Part-1-reasoning +
+  Part-2-mechanics document with an "Alternatives Considered" appendix is not recorded in the spec; the
+  structure was executed in beta but the decision-rationale lived only in the alpha publication dialogue.
+  The precedents that drove it: RFC 2360 (a standards-writing guide recommending the standard be split into
+  a concise protocol section plus separate explanatory text, so narrative reasoning is a recommended
+  technique, not tolerated); the IKEv2 rationale-doc split (a companion document that records design choices,
+  the alternatives, and the roads not taken — documenting the changes considered-but-rejected is valued in
+  the culture); RFC 6762 (Multicast DNS, the canonical "body says do X, an appendix says why X and not Y"
+  demonstration); and RFC 6709 (a design-philosophy document in its own right). The load-bearing principle:
+  philosophy lands only when each design principle cashes out into a mechanic, or a reviewer bounces off it
+  as free-floating political theory. Three options were weighed — rationale in appendices (RFC 6762 model), a
+  substantial "Design Principles" section up front then mechanics, or two separate documents (IKEv2 model) —
+  and option 2 was chosen because Drystone's reasoning is generative (it produces the design in front of the
+  reader) rather than retrospective, so splitting it would force two files open to understand one idea. `[UNVERIFIED]`
+  on the RFC specifics (web-verified in the source dialogue only). Remaining: fold this rationale into a spec
+  front-note or an "Alternatives Considered / document shape" appendix so the document shape carries its own
+  justification. Source: `../../alpha/seeds/transcripts/raw/drystone-publication-defensive-disclosure-dialogue-2026-06-24.md`
+  (~34–129). `needs-content`, open.
+
+- **The Willow-launch interop pre-emption mandate.** The normative section MUST answer "what does
+  Drystone-compatible mean, and where exactly does the wire format force two independent implementations to
+  agree" — but this is not yet recorded as a standing spec obligation. Interop is tested empirically (the
+  `[gates-release]` two-implementation interop check, §4), yet the mandate to answer the question in the spec
+  is not itself captured. The reasoning: a commenter on the Willow launch pressed the obvious interop
+  question — what value a protocol has if two "compatible" implementations are not actually compatible — and
+  this is the sharpest test of whether the philosophy cashes out into mechanics. If peer-equality-in-rights
+  is a principle, a reader will want to see exactly where in the wire format two independent implementations
+  are forced to honor it. The publication-dialogue skeleton reserved a normative Interoperability section
+  (§9 in that sketch) to answer this directly and to show peer-equality-in-rights enforced by mechanism.
+  Remaining: record as a spec obligation — a normative Interoperability section defining "Drystone-compatible"
+  and pointing at the wire-format agreement points, so the reviewer question is pre-empted rather than left to
+  the empirical harness alone. Source: same publication dialogue (~159–164, 533–534). `needs-content`, open.
+
+- **The Matrix one-way-latch correction as durable grounding for `P-Durable-Enablement` (Part 1 §2.4).**
+  The originating dialogue asserted Matrix E2EE could be "bilaterally disabled" by a frustrated user,
+  degrading the room for everyone; that claim was verified and retracted. Matrix encryption is a **one-way
+  latch** — the `m.room.encryption` flag "must not be cleared" by a later event, specifically to defeat a
+  MITM downgrade — so the "bilateral disable" mechanism does not exist. The correct antagonist is "an
+  immutable channel flag that protects configuration while abandoning access": Matrix guarantees "this room
+  is encrypted" while failing "you can read this room." The route-around insight that originates
+  `P-Durable-Enablement` is the realized-vs-paper-posture reasoning — even removing the disable option did
+  not save the feature, because users route around it by leaving, so a guarantee whose cost forces users to
+  abandon it has negative value; only ship a guarantee you can keep enabled by default in the common case.
+  This currently survives only as a do-not-reintroduce guard in `beta/CLOSED-THREADS.md` and has no reasoned
+  home in the spec's open-items, so the §2.4 principle does not yet carry its Matrix-derived grounding.
+  Remaining: fold the corrected grounding into Part 1 §2.4 (`P-Durable-Enablement`) so the principle carries
+  its Matrix-derived reasoning, preserving the do-not-reintroduce note (never restate the false "bilateral
+  disable" claim). `[confirm]` the §2.4 anchor and the Matrix facts (web-verified in the source dialogue only)
+  before they harden. Source: `../../alpha/seeds/transcripts/raw/drystone-peers-rights-governance-matrix-dialogue-2026-06-24.md`
+  (~38, 152–154) + `beta/CLOSED-THREADS.md`. `needs-content`, open.
+
 ## Recently closed (so they are not re-opened)
 
 - **Fork-versus-recreation consequence enumeration.** Landed in §7.6.4 as a four-way comparison of a Drystone fork against a Matrix room recreation, across history, governance, membership and standing, and provenance of the split. Verified against MSC1501 (the room-upgrade tombstone and predecessor mechanism, with the continuation link being a mutable, power-level-authored pointer) and room version 12 with MSC4291 (room-id as the hash of the create event, creator holding infinite power). The load-bearing point is now precise: a Drystone fork carries full history and an intact governance chain onto every side and leaves every member whole, whereas the Matrix remedy strands prior history behind a mutable pointer, re-establishes governance from a fresh create-event root, and makes continued standing depend on re-admission by the recreator. Was flagged inline in §5.7.
