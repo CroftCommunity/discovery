@@ -41,6 +41,19 @@ open mechanism keeps a reasoned home in OPEN-THREADS / the spec open-items).
   optional **per-user** designation, over a self-custody floor. The exact conditions, the quorum/delegate
   composition, and the group-default shape are worked out in the **recovery-anchor prototype**. The A10
   rotation key folds into this custody. → `drystone-spec` §7.3.9 + the recovery workstream.
+  - **Refined 2026-07-09 (three-case model).** Recovery decomposes into three cases with different mechanisms:
+    **Case 1** (lose a device, others remain) = *not recovery* — the two-phase BAN of the lost client.
+    **Case 2** (lose all devices, backup exists) = recover the backup → **rotate the lineage forward** →
+    rejoin as the same principal; the backup lives in a **pluggable target — QR/printed-sheet (air-gapped),
+    a file export, or the PDS encrypted-blob-vault (the provider-recovery analog, blind: ciphertext-only)** —
+    unlocked by passphrase and/or quorum. **Case 3** (parent key gone, no backup) = irreducibly **social**:
+    a group quorum **vouches** a new lineage is persona X; feasibility is **tiered by social closeness**
+    (close groups can, large/anonymous cannot → new persona). This **resolves the VSS-vs-FROST question as a
+    per-case split, not a choice: `vsss-rs`-style verifiable secret-reconstruction for the Case-2 unlock;
+    `frost-ed25519`-style threshold-authorization for the Case-3 vouch** (`[verify before committing]`).
+    Insight behind it: the persona's parent keypair (lineage) is the anchor, so recovery is *rotate the
+    lineage forward*, not reconstruct an old key — which is why Case 2/3 never re-materialize the "one key =
+    the whole person" single point of compromise. Full designs: `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md` (E-REC.0–.5).
 - **A11 — SPIKE THEN DECIDE.** Run a **revocation-immediacy spike** (Track-A epoch window vs the
   moderation/ban-evasion threat model) and pick **Track A (Meadowcap)** vs **Track B (Keyhive)** from data.
   Critical path to the v0.1 DOI. → engineering-validation plan.
