@@ -230,17 +230,101 @@ The principles are fixed (§7.3.9; `../../beta/DECISIONS.md` A2+A12). These expe
 adversarial cases. They map onto and make executable the consolidated **Stage 8 (recovery ladder)** and
 **Stage 9 (tenure / survivor-re-key)** properties.
 
+**The three-case model (confirmed 2026-07-09 with the maintainer) — the organizing spine.** "Recovery" is
+not one problem; it is three cases distinguished by *what was lost* and *what survives to bridge it*. Every
+experiment below is placed against this spine.
+
+- **Case 1 — lose a device, other clients remain.** This is **not recovery** at all: you **two-phase BAN the
+  lost client** — the immediate local ignore + epoch roll of the **E-A11.0 revocation** (see Track A11 above;
+  *reuse that mechanism, do not build a second one*). The persona survives unbroken through your other
+  clients; nothing is reconstructed.
+- **Case 2 — lose ALL devices, but the parent key was BACKED UP.** Recover the backed-up parent-key material
+  → **rotate the lineage forward** → rejoin as the **same principal** (it is a lineage, not a new identity).
+  This is the backup+unlock problem. **The backup target is pluggable** — one axis (*where the encrypted
+  backup lives*), orthogonal to the unlock axis (*passphrase and/or quorum*, E-REC.1) and to the Case-3
+  social path. Three targets, which compose freely (belt-and-suspenders, e.g. paper **and** PDS):
+  - **QR / printed sheet, vaulted** — air-gapped self-custody. Immune to online/remote compromise; the risk
+    is **physical** (loss, fire, being photographed), not offline-guessing. Classic seed-phrase pattern.
+  - **File export** — an encrypted keystore file the user places (USB, drive, password manager); as safe as
+    where it lands plus its own encryption.
+  - **PDS encrypted-blob-vault** — the **provider-recovery analog** and the closest to the familiar "recover
+    through your account" model: durable, always-available, survives total device loss with nothing physical
+    kept. It is the already-recovered *encrypted-blob-vault* pattern
+    (`../../beta/cairn/atproto-selfhosting-appviews-and-bridges.md` — client-encrypt before `uploadBlob`, the
+    PDS/relays mirror unreadable bytes, the public atproto network as a **free durable distributed encrypted
+    store**). The Croft twist that keeps it honest: the PDS stores **ciphertext it cannot read** — provider
+    *UX* without provider-*holds-your-keys*.
+  Three invariants govern whichever target holds the ciphertext:
+  1. **Ciphertext-only, never a decryptor.** A store holds ciphertext only; the blob's key is user-held
+     (recovery passphrase) and/or quorum-held, **never store-derivable** — the **meer-blind invariant applied
+     to recovery storage**. Most load-bearing for the PDS target (a PDS that could decrypt is the readable
+     homeserver Croft refuses, §2.8 / A12).
+  2. **Offline-attack-resistant (for exposure-attackable targets).** The PDS blob is effectively **public**
+     (atproto public-by-default) and a synced file may be too, so an attacker gets **unlimited offline
+     guesses** — the encryption MUST be offline-attack-resistant (strong memory-hard KDF / quorum-gated). For
+     the air-gapped QR/paper target the control is **physical security** instead, so the invariant is
+     target-specific.
+  3. **Portable.** The PDS vault travels via CAR export/import anchored to the **A9 stable logical URI** (a
+     credible exit); file and paper are inherently portable.
+- **Case 3 — parent key GONE, no recoverable backup, want to rejoin as the same persona.** No cryptographic
+  link remains, so a new keypair **cannot** be a crypto extension of the old lineage. Only the **group can
+  bridge it**: a **quorum vouches** that "persona X's lineage now roots at this new key." No secret is
+  recovered — the group's say-so *is* the continuity. **Feasibility is tiered by social closeness:** a small,
+  close circle can quorum-vouch; a large or anonymous group has no basis to, so there the person is simply a
+  **new persona** (or continuity is *not possible*). This case is irreducibly social.
+
+**The crypto split — this resolves E-REC.1's previously-open VSS-vs-FROST question. It is NOT either/or; the
+two recovering cases want different primitives:**
+- **Case 2 (unlock the backup) → threshold-DECRYPTION / VSS-of-the-blob-key.** Guardians hold shares of the
+  blob-unlock key; k of them **reconstruct** it on the recovering device, verifiably so a cheating guardian's
+  share is caught. This is secret *reconstruction*.
+- **Case 3 (social re-establishment) → FROST-shaped threshold-AUTHORIZATION.** Guardians jointly **sign** the
+  re-attestation fact; **no secret is ever assembled**. This is threshold *signing*.
+
+### E-REC.0 — The Case-2 backup store (pluggable target: QR/paper · file · PDS-vault)
+
+- **Type / Rung:** `needs-proving`. **Rung A** for each target on the reference implementation's own stack:
+  the **PDS-vault** on the atproto/PDS integration (real `uploadBlob`/blob-fetch, client-side KDF + AEAD);
+  the **file** target as an encrypted keystore export/import; the **QR/paper** target as encode-to-QR /
+  printable-sheet + scan/re-key. Drystone's binding of the PDS-vault to the **A9 stable logical URI** is
+  **Rung B** until that anchor lands.
+- **Claim it tests:** that the Case-2 backup store supports the full **store → lose-all-devices → recover →
+  unlock → rotate-lineage-forward → rejoin-as-same-principal** loop across a **pluggable target set** — QR/
+  printed-sheet (air-gapped), file export (portable keystore), and the PDS encrypted-blob-vault (provider-
+  style, blind) — with the targets composable, and holds the target-aware Case-2 invariants.
+- **What it works out (fills §7.3.9 parameters).** That the recovery material is a **portable encrypted blob
+  plus an unlock threshold**, **not a single monolithic "recovery secret"**; the **target set** {QR/paper,
+  file, PDS} and which are default/offered; the KDF/AEAD choice **`[verify before committing]`** (a strong
+  memory-hard KDF for the passphrase path; a **threshold-KEM / HPKE** for the quorum-gated unlock — couples
+  E-REC.1); and, for the PDS target, the **CAR export/import + logical-URI anchoring** that makes it portable.
+- **Pass/fail criterion.** **PASS** iff, for each target: the loop completes end-to-end (PDS target against a
+  real PDS); the recovered material **rotates the lineage forward and rejoins as the same principal**; and the
+  target-aware invariants hold. **Must-reject (any one = FAIL):** a store (esp. the PDS) that **can decrypt**
+  the blob (ciphertext-only broken = the readable homeserver); an exposure-attackable target (PDS blob /
+  synced file) whose **weak KDF is offline-crackable** (offline-resistance broken); a PDS-vault that **cannot
+  be exported / re-imported across a PDS migration** (portability broken). The QR/paper target's control is
+  physical, so it is scored on air-gap + physical-recovery, not offline-resistance.
+
 ### E-REC.1 — Quorum mechanism (threshold recovery)
 
-- **Type / Rung:** `needs-proving`. **Rung A** on a real **threshold-crypto library** for the secret-sharing
-  (candidate: a vetted Rust Shamir / VSS or threshold-signature crate — *choice is an open question, see
-  risks; the library must be real per the fidelity ladder, not a hand-rolled polynomial*) **+ Rung A on
-  `mls-rs 0.55.2`** for the MLS re-provision material. Drystone's own governance-chain structures are
-  **Rung B** until WS3 (redb) lands (couples `2026-07-09-engineering-validation-plan.md` WS3).
-- **Claim it tests:** that the recovery material — **the `did:plc` rotation key (A10) + the MLS re-provision
-  material** — can be **k-of-n threshold/Shamir-shared** among guardians, reconstructed only by k concordant
-  guardians, under a conditional-access trigger with a break-glass delay + contest window. (Consolidated
-  Stage 8 Rung 2 + Group V1/V2.)
+- **Type / Rung:** `needs-proving`. **Rung A** on **two real threshold-crypto libraries — one per case** (a
+  verifiable-secret-sharing crate for the Case-2 unlock *and* a threshold-signature crate for the Case-3
+  vouch; the split is resolved below, no longer an open choice) **+ Rung A on `mls-rs 0.55.2`** for the MLS
+  re-provision material. Each library must be real per the fidelity ladder, not a hand-rolled polynomial.
+  Drystone's own governance-chain structures are **Rung B** until WS3 (redb) lands (couples
+  `2026-07-09-engineering-validation-plan.md` WS3).
+- **Claim it tests:** that a guardian quorum supports recovery — noting the quorum plays **two distinct roles
+  depending on the case**:
+  - **Case-2 unlock (threshold-DECRYPTION / VSS-of-the-blob-key).** k-of-n guardians hold shares of the
+    E-REC.0 blob-unlock key (and/or the **`did:plc` rotation key (A10) + MLS re-provision material**) and
+    **reconstruct** it on the recovering device — secret *reconstruction*, verifiable so a cheating
+    guardian's share is caught. Reconstructed only by k concordant guardians, never k-1.
+  - **Case-3 vouch (FROST-shaped threshold-AUTHORIZATION).** k-of-n guardians jointly **sign** the
+    re-attestation "persona X's lineage now roots at this new key" — threshold *signing*, **no secret ever
+    assembled**.
+  In both roles the action fires only under a conditional-access trigger with a break-glass delay + contest
+  window, and restores **exactly the lost principal's authority, never more**. (Consolidated Stage 8 Rung 2 +
+  Group V1/V2.)
 - **What it works out (fills §7.3.9 parameters).** The reconstruction protocol; **k and n** defaults; the
   **conditional-access trigger** (what fact fires recovery); the **break-glass delay** and **contest window**
   length (in epochs/generations, not wall-clock).
@@ -250,17 +334,20 @@ adversarial cases. They map onto and make executable the consolidated **Stage 8 
   authority, never more** (Stage 8 U1 — the center test). **FALSIFIED** if any k-1 path reconstructs, or the
   fold is order-dependent.
 
-**Tradeoffs.** The real fork is **secret reconstruction (Shamir/VSS) vs threshold-signing (FROST/BLS)**, and a second axis is **verifiable vs not**. This experiment reconstructs the lost principal's *existing* secret material (the `did:plc` rotation key + MLS re-provision material), which is a **secret-reconstruction** problem — so the reconstruction-family crates fit directly and the signing family does not, unless the mechanism is redefined. Candidates, each **`[verify before committing]`** for maintenance/features/audit status:
-  - **`vsss-rs`** — *verifiable* secret sharing. Fits the model and lets a guardian's bad share be *detected*, which is exactly the E-REC.5 contested/hijack surface. Downside: smaller ecosystem/maturity than the signing crates `[verify]`, and like any reconstruction scheme it re-materializes the plaintext secret at one place at recovery time — a momentary single point of compromise.
-  - **`sharks`** — plain Shamir, no verifiability. Simpler and smaller, but a malicious dealer or guardian can submit a garbage/forged share undetected — it cannot prevent guardians from cheating, so it fails the adversarial-guardian requirement E-REC.5 raises.
-  - **`frost-ed25519` (FROST)** — threshold *signing*, a different model. Relevant only if recovery is reframed as guardians jointly *re-signing* a fresh rotation key rather than reconstructing the old secret. That reframing is attractive — it never assembles a plaintext secret in one place, removing the momentary single point of compromise — but it changes the mechanism and the §7.3.9 recovery-secret encoding, and it does not by itself restore MLS re-provision *material* that must be reconstructed, not signed.
-  - **BLS-threshold** — same threshold-signing shape as FROST plus a pairing-curve dependency; same fit/misfit as FROST for this experiment.
-The fidelity ladder forbids a hand-rolled polynomial stand-in for whichever is chosen — Rung A requires the real, vetted crate.
+**Tradeoffs.** What was previously framed as a *fork* — secret reconstruction (Shamir/VSS) **vs** threshold-signing (FROST/BLS) — is now **resolved by the three-case model into a split, not a choice**: Case 2 (unlock the backed-up blob, plus the `did:plc` rotation key + MLS re-provision material) is a secret-*reconstruction* problem that wants the reconstruction family, and Case 3 (socially re-establish a lost lineage) is a threshold-*authorization* problem that wants the signing family. A second axis, **verifiable vs not**, applies within the reconstruction family. Candidates, each **`[verify before committing]`** for maintenance/features/audit status:
+  - **`vsss-rs`** — *verifiable* secret sharing. The **Case-2 unlock primitive**: it reconstructs the blob-unlock key / re-provision material and lets a guardian's bad share be *detected*, which is exactly the E-REC.5 contested/hijack surface. Downside: smaller ecosystem/maturity than the signing crates `[verify]`, and like any reconstruction scheme it re-materializes the plaintext secret at one place at recovery time — a momentary single point of compromise (acceptable for Case 2 because there *is* an existing secret to recover).
+  - **`sharks`** — plain Shamir, no verifiability. Simpler and smaller, but a malicious dealer or guardian can submit a garbage/forged share undetected — it cannot prevent guardians from cheating, so it fails the adversarial-guardian requirement E-REC.5 raises. Rejected for either role.
+  - **`frost-ed25519` (FROST)** — threshold *signing*. This is the **Case-3 primitive**: guardians jointly sign the re-attestation fact **without ever assembling a plaintext secret**, which is exactly the social-re-establishment shape (and the stronger no-single-point-of-compromise property, correct here precisely because Case 3 has *no* secret to reconstruct). It does not reconstruct the Case-2 blob-unlock key or MLS re-provision material — that is reconstruction, not signing — so it **complements** VSS rather than replacing it.
+  - **BLS-threshold** — same threshold-signing shape as FROST plus a pairing-curve dependency; the pairing-curve alternative to FROST for the Case-3 signing role.
+The fidelity ladder forbids a hand-rolled polynomial stand-in for either family — Rung A requires the real, vetted crates.
 
-**Proposal (for review).** Default to **`vsss-rs` (verifiable secret sharing) `[verify before committing]`**, because the recovery model here is secret *reconstruction* with potentially-adversarial guardians, which is precisely VSS's shape — plain Shamir (`sharks`) cannot detect a cheating guardian, and the FROST/BLS signing family solves a different problem unless recovery is redesigned. The one design question worth escalating alongside this: whether recovery should be reframed as a **FROST-style threshold re-sign** (never reconstructing a plaintext secret) instead of reconstruction — if the maintainer wants that stronger no-single-point-of-compromise property, `frost-ed25519` `[verify]` becomes the default and §7.3.9's encoding changes accordingly. Either way the crate choice is **the maintainer's call to accept or adjust**, and current maintenance/audit status must be verified before it is pinned.
+**Proposal (for review) — both, per case (the VSS-vs-FROST question is now RESOLVED as a split, not a choice).** Use **`vsss-rs` (verifiable secret sharing) `[verify before committing]`** for the **Case-2 unlock** — reconstruct the blob-unlock key / re-provision material, verifiability catching a cheating guardian (the E-REC.5 contested surface) — **and** **`frost-ed25519` (FROST) `[verify before committing]`** for the **Case-3 vouch** — threshold-sign the re-attestation, never assembling a secret. Plain `sharks` is rejected for either role (no verifiability); **BLS-threshold** is the pairing-curve alternative to FROST for the Case-3 signing role. The one-sentence why: the two recovering cases are structurally different problems — reconstructing an existing secret (Case 2) vs authorizing a social fact with no secret to reconstruct (Case 3) — so they take different primitives rather than one compromise crate. The crate choices remain **the maintainer's call to accept or adjust**, and current maintenance/audit status must be verified before either is pinned.
 
 ### E-REC.2 — Custodial-delegate mechanism, and how it composes with the quorum
 
+- **Case placement (Case 2).** The custodial delegate is **one Case-2 custody vector** — an alternative or
+  complement to the E-REC.0 PDS-vault and the E-REC.1 quorum for holding and conditionally releasing the
+  backed-up unlock material. It is not a Case-3 mechanism (Case 3 is social vouch, not custody).
 - **Type / Rung:** `needs-proving`. **Rung A** on `mls-rs` for the sealed re-provision material; **Rung B**
   for Drystone's governance-role structures until WS3.
 - **Claim it tests:** the **conditional-access custodial role** — holds sealed recovery material, releases
@@ -283,6 +370,11 @@ The fidelity ladder forbids a hand-rolled polynomial stand-in for whichever is c
 
 ### E-REC.3 — Group-default + per-user designation
 
+- **Case placement (Case 3).** The **Case-3 social vouch is per-group**: a group's recovery arrangement
+  includes whether — and by what quorum — it will re-attest a member who has lost all key material with no
+  backup. Its **feasibility follows social closeness** (per the three-case model): a small, close group can
+  carry a per-user override designating close vouchers, while a large or anonymous group has no basis to vouch
+  and its default is "no Case-3 continuity — rejoin as a new persona."
 - **Type / Rung:** `needs-proving`. **Rung B** (model-form on the governance-fact fold — this is a fold-
   precedence property, not an MLS-mechanics property; name the stand-in). Re-run Rung A on the fold once WS3
   redb lands.
@@ -306,12 +398,18 @@ The fidelity ladder forbids a hand-rolled polynomial stand-in for whichever is c
 - **Type / Rung:** `needs-proving`. **Rung A on `mls-rs`** for the key-material path (this is the exact
   component the claim is about — a stand-in is forbidden here). See risks re: whether the negative
   ("never gains usable keys") is fully testable at Rung A.
-- **Claim it tests:** the **meer never gains usable key material via the recovery path** (§5.4 invariant), and
-  the **recovery role is provably distinct** from the meer PeerSet.
+- **Claim it tests:** the **meer never gains usable key material via the recovery path** (§5.4 invariant); the
+  **recovery role is provably distinct** from the meer PeerSet; **and the PDS / backup store holds ciphertext
+  only** — the **meer-blind invariant applied to recovery storage** (E-REC.0 invariant 1): *no* storage node,
+  meer or PDS, can derive a decryptor.
 - **What it verifies.** Through the real `mls-rs` sealing path: the meer forwards only sealed material (as in
   §7.4.2's out-of-band convergence); the recovery custodian's material is separately held and separately
   role-typed; there is **no path** by which meer + recovery custody collude to a usable key without satisfying
   the E-REC.1 quorum / E-REC.2 conditions.
+- **What it verifies (recovery storage).** The E-REC.0 vault stores **ciphertext only**: the store node (PDS
+  or meer-mirrored blob) holds bytes it cannot decrypt, the blob's key being user-held and/or quorum-held and
+  **never store-derivable**. A store that can decrypt is the readable homeserver the invariant forbids — the
+  same meer-blind boundary, applied to storage rather than transit.
 - **Pass/fail criterion.** **PASS** iff the meer role, exercised through real MLS, is shown to hold **no
   usable key material** at any point in the recovery flow, and the recovery role is a distinct, revocable
   capability. This is a **must-hold** — a FALSIFIED here falsifies the A2/A12 principle set and stops the
@@ -338,6 +436,19 @@ The fidelity ladder forbids a hand-rolled polynomial stand-in for whichever is c
   - **Recovery under partition:** a recovery quorum assembled in one partition must not silently diverge; a
     divergent per-partition recovery is the `RemovedThenIncluded`-class contradiction and **hard-stops /
     escalates** (§7.6), never silently merges.
+  - **Case-3 impostor-vouch (new).** An attacker tricks or colludes a quorum into re-attesting a **fake
+    continuation of persona X** — binding X's lineage to a key the attacker controls. Must-reject: the
+    FROST-signed re-attestation (E-REC.1 Case-3 role) must require k concordant, correctly-authenticated
+    guardians, be contestable within the delay window, and out-forkable; a quorum below k, a coerced/deceived
+    single guardian, or a vouch that takes effect before the contest window closes is a FALSIFIED. (This is
+    the social-attestation analogue of the contested/hijack quorum above — since Case 3 recovers *no* secret,
+    the group's say-so is the *only* thing an attacker needs to subvert.)
+  - **PDS public-ciphertext offline attack (new).** The E-REC.0 blob is effectively public (atproto
+    public-by-default), so an attacker gets **unlimited offline guesses** against it. Must-reject: any vault
+    whose encryption is not offline-attack-resistant — a weak or fast KDF on the passphrase path, or a
+    non-quorum-gated blob key, that a well-resourced attacker can crack offline. (This is E-REC.0 invariant 2
+    stated as an adversarial must-reject; a green E-REC.0 store loop does not by itself prove offline
+    resistance — this vector does.)
   - **The resume-vs-fresh identity fork:** recovery must be "**re-plant or re-join fresh, converge history out
     of band**" and **never resurrect a live group's epoch secrets in place** (§7.4.2 residual — if any path
     does the latter, the replay/nonce-reuse hazard returns). **Couples the E12 re-plant set** (E12.1–E12.7,
@@ -352,9 +463,20 @@ The fidelity ladder forbids a hand-rolled polynomial stand-in for whichever is c
 
 ### Recovery deliverable
 
-- **The recovery mechanism spec that fills §7.3.9's pending parameters:** **k, n, break-glass delay, contest
-  window, the exact access conditions, the quorum/delegate composition rule, the group-default shape, and the
-  recovery-secret encoding** — the five deferred items plus the composition and default shapes.
+- **The recovery mechanism spec that fills §7.3.9's pending parameters — now as a THREE-CASE structure**
+  (rather than one monolithic "recovery secret"):
+  - **Case 1 — the revocation two-phase.** Not recovery: reuse the E-A11.0 two-phase BAN (immediate local
+    ignore + epoch roll). No new mechanism.
+  - **Case 2 — the encrypted-blob-vault + unlock threshold.** The PDS encrypted-blob-vault (E-REC.0) plus the
+    Case-2 unlock threshold (E-REC.1 VSS-of-the-blob-key, and/or the E-REC.2 custodial delegate). **There may
+    be no single monolithic "recovery secret" — it is a ciphertext blob plus a threshold**, with the three
+    invariants (ciphertext-only, offline-resistant, portable).
+  - **Case 3 — a social-attestation threshold + its closeness-tiered feasibility.** The FROST-shaped
+    threshold-authorization (E-REC.1 Case-3 role), configured per-group (E-REC.3), with feasibility tiered by
+    social closeness (small close circle can vouch; large/anonymous group cannot → new persona).
+  - **The deferred parameters, per case:** **k, n, break-glass delay, contest window, the exact access
+    conditions, the quorum/delegate composition rule, the group-default shape, and the recovery-secret
+    encoding** (Case-2: blob + unlock threshold; Case-3: the re-attestation fact and its quorum).
 - **A working re-provision-after-total-loss prototype** (Rung A on `mls-rs` re-provision + the threshold lib;
   Rung B on Drystone's own structures until WS3), demonstrating total-device-loss → recover → rejoin with
   tenure preserved (couples Stage 9 Group R — no stranded right — and T22).
@@ -377,17 +499,23 @@ The fidelity ladder forbids a hand-rolled polynomial stand-in for whichever is c
 
  RECOVERY PROTOTYPE (prove-road; raises maturity toward rc):
 
+   three cases: (1) lose a device = reuse E-A11.0 two-phase BAN — not recovery
+                (2) lose all, backup exists = blob-vault + unlock threshold
+                (3) key gone, no backup = social vouch, closeness-tiered
+
    uses A10 rotation-key custody ─┐
    uses identity-provenance chain ┤
    WS3 redb fold engine (Rung A) ─┤ (Rung B until it lands)
                                   ▼
-   E-REC.1 quorum ─┐
-   E-REC.2 delegate + composition ─┤─► E-REC.3 group-default + per-user
-                                   │
-   E-REC.4 meer-blind (must-hold, gates the rest) ──► E-REC.5 adversarial (must-reject)
-                                                       └─ couples E12 re-plant set (T36)
+   E-REC.0 PDS encrypted-blob-vault (Case-2 store) ─┐
+   E-REC.1 quorum: Case-2 unlock (VSS) + Case-3 vouch (FROST) ─┤
+   E-REC.2 delegate + composition (Case-2 custody vector) ─────┤─► E-REC.3 group-default + per-user
+                                                               │       (Case-3 vouch per-group)
+   E-REC.4 meer-blind + ciphertext-only store (must-hold, gates the rest) ──► E-REC.5 adversarial (must-reject)
+                                                       └─ couples E12 re-plant set (T36); adds Case-3
+                                                          impostor-vouch + PDS offline-attack vectors
                                   ▼
-   recovery mechanism spec (k,n,delay,conditions,encoding) + re-provision prototype ──► §7.3.9 filled → Verified
+   recovery spec = 3-case structure (blob+threshold, social threshold) + re-provision prototype ──► §7.3.9 filled → Verified
 ```
 
 - **E-A11.0 before A/B** — the threat model is the ruler; A and B are scored against it.
