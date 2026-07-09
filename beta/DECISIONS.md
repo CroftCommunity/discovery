@@ -54,6 +54,18 @@ open mechanism keeps a reasoned home in OPEN-THREADS / the spec open-items).
     Insight behind it: the persona's parent keypair (lineage) is the anchor, so recovery is *rotate the
     lineage forward*, not reconstruct an old key — which is why Case 2/3 never re-materialize the "one key =
     the whole person" single point of compromise. Full designs: `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md` (E-REC.0–.5).
+  - **Refined further 2026-07-09 (recovery group + the safety ladder).** The Case-2 quorum is a **recovery
+    group**: the KEK is split across **n share-holders** recovered by **threshold-decryption** (k-of-n unlock
+    without reassembling the secret; verifiable). The share-holders are **pluggable — people, the user's own
+    home devices (scatter-stash), or a mix, k-of-n over the *union*** (a house fire is survivable via friends;
+    friend-collusion is insufficient without the home devices). A **second factor** (k guardian shares **and**
+    the user's passphrase) is the **collusion defense** — the group is necessary but not sufficient. Recovery
+    paths form a **difficulty = safety ladder** (device → home-scatter → kept-artifact → social-group →
+    +second-factor → Case-3 vouch); the user/group picks a rung. The **irreducible law:** you cannot maximize
+    both "get back with nothing" and "no group can impersonate me" — the second factor trades one for the
+    other. **Status: this is now design-complete enough to move to experiments** (E-REC.0/.1/.5 on the resumed
+    `croft-chat` core); the remaining params (k, n, the rung default, the second-factor composition) are
+    empirical, to be settled from the prototype, not by more design.
 - **A11 — SPIKE THEN DECIDE.** Run a **revocation-immediacy spike** (Track-A epoch window vs the
   moderation/ban-evasion threat model) and pick **Track A (Meadowcap)** vs **Track B (Keyhive)** from data.
   Critical path to the v0.1 DOI. → engineering-validation plan.
