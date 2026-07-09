@@ -194,4 +194,9 @@ missing reasoning the register must point at) and reinforces Phase 3 (the resolu
   spec-rationale additions (IETF doc-shape rationale, Willow-interop mandate, Matrix-latch grounding —
   stage as spec open-threads); governance founding-mottos + the PDS enterprise-compliance revenue model
   (tracked input, not Croft's answer); the reasoning-gaps from `DECISIONS.md` (A6, S3/S4, A8 app-body IP,
-  A5 republish-UX); and the clerical move of promoted threads T41–T48 into `CLOSED-THREADS.md` after review.
+  A5 republish-UX); and the governance mottos/PDS-revenue.
+- 2026-07-09 — **OPEN-THREADS triage + cleanup.** Reviewed all ~41 open threads against the now-existing
+  corpus. Moved the 9 fully-promoted threads (T41–T48 cairn/governance cohort + T28 peer-rights home) into
+  `CLOSED-THREADS.md` (status promoted). Identified 2 merge candidates (T20↔T5, T39↔T40) and several
+  partially-resolved threads (T15/T17/T18/T3/T14) whose content is homed but which retain a genuine open
+  gate — surfaced as discussion items, not auto-closed. OPEN-THREADS is now 32 live threads.
