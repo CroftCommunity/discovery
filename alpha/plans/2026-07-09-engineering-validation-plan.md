@@ -65,8 +65,37 @@ behind experiments it does not need, or ship a "Verified" claim the text cannot 
 
 ## Approach — workstreams
 
-Five workstreams, grouped so dependencies are explicit. WS1 (the shared harness) is the highest-leverage
-first build because WS2 and parts of WS4 are proven *on* it.
+> **Correction (2026-07-09): the reference implementation already exists — the workstreams extend it, not
+> greenfield.** The host is the **`experiments/alpha/croft-chat/` Cargo workspace** (the maturity-staged
+> reference implementation), which closed its integrated-CLI plan **2026-06-27** at **P20** and then went
+> dormant during the discovery/beta pass. It is:
+> - **the multi-platform Rust core** — `social-graph-core` (the Drystone substrate facade, tenant-agnostic)
+>   + `group-chat-core` (the chat tenant; Intent/Effect/update/project/view, hexagonal), behind a
+>   **Transport port**; the **`croft-chat` CLI/TUI is shell #1** (IrohGossipBus adapter). "Multi-platform" =
+>   further shells (Tauri/mobile) on the same core.
+> - **already carrying WS3's substrate:** the `experiments/alpha/local_storage_projection` crate (redb +
+>   append-only governance fold + derived social-graph projection), **mutation-vetted** — so T25/WS3 is
+>   largely *built*, not to-build.
+> - **already proving early WS1/WS2 claims:** multi-node convergence over real iroh-gossip (2- and 4-node,
+>   cross-process) and the §7.6 **hard-stop on contradiction** (P20).
+> - **immediate resume tasks (deferred when it parked):** the live **cross-host** runs (pending the
+>   secroute boxes + `RUN.md`) and the **cargo-mutants re-sweep** (the auth/governance trust gate).
+>
+> **So the forward road is code-forward from here:** WS0 below is "resume the reference impl"; WS1–WS5 are
+> built *in this workspace* (extending its crates + test suite), and the A11/recovery proof experiments
+> (`2026-07-09-proof-experiments-a11-and-recovery.md`) are hosted here too, at Rung A on the real stack.
+
+### WS0 — Resume the reference implementation (the host)  (`experiments/alpha/croft-chat/` + `local_storage_projection`)
+
+Pick the workspace back up from P20: land the two deferred items (cross-host live runs on the secroute
+boxes; the cargo-mutants auth/governance re-sweep), then use it as the host into which WS1's harness, WS2's
+governance-fold proofs, and the A11/recovery experiments are built. This is not a rebuild — it is
+re-activation of a dormant, milestone-complete slice, and it is the substrate every other workstream rides.
+
+Five further workstreams, grouped so dependencies are explicit. WS1 (the shared harness) is the highest-leverage
+first build because WS2 and parts of WS4 are proven *on* it — **and it is built inside the WS0 workspace.**
+
+### WS1 — Scale & conflict test harness  (T5 + T2 + T20 reconcile corpus + T38 matrix)
 
 ### WS1 — Scale & conflict test harness  (T5 + T2 + T20 reconcile corpus + T38 matrix)
 
