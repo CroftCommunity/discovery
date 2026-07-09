@@ -273,6 +273,43 @@ experiment below is placed against this spine.
   close circle can quorum-vouch; a large or anonymous group has no basis to, so there the person is simply a
   **new persona** (or continuity is *not possible*). This case is irreducibly social.
 
+**The recovery ladder (confirmed 2026-07-09 with the maintainer) — difficulty-of-recovery *is* safety.** The
+paths above are not competing designs; they are **rungs on one ladder**, ordered from easiest / most-convenient
+/ least-attack-resistant at the top to hardest / safest at the bottom. The **user — or a group's default
+(E-REC.3) — picks a rung**; the mechanism underneath (E-REC.0/.1/.2) is the same, only the share-holder set and
+the required factors change. (These recovery-ladder rungs are numbered 1–6 and are distinct from the fidelity
+ladder's Rung A/B/C, which still tags every experiment below.)
+
+```
+   ┌ easiest / most convenient / least attack-resistant ──────────────────────
+   │
+   │  rung 1  still have a device            Case 1 — NOT recovery (two-phase BAN)
+   │  rung 2  home-device scatter            reassemble from ≥k of your OWN nodes;
+   │                                         fails if all are lost at once
+   │  rung 3  kept artifact (QR/paper/file)  retrieve a stashed full-entropy value;
+   │                                         single point (loss / fire / photographed)
+   │  rung 4  social recovery group          call k guardians; survives losing
+   │                                         EVERYTHING personal; risk = k-collusion / coercion
+   │  rung 5  social group + second factor   quorum AND the user's passphrase — group
+   │                                         necessary but NOT sufficient; defeats
+   │                                         collusion; costs "must still hold one thing"
+   │  rung 6  Case-3 social re-attestation   nothing recoverable; group vouches a fresh
+   │                                         lineage; old crypto continuity lost
+   │
+   └ hardest / safest ────────────────────────────────────────────────────────
+```
+
+**The one thing only a group can do.** A **social recovery group (rung 4 and below)** is the **only** thing
+that restores you with **zero devices AND zero memory** — rungs 1–3 each require you to still hold *something*
+(a device, your own fleet, or a kept artifact). That is why the ladder cannot stop at self-custody.
+
+**The irreducible trade (state it as a law).** You **cannot simultaneously maximize** "get back with nothing"
+**and** "no group can impersonate me." More independence from your own memory/artifacts means **more reliance
+on a group that could betray you**; the **second factor** (rung 5) buys impersonation-resistance back, but only
+at the price of **requiring you still hold one thing** (your passphrase). No rung is both zero-hold and
+zero-trust — so the recovery posture is a **chosen rung, not one answer**, and E-REC.3's group-default plus
+per-user override is the machinery for choosing it.
+
 **The crypto split — this resolves E-REC.1's previously-open VSS-vs-FROST question. It is NOT either/or; the
 two recovering cases want different primitives:**
 - **Case 2 (unlock the backup) → threshold-DECRYPTION / VSS-of-the-blob-key.** Guardians hold shares of the
@@ -305,7 +342,28 @@ two recovering cases want different primitives:**
   be exported / re-imported across a PDS migration** (portability broken). The QR/paper target's control is
   physical, so it is scored on air-gap + physical-recovery, not offline-resistance.
 
-### E-REC.1 — Quorum mechanism (threshold recovery)
+### E-REC.1 — The recovery group (threshold recovery / quorum mechanism)
+
+**Reframe — the "recovery group" (2026-07-09, with the maintainer).** The quorum *is* the **recovery group**.
+The value it protects is a single **key-encryption key (the KEK)** that unlocks the Case-2 backup blob (and/or
+the `did:plc` rotation key + MLS re-provision material); it is **never held whole**. It is **split across n
+share-holders** and recovered by **threshold-DECRYPTION** — k-of-n jointly unlock the KEK **without ever
+reassembling the secret in one place** (a **threshold-KEM / distributed-decryption** shape,
+`[verify before committing]`, *not* reconstruct-then-decrypt), so a **compromised recovery coordinator never
+sees the KEK**, and the scheme is **verifiable** so a bad share is caught (why `vsss-rs`'s verifiability, or a
+verifiable threshold-KEM, is preferred over plain reconstruction — see the crypto-split tradeoffs below). The
+share-holders are **pluggable**: they can be **people (social guardians)**, the **user's own home devices (the
+scatter-stash — ladder rungs 2–3)**, or a **MIX**, with **k-of-n taken over the UNION** of both sets. That
+union is the point — a **house fire is survivable** because friends still hold enough shares, while
+**friend-collusion alone is insufficient** because it cannot reach k without the home devices.
+
+**Second factor — the collusion defense.** The KEK unlock can additionally require the **user's passphrase**:
+either a **two-layer wrap** (a guardian-quorum layer over a passphrase layer, both required) or an **extra
+mandatory share derived from the passphrase** that counts toward neither the guardian nor the device set. The
+effect: **no quorum of guardians recovers without also being the user** — this is the E-REC.5 collusion/coercion
+defense, and it is exactly what lifts a group from ladder rung 4 to rung 5. The existing **VSS-for-Case-2 /
+FROST-for-Case-3 split below is unchanged** (`vsss-rs` / threshold-KEM for the Case-2 unlock, `frost-ed25519`
+for the Case-3 vouch, all `[verify before committing]`).
 
 - **Type / Rung:** `needs-proving`. **Rung A** on **two real threshold-crypto libraries — one per case** (a
   verifiable-secret-sharing crate for the Case-2 unlock *and* a threshold-signature crate for the Case-3
@@ -384,6 +442,13 @@ The fidelity ladder forbids a hand-rolled polynomial stand-in for either family 
 - **What it works out (fills §7.3.9 parameters).** The **group-default arrangement's shape** (the exact
   deferred parameter); the precedence rule that lets a per-user designation supersede the group default
   without a wall-clock (a governance fact at the user's own causal position, §7.3.1 causal precedence).
+- **Recovery-group scatter default (2026-07-09).** The group-default may specify a default **recovery-group
+  scatter** over the E-REC.1 share-holder set — in particular a **"home-device group" default** that scatters
+  the shares across the **user's own fleet of nodes** (ladder rungs 2–3) rather than defaulting to social
+  guardians — with the **per-user override intact**. This is **the user's stated instinct** for the default:
+  lean on your own devices first, and escalate to a social recovery group (rung 4+) only when the user opts
+  in, or when too few devices exist to meet k. The home-device-group default is just one point on the E-REC.1
+  union — a group could equally default to a social-guardian scatter or a mix.
 - **Pass/fail criterion.** **PASS** iff: a per-user designation deterministically overrides the group default
   everywhere (order-independent, §7.3.2 projection-not-mutation), and absence of a per-user designation falls
   back to the group default. **FALSIFIED** if two nodes fold the same facts to different effective recovery
@@ -443,6 +508,15 @@ The fidelity ladder forbids a hand-rolled polynomial stand-in for either family 
     single guardian, or a vouch that takes effect before the contest window closes is a FALSIFIED. (This is
     the social-attestation analogue of the contested/hijack quorum above — since Case 3 recovers *no* secret,
     the group's say-so is the *only* thing an attacker needs to subvert.)
+  - **Guardian collusion / coercion (new).** With the **second factor required** (E-REC.1, ladder rung 5),
+    must-reject that **k colluding — or coerced — guardians alone recover the KEK**: the user's passphrase
+    factor must be **provably necessary**, so a quorum that meets k but lacks the user's factor unlocks
+    nothing. The honest converse (must be stated, not hidden): a **pure-quorum configuration** (no second
+    factor, ladder rung 4) **accepts a residual k-collusion risk** — k guardians who collude or are coerced
+    *can* recover — which is **mitigated but not eliminated** by a high k, the break-glass delay, and the
+    contest window (the same contested/hijack machinery above). A config must never present rung 4 as if it
+    were rung 5; the choice between them is the ladder's irreducible trade made explicit at recovery-group
+    setup.
   - **PDS public-ciphertext offline attack (new).** The E-REC.0 blob is effectively public (atproto
     public-by-default), so an attacker gets **unlimited offline guesses** against it. Must-reject: any vault
     whose encryption is not offline-attack-resistant — a weak or fast KDF on the passphrase path, or a
