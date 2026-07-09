@@ -30,7 +30,7 @@ It states four design goals (§1):
 
 - Interoperability: governance systems on different platforms able to interact.
 
-The intellectual root is the Ostroms' Institutional Analysis and Development (IAD) framework. The paper adopts IAD's nested, bottom-up conception of institutions and its basic unit, the "action situation," a game-like setting in which participants make individual and collective choices (§2.3).
+The intellectual root is the Ostroms' Institutional Analysis and Development (IAD) framework. The paper adopts IAD's nested, bottom-up conception of institutions and its basic unit, the *action situation*, a game-like setting in which participants make individual and collective choices (§2.3).
 
 The framing problem: offline governance has juries, term limits, and elections, but online platforms mostly assign unchecked power to admins and moderators, so monarchic and oligarchic patterns emerge more readily than democratic ones (§1).
 
@@ -78,11 +78,11 @@ The two worked examples are the most concrete the paper gets, and both are hypot
 
 - Example 1 (§4.1): a social-media group for sculpture that evolves from majority-vote rules into a randomly-selected five-member jury for content moderation, then adds a statistics bot that surfaces which rules juries find ambiguous.
 
-- Example 2 (§4.2): an open-source mobile-OS project whose "benevolent dictator for life" builds a three-branch elected government hosted on a blockchain-based repository called BitGit, where voting requires a staking token earned by a merged contribution within the past year.
+- Example 2 (§4.2): an open-source mobile-OS project whose *benevolent dictator for life* builds a three-branch elected government hosted on a blockchain-based repository called BitGit, where voting requires a staking token earned by a merged contribution within the past year.
 
 These illustrate expressiveness. They are not evaluations.
 
-The authors are candid about bias in the artifact. They acknowledge the formulation surely carries built-in political biases they have not yet interrogated, and that the model's pliability can implement oppressive regimes as readily as democratic ones (§6). Their defense is empirical rather than normative: visible, explicit governance is argued to beat a "tyranny of structurelessness."
+The authors are candid about bias in the artifact. They acknowledge the formulation surely carries built-in political biases they have not yet interrogated, and that the model's pliability can implement oppressive regimes as readily as democratic ones (§6). Their defense is empirical rather than normative: visible, explicit governance is argued to beat a *tyranny of structurelessness*.
 
 Lineage detail for context: the paper traces online governance tooling back to the 1982 text-based game Nomic and the VOTEMGR software for the early FidoNet bulletin board system (§1), placing the work in a roughly forty-year arc rather than as a blockchain-era novelty.
 

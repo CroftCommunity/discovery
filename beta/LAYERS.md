@@ -169,6 +169,17 @@ into narrative prose. Where those two disagree, **this section is the tie-breake
   in quotation marks, because a single term in quote marks masquerades as a quotation it is not. When
   the block quote and shortest-span rules collide, the block quote wins: preserve the whole load-
   bearing passage.
+- **Technical design docs follow RFC-style citation, not the block-quote form.** The block-quote rule
+  above governs **narrative-prose** docs (history, philosophy, activism, socialization, governance, the
+  cairn/impl survey prose), where a source's words would otherwise collapse into the narrative. The
+  **`drystone-spec/` Parts 1 and 2** (and technical design docs like them) instead follow **RFC-style
+  conventions**: a short normative or spec clause is cited **inline in quotation marks with a precise
+  locator (RFC §, MSC, CVE) and a verification flag** (`Verified-RFC` / `[confirm]` / `Verified`). That
+  form is **compliant** — it meets the rule's substantive intent (attribution preserved, verification
+  labeled, the source's claim not masquerading as ours) and reads the way a spec is meant to read. Do not
+  convert the spec's inline-clause citations to set-off block quotes; a design doc reads differently than
+  straight prose. The anti-paraphrase core still holds everywhere: no doc silently restates a source's
+  words as its own.
 - **AI-surfaced quotations never lose their flag.** Much of the corpus was surfaced in AI discussion
   and is not verified against a primary edition. Elevating such a passage to a standing block quote
   does **not** upgrade its epistemic status: every such quote keeps its per-quote

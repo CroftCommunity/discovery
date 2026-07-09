@@ -182,6 +182,16 @@ missing reasoning the register must point at) and reinforces Phase 3 (the resolu
   pitch-resolution row linking down to its beta reasoning home (anti-rollup rule); reasoning-gaps flagged
   (A6 vote-accumulation, S3/S4 privacy properties, the A8 app-body IP call, A5 republish-UX). Indexed in
   `beta/README.md` alongside LAYERS.md and the per-layer reference-indexes.
-- 2026-07-09 — **Remaining pass work:** Phase 3 (quote/resolution sweep, C10 — exemplar done; sweep the
-  older pre-recovery docs); the deferred spec-rationale additions + governance mottos/PDS-revenue; and the
-  move of promoted threads T41–T48 into `CLOSED-THREADS.md` after review.
+- 2026-07-09 — **Phase 3 DONE (C10): quote/resolution sweep** over the pre-recovery docs (7-layer
+  conservative fan-out). Real fixes concentrated in the activism narrative (~12 folded primary quotes
+  elevated to standing block quotes — the session's opening concern #1 at its worst instance), plus verse
+  block quotes in history, an arXiv finding in fenced, an RFC 9750 clause in impl delivery, and terms-of-art
+  → italics in several docs; most docs already compliant. On the user's steer, **spec Parts 1 & 2 stay
+  RFC-style** (inline clause citation with locator + verification flag) — codified as a carve-out in
+  `LAYERS.md` ("Technical design docs follow RFC-style citation, not the block-quote form"); the spec was
+  not churned.
+- 2026-07-09 — **Pass status:** Phases 0–4 + C9–C14 complete. **Remaining (deferred, tracked):** the
+  spec-rationale additions (IETF doc-shape rationale, Willow-interop mandate, Matrix-latch grounding —
+  stage as spec open-threads); governance founding-mottos + the PDS enterprise-compliance revenue model
+  (tracked input, not Croft's answer); the reasoning-gaps from `DECISIONS.md` (A6, S3/S4, A8 app-body IP,
+  A5 republish-UX); and the clerical move of promoted threads T41–T48 into `CLOSED-THREADS.md` after review.

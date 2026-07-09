@@ -39,7 +39,15 @@ The win was real but partial. The Crofters' War of the 1880s (rent strikes and l
 
 The colour of the Clearances comes mostly from the popular re-telling and stays flagged. The animals that displaced the Gaels were bitterly called "the lairds' four-footed clansmen" [UNVERIFIED]; Robert Chambers is quoted approving the substitution of sheep for "innumerable hordes of useless human beings" [UNVERIFIED]; a Shetland memory records an evicted elder laying a curse on the laird as the smoke of the burning homes darkened the sky [UNVERIFIED]. The friction still surfaces (a modern land-court case is cited in which the crofter prevailed over a landlord's tree-planting scheme on common grazing) [UNVERIFIED].
 
-The English record is overwhelmingly resistance in defeat. John Ball's couplet from the 1381 Peasants' Revolt ("When Adam delved and Eve span, / Who was then the gentleman?") is the bedrock idea that hierarchy over land is made, not natural; Ball was hanged, drawn, and quartered. Kett tore down the hedges (1549) and was hanged from Norwich Castle. The 1607 Newton rising coined the two names for the whole tradition: the crowds "levelled" the hedges and "dug" up the ditches and so were called Levellers or Diggers. In 1649 Gerrard Winstanley's True Levellers began cultivating the common at St George's Hill and declared the aim to make "the Earth a common treasury for all, both rich and poor" (primary text); the colony was broken up within a year. The anonymous protest verse names the asymmetry exactly: "The law locks up the man or woman / Who steals the goose from off the common, / But lets the greater felon loose / Who steals the common from the goose" (dating [UNVERIFIED]; often cited mid-to-late eighteenth century, hard attestations 1816 and 1821).
+The English record is overwhelmingly resistance in defeat. John Ball's couplet from the 1381 Peasants' Revolt carries the bedrock idea that hierarchy over land is made, not natural:
+
+> When Adam delved and Eve span, / Who was then the gentleman?
+
+Ball was hanged, drawn, and quartered. Kett tore down the hedges (1549) and was hanged from Norwich Castle. The 1607 Newton rising coined the two names for the whole tradition: the crowds "levelled" the hedges and "dug" up the ditches and so were called Levellers or Diggers. In 1649 Gerrard Winstanley's True Levellers began cultivating the common at St George's Hill and declared the aim to make "the Earth a common treasury for all, both rich and poor" (primary text); the colony was broken up within a year. The anonymous protest verse names the asymmetry exactly:
+
+> The law locks up the man or woman / Who steals the goose from off the common, / But lets the greater felon loose / Who steals the common from the goose.
+
+The verse's dating is [UNVERIFIED]: it is often cited mid-to-late eighteenth century, with hard attestations at 1816 and 1821.
 
 The pattern is global, which is why the croft matters rather than being a local curiosity. The same move recurs wherever a society intensifies agriculture, markets, or state power: Rome's *ager publicus* and the Gracchi (133 BC), Bengal's Permanent Settlement (1793), Stolypin's breaking of the Russian commune (1906), Mexico's *ejido* (dissolved 1856, restored 1917, re-privatized 1992, triggering the Zapatista rising), and the American West (the Homestead Act 1862, barbed wire as the literal fence, and the Dawes Act 1887 carving the Native commons into allotments, the closest analogue to the Highland clearances). The justification is always identical: communal tenure cast as backward, private parceling as "Improvement." Mexico's pendulum shows the commons can return and be taken again; the fight is never finally settled.
 
@@ -49,7 +57,21 @@ The honest disanalogy stays visible: land is rivalrous and finite, virtual space
 
 The interior, emotional record belongs to John Clare (1793 to 1864), an agricultural labourer from Helpston who watched his own parish enclosed (award 1820). His texts are public domain; the exact spelling and punctuation are editor-dependent, since Clare left those to his editors.
 
-*The Mores* stages enclosure as conquest and imprisonment: "Inclosure came and trampled on the grave / Of labour's rights and left the poor a slave," and the fenced-out paths where "Each little tyrant with his little sign / Shows where man claims earth glows no more divine," and "paths to freedom and to childhood dear / A board sticks up to notice 'no road here'." *Remembrances* mourns particular named places lost, grieving specific trees and nooks the way one grieves individuals. *To a Fallen Elm* gives the tradition its tightest line, turning the enclosers' own word back on them: "With axe at root he felled thee to the ground / And barked of freedom, O I hate that sound / It grows the cant terms of enslaving tools / To wrong another by the name of right." "Improvement" and "freedom" as the enclosers' cant is the exact rhetoric of the global pattern above, and it rhymes forward to the platform's "free" tier.
+*The Mores* stages enclosure as conquest and imprisonment:
+
+> Inclosure came and trampled on the grave / Of labour's rights and left the poor a slave
+
+and it marks the fenced-out paths and the closed ways of childhood:
+
+> Each little tyrant with his little sign / Shows where man claims earth glows no more divine
+
+> paths to freedom and to childhood dear / A board sticks up to notice 'no road here'
+
+*Remembrances* mourns particular named places lost, grieving specific trees and nooks the way one grieves individuals. *To a Fallen Elm* gives the tradition its tightest line, turning the enclosers' own word back on them:
+
+> With axe at root he felled thee to the ground / And barked of freedom, O I hate that sound / It grows the cant terms of enslaving tools / To wrong another by the name of right.
+
+"Improvement" and "freedom" as the enclosers' cant is the exact rhetoric of the global pattern above, and it rhymes forward to the platform's "free" tier.
 
 ## 5. Dry-stone and the cairn: building without mortar
 

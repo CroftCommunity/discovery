@@ -22,7 +22,7 @@ The claimed payoffs: (1) a fresh tree has no blanks or unmerged leaves, so the O
 
 - Group creation is unilateral and needs a KeyPackage per added member; adds are batched into one Commit with per-member Welcomes. *Verified (RFC 9420 §Protocol Overview).*
 
-- KeyPackages are single-use and SHOULD NOT be reused, except a "last resort" KeyPackage which exists precisely for the case where no fresh package is available. *Verified (RFC 9420 §10, §16.8; mls-extensions).* This is the availability escape hatch for seating an offline member at a boundary.
+- KeyPackages are single-use and SHOULD NOT be reused, except a *last resort* KeyPackage which exists precisely for the case where no fresh package is available. *Verified (RFC 9420 §10, §16.8; mls-extensions).* This is the availability escape hatch for seating an offline member at a boundary.
 
 - MLS ships reinitialization (close old group, same members, new parameters) and branching (new group from a subset, old group untouched), both linked by a resumption PSK that proves membership continuity. *Verified (RFC 9420 §11.2, §11.3, §8.4).*
 
