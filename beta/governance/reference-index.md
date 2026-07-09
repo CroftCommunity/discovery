@@ -304,7 +304,11 @@ MIT/BSD for the patent grant. As written these conflict on the reference code's 
 reconciliation — AGPL-3.0-or-later for the deployed application / product (network copyleft), and
 Apache-2.0 for the reference *protocol* implementation (permissive + patent grant, so others can
 implement freely) — is **not stated in either doc**. This should be resolved and the two docs made
-consistent before external publication.
+consistent before external publication. **Update 2026-07-09 (C13):** the conflict is now **surfaced in
+both docs** with a `[decision-gate]` note (no longer a silent contradiction), but it is **not resolved** —
+it is a genuine strategic fork (permissive-for-spread vs copyleft-lock for the neutral reference
+implementation) and is the user's licensing call, tracked as ROADMAP C13. Neither license is settled for
+the reference implementation until then.
 
 ```
                     foundation-cooperative-and-sustainability.md

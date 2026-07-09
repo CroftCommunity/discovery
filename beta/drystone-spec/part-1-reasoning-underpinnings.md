@@ -308,8 +308,10 @@ in the record, attributable. *(Part 2 §4.3, Part 2 §7.3, Part 2 §8.)*
 > state map shipped, in 2025, a state-reset vulnerability class (CVE-2025-49090) in which room state
 > could revert to an earlier value with no event validly producing that reversal. The monotonic-fold
 > rule is the structural defense against precisely that class: a lagging node under-authorizes, it never
-> reverts. See Part 2 §7.3 and Appendix C for the grounded comparison. **[confirm, CVE
-> root-cause against MSC4297 primary text]**
+> reverts. See Part 2 §7.3 and Appendix C for the grounded comparison. **[verified: the CVE-2025-49090
+> root cause (a state reset to an earlier or incorrect value absent a validly-producing event) and the
+> MSC4297 fix are confirmed against the Matrix State Resolution v2.1 implementer's guide, the Project Hydra
+> disclosure, and the CVE record; the primary-source check lives in Part 2 §7.5.2 and Appendix C.]**
 
 ### 2.3. P-Peer-Equality: equal in rights, therefore equal in weight; unequal in resources and revocable Group Roles
 
@@ -434,7 +436,10 @@ is developed in Part 2 §5.) *(Part 2 §5, Part 2 §7.)*
 > security review, Matrix concluded the opposite of P-Peer-Equality: that sound decentralized
 > conflict-resolution requires an *uncapped* root (room creators with "infinite" power), reasoning that
 > an attacker who can backdate events can already exercise de facto apex control, so the apex must be
-> made explicit to be bounded **[confirm, MSC4289]**. Drystone's wager is that this
+> made explicit to be bounded **[verified against MSC4289 and the Matrix Project Hydra disclosure (Aug
+> 2025): the room creator holds an "infinitely high" power level, with Matrix's stated reason that
+> backdating already gives the creator's server de facto control; primary-source check in Part 2 §7.3 and
+> Appendix C]**. Drystone's wager is that this
 > conclusion is *forced by their inputs, not by the problem*: their ordering consumes a wall-clock, so
 > backdating manufactures authority, so they pin authority to an apex. Drystone removes the wall-clock
 > from the ordering spine (§2.0.1), so the specific attack that forced their apex has no purchase here.
@@ -1098,8 +1103,9 @@ link from voice to the field it is asserted into.
 manufactured friction a center imposes). Nor does it settle the open check on the rights set
 (`tenure` under re-key; the candidate `share` right is dropped, see §2.3), or the capped-vs-uncapped-root question against the Matrix steelman
 (§2.3, Part 2 §7.3, Appendix B), or supply the still-pending verbatim grounding (Beer) and the
-primary-source confirmations (Ostrom, Cybersyn/OGAS, and the Matrix/CALM external-fact claims) flagged
-above. The novelty claim is scoped honestly: *synthesis and terminus, unoccupied against the closest
+primary-source confirmations (Ostrom, and the Cybersyn/OGAS history) flagged above. The **Matrix** and
+**CALM** external-fact claims are now confirmed against primaries (Part 2 Appendix C), so they are no
+longer pending. The novelty claim is scoped honestly: *synthesis and terminus, unoccupied against the closest
 published neighbors*, not "first ever", see Part 2 Appendix C.
 
 ---

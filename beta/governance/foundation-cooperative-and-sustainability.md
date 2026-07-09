@@ -50,6 +50,16 @@ The core move is to hold three things with opposite tools for opposite goals, so
    (model)      potentially many)          instance under license       conditioned mark license)
 ```
 
+**[decision-gate — the "Code" row conflicts with the sibling IP doc, the user's call.]**
+`open-publication-and-ip-stewardship.md` licenses the reference code **Apache-2.0** (permissive, express
+patent grant, to maximize protocol *spread*), which is the opposite posture to the **AGPL-3.0-or-later +
+DCO** copyleft lock above; A14 recorded "Apache-2.0 reference-code license." The two cannot both hold for
+the neutral reference implementation. The likely intended split is *neutral reference implementation vs the
+Croft product/app code* — but which layer is copyleft-locked and which is permissive-for-spread is
+unresolved, and the "structural-openness lock" argument below assumes the reference code is AGPL. Tracked
+as ROADMAP C13; do not treat either license as settled for the reference implementation until the user
+decides.
+
 Code and brand are opposite tools and must never touch. The AGPL says: take it, run it, change it, fork
 it. The mark says: but you cannot call your fork by our name unless it conforms. The fork is free; the
 *confusion* is what the mark prevents. Framed honestly, the mark is anti-counterfeiting for a community
