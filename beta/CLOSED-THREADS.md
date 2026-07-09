@@ -418,3 +418,12 @@ re-confirmed before external use, and iroh version facts cite the FACTCHECK SoT 
 - **Alpha provenance:** `../alpha/ECOSYSTEM.md` §8; `../alpha/thinking/cooperative-social-union-model.md`,
   `foundation-and-ip-stewardship.md`.
 
+
+### T27 — closed 2026-07-09 (relocated to ROADMAP_TODO as an alpha curation call)
+
+- **Status:** `closed` — the "evidentiary, not operational" conclusion is settled and homed in the spec
+  (`drystone-spec` §5) and `DECISIONS.md`; the residual question (elevate it to a *named* canonical Tier-1
+  principle) edits only alpha `crystallized/principles.md`, so it moved to `../alpha/ROADMAP_TODO.md` rather
+  than remaining a beta open thread.
+- **What it was:** whether the rights-floor's "evidentiary, not operational" property should become a named
+  Tier-1 principle in the alpha principles set. A curation call, not a design question.
