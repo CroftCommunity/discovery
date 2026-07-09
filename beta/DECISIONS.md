@@ -65,6 +65,18 @@ open mechanism keeps a reasoned home in OPEN-THREADS / the spec open-items).
   conformance harness. → `governance/foundation-cooperative-and-sustainability.md` (mark) + engineering plan.
 - **C15 — DECIDED (closed).** Leave "evidentiary, not operational" as a **per-conclusion**; do **not** elevate
   it to a named Tier-1 principle (keep the principle set lean).
+- **Revocation is two-phase — DECIDED (design shape; 2026-07-09).** Because all state/representation is local,
+  revocation splits into **phase 1 — experiential** (the ban fact crossing the governance threshold makes every
+  client auto-ignore the party immediately, free, ATProto-`block`-shaped: experience-shaping, not crypto
+  exclusion) and **phase 2 — cryptographic** (key loss at an epoch roll). An **always-available
+  force-immediate-roll lever** collapses the two for the severe case (paying rekey cost); the **default phase-2
+  timing tiers on the force-roll cost = f(group size, connectivity)** — small/well-connected ≈ immediate,
+  hundreds+/disconnected = slow natural roll by default. **Honesty caveat:** between phases the party can still
+  *decrypt* new state, so UX/governance must be explicit and severe cases use force-roll. This carries the
+  E-A11.0 immediacy requirement at phase 1, so it **pushes A11 → Track A near-certain** (Track B not required).
+  Reasoning home: `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md` (E-A11.0); couples T3
+  moderation, `fenced/app-store-survivability-and-abuse-posture.md`, and spec §7.6/§11. Mechanism numbers
+  (the ~50 boundary, the loose-tier bound) confirmed in E-A11.A.
 
 *(Propagation into the individual docs/spec sections/plan follows this record; until propagated, this block
 is the authoritative statement of the calls.)*
