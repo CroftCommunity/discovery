@@ -73,17 +73,18 @@ CC-BY 4.0 (attribution-only). Named as the earlier research recommendation and a
 to CC0, not the chosen license. PRIMARY (canonical license text). documented-fact. Relied on by
 `open-publication-and-ip-stewardship.md`. Locator: https://creativecommons.org/licenses/by/4.0/
 
-Apache-2.0 (permissive license with an express patent grant + retaliation clause). Reference-code
-license, chosen over MIT/BSD deliberately for the patent grant. PRIMARY (canonical license text).
-documented-fact. Relied on by `open-publication-and-ip-stewardship.md`. Locator:
-https://www.apache.org/licenses/LICENSE-2.0
+Apache-2.0 (permissive license with an express patent grant + retaliation clause). **Superseded 2026-07-09
+(C13): was the earlier reference-code choice (A14); the reference implementation is now AGPL-3.0-or-later +
+DCO.** Retained here only as the rejected permissive option (its patent grant is preserved under AGPLv3
+§11). PRIMARY (canonical license text). documented-fact. Locator: https://www.apache.org/licenses/LICENSE-2.0
 
-AGPL-3.0-or-later (network-copyleft license). The structural-openness lock on the code / neutral
-stack, paired with a DCO. PRIMARY (canonical license text). documented-fact. Relied on by
+AGPL-3.0-or-later (network-copyleft license, with an express patent grant at §11). **The reference-code
+license (decided C13, 2026-07-09) and the structural-openness lock on the code / neutral stack**, paired
+with a DCO. PRIMARY (canonical license text). documented-fact. Relied on by
 `foundation-cooperative-and-sustainability.md` (the three-decoupled-layers table and the "-or-later"
-copyleft-loophole reasoning) and named in `cooperative-and-governance-prior-art.md` (the "AGPL+DCO
-lock"). Locator: https://www.gnu.org/licenses/agpl-3.0.html
-**See Coverage / gaps — this conflicts with the Apache-2.0 reference-code choice above.**
+copyleft-loophole reasoning), `open-publication-and-ip-stewardship.md` (reference-code license), and named
+in `cooperative-and-governance-prior-art.md` (the "AGPL+DCO lock"). Locator:
+https://www.gnu.org/licenses/agpl-3.0.html
 
 MIT and BSD (permissive licenses, patent-silent). Named only as the rejected alternatives to
 Apache-2.0. PRIMARY (canonical license families). documented-fact. Relied on by
@@ -294,7 +295,13 @@ map and publication sequence).
 
 ## Coverage / gaps
 
-**AGPL-vs-Apache internal inconsistency (flag — most notable gap).** The two governance docs assign
+**AGPL-vs-Apache internal inconsistency — ✅ RESOLVED 2026-07-09 (C13 → AGPL-3.0-or-later + DCO).** The
+user's licensing call was the copyleft lock over permissive spread: the neutral reference implementation is
+AGPL-3.0-or-later + DCO; the earlier Apache-2.0 (A14) is superseded; both governance docs are now aligned
+and the spec README / OPEN-THREADS / this index updated. The historical description of the conflict is
+retained below for the record.
+
+The two governance docs had assigned
 different licenses to what each calls the reference implementation.
 `foundation-cooperative-and-sustainability.md` licenses "the code" / the neutral stack (which it
 defines as "the protocol, the reference implementation, and the product flavor") as
