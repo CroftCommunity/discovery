@@ -18,7 +18,11 @@ That paragraph has five planks. They do not all carry equal weight, and the rest
 
 The information environment people now live inside was built, and built recently. This is not contested and has a strong anchor.
 
-Bak-Coleman, Bergstrom, et al. (2021, *PNAS*) state it directly: in humans, information flows "were initially shaped by natural selection yet are increasingly structured by emerging communication technologies." The whole framing of their paper is that a system that used to evolve is now engineered, over the span of roughly a decade.
+Bak-Coleman, Bergstrom, et al. (2021, *PNAS*) state it directly:
+
+> In humans, information flows were initially shaped by natural selection yet are increasingly structured by emerging communication technologies.
+
+The whole framing of their paper is that a system that used to evolve is now engineered, over the span of roughly a decade.
 
 Epistemic status: peer-reviewed-finding. Settled enough to assert plainly.
 
@@ -32,17 +36,49 @@ The optimization target is the platform's engagement/revenue proxy. The user did
 
 Three sourced pieces establish it without needing any claim about overridden wills:
 
-The intent is on record. Sean Parker (Axios, 2017): the design question was "How do we consume as much of your time and conscious attention as possible?" and the result is "a social-validation feedback loop ... exploiting a vulnerability in human psychology." Chamath Palihapitiya (Stanford GSB, 2017): "the short-term, dopamine-driven feedback loops that we have created are destroying how society works." (Scope caveat: both describe 2007–2011-era design intent, not present-day operation. Use them for "the loop was built deliberately," not "this is how Meta operates now.")
+The intent is on record. Sean Parker, at an *Axios* event in 2017, named both the design question and the result:
 
-The divergence from stated preference is admitted by the company. Mark Zuckerberg's 2018 "Blueprint for Content Governance" note: as content nears the policy line, "people will engage with it more on average, even when they tell us afterwards they don't like the content." This is the company stating, in its own words, that engagement and endorsement come apart.
+> How do we consume as much of your time and conscious attention as possible?
 
-The objective is ad revenue, stated by the collective-behavior literature. Bak-Coleman et al. (2021) frame the restructuring as having occurred with the parallel to "insufficiently regulated industries [that] optimize profits while undermining the stability of ecological and earth systems."
+> It's a social-validation feedback loop ... you're exploiting a vulnerability in human psychology.
+
+Chamath Palihapitiya, at Stanford GSB the same year:
+
+> The short-term, dopamine-driven feedback loops that we have created are destroying how society works.
+
+(Scope caveat: both describe 2007–2011-era design intent, not present-day operation. Use them for the claim that the loop was built deliberately, not for how Meta operates now.)
+
+The divergence from stated preference is admitted by the company. Mark Zuckerberg's 2018 "Blueprint for Content Governance" note states that as a piece of content nears the policy line:
+
+> people will engage with it more on average, even when they tell us afterwards they don't like the content.
+
+This is the company stating, in its own words, that engagement and endorsement come apart.
+
+The objective is ad revenue, stated by the collective-behavior literature. Bak-Coleman et al. (2021) frame the restructuring by drawing a parallel — the situation:
+
+> parallels challenges faced in conservation biology and climate science, where insufficiently regulated industries optimize profits while undermining the stability of ecological and earth systems.
 
 Epistemic status: a mix of on-record-testimony (Parker, Palihapitiya), company-internal-admission (Zuckerberg's note; the 2019 Instagram teen-research slide; and, contested and litigation-stage, the Project Mercury documents), and peer-reviewed-finding (Bak-Coleman). The composite is strong; the Project Mercury piece is the one to flag as alleged-and-disputed rather than settled.
 
-The harm has a concrete, human face. Meta's own internal researchers, in a 2019 Instagram slide, wrote the headline "We make body image issues worse for one in three teen girls." That is the misaligned objective made personal: the company's own people, unprompted and in plain language, named the product as worsening self-perception for a meaningful share of vulnerable teen girls. Two disciplines of care are required when using this (and both strengthen rather than weaken the point). First, the "one in three" refers to one in three of the teen girls who already reported body-image struggles, not all teen girls; Meta correctly flagged that the original reporting blurred this, and getting it wrong hands critics a clean rebuttal. Second, Meta states the research was self-report and non-causal, and that on 11 of 12 well-being issues struggling girls more often said Instagram helped. So this is not a causal effect size. What it is, is a company-internal-admission: the existence of that internal sentence (Meta describing its own relational harm to itself, in those words) is the evidence, independent of the magnitude. It is the felt, human-scale instance of the same misalignment that Zuckerberg's note describes in the abstract.
+The harm has a concrete, human face. Meta's own internal researchers, in a 2019 Instagram slide, wrote the headline:
 
-The closest thing to internal causal evidence arrived later, and it is contested. A November 2025 court filing (Motley Rice, in the Northern District of California social-media MDL) alleges that Meta ran an internal deactivation study, "Project Mercury" (2019–2020, with Nielsen), and found that users who stopped Facebook for a week "reported lower feelings of depression, anxiety, loneliness and social comparison." A staff researcher allegedly wrote internally, "The Nielsen study does show causal impact on social comparison," and another worried that not publishing would look like "tobacco companies ... knowing cigs were bad and then keeping that info to themselves." Use this carefully, with three flags held in view: it is a litigation filing, not adjudicated fact; the documents are not public and Meta moved to strike them; and Meta's on-record rebuttal (spokesman Andy Stone) is a genuine methodological objection: an unblinded deactivation study struggles to separate the effect of leaving the platform from the effect of believing that leaving helps. The defensible use is not "Meta buried causal proof." It is narrower and still telling: Meta ran the study, an internal researcher used causal language, the company did not publish, and an internal voice raised the tobacco analogy, which speaks to the gap between what the company knew internally and what it said publicly, the precise misalignment this plank is about. Pair the allegation with the rebuttal every time.
+> We make body image issues worse for one in three teen girls.
+
+That is the misaligned objective made personal: the company's own people, unprompted and in plain language, named the product as worsening self-perception for a meaningful share of vulnerable teen girls. Two disciplines of care are required when using this (and both strengthen rather than weaken the point). First, the "one in three" refers to one in three of the teen girls who already reported body-image struggles, not all teen girls; Meta correctly flagged that the original reporting blurred this, and getting it wrong hands critics a clean rebuttal. Second, Meta states the research was self-report and non-causal, and that on 11 of 12 well-being issues struggling girls more often said Instagram helped. So this is not a causal effect size. What it is, is a company-internal-admission: the existence of that internal sentence (Meta describing its own relational harm to itself, in those words) is the evidence, independent of the magnitude. It is the felt, human-scale instance of the same misalignment that Zuckerberg's note describes in the abstract.
+
+The closest thing to internal causal evidence arrived later, and it is contested. A November 2025 court filing (Motley Rice, in the Northern District of California social-media MDL) alleges that Meta ran an internal deactivation study, "Project Mercury" (2019–2020, with Nielsen), and found that users who stopped Facebook for a week:
+
+> reported lower feelings of depression, anxiety, loneliness and social comparison.
+
+A staff researcher allegedly wrote internally:
+
+> The Nielsen study does show causal impact on social comparison.
+
+And another worried that not publishing would look like:
+
+> tobacco companies doing research and knowing cigs were bad and then keeping that info to themselves.
+
+Use this carefully, with three flags held in view: it is a litigation filing, not adjudicated fact; the documents are not public and Meta moved to strike them; and Meta's on-record rebuttal (spokesman Andy Stone) is a genuine methodological objection: an unblinded deactivation study struggles to separate the effect of leaving the platform from the effect of believing that leaving helps. The defensible use is not "Meta buried causal proof." It is narrower and still telling: Meta ran the study, an internal researcher used causal language, the company did not publish, and an internal voice raised the tobacco analogy, which speaks to the gap between what the company knew internally and what it said publicly, the precise misalignment this plank is about. Pair the allegation with the rebuttal every time.
 
 Why it matters: this plank gives you the agency harm empirically rather than definitionally. You do not have to argue anyone's will was overridden. You only have to show the optimizer targets something the user did not pick and that pulls against the user's own stated preferences. That is a measured wedge between revealed and reflective preference, an agency harm that is contingent and evidenced, which is stronger than one asserted "by definition."
 
@@ -52,9 +88,13 @@ Why it matters: this plank gives you the agency harm empirically rather than def
 
 The selection-and-effect feedback loop is old. What changed is not the existence of the loop but the removal of its bounds and the installation of an external governor.
 
-The loop itself is documented. Slater's Reinforcing Spirals Model (2007, *Communication Theory*): media selection and media effects form "mutually reinforcing spirals akin to positive feedback loops in general systems theory." People select identity-consistent content, which strengthens the identity, which drives further selection.
+The loop itself is documented. In Slater's Reinforcing Spirals Model (2007, *Communication Theory*), media selection and media effects form a loop:
 
-The crucial detail is Slater's dampening term. Slater specifies that the spiral normally sits at homeostasis and is only detectable under identity formation or threat, and that "system openness", the availability of competing perspectives and the permeability of the information environment, dampens the spiral. In other words, the loop was historically self-limiting because it was embedded in counterforces: friction, finite attention, plural sources, the cost of producing and distributing content, the social cost of extremity.
+> mutually reinforcing spirals akin to positive feedback loops in general systems theory.
+
+People select identity-consistent content, which strengthens the identity, which drives further selection.
+
+The crucial detail is Slater's dampening term. Slater specifies that the spiral normally sits at homeostasis and is only detectable under identity formation or threat, and that *system openness*, the availability of competing perspectives and the permeability of the information environment, dampens the spiral. In other words, the loop was historically self-limiting because it was embedded in counterforces: friction, finite attention, plural sources, the cost of producing and distributing content, the social cost of extremity.
 
 Synthesis (ours, reasoned from Slater + Bak-Coleman): industrialization is not "more of the same." It is the removal of the dampening term. An optimizer pointed at engagement has a positive incentive to reduce system openness and friction, because friction is lost engagement. So a loop that used to self-correct was re-engineered to not self-correct. Scale here is not a quantity change; it is the removal of the thing that made the quantity self-correcting.
 
@@ -70,13 +110,27 @@ Seam (state it so the metaphor is not over-trusted): not every scaled mechanism 
 
 The question of whether large-scale social processes self-correct or need active stewardship is the oldest question in the room, and the collective-behavior literature answers it for the engineered case.
 
-Bak-Coleman et al. (2021) pose it as "the basic debate": are large-scale behavioral processes "self-sustaining and self-correcting, or do they require active management and guidance to promote sustainable and equitable wellbeing?" Their answer: "human social dynamics cannot be expected to yield solutions to global issues or to promote human wellbeing without evidence-based policy and ethical stewardship." And on the engineered information environment specifically: in the absence of evidence-informed guidance, "we should not expect the emergent consequences to be stabilizing or even beneficial."
+Bak-Coleman et al. (2021) pose the basic debate — whether large-scale behavioral processes are:
+
+> self-sustaining and self-correcting, or do they require active management and guidance to promote sustainable and equitable wellbeing?
+
+Their answer:
+
+> human social dynamics cannot be expected to yield solutions to global issues or to promote human wellbeing without evidence-based policy and ethical stewardship.
+
+And on the engineered information environment specifically, in the absence of evidence-informed guidance:
+
+> we should not expect the emergent consequences to be stabilizing or even beneficial.
 
 Epistemic status: peer-reviewed-finding (a PNAS Perspective by a large interdisciplinary group). This is the sourced ceiling of the structural claim: the system is not reliably self-correcting and needs stewardship.
 
 Note precisely what this plank does NOT yet say. It says the system will not self-correct on its own. It does not yet say the system actively destroys its own correction capacity. That is the next plank, and it is the one that is ours.
 
-The honest aggregate backdrop (state it, so the argument is not accused of cherry-picking). The largest evidence synthesis to date, Lorenz-Spreen, Oswald, Lewandowsky & Hertwig (2023, *Nature Human Behaviour*), a systematic review of 496 articles, finds the effects are real but directionally mixed and context-dependent. Digital media use is consistently associated with declining trust in institutions, rising polarization, and rising populism (detrimental, and more pronounced in established democracies), but also with rising political participation and political knowledge (beneficial, often in emerging democracies and autocracies). The review's own framing supports the structural read: platforms "typically do not create content; instead, their power lies in providing and governing a digital infrastructure" with "largely frictionless interaction," which is Plank 3's removed-dampening-term stated independently. Use this review as the fair summary of where the evidence stands: not "platforms uniformly harm," but "platforms reliably degrade the specific variables (trust, shared perception, depolarized discourse) that collective correction depends on." That narrower claim is what Plank 5 needs, and the review supports it.
+The honest aggregate backdrop (state it, so the argument is not accused of cherry-picking). The largest evidence synthesis to date, Lorenz-Spreen, Oswald, Lewandowsky & Hertwig (2023, *Nature Human Behaviour*), a systematic review of 496 articles, finds the effects are real but directionally mixed and context-dependent. Digital media use is consistently associated with declining trust in institutions, rising polarization, and rising populism (detrimental, and more pronounced in established democracies), but also with rising political participation and political knowledge (beneficial, often in emerging democracies and autocracies). The review's own framing supports the structural read:
+
+> platforms typically do not create content; instead, their power lies in providing and governing a digital infrastructure
+
+with, in the review's terms, largely frictionless interaction between users — which is Plank 3's removed-dampening-term stated independently. Use this review as the fair summary of where the evidence stands: not "platforms uniformly harm," but "platforms reliably degrade the specific variables (trust, shared perception, depolarized discourse) that collective correction depends on." That narrower claim is what Plank 5 needs, and the review supports it.
 
 ---
 
@@ -94,17 +148,37 @@ Good-faith disagreement. Correction requires productive disagreement, but the fe
 
 Trust in those you would calibrate against. Correction requires enough trust to update on what others say, but out-group meta-perception is poisoned (Lees & Cikara, 2020), so the people you would calibrate against are exactly the people you have been led to distrust.
 
-Attention and time. Deliberation is slow and costly; the optimization captures attention by design (Parker's "consume as much of your time and conscious attention as possible," Axios 2017).
+Attention and time. Deliberation is slow and costly; the optimization captures attention by design — the explicit aim Parker named (Plank 2).
 
 The conclusion: the optimization does not merely lack a governor (Plank 4). It degrades the social machinery that would otherwise become the governor. The corrective loop cannot form because the conditions for forming it are what is being optimized away. The damaged faculty and the corrective faculty are one faculty.
 
-This reflexive structure is now sourced, not just argued. Milano, Mittelstadt, Wachter & Russell (2021, *Nature Machine Intelligence*) name the mechanism: algorithmic targeting "isolates individual consumers, causing what we call epistemic fragmentation," which "inflicts structural damage to the public forum." Their central move is precisely the reflexive one: the two natural correction strategies (raising individual awareness; external monitoring) "fail because even sophisticated individual consumers are vulnerable in isolation," and both failures are attributed to "their failure to address epistemic fragmentation." In other words, the corrective strategies fail because the thing they would correct is the same thing that has disabled the correction. The companion paper, Milano & Prunkl (2024, *Philosophical Studies*), gives the rigorous definition: epistemic fragmentation is "a structural characteristic of algorithmically-mediated environments that isolate individuals," leaving people "more vulnerable by the inability to share, compare and learn from shared experiences", which is the collective-correction faculty, stated as the thing degraded.
+This reflexive structure is now sourced, not just argued. Milano, Mittelstadt, Wachter & Russell (2021, *Nature Machine Intelligence*) name the mechanism. Algorithmic targeting, they write:
+
+> isolates individual consumers, causing what we call epistemic fragmentation
+
+and
+
+> inflicts structural damage to the public forum.
+
+Their central move is precisely the reflexive one. The two natural correction strategies (raising individual awareness; external monitoring):
+
+> fail because even sophisticated individual consumers are vulnerable in isolation
+
+and both failures are attributed, in the authors' words, to their failure to address epistemic fragmentation. In other words, the corrective strategies fail because the thing they would correct is the same thing that has disabled the correction. The companion paper, Milano & Prunkl (2024, *Philosophical Studies*), gives the rigorous definition — epistemic fragmentation is:
+
+> a structural characteristic of algorithmically-mediated environments that isolate individuals, making it more difficult to develop, uptake and apply new epistemic resources.
+
+The same paper states the cost plainly: individuals are left more vulnerable by the inability to share, compare and learn from shared experiences, which is the collective-correction faculty, stated as the thing degraded.
 
 Epistemic status: now peer-reviewed-finding for the core reflexive claim (Milano et al. 2021; Milano & Prunkl 2024), built on Fricker's established concept of hermeneutical injustice and Nguyen's echo-chambers/epistemic-bubbles distinction (Episteme, 2020). What remains synthesis is the specific bridge from "epistemic fragmentation disables correction" (sourced) to the four-faculty decomposition above and the framing of engagement optimization as the active driver (the Milano papers center targeted advertising and profiling; extending the same structure to engagement ranking generally is our step, though a short and well-supported one). State the reflexivity as sourced; mark the engagement-ranking extension as the small additional move it is.
 
-Scope seam, now substantially closed: Milano et al. develop the claim for targeted advertising and algorithmic profiling. The extension to engagement-based feed ranking is no longer just our inference. Burton, Herzog & Lorenz-Spreen (2024, CogSci; 2026, CHI) ran a preregistered collaborative-filtering experiment (total N = 1,500) showing that "simple changes to how posts are sampled and ranked can affect the beliefs people form," measured as effects on both belief accuracy and consensus, and frame curation harms as arising "when their objectives are misaligned with user values and welfare." That is the feed-ranking analog of the targeting claim, with a causal experiment behind it. What remains genuinely our synthesis is the narrower four-faculty decomposition above, not the basic claim that ranking shapes belief and consensus.
+Scope seam, now substantially closed: Milano et al. develop the claim for targeted advertising and algorithmic profiling. The extension to engagement-based feed ranking is no longer just our inference. Burton, Herzog & Lorenz-Spreen (2024, CogSci; 2026, CHI) ran a preregistered collaborative-filtering experiment (total N = 1,500) showing that:
 
-A constructive corollary worth carrying (it strengthens the "disadvantaged, not destroyed" qualifier below): the same Burton et al. experiment shows curation can be designed for prosocial outcomes, "bridging-based" and "intelligence-based" ranking that promote consensus and accuracy, operating only on natural engagement signals (upvotes/downvotes), not bespoke AI. So the ranking layer is not inherently corrosive. It is corrosive under the engagement objective specifically. A different objective yields different relational outcomes. That is precisely your structural point: the problem is the misaligned objective plus the removed governor, not ranking or scale as such.
+> simple changes to how posts are sampled and ranked can affect the beliefs people form
+
+measured as effects on both belief accuracy and consensus, and they frame curation harms as arising when a curating algorithm's objectives are misaligned with user values and welfare. That is the feed-ranking analog of the targeting claim, with a causal experiment behind it. What remains genuinely our synthesis is the narrower four-faculty decomposition above, not the basic claim that ranking shapes belief and consensus.
+
+A constructive corollary worth carrying (it strengthens the "disadvantaged, not destroyed" qualifier below): the same Burton et al. experiment shows curation can be designed for prosocial outcomes: *bridging-based* and *intelligence-based* ranking that promote consensus and accuracy, operating only on natural engagement signals (upvotes/downvotes), not bespoke AI. So the ranking layer is not inherently corrosive. It is corrosive under the engagement objective specifically. A different objective yields different relational outcomes. That is precisely your structural point: the problem is the misaligned objective plus the removed governor, not ranking or scale as such.
 
 ---
 

@@ -28,7 +28,11 @@ Boundary note on what a "rate" is here: every quantity below is a rate or ratio 
 
 ## The distribution shape governs which statistic is meaningful
 
-Lead with the shape, because it decides whether a mean is even a legitimate thing to report. Users-per-community and comments-per-community are heavy-tailed; comments-per-user follows a power law with exponent about -1.44. Per arXiv 2503.02661 (T2): "20% of users contribute 84% of the comments; and approximately 50% of users make only one comment in a whole month on Reddit."
+Lead with the shape, because it decides whether a mean is even a legitimate thing to report. Users-per-community and comments-per-community are heavy-tailed; comments-per-user follows a power law with exponent about -1.44:
+
+> 20% of users contribute 84% of the comments; and approximately 50% of users make only one comment in a whole month on Reddit.
+
+Attributed to arXiv 2503.02661 (T2).
 
 The consequence: most communities are tiny and nearly dormant, while a small number of very large communities dominate every platform aggregate. A single headline rate is meaningless. Report medians and ranges by size band (small, median-active, large), and treat bursts as a separate regime from steady state. All three rates below are broken down this way.
 

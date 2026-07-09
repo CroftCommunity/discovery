@@ -146,7 +146,7 @@ Epistemic status: company-internal-admission (Zuckerberg's signed note; the FUSS
 
 ### 4c. "Shadowbanning" / conversation-level manipulation (largely folklore: tag carefully)
 
-Claim status: Specific claims that platforms silently demote individual users ("shadowbanning") or reorder within a conversation to manufacture a false sense of consensus are mostly user-reported and treated by researchers as "algorithmic imaginary", stories users tell to explain unexplained engagement drops, not documented mechanisms.
+Claim status: Specific claims that platforms silently demote individual users ("shadowbanning") or reorder within a conversation to manufacture a false sense of consensus are mostly user-reported and treated by researchers as *algorithmic imaginary*, stories users tell to explain unexplained engagement drops, not documented mechanisms.
 
 Primary source for the framing: Taina Bucher, "The algorithmic imaginary," *Information, Communication & Society* 20(1), 2017, and subsequent platform-governance literature describing these as user stories sourced from social posts and interviews.
 
@@ -301,7 +301,7 @@ Primary source: Michael D. Slater, "Reinforcing Spirals: The Mutual Influence of
 
 Verbatim line (Slater, 2007): this process "can be conceptualized in terms of mutually reinforcing spirals akin to positive feedback loops in general systems theory."
 
-Epistemic status: peer-reviewed-finding (theoretical model, widely empirically tested since). Why it matters for you: engagement optimization is an accelerant on a loop that already exists in human media behavior. The platform did not invent the spiral; it tightened it and removed the friction (the "system openness" that Slater identifies as the dampening term). That is a precise, defensible authorship claim.
+Epistemic status: peer-reviewed-finding (theoretical model, widely empirically tested since). Why it matters for you: engagement optimization is an accelerant on a loop that already exists in human media behavior. The platform did not invent the spiral; it tightened it and removed the friction (the *system openness* that Slater identifies as the dampening term). That is a precise, defensible authorship claim.
 
 Seam in the metaphor (state it): Slater stresses the loop usually sits at homeostasis and is only detectable during identity formation or threat. So the spiral is not a universal slide; it is conditional. Do not present it as everyone inexorably spiraling.
 

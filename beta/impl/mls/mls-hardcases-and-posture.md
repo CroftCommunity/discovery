@@ -242,7 +242,7 @@ Conversation continuity is only partly the resumption PSK. The PSK carries entit
 
 State-loss recovery (content half) has no MLS representation. MLS rejoin proves prior membership but explicitly does not restore messages missed during the loss window. Drystone supplies that content backfill through out-of-band history convergence. So the recovery is MLS-for-entitlement, Drystone-for-content, two separate exchanges. *Verified* against RFC 9750 §6.6; content mechanism is Drystone's.
 
-Staleness removal partly maps onto MLS's "eventually remove non-updating members." MLS states the intent (RFC 9420 SHOULD remove members who do not update) but supplies no mechanism and no enforcer. Drystone supplies the mechanism: a deterministic staleness predicate over the shared tree plus a governed response (§4). Use the MLS intent as the requirement; the mechanism is Drystone's. *Verified* against RFC 9420 and RFC 9750; mechanism is Drystone's (§4).
+Staleness removal partly maps onto MLS's *eventually remove non-updating members* intent. MLS states the intent (RFC 9420 SHOULD remove members who do not update) but supplies no mechanism and no enforcer. Drystone supplies the mechanism: a deterministic staleness predicate over the shared tree plus a governed response (§4). Use the MLS intent as the requirement; the mechanism is Drystone's. *Verified* against RFC 9420 and RFC 9750; mechanism is Drystone's (§4).
 
 ### Drystone-only, by design
 

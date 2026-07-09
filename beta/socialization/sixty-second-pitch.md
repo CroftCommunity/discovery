@@ -1,5 +1,7 @@
 # Elevator pitch: the relational-field reframe
 
+`Resolution: elevator pitch (the relational-field reframe), the shortest telling, in three registers. For the fuller human-facing telling read the "Tilling the Soil of Our Relationships" essay; for the grounded argument read "Peer Standing, the Securitized Corporation, and the Cooperative Form" (§7 for the empirical base).`
+
 Three registers of one idea, leading with the reframe (which is what makes "try a different shape"
 and "the full stack" land). Pick by setting. All three avoid the privacy frame on purpose, because
 privacy has lost to convenience for twenty years; this is an authorship-and-agency claim instead.
