@@ -121,6 +121,10 @@ here — the spec establishes it holds identically either way.
   rate the deployment can absorb). `W_target` is the number every downstream A11 experiment is scored against.
 - **Dependency:** **must complete before E-A11.A and E-A11.B** — it is the ruler they are measured with.
 
+**Tradeoffs.** The single axis is **revocation-window tightness vs epoch/rekey cost**, and it does not resolve to one honest number. A tight window means frequent epoch turnover — high MLS commit rate, more bandwidth and battery per member, more forks to reconcile under partition, and a heavier FREEK-style storage curve. A loose window is cheap but leaves a wide read/act window for a banned actor re-adding (C10), a routine expulsion that has not yet taken effect, or an equivocating member on the wrong side of a partition. A **single global bar** is simplest to specify, prove, and reason about, but it forces the entire system to pay the cost of its most safety-sensitive use (interactive moderation) even in tiers that do not need it (large broadcast) — because epoch cost scales with group size, that overcharge is exactly where it hurts most. A **tiered bar** matches cost to need, but the honest downside is real: more configuration surface, a matrix of behaviors to test, a tier boundary that itself becomes a governance decision, and the failure mode that an abuser simply operates in the loosest tier — so the loosest tier must still be safe on its own terms, not merely cheap.
+
+**Proposal (for review).** Adopt a **tiered `W_target`, expressed in epochs/generations**: interactive and small groups target **`W_target` = 1 epoch** (revocation effective by the next commit boundary); large/broadcast tiers tolerate a small bounded **`W_target` ≤ ~3 generations** to amortize rekey cost — because a tight interactive window is what makes a ban or expulsion credible while a broadcast tier cannot afford per-message rekey, so the bar should track the tier's actual safety need rather than a one-size compromise. The specific tier counts and the exact per-tier numbers are a product/safety judgment (how fast must a ban take effect) and are **the maintainer's call to accept or adjust** — this proposal fixes the *shape* (tiered, generation-denominated, loosest tier safe on its own) and offers defensible starting values, not a settled constant.
+
 ### E-A11.A — Meadowcap track: measure the effective revocation window vs epoch length
 
 - **Type / Rung:** `needs-experimentation`. **Rung A on `willow-rs` / Meadowcap if the real revocation-by-
@@ -198,6 +202,10 @@ timeline.*
   and mint the DOI. Feeds back into §7.2 (remove "the mechanism is deferred"), Appendix A (resolve the Track
   A/B entry), and the T40 attestation-credential shape (WS4).
 
+**Tradeoffs.** The choice trades **revocation immediacy against shippability and timeline risk**. Committing to Track A accepts revocation that is **epoch-bounded, not instantaneous**, plus the short-epoch cost the E-A11.0 tiered bar implies (higher commit rate and bandwidth on the tight tiers) — but Track A is buildable today (Meadowcap Data Model + capability layer are `Final` [verify current willow-rs impl status before committing]) and its epoch length is a tunable knob, so it can be dialed to whatever `W_target` the maintainer sets. Waiting for Track B buys near-immediate, generation-bounded revocation, but bets the DOI critical path on **in-flight Ink & Switch research (Keyhive) with no production deployment as of mid-2026** [verify before committing] and inherits the DMLS/FREEK storage-cost curve. The honest downside of the A-first recommendation: if E-A11.0 turns out to demand a window no feasible epoch length can hit at acceptable cost, the A work FALSIFIES — but that is a first-class result, reached faster and cheaper than discovering the same thing after betting the timeline on external research.
+
+**Proposal (for review).** **Proceed as if Track A wins.** Run E-A11.A first, decide A the moment it clears the E-A11.0 bar, and treat Track B as a documented future upgrade rather than a gating dependency — because Keyhive (B) is unshippable today, E-A11.B is Rung-B-only, and Track A's epochs are tunable to the bar, so A is the only track that can actually unblock the DOI now. This is explicitly **the maintainer's call to accept or adjust**: it is a recommendation to sequence and bias toward A, not a decision that A has won — E-A11.A vs E-A11.0 still has to earn it, and a FALSIFIED there re-opens the choice.
+
 ---
 
 ## Track A2 + A12 — recovery-anchor prototype
@@ -227,6 +235,15 @@ adversarial cases. They map onto and make executable the consolidated **Stage 8 
   authority, never more** (Stage 8 U1 — the center test). **FALSIFIED** if any k-1 path reconstructs, or the
   fold is order-dependent.
 
+**Tradeoffs.** The real fork is **secret reconstruction (Shamir/VSS) vs threshold-signing (FROST/BLS)**, and a second axis is **verifiable vs not**. This experiment reconstructs the lost principal's *existing* secret material (the `did:plc` rotation key + MLS re-provision material), which is a **secret-reconstruction** problem — so the reconstruction-family crates fit directly and the signing family does not, unless the mechanism is redefined. Candidates, each **`[verify before committing]`** for maintenance/features/audit status:
+  - **`vsss-rs`** — *verifiable* secret sharing. Fits the model and lets a guardian's bad share be *detected*, which is exactly the E-REC.5 contested/hijack surface. Downside: smaller ecosystem/maturity than the signing crates `[verify]`, and like any reconstruction scheme it re-materializes the plaintext secret at one place at recovery time — a momentary single point of compromise.
+  - **`sharks`** — plain Shamir, no verifiability. Simpler and smaller, but a malicious dealer or guardian can submit a garbage/forged share undetected — it cannot prevent guardians from cheating, so it fails the adversarial-guardian requirement E-REC.5 raises.
+  - **`frost-ed25519` (FROST)** — threshold *signing*, a different model. Relevant only if recovery is reframed as guardians jointly *re-signing* a fresh rotation key rather than reconstructing the old secret. That reframing is attractive — it never assembles a plaintext secret in one place, removing the momentary single point of compromise — but it changes the mechanism and the §7.3.9 recovery-secret encoding, and it does not by itself restore MLS re-provision *material* that must be reconstructed, not signed.
+  - **BLS-threshold** — same threshold-signing shape as FROST plus a pairing-curve dependency; same fit/misfit as FROST for this experiment.
+The fidelity ladder forbids a hand-rolled polynomial stand-in for whichever is chosen — Rung A requires the real, vetted crate.
+
+**Proposal (for review).** Default to **`vsss-rs` (verifiable secret sharing) `[verify before committing]`**, because the recovery model here is secret *reconstruction* with potentially-adversarial guardians, which is precisely VSS's shape — plain Shamir (`sharks`) cannot detect a cheating guardian, and the FROST/BLS signing family solves a different problem unless recovery is redesigned. The one design question worth escalating alongside this: whether recovery should be reframed as a **FROST-style threshold re-sign** (never reconstructing a plaintext secret) instead of reconstruction — if the maintainer wants that stronger no-single-point-of-compromise property, `frost-ed25519` `[verify]` becomes the default and §7.3.9's encoding changes accordingly. Either way the crate choice is **the maintainer's call to accept or adjust**, and current maintenance/audit status must be verified before it is pinned.
+
 ### E-REC.2 — Custodial-delegate mechanism, and how it composes with the quorum
 
 - **Type / Rung:** `needs-proving`. **Rung A** on `mls-rs` for the sealed re-provision material; **Rung B**
@@ -245,6 +262,10 @@ adversarial cases. They map onto and make executable the consolidated **Stage 8 
   stated and each mode folds convergently. **FALSIFIED** if a model where the custodian gains standing by
   holding the secret passes.
 
+**Tradeoffs.** The composition rule trades **recovery UX against the §2.8 readable-homeserver risk**. Delegate-as-sole-path (delegate ∨ nothing) is the best UX — one custodian, trivial recovery, no coordinating a quorum — but it is exactly the §2.8 concern: a single conditional-access custodian is one compromise (or one coerced release) away from reconstituting standing read, a readable homeserver by another name. Quorum-only (k-of-n, no delegate) is the strongest structurally — no single party is ever a path — but it is the hardest UX, forcing every user to recruit and coordinate n guardians and stranding those who cannot. The **guardian-equivalent middle** (delegate counts as one of the n under conditional access, never a sole path) balances these: the delegate improves UX without ever being sufficient alone, so no single compromise yields access. Its honest downside is that it adds composition semantics to specify and prove, and the delegate remains a privileged, standing share — it concentrates *some* risk in one party even though it can never act alone.
+
+**Proposal (for review).** Group-default composition = a **k-of-n social-recovery quorum**, with a designated custodial delegate (when one exists) counting as **one guardian-equivalent under conditional access — never a sole path** — and a **per-user override to tighten** (raise k, or drop the delegate entirely). The one-sentence why: this keeps recovery usable while structurally forbidding the single-custodian standing-read that A12 / §2.8 rejects, because the delegate can improve the odds of assembling a quorum but can never be sufficient by itself. This is **the maintainer's call to accept or adjust** — in particular whether the delegate composes as ∧ (delegate *and* quorum) for higher-assurance groups is a knob left open for override.
+
 ### E-REC.3 — Group-default + per-user designation
 
 - **Type / Rung:** `needs-proving`. **Rung B** (model-form on the governance-fact fold — this is a fold-
@@ -261,6 +282,10 @@ adversarial cases. They map onto and make executable the consolidated **Stage 8 
   back to the group default. **FALSIFIED** if two nodes fold the same facts to different effective recovery
   arrangements.
 
+**Tradeoffs.** A prescriptive default is predictable and means no group is silently left with no recovery, but it may not fit every group's threat model; a fully open no-default is maximally flexible but leaves groups with no recovery until someone configures one — a silent no-recovery hole. The middle keeps a safe default while letting groups and users specialize.
+
+**Proposal (for review).** Small groups **default to a quorum drawn from existing members**; a group **may designate a delegate** (composing per the E-REC.2 rule); a **user may always override per-user** with a more-specific arrangement that wins deterministically under the fold. The why: a members-drawn quorum is the safe, always-present floor, and the per-user override preserves individual agency without a wall-clock. **The maintainer's call to accept or adjust** — in particular the small-group size threshold and whether the default quorum's k/n is fixed or scales with membership.
+
 ### E-REC.4 — Meer-blind invariant proof (must-hold)
 
 - **Type / Rung:** `needs-proving`. **Rung A on `mls-rs`** for the key-material path (this is the exact
@@ -276,6 +301,10 @@ adversarial cases. They map onto and make executable the consolidated **Stage 8 
   usable key material** at any point in the recovery flow, and the recovery role is a distinct, revocable
   capability. This is a **must-hold** — a FALSIFIED here falsifies the A2/A12 principle set and stops the
   prototype.
+
+**Tradeoffs.** Proving a negative ("the meer *never* gains usable keys") trades **strength of guarantee against constraint on the API**. A purely test-based approach can only ever *sample* the flow space — it can never fully prove a negative, so a green test suite here would over-claim. Enforcing the invariant **structurally at the type/capability level** — the meer role's API literally cannot name or hold a usable decryption key, it only ever receives sealed material — converts "prove a negative" into "show the type system/capability model forbids it," a compiler-checked, exhaustive guarantee. Its honest cost: it constrains API design (every recovery flow must be expressible as sealed-only through the meer type, which is more rigid and can complicate legitimate flows), and the guarantee is only as strong as the boundary — an escape hatch, an `unsafe`, or a serialization path that leaks the key silently breaks it, so the structural claim still has to be shown airtight.
+
+**Proposal (for review).** Enforce the invariant **structurally at the type/capability level** (the meer role type only ever receives sealed material and cannot express a usable key), then back it with a **Rung-C adversarial pass** that attempts every recovery flow and must fail to yield the meer a usable key. This is the Rung-A *constructive* half plus a Rung-C *"no other path"* half the risks section already anticipates — it is the only framing that honestly discharges a negative claim, since a type-level prohibition is exhaustive where a test suite is not. **The maintainer's call to accept or adjust**, in particular how much the API is allowed to bend to make the sealed-only meer type ergonomic.
 
 ### E-REC.5 — Adversarial (must-reject)
 
