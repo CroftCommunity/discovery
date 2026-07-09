@@ -25,6 +25,50 @@ decision or resolves an open gate; both would break the index-not-replacement di
   the linked home carries them inline too.
 - The `A#` / `C#` labels are stable cross-reference identifiers for each decision, not file paths.
 
+## Decisions taken 2026-07-09 (open-gate walkthrough)
+
+The user walked the open gates and made these calls. Reasoning homes are the docs named; several
+deliberately lock *principles* and send the *mechanism* to a prototype (per the anti-rollup rule, the
+open mechanism keeps a reasoned home in OPEN-THREADS / the spec open-items).
+
+- **A1 — ACCEPTED.** The MPL-2.0 `hpke-rs` dependency is accepted (mandatory for RFC 9420 HPKE; weak
+  file-level copyleft, compatible with the AGPL reference code). Attorney confirmation folded into the
+  legal-review gate. → `governance/open-publication-and-ip-stewardship.md` (license posture).
+- **A2 + A12 — DECIDED (principles); mechanism → prototype.** The **meer is always blind** (invariant, never
+  holds usable keys). Recovery is a **separate custodial role** that holds the needed key material accessed
+  **only under defined conditions** (conditional/break-glass, not standing read). It **composes** — a
+  social-recovery **quorum and/or a designated custodial delegate** — with a **group-level default** plus an
+  optional **per-user** designation, over a self-custody floor. The exact conditions, the quorum/delegate
+  composition, and the group-default shape are worked out in the **recovery-anchor prototype**. The A10
+  rotation key folds into this custody. → `drystone-spec` §7.3.9 + the recovery workstream.
+- **A11 — SPIKE THEN DECIDE.** Run a **revocation-immediacy spike** (Track-A epoch window vs the
+  moderation/ban-evasion threat model) and pick **Track A (Meadowcap)** vs **Track B (Keyhive)** from data.
+  Critical path to the v0.1 DOI. → engineering-validation plan.
+- **A9 — DECIDED.** Stable **logical URI** (mutable content, committed-resolvable), **plus a portable,
+  self-held offline proof-of-prior-identity** so a location change / domain fold preserves the provable link
+  (buildable on the did:webvh SCID + pre-rotation chain + the `alsoKnownAs` ladder). →
+  `cairn/cross-platform-identity-provenance.md`.
+- **A10 — DECIDED.** **Pluggable** rotation-key custody with a **safe default**; **PDS-held-as-default is an
+  acceptable governance decision**; **self-controlled** is the available sovereignty option; both persist
+  long-term. A9's portable proof preserves credible exit regardless. → `cairn/cross-platform-identity-provenance.md`.
+- **A13 — DEFERRED.** Retire "geer" eventually; placeholder **"gating role"** (name by capability). Not blocking.
+- **A5 — KEPT as product-design item (T51).** App-layer, bounded by voice = assert-not-compel; not blocking.
+- **Noria — ADOPTED as working foundation name, pending trademark clearance.** → `governance/foundation-cooperative-and-sustainability.md`.
+- **Cooperative legal-review — DEFERRED to Phase-1 entity formation.** NOT-LEGAL-ADVICE; carry reasoning, not citations.
+- **T4 — PARTIALLY DECIDED.** **Croft = the app/product/consumer brand** (Croft-forward); the **reference
+  implementation is neutrally branded** (distro-style separation), NOT Croft — confirms the vendor-neutral
+  `drystone-*` tag direction (spec Part 2 Appendix B). Open: the neutral ref-impl name + taglines/voice. →
+  `governance/` + `socialization/brand-and-voice.md`.
+- **Badge-teeth (load-bearing-few) — DECIDED.** The "Speaks Drystone" badge asserts **technical
+  conformance**; the load-bearing principles get teeth by being **encoded as conformance requirements**
+  (no subjective adherence-gatekeeping); non-encodable principles stay aspirational. Mandate for the
+  conformance harness. → `governance/foundation-cooperative-and-sustainability.md` (mark) + engineering plan.
+- **C15 — DECIDED (closed).** Leave "evidentiary, not operational" as a **per-conclusion**; do **not** elevate
+  it to a named Tier-1 principle (keep the principle set lean).
+
+*(Propagation into the individual docs/spec sections/plan follows this record; until propagated, this block
+is the authoritative statement of the calls.)*
+
 ## Section 1 — Settled decisions
 
 | Decision (pitch resolution) | Status (decided) | ID | Reasoning home (beta doc → section) |
