@@ -238,13 +238,13 @@ Footprints, heaviest first:
   re-composition at E10 and §7.6.10). Candidates for more: §5.9 exitability and a partition-view example,
   pending a read on whether four is the right density.
 
-- **The missing §11-cast chained appendix (Ada/Boreas/Cyrus re-entry and ban arcs).** §11 was folded in
-  from a standalone companion and its in-body beats pointed to a "§11 appendix (external to this section
-  file)" carrying the chained Ada/Boreas/Cyrus journey (re-entry arc, ban arc) that was never reconciled
-  into Part 2's appendix structure, Appendix E chains the main cast E1–E10 only. The false pointers were
-  removed and the beats now stand alone inline, but the promised chained re-entry/ban illustration has no
-  home. Open call: either write the §11-cast chained arcs as a Part 2 appendix, or accept the inline beats
-  as sufficient and drop the intent. `needs-content`, non-blocking.
+- **The §11-cast chained appendix (Ada/Boreas/Cyrus re-entry and ban arcs) — RESOLVED 2026-07-10.** §11 was
+  folded in from a standalone companion and its in-body beats pointed to a "§11 appendix (external to this
+  section file)" carrying the chained Ada/Boreas/Cyrus journey that was never reconciled into Part 2's
+  appendix structure. It is now written as the **§11 continuation of Appendix E** (beats L1–L6: Ada's steady
+  state, Boreas's dormancy and self-service re-entry, Cyrus's ban and the lagging-node heal), the large-group
+  parallel to the E1–E10 arc; the in-body §11 beats now point there. No new normative content or actors were
+  introduced — the beats chain §11.4/§11.6/§11.7/§11.8 as written.
 
 ## 7. Spec-shape and rationale residuals (Phase-0 coverage-audit staging, `needs-content`)
 

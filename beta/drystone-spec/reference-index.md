@@ -399,10 +399,10 @@ are surfaced here, followed by the claims still not settled.
 
 - **§11 dangling/false internal pointers corrected.** The §11 empirical sources (Reddit/Facebook/
   Discord/WhatsApp/AppView) were referenced in the body as "cited in Part 2 §6('s) references," which was
-  false; the pointers now resolve to the new "Platform empirical evidence" section above. The dangling
-  "§11 appendix (external to this section file)" (the Ada/Boreas/Cyrus re-entry and ban arcs) was
-  reframed inline — no such appendix exists in the layer (Appendix E chains the main cast E1–E10 only),
-  and the missing chained arcs are tracked as an open documentation item. The "Appendix G" pointer was
+  false; the pointers now resolve to the new "Platform empirical evidence" section above. The once-dangling
+  "§11 appendix (external to this section file)" (the Ada/Boreas/Cyrus re-entry and ban arcs) is now written:
+  the §11-cast chained arcs are carried as the **§11 continuation of Appendix E** (beats L1–L6), and the
+  in-body §11 beats point there. The "Appendix G" pointer was
   corrected to name the `research-prompt-operational-rates.md` companion, and that companion's stale
   back-pointer to "§7.14" was corrected to **§11.14**.
 
