@@ -100,8 +100,11 @@ open mechanism keeps a reasoned home in OPEN-THREADS / the spec open-items).
   hundreds+/disconnected = slow natural roll by default. **Honesty caveat:** between phases the party can still
   *decrypt* new state, so UX/governance must be explicit and severe cases use force-roll. This carries the
   E-A11.0 immediacy requirement at phase 1, so it **pushes A11 → Track A near-certain** (Track B not required).
-  Reasoning home: `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md` (E-A11.0); couples T3
-  moderation, `fenced/app-store-survivability-and-abuse-posture.md`, and spec §7.6/§11. Mechanism numbers
+  Reasoning home: `drystone-spec/part-2-certifiable-design.md` §7.6.12 (two-phase revocation: experiential
+  immediacy, cryptographic exclusion, the force-roll lever, cost-tiered default, and the honesty caveat);
+  the E-A11.0 threat-model / spike methodology is in
+  `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md`. Couples T3 moderation and
+  `fenced/app-store-survivability-and-abuse-posture.md`. Mechanism numbers
   (the ~50 boundary, the loose-tier bound) confirmed in E-A11.A.
 
 *(Propagation into the individual docs/spec sections/plan follows this record; until propagated, this block
@@ -161,11 +164,11 @@ given settled rows they cannot support:
   devices union, second factor + irreducible law, Case-2 storage invariants). No longer a reasoning-gap; only
   the empirical params (k/n, delay/contest window, KDF/threshold-scheme) are prototype-pending. The
   **proof-experiment methodology** (E-REC.0–.5) legitimately remains in the alpha prototype plan.
-- **A11 + two-phase revocation full designs** — the call is made (revocation is two-phase with a
-  force-immediate-roll lever; A11 narrowed to Track A). The two-phase revocation full mechanism belongs in
-  §7.6/§11 and the E-A11.0 threat-model + spike methodology live in
-  `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md`; homing the revocation mechanism whole in
-  the spec remains content-debt (tracked in `../alpha/plans/2026-07-10-left-behind-audit-ledger.md`).
+- **A11 capability track** — the two-phase revocation reasoning it depends on is now homed in the spec
+  (§7.6.12), and the Track-A/B tradeoffs are carried in spec Appendix A + §5.5; A11 itself remains an open
+  gate (Section 2), narrowed to Track A near-certain, awaiting the revocation-immediacy spike. The E-A11.0 /
+  E-REC proof-experiment methodology legitimately lives in
+  `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md` (a proof plan, not decision reasoning).
 
 **Status ambiguities noted across sources:**
 
