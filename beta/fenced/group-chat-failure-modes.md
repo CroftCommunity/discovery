@@ -40,8 +40,11 @@ closest-cousin system, and because it carries messages over email transport it i
 inherits email's metadata leak: the classic `To`/`Cc`/`Subject`/`References`/`In-Reply-To` headers that
 expose who-talks-to-whom, and the group membership, to every relay in the path. That was true
 historically over classic email, but it is no longer Delta's posture. Version 2.48+ (2026) implements
-full Header Protection (RFC 9788), moving `To`/`Subject`/`References`/`In-Reply-To` and group membership
-into the encrypted part and randomizing the outer `Date` on a five-day window. Run against a chatmail
+full Header Protection per RFC 9788 ("Header Protection for Cryptographically Protected Email," Aug 2025),
+moving headers such as `To`/`Subject`/`References`/`In-Reply-To` into the cryptographically protected part;
+Delta layers its own application behaviors on top — protecting group membership and randomizing the outer
+`Date` on a five-day window — which are Delta-specific, not part of RFC 9788 itself (the RFC's "shy" policy
+only normalizes `Date`). Run against a chatmail
 relay, no contact or group metadata is stored server-side; the residual is only relational metadata
 visible to the relay in transit — there is no Sealed Sender equivalent yet — and the correction holds
 for the chatmail configuration, not classic email. Treating Delta as a full header-leak understates a

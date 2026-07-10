@@ -42,8 +42,28 @@ Cross-checked against the Phase-0 ledger (`alpha/plans/2026-07-08-beta-coverage-
   3. **Register rows (optional)** — no root register tracks the delegate-primitive/courier-vs-agent cut,
      the Delta RFC 9788 (D21) correction, or the Session/Nostr/relay corrections; adding net-new rows was
      out of a conservative reconciliation pass.
-  4. **Publish gate** — primary-source verification of all `[UNVERIFIED]`/`[confirm]`-flagged quotes and
-     figures (WhatsApp CSAM figure, the Epic exhibits, Clare/Marx editions, relay $34) before external use.
+  4. **Publish gate** — a web-verification pass ran 2026-07-10 (dossier below): 3 CONFIRMED, 7 PARTIAL, 0
+     REFUTED. The PARTIAL discrepancies were corrected in-doc (commit noted below); the literary verbatim
+     quotes (Clare, Marx) keep their primary-edition flags per LAYERS.md discipline. Final primary-edition
+     sign-off before external publication remains the maintainer's.
+
+### Verification dossier (2026-07-10 web pass; does not replace the primary-edition publish gate)
+
+Ran one web-verifier per flagged factual claim. In-doc `[UNVERIFIED]`/`[confirm]` flags were tightened to
+reflect the findings; nothing was silently cleared.
+
+| Claim | Verdict | Correction applied |
+|---|---|---|
+| RFC 9788 / Delta header protection | PARTIAL | RFC 9788 covers To/Subject/References/In-Reply-To; group-membership protection + Date randomization are Delta app behaviors, not the RFC — re-attributed. |
+| Session Protocol V2 (PFS/ML-KEM) | PARTIAL | V2 is a **design-phase** announcement (1 Dec 2025), specs expected 2026 — reworded from "restored/shipped" to announced/planned. |
+| atproto relay non-archival / $34 | PARTIAL | Specs (2vCPU/12GB/30Mbps) are the atproto.com Sync-v1.1 blog's, not Newbold's (8vCPU/16GB); title is "**A** Full-Network Relay for $34 a Month"; low end is **$19** not $20 — all corrected. |
+| WhatsApp ~300k/mo CSAM bans | PARTIAL | Figure confirmed; mechanism is unencrypted-surface scanning (profile/group photos, group descriptions) + behavioral signals + reports, not "metadata" alone — reworded. |
+| Epic v. Apple iMessage exhibits | PARTIAL | Federighi / "serious lock-in" / Schiller confirmed verbatim; **Jobs quote corrected** to "Tie all of our products together, so we further lock customers into our ecosystem" (Oct 24 2010 "Top 100"). |
+| Nostr + MLS (Marmot/White Noise/NIP-29/NIP-59/Amethyst) | CONFIRMED | none needed. |
+| Masnick "Protocols, Not Platforms" (2019, Knight) | CONFIRMED | none needed. |
+| iroh-tor / iroh-nym | PARTIAL | **Real but misnamed** — the repos are `n0-computer/iroh-tor-transport` and `iroh-nym-transport`; the prior "not the -transport names" note was backwards; API is experimental/unstable — all corrected. |
+| Clare "Remembrances" / "To a Fallen Elm" | CONFIRMED | genuine Clare; only a dash-vs-semicolon edition-punctuation variance — primary-edition flag retained. |
+| Marx "systematic theft of communal property" | PARTIAL | Verbatim only in the Fowkes/Penguin (1976) ch.27 translation (Moore-Aveling differs); scoped to enclosure of common lands, not primitive accumulation as a whole — re-attributed. |
   5. **§11 spec appendix** — DONE 2026-07-10 (commit `14a6e87`): the Ada/Boreas/Cyrus cast-chained arcs are
      written as the §11 continuation of Appendix E (beats L1–L6), the in-body beats repointed, and the
      drystone-spec open-thread + reference-index note resolved.
