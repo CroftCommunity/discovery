@@ -1,9 +1,10 @@
 # Logo: the CROFT.ing wall-to-gate wordmark (brief and direction)
 
-**Status: brief and direction only. NO final rendered asset exists yet.** This mark was developed through a
-sequence of generated-image iterations; the images are working sketches, not a deliverable, and further
-image generation was cut off before a final was produced. This document preserves the converged design brief
-for whoever executes the mark. It is a wordmark direction, distinct from and complementary to the
+**Status: brief and direction, plus one draft render — NOT a final asset.** This mark was developed through
+a sequence of generated-image iterations; the images are working sketches, not a deliverable, and further
+image generation was cut off before a final was produced. A draft render of the converged composition is
+kept at `assets/croft-logo-wall-to-gate-draft.png` (a raster sketch, not a vector deliverable). This
+document preserves the converged design brief for whoever executes the final mark. It is a wordmark direction, distinct from and complementary to the
 drystone-stacking badge in `logo-drystone-stacking.md` (a cairn/stacking emblem for embroidery); the two
 serve different roles — a wordmark/lockup here, a patch-able badge there.
 
@@ -47,7 +48,8 @@ maps cleanly onto the domain: personal plots live at `yourname.croft.ing`.
 
 ## Next step
 
-Produce an actual vector draft of the wall-to-gate wordmark that holds the CROFT.ing read at both large and
-favicon-small sizes, with the granite letter-fill reducing cleanly to a one-color form. Palette and type
-references live in `visual-identity-and-the-progressive-depth-website.md`; the motto lockup lives in
-`brand-and-voice.md` ("Croft. Grow your own.").
+Turn the draft render (`assets/croft-logo-wall-to-gate-draft.png`) into an actual **vector** wall-to-gate
+wordmark that holds the CROFT.ing read at both large and favicon-small sizes, with the granite letter-fill
+reducing cleanly to a one-color form. Palette and type references live in
+`visual-identity-and-the-progressive-depth-website.md`; the motto lockup lives in `brand-and-voice.md`
+("Croft. Grow your own.").
