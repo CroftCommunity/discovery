@@ -2,6 +2,8 @@
 
 **Status: brief and direction only. NO rendered asset exists yet.** The in-session image attempts failed to render, so this document preserves the design brief and the direction for whoever executes the mark. It is not an asset and should not be treated as one.
 
+> **Complementary mark.** This is the cairn/stacking **badge** direction, scoped for embroidery (patch, hat, uniform). A separate **wordmark** direction — the CROFT.ing wall-to-gate lockup — is briefed in `logo-croft-ing-wall-to-gate.md`. The two serve different roles and are not competitors; which becomes the primary mark is unsettled (part of the T4 brand gate).
+
 ## The concept
 
 Drystone stacking (mortarless stone building) as the mark. A small collection of representative dry-stacked stones stands in for the technique itself: no mortar, no keystone, just balanced irregular stones.

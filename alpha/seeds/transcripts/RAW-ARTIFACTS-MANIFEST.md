@@ -821,3 +821,40 @@ added: `atproto-ecosystem.md`'s one-line Smoke Signal table entry now points to 
 `social-lexicon-group-research-brief.md`'s open research item A4 (lexicon/NSID mechanics) marked
 partially answered with a pointer, firehose-indexing/coexistence questions left open. cairn/README
 updated. Committed and pushed.
+
+## 2026-07-10 intake — Croft.ing website / plot-tender design dialogue (pasted)
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| Croft.ing website / plot-tender design dialogue (pasted 2026-07-10) | `seeds/transcripts/raw/croft-website-plot-tender-design-dialogue-2026-07-10.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)**; several assistant turns were **image generations** — the images are not in the paste, so each is preserved as a **bracketed pointer carrying the generation prompt verbatim** (the durable design record), and the final image request was declined in-session. No secrets/creds present. |
+
+The **product/website realization of the already-filed "atmospheric web" thread**
+(`atproto-atmospheric-web-iroh-mobile-dialogue.md` + its FACTCHECK; distilled to
+`thinking/atproto-atmospheric-web.md`; ROADMAP_TODO E1/E2/E3): it takes "GeoCities-2027-on-atproto" and
+makes it **Croft.ing** specifically — the Plot·Shed·Gate spatial model, the serverless single-renderer
+"safety deposit box" (`plot.croft.ing?user=` handle *or* DID, resolving to the same PDS-backed canvas as
+`name.croft.ing`), the social engine mapped onto standard atproto records (footprints = likes, guestbook =
+replies on an Anchor Post; media = PDS blobs via CDN; themes = CSS-as-JSON), the plot-tender delight catalog
+(Lantern Vigil, Stile, Stone Circle, Specimen Book, Greenhouse/Seeds, interactive homestead map), and the
+Bluesky integration (Gate Feed custom feed, subdomain signpost, starter pack). Plus the tectonic visual
+identity (granite/ruddy/moss palette with working hex), the progressive-depth website IA
+(elevator-pitch → one-pager → library), and the **CROFT.ing wall-to-gate logo** direction.
+
+**FACTCHECK disposition (carried forward).** Settled atproto mechanics used here — `did:plc` (immutable),
+public unauthenticated AppView (`public.api.bsky.app`), `com.atproto.identity.resolveHandle`, PDS blobs +
+CDN, custom feeds, firehose/relay — **cite the SoT
+(`atproto-atmospheric-web-iroh-mobile-FACTCHECK.md` + the architecture-explainer FACTCHECK), do not
+re-verify.** Genuinely new, **[confirm before publish]** (not re-verified this session): platform rug-pull
+figures (GeoCities Yahoo ~$3.7B/1999, deleted 2009; MySpace 2019 loss ~12 yr / ~50M tracks / ~14M artists;
+Cohost shutdown 2025-01-12); `spores.garden`/Hypha Co-op mechanics; exact XRPC method names
+(`getLikes`/`getPostThread`/`getProfile`). Browser-capability claims (File System Access, Web Share Target,
+WebRTC, Service Workers/IndexedDB, Background Sync) are standard web-platform features, not atproto-specific.
+
+Distilled **directly into the beta layers** (user's call — a deliberate pull-up recorded in
+`../../LAYER-ROLLUP.md`, not the usual alpha-first staging): product surface →
+`beta/croft/croft-ing-the-website-and-the-plot.md`; visual system + website IA →
+`beta/socialization/visual-identity-and-the-progressive-depth-website.md`; logo →
+`beta/socialization/logo-croft-ing-wall-to-gate.md` (+ pointer from `logo-drystone-stacking.md`). Indexes:
+ECOSYSTEM rows (spores.garden/Hypha, Cohost, Neocities, Linkat, Bio.blue, kibun.social; Standard.site
+updated), ROADMAP_TODO app items, COHESION entry (E1 realization + atmospheric-web overlap). Not committed to
+the strict alpha `thinking/` distillation (beta was the chosen home).
