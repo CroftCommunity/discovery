@@ -119,10 +119,12 @@ landscape research pins down precisely. Session began as a Signal fork, then mov
 Protocol to its own Session Protocol, and in that move **dropped perfect forward secrecy and strong
 deniability** — shipping a decentralized product for years without PFS, which drew sustained
 criticism, because without forward secrecy a compromised long-term key can decrypt all past
-intercepted messages. It then reversed course: Session announced **Protocol V2 on 1 December 2025**,
-adding **ML-KEM** post-quantum key exchange and **restoring perfect forward secrecy**, so a stolen
-device holding current keys can no longer decrypt old messages. `Verified` against the research
-distillation of the V2 announcement.
+intercepted messages. It then reversed course: Session **announced Protocol V2 on 1 December 2025** as a
+design/roadmap disclosure that will **re-introduce perfect forward secrecy** and **integrate ML-KEM**
+post-quantum key exchange, so a stolen device holding current keys will no longer decrypt old messages.
+`[confirm — the V2 announcement is verified (2026-07-10) against the getsession.org V2 post and Privacy
+Guides, but V2 is still in the design phase: PFS re-implementation and ML-KEM integration are planned,
+with detailed specifications expected in 2026, not shipped as of the announcement.]`
 
 The load-bearing lesson, not the timeline, is why Session sits in this survey: **do not trade forward
 secrecy for decentralization convenience.** The trade was tempting precisely because Session was
@@ -164,7 +166,7 @@ groups still maturing; Briar and Cwtch confined to small-group use) or **mature-
 The systems that pick one axis pay on the other, with two qualifications the corrections above carry:
 Nostr is capture-resistant and public-by-default, but its Marmot/White Noise MLS path shows the
 privacy axis is reachable on that substrate for messaging; and Session traded forward secrecy for
-decentralization for years before restoring PFS in Protocol V2 (December 2025), the exact trade
+decentralization for years before announcing a V2 restoration of PFS (December 2025, design-phase), the exact trade
 Drystone refuses by composing MLS.
 
 And the standards bodies did not fill the corner either: MLS standardized the encryption but left

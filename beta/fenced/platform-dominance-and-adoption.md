@@ -210,11 +210,11 @@ record, was that an Android iMessage client:
 >
 > — Craig Federighi, 2013 (via CNBC / *Epic v. Apple* discovery). [UNVERIFIED, confirm against primary edition before publish]
 
-The posture was not new. It traces to a 2010 directive from Steve Jobs to:
+The posture was not new. It traces to a 2010 strategy directive (a "Top 100" slide bullet) from Steve Jobs:
 
-> lock customers into our ecosystem.
+> Tie all of our products together, so we further lock customers into our ecosystem.
 >
-> — Steve Jobs, 2010 directive (via Thurrott / *Epic v. Apple* discovery). [UNVERIFIED, confirm against primary edition before publish]
+> — Steve Jobs, "Top 100" strategy email/slide, Oct 24 2010 (surfaced in *Epic v. Apple*). [verified 2026-07-10 against reporting on the Jobs "Top 100" email; earlier drafts dropped "further" and the fuller clause]
 
 And it was understood internally in exactly those terms. A 2016 internal characterization described
 iMessage as:

@@ -126,17 +126,19 @@ official **Tap** sync tool, which subscribes to a relay, auto-backfills a repo's
 switches to live. `[confirm]` — this is the source-of-truth-current mechanics per the atproto
 architecture FACTCHECK, superseding any "relay = full-network backup" description.
 
-Because it stopped storing full repos, a **validating, non-archival full-network relay now runs on ~2
-vCPU / 12 GB RAM / ~30 Mbps for roughly $20–34 a month, and is runnable on a Raspberry Pi** (Bryan
-Newbold's "Full-Network Relay for $34 a Month"). Why this is load-bearing for Croft: it removes the
+Because it stopped storing full repos, a **validating, non-archival full-network relay is cheap enough to
+self-run and runnable on a Raspberry Pi**: the atproto.com "Relay Updates for Sync v1.1" spec blog gives a
+reference figure of ~2 vCPU / 12 GB RAM / ~30 Mbps, and Bryan Newbold's "A Full-Network Relay for $34 a
+Month" (2025-08-27) reports running one on a ~$19/month VPS (his own box was 8 vCPU / 16 GB, ~$34/month),
+so **roughly $19–34 a month** depending on the host. Why this is load-bearing for Croft: it removes the
 last "but the infrastructure is expensive" objection to the self-host / credible-exit thesis. Not only
 can a community self-run its read/index layer (the AppView spectrum above), it can self-run the
 *ingestion* layer too, on hardware it already owns — which is the concrete grounding for Croft's bet
 that the read side survives as small self-hosted nodes rather than requiring a data-center. Note the
 distinction the two figures draw: the cheap number here is the **relay** (validating firehose,
 non-archival); the heavy ~16 TB / ~$200-mo Zeppelin figure above is a **full-network AppView index**
-(the thing that stores and serves everything), a different and much larger job. `[web-verified; the
-$20–34 and Raspberry-Pi claims are the FACTCHECK's CONFIRMED-current rows but are point-in-time —
+(the thing that stores and serves everything), a different and much larger job. `[web-verified 2026-07-10
+against atproto.com's Sync v1.1 blog and Newbold's post; the $19–34 and Raspberry-Pi claims are current but point-in-time —
 refresh before external use.]`
 
 ## PDS self-hosting: implementations, hosts, and blob backends
