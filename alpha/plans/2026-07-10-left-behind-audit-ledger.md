@@ -13,6 +13,18 @@ left-behind-audit workflow (28 readers + synthesis)._
 
 Cross-checked against the Phase-0 ledger (`alpha/plans/2026-07-08-beta-coverage-gap-ledger.md`).
 
+## Remediation status
+
+- **Tranche 1 — applied 2026-07-10 (commit `8d1ddb2`).** Low-risk / high-value set: factual
+  corrections (Session PFS V2/ML-KEM, Nostr/Marmot, relay non-archival, Delta RFC 9788), pointer/index
+  repairs (~74 `p10-drystone-*` refs, A11 mis-home, index orphans), and the top-28 load-bearing
+  recoveries. 48 files across all 10 layers; verbatim external quotes and root-register reconciliation
+  deferred to tranche 2. New doc: `beta/philosophy/the-recurring-inversion.md`.
+- **Tranche 2 — in progress.** Verbatim external-quote folding (Clare, Marx, iMessage/Epic exhibits,
+  the ~20 held quotes) and root-register reconciliation (DECISIONS / OPEN-THREADS / CLOSED-THREADS /
+  README: move recurring-inversion + M3 ad-broker out of OPEN-THREADS, propagate the corrections and the
+  2026-07-09 recovery decisions, resolve the badge-teeth DECIDED-vs-OPEN contradiction).
+
 ---
 
 ## Part I - Per-cluster findings
