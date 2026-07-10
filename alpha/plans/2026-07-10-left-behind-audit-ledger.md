@@ -39,9 +39,13 @@ Cross-checked against the Phase-0 ledger (`alpha/plans/2026-07-08-beta-coverage-
   2. **DECISIONS Section-1/Section-2 reconciliation** — DONE 2026-07-10 (commit `fe7d0e5`): A9/A10 moved
      to Section 1; A1/A2/A11/A12/A13/Noria/legal-review/A5 reclassified to their 2026-07-09 walkthrough
      calls with residuals; Section 2 renamed to "gates walked."
-  3. **Register rows (optional)** — no root register tracks the delegate-primitive/courier-vs-agent cut,
-     the Delta RFC 9788 (D21) correction, or the Session/Nostr/relay corrections; adding net-new rows was
-     out of a conservative reconciliation pass.
+  3. **Register rows (optional)** — PARTLY DONE 2026-07-10: DECISIONS Section 1 was deliberately broadened to
+     index major spec design decisions, and the **general delegate primitive** (courier-vs-agent cut) now has
+     a row pointing to `drystone-spec/` §5.5.1 (the How-to-read note records the broadening). The factual
+     corrections (Delta RFC 9788, Session/Nostr/relay) are **intentionally left out of the decision
+     registers** — they are facts, not decisions or once-open threads, and already live in their cairn/fenced
+     body docs, reference-indexes, and the verification dossier below; DECISIONS/CLOSED-THREADS are the wrong
+     shape for them.
   4. **Publish gate** — a web-verification pass ran 2026-07-10 (dossier below): 3 CONFIRMED, 7 PARTIAL, 0
      REFUTED. The PARTIAL discrepancies were corrected in-doc (commit noted below); the literary verbatim
      quotes (Clare, Marx) keep their primary-edition flags per LAYERS.md discipline. Final primary-edition
