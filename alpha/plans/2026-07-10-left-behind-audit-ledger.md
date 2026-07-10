@@ -20,10 +20,28 @@ Cross-checked against the Phase-0 ledger (`alpha/plans/2026-07-08-beta-coverage-
   repairs (~74 `p10-drystone-*` refs, A11 mis-home, index orphans), and the top-28 load-bearing
   recoveries. 48 files across all 10 layers; verbatim external quotes and root-register reconciliation
   deferred to tranche 2. New doc: `beta/philosophy/the-recurring-inversion.md`.
-- **Tranche 2 — in progress.** Verbatim external-quote folding (Clare, Marx, iMessage/Epic exhibits,
-  the ~20 held quotes) and root-register reconciliation (DECISIONS / OPEN-THREADS / CLOSED-THREADS /
-  README: move recurring-inversion + M3 ad-broker out of OPEN-THREADS, propagate the corrections and the
-  2026-07-09 recovery decisions, resolve the badge-teeth DECIDED-vs-OPEN contradiction).
+- **Tranche 2 — applied 2026-07-10 (commit `b23f4bd`).** Part A folded the held verbatim quotes at their
+  homes (Clare ×2, Marx, the four iMessage/Epic exhibits, Socrates/Peirce RFC-style, Whittaker, Huffman;
+  Devine caution + Hardin/Ostrom correction; activism source-ledger + commissioner-thesis-lens
+  definition), each verified verbatim and flag-preserved. Quotes with no corpus verbatim (Moxie,
+  Schelling, Masnick) correctly left as attributed synthesis for the publish gate. Part B reconciled the
+  root registers (badge-teeth OPEN→decided; the "standing decisions" list split into since-decided vs
+  still-open with themes 07/08 retired; T12→the-recurring-inversion + narrowed to M3; federation→spec
+  part-2 §5; T52→brand-and-voice). 13 files.
+- **Remaining (follow-ups, not blocking):**
+  1. **Content-debt** — the 2026-07-09 total-device-loss recovery/revocation full design (E-REC.0–.5,
+     E-A11.0) still lives only in `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md`;
+     `DECISIONS.md` points there. Homing it in `drystone-spec/` is a content-writing task, not a register
+     edit.
+  2. **DECISIONS Section-1/Section-2 reconciliation** — A1/A9/A10/Noria are marked decided in the
+     2026-07-09 walkthrough but still listed as OPEN gates in Section 2 (Part B caught this; left to avoid
+     scope creep).
+  3. **Register rows (optional)** — no root register tracks the delegate-primitive/courier-vs-agent cut,
+     the Delta RFC 9788 (D21) correction, or the Session/Nostr/relay corrections; adding net-new rows was
+     out of a conservative reconciliation pass.
+  4. **Publish gate** — primary-source verification of all `[UNVERIFIED]`/`[confirm]`-flagged quotes and
+     figures (WhatsApp CSAM figure, the Epic exhibits, Clare/Marx editions, relay $34) before external use.
+  5. **§11 spec appendix** — the Ada/Boreas/Cyrus cast-chained illustration is a needs-content item.
 
 ---
 
