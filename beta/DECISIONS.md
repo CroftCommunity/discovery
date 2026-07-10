@@ -132,7 +132,7 @@ is the authoritative statement of the calls.)*
 | Decision to make | Status | ID | Blocked on it | Reasoning home (beta doc → section) |
 |---|---|---|---|---|
 | **Substrate license acceptance — MPL-2.0** (`hpke-rs` is mandatory for RFC 9420 HPKE; no permissive substitute). A compliance call, not code. | ACCEPTED 2026-07-09 — sign-off folded into the legal-review gate | A1 | Residual: attorney confirmation, folded into the cooperative legal-review gate. | `governance/open-publication-and-ip-stewardship.md` → "License posture" (the `hpke-rs` MPL-2.0 note); `governance/foundation-cooperative-and-sustainability.md` → the "Code" row |
-| **Total-device-loss recovery anchor** — the concrete recovery/break-glass mechanism (custodian ladder / k-of-n guardian / time-delayed break-glass / survivor fork). Largest residual protocol risk. | principles DECIDED 2026-07-09 (three-case model + recovery-group / safety-ladder); mechanism → recovery-anchor prototype (k, n, rung default, second-factor composition are empirical) | A2 | Residual (empirical, not design): the guardian-set / break-glass / recovery-secret default params, settled from the prototype. | `drystone-spec/part-2-certifiable-design.md` → §7.3.9 "Principal recovery and break-glass" (shape + binding invariant fixed); full three-case + recovery-group design is a reasoning-gap (see below) |
+| **Total-device-loss recovery anchor** — the concrete recovery/break-glass mechanism (custodian ladder / k-of-n guardian / time-delayed break-glass / survivor fork). Largest residual protocol risk. | principles DECIDED 2026-07-09 (three-case model + recovery-group / safety-ladder); mechanism → recovery-anchor prototype (k, n, rung default, second-factor composition are empirical) | A2 | Residual (empirical, not design): the guardian-set / break-glass / recovery-secret default params, settled from the prototype. | `drystone-spec/part-2-certifiable-design.md` → §7.3.9 "Principal recovery and break-glass" (three-case model, the difficulty-is-safety ladder, the threshold-decryption recovery group over the people+home-devices union, the second factor + irreducible law, and the Case-2 storage invariants are all now carried; only the empirical params — k/n, delay, contest window, KDF/threshold-scheme choices — remain prototype-pending) |
 | **Capability mechanism — Track A (Meadowcap-shaped, delegated tokens) vs Track B (Keyhive-shaped, convergent membership graph).** Decided on the revocation-immediacy criterion. | SPIKE-THEN-DECIDE 2026-07-09 — narrowed to Track A near-certain (the two-phase revocation decision carries the E-A11.0 immediacy at phase 1) | A11 | The capability wire format, which in turn gates minting the v0.1 archival DOI. | `drystone-spec/part-2-certifiable-design.md` → Appendix A "Alternatives Considered" (the Track A/B entry) + §5.5 (the Meadowcap grounding) + Appendix B |
 | **Key-custody default — blind-relay (Option A) vs revocable trusted delegate (Option B).** | principle DECIDED 2026-07-09 (A2/A12: the meer is always blind; recovery is a separate custodial role); mechanism → prototype | A12 | Device re-provisioning UX; and what, if anything, structurally resists Option B quietly rebuilding a readable homeserver. | `drystone-spec/part-2-certifiable-design.md` → §6.5.2 / §6.6.2 (the blind-relay / blind-meer roles) + §7.3.9 (recovery) |
 | **Rename the "geer" gating peer** — gating is the one capability that bumps the read right; role names decompose to `floor + [capabilities]`. | DEFERRED 2026-07-09 — retire "geer" eventually; placeholder "gating role" (name by capability); not blocking | A13 | The read-gating capability and its role name. | `drystone-spec/part-2-certifiable-design.md` → §5.8.1 "Open item: gating against the read right" |
@@ -156,11 +156,16 @@ given settled rows they cannot support:
   code-license posture is in `governance/`, but the specific ownership/assignment call for the imported app
   body is surfaced only in `README.md` → "Standing decisions", with no library-resolution reasoning home
   yet.
-- **A2/A11 recovery + two-phase revocation full designs** — the calls are made (A2 principles + recovery
-  group/safety ladder; revocation is two-phase with a force-immediate-roll lever), but the full designs
-  (E-REC.0–.5, E-A11.0) live only in `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md`. The
-  spec carries the shape (§7.3.9, §7.6/§11); homing the full reasoning in `drystone-spec/` is outstanding
-  content-debt tracked in `../alpha/plans/2026-07-10-left-behind-audit-ledger.md` (Remediation status).
+- **A2 recovery design** — now **homed in the spec** (`drystone-spec/part-2-certifiable-design.md` §7.3.9:
+  three-case model, difficulty-is-safety ladder, threshold-decryption recovery group over the people+home-
+  devices union, second factor + irreducible law, Case-2 storage invariants). No longer a reasoning-gap; only
+  the empirical params (k/n, delay/contest window, KDF/threshold-scheme) are prototype-pending. The
+  **proof-experiment methodology** (E-REC.0–.5) legitimately remains in the alpha prototype plan.
+- **A11 + two-phase revocation full designs** — the call is made (revocation is two-phase with a
+  force-immediate-roll lever; A11 narrowed to Track A). The two-phase revocation full mechanism belongs in
+  §7.6/§11 and the E-A11.0 threat-model + spike methodology live in
+  `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md`; homing the revocation mechanism whole in
+  the spec remains content-debt (tracked in `../alpha/plans/2026-07-10-left-behind-audit-ledger.md`).
 
 **Status ambiguities noted across sources:**
 
