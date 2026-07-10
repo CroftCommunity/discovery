@@ -12,9 +12,10 @@ decision or resolves an open gate; both would break the index-not-replacement di
 
 ## How to read
 
-- **Settled vs open.** Section 1 is decisions already made (with the date decided). Section 2 is the open
-  gates that are the user's calls, each with what is blocked on it. An open gate is *surfaced, not
-  resolved* here.
+- **Settled vs walked.** Section 1 is decisions already made (with the date decided). Section 2 is the
+  decision gates the user **walked in the 2026-07-09 open-gate walkthrough**: each now carries the call
+  made plus its **residual** (an empirical param, a prototype mechanism, a trademark/legal clearance, or a
+  product-layer control). A residual is *surfaced, not resolved* here — the reasoning home carries it.
 - **Every row links to its reasoning home.** The "Reasoning home" column names a beta layer doc and the
   section that carries the full argument (the library resolution). To act on or re-derive a decision, read
   the home, not this row.
@@ -123,21 +124,21 @@ is the authoritative statement of the calls.)*
 | **Peer-rights floor = tenure / voice / exit**, each fixed by what its removal forecloses; the floor is **evidentiary, not operational**; a claim on a Group's commons ("share") is **not** a right. | decided (floor; two verify-before-harden checks open) | E32 | `drystone-spec/part-2-certifiable-design.md` → §5.3 "Rights: the inherent, equal floor …"; lineage in `philosophy/the-peer-rights-razor-and-its-lineage.md`. (Open residuals: tenure-under-re-key and the `share` boundary — Section 2 / reasoning-gaps.) |
 | **Large-group-scaling section placement** — folded into Part 2 as **§11** (resolving the §7 numbering collision). | decided 2026-07-07 | T37 | `drystone-spec/part-2-certifiable-design.md` → §11 "Large-Group Scaling, Dormancy, and Re-entry" |
 | **Badge-teeth (load-bearing-few — genome vs strategy):** the "Speaks Drystone" compatibility badge asserts **technical conformance**; the load-bearing principles get teeth by being **encoded as conformance requirements** (no subjective adherence-gatekeeping), and non-encodable principles stay aspirational. Mandate for the conformance harness. | decided 2026-07-09 | — | `governance/foundation-cooperative-and-sustainability.md` → "Two tiers of mark: the house mark and the compatibility badge" + the conformance-harness mandate |
+| **Anchor-URI stability + portable proof-of-prior-identity** — a stable **logical URI** (mutable content, committed-resolvable) plus a portable, self-held **offline proof-of-prior-identity** so a location change / domain fold preserves the provable link (did:webvh SCID + pre-rotation chain + the `alsoKnownAs` ladder). | decided 2026-07-09 | A9 | `cairn/cross-platform-identity-provenance.md` → the A9 surfacing (the `alsoKnownAs` equivalence ladder is evidentiary, not authoritative) |
+| **Rotation-key custody = pluggable with a safe default** — **PDS-held-as-default is an acceptable governance decision**, **self-controlled** is the available sovereignty option, both persist long-term; A9's portable proof preserves credible exit regardless. | decided 2026-07-09 | A10 | `cairn/cross-platform-identity-provenance.md` → the rotation-key / A10 surfacing |
 
-## Section 2 — Open decision gates (the user's calls)
+## Section 2 — Decision gates walked 2026-07-09 (calls made; residuals tracked)
 
 | Decision to make | Status | ID | Blocked on it | Reasoning home (beta doc → section) |
 |---|---|---|---|---|
-| **Substrate license acceptance — MPL-2.0** (`hpke-rs` is mandatory for RFC 9420 HPKE; no permissive substitute). A compliance call, not code. | OPEN | A1 | Sign-off that the MPL-2.0 substrate dependency is acceptable alongside the AGPL reference code. | `governance/open-publication-and-ip-stewardship.md` → "License posture" (the `hpke-rs` MPL-2.0 note); `governance/foundation-cooperative-and-sustainability.md` → the "Code" row |
-| **Total-device-loss recovery anchor** — the concrete recovery/break-glass mechanism (custodian ladder / k-of-n guardian / time-delayed break-glass / survivor fork). Largest residual protocol risk. | OPEN | A2 | The publication-final recovery guarantee; the guardian-set / break-glass / recovery-secret defaults. | `drystone-spec/part-2-certifiable-design.md` → §7.3.9 "Principal recovery and break-glass (to be determined)" (shape + binding invariant fixed, mechanism deferred) |
-| **Capability mechanism — Track A (Meadowcap-shaped, delegated tokens) vs Track B (Keyhive-shaped, convergent membership graph).** Decided on the revocation-immediacy criterion. | OPEN | A11 | The capability wire format, which in turn gates minting the v0.1 archival DOI. | `drystone-spec/part-2-certifiable-design.md` → Appendix A "Alternatives Considered" (the Track A/B entry) + §5.5 (the Meadowcap grounding) + Appendix B |
-| **Key-custody default — blind-relay (Option A) vs revocable trusted delegate (Option B).** | OPEN | A12 | Device re-provisioning UX; and what, if anything, structurally resists Option B quietly rebuilding a readable homeserver. | `drystone-spec/part-2-certifiable-design.md` → §6.5.2 / §6.6.2 (the blind-relay / blind-meer roles) + §7.3.9 (recovery) |
-| **Rename the "geer" gating peer** — gating is the one capability that bumps the read right; role names decompose to `floor + [capabilities]`. | OPEN | A13 | The read-gating capability and its role name. | `drystone-spec/part-2-certifiable-design.md` → §5.8.1 "Open item: gating against the read right" |
-| **Foundation name — candidate Noria** (must be independent of the flagship name so the foundation's neutrality holds). `[UNVERIFIED]` trademark clearance. | OPEN | — | Naming the foundation; trademark clearance. | `governance/foundation-cooperative-and-sustainability.md` → "Entity phasing …" + "Decision-gated: surfaced, not resolved"; also `governance/open-publication-and-ip-stewardship.md` (closing note) |
-| **Cooperative legal-review gate** — Missouri Chapter 351 LCA + foundation legal structure; statute sections, tax codes, fees are dialogue-sourced and need counsel. **NOT-LEGAL-ADVICE.** | OPEN | — | Any entity filing or reliance on the specific §/fee figures. | `governance/foundation-cooperative-and-sustainability.md` → "Decision-gated: surfaced, not resolved" + "The four-pillar Social Union" |
-| **Republish / "can still quote" UX control** — structural V3 is done; the human-layer control that lets a peer still quote is unspecified. | OPEN | A5 | The republish/quote product control at the app layer. | Philosophical grounding: `drystone-spec/part-1-reasoning-underpinnings.md` → §2 (voice = assert into your own record + reach willing peers, **not** compel amplification) + `philosophy/the-peer-rights-razor-and-its-lineage.md`. The UX control itself is app-layer and not yet carried (see reasoning-gaps). |
-| **Anchor-URI stability contract** — the cross-platform provenance anchor must be a stable logical URI with mutable content, not a content-addressed/immutable target. | OPEN | A9 | The cross-platform provenance-anchor design. | `cairn/cross-platform-identity-provenance.md` → the A9 surfacing (the `alsoKnownAs` equivalence ladder is evidentiary, not authoritative) |
-| **PDS-held vs self-controlled `did:plc` rotation key** — changes who can issue future operations and whether the `did:webvh` root truly functions as a recovery anchor for the Bluesky spoke. Relates A2. | OPEN | A10 | Whether the Bluesky spoke's root genuinely functions as a recovery anchor. | `cairn/cross-platform-identity-provenance.md` → the rotation-key / A10 surfacing |
+| **Substrate license acceptance — MPL-2.0** (`hpke-rs` is mandatory for RFC 9420 HPKE; no permissive substitute). A compliance call, not code. | ACCEPTED 2026-07-09 — sign-off folded into the legal-review gate | A1 | Residual: attorney confirmation, folded into the cooperative legal-review gate. | `governance/open-publication-and-ip-stewardship.md` → "License posture" (the `hpke-rs` MPL-2.0 note); `governance/foundation-cooperative-and-sustainability.md` → the "Code" row |
+| **Total-device-loss recovery anchor** — the concrete recovery/break-glass mechanism (custodian ladder / k-of-n guardian / time-delayed break-glass / survivor fork). Largest residual protocol risk. | principles DECIDED 2026-07-09 (three-case model + recovery-group / safety-ladder); mechanism → recovery-anchor prototype (k, n, rung default, second-factor composition are empirical) | A2 | Residual (empirical, not design): the guardian-set / break-glass / recovery-secret default params, settled from the prototype. | `drystone-spec/part-2-certifiable-design.md` → §7.3.9 "Principal recovery and break-glass" (shape + binding invariant fixed); full three-case + recovery-group design is a reasoning-gap (see below) |
+| **Capability mechanism — Track A (Meadowcap-shaped, delegated tokens) vs Track B (Keyhive-shaped, convergent membership graph).** Decided on the revocation-immediacy criterion. | SPIKE-THEN-DECIDE 2026-07-09 — narrowed to Track A near-certain (the two-phase revocation decision carries the E-A11.0 immediacy at phase 1) | A11 | The capability wire format, which in turn gates minting the v0.1 archival DOI. | `drystone-spec/part-2-certifiable-design.md` → Appendix A "Alternatives Considered" (the Track A/B entry) + §5.5 (the Meadowcap grounding) + Appendix B |
+| **Key-custody default — blind-relay (Option A) vs revocable trusted delegate (Option B).** | principle DECIDED 2026-07-09 (A2/A12: the meer is always blind; recovery is a separate custodial role); mechanism → prototype | A12 | Device re-provisioning UX; and what, if anything, structurally resists Option B quietly rebuilding a readable homeserver. | `drystone-spec/part-2-certifiable-design.md` → §6.5.2 / §6.6.2 (the blind-relay / blind-meer roles) + §7.3.9 (recovery) |
+| **Rename the "geer" gating peer** — gating is the one capability that bumps the read right; role names decompose to `floor + [capabilities]`. | DEFERRED 2026-07-09 — retire "geer" eventually; placeholder "gating role" (name by capability); not blocking | A13 | The read-gating capability and its role name. | `drystone-spec/part-2-certifiable-design.md` → §5.8.1 "Open item: gating against the read right" |
+| **Foundation name — candidate Noria** (must be independent of the flagship name so the foundation's neutrality holds). `[UNVERIFIED]` trademark clearance. | ADOPTED 2026-07-09 as working foundation name; residual: trademark clearance `[UNVERIFIED]` | — | Residual: trademark clearance before the name hardens. | `governance/foundation-cooperative-and-sustainability.md` → "Entity phasing …" + "Decision-gated: surfaced, not resolved"; also `governance/open-publication-and-ip-stewardship.md` (closing note) |
+| **Cooperative legal-review gate** — Missouri Chapter 351 LCA + foundation legal structure; statute sections, tax codes, fees are dialogue-sourced and need counsel. **NOT-LEGAL-ADVICE.** | DEFERRED 2026-07-09 to Phase-1 entity formation | — | Any entity filing or reliance on the specific §/fee figures. | `governance/foundation-cooperative-and-sustainability.md` → "Decision-gated: surfaced, not resolved" + "The four-pillar Social Union" |
+| **Republish / "can still quote" UX control** — structural V3 is done; the human-layer control that lets a peer still quote is unspecified. | KEPT as product-design item (T51) 2026-07-09 — app-layer, bounded by voice = assert-not-compel; not blocking | A5 | The republish/quote product control at the app layer. | Philosophical grounding: `drystone-spec/part-1-reasoning-underpinnings.md` → §2 (voice = assert into your own record + reach willing peers, **not** compel amplification) + `philosophy/the-peer-rights-razor-and-its-lineage.md`. The UX control itself is app-layer and not yet carried (see reasoning-gaps). |
 
 ## Reasoning-gaps (recovery residuals — decision surfaced, reasoning not yet in a beta doc)
 
@@ -155,12 +156,18 @@ given settled rows they cannot support:
   code-license posture is in `governance/`, but the specific ownership/assignment call for the imported app
   body is surfaced only in `README.md` → "Standing decisions", with no library-resolution reasoning home
   yet.
+- **A2/A11 recovery + two-phase revocation full designs** — the calls are made (A2 principles + recovery
+  group/safety ladder; revocation is two-phase with a force-immediate-roll lever), but the full designs
+  (E-REC.0–.5, E-A11.0) live only in `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md`. The
+  spec carries the shape (§7.3.9, §7.6/§11); homing the full reasoning in `drystone-spec/` is outstanding
+  content-debt tracked in `../alpha/plans/2026-07-10-left-behind-audit-ledger.md` (Remediation status).
 
 **Status ambiguities noted across sources:**
 
 - **A14** is settled for the *spec text* (CC0 1.0), but A14's original *reference-code* half (Apache-2.0)
   is **superseded by C13** (AGPL-3.0-or-later + DCO). The register carries the current state; A14 should be
   read as the spec-text decision only.
-- **A1 (MPL-2.0)** is marked both "mandatory" (forced by the `hpke-rs` dependency) and a surfaced
-  compliance call. It is listed as an open gate (the acceptance sign-off is the user's), while noting the
-  technical constraint itself is not in dispute.
+- **A1 (MPL-2.0)** was **ACCEPTED** in the 2026-07-09 walkthrough (the technical constraint — `hpke-rs` is
+  mandatory for RFC 9420 HPKE — was never in dispute); the only residual is the attorney acceptance sign-off,
+  which is folded into the cooperative legal-review gate. It sits in Section 2 as a walked gate with that
+  residual, not as an unresolved open gate.
