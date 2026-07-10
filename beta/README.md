@@ -124,19 +124,38 @@ mechanism.
 - **Naming is distributed**: croft/Drystone meaning rides in 02; the Noria foundation-name candidate
   rides in 07. No standalone naming doc.
 
-## Standing decisions surfaced, not resolved (the user's calls)
+## Standing decisions: since decided, and still the user's call
 
-Themes 07 and 08 carry a "decision-gated" banner until these land. They are surfaced here so beta
-never silently resolves them:
+The former themes 07 and 08 once carried a "decision-gated" banner for these; those themes were
+**retired 2026-07-07** when the corpus re-filed onto the layer-cake, and the gates they tracked now
+live in `DECISIONS.md` (the pitch-resolution index). Several were resolved in the 2026-07-09 open-gate
+walkthrough; the rest remain the user's calls. This list is a pointer — the resolution and its
+reasoning live in the linked homes, not here.
 
-- **MPL-2.0 license** for the substrate (vs the AGPL-3.0-or-later choice for the app/foundation layer).
-- **Total-device-loss recovery anchor** (backup-vs-delegation fork, the headline open protocol problem).
-- **The cooperative legal-review gate** (MO Chapter 351; NOT-LEGAL-ADVICE: carry the reasoning, not
-  the citations).
-- **The Noria foundation name** (CANDIDATE pending trademark clearance, not decided).
-- **The CroftC Phase-0 IP/ownership call** for the app body.
-- **The load-bearing-few principles (genome vs strategy)**: whether the compatibility badge is where
-  the non-negotiable principles get their teeth.
+**Since decided (see `DECISIONS.md` for the resolution + its reasoning home):**
+
+- **MPL-2.0 substrate dependency — ACCEPTED** (`hpke-rs` is mandatory for RFC 9420 HPKE; weak file-level
+  copyleft, compatible with the AGPL reference code; the acceptance sign-off is folded into the legal-review
+  gate). → `DECISIONS.md` (A1) → `governance/open-publication-and-ip-stewardship.md` (license posture).
+- **Total-device-loss recovery anchor — DECIDED (principles); mechanism → prototype.** The meer stays
+  blind; recovery is a separate custodial role accessed only under defined conditions, composing a
+  social-recovery quorum and/or a designated delegate over a self-custody floor; the exact conditions,
+  quorum/delegate composition, and defaults are settled empirically in the recovery-anchor prototype. →
+  `DECISIONS.md` (A2/A12) → `drystone-spec/part-2-certifiable-design.md` §7.3.9.
+- **Load-bearing-few principles (genome vs strategy) — DECIDED.** The "Speaks Drystone" badge asserts
+  **technical conformance**; the load-bearing principles get their teeth by being **encoded as conformance
+  requirements** (no subjective adherence-gatekeeping), and non-encodable principles stay aspirational. →
+  `DECISIONS.md` (Badge-teeth) → `governance/foundation-cooperative-and-sustainability.md`.
+- **Noria foundation name — ADOPTED** as the working foundation name, pending trademark clearance
+  (`[UNVERIFIED]`). → `DECISIONS.md` → `governance/foundation-cooperative-and-sustainability.md`.
+
+**Still the user's call (genuinely open):**
+
+- **The cooperative legal-review gate** (MO Chapter 351; NOT-LEGAL-ADVICE: carry the reasoning, not the
+  citations) — DEFERRED to Phase-1 entity formation, still open. → `DECISIONS.md` →
+  `governance/foundation-cooperative-and-sustainability.md`.
+- **The CroftC Phase-0 IP/ownership call** for the app body. → `DECISIONS.md` (reasoning-gaps, A8) +
+  `OPEN-THREADS.md` (T50).
 
 ## State
 

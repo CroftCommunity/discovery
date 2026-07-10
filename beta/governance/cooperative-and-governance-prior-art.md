@@ -123,7 +123,14 @@ carry the affirmative existence-proof register for the cooperative-foundation an
   the servers do not matter but that the entity controlling them legally cannot be sold or taken public.
   Signal's president, Meredith Whittaker, has stated the structural logic plainly: privacy is not safe
   under shareholder-driven corporations, so Signal is structured as a nonprofit with no equity and no board
-  demanding profit growth, which means it cannot be sold off even if its own leadership were to turn.
+  demanding profit growth. The consequence she draws is that no one can sell the entity off — not an
+  acquirer, and not its own leadership:
+
+  > "even if I decided to become evil."
+  >
+  > — Meredith Whittaker, Signal president, on why the nonprofit structure makes Signal unsellable
+  > `[UNVERIFIED, confirm against primary source before publish]`
+
   Co-founder Moxie Marlinspike has written that Signal never took venture funding or sought investment,
   because putting profit first would be incompatible with a sustainable, user-first project. **Proves** the
   sharpest form of the cooperative-foundation thesis: it is the *ownership structure*, not

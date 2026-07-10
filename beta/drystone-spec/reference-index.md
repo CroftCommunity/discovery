@@ -221,10 +221,13 @@ discovered rather than invented, and marks the value-to-mechanism gap explicitly
 
 - **Socrates / Plato.** *Apology*, 399 BCE (Fowler trans., Loeb; Perseus
   https://www.perseus.tufts.edu/hopper/text?doc=Plato+Apol.). PRIMARY · `[confirm]` (verbatim clauses
-  held for a later pass, confirm against a primary edition). The original-fallibilism ethics root:
-  method-as-detection-not-oracle, and the diagnosis of supposing-you-know-what-you-do-not (the
-  truth-certifying error). Carries a citation correction: "I know that I know nothing" is a paraphrase
-  not in Plato; the grounded text is *Apology* 21d–22d. Grounds Part 1 §3 (Ethics).
+  folded RFC-style at Part 1 §3, still confirm against a primary edition; phrasing varies by translation).
+  The original-fallibilism ethics root: method-as-detection-not-oracle, and the diagnosis of
+  supposing-you-know-what-you-do-not (the truth-certifying error). Two clauses now folded inline: the
+  supposing-clause "he supposes he knows something when he does not know…" (*Apology* 21d) and "For I was
+  conscious that I knew practically nothing" (*Apology* 22d). Carries a citation correction: "I know that I
+  know nothing" is a paraphrase not in Plato; the grounded text is *Apology* 21d–22d. Grounds Part 1 §3
+  (Ethics).
 
 - **Mill, J. S.** *On Liberty*, 1859. https://www.gutenberg.org/ebooks/34901. PRIMARY · `Verified`.
   Silencing the dissenter is an unjustifiable cost — the fork as the dignified exit. Grounds Part 1
@@ -251,11 +254,13 @@ discovered rather than invented, and marks the value-to-mechanism gap explicitly
   Grounds Part 1 §2.0, §2.2, §3.
 
 - **Peirce, C. S.** Fallibilism and the *community of inquiry* (Collected Papers; e.g. "The Fixation of
-  Belief," 1877, and the "do not block the way of inquiry" maxim). PRIMARY · `[confirm]` (exact wording
-  varies by essay; confirm against the primary before quoting). No belief is ever absolutely certain,
-  the road of inquiry must not be blocked, and truth is what a community converges toward over unlimited
-  time (never possessed) — the humility-in-the-mechanism half of the epistemology that pairs with Popper.
-  Grounds Part 1 §3 (Epistemology).
+  Belief," 1877, and the "do not block the way of inquiry" first-rule-of-reason maxim, *CP* 1.135).
+  PRIMARY · `[confirm]` (exact wording varies by essay/edition; confirm against the primary before
+  quoting). The one genuine verbatim clause "Do not block the way of inquiry" (*CP* 1.135) is folded
+  RFC-style at Part 1 §3, still `[confirm]`; the fallibilism formulation (no belief absolutely certain)
+  and the convergence-over-unlimited-time account are kept as attributed synthesis, not quotation, and
+  *community of inquiry* is his term of art. The humility-in-the-mechanism half of the epistemology that
+  pairs with Popper. Grounds Part 1 §3 (Epistemology).
 
 - **Ostrom, E.** *Governing the Commons: The Evolution of Institutions for Collective Action.*
   Cambridge University Press, 1990. DOI: 10.1017/CBO9780511807763. Design principles **6**
