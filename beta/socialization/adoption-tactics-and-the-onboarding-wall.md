@@ -200,7 +200,9 @@ The moat comes from the absence, not from a better version of the same thing:
 
 - **Trust compounds instead of eroding.** With no monetization phase waiting downstream, there is no
   enshittification arc — no scheduled turn where the product gets worse for the user to get better for
-  the business.
+  the business. (*Enshittification* is Cory Doctorow's coinage [CITE]; the platform-lifecycle argument
+  it names is grounded in `../fenced/aggregation-theory-and-the-enshittification-shield.md`, cited to
+  that layer's source-of-record and not re-argued here.)
 
 The single most quotable articulation of the whole position, from the project's own design thinking:
 

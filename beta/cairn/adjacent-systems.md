@@ -112,15 +112,46 @@ The qualifications are structural, not incidental. Room and membership metadata 
 and there is heavy de-facto centralization in practice despite the federated design. It is also worth
 noting that the Matrix Foundation co-authors MIMI, which ties it to the per-room-hub choice above.
 
-### Session: decentralized, but reportedly dropped forward secrecy
+### Session: decentralized, and the forward-secrecy saga worth learning from
 
-Session is decentralized, but is **reported** to have dropped forward secrecy. The survey preserves
-that as a reported detail rather than an independently confirmed one, and this doc keeps that hedge.
+Session is decentralized, and its forward-secrecy history is a correction the messaging-solutions
+landscape research pins down precisely. Session began as a Signal fork, then moved off the Signal
+Protocol to its own Session Protocol, and in that move **dropped perfect forward secrecy and strong
+deniability** — shipping a decentralized product for years without PFS, which drew sustained
+criticism, because without forward secrecy a compromised long-term key can decrypt all past
+intercepted messages. It then reversed course: Session announced **Protocol V2 on 1 December 2025**,
+adding **ML-KEM** post-quantum key exchange and **restoring perfect forward secrecy**, so a stolen
+device holding current keys can no longer decrypt old messages. `Verified` against the research
+distillation of the V2 announcement.
 
-### Nostr: capture-resistant and credible exit, but public-by-default
+The load-bearing lesson, not the timeline, is why Session sits in this survey: **do not trade forward
+secrecy for decentralization convenience.** The trade was tempting precisely because Session was
+optimizing for anonymity and metadata resistance, and it still cost the property for years before the
+reversal. This vindicates Drystone's choice to compose MLS rather than roll a custom protocol — MLS
+gives forward secrecy and post-compromise security by design, so the property is a structural
+guarantee rather than a decision a team can quietly defer. `Synthesis.`
 
-Nostr is capture-resistant and offers a credible exit, but it is public-by-default. Its private
-messaging is bolted-on and leaky, so it does not hold the privacy axis for confidential group work.
+### Nostr: capture-resistant and credible exit, with a serious MLS privacy answer
+
+Nostr is capture-resistant and offers a credible exit, and it is public-by-default at its base layer,
+where its legacy direct messaging is bolted-on and leaky. But the "merely leaky" reading understates
+where Nostr now is, and the open-social Nostr dialogue (and its FACTCHECK companion, which confirms
+the projects and NIP numbers) supplies the counter-evidence. Nostr today has two private-group paths.
+The first is **relay-enforced** privacy (**NIP-29**): a group lives on a specific relay that checks an
+authenticated allow-list (**NIP-42**) and refuses to serve data to non-members — Discord-like, and it
+trusts the operator. The second is **true cryptographic end-to-end encryption**: **Marmot**, the glue
+between Nostr and **MLS**, layers RFC-9420 group encryption onto the substrate, and it pairs with
+**NIP-59** ("gift wrapping") to hide sender, recipient, and topic metadata.
+
+That second path already ships. **White Noise** is a live, privacy-focused MLS group messenger on
+Nostr + Marmot — metadata-hidden group chat on a decentralized, credible-exit social substrate — and
+**Amethyst** carries Marmot-compatible encrypted group channels. White Noise is, in other words, a
+shipping cousin of Drystone's exact thesis: MLS group confidentiality with hidden metadata riding an
+open substrate. So Nostr does not simply fail the privacy axis; on the messaging plane it reaches the
+same corner Drystone targets. What remains distinct is the same distinction the ecosystem survey draws
+for Germ and SimpleX — White Noise is metadata-hidden *messaging and groups*, not a durable social
+data model with peer-symmetric governance — but the honest reading is that Nostr's private-group story
+is a serious neighbor to learn from, not a leak to dismiss. `Synthesis.`
 
 ## Conclusion: why the "both" corner is empty
 
@@ -130,8 +161,11 @@ The systems strong on both privacy and capture-resistance are either **niche-and
 groups still maturing; Briar and Cwtch confined to small-group use) or **mature-and-metadata-leaky**
 (Matrix with metadata on homeservers and de-facto centralization).
 
-The systems that pick one axis pay on the other: Nostr is capture-resistant but public-by-default;
-Session is decentralized but reportedly dropped forward secrecy.
+The systems that pick one axis pay on the other, with two qualifications the corrections above carry:
+Nostr is capture-resistant and public-by-default, but its Marmot/White Noise MLS path shows the
+privacy axis is reachable on that substrate for messaging; and Session traded forward secrecy for
+decentralization for years before restoring PFS in Protocol V2 (December 2025), the exact trade
+Drystone refuses by composing MLS.
 
 And the standards bodies did not fill the corner either: MLS standardized the encryption but left
 delivery to the deployer, and MIMI standardized interop by taking the per-room-hub shortcut.
@@ -144,7 +178,11 @@ occupies.
 ## Provenance
 
 Distilled from Thread D of `../../alpha/seeds/transcripts/raw/mls-scaling-willow-ecosystem-and-cairn-2026-07-07.md`
-(the local-authority collaboration notes' ecosystem survey). Companion cairn docs cover MLS/MIMI as a
+(the local-authority collaboration notes' ecosystem survey). The Session forward-secrecy correction is
+grounded in the messaging-solutions landscape research (Session Protocol V2 / ML-KEM restoration); the
+Nostr private-group counter-evidence (NIP-29, NIP-59, Marmot, White Noise, Amethyst) is grounded in the
+open-social Nostr dialogue and its FACTCHECK companion, which confirms the projects and NIP numbers.
+Both added sources are registered in `reference-index.md`. Companion cairn docs cover MLS/MIMI as a
 building block (`mls-and-mimi`), Willow/Meadowcap (`willow-meadowcap`), and the atproto ecosystem
 (`atproto-ecosystem.md`). See `../../alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md` for
 provenance status.

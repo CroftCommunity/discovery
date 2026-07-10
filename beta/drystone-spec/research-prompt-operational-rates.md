@@ -1,6 +1,6 @@
 # Research prompt: quantifying per-group operational rates for community messaging
 
-`Companion artifact to Drystone Part 2 §7.14. This is a research task specification, not a result. Its job is to extract the maximum defensible signal about three per-group operational rates from a landscape where the official per-group data does not exist, while refusing to launder low-quality sources into false precision.`
+`Companion artifact to Drystone Part 2 §11.14. This is a research task specification, not a result. Its job is to extract the maximum defensible signal about three per-group operational rates from a landscape where the official per-group data does not exist, while refusing to launder low-quality sources into false precision.`
 
 `Status of what this produces: best-estimate ranges with explicit confidence and explicit source-quality tags. Nothing this task produces is a verified figure; the best possible outcome is a well-triangulated range whose basis a reader can inspect and dispute.`
 

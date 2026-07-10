@@ -26,6 +26,24 @@ This is the product expression of Drystone's relationship graph, equal in rights
 The substrate claim itself lives in the spec; what follows is how the product presents it, and where that
 presentation is still an open design question.
 
+## Why a graph you hold does not already exist
+
+Work life has mailing lists, org charts, and distribution groups; real life has no equivalent. There is no
+durable, nameable, reachable way to say "all of my grandparents' descendants except this one person" to reach
+the aunts and uncles, or to name "the parents of the kid mine is staying with tonight." The structure of real
+social life is rich and no tool reflects it — and the reason is not technical difficulty. Every attempt to
+build one was built by an extractor who needed the graph for its own purposes, so it felt invasive and died.
+Google+ Circles is the *canonical corpse*. Worse, the graph gets built regardless of consent, assembled about
+you rather than held by you: the *shadow profile* is the graph made without you in the room.
+
+So the inversion is about ownership, not a feature gap: you hold the graph of your life, you see it, you shape
+it, no one monetizes it, and it is invisible to anyone you have not chosen to show it to. The reason a held
+graph does not already exist is that there is no business model in a graph you cannot extract from — which
+makes the absence of an extraction model not a missing feature but the entire point. The graph can be honest
+precisely because no one is selling it. That is the same non-extractive stance the rest of Croft takes,
+turned on the relationship structure itself, and it is what makes a graph-you-hold genuinely novel rather than
+another social product.
+
 ## Chat is one tenant, activities are siblings
 
 The foundational move is that the social graph is the bottom of the product and chat is one tenant on it,
@@ -101,6 +119,56 @@ boundary truthfully. "Removed, will not see anything new" is sayable; "can no lo
 shared" generally is not. Reconciling the sticky-group lifecycle with this membership-vs-access boundary is
 a live product decision, surfaced below.
 
+## Membership and access are two axes
+
+The seam above draws one membership boundary — shared membership is not shared access. A second, orthogonal
+cut runs beside it and must not be confused with it: **membership** and **access** gate different layers.
+Membership gates the infrastructure-and-governance layer — who owns and helps govern the group (a stake and a
+vote), including any sponsees a member brings along. Access gates the room layer — who may enter or post in a
+given activity or pad. A member can hold a public, even anonymous, door open onto a specific pad while the
+group itself stays member-governed: the visitor is a guest in a room, not a member of the co-op.
+
+The decoupling is load-bearing because it keeps the frictionless door without diluting ownership, and it puts
+Sybil resistance exactly at the seam that matters. Because an anonymous guest carries no governance weight, a
+cheap public door grants nothing that could capture the group — spam in a guest room cannot become spam votes
+in the co-op. Frictionless onboarding and Sybil resistance are in tension only when the door also confers a
+stake; separating the two axes lets the public door stay cheap precisely because it grants nothing to
+capture. The governance side of this — whether a sponsee is a full governance-constituent, an access-only
+dependent, or a middle tier, and the general rule that a member is not automatically a governance-constituent
+— is a decision carried in `../OPEN-THREADS.md`; what belongs here is the substrate distinction that a group's
+membership and a room's access are two independent axes.
+
+## Freeze by default
+
+The default posture for anyone at risk is that nothing enters your view without your pull. Your social world
+does not grow because someone else's did; trust is transitive only as far as you personally walk it. This is
+the positive statement of the discipline the spec records negatively as the graded-vouch rule — the refusal
+of web-of-trust's automatic transitive trust, where trust propagates on its own and the mess is cleaned up
+afterward. Here that refusal becomes a default: you decide what enters, and nothing arrives uninvited. It is
+promoted from a setting to a core invariant precisely because a safety setting an at-risk user has to find is
+a setting that fails the person who most needs it. The vouch mechanics themselves are specified in
+`../drystone-spec/part-1-reasoning-underpinnings.md`; this is their product-surface default.
+
+## Structure leaks identity: the only safe share is consented
+
+A held graph invites an obvious-looking feature: show a viewer the useful *structure* of your connections
+while hiding the *names* — an anonymized shape. It cannot be offered, because graph topology is itself a
+near-fingerprint. Modeling the canonical attack makes the failure exact. In a town of 4,000 where 3,994
+people are structurally generic, five touch the Henderson family group, and exactly one of those five also
+touches the Oak-Street school-parents group, the anonymity set for that person's connection shape collapses to
+**one**. Withholding every name does not help; the shape alone re-identifies. "Show the structure, hide the
+names" is therefore unsafe by construction, not merely risky — and it is treated as *unrepresentable*, a
+share a viewer can never be handed, rather than a setting to use with care.
+
+What remains safe is the inverse: a share scoped to what a person has consented to expose to someone at a
+given distance, at the resolution they chose. A viewer at distance *d* sees exactly the content the owner
+consented to expose at distance *d* — never nearer distances' content, and reaching past the consented horizon
+returns silence, not "structure minus names." This is the honest version of the six-degrees idea: distance
+gates *consented content*, never the graph's shape. It is the highest-value privacy result in the substrate
+work because it rules out an entire class of "anonymized graph" features at the root rather than hardening them
+after the fact. The result was established empirically, not asserted (see the social-layer visibility proof in
+`reference-index.md`).
+
 ## The group's-face UX: load-bearing but invisible
 
 The discipline that keeps all of this from becoming a chore is that the graph is **load-bearing and
@@ -141,8 +209,16 @@ its member set (a stable internal ID plus a shareable, locally-overridable prese
 explicit formation yield the identical object; and the implicit / sticky / pruned lifecycle makes
 reconcile-vs-fresh-vs-prune a per-formation human choice, never a forced match. The local-projection vs
 shared-anchor seam is drawn honestly (naming and stickiness are local; membership, pruning, and new
-attachments need a shared anchor), and shared membership is explicitly not shared access. The graph is
-load-bearing and invisible, experienced as "me and these people," never as graph administration.
+attachments need a shared anchor), and shared membership is explicitly not shared access. Membership and
+access are two independent axes — membership gates ownership and governance (including sponsees), access gates
+a room — so a member can hold a cheap public door open without diluting ownership, and Sybil resistance holds
+because a guest carries no governance weight. A held graph is genuinely novel because no extractor-built
+version survived (Google+ Circles the canonical corpse; the shadow profile the graph built without consent),
+and the absence of an extraction model is the point, not a gap. Two safety defaults are structural, not
+optional: freeze-by-default (nothing enters your view without your pull), and the result that graph structure
+leaks identity — "show the structure, hide the names" is unrepresentable because topology re-identifies (the
+town-of-4,000 anonymity set collapses to one), so the only safe share is per-distance consented content. The
+graph is load-bearing and invisible, experienced as "me and these people," never as graph administration.
 
 **Does not establish (decision-gated).** The group's-face UX, the load-bearing but invisible home surface,
 is the hardest product problem and its iteration is open, not resolved. Reconciling the sticky-group

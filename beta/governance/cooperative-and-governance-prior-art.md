@@ -106,6 +106,68 @@ answers is the WHY.
   business maximizing return, not a charity depending on donation, but a member-serving utility funded by
   the members it serves. `[verified 2026-06-22.]`
 
+## The rug-pull disarmed: unsellable ownership and a credible exit, already demonstrated
+
+The proofs above answer "can a cooperative *operate*?" These answer the prior question the whole form rests
+on: does removing the extraction motive — either by an ownership structure that legally cannot be sold, or
+by a forkable, exportable exit that makes enclosure pointless — actually disarm the rug-pull in the
+historical record? Each is a documented case, and the WHY is the specific Croft thesis it grounds. The same
+three cases appear in `../activism/platform-extraction-and-captured-labor.md` as the honest counterweight
+that the extractive lifecycle is *contingent, not intrinsic*; there they qualify the indictment, here they
+carry the affirmative existence-proof register for the cooperative-foundation and credible-exit theses.
+
+- **Signal — governance, not decentralization.** The Signal Foundation launched in February 2018 as a
+  501(c)(3) nonprofit with a roughly $50 million contribution from WhatsApp co-founder Brian Acton, and the
+  Foundation wholly owns Signal Messenger. Signal is *architecturally centralized* — it runs its own
+  servers and has historically resisted federation and third-party clients — so its protection is not that
+  the servers do not matter but that the entity controlling them legally cannot be sold or taken public.
+  Signal's president, Meredith Whittaker, has stated the structural logic plainly: privacy is not safe
+  under shareholder-driven corporations, so Signal is structured as a nonprofit with no equity and no board
+  demanding profit growth, which means it cannot be sold off even if its own leadership were to turn.
+  Co-founder Moxie Marlinspike has written that Signal never took venture funding or sought investment,
+  because putting profit first would be incompatible with a sustainable, user-first project. **Proves** the
+  sharpest form of the cooperative-foundation thesis: it is the *ownership structure*, not
+  decentralization, that removes the extraction motive — you can be centralized-and-safe if the entity
+  cannot be captured. This is a different defense from the open-protocol camp's (decentralize so the
+  servers do not matter), and the contrast is exactly the one Croft draws. The caveat travels with the
+  proof: Signal is unusually structured but not *funding*-solved — its 2024 expenses (about $38 million)
+  exceeded its revenue (about $29 million), and it leans on donations plus the depleting Acton endowment,
+  which is precisely why Croft's answer is a member-funded dues economy rather than a single benefactor. The
+  endowment's irony is itself on-thesis: Acton's wealth came from selling WhatsApp to Facebook for about
+  $19 billion in 2014, so a successful extraction funded the anti-extraction model. `[documented history;
+  the $50M / $38M / $29M / $19B figures are research-sourced — confirm against the Signal Foundation's own
+  filings before external reliance.]`
+
+- **Dreamwidth — a forkable codebase plus a working importer is a real exit.** Dreamwidth is an open-source
+  fork of the LiveJournal codebase with a full importer that carries a user's entire history — posts,
+  comments, tags, icons. When LiveJournal relocated its servers to Russia in December 2016 (and a 2017
+  terms-of-service change brought large blogs under Russian content law), users circulated Dreamwidth's
+  import instructions as a way to take the whole archive somewhere they actually owned. **Proves** the
+  credible-exit thesis literally: because the code was forkable and an importer existed, the community had
+  somewhere to go, and the platform could not turn extractive without simply losing the people. This is the
+  historical demonstration of Croft's own-your-data-plus-forkable design — the exit thesis the beta corpus
+  otherwise asserts without its cleanest evidence. It also sits inside a sharper pattern in the *recoveries*
+  of shuttered community worlds: every community that got its world back did so through volunteer
+  preservation plus either a forkable codebase (Dreamwidth) or an eventual act of grace by the rights-holder
+  — never through a right the community held at the outset. Making that right structural and present at
+  inception is exactly the gap the cooperative form and the compatibility badge's forkability promise
+  close. `[documented history.]`
+
+- **Archive of Our Own (AO3) / the Organization for Transformative Works — a burned community rebuilding on
+  infrastructure it owns.** AO3 is the thesis-perfect case because it was designed *as a direct response to
+  a rug-pull*, by the very community that got burned. In 2007 fan-fiction writers faced two threats at once:
+  FanLib, a for-profit fanfiction archive widely read as outsiders trying to profit from fans' work, and
+  LiveJournal's "Strikethrough" (the May 29, 2007 mass suspension and deletion of journals and communities
+  without warning, which swept up legitimate fan and even abuse-survivor communities). The response was
+  structural rather than reactive: the writer astolat proposed a fan-controlled archive, and the deletions
+  drove home that it was not safe to rely on any platform subject to a single owner's whims. The result —
+  the OTW and AO3 — is now a top-tier site: a nonprofit, non-commercial, ad-free-by-principle archive run
+  on open-source software the OTW developed, sustained entirely by user donations, hosting tens of millions
+  of works for more than eight million users, and a 2019 Hugo Award winner. **Proves** that a community
+  rebuilds durably on infrastructure it owns after an erasure, governed by a nonprofit that cannot be sold
+  and funded by its own users — Wikimedia's model demonstrated a second time in a different domain, and the
+  exact move Croft is built to enable. `[documented history.]`
+
 ## Governance DNA: how a commons stays governed at scale
 
 The existence-proofs show the form runs; these show it can be *governed* without either collapsing into
@@ -270,7 +332,11 @@ the empirical objections the necessity argument cannot reach on its own: that a 
 profitable and multi-class (Stocksy), out-margin a venture monopoly by paying contributors (The Drivers
 Cooperative), route value to ownership without a token (Resonate), run as a dues-funded social platform
 (Social.coop), scale into a federation (Mondragon), and endure as a community-owned institution (Green Bay
-Packers, the credit-union lineage). It grounds governance-at-scale in the Rochdale Principles' member-education
+Packers, the credit-union lineage). It grounds the two theses the whole form rests on in the historical
+record: that an ownership structure which legally cannot be sold disarms the rug-pull (Signal's
+governance-not-decentralization nonprofit; AO3's community-owned, unsellable archive) and that a forkable,
+exportable exit does the same (Dreamwidth's forked codebase and importer; AO3 again, rebuilt after
+deletion by the community that was burned). It grounds governance-at-scale in the Rochdale Principles' member-education
 discipline, in Ostrom's polycentric commons work, and in liquid democracy carried with its own failure mode
 and antidotes; it grounds non-capturing seed capital in steward-ownership and capped-return *Demand Dividend*
 models used in practice; it names the concrete fiscal-sponsor vehicles for each phase (SPI as the

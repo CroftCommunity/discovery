@@ -958,6 +958,16 @@ accepting instead that each node determines its own relationship to moderation a
 adjudication. This is the ethical statement of the forced terminus of §2.5: the fork is not a fallback,
 it is the only non-coercive output when a value is genuinely contested.
 
+Socrates is the older root of the same ethic, and the one that names the failure mode directly. In
+Plato's *Apology* (399 BCE) the method is detection, not oracle: it surfaces contradiction rather than
+imposing an answer, and the error it diagnoses is *supposing you know what you do not*, which is exactly
+the error of a truth-certifying system that mistakes consensus for knowledge. *Drystone's reading, not
+Plato's words:* the razor's refusal to compute a verdict is that Socratic humility made structural, the
+system surfaces the disagreement and declines to pronounce on it. A citation caution the design keeps for
+itself, in the spirit of the razor: the popular paraphrase "I know that I know nothing" appears nowhere in
+Plato, and the grounded text is *Apology* 21d–22d. Socrates (Plato, *Apology*, 399 BCE) · **[confirm,
+verbatim against a primary edition (Fowler trans.); the exact clauses are held for a later pass].**
+
 **Economics, the knowledge a center would need cannot be centralized.** Decisions belong at the edges
 because the relevant knowledge only exists there:
 
@@ -1032,6 +1042,18 @@ the protocol design for real conditions instead of a pretended global view: theo
 only corroborated by surviving refutation, so a persona's history is a conjecture, agreement is
 corroboration, and a claim is only ever *not-yet-overturned*. That is precisely the shape of provenance.
 
+Charles Sanders Peirce supplies the epistemology's other half, the community rather than the individual
+conjecture. Peirce's fallibilism holds that no belief is ever absolutely certain and that the cardinal
+methodological sin is to *block the road of inquiry*; truth on his account is not possessed but approached,
+what a community of inquiry converges toward over unlimited time. That is Drystone's gossip model with
+humility built into the mechanism: heads cross-checked across peers, agreement treated as corroboration
+and never as proof, the road left open. *Drystone's reading:* Popper grounds the single node's claim as
+*not-yet-overturned*, while Peirce grounds the many nodes' convergence as never-finished, and the pairing
+is why provenance is computed while a final verdict is not, the community converges without any of its
+members ever holding the certified answer. Peirce, fallibilism and the *community of inquiry* · **[confirm]**
+(phrasings vary across Peirce's essays; the verbatim wording is held for a later pass and must be confirmed
+against the primary before quoting).
+
 **Political science, self-governance without a sovereign arbiter is documented to work.** This is the
 empirical answer to "is this utopian?", no. Ostrom's Nobel-recognized study of long-lived commons
 records communities governing shared resources for generations without privatization or a central
@@ -1083,6 +1105,22 @@ technical necessity meeting humane alignment, is the ground Part 2 is built to s
 whole of the claim: not technical supremacy, but principled delivery of an established technical reality
 in a form that matches how human governance actually has to work.
 
+**The meta-principle: the ethical choice and the technical strength keep turning out to be the same
+choice, not a happy accident.** The convergence above is read one direction throughout this section, that
+the technical facts *force* a humane shape (§3, and "humane consequences are what these technical facts
+force," above). The design dialogue observed the identity runs the other way too, and stated it three
+times as a recurring finding worth promoting from coincidence to principle: the ethical commitment
+*forces* the technical strength. Refusing extraction is not a moral gloss layered onto a design chosen on
+other grounds; it is what forecloses the center, and foreclosing the center is exactly what delivers the
+resilience, the availability-under-partition, and the metadata-privacy the design claims. Run it either
+way and it closes: decline to hide the center and you get the humane consequences; decline to extract and
+you get the resilient architecture. That two-way identity, and not either half alone, is the reason the
+design is defensible rather than merely idealistic, an idealism that happened to be free would be
+suspicious, whereas an idealism that is *forced by* the engineering, and forces it in return, is load-
+bearing. It is stated here as a first-class principle rather than left as the fortunate coincidence it
+first appears to be. (Recurring meta-observation of the design dialogue; *Drystone's own framing*, offered
+as synthesis, not attributed to any external source.)
+
 ---
 
 ## What Part 1 establishes (and does not)
@@ -1128,6 +1166,8 @@ Verification legend: *Verified*, quoted/checked against the primary this round o
 
 ### Ethics (§2.5, §3, and Part 2 §7.6, Part 2 §8)
 
+- Socrates (Plato, *Apology*, 399 BCE). Grounds the value at its root: method as detection-not-oracle, and the diagnosis of the truth-certifying error (supposing you know what you do not). Carries a citation correction, "I know that I know nothing" is a paraphrase not in Plato; the grounded text is *Apology* 21d–22d. **[confirm, verbatim against a primary edition (Fowler trans.); verbatim clauses held for a later pass].**
+
 - Mill, J. S. *On Liberty*, 1859. Grounds the value: silencing the dissenter is an unjustifiable cost, hence the fork as the dignified exit. *Verified.*
 
 ### Economics (§2.0, §3)
@@ -1143,6 +1183,8 @@ Verification legend: *Verified*, quoted/checked against the primary this round o
 ### Epistemology (§2.0, §2.2, §3)
 
 - Popper, K. *Conjectures and Refutations*, 1963 (§XVII). (Grounds: knowledge is finite, ignorance infinite; theories are corroborated by surviving refutation, never verified) which is the shape of provenance (a claim is only ever *not-yet-overturned*). *Verified.*
+
+- Peirce, C. S. (fallibilism and the *community of inquiry*). Grounds the community-convergence half of the epistemology: no belief is ever absolutely certain, the road of inquiry must not be blocked, and truth is what a community converges toward over unlimited time (never possessed), the humility-in-the-mechanism shape of Drystone's gossip model. **[confirm]** (phrasings vary across Peirce's essays; verbatim wording held for a later pass, confirm against the primary before quoting).
 
 ### Political science / commons governance (§2.3, §2.4, §3, and Part 2 §7.6)
 
@@ -1176,6 +1218,8 @@ Canonical, edition- or version-specific sources for the principled lineage above
 
 ### Ethics, economics, systems science, epistemology
 
+- **Socrates / Plato**, *Apology*, 399 BCE (Fowler trans., Loeb; e.g. https://www.perseus.tufts.edu/hopper/text?doc=Plato+Apol. ). Grounds the original-fallibilism ethics root (§3); method-as-detection, and the correction that "I know that I know nothing" is a paraphrase not in Plato (grounded text *Apology* 21d–22d). **[confirm verbatim against a primary edition; clauses held for a later pass.]**
+
 - **Mill, J. S.**, *On Liberty*, 1859. Canonical text: https://www.gutenberg.org/ebooks/34901 . Grounds the fork-as-dignified-exit value (§2.5). *(Verified.)*
 
 - **Hayek, F. A.**, "The Use of Knowledge in Society," *American Economic Review* 35(4), 1945, pp. 519–530. https://www.jstor.org/stable/1809376 . Grounds §2.0, §3 (dispersed knowledge; utility is not centrally computable). *(Verified verbatim.)*
@@ -1185,6 +1229,8 @@ Canonical, edition- or version-specific sources for the principled lineage above
 - **Beer, S.**, *Brain of the Firm*, 1972 (2nd ed. Wiley, 1981), the algedonic channel and the "specify only somewhat" discipline. Grounds §2.5, Part 2 §7.6. **[confirm the "specify only somewhat" wording against the primary edition; the Cybersyn/OGAS figures and the "aids to human viability" gloss are [confirm] / labeled synthesis.]**
 
 - **Popper, K.**, *Conjectures and Refutations*, 1963 (Routledge). Grounds §2.0, §2.2, §3 (corroboration, never verification). *(Verified.)*
+
+- **Peirce, C. S.**, fallibilism and the *community of inquiry* (Collected Papers; e.g. "The Fixation of Belief," 1877, and the "do not block the way of inquiry" maxim). Grounds §3 (community-convergence-over-unlimited-time, humility built into the mechanism). **[confirm]** (exact wording varies by essay; confirm against the primary before quoting).
 
 ### Commons governance and the governance-as-protocol frontier
 

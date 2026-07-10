@@ -4,7 +4,7 @@
 
 `Scope: what to build and test. The semantics are authoritative in the specs named in the source map (section 9); this file is authoritative for what to test and in what order.`
 
-`Companion to: p10-drystone-fold-semantics.md (R1 through R4), p10-drystone-governance-finality.md (the A-series), and Part 2 Appendix B (the open-seam inventory).`
+`Companion to: ../drystone-design/fold-semantics.md (R1 through R4), ../drystone-design/governance-finality.md (the A-series), and Part 2 Appendix B (the open-seam inventory).`
 
 ---
 
@@ -30,7 +30,7 @@ The v1 experiment was built and run. What it established, and what it left, is t
 
 - **v1 surfaced four open semantic questions, OQ-1 through OQ-4,** where the specification did not answer what the fold should do (for example, a role granted to a concurrently-removed member). The stub had to pick placeholders, and flagging those rather than resolving them silently is what let them be found.
 
-- **Those four questions were then resolved into R1 through R4** in `p10-drystone-fold-semantics.md`: OQ-1 to R1 (causal order is authoritative; the tiebreak orders only concurrents), OQ-2 to R2 (cross-slot effects are projections on the final sets), OQ-3 to R3 (no fold-time semantic-validity rejection; idempotent no-ops), OQ-4 to R4 (repeated threshold changes resolve by R1). R1 through R4 were proposed as `Design` resolutions for Part 2 section 7.3.1; the v2 reference fold now demonstrates them, so as reference-model logic they are `Modeled`, while the fold's whole-system order-independence stays a **consequence** conditional on gap-completeness (the beam, section 6.2) and remains `Load-bearing, unearned`.
+- **Those four questions were then resolved into R1 through R4** in `../drystone-design/fold-semantics.md`: OQ-1 to R1 (causal order is authoritative; the tiebreak orders only concurrents), OQ-2 to R2 (cross-slot effects are projections on the final sets), OQ-3 to R3 (no fold-time semantic-validity rejection; idempotent no-ops), OQ-4 to R4 (repeated threshold changes resolve by R1). R1 through R4 were proposed as `Design` resolutions for Part 2 section 7.3.1; the v2 reference fold now demonstrates them, so as reference-model logic they are `Modeled`, while the fold's whole-system order-independence stays a **consequence** conditional on gap-completeness (the beam, section 6.2) and remains `Load-bearing, unearned`.
 
 - **v2 has now run, and Stages 1, 2, and 4 pass on a faithful reference fold** (not a production fold; none exists in the repository). Stage 1 confirms permutation-invariance and the R1 through R4 resolutions under the A12 layered fold, including the discriminating D6 and D7 that a flat id-only fold fails. Stage 2 confirms referenced-gap detection, where a node holding a fact whose referenced predecessor is absent returns a gap error rather than folding an incomplete set as complete, and records the unreferenced-tail case as the documented limit, which is the completeness-ahead beam. Stage 4 confirms the finality mechanics: quorum folding (A1), non-exclusive recognition (A2), the ceiling (A3), and the now (A7). Stage 3, the adversarial scheduler with equivocation-to-fork and bounded model checking, remains specified but unimplemented. No new semantic ambiguity arose during v2, so OQ-1 through OQ-4 stay resolved, and v3's governance-finality layer is subsumed by the Stage 4 results.
 
@@ -64,7 +64,7 @@ The fold is a pure function from a set of governance facts to an authority state
 fold(facts: Set<Fact>) -> AuthorityState
 ```
 
-Implement it as a per-slot causal last-writer-wins register with cross-slot projection. The full rationale is in `p10-drystone-fold-semantics.md`; what to implement is here.
+Implement it as a per-slot causal last-writer-wins register with cross-slot projection. The full rationale is in `../drystone-design/fold-semantics.md`; what to implement is here.
 
 **Fact model.**
 
@@ -102,7 +102,7 @@ Implement it as a per-slot causal last-writer-wins register with cross-slot proj
 
 ## 4. The finality contract extensions (the A-series)
 
-Build these on top of the fold contract. Keep them the faithful minimum; simplicity is the point. The rationale is in `p10-drystone-governance-finality.md`.
+Build these on top of the fold contract. Keep them the faithful minimum; simplicity is the point. The rationale is in `../drystone-design/governance-finality.md`.
 
 **Vote and quorum.** A `Vote` is a signed fact expressing one member's support for a specific slot transition (for example `RemoveMember(m)`), carrying its author and its `predecessors` like any fact. A slot transition is caused by an assembled quorum: k concordant votes for the same transition, where k is the threshold in force at the relevant causal position (read from the folded state, per R4). Quorum assembly is evaluated against the assembling node's own view. Fewer than k concordant votes leaves the slot unchanged. The k-th vote, folded against a node's view, is the one that crosses.
 
@@ -232,7 +232,7 @@ Builds on the finality machinery (Stages 4 and 5). Tenure is one of the three in
 
 - **Group R, no stranded right.** R1 after a survivor re-key, every persona that holds `tenure` in the folded state can still exercise it (can still act and be honored on the surviving lineage); a persona left with `tenure` in state but unable to exercise it is a stranded right and fails this. **Discriminating** against a re-key path that advances the group's key material without carrying the surviving members' rights forward. R2 a persona correctly removed before the re-key does not retain tenure (the ceiling governs, Stage 4). R3 the re-key folds order-independently and converges; a member behind on the re-key heals on propagation (the Stage 5 L2 benign case). R4 tenure and access are distinguished across the re-key exactly as authority and access are distinguished at enactment (Stage 5 J6): a surviving member's tenure is continuous even if its access is re-established by the re-key.
 
-**Stage 9 acceptance.** R passes; R1 confirmed to fail a stated re-key variant that drops surviving rights; RESULTS reports whether tenure is stranded under the modeled survivor path, and any residual the spec's re-key description leaves open.
+**Stage 9 acceptance.** R passes; R1 confirmed to fail a stated re-key variant that drops surviving rights; RESULTS reports whether tenure is stranded under the modeled survivor path, and any residual the spec's re-key description leaves open. The re-key primitive underneath this stage is no longer only modeled: its crypto feasibility (survivor external-commit re-key and fresh-genesis with PCS intact) is `Verified` on real openmls (see the I2 note and the reference-index, Proof: openmls survivor external-commit re-key), so what Stage 9 still owns is the tenure-stranding property layered on top of a re-key now known to be real, not the feasibility of the re-key itself.
 
 ### Stage 10: dataplane history modes and side histories (7.7, 7.8)
 
@@ -269,6 +269,8 @@ The stages above test the specified mechanisms in a reference implementation. Th
 - I2e: the real key schedule, ratchet tree, and Welcome and GroupInfo handling are exercised, so the enactment logic Stage 5 tested against a stand-in is confirmed against real MLS for the single-commit-per-epoch shape.
 
 State, first line, that this is real MLS, not the reference-epoch stand-in, and record which documented hard cases the mitigations hold against and which remain open. This track is what turns the Stage 5 honest-scope caveat into a confirmed result, one hard case at a time.
+
+**The survivor and re-key primitive of I2e is already discharged on a real library.** A separate proof ran the make-or-break question on openmls 0.8.1 and confirmed GO: external-commit survivor re-key brings a member from one branch into another's epoch with both sides deriving the identical group secret, fresh-genesis mints a clean unrelated third epoch, post-compromise security holds across removal, and a revocation commit produced while a peer is offline still re-keys that peer correctly on later apply. The external-commit-builder API and the new-group/re-add path both exist on 0.8.1 and compose, so "pick a survivor epoch and re-key the other side, or mint a third" is `Verified` on real MLS, not modeled. This scopes to the survivor/re-key feasibility and PCS specifically; the remaining I2 residuals (external-join hazard I2a, insider replay I2b, ReInit non-atomicity I2c, epoch_authenticator overlap I2d) are not covered by that proof and stay open. See the reference-index (Proof: openmls survivor external-commit re-key). `Verified` (survivor re-key and fresh-genesis with PCS, Proofs Phase 1 GO).
 
 ---
 
@@ -364,11 +366,11 @@ State this plainly so no green run is overclaimed:
 
 ## 9. Source map
 
-- Fold contract and its resolutions: `p10-drystone-fold-semantics.md` (R1 through R4, resolving OQ-1 through OQ-4).
+- Fold contract and its resolutions: `../drystone-design/fold-semantics.md` (R1 through R4, resolving OQ-1 through OQ-4).
 
-- Governance-finality mechanisms: `p10-drystone-governance-finality.md` (the A-series: quorum-folding, ceiling, now, enactment, finality gate, ban and fork, escalation).
+- Governance-finality mechanisms: `../drystone-design/governance-finality.md` (the A-series: quorum-folding, ceiling, now, enactment, finality gate, ban and fork, escalation).
 
-- Scaling and the completeness-ahead beam: `p10-drystone-scaling-and-ordering.md`.
+- Scaling and the completeness-ahead beam: `../drystone-design/scaling-and-ordering.md`.
 
 - The open-seam inventory: `p10-full-part2-mechanics.md`, Appendix B.
 

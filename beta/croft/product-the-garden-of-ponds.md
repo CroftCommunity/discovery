@@ -208,8 +208,42 @@ approves the diff). The highest-value habit is that every state of every compone
 snapshot, so an undesigned state is a failing test rather than a hope.
 
 Every pond and pad is checked against a shared criteria set adapted from mature super-app design guidance,
-with the host-as-gatekeeper mechanics stripped out. The shared bar (friendliness, clarity, convenience,
-consistency by opting into the shared design system, accessibility) applies to every unit. On top of it:
+with the host-as-gatekeeper mechanics stripped out. The shared bar is five principles, and it is a real
+checklist, not a word list — each criterion is here because a unit got it wrong the hard way, so the next
+unit inherits the lesson.
+
+*Friendliness* (minimize interference with the goal): each view has one clear key point, nothing on it
+competes with the user's actual decision, and the surface is calm by default — lead with the essential and
+reveal detail progressively. Not extractive: no tracking, no engagement-optimized reordering, no dark
+patterns; content appears in source order or the user's explicit sort.
+
+*Clarity* (navigation, feedback, recoverable exceptions): the user always knows where they are, where they
+can go, and how to return. Two rules are load-bearing. First, the **depth-of-three exit-trap**: past two
+levels of interior depth, provide a persistent way to move between sections and get home, because the
+documented super-app failure case is that depth-of-three traps users; the shell guarantees the escape hatch
+even when a unit owns its interior. Second, a **feedback taxonomy** matched to the moment — a lightweight,
+auto-dismissing confirmation for success and minor status (never for errors); a persistent, clearly
+communicated treatment for errors, which must be seen and understood, never flashed and gone; and a result
+view for the completion of a process, with the next step if any. Loading is local and in-place rather than a
+modal that hides the view and manufactures anxiety, with **one loading animation per view, never more**, and
+a cancel plus progress when it runs long. Every error state is designed, states its cause, and offers a
+recovery — no dead ends.
+
+*Convenience* (respect the input device and the hand): prefer choices, recognition, and existing data over
+making the user type. Touch targets are generous — the documented physical floor is roughly **7-9mm**, treated
+as a floor and larger for primary actions — so mis-taps do not happen. Destructive actions are hard to
+trigger by accident and easy to undo.
+
+*Consistency* (the shared vocabulary): controls and interaction patterns are consistent across every view and
+every unit, achieved by the unit opting into the shared design system rather than by the host stamping an
+immovable chrome on top; recognition over recall, the same icon and label meaning everywhere.
+
+*Accessibility* (first-class, not an afterthought): the world's largest app treats elderly-friendly and
+accessible design as named, mandatory, separate concerns, and so does a product meant to serve everyone from
+grandparents to young children. Respect system font-size and scaling so layouts hold when type is enlarged;
+color never carries meaning alone (every color signal is paired with an icon, shape, position, or label,
+which matters acutely for a green-and-warm palette where red-green deficiency bites); large hotspots, clear
+labels, strong contrast; and save-and-resume wherever a task has any length. On top of the shared bar:
 
 Pond-extra criteria: honest seams, attribution and traceability, capability declaration, broker as little
 as possible, graceful degradation.

@@ -80,6 +80,8 @@ Such a layer must carry that itself: **per-writer subspaces, its own logical clo
 
 **Meadowcap** is Willow's capability system. It provides **unforgeable grants** with **attenuation by subsetting**: a holder can mint a narrower capability from a broader one (the Alfie-and-Betty minting example in the source), but never a broader one from a narrower, so authority only ever shrinks as it is delegated.
 
+Meadowcap is the **Track A** candidate in Drystone's capability-mechanism decision (A11), with Keyhive as Track B. This doc carries the Meadowcap prior art; the A11 decision itself — the criteria, the Track A/B comparison, and the wire-format consequence — is recorded in the spec at `../drystone-spec/part-2-certifiable-design.md` (Appendix A "Alternatives Considered" + §5.5) and gated in `../DECISIONS.md`, not here.
+
 ## Maturity
 
 Readiness is uneven across the pieces:

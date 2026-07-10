@@ -57,7 +57,7 @@ Footprints, heaviest first:
   anti-state-reset safety, fork-composition, whose home is §7.6), plus the concrete freshness primitive
   still owed, a corroboration-on-latest request answered by a governed standard-of-care over head
   attestations from distinct personae. That primitive now has a candidate design in
-  `p10-drystone-liveness-freshness.md` (the `LocateLatest` mechanism), still a proposal to talk through.
+  `../impl/drystone-design/liveness-freshness.md` (the `LocateLatest` mechanism), still a proposal to talk through.
 
 - **Status discipline (hold these lines; do not upgrade on the strength of a run).** Two statuses stay
   load-bearing and must not drift upward. The fold's order-independence is constructive and exercised (the v2
@@ -98,7 +98,7 @@ Footprints, heaviest first:
   floor is variety-enabling and therefore system-sustaining, so violation is systemic) and what binds a
   human to a persona (contextual mint-and-bind, not a single primitive). Open questions, not wire gaps.
 
-- **Cross-tier liveness and freshness (candidate in `p10-drystone-liveness-freshness.md`).** The hybrid
+- **Cross-tier liveness and freshness (candidate in `../impl/drystone-design/liveness-freshness.md`).** The hybrid
   design, opportunistic signal harvest plus the explicit `LocateLatest` ask-for-HEAD, is drafted, with
   solicitation reframed as a local and unenforceable trust dial, governance currency leaning on the sealing
   signatures rather than on solicitation, and the dataplane taking a low local floor. Open sub-questions to
@@ -237,6 +237,14 @@ Footprints, heaviest first:
 - **Equal-branch examples.** Four now exist (the mute view at §7.6.5, the fork landing at E8 and §7.6.6, the
   re-composition at E10 and §7.6.10). Candidates for more: §5.9 exitability and a partition-view example,
   pending a read on whether four is the right density.
+
+- **The missing §11-cast chained appendix (Ada/Boreas/Cyrus re-entry and ban arcs).** §11 was folded in
+  from a standalone companion and its in-body beats pointed to a "§11 appendix (external to this section
+  file)" carrying the chained Ada/Boreas/Cyrus journey (re-entry arc, ban arc) that was never reconciled
+  into Part 2's appendix structure, Appendix E chains the main cast E1–E10 only. The false pointers were
+  removed and the beats now stand alone inline, but the promised chained re-entry/ban illustration has no
+  home. Open call: either write the §11-cast chained arcs as a Part 2 appendix, or accept the inline beats
+  as sufficient and drop the intent. `needs-content`, non-blocking.
 
 ## 7. Spec-shape and rationale residuals (Phase-0 coverage-audit staging, `needs-content`)
 
@@ -377,4 +385,4 @@ lost. These are `needs-content` items awaiting a reasoned home in a spec §/appe
   one is the epoch (RFC 9750 §8.1.2), a governance-change odometer a passive observer can correlate. The
   gap-detection one is the per-sender generation, which is epoch-scoped, encrypted, and resets each epoch, so
   it does not leak and is not an infinite per-message integer. Both differ from our governance-generation
-  stamp, a content-to-authority provenance pointer. Recorded in `p10-drystone-liveness-freshness.md` §2.
+  stamp, a content-to-authority provenance pointer. Recorded in `../impl/drystone-design/liveness-freshness.md` §2.

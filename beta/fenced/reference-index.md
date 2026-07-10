@@ -61,6 +61,12 @@ measuring stick against the centered platforms and the standards-body answer to 
 key-agreement cost curve (tree-based, logarithmic). Relied on by `group-scale-versus-e2ee.md` and
 `group-chat-failure-modes.md`.
 
+**Email Header Protection: RFC 9788.** PRIMARY (IETF standard). T1. The standard Delta Chat 2.48+ (2026)
+implements to move `To`/`Subject`/`References`/`In-Reply-To` and group membership into the encrypted part
+and randomize the outer `Date`; the grounding for the Delta metadata-posture correction (no longer
+inherits email's header leak; residual is relational metadata at a chatmail relay, no Sealed Sender yet).
+Relied on by `group-chat-failure-modes.md`.
+
 **Facebook group-size distribution.** Meta publishes no official average/median, so the doc
 triangulates and reports max/mean/median separately; mixed-tier, **point-in-time**. Relied on by
 `operational-rates-and-platform-economics.md`.
@@ -101,8 +107,11 @@ actions, not member bans (the community-level ban count is locked in a chart ima
 - Signal 100M+ installs (the one project across the chasm); inciting event the WhatsApp privacy-policy change of Jan 2021. T2, **point-in-time**.
 - Adoption bridges: Briar in Myanmar post-coup; a Bluetooth-mesh app during Madagascar unrest; Signal spikes on surveillance news; Matrix mandated across 25+ countries for government-sovereign infrastructure. T2.
 
-**WhatsApp abuse-posture data point.** WhatsApp bans hundreds of thousands of accounts per month on
-metadata and reports, never content. PRIMARY (platform posture), **point-in-time**. Relied on by
+**WhatsApp abuse-posture data point.** WhatsApp bans on the order of 300,000 accounts per month
+suspected of child sexual abuse material on metadata and reports, never content — the existence-proof
+that content-blind moderation at scale is a shipping practice. PRIMARY (platform posture / WhatsApp's own
+CSAM-safety reporting), **point-in-time**, **[confirm]** (figure AI-surfaced; verify against WhatsApp's
+published transparency/CSAM figures before external use). Relied on by
 `app-store-survivability-and-abuse-posture.md`.
 
 **Third-party E2EE bolt-ons for Bluesky.** Germ (MLS on AT Protocol, built by an ex-Apple
@@ -158,6 +167,18 @@ customers → claw value back → decline). PRIMARY for the definition and prove
 v4 (2010), Reddit's 2023 API enclosure and 2024 AI-data licensing, Vine (2017), LiveJournal→Russia
 (2016–2017), Twitter/X (2022). SECONDARY / mixed, T2 across cases, high confidence on the events.
 Relied on by `platform-dominance-and-adoption.md`.
+
+**iMessage deliberate-lock-in evidence (Epic v. Apple discovery record).** The settled-fact grounding
+for the deliberate-moat reading of platform lock-in: Eddy Cue's 2013 proposal to bring iMessage to
+Android (a strategy call, no technical barrier); Craig Federighi killing it in 2013 (an Android client
+would remove a barrier keeping iPhone families from giving children Android phones); a 2016 internal
+"serious lock-in" characterization; Phil Schiller judging a move to Android would hurt Apple more than
+help; tracing to Steve Jobs' 2010 directive to lock customers into Apple's ecosystem — motive documented
+as hardware retention, not surveillance. Sourced from internal communications surfaced in the *Epic v.
+Apple* litigation, as reported (Android Police, CNBC, Pocket-lint, Thurrott). SECONDARY / reported, T2,
+high confidence on the events. The broader *Epic v. Apple* posture (9th Cir. affirmed contempt Dec 2025,
+vacated the 0% commission portion; SCOTUS declined a pause May 2026) is confirmed per the Delta/crypto
+FACTCHECK. Relied on by `platform-dominance-and-adoption.md`.
 
 **The universal trade (corpus-synthesis finding).** No deployed system delivers usability,
 decentralization, and metadata protection simultaneously; the empirical version is narrower (no
@@ -234,5 +255,7 @@ profit in 2025" is a target/projection; the FY2024 "$1.4B / >$500M profit" is re
 (`app-store-survivability-and-abuse-posture.md`) is AI-surfaced and flagged `[confirm]` — the August
 2025 removal, the five-country antitrust suits (May 2026), and the ~11.4-million-user SSO lockout all
 need a primary-source pass before external use. The one verbatim Ben Thompson quote and the
-dialogue-coined framings ("trapped by the math," "the Red Hat of social infra") carry the same flag.
+dialogue-coined framings ("trapped by the math," "the Red Hat of social infra") carry the same flag. The
+WhatsApp ~300,000-accounts/month CSAM-ban figure (`app-store-survivability-and-abuse-posture.md`) is also
+`[confirm]` — AI-surfaced, to be checked against WhatsApp's own published transparency/CSAM figures.
 Preserve every `[confirm]` marker until the primary is pulled.

@@ -125,6 +125,34 @@ in production in Delta Chat, Nous Research (distributed LLM training), and Payco
 facts (iroh at 1.0; companion crates still pre-1.0) cite the FACTCHECK source of truth and are not
 re-verified here.
 
+## Metadata-hardening transports: hardening the floor without leaving iroh
+
+Croft's metadata-floor analysis is honest that the transport is blind to content and membership but not
+to network traffic analysis — a relay or gateway still observes who connects to whom and when, so
+hiding the *who-talks-to-whom* relation needs an onion or mixnet layer above the QUIC path. The prior
+art that matters here is that iroh already exposes that layer as a pluggable option, so the hardening
+is an *adopt-a-transport* move rather than a leave-the-substrate move.
+
+iroh's **Custom Transport API** (the `unstable-custom-transports` feature) decouples its QUIC peer-to-peer
+protocol from IP, Wi-Fi, and cellular: it will carry QUIC over any pipe that can shuffle an unreliable
+datagram of at least ~1,200 bytes. Two community transports use that seam to harden the metadata floor:
+
+- **iroh-tor** (`n0-computer/iroh-tor`) — routes iroh P2P traffic through **Tor onion services** instead
+  of hole-punching through public relays, masking the physical IP addresses and geographic locations of
+  both peers. Relationship: learn↔ (metadata-floor hardening; onion-routing option).
+- **iroh-nym** (`n0-computer/iroh-nym`) — a transport over the **Nym mixnet** that slices packets, mixes
+  them with artificial delay and dummy cover traffic, and bounces them across a decentralized overlay,
+  providing the *who-talks-to-whom* anonymity a plain relay cannot. Relationship: learn↔ (mixnet option).
+
+Why this is load-bearing: it is the concrete existence-proof that Croft can adopt a metadata-hardening
+transport **without leaving the iroh substrate**, which is what turns the metadata floor from an admitted
+weakness into a characterized, upgradeable one — a specific pluggable Tor/Nym transport rather than a
+generic "mixnets or onion routing someday" gesture. This is also why Veilid is registered above only as
+a *future* metadata-resistant candidate: the in-substrate answer already exists as an iroh transport.
+`[confirm before external use: per the iroh-mobile FACTCHECK both are real as `n0-computer/iroh-tor` and
+`n0-computer/iroh-nym` (not the `-transport` names, not on crates.io); the sibling `iroh-webrtc-transport`
+from the same dialogue was flagged likely-hallucinated and is deliberately not carried here.]`
+
 ## What this establishes (and does not)
 
 Establishes that Croft's substrate is a recombination of proven parts rather than a novel gamble; that a
@@ -133,8 +161,9 @@ denied and degraded conditions, which is the strongest available evidence the re
 each of the four legs is credited — iroh and MLS with their mechanics deferred to their own homes, and the
 CRDT / local-first leg (Automerge; the Ink & Switch local-first thesis) with its protocol-level accounting
 deferred to the spec; that the federation-routing direction has a formal lineage (RINA, NDN, Yggdrasil,
-cjdns); and that the substrates set aside were set aside for stated, checkable reasons that travel with the
-decision.
+cjdns); that the metadata floor is upgradeable in place via pluggable iroh anonymity transports
+(iroh-tor, iroh-nym) rather than requiring a substrate change; and that the substrates set aside were set
+aside for stated, checkable reasons that travel with the decision.
 
 Does **not** re-document iroh, MLS, or Willow mechanics (they live elsewhere in cairn and impl), does
 **not** resolve the capability-mechanism decision (the Track A / Track B choice), and does **not** certify

@@ -64,6 +64,17 @@ worth keeping can be laid down here. Its edit model is append-only with redactio
 (void-don't-mutate): shared memory that could be silently rewritten is not trustworthy memory.
 `[dialogue-sourced 2026-06-20 to 22; verify before external use.]`
 
+That the guestbook accumulates is exactly why it carries a launch gate the other activities do not. The moment
+a family trusts it with years of memory, it has created a **custodial obligation** — a promise to keep that
+memory, which a product with no server between two people can only honor if it can outlive its own
+enthusiasm. So the concrete link runs straight from the build sequence to the governance argument: the
+sustainability model (the cooperative-dues-or-foundation answer) must be at least sketched before the
+guestbook ships, because that answer is what turns "no one makes a buck" from a vulnerability into a credible
+forever-promise, and it is the first thing a skeptic pokes. Do not invite that trust before you can keep the
+promise. The sustainability model itself is worked out in `../governance/foundation-cooperative-and-sustainability.md`;
+what belongs here is the gate — the guestbook is the point in the build where accreting memory makes that
+model a precondition, not a later concern. `[dialogue-sourced 2026-06-20 to 22; verify before external use.]`
+
 **The question-of-the-day is the engine that keeps the pond alive — and it carries no streak.** This is a
 voice decision, stated here as load-bearing rather than incidental. A daily prompt is exactly the surface
 where a conventional product would attach a streak counter, and the decision is to refuse it:

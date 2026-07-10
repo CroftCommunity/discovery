@@ -35,6 +35,18 @@ Boundary calls:
 - Drystone's *answers* to every mode below live in the spec and impl. Where a mode is exactly the thing
   a large-group design must answer, the pointer is given inline.
 
+Field-fact correction — Delta Chat's metadata posture. Delta Chat appears throughout this map as a
+closest-cousin system, and because it carries messages over email transport it is easy to assume it
+inherits email's metadata leak: the classic `To`/`Cc`/`Subject`/`References`/`In-Reply-To` headers that
+expose who-talks-to-whom, and the group membership, to every relay in the path. That was true
+historically over classic email, but it is no longer Delta's posture. Version 2.48+ (2026) implements
+full Header Protection (RFC 9788), moving `To`/`Subject`/`References`/`In-Reply-To` and group membership
+into the encrypted part and randomizing the outer `Date` on a five-day window. Run against a chatmail
+relay, no contact or group metadata is stored server-side; the residual is only relational metadata
+visible to the relay in transit — there is no Sealed Sender equivalent yet — and the correction holds
+for the chatmail configuration, not classic email. Treating Delta as a full header-leak understates a
+shipped design.
+
 ## The failure-mode taxonomy
 
 ### 1. The person-versus-keypair gap (multi-device)

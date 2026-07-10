@@ -76,7 +76,10 @@ to CC0, not the chosen license. PRIMARY (canonical license text). documented-fac
 Apache-2.0 (permissive license with an express patent grant + retaliation clause). **Superseded 2026-07-09
 (C13): was the earlier reference-code choice (A14); the reference implementation is now AGPL-3.0-or-later +
 DCO.** Retained here only as the rejected permissive option (its patent grant is preserved under AGPLv3
-§11). PRIMARY (canonical license text). documented-fact. Locator: https://www.apache.org/licenses/LICENSE-2.0
+§11); MIT and BSD (permissive, patent-silent) were the further-rejected permissive alternatives *within*
+that superseded Apache-2.0 evaluation, and the C13 rewrite removed them from the content docs, so they no
+longer carry a standalone citation. PRIMARY (canonical license text). documented-fact. Locator:
+https://www.apache.org/licenses/LICENSE-2.0
 
 AGPL-3.0-or-later (network-copyleft license, with an express patent grant at §11). **The reference-code
 license (decided C13, 2026-07-09) and the structural-openness lock on the code / neutral stack**, paired
@@ -86,9 +89,12 @@ copyleft-loophole reasoning), `open-publication-and-ip-stewardship.md` (referenc
 in `cooperative-and-governance-prior-art.md` (the "AGPL+DCO lock"). Locator:
 https://www.gnu.org/licenses/agpl-3.0.html
 
-MIT and BSD (permissive licenses, patent-silent). Named only as the rejected alternatives to
-Apache-2.0. PRIMARY (canonical license families). documented-fact. Relied on by
-`open-publication-and-ip-stewardship.md`.
+MPL-2.0 — Mozilla Public License 2.0 (weak/file-level copyleft). **A mandatory, non-substitutable license
+constraint on the neutral stack**, not a chosen preference: the `hpke-rs` substrate dependency is MPL-2.0,
+HPKE is mandatory for MLS per RFC 9420, and there is no pure-permissive substitute — both the rust-crypto
+and libcrux HPKE providers route through MPL-2.0 code (Decision A1). PRIMARY (canonical license text).
+documented-fact. Relied on by `open-publication-and-ip-stewardship.md` (license posture, the substrate
+dependency at :40). Locator: https://www.mozilla.org/en-US/MPL/2.0/
 
 DCO — Developer Certificate of Origin (contribution instrument, not a license). Chosen over a CLA
 because a CLA collects relicensing rights in one party (a capture vector); a DCO grants none.
@@ -146,6 +152,31 @@ member-owned financial-institution model; source of the "Not for profit, not for
 service" motto. SECONDARY. existence-proof / historical lineage. Lineage `[verified 2026-06-22]`; the
 motto attribution `[dialogue-sourced 2026-06-22 — verify attribution before reliance]`.
 `cooperative-and-governance-prior-art.md`.
+
+The rug-pull disarmed (unsellable ownership / credible exit as existence-proofs):
+
+Signal / the Signal Foundation — 501(c)(3) nonprofit (launched Feb 2018, ~$50M contribution from WhatsApp
+co-founder Brian Acton) that wholly owns Signal Messenger; architecturally centralized but uncapturable
+because the entity legally cannot be sold ("governance, not decentralization"). Whittaker's structural
+logic and Marlinspike's no-VC posture are carried as attributed synthesis; the verbatim Whittaker line is
+held for a later pass. Proves the ownership-structure defense. SECONDARY. existence-proof.
+`[documented history — the $50M / $38M expenses / $29M revenue / $19B figures research-sourced, confirm
+against Signal Foundation filings before external reliance]`. Relied on by
+`cooperative-and-governance-prior-art.md`. Also used in `../activism/platform-extraction-and-captured-labor.md`
+as the "contingent not intrinsic" counterweight. Locator: signalfoundation.org.
+
+Dreamwidth — open-source fork of the LiveJournal codebase with a full account importer (posts, comments,
+tags, icons); the credible-exit existence-proof used when LiveJournal moved its servers to Russia (Dec
+2016). Proves a forkable codebase plus a working importer is a real exit that disarms the rug-pull.
+SECONDARY. existence-proof. `[documented history]`. Relied on by
+`cooperative-and-governance-prior-art.md`. Locator: dreamwidth.org.
+
+Archive of Our Own (AO3) / the Organization for Transformative Works — nonprofit, non-commercial,
+open-source, donation-funded, ad-free archive built in 2007 as a direct response to a rug-pull (FanLib +
+LiveJournal's "Strikethrough" mass deletion, May 29 2007); tens of millions of works, 8M+ users, 2019 Hugo
+Award. Proves a burned community rebuilds durably on infrastructure it owns and cannot be sold. SECONDARY.
+existence-proof. `[documented history]`. Relied on by `cooperative-and-governance-prior-art.md`. Also used
+in `../activism/platform-extraction-and-captured-labor.md`. Locator: archiveofourown.org / transformativeworks.org.
 
 Governance DNA (how a commons stays governed at scale):
 
@@ -250,6 +281,13 @@ De Filippi, P., Rozas, D., et al. (2023). "DAO design for the commons" (Ostrom-g
 Relied on by `cooperative-and-governance-prior-art.md` (governance DNA). Locator:
 https://doi.org/10.3389/fbloc.2023.1287249
 
+Schelling, T. C. (1960). *The Strategy of Conflict.* Harvard University Press. The source of the
+*credible commitment* concept — a commitment becomes believable by binding your own hands so reneging is
+no longer an available move — invoked in the DCO-over-CLA reasoning ("remove your own ability to defect").
+PRIMARY (the book). established scholarship. `[attribution to be confirmed against the primary edition
+before external use]`. Relied on by `foundation-cooperative-and-sustainability.md` (the AGPL+DCO
+structural-openness lock). Locator: Harvard University Press, 1960.
+
 ---
 
 ## Publication infrastructure & venues
@@ -345,10 +383,16 @@ in any governance content doc**. They are cited and carried in the **philosophy 
 the philosophy layer's reference index; indexed above as a CROSS-LAYER pointer, not re-attributed to
 governance. NOT-LEGAL-ADVICE.
 
-**MPL-2.0 not present.** The Mozilla Public License 2.0 is **not cited anywhere in the governance
-layer.** The license families actually named are CC0 1.0 (chosen, spec text), CC-BY 4.0 (alternative),
-Apache-2.0 (chosen, reference code), AGPL-3.0-or-later (chosen, code), and MIT/BSD (named as rejected).
-If an MPL-2.0 comparison is wanted it would be a net-new addition, not an existing citation.
+**MPL-2.0 is present and mandatory — ✅ corrected 2026-07-10.** An earlier version of this index stated
+MPL-2.0 was "not cited anywhere in the governance layer." That was wrong: `hpke-rs` is MPL-2.0 and is a
+**mandatory, non-substitutable** constraint on the neutral stack (HPKE is required by RFC 9420 / MLS and
+has no pure-permissive substitute — Decision A1), cited in `open-publication-and-ip-stewardship.md`:40 and
+now indexed under Statutes & licenses above. The license families actually named across the layer are: CC0
+1.0 (chosen, spec text), CC-BY 4.0 (alternative), **AGPL-3.0-or-later + DCO (chosen, reference code and
+product code per C13)**, Apache-2.0 (superseded 2026-07-09, the earlier reference-code choice A14, retained
+only as the rejected permissive option), MIT/BSD (the further-rejected permissive alternatives inside that
+superseded Apache evaluation, no longer in the content docs after C13), and **MPL-2.0 (mandatory via
+`hpke-rs`)**.
 
 **Statute detail is deliberately withheld.** Only Missouri Chapter 351 is named, and only as reasoning;
 the statute sections, tax codes, fees, and dollar figures are excluded by design and gated to counsel

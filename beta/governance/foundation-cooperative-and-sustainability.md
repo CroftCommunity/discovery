@@ -70,8 +70,11 @@ the project a target for scammers wearing its face.
 Contributions come in under a **DCO** (Developer Certificate of Origin), *not* a CLA. A CLA would collect
 relicensing rights in one party, which is a capture vector; a DCO grants none. So no party (not a future
 founder, not a captured board, not an acquirer) can relicense or close the source. The inability to
-relicense is the feature: a credible commitment in the game-theory sense, where you remove your own
-ability to defect, which is what makes the promise trustworthy downstream. The "-or-later" choice defends
+relicense is the feature: a *credible commitment* in the game-theory sense, where you remove your own
+ability to defect, which is what makes the promise trustworthy downstream. The term is Thomas Schelling's:
+his strategy-of-conflict work established that a commitment becomes believable precisely by binding your
+own hands, so that reneging is no longer an available move — the DCO does exactly this to the relicensing
+option. The "-or-later" choice defends
 the network-use copyleft principle against future loopholes, at the cost of trusting the steward of the
 license family with forward power; the sources lean "-or-later." A quiet benefit: because the code stays
 open in everyone's hands regardless, the foundation ends up holding the brand and the copyright, not a
@@ -180,6 +183,59 @@ with the sunset locked so it cannot be clawed back. This resolves the Day-One-de
 founder entrenchment.
 
 *Verification:* settled values.
+
+### The founder's royalty: a licensing fee, not a capital return
+
+Founder compensation is a distinct problem from the seed-capital instrument (pillar 3) and from salaried
+labor (pay-the-keepers): it is the return the founder takes for having built the thing, and getting it
+wrong reinstates the extraction the whole form exists to prevent. The recorded resolution carries its own
+rejected alternative, which is the load-bearing part. An initial proposal of a **100×-capped return** was
+**rejected as incompatible with cooperative limited-return-on-capital law** — a cooperative cannot pay an
+uncapped-in-effect multiple on capital without ceasing to be one. The resolution is a
+**percentage-of-gross royalty** (illustratively around **3% of gross**), framed legally not as a capital
+distribution but as a **founder's royalty / technology-licensing fee** — an operating expense, the same
+category as any other cost of running the service. That legal reframing is what makes it survive the
+cooperative form: it **starts only after twelve months of self-sufficiency**, is "muted on impact" (a small
+slice of gross rather than a claim on surplus or equity), **survives the founder's death** as a licensing
+fee would, and never creates a permanent equity constituency with standing to push for profit maximization.
+The WHY is the rejected 100×-cap: the legal incompatibility is what forced the shape, not a preference for
+one number over another.
+
+*Verification:* design intent; NOT-LEGAL-ADVICE — the "limited-return-on-capital" constraint and the
+operating-expense treatment of a founder's royalty require confirmation by a cooperative and tax attorney
+before any filing or reliance.
+
+### The binding charter: enshittification-proof clauses from day one
+
+"Structured not to extract" is only credible if the anti-extraction commitments are *binding from the
+start*, before there is any incentive to defect — a charter from day one, with no bait-and-switch, is the
+consumer-facing counterpart to the structural locks above. The endowment cap is one clause of a set; the
+full set is:
+
+- **A deprecation-and-support guarantee** — a minimum notice window before any feature or interface is
+  removed (a ~6-month deprecation notice paired with a ~18-month long-term-support commitment), so the
+  service cannot be quietly hollowed out under users.
+
+- **Data portability** — the standing right to export and leave with your data intact, which is the same
+  credible-exit lever the prior-art register grounds (Dreamwidth's importer made portability real); a
+  charter clause makes it a promise rather than a courtesy.
+
+- **No dark patterns** — a binding prohibition on interface manipulation engineered to extract engagement,
+  consent, or spend against the user's interest.
+
+- **Ad-revenue transparency** — if an ad-broker function exists at all, its economics are open and the
+  revenue flows to members rather than the operator (the operator takes only a small, transparent fee).
+
+- **The endowment cap** — surplus past a bounded operating reserve is routed to reduced dues, mission
+  spend, or donation rather than accumulated; this is the same indivisible-reserve mechanism pillar 3
+  carries, stated here as the binding surplus rule that keeps the cooperative from behaving like a
+  profit-accumulating firm.
+
+These are the concrete commitments that operationalize non-extraction; each removes a specific lever the
+extractive model depends on, which is why they read as charter obligations rather than aspirations.
+
+*Verification:* design intent; the deprecation/LTS windows and the ad-revenue mechanics are illustrative
+figures pending the operating-charter draft.
 
 ## The four-pillar Social Union
 
