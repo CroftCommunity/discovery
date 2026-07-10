@@ -33,9 +33,9 @@ Cross-checked against the Phase-0 ledger (`alpha/plans/2026-07-08-beta-coverage-
      E-A11.0) still lives only in `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md`;
      `DECISIONS.md` points there. Homing it in `drystone-spec/` is a content-writing task, not a register
      edit.
-  2. **DECISIONS Section-1/Section-2 reconciliation** — A1/A9/A10/Noria are marked decided in the
-     2026-07-09 walkthrough but still listed as OPEN gates in Section 2 (Part B caught this; left to avoid
-     scope creep).
+  2. **DECISIONS Section-1/Section-2 reconciliation** — DONE 2026-07-10 (commit `fe7d0e5`): A9/A10 moved
+     to Section 1; A1/A2/A11/A12/A13/Noria/legal-review/A5 reclassified to their 2026-07-09 walkthrough
+     calls with residuals; Section 2 renamed to "gates walked."
   3. **Register rows (optional)** — no root register tracks the delegate-primitive/courier-vs-agent cut,
      the Delta RFC 9788 (D21) correction, or the Session/Nostr/relay corrections; adding net-new rows was
      out of a conservative reconciliation pass.
