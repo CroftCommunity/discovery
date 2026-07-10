@@ -44,7 +44,9 @@ Cross-checked against the Phase-0 ledger (`alpha/plans/2026-07-08-beta-coverage-
      out of a conservative reconciliation pass.
   4. **Publish gate** — primary-source verification of all `[UNVERIFIED]`/`[confirm]`-flagged quotes and
      figures (WhatsApp CSAM figure, the Epic exhibits, Clare/Marx editions, relay $34) before external use.
-  5. **§11 spec appendix** — the Ada/Boreas/Cyrus cast-chained illustration is a needs-content item.
+  5. **§11 spec appendix** — DONE 2026-07-10 (commit `14a6e87`): the Ada/Boreas/Cyrus cast-chained arcs are
+     written as the §11 continuation of Appendix E (beats L1–L6), the in-body beats repointed, and the
+     drystone-spec open-thread + reference-index note resolved.
 
 ---
 
