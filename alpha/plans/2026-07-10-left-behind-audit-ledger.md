@@ -29,10 +29,11 @@ Cross-checked against the Phase-0 ledger (`alpha/plans/2026-07-08-beta-coverage-
   still-open with themes 07/08 retired; T12→the-recurring-inversion + narrowed to M3; federation→spec
   part-2 §5; T52→brand-and-voice). 13 files.
 - **Remaining (follow-ups, not blocking):**
-  1. **Content-debt** — the 2026-07-09 total-device-loss recovery/revocation full design (E-REC.0–.5,
-     E-A11.0) still lives only in `../alpha/plans/2026-07-09-proof-experiments-a11-and-recovery.md`;
-     `DECISIONS.md` points there. Homing it in `drystone-spec/` is a content-writing task, not a register
-     edit.
+  1. **Content-debt** — PARTLY DONE 2026-07-10 (commit `568cde5`): the **recovery** design (ladder,
+     threshold-decryption recovery group over the people+home-devices union, second factor + irreducible
+     law, Case-2 storage invariants) is consolidated into `drystone-spec/` §7.3.9 and DECISIONS A2 repointed
+     there. Remaining: the **two-phase revocation** full mechanism (belongs §7.6/§11) and the E-A11.0/E-REC
+     proof-experiment methodology (legitimately kept in the alpha prototype plan).
   2. **DECISIONS Section-1/Section-2 reconciliation** — DONE 2026-07-10 (commit `fe7d0e5`): A9/A10 moved
      to Section 1; A1/A2/A11/A12/A13/Noria/legal-review/A5 reclassified to their 2026-07-09 walkthrough
      calls with residuals; Section 2 renamed to "gates walked."
