@@ -1173,6 +1173,43 @@ before publish]**.
 
 ---
 
+## 43. Croft.ing website / plot-tender dialogue = the product realization of the atmospheric-web thread
+
+The 2026-07-10 design dialogue
+(`seeds/transcripts/raw/croft-website-plot-tender-design-dialogue-2026-07-10.md`) is the concrete
+**product/website realization** of the atmospheric-web thread — it takes "GeoCities-2027-on-atproto"
+(E1/E2/E3, `thinking/atproto-atmospheric-web.md`, §17) and makes it **Croft.ing** specifically. Distilled
+**directly into the beta layers** (user's call; recorded in `LAYER-ROLLUP.md`), not through the usual
+alpha-first staging.
+
+- **Loose-end closed/advanced.** E1 ("atmospheric web product surface") was an abstract demand-side
+  framing; this dialogue gives it a concrete shape: Plot·Shed·Gate, the single-renderer "safety deposit
+  box" (`plot.croft.ing?user=` = `name.croft.ing`), and the serverless social engine (likes = footprints,
+  replies = guestbook, PDS blobs = media, CSS-as-JSON = themes) on an Anchor Post. Marks E1
+  **PARTIALLY CLOSED** (product surface now specified), advances **C6** ("grow your own" brand naming) and
+  the **T4** brand gate (a second logo direction — the CROFT.ing wall-to-gate wordmark — now sits beside
+  the drystone-stacking badge; primacy unsettled). Landed → `beta/croft/croft-ing-the-website-and-the-plot.md`
+  + `beta/socialization/` (visual-identity, logo).
+- **DUPLICATION watch (managed, not a defect).** Heavy thematic overlap with the earlier atmospheric-web
+  dialogue (§17) and its FACTCHECK SoT — the durable GeoCities-successor argument, the no-native-atproto-E2EE
+  point, PDS/AppView mechanics. Handled by **citing the FACTCHECK SoT and not re-deriving** the settled
+  atproto facts; the new doc adds only the *product* surfacing on top. The rug-pull-graveyard argument
+  (GeoCities/MySpace/Cohost) is the demand-side "why serverless-and-sovereign," complementary to §17's
+  durability framing, not a contradiction.
+- **New ECOSYSTEM prior art (dialogue-sourced).** `spores.garden`/Hypha Co-op (DID-derived palette + flower
+  identicons, "plant flowers"), Neocities, Linkat, Bio.blue, kibun.social, and Cohost (defunct, cautionary)
+  → `ECOSYSTEM.md` §5c-2, flagged `[UNVERIFIED — dialogue-sourced 2026-07-10]`; Standard.site (§5b, verified)
+  named as the adoptable `site.standard.document` blogging lexicon.
+- **Open (surfaced, not resolved).** The abuse/moderation model for public-XRPC-write widgets; the
+  user-HTML/CSS sandbox-safety posture (the dialogue hand-waves "no JavaScript"); subdomain-mapping
+  automation. Tracked as **ROADMAP_TODO E33**.
+- **Provenance:** cleaned-paste §4 (image turns preserved as prompt-carrying pointers); atproto facts cite
+  the FACTCHECK SoT, genuinely new claims flagged **[confirm before publish]**;
+  `RAW-ARTIFACTS-MANIFEST.md` "2026-07-10 intake"; `LAYER-ROLLUP.md` "Direct-to-beta intake (2026-07-10)".
+  Couples §17 (atmospheric web), §18 (the app/client layer).
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the

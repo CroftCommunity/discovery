@@ -38,6 +38,7 @@ Boundary calls:
 | `product-the-garden-of-ponds.md` | The product shape: the garden thesis (a composable garden of ponds and pads on one core, thin shells), the honest seams, the functional-core / imperative-shell spine, one-core-plus-thin-shells client architecture, the quality/craft bar, and the three inclusion pathways for activities (build-fresh / wrap / port). |
 | `social-graph-as-substrate.md` | The reframe that anchors the product: the social graph is the substrate and chat is one tenant; the durable group (group identity != member set; implicit/sticky/pruned lifecycle); the local-projection vs shared-anchor seam; and the load-bearing-but-invisible group's-face UX (the hardest product problem). |
 | `presence-ritual-and-composed-ponds.md` | Four product conclusions the taxonomy left as stubs: the Presence & Ritual pond ("the project's heart" — thinking-of-you ping, guestbook, and the **question-of-the-day with no streak**, "the whole ethic in miniature"); game-outcome-as-custom-lexicon (ephemeral over iroh, only the settled outcome durable; **attestation is the open hard part**); the iroh tiered-exposure product model (public bridge → browser-peer → native; relay as complete broker); and the **valuation edge** (directional weighted inter-group trust with no shared keys). Dialogue-sourced calls flagged. *(Phase-1 recovery.)* |
+| `croft-ing-the-website-and-the-plot.md` | The **Croft.ing** web surface and personal plot: the **Plot·Shed·Gate** spatial model; the serverless single-renderer **"safety deposit box"** (`plot.croft.ing?user=` handle *or* DID → same PDS-backed canvas as `name.croft.ing`; domain is an alias, DID the anchor); the social engine mapped onto **standard atproto records against an Anchor Post** (footprints = likes, guestbook = replies, media = PDS blobs, themes = CSS-as-JSON) with **no custom AppView**; the plot-tender delight catalog (Lantern Vigil, Stile, Stone Circle, Specimen Book, Seeds, homestead map, sketch-blooms-to-watercolor default); and the Bluesky integration (Gate Feed, subdomain signpost, starter pack). Open product calls (public-write abuse model, HTML/CSS sandbox) surfaced. atproto facts cite the FACTCHECK SoT; new claims flagged `[confirm before publish]`. |
 
 ## Provenance & status
 
@@ -48,6 +49,11 @@ theme `08-croft-the-product.md` synthesis being discarded, the `thinking/app/` c
 **Decision-gated:** the Croft product shape carries open product decisions (the group's-face UX iteration,
 reconciling the sticky-group lifecycle with membership-vs-access) tracked in `../OPEN-THREADS.md`; those
 stay surfaced, not resolved. See `../../alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`.
+
+`croft-ing-the-website-and-the-plot.md` added 2026-07-10 as a **direct-to-beta intake** (not the usual
+alpha-first staging), distilled from `../../alpha/seeds/transcripts/raw/croft-website-plot-tender-design-dialogue-2026-07-10.md`;
+the pull-up is recorded in `../../alpha/LAYER-ROLLUP.md` and it is the product realization of the
+atmospheric-web thread (ROADMAP_TODO E1 → E33).
 
 ## What this layer establishes (and does not)
 

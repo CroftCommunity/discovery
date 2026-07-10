@@ -111,6 +111,31 @@ beta, they are **retained in place**: several frozen alpha docs cite them by tha
 the plans review docs), so relocating them would dangle citations in the frozen tier. They are cited raw
 provenance, not misfiled cruft, and gate nothing.
 
+## Direct-to-beta intake (2026-07-10, Croft.ing website / plot-tender dialogue)
+
+A new source landed **directly in the beta layers** rather than through the usual alpha-first staging —
+the user's call, since the natural homes are beta layers and the corpus has already re-filed onto the
+layer-cake. Recorded here so the pull-up is auditable.
+
+- **Source (frozen alpha floor):** `seeds/transcripts/raw/croft-website-plot-tender-design-dialogue-2026-07-10.md`
+  (cleaned-paste §4; image turns preserved as prompt-carrying pointers). It is the product/website
+  realization of the atmospheric-web thread (`thinking/atproto-atmospheric-web.md`, E1/E2/E3).
+- **Lands in:**
+  - `beta/croft/croft-ing-the-website-and-the-plot.md` (NEW) — Plot·Shed·Gate model, single-renderer
+    "safety deposit box" resolution, serverless social engine (likes/replies/blobs/CSS-JSON on an Anchor
+    Post), plot-tender delight catalog, Bluesky integration; open product calls surfaced.
+  - `beta/socialization/visual-identity-and-the-progressive-depth-website.md` (NEW) — Shaker craft stance,
+    tectonic palette (working hex), Lora+Inter, drystone visual language, elevator/one-pager/library IA +
+    homepage blueprint. Cross-refs `brand-and-voice.md` for the settled motto/voice (not re-derived).
+  - `beta/socialization/logo-croft-ing-wall-to-gate.md` (NEW) — the CROFT.ing wordmark direction; pointer
+    added from `logo-drystone-stacking.md` (the two marks are complementary, primacy unsettled under T4).
+- **Treatment:** distilled from the raw, source-verified. Settled atproto mechanics cite the FACTCHECK SoT;
+  genuinely new claims (rug-pull figures, third-party project mechanics, exact XRPC names) flagged
+  `[confirm before publish]`. Indexes updated: ECOSYSTEM (spores.garden/Hypha, Cohost, Neocities, Linkat,
+  Bio.blue, kibun.social; Standard.site row updated), ROADMAP_TODO (app/website items under E1), COHESION
+  (E1 realization + atmospheric-web overlap). **Not** distilled into alpha `thinking/` — beta was the chosen
+  home; this is the one alpha additive artifact recording it.
+
 ## Coverage-gate widening (2026-07-08, Phase-0 transcript re-read)
 
 The gate above is **theme-scoped**: it verified that the *enumerated* theme conclusions (CM-A*, CM-P*)

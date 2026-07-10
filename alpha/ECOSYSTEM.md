@@ -165,6 +165,24 @@ already covered above (§5b, §1).
 | — | kbone · uni-app · Re.Pack/react-native-sandbox | Open mini-app runtimes: web-in-mini-app shim; one-codebase-many-hosts; guest crash-containment/isolation | learn↔ (guest-isolation + permission patterns for pads) |
 | Zed / Excalidraw / Spacedrive | (crafted-app references) | Renderer-spectrum + craft-discipline references; Spacedrive = closest Rust-core-shared-web-UI twin (cautionary: shell-demos-easy, finishing-hard) | learn↔ |
 
+## 5c-2. Digital-garden / personal-space projects (from the 2026-07-10 Croft.ing dialogue — pending independent verification)
+
+Surfaced in the Croft.ing website / plot-tender design dialogue
+(`seeds/transcripts/raw/croft-website-plot-tender-design-dialogue-2026-07-10.md`). **Not independently
+re-verified this session** — treat as dialogue-sourced `[UNVERIFIED — dialogue-sourced 2026-07-10]` until
+checked. They matter as the closest prior art for the Croft.ing personal-plot surface (the "atmospheric web"
+product vein, §5b / `thinking/atproto-atmospheric-web.md`, ROADMAP_TODO E1). Standard.site (§5b, verified)
+is the adoptable blogging lexicon (`site.standard.document`) and is not repeated here.
+
+| Org/Author | Project | Purpose / relevance | Current state | Relationship |
+|---|---|---|---|---|
+| Hypha Co-op | spores.garden | Personal-website / digital-garden builder on ATProto; palette + isoline background + **flower identicon derived from the immutable DID**; users "plant" flowers in each other's gardens | `[UNVERIFIED — dialogue-sourced 2026-07-10]` (named live in-dialogue) | learn↔ (closest live prior art for the plot surface + DID-derived personalization) |
+| — | Neocities | Modern static personal-page host, the GeoCities successor (raw HTML/CSS creative freedom) | `[UNVERIFIED — dialogue-sourced 2026-07-10]` (widely known; not verified this session) | homage, learn↔ (the "persist the prior great things" reference) |
+| — | Linkat | Link-in-bio on ATProto | `[UNVERIFIED — dialogue-sourced 2026-07-10]` | learn↔ (the profile-card built on public reads) |
+| — | Bio.blue | Link-in-bio on ATProto | `[UNVERIFIED — dialogue-sourced 2026-07-10]` | learn↔ |
+| — | kibun.social | Status / `/now` update via a custom status lexicon | `[UNVERIFIED — dialogue-sourced 2026-07-10]` | learn↔ (the live-status widget reference) |
+| Cohost team | Cohost (defunct) | Modern ad-free cooperative social platform; beloved for in-post "CSS crimes" (interactive games/puzzles); **centralized, no ads/VC → shut down 2025-01-12 [confirm before publish]** | defunct | cautionary prior-art (the financial-gravity rug-pull the serverless/sovereign design answers; alongside GeoCities/MySpace) |
+
 ## 5d. Games & app-pond building blocks (from the ponds/games dialogue 2026-06-21)
 
 Surfaced and partly verified in the ponds/games deep-dive (`thinking/app/ponds/`); verification status
