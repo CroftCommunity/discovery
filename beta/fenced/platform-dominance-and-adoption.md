@@ -194,6 +194,23 @@ The social graph is captured, identity is non-portable, and data is not the user
 entire social circle is very hard. Lock-in is the leverage; without it, users would simply leave the moment a
 platform turned on them. [Analysis, corpus synthesis]
 
+### Deliberate lock-in as documented fact (iMessage / Epic v. Apple)
+
+Lock-in is often read as an emergent property of network effects — no one chose it, it accreted. For at
+least one incumbent that reading is too generous: iMessage's lock-in is a documented, deliberate
+strategy, and the record for it is settled fact rather than inference. Internal Apple communications
+surfaced in the *Epic v. Apple* litigation establish the green-bubble divide as an engineered retention
+moat. Eddy Cue proposed a full-time team to bring iMessage to Android in 2013 — a strategy call, since
+there was no technical barrier — and Craig Federighi rejected it, reasoning that an Android iMessage
+client would remove a barrier discouraging iPhone families from giving their children Android phones. A
+2016 internal characterization described iMessage as strong lock-in, and Phil Schiller judged that moving
+it to Android would hurt Apple more than help; the posture traces to a 2010 Steve Jobs directive to tie
+customers into Apple's ecosystem. The documented motive is hardware retention, not surveillance. [Epic v.
+Apple discovery record, as reported; T2, high confidence] This is the settled-fact grounding under the
+deliberate-moat reading of lock-in: where the rest of this section describes lock-in as leverage an
+operator holds, this case shows an operator choosing to build and preserve it by refusing
+interoperability.
+
 ### Zero-friction as the crossing condition
 
 The friction of a newcomer's first ten seconds is the gate. The incumbents drove it to near zero; the

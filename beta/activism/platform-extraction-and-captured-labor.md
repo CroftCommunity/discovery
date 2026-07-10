@@ -5,7 +5,10 @@ register: this doc carries the extraction reading of the platform record: that t
 value the community creates, that unpaid moderator and community labor is booked as platform value, that
 the enshittification lifecycle is best read as an indictment rather than a neutral phase diagram, and that
 data opacity plus lock-in are the mechanism that makes leaving costly enough to keep the arrangement in
-place. This is the anchor claim T35 (the uncompensated-community-labor plus data-opacity indictment). The
+place. This is the anchor claim T35 (the uncompensated-community-labor plus data-opacity indictment). It
+also documents the engine that funds the bargain in the first place, surveillance advertising, as both a
+privacy harm and a security attack surface (real-time bidding's bidstream) — a related plank recovered
+from the project's adtech source material, distinct from the T35 captured-labor core. The
 *descriptive* map of how dominance and the lifecycle actually work (the field fact, without argument) lives
 in `../fenced/platform-dominance-and-adoption.md`; it is cross-referenced here, not reproduced. The sibling
 strand in this layer (`structural-argument-narrative.md`, `relational-field-research-brief.md`) carries the
@@ -28,6 +31,13 @@ to platforms; read honestly it is an indictment, because the "good to users" pha
 funded phase and the extraction phase is the obligation coming due. Third, data opacity and lock-in are the
 mechanism that converts the first two harms from a grievance into a trap: exit is what would discipline a
 platform that turns on its community, and the incumbents are built so exit is costly.
+
+Behind all three sits the engine that funds the incumbent bargain in the first place: surveillance
+advertising. This doc documents that engine as a related, fourth plank, distinct from the captured-labor
+core above, because it carries a harm the labor and lock-in planks do not reach. Surveillance advertising is
+not only a privacy harm; the auction that runs it is a live security attack surface. That plank is developed
+in its own section below and is recovered here from the project's adtech source material rather than from the
+T35 record.
 
 Two honesty disciplines are held throughout, matching the rest of this layer. Financial and valuation
 figures for privately held platforms are third-party estimates and sources disagree; they are flagged
@@ -120,6 +130,46 @@ holds no vote over it. A trajectory under a newly installed incentive is a weake
 betrayal, and it is the one the evidence actually supports. [CONTESTED; analysis with `[UNVERIFIED]`
 financials]
 
+## Surveillance advertising: the ad engine as a security attack surface
+
+The Facebook turn above exposes the engine underneath the bargain. The ad-funded model is a data-collection
+machine first and a media product second, and, as the pay-or-consent case shows, paying does not switch the
+machine off; the data engine runs coming and going. That engine carries a harm the captured-labor and lock-in
+planks do not reach, because it is not only a privacy harm but a security attack surface. This is the concrete
+present-tense adversary that the whole activism register argues against, and it is worth naming at the
+mechanism level rather than as a generalized unease about tracking.
+
+The mechanism is real-time bidding (RTB), the millisecond auction that fills most programmatic display and
+mobile advertising. When a page or app loads an ad slot, a *bid request* describing the user (device
+identifiers, coarse-to-precise location, the app or page context, and inferred attributes) is broadcast to
+many prospective bidders at once so each can price the impression before the page finishes rendering. Two
+properties of that broadcast turn it from a contained transaction into an attack surface. First, the ad slot
+renders third-party creative code inside a context the user already trusts, which is the standing vector for
+*malvertising*: malicious creatives and zero-click render exploits delivered through the ad pipeline into
+otherwise-trusted pages and apps. Second, and more structural, is what the source material terms the *Loser's
+Data Loophole*: the bid request goes to every prospective bidder, but only one wins, so every losing bidder
+has already received the user's device and location data and is under no obligation to discard it. The auction
+thereby doubles as mass passive surveillance, distributing precise location and device data on a very large
+population to a wide and unaccountable set of recipients on every impression, whether or not any of them ever
+serves an ad.
+
+This is not hypothetical. The bidstream has become a documented supply chain feeding commercial location-data
+brokers and, through them, government buyers: the U.S. Federal Trade Commission's 2024 enforcement actions
+against location-data brokers (the Mobilewalla matter and the Gravy Analytics / Venntel matter) turn on
+precisely this movement of RTB-sourced location data out of the ad market and into surveillance uses the
+tracked person never agreed to, including onward sale to government agencies. [documented enforcement actions;
+the specific broker-to-agency links and any named exploit or campaign identifiers are flagged [UNVERIFIED,
+confirm against the primary FTC records and the RTB-surveillance reporting before publish]; recovered from the
+project's adtech source material, dossier §6.2]
+
+The point for this layer is that surveillance advertising is not a background nuisance to be tuned away with
+better targeting or bought out with a paid tier; it is the incumbent bargain's engine, and the engine is
+defective by construction. A model that funds itself by broadcasting the user's location and device to
+strangers on every page load cannot be made safe by policing the recipients, because the broadcast is the
+product. That is the design floor any non-extractive alternative has to clear: no bid request describing the
+user is broadcast at all, matching happens on the user's own device, and the loophole is removed rather than
+regulated. [analysis; this is the problem statement, not the mechanism that answers it]
+
 ## Opacity and lock-in: the mechanism that makes exit costly
 
 The first two harms would be tolerable if leaving were cheap, because a community that could walk the moment
@@ -182,7 +232,11 @@ unpaid moderator and community labor is booked as platform value (Reddit's licen
 Discord's volunteer-moderated margin are the load-bearing examples), that the enshittification lifecycle read
 structurally is an indictment because the good phase is the funded phase and the extraction phase is the
 obligation due, and that data opacity plus lock-in are the mechanism that makes exit costly enough to hold
-the arrangement in place.
+the arrangement in place. It also establishes the related surveillance-advertising plank: that the ad engine
+funding the bargain is a security attack surface, not merely a privacy one, because real-time bidding
+broadcasts device and location data to every losing bidder (the *Loser's Data Loophole*) and renders
+third-party code in trusted contexts (malvertising), with the 2024 FTC location-broker actions as the
+documented supply chain from bidstream to government surveillance.
 
 Does not claim extraction is universal or inevitable (it is conditional on the funding structure, and the
 counter-cases are stated at full strength), does not treat the sharpest live case as a completed betrayal

@@ -94,6 +94,23 @@ industry-pattern. PRIMARY (established practice). Relied on by:
 `durable-product-and-honest-composability.md` (the LTS-for-interfaces discipline borrows the
 channel-and-cadence model). Used as an analogy, not a cited study.
 
+Geoffrey A. Moore, *Crossing the Chasm* (1991) — the technology adoption lifecycle and the "chasm,"
+the gap between early adopters (who buy a vision) and the early majority (who buy a product that fits
+their life) that most challengers fall into. external-framework / named-model. PRIMARY. CITE. Relied on
+by: `adoption-strategy.md` (the "chasm thesis," the organizing frame of the whole go-to-market
+argument) and `adoption-tactics-and-the-onboarding-wall.md` (the onboarding-wall framing). Borrowed as
+the doc's spine; attribute to Moore, do not present as our own coinage. The field-specific descriptive
+map of why decentralized challengers fail to cross is GROUNDED-ELSEWHERE
+(`../fenced/platform-dominance-and-adoption.md`).
+
+Enshittification — Cory Doctorow (November 2022 formulation; American Dialect Society 2023 Word of the
+Year) — the platform lifecycle (good to users → shift value to business customers → claw value back →
+decline). external-framework / coinage. GROUNDED-ELSEWHERE (source-of-record:
+`../fenced/reference-index.md`; the argument is carried in
+`../fenced/aggregation-theory-and-the-enshittification-shield.md`). CITE. Relied on by:
+`adoption-tactics-and-the-onboarding-wall.md` (the "no enshittification arc" trust-compounds pillar).
+Attribute to Doctorow; cite the fenced source-of-record, do not re-argue the lifecycle here.
+
 ---
 
 ## Platform / tactic facts
@@ -140,10 +157,11 @@ that inciting events produce spikes, not sustained migration. descriptive-field-
 GROUNDED-ELSEWHERE (`../fenced/platform-dominance-and-adoption.md`). Relied on by:
 `adoption-strategy.md`. The descriptive map lives in the fenced layer and is not re-imported here.
 
-External technical standards named in the pitches — MLS (RFC 9420 / 9750), the iroh transport, and
-ATProto-class networks (Bluesky) positioned as a complement rather than a competitor.
-external-standard / neighboring-system. PRIMARY (the RFCs), GROUNDED-ELSEWHERE
-(`../drystone-spec/`, `../cairn/`, `../fenced/`). Relied on by: `coffee-shop-telling.md`,
+External technical standards named in the pitches — MLS (RFC 9420 / 9750), the iroh transport,
+ATProto-class networks (Bluesky) positioned as a complement rather than a competitor, and CRDTs
+(conflict-free replicated data types, the local-first data-layer approach). external-standard /
+neighboring-system. PRIMARY (the RFCs), GROUNDED-ELSEWHERE (`../drystone-spec/`, `../cairn/`,
+`../fenced/`). Relied on by: `coffee-shop-telling.md` (the data-layer camp names CRDTs and local-first),
 `drystone-elevator-pitch.md`. Cite the protocol layers' source-of-record; do not re-derive the standards
 claims in socialization copy.
 
@@ -168,6 +186,14 @@ endorsement, not copyright. Counsel before any commercial use.
 Door-holding "a corporation versus a person" anecdote. anecdote. UNVERIFIED. Relied on by:
 `brand-and-voice.md` (the open-drift / provenance-gate note). Widely retold but not verifiably sourced;
 confirm or paraphrase before it leaves the building — do not quote-and-attribute.
+
+"Every revolution has a maintenance phase. Croft is the maintenance plan." — the closing cooperative
+motto. OURS-as-deployed motto with a provenance caveat: the "every revolution has a maintenance phase"
+phrasing is unattributable folk wisdom and the "Croft is the maintenance plan" clause is OURS.
+UNVERIFIED (folk-wisdom phrasing). Relied on by: `brand-and-voice.md` (closing motto) and the custodial-
+not-insurgent pillar. Tracked in OPEN-THREADS **T52**; the grounded cooperative argument is
+GROUNDED-ELSEWHERE (`../governance/`, `../philosophy/`). Deploy as a Croft motto, not as an attributed
+quotation, and do not present the first clause as sourced until confirmed against a primary.
 
 Drystone / cairn stacking — mortarless dry-stone building; a cairn is a set of dry-stacked waymarker
 stones, built with no mortar and no keystone. technique-reference (public-domain concept). PRIMARY.

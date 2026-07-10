@@ -25,12 +25,15 @@ one for capability, one for group encryption.
   layer, and the decentralized-MLS siblings that quantify the cost Drystone's serverless ordering incurs,
   each with the reason it is credited.
 - **Out of scope (and where it lives):** the MLS core and the MIMI interop story (`mls-and-mimi.md`); the
-  Willow/Meadowcap capability layer and the Track A / Track B capability-mechanism decision (A11) itself
-  (`willow-meadowcap.md`); the substrate/transport prior art (`substrate-prior-art.md`).
-- **Boundary call:** Keyhive (Track B) and Meadowcap (Track A) are the *capability-mechanism decision* and
-  are documented where that decision lives, not re-filed here. This document credits the *object-capability
-  discipline* those tracks operate within, and the *decentralized-MLS siblings* that neighbor Drystone's
-  ordering — it does not re-open the mechanism choice.
+  Willow/Meadowcap capability layer as prior art (`willow-meadowcap.md`); the Track A / Track B
+  capability-mechanism decision (A11) itself, which is recorded in the spec at
+  `../drystone-spec/part-2-certifiable-design.md` (Appendix A "Alternatives Considered" + §5.5), with the
+  gate tracked in `../DECISIONS.md`; the substrate/transport prior art (`substrate-prior-art.md`).
+- **Boundary call:** Keyhive (Track B) and Meadowcap (Track A) are the two candidates in the
+  *capability-mechanism decision* (A11), and that decision is documented where it lives — the spec's
+  Part 2 (Appendix A + §5.5) and the `../DECISIONS.md` gate — not re-filed here. This document credits the
+  *object-capability discipline* those tracks operate within, and the *decentralized-MLS siblings* that
+  neighbor Drystone's ordering — it does not re-open the mechanism choice.
 
 ## Object-capability prior art: Spritely's Goblins / OCapN / CapTP
 
@@ -120,7 +123,10 @@ that both quantify the fork→forward-secrecy cost it incurs and anchor the airt
 MLS deployment orders without a server.
 
 Does **not** re-file the capability-mechanism decision itself — Keyhive (Track B) and Meadowcap (Track A)
-are that decision (A11) and live in `willow-meadowcap.md`; does **not** re-document the MLS core or MIMI
+are the two candidates in that decision (A11), which is recorded in the spec at
+`../drystone-spec/part-2-certifiable-design.md` (Appendix A + §5.5) and gated in `../DECISIONS.md`, not in
+`willow-meadowcap.md` (which carries the Willow/Meadowcap prior art, not the A11 choice); does **not**
+re-document the MLS core or MIMI
 (`mls-and-mimi.md`); and does **not** certify the flagged rows — the decentralized-MLS and MLS-in-production
 facts carry a "confirm before publish" flag, the Spritely facts are `[UNVERIFIED current]`, and the
 Keyhive/Meadowcap references are `[dialogue-sourced 2026-06-24, pending verification]`. All three need a

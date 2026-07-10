@@ -63,6 +63,15 @@ The pillars are the load-bearing claims the voice returns to. They are OURS unle
   unsupported assertion. Treat as CITE-backed; do not overstate past what the philosophy sources
   support.
 
+- **Custodial, not insurgent.** Croft's character is a *seawall, not the raised fist*. The energy is
+  *resistance-as-maintenance* — a standing brace against forces that never go away, not a one-time
+  uprising that wins and then departs. The point is not to be the only place; it is to be the place
+  that is still here, unchanged in what it owes you, in twenty years. This is the emotional register
+  of the whole project: durable custody over insurgent spectacle, and it is why the voice stays calm
+  rather than combative. The cooperative structure that makes this character load-bearing (member-owned,
+  built to persist rather than to win) is grounded in `../governance/`, cross-referenced here and not
+  re-argued.
+
 Civic-spine lines usable as compact framings (OURS): "compute provenance, never utility"; "no right
 to remove the rights of others"; "equal in rights, not in capability"; "your data lives with you,
 the network reconciles"; "small circles, big worlds".
@@ -134,6 +143,14 @@ The candidate lines are layers of one funnel, not competitors, and the layering 
   to a general audience; the trust layer, not the hook). "Come on in, the water's fine" (warm
   onboarding-threshold invitation, but very American-colloquial and invokes water where the tagline
   invokes garden; not the globally-portable lead).
+
+- **Closing motto (OURS as deployed):** "Every revolution has a maintenance phase. Croft is the
+  maintenance plan." The line the cooperative rationale rests on — the answer to *who is still here in
+  year seven, and why* — and the register-mate of the custodial-not-insurgent pillar above. Provenance
+  caveat: the *every revolution has a maintenance phase* phrasing is unattributable folk wisdom (tracked
+  in **T52**), so deploy it as a Croft motto, not as an attributed quotation; the "Croft is the
+  maintenance plan" clause is OURS. The grounded cooperative argument behind it lives in `../governance/`
+  and `../philosophy/`, cross-referenced here and not re-argued.
 
 - **Digital-living-room framing (OURS, derived):** the digital living room versus the public
   shouting-square; invite-only, tight-knit; "Small circles, big worlds." / "Find your world." The

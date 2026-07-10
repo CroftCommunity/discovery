@@ -72,7 +72,11 @@ valid legal orders. The price of being *able* to moderate is being able to be *c
 public discovery (contact-based only), is not a mass-broadcast medium, and refuses content scanning on
 principle. It is not a hub because it never built the surface that makes one. Its moderation is report,
 block, account accountability, and the minimal metadata it holds — WhatsApp, on the same encrypted model,
-bans hundreds of thousands of accounts a month for abuse on metadata and reports, never content.
+bans on the order of 300,000 accounts a month suspected of child sexual abuse material on metadata and
+reports, never content. `[confirm]` That figure is the load-bearing existence-proof under this whole
+posture: abuse-resistance-while-blind is a shipping practice at scale, not an aspiration — a
+content-blind platform already moderates on metadata plus reports, at hundreds of thousands of actions a
+month, without reading a single message.
 
 A blind, non-extractive design can only take Signal's path — the readable-moderation path is not available
 to it, because there is no plaintext at the center to inspect. That is not a limitation to apologize for; it

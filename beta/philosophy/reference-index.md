@@ -26,7 +26,7 @@ provenance and verification), *lifeworld* (The Lifeworld and the System), *peer-
 Standing, the Securitized Corporation, and the Cooperative Form), *structural-argument* (A
 Structural Incompatibility Between Securitized Platforms and Peer Standing), *peer-rights-razor*
 (The peer-rights razor and its lineage), *proof-of-personhood* (Proof of personhood and the
-identity layering), *modular-politics* (prior-art/Modular Politics analysis).
+identity layering), *recurring-inversion* (The recurring inversion), *modular-politics* (prior-art/Modular Politics analysis).
 
 ---
 
@@ -179,6 +179,15 @@ organized complexity, eyes on the street, unslumming). NOT-YET-PULLED. AI-surfac
 
 Morozov, E. (2013). *To Save Everything, Click Here*. Grounds *lifeworld* (technological solutionism)
 and *commensurability* (§VII, solutionism aside). NOT-YET-PULLED. AI-surfaced-[UNVERIFIED].
+
+Masnick, M. (2019). *Protocols, Not Platforms: A Technological Approach to Free Speech*. Knight First
+Amendment Institute at Columbia University, August 2019. Grounds *recurring-inversion* (the naming source
+for the protocol-layer / credible-exit posture the pattern operationalizes). NOT-YET-PULLED. The essay is
+identifiable and its position is carried as *attributed synthesis*, not a verbatim quotation; no direct
+quote is drawn from it in-doc, so the "confirm against primary" caveat applies only if one is later added.
+Cross-check: the project's contribution over the essay is the cooperative *wrap* — Masnick names the
+direction (protocols over platforms, credible exit), and the recurring inversion supplies the account of
+who keeps the protocol layer honest once it exists.
 
 Beer, S. (1974). *Designing Freedom*. Grounds *cybernetic-failure* (the "only hope" quotation and
 the variety-bottleneck reading). NOT-YET-PULLED. AI-surfaced-[UNVERIFIED, confirm against primary
@@ -390,6 +399,16 @@ NOT-YET-PULLED until a primary is attached.
   NOT-YET-PULLED.
 - Pettit & Marti (2010) — the "eyeball test" adopted as Zapatero-era Spanish policy; *peer-standing*
   §3; NOT-YET-PULLED.
+- Markell, P. — the *domination* vs. *usurpation* distinction (locating a wrong in *control* can confuse
+  one agent's arbitrary power over another with the structural wrong of occupying a position not rightfully
+  one's own); cited via the *Journal of Political Power* debate on Pettit. Grounds the [tension] in
+  *peer-standing* §3 and *structural-argument* §II.6 — the named counter-argument the "structure is an
+  agent" bridge (List & Pettit 2011) exists to answer. NOT-YET-PULLED; no specific article pinned in-doc.
+- Charles Goodhart — Goodhart's Law ("when a measure becomes a target, it ceases to be a good measure").
+  Grounds *commensurability* (§VII, one of the three named mechanisms — legibility, the shadowing problem,
+  Goodhart's Law — that make the two-ledgers argument a mechanism-claim rather than a preference). The law
+  is stated inline in-doc so it has a reasoning home; the eponymous source is named here for provenance.
+  NOT-YET-PULLED; no specific work pinned in-doc.
 - Bucher, T. (2017), "The algorithmic imaginary" — cited in *peer-standing* §7 to classify
   "shadowbanning" as folklore, not documented mechanism; the folklore is explicitly not used as
   support. NOT-YET-PULLED.
@@ -415,7 +434,10 @@ maintained power through ritualized display" gloss on refeudalization (*lifeworl
 project's interpretive gloss); the "managed out of the political process even as they believe they
 are deeply engaged" line (*lifeworld*, marked synthesis); the Arendt "algorithmic feeds gather by
 algorithm" application (*lifeworld*, synthesis, not Arendt's claim). Several Habermas passages are
-conceded to be ellipsis-collapsed paraphrase.
+conceded to be ellipsis-collapsed paraphrase. The AI-governance extension of non-domination to
+structural capacity (*peer-standing* §3) was carried by a prior draft as a [cited] verbatim quotation
+with no locatable source; it has been downgraded to labeled [ours] synthesis of that literature's
+direction, and no verbatim quotation stands behind it.
 
 **Claims resting on frames advanced rather than findings retrieved:** the two-ledgers distinction
 itself (Ledger of State / Ledger of Meaning) is a coined frame in *commensurability*, defensible but

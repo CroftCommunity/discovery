@@ -112,6 +112,33 @@ ran ~16 TB / ~$200-mo on Hetzner before being **decommissioned in Fall 2025**, t
 anyone tempted to index everything rather than only the lexicons they need. `[web-verified; figures and
 decommission date are point-in-time — refresh before external use.]`
 
+### The relay tier: non-archival since Sync v1.1, and cheap enough for a Raspberry Pi
+
+The relay — the component that consumes every PDS's commit stream and re-emits the unified firehose an
+AppView subscribes to — used to be the expensive part of the ingestion path, and that is no longer
+true. This is a correction worth keeping visible, because the old framing ("relays keep a full backup
+copy of every repository across the network," the legacy archival **BGS** model) is stale. As of
+**Sync v1.1 (2025)** the canonical relay is **non-archival**: per Bluesky the change eliminated the
+need to crawl or store user data, so a relay now keeps only a **configurable backfill window** (a ~24h
+window is roughly a couple hundred GB of disk), not full history. Full-history backfill no longer comes
+from the relay's cache — it is pulled from the **PDS** via `com.atproto.sync.getRepo`, or through the
+official **Tap** sync tool, which subscribes to a relay, auto-backfills a repo's full history, and then
+switches to live. `[confirm]` — this is the source-of-truth-current mechanics per the atproto
+architecture FACTCHECK, superseding any "relay = full-network backup" description.
+
+Because it stopped storing full repos, a **validating, non-archival full-network relay now runs on ~2
+vCPU / 12 GB RAM / ~30 Mbps for roughly $20–34 a month, and is runnable on a Raspberry Pi** (Bryan
+Newbold's "Full-Network Relay for $34 a Month"). Why this is load-bearing for Croft: it removes the
+last "but the infrastructure is expensive" objection to the self-host / credible-exit thesis. Not only
+can a community self-run its read/index layer (the AppView spectrum above), it can self-run the
+*ingestion* layer too, on hardware it already owns — which is the concrete grounding for Croft's bet
+that the read side survives as small self-hosted nodes rather than requiring a data-center. Note the
+distinction the two figures draw: the cheap number here is the **relay** (validating firehose,
+non-archival); the heavy ~16 TB / ~$200-mo Zeppelin figure above is a **full-network AppView index**
+(the thing that stores and serves everything), a different and much larger job. `[web-verified; the
+$20–34 and Raspberry-Pi claims are the FACTCHECK's CONFIRMED-current rows but are point-in-time —
+refresh before external use.]`
+
 ## PDS self-hosting: implementations, hosts, and blob backends
 
 The official reference PDS (`@atproto/pds`, TypeScript) is **single-tenant SQLite** — per-user `.sqlite`

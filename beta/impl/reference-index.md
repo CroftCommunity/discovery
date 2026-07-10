@@ -30,6 +30,7 @@ Epistemic-status tags (aligned to the layer's own status ladder, condensed for a
 - `platform-doc` — a platform vendor's own developer documentation.
 - `prior-art` — a shipping system cited as comparative or corroborating evidence.
 - `secondary` — reporting / lecture notes / blog; corroboration only, never load-bearing alone.
+- `empirical-proof` — a prototype run on a real library in the sibling `Proofs/` repo, honest to its own stated scope boundaries; discharges a specific impl claim.
 
 Version-fact discipline: iroh and iroh-family version facts cite the FACTCHECK source of
 truth and are not re-verified here. Pinned crate versions that are volatile are flagged
@@ -409,6 +410,62 @@ truth and are not re-verified here. Pinned crate versions that are volatile are 
   (alongside RFC 9750 §6.3/§6.4 and the Meadowcap spec) that cleared four reachability-only `[confirm]`
   flags. `platform-doc` / `project-doc`. PRIMARY. Relied on by: `doc-writing-method.md`. (Illustrative of
   the method, not load-bearing on a technical claim.)
+
+---
+
+## Empirical proofs (sibling Proofs/ repo)
+
+Prototype results that discharge specific impl claims on real libraries. These live in the sibling
+`Proofs/` repo and are cited here by name, not by a cross-repo path; they run a different stack
+(openmls 0.8.1, automerge 0.7.4, a local atproto stack) than the delivery-layer experiments
+(mls-rs 0.55.2, iroh 1.0.1), so each is scoped to exactly the assumption it exercises. `empirical-proof`
+means a prototype run on a real library, honest to its own stated scope boundaries (transport stubbed,
+single-process members, and the like). PRIMARY (the proof artifact itself).
+
+- **Proof: openmls survivor external-commit re-key (Phase 1 GO).** `Proofs/alpha/lineage-groups/PHASE_1_FINDINGS.md`.
+  On openmls 0.8.1 with openmls_rust_crypto 0.5.1: external-commit survivor re-key derives an identical
+  group secret on both sides (E1.2), fresh-genesis mints a clean unrelated third epoch (E1.3), PCS holds
+  across removal (E1.1), and a revocation produced while a peer is offline still re-keys on later apply
+  (E1.4). Discharges the survivor/re-key feasibility beta had listed as a future integration experiment.
+  `empirical-proof`. PRIMARY. Relied on by: `experiments/drystone-experiments-consolidated.md` (I2, Stage 9).
+
+- **Proof: cross-machine deterministic reconcile (Part A).** `Proofs/alpha/lineage-groups/PART_A_RECONCILE_FINDINGS.md`.
+  The reconcile computation (fork detection, deterministic survivor selection, contradiction hard-stop with
+  both branches preserved, no auto-resolve) produced a byte-identical verdict on three genuinely separate
+  machines with no superpeer and no orderer, invariant across every merge order tested. Discharges the
+  order-independence half of the fold's permutation-invariance claim; does not discharge gap-completeness
+  (partition modeled as op-log exchange). `empirical-proof`. PRIMARY. Relied on by:
+  `drystone-design/fold-semantics.md`, `drystone-design/scaling-and-ordering.md`.
+
+- **Proof: backfill admission requires standing plus contiguity (A2.3).** `Proofs/alpha/lineage-groups/PHASE_2_5_FINDINGS.md`.
+  A signature-deep backfill check let two illegitimate branches through (a stranger's perfectly-signed
+  history; a gapped/reordered but well-signed sequence); closed by additionally requiring contiguous
+  sequence and author standing on the lineage. `empirical-proof`. PRIMARY. Relied on by:
+  `drystone-design/history-durability.md`.
+
+- **Proof: per-epoch admin authority (A2.4).** `Proofs/alpha/lineage-groups/PHASE_2_6_FINDINGS.md`.
+  A naive check against the immutable genesis admin set let a removed or compromised-then-evicted admin
+  keep full governance authority forever; closed by scoping authority to current-epoch standing so a
+  departed admin's signatures stop counting toward thresholds. `empirical-proof`. PRIMARY. Relied on by:
+  `drystone-design/governance-finality.md`.
+
+- **Proof: source-agnostic AppView over local and Jetstream sources (H3).** `Proofs/alpha/encrypted-local-first-atproto/jetstream-appview/`.
+  The identical ingest/index/serve code (asserted byte-identical at runtime) ran over a local encrypted
+  stack and a real atproto Jetstream firehose (genuine CIDv1 dag-cbor, create/update/delete, cursor-resume),
+  producing the same served views; the index is a disposable projection rebuilt from source.
+  `empirical-proof`. PRIMARY. Relied on by: `drystone-design/social-mapping.md`.
+
+- **Proof: public-private split, no-dangling-reference redaction.** `Proofs/alpha/encrypted-local-first-atproto/public-private-split/`.
+  Default-deny visibility keyed by the record's private AT-URI (not a published field); a public reaction
+  whose subject strong-reference pointed at a non-public record was redacted (dropped) before crossing the
+  boundary, because publishing it would leak the private record's existence and AT-URI. `empirical-proof`.
+  PRIMARY. Relied on by: `drystone-design/social-mapping.md`.
+
+- **Proof: encrypt-then-content-address dedup loss.** `experiments/alpha/encrypted-blob-share/` (spike).
+  A BLAKE3 content hash taken over ciphertext means two personas sealing the same plaintext under different
+  keys or nonces produce different content hashes, so cross-user and cross-Group dedup is forfeited while
+  within-Group (shared-key) dedup holds. `empirical-proof`. PRIMARY. Relied on by:
+  `drystone-design/asset-keying.md`.
 
 ---
 

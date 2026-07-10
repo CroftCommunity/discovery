@@ -219,6 +219,13 @@ DAG-CBOR content-addressing discipline is borrowed from, and the iOS delivery co
 These ground *values*, not mechanisms; the spec cites them as corroboration that the design is
 discovered rather than invented, and marks the value-to-mechanism gap explicitly.
 
+- **Socrates / Plato.** *Apology*, 399 BCE (Fowler trans., Loeb; Perseus
+  https://www.perseus.tufts.edu/hopper/text?doc=Plato+Apol.). PRIMARY · `[confirm]` (verbatim clauses
+  held for a later pass, confirm against a primary edition). The original-fallibilism ethics root:
+  method-as-detection-not-oracle, and the diagnosis of supposing-you-know-what-you-do-not (the
+  truth-certifying error). Carries a citation correction: "I know that I know nothing" is a paraphrase
+  not in Plato; the grounded text is *Apology* 21d–22d. Grounds Part 1 §3 (Ethics).
+
 - **Mill, J. S.** *On Liberty*, 1859. https://www.gutenberg.org/ebooks/34901. PRIMARY · `Verified`.
   Silencing the dissenter is an unjustifiable cost — the fork as the dignified exit. Grounds Part 1
   §2.5, §3, Part 2 §7.6, §8.
@@ -242,6 +249,13 @@ discovered rather than invented, and marks the value-to-mechanism gap explicitly
 - **Popper, K.** *Conjectures and Refutations*, 1963 (Routledge), §XVII (p. 30). PRIMARY · `Verified`.
   Knowledge is finite, ignorance infinite; corroboration, never verification — the shape of provenance.
   Grounds Part 1 §2.0, §2.2, §3.
+
+- **Peirce, C. S.** Fallibilism and the *community of inquiry* (Collected Papers; e.g. "The Fixation of
+  Belief," 1877, and the "do not block the way of inquiry" maxim). PRIMARY · `[confirm]` (exact wording
+  varies by essay; confirm against the primary before quoting). No belief is ever absolutely certain,
+  the road of inquiry must not be blocked, and truth is what a community converges toward over unlimited
+  time (never possessed) — the humility-in-the-mechanism half of the epistemology that pairs with Popper.
+  Grounds Part 1 §3 (Epistemology).
 
 - **Ostrom, E.** *Governing the Commons: The Evolution of Institutions for Collective Action.*
   Cambridge University Press, 1990. DOI: 10.1017/CBO9780511807763. Design principles **6**
@@ -287,6 +301,64 @@ discovered rather than invented, and marks the value-to-mechanism gap explicitly
 
 ---
 
+## Platform empirical evidence and large-group prior art (Part 2 §11)
+
+The large-group-scaling section (§11) leans on empirical platform evidence and two borrowed design
+patterns. These were folded in from a standalone companion and, until this pass, were referenced in the
+§11 body as "cited in §6's references," which was false — §6 cites none of them. They are homed here so
+the §11 pointers resolve. All are practitioner/vendor/secondary sources unless marked otherwise, and each
+carries the confirmation flag the body already applies.
+
+- **Reddit community-size and moderation data** (Reddit help/mod documentation, plus peer-reviewed
+  measurement studies on open Reddit data). SECONDARY · `Established` (participation-inequality and
+  content-removal-rate findings) / `[confirm]` (the "weekly visitors replacing member count" change,
+  current status; the ordered/rank-gated moderator model). The heavy-tail activity concentration and the
+  low-single-digit content-removal rate are the warrant for the hot/cold split. Relied on at Part 2
+  §11.5, §11.6, §11.13.
+
+- **Facebook Groups admin/moderation model** (Facebook help documentation plus practitioner sources).
+  SECONDARY · `Established` / `[confirm]` (the flat-and-symmetric two-role model may have drifted). The
+  admin-symmetry governance shape and its failure mode. Relied on at Part 2 §11.13.
+
+- **Discord platform limits and community/moderation data** (Discord API documentation; disnake/discord
+  library conventions). SECONDARY · `Established` / `[confirm]` (pinned-revision confirmation). The
+  ~250-member "large" inflection MLS libraries change behavior at, the 250,000-member server ceiling, and
+  the 250-role cap. Relied on at Part 2 §11.2, §11.5, §11.13.
+
+- **WhatsApp sender-key security analyses** (published cryptographic analyses of WhatsApp's group
+  messaging). SECONDARY · `Established`. The finding that payload encryption *without*
+  cryptographically-authenticated membership lets a server inject a member — the exact property MLS's
+  authenticated membership closes, and the justification for retaining MLS attestation in the
+  public-by-default regime. Relied on at Part 2 §11.9.1, §11.9.3, §11.13.
+
+- **AT-Protocol AppView** (the atproto application-view pattern; atproto facts are FACTCHECK-homed and the
+  ecosystem is described in the cairn layer's `atproto-ecosystem.md`). SECONDARY · `Established` (pattern)
+  · cite FACTCHECK for atproto facts. The read-cache/public-projection pattern (cheap re-derivable public
+  view without authority) that the optional public-projection tier and public-by-default bridge are
+  specified in terms of. Relied on at Part 2 §11.9.2, §11.9.3.
+
+- **A-CGKA (Administrated Continuous Group Key Agreement)** — the small-admin-set-over-a-large-member-set
+  governance-crypto lineage the §11.8 admin-over-member model names as its ancestor. SECONDARY ·
+  `[confirm]` (term used once as a comparative anchor; a definitional/source locator is owed). Relied on
+  at Part 2 §11.8.
+
+- **Webex and Cloudflare** batched-membership-handling practice. SECONDARY · `Design` composition,
+  self-flagged as secondary-sourced. The industry precedent for a batched designated committer absorbing
+  membership bursts. Relied on at Part 2 §7.9.4 (the batched-committer note).
+
+## Federation and routing prior art (Part 2 §5.10.1)
+
+- **BGP (Border Gateway Protocol), the postal/DNS delegation hierarchies, and recursive DNS
+  resolution.** PRIMARY (BGP: RFC 4271) / `Established` prior art, referenced by name, not quoted. The
+  autonomy-plus-path-vector shape (each collective an autonomous system with a sovereign interior and one
+  external peering face) and the recursive-delegation / advertise-aggregates-resolve-specifics addressing
+  model that beats the flat O(N) routing-table wall. The atproto handle-versus-DID separation (a
+  reassignable pointer over a permanent identity; FACTCHECK-homed, cairn `atproto-ecosystem.md`) is the
+  nearest live precedent for the identity-versus-locator split and the swappable-resolver discipline.
+  Grounds Part 2 §5.10.1.
+
+---
+
 ## Citation-accuracy and open-`[confirm]` note
 
 This is the layer where a wrong section number is a defect, so the corrections the changelogs record
@@ -319,6 +391,15 @@ are surfaced here, followed by the claims still not settled.
 - **Epoch-number metadata leak confirmed** verbatim against RFC 9750 (opaque `group_id` + numerical
   epoch = change count, correlatable by a network observer; mitigation is a metadata-confidential
   transport), per RFC 9750 §8.2.4 for the device-level correlation tradeoff.
+
+- **§11 dangling/false internal pointers corrected.** The §11 empirical sources (Reddit/Facebook/
+  Discord/WhatsApp/AppView) were referenced in the body as "cited in Part 2 §6('s) references," which was
+  false; the pointers now resolve to the new "Platform empirical evidence" section above. The dangling
+  "§11 appendix (external to this section file)" (the Ada/Boreas/Cyrus re-entry and ban arcs) was
+  reframed inline — no such appendix exists in the layer (Appendix E chains the main cast E1–E10 only),
+  and the missing chained arcs are tracked as an open documentation item. The "Appendix G" pointer was
+  corrected to name the `research-prompt-operational-rates.md` companion, and that companion's stale
+  back-pointer to "§7.14" was corrected to **§11.14**.
 
 **Load-bearing claims still carrying `[confirm]` (not settled until pulled from the primary):**
 

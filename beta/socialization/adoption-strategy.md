@@ -24,6 +24,13 @@ carry weight. None of this is settled; it is the shape of the argument as it cur
 
 ## The chasm thesis (the strategic premise)
 
+The *chasm* framing is Geoffrey Moore's (*Crossing the Chasm*, 1991) [CITE]: in the technology
+adoption lifecycle, the hard gap sits between the early adopters, who buy a vision, and the early
+majority, who buy a working product that already fits their life — and most challengers fall into it.
+We borrow the frame and apply it to this field; the descriptive account of why decentralized and
+local-first challengers in particular fail to cross lives in the fenced layer (source-of-record there,
+not re-argued here).
+
 The premise we build on: among the surveyed decentralized and local-first projects, essentially one
 crossed to mainstream non-technical users, and it did so by making its hard technology invisible and
 matching the incumbent experience rather than asking users to care about the architecture. The full

@@ -83,6 +83,16 @@ same thing. So "equal" in a peer relationship cannot mean identical throughput, 
 behavior. It must mean equal standing: no participant holds a capacity over another that is not
 reciprocal.
 
+[ours] The compressed handle for this at the node level is *equal in ability, not capacity*: the
+protocol grants every node the same *ability* — the same right to serve and to request, the
+stronger definition from §1 — while *capacity* (throughput, uptime, storage, radio) differs by
+hardware and operator and is expected to. A phone can be a full node when its user chooses; an
+anchor peer is a well-resourced participant, not a privileged authority. The inequality that
+remains is one of resources, which the spec keeps strictly descriptive and non-delegable (a
+resource never adds governance weight, `../drystone-spec/part-2-certifiable-design.md` §5), and
+never one of standing. This is the same equality-as-standing move stated in the architecture's own
+terms rather than the philosophers'.
+
 [cited] This is the central move of relational egalitarianism. Anderson (1999, "What Is the
 Point of Equality?") reframes equality as "a kind of social relation between persons, an
 equality of authority, status, or standing," against equality as a distribution of goods. To
@@ -120,10 +130,14 @@ not its exercise.
 in the eye without reason for fear or deference." (Adopted as state policy by Zapatero's Spain,
 2004-2010; documented in Pettit & Marti 2010.)
 
-[cited] The AI-governance literature already extends this to structural capacity: "the test is
-not whether the agent interferes wrongfully but whether it possesses the uncontrolled capacity
-for arbitrary interference. A superintelligent agent whose capabilities radically exceed those
-of its overseers possesses such capacity structurally."
+[ours] The same extension appears in AI-governance discussions that apply non-domination to
+artificial agents: the test becomes not whether an agent interferes wrongfully but whether it
+holds an uncontrolled, structurally-guaranteed capacity for arbitrary interference — an agent
+whose capabilities radically exceed its overseers' possesses that capacity by position, not by
+conduct. (Stated here as synthesis of that literature's direction, not a sourced finding: the line
+the prior draft carried as a [cited] verbatim quotation had no locatable source, so it is
+downgraded to labeled synthesis rather than upgraded, per the reference-index's "do not upgrade a
+flagged quotation" discipline.)
 
 [tension] Pettit's letter requires a *dominating agent*, "the dominating agent cannot be a
 structure or a system." And Markell (in the *Journal of Political Power* debate) warns that

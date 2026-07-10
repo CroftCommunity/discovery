@@ -130,6 +130,18 @@ Primary for the "63 break-glass changes during the 2020 election" figure. NOT-YE
 
 ---
 
+## Surveillance-advertising plank (extraction doc)
+
+Scope note: this index was originally scoped to the relational-field research brief. The entries below cover only the surveillance-advertising / adtech attack-surface section added to `platform-extraction-and-captured-labor.md` this pass. The remainder of that doc's extraction-strand sources (the Reddit/Discord captured-labor citations, the enshittification and pay-or-consent material) still need a ledger home; that broader reconciliation is tracked as a separate item and is not covered here.
+
+Real-time bidding (RTB) / bidstream surveillance model, and the *Loser's Data Loophole* (losing bidders retain the broadcast device/location data). Internal provenance: SOVEREIGN-COMMONS-DOSSIER.md §6.2 (from adtech-attack-surface source material). NOT-YET-PULLED. VERIFY-BEFORE-PUBLISH: pull the primary RTB-surveillance reporting (e.g., the Irish Council for Civil Liberties / Johnny Ryan RTB investigations) before relying on the bidstream-as-mass-surveillance framing publicly. Coined term of art, not a verbatim quote.
+
+Malvertising and zero-click render exploits via the ad-delivery pipeline. Internal provenance: dossier §6.2. NOT-YET-PULLED. VERIFY-BEFORE-PUBLISH: the general phenomenon is well documented, but no specific CVE, campaign, or vendor name is cited here; confirm any named exploit against a primary advisory before publishing.
+
+FTC location-data-broker enforcement (2024): the Mobilewalla matter and the Gravy Analytics / Venntel matter, cited as the documented bidstream-to-government supply chain. NOT-YET-PULLED. VERIFY-BEFORE-PUBLISH: confirm the FTC order/complaint dates, the precise findings, and the specific broker-to-agency (incl. CBP) links against the primary FTC records before external use; the dossier flags these details as needing independent verification.
+
+---
+
 ## At-a-glance source-quality summary
 
 Strongest (PRIMARY, peer-reviewed or sworn): Kramer et al. 2014; Verma 2014; Bail 2018; Guess et al. 2023; Nyhan et al. 2023; Haroon et al. 2023; Chen et al. 2023; Hosseinmardi 2021/2024; Slater 2007; Lees & Cikara 2020; Bak-Coleman et al. 2021; Milano et al. 2021; Milano & Prunkl 2024; Nguyen 2020; Burton et al. 2024/2026; Lorenz-Spreen et al. 2023; Reuning et al. 2022; Piccardi et al. 2024; Haugen testimony 2021; Amnesty 2022; Zuckerberg 2018 note.
