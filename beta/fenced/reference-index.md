@@ -176,9 +176,15 @@ would remove a barrier keeping iPhone families from giving children Android phon
 help; tracing to Steve Jobs' 2010 directive to lock customers into Apple's ecosystem — motive documented
 as hardware retention, not surveillance. Sourced from internal communications surfaced in the *Epic v.
 Apple* litigation, as reported (Android Police, CNBC, Pocket-lint, Thurrott). SECONDARY / reported, T2,
-high confidence on the events. The broader *Epic v. Apple* posture (9th Cir. affirmed contempt Dec 2025,
-vacated the 0% commission portion; SCOTUS declined a pause May 2026) is confirmed per the Delta/crypto
-FACTCHECK. Relied on by `platform-dominance-and-adoption.md`.
+high confidence on the events. Four verbatim exhibit quotes are folded into
+`platform-dominance-and-adoption.md` as set-off block quotes, each carrying
+**[UNVERIFIED, confirm against primary edition before publish]** (AI-surfaced from the litigation
+reporting, not yet checked against a primary edition): Federighi's 2013 "would simply serve to remove an
+obstacle to iPhone families giving their kids Android phones" (via CNBC); Jobs' 2010 "lock customers into
+our ecosystem" directive (via Thurrott); a 2016 employee's "serious lock-in" (via Pocket-lint); and
+Schiller's "will hurt us more than help us" (via Pocket-lint). The broader *Epic v. Apple* posture (9th
+Cir. affirmed contempt Dec 2025, vacated the 0% commission portion; SCOTUS declined a pause May 2026) is
+confirmed per the Delta/crypto FACTCHECK. Relied on by `platform-dominance-and-adoption.md`.
 
 **The universal trade (corpus-synthesis finding).** No deployed system delivers usability,
 decentralization, and metadata protection simultaneously; the empirical version is narrower (no

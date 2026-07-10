@@ -36,11 +36,13 @@ point here). Division of labor:
 - **this file** — the subset of not-yet-pulled-up material that is **actively queued for beta and
   blocked on specific settling work**, with that work named per thread. A thread here is a `deferred`
   rollup item with its gates made explicit and a promotion target attached.
-- `README.md` → **"Standing decisions surfaced, not resolved"** — the **decision-gate register** (the
-  user's calls): MPL/AGPL license, total-device-loss recovery anchor, cooperative legal-review, Noria name,
-  CroftC Phase-0 IP, genome-vs-strategy. These are **not** duplicated as threads here (they live in the
-  README list + the relevant theme banners); a thread may *reference* a gate, but the gate itself is tracked
-  there. (Capability Track A/B, key-custody, geer-name are tracked in `ROADMAP_TODO` A11/A12/A13 + T1/T24.)
+- `DECISIONS.md` (the pitch-resolution index) + `README.md` → **"Standing decisions: since decided, and
+  still the user's call"** — the **decision-gate register**. Several gates are now decided (MPL-2.0 substrate
+  ACCEPTED, the recovery-anchor principles, Noria name ADOPTED, load-bearing-few / badge-teeth — all in
+  `DECISIONS.md` Section 1); the ones still the user's call are the **cooperative legal-review** gate and the
+  **CroftC Phase-0 IP** call. These are **not** duplicated as threads here (they live in the README list +
+  `DECISIONS.md`); a thread may *reference* a gate, but the gate itself is tracked there. (Capability Track
+  A/B, key-custody, geer-name are tracked in `ROADMAP_TODO` A11/A12/A13 + T1/T24.)
 
 ## Entry schema
 
@@ -521,11 +523,12 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
 - **Alpha provenance:** `../alpha/thinking/rights-vs-capabilities-definitions.md` (the two open checks);
   `../alpha/ROADMAP_TODO.md` **E32 (c)**; `drystone-spec` Part 2 §5.3; `beta/04` (survivor re-key) / `beta/05` §7.
 
-> **Folded into existing, not new threads:** the inter-collective peering *settled shape* (BGP-autonomy +
-> postal-hierarchy + signed routing) → add to **T2**'s provenance so T2 doesn't re-derive it. **Borderline
-> (engineering, likely ROADMAP not a beta thread):** the Automerge-over-application audit, and the Wire
-> `core-crypto` (GPL-3.0) vs `openmls`/`mls-rs` engine+license decision (the latter couples to 07's
-> flagged MPL-vs-AGPL substrate item).
+> **Folded into existing, not new threads:** the inter-collective peering / federation *settled shape*
+> (BGP-autonomy + postal-hierarchy + signed routing) is now homed in
+> `drystone-spec/part-2-certifiable-design.md` §5 (the peer-equality / federation surface); T2 points there
+> rather than re-deriving it. **Borderline (engineering, likely ROADMAP not a beta thread):** the
+> Automerge-over-application audit, and the Wire `core-crypto` (GPL-3.0) vs `openmls`/`mls-rs`
+> engine+license decision (the latter couples to the flagged MPL-vs-AGPL substrate item).
 
 > **T24 added 2026-06-26** from the Beer/OGAS intake — the unsettled design question that fell out of
 > peerhood-as-adjudication. (Distinct from the now-closed T23, which was just the verbatim-Beer sourcing.)
@@ -814,16 +817,25 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
 
 ### Croft (Layer 6)
 
-#### T12 — Consumer-pull economic inversion (M3) + the M0–M4 product-track sequencing
+#### T12 — The M3 consumer-side / demand-side broker (the one rung still named-but-not-designed)
 
 - **Layer:** croft
-- **Status:** `open · gated` (settled-as-direction; under-designed).
-- **Type:** `needs-content` (walk-through requested).
-- **Review (2026-06-26):** the user wants a **plain-language walk-through** of this thread — they thought
-  it was resolved and want to re-understand what is settled (the M0–M4 track) vs still open (M3, the
-  consumer-pull/demand-side broker, which is named but not designed).
-- **What it is:** the **fifth rung of the "recurring inversion"** — invert the ad model into a **consumer-side / demand-side broker** (the one economic pillar of the thesis with no home in 07 or 08). Plus the **M0–M4 product track** (M0 single-user vault → M1 secure group chat → M2 social graph you hold → M3 consumer-pull inversion → M4 the cooperative) — the staged delivery spine no theme carries.
-- **Promotion target:** **07** (a third economic mechanism) and **08** (the product-track roadmap).
+- **Status:** `open · gated` (narrowed 2026-07-10). The **recurring-inversion pattern** itself is now settled
+  and homed (below); the residual open item is the **M3 consumer-side / demand-side broker** — the single
+  rung of the pattern named but not yet designed.
+- **Type:** `needs-content`.
+- **Beta home (the pattern):** the recurring-inversion PATTERN is carried whole in
+  `philosophy/the-recurring-inversion.md` — the civic pattern that ties the five rungs (stateless rendezvous,
+  blind fabric, the firm-as-fifth-rung cooperative form, …) into one move. That doc explicitly marks the
+  **consumer-side / demand-side broker** as the rung "named here but not yet designed," and points at the
+  croft layer (this thread) for it.
+- **What remains open:** the **M3 consumer-pull inversion** — inverting the ad model into a consumer-side /
+  demand-side broker (the member, not the advertiser, is who it serves; revenue flows to members, the co-op
+  takes a small transparent fee) — is named but not designed. Its place in the **M0–M4 product track** (M0
+  single-user vault → M1 secure group chat → M2 social graph you hold → M3 consumer-pull inversion → M4 the
+  cooperative) is settled; the per-milestone shape of M3 is the work.
+- **Promotion target:** `croft/product-the-garden-of-ponds.md` (the M3 milestone shape), grounded in
+  `philosophy/the-recurring-inversion.md` (the pattern). Do not close the M3 part until the broker is designed.
 - **Gates:** M3 is named but not designed; the per-milestone shape needs work before it's resolved-beta.
 - **Alpha provenance:** `../alpha/crystallized/conclusions.md` (M0–M4); `../alpha/crystallized/principles.md` (the five-scale inversion list).
 
@@ -952,8 +964,8 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
 
 - **Layer:** governance, croft
 - **Status:** `open · gated`. **Referenced, not duplicated:** the *gate itself* is the README "Standing
-  decisions surfaced, not resolved" item **"The CroftC Phase-0 IP/ownership call for the app body"** (the
-  user's call). This thread is that gate's **reasoned home** so `DECISIONS.md` can point here for the *why*;
+  decisions: since decided, and still the user's call" item **"The CroftC Phase-0 IP/ownership call for the
+  app body"** (the user's call). This thread is that gate's **reasoned home** so `DECISIONS.md` can point here for the *why*;
   per this file's intro, README gates stay tracked there and a thread may reference a gate and carry its
   reasoning.
 - **Type:** `legal-review` (the user's decision).
@@ -1012,8 +1024,14 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
   on a defined arc), never merely promised.
 - **What's indeterminate.** Whether/where these graduate into `governance/` or `philosophy/` narrative; the
   final load-bearing-few principle list (the user deferred finalizing it); and the provenance caveat below.
-- **Promotion target:** `governance/` and/or `philosophy/` once the load-bearing-few list is settled; this
-  thread only tracks the mottos as input.
+- **Beta home (the mottos as voice):** the mottos-as-deployed are now carried in
+  `socialization/brand-and-voice.md` — the closing "Every revolution has a maintenance phase. Croft is the
+  maintenance plan" motto is deployed there **as a Croft motto, not an attributed quotation**, preserving the
+  `[UNVERIFIED]` folk-wisdom caveat below; the grounded cooperative argument the motto rests on lives in
+  `governance/`. This thread stays open for the reasoned *argument* homes and the load-bearing-few list.
+- **Promotion target:** the means-determine-the-end / co-op-is-the-maintenance-plan *argument* →
+  `governance/` and/or `philosophy/` once the load-bearing-few list is settled (the user's call); the
+  mottos-as-voice are already homed in `socialization/brand-and-voice.md`.
 - **Gates:** the load-bearing-few principle set finalized (the user's call); **provenance caveat
   `[UNVERIFIED]`:** the quote "every revolution has a maintenance phase" is **unattributable folk wisdom**
   and the Gemini-era dossier citations around it carry HIGH cap risk — primary-source-verify (or present as

@@ -960,13 +960,17 @@ it is the only non-coercive output when a value is genuinely contested.
 
 Socrates is the older root of the same ethic, and the one that names the failure mode directly. In
 Plato's *Apology* (399 BCE) the method is detection, not oracle: it surfaces contradiction rather than
-imposing an answer, and the error it diagnoses is *supposing you know what you do not*, which is exactly
-the error of a truth-certifying system that mistakes consensus for knowledge. *Drystone's reading, not
-Plato's words:* the razor's refusal to compute a verdict is that Socratic humility made structural, the
-system surfaces the disagreement and declines to pronounce on it. A citation caution the design keeps for
-itself, in the spirit of the razor: the popular paraphrase "I know that I know nothing" appears nowhere in
-Plato, and the grounded text is *Apology* 21d–22d. Socrates (Plato, *Apology*, 399 BCE) · **[confirm,
-verbatim against a primary edition (Fowler trans.); the exact clauses are held for a later pass].**
+imposing an answer, and the error it diagnoses is *supposing you know what you do not* — "he supposes he
+knows something when he does not know, while I, just as I do not know, do not even suppose that I do"
+(Plato, *Apology* 21d) [confirm, verbatim against a primary edition (Fowler trans.); phrasing varies by
+translation] — which is exactly the error of a truth-certifying system that mistakes consensus for
+knowledge. *Drystone's reading, not Plato's words:* the razor's refusal to compute a verdict is that
+Socratic humility made structural, the system surfaces the disagreement and declines to pronounce on it. A
+citation caution the design keeps for itself, in the spirit of the razor: the popular paraphrase "I know
+that I know nothing" appears nowhere in Plato; the grounded text is *Apology* 21d–22d, where the accurate
+line is "For I was conscious that I knew practically nothing" (Plato, *Apology* 22d) [confirm, verbatim
+against a primary edition (Fowler trans.); phrasing varies by translation] — the distinction between
+holding a view and certifying it as known, not a boast of knowing nothing at all.
 
 **Economics, the knowledge a center would need cannot be centralized.** Decisions belong at the edges
 because the relevant knowledge only exists there:
@@ -1044,15 +1048,16 @@ corroboration, and a claim is only ever *not-yet-overturned*. That is precisely 
 
 Charles Sanders Peirce supplies the epistemology's other half, the community rather than the individual
 conjecture. Peirce's fallibilism holds that no belief is ever absolutely certain and that the cardinal
-methodological sin is to *block the road of inquiry*; truth on his account is not possessed but approached,
-what a community of inquiry converges toward over unlimited time. That is Drystone's gossip model with
-humility built into the mechanism: heads cross-checked across peers, agreement treated as corroboration
-and never as proof, the road left open. *Drystone's reading:* Popper grounds the single node's claim as
-*not-yet-overturned*, while Peirce grounds the many nodes' convergence as never-finished, and the pairing
-is why provenance is computed while a final verdict is not, the community converges without any of its
-members ever holding the certified answer. Peirce, fallibilism and the *community of inquiry* · **[confirm]**
-(phrasings vary across Peirce's essays; the verbatim wording is held for a later pass and must be confirmed
-against the primary before quoting).
+methodological sin is to block the road of inquiry — his first rule of reason, "Do not block the way of
+inquiry" (Peirce, *Collected Papers* 1.135) [confirm, verbatim against the primary; phrasing varies by
+edition]; truth on his account is not possessed but approached, what a *community of inquiry* converges
+toward over unlimited time. (The fallibilism and convergence formulations are attributed synthesis of
+Peirce's position, not verbatim clauses, and *community of inquiry* is his term of art.) That is Drystone's
+gossip model with humility built into the mechanism: heads cross-checked across peers, agreement treated as
+corroboration and never as proof, the road left open. *Drystone's reading:* Popper grounds the single
+node's claim as *not-yet-overturned*, while Peirce grounds the many nodes' convergence as never-finished,
+and the pairing is why provenance is computed while a final verdict is not, the community converges without
+any of its members ever holding the certified answer.
 
 **Political science, self-governance without a sovereign arbiter is documented to work.** This is the
 empirical answer to "is this utopian?", no. Ostrom's Nobel-recognized study of long-lived commons

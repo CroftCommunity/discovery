@@ -20,6 +20,8 @@ The de-romanticized history matters more than the heroic myth, and it cuts again
 
 This is not a revisionist flourish but the settled reading of the modern Clearances scholarship. T. M. Devine (*The Scottish Clearances*, 2018; *Clanship to Crofters' War*), James Hunter (*The Making of the Crofting Community*, 1976), and Eric Richards (*Debating the Highland Clearances*) are the authorities behind the strip-the-romance account carried here: the landlords eliminating the tacksmen to capture their cut, the new crofts engineered undersized, and the whole arrangement read from the documentary record rather than the heroic folk telling. Where §2 says the de-romanticized history cuts against the popular version, this is whose history it is.
 
+The honest limit on this reading is the genocide framing, which the same scholarship treats as genuinely contested. Devine holds it "ludicrous to suggest a genocide" and finds "no direct evidence of increasing mortality caused by clearances" (the Highland population actually rose across 1801 to the 1850s); others hold that "ethnic cleansing" fits the deliberate removal. It is a live argument among serious people, and this doc carries the Clearances as engineered dispossession without asserting the stronger charge. [UNVERIFIED, confirm against primary edition before publish]
+
 That is the trap the name carries honestly, and it is why it reads across to software: just enough space to be present, never enough to be independent, the deficit filled by working for the landlord. Naming the project after the croft names the trap first, not the triumph.
 
 ## 3. Enclosure, and the croft as the settlement point where the pendulum stopped
@@ -53,7 +55,11 @@ The verse's dating is [UNVERIFIED]: it is often cited mid-to-late eighteenth cen
 
 The pattern is global, which is why the croft matters rather than being a local curiosity. The same move recurs wherever a society intensifies agriculture, markets, or state power: Rome's *ager publicus* and the Gracchi (133 BC), Bengal's Permanent Settlement (1793), Stolypin's breaking of the Russian commune (1906), Mexico's *ejido* (dissolved 1856, restored 1917, re-privatized 1992, triggering the Zapatista rising), and the American West (the Homestead Act 1862, barbed wire as the literal fence, and the Dawes Act 1887 carving the Native commons into allotments, the closest analogue to the Highland clearances). The justification is always identical: communal tenure cast as backward, private parceling as "Improvement." Mexico's pendulum shows the commons can return and be taken again; the fight is never finally settled.
 
-The intellectual anchor under this reading is worth naming, because the doc otherwise argues enclosure-as-theft at length without the authorities the argument rests on. Karl Marx gave the process its lasting name in *Capital* vol. 1 (1867): *so-called primitive accumulation*, the forcible expropriation of the people from the soil that manufactures a class with nothing to sell but its labour. That is the canonical scholarly name for the exact move this section traces. And the "Improvement" justification — communal tenure recast as inefficiency — has its own direct rebuttal. Garrett Hardin's *The Tragedy of the Commons* (1968) is the canonical modern statement that a shared resource is doomed to overuse; Elinor Ostrom's *Governing the Commons* (1990) refuted it empirically, documenting real common-pool resources (the Törbel alpine commons, stably managed for centuries) governed sustainably by their own users without either privatization or a state. On the specific historical case the correction is sharper still: historians read Hardin as bad history, because the English commons were not overused but stolen — enclosed, not exhausted. That is the difference between calling enclosure an efficiency and calling it a theft, and it is why the "communal tenure is inefficient" rhetoric named just above is an argument beta can answer rather than merely assert. (Ostrom's governed-commons framework itself is developed in `philosophy/` and `drystone-spec/`; here it is carried only in the enclosure-rebuttal register.)
+The intellectual anchor under this reading is worth naming, because the doc otherwise argues enclosure-as-theft at length without the authorities the argument rests on. Karl Marx gave the process its lasting name in *Capital* vol. 1 (1867): *so-called primitive accumulation*, the forcible expropriation of the people from the soil that manufactures a class with nothing to sell but its labour. That is the canonical scholarly name for the exact move this section traces, and Marx named its character as bluntly as its mechanism:
+
+> the systematic theft of communal property
+
+[UNVERIFIED, confirm against primary edition before publish] And the "Improvement" justification — communal tenure recast as inefficiency — has its own direct rebuttal. Garrett Hardin's *The Tragedy of the Commons* (1968) is the canonical modern statement that a shared resource is doomed to overuse; Elinor Ostrom's *Governing the Commons* (1990) refuted it empirically, documenting real common-pool resources (the Törbel alpine commons, stably managed for centuries) governed sustainably by their own users without either privatization or a state. On the specific historical case the correction is sharper still: historians read Hardin as bad history, because the English commons were not overused but stolen — enclosed, not exhausted. That is the difference between calling enclosure an efficiency and calling it a theft, and it is why the "communal tenure is inefficient" rhetoric named just above is an argument beta can answer rather than merely assert. (Ostrom's governed-commons framework itself is developed in `philosophy/` and `drystone-spec/`; here it is carried only in the enclosure-rebuttal register.)
 
 The honest disanalogy stays visible: land is rivalrous and finite, virtual space is closer to non-rivalrous and reproducible (you can fork, you can exit; the lock-in is network effects and data gravity, not physical scarcity). The parts of the croft pattern the project claims are the engineered dependency it means to invert, the private-plot-plus-living-common as the architecture, and the maintenance burden as permanent. Where the land analogy stops carrying weight, it is said so.
 
@@ -71,9 +77,21 @@ and it marks the fenced-out paths and the closed ways of childhood:
 
 > paths to freedom and to childhood dear / A board sticks up to notice 'no road here'
 
-*Remembrances* mourns particular named places lost, grieving specific trees and nooks the way one grieves individuals. *To a Fallen Elm* gives the tradition its tightest line, turning the enclosers' own word back on them:
+*Remembrances* mourns particular named places lost, grieving specific trees and nooks the way one grieves individuals, and it stages enclosure as a conqueror levelling the whole living field:
+
+> Inclosure like a Buonaparte let not a thing remain / It levelled every bush and tree and levelled every hill / And hung the moles for traitors – though the brook is running still
+
+[UNVERIFIED, confirm against primary edition before publish]
+
+*To a Fallen Elm* gives the tradition its tightest line, turning the enclosers' own word back on them:
 
 > With axe at root he felled thee to the ground / And barked of freedom, O I hate that sound / It grows the cant terms of enslaving tools / To wrong another by the name of right.
+
+and it sharpens the same turn to a couplet, naming self-interest as the tyrant that fells whatever stands in freedom's way:
+
+> Self interest saw thee stand in freedoms ways / So thy old shadow must a tyrant be
+
+[UNVERIFIED, confirm against primary edition before publish]
 
 "Improvement" and "freedom" as the enclosers' cant is the exact rhetoric of the global pattern above, and it rhymes forward to the platform's "free" tier.
 

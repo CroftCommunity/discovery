@@ -15,6 +15,13 @@ strand in this layer (`structural-argument-narrative.md`, `relational-field-rese
 distinct authorship harm: how ranking and attention optimization shape the relational field. That is a
 different indictment; it is cross-referenced, not repeated.
 
+The analytic stance this register argues from is the *commissioner-thesis lens*: the reading that the
+platform harms follow predictably from the capital structure (growth-capital funding demands an exit; an
+exit demands an extraction story; extraction is the harm), held as the argument this work was commissioned
+to develop and test and flagged as such so it is never smuggled in as documented fact. Where a claim in
+this doc rests on that lens rather than on a sourced event, it is marked *commissioner-thesis lens* at the
+point of use; the lens is a way of reading the record, not itself a finding.
+
 ## Overview
 
 There is a second harm in the platform record, distinct from the authorship harm the sibling docs develop.
@@ -58,8 +65,15 @@ economically impossible (its developer reported the new pricing at roughly $12,0
 against about 7 billion requests in the prior month, implying a cost on the order of $20 million per year),
 and Apollo shut down on June 30, 2023. More than 300 subreddits, including very large communities, went dark
 in protest. CEO Steve Huffman, in an NBC interview, compared the platform's volunteer moderators to the
-"landed gentry," arguing that the people who got there first were an illegitimate, undemocratic aristocracy.
-The unpaid labor that built the platform's value was recast as a class to be displaced. Then the monetization
+"landed gentry":
+
+> the people who get there first get to stay there and pass it down to their descendants, and that is not
+> democratic.
+>
+> — Steve Huffman (Reddit CEO), NBC News interview, June 2023. [UNVERIFIED, confirm against primary before publish]
+
+The unpaid labor that built the platform's value was recast as an illegitimate, undemocratic aristocracy to
+be displaced. Then the monetization
 arc completed: on the same day in February 2024 that Reddit filed for its IPO, it announced a content-
 licensing deal with Google reportedly worth about $60 million a year to train AI on user-authored content, an
 OpenAI deal (reported around $70 million a year) followed, and Reddit listed on the NYSE as RDDT. The

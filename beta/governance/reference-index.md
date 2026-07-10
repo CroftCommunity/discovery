@@ -158,8 +158,10 @@ The rug-pull disarmed (unsellable ownership / credible exit as existence-proofs)
 Signal / the Signal Foundation — 501(c)(3) nonprofit (launched Feb 2018, ~$50M contribution from WhatsApp
 co-founder Brian Acton) that wholly owns Signal Messenger; architecturally centralized but uncapturable
 because the entity legally cannot be sold ("governance, not decentralization"). Whittaker's structural
-logic and Marlinspike's no-VC posture are carried as attributed synthesis; the verbatim Whittaker line is
-held for a later pass. Proves the ownership-structure defense. SECONDARY. existence-proof.
+logic is carried as narrative, with her verbatim fragment "even if I decided to become evil" folded as a
+set-off block quote `[UNVERIFIED, confirm against primary source before publish]`; Marlinspike's no-VC
+posture stays attributed synthesis (the source paraphrases it — no verbatim quote to fold). Proves the
+ownership-structure defense. SECONDARY. existence-proof.
 `[documented history — the $50M / $38M expenses / $29M revenue / $19B figures research-sourced, confirm
 against Signal Foundation filings before external reliance]`. Relied on by
 `cooperative-and-governance-prior-art.md`. Also used in `../activism/platform-extraction-and-captured-labor.md`
