@@ -50,7 +50,7 @@
 
 - **Appendix D. Term lattice and invariants** (the vocabulary of record): entities and genus, the hosting chain, MLS-carried terms, lineage and the count, the four properties and the non-property, the bundle, relation, and participant senses, the invariants of record, and the delivery-plane vocabulary.
 
-- **Appendix E. The running example, chained.** The §3.1 cast walked through the Group's whole life as one arc (E1 formation to E10 re-composition), each beat listing the sections it demonstrates and linked to the in-body beat there. Additive, no new normative content.
+- **Appendix E. The running example, chained.** The §3.1 cast walked through the Group's whole life as one arc (E1 formation to E10 re-composition), each beat listing the sections it demonstrates and linked to the in-body beat there. A §11 continuation chains the large-group cast (Ada, Boreas, Cyrus) as beats L1–L6 — dormancy, self-service re-entry, and a lineage-scoped ban. Additive, no new normative content.
 
 - **Appendix F. References and external primaries.** Every external primary the spec cites, grouped by kind and each with a precise locator, so every inline citation resolves to one entry, reconciled against the inline citations in both directions.
 
@@ -2039,7 +2039,7 @@ Per Rule 4, a fixed closed cast, players and resources both. A beat **MUST NOT**
 
 - **history-convergence node**: serves history-DAG ranges by hash on request; serves self-verifying content, holds no authority over it.
 
-The chained journey through this cast is carried inline in the in-body beats below; the separate §11-cast chained appendix once promised under Rule 4 was never folded into this layer, so the beats stand alone (the missing Ada/Boreas/Cyrus re-entry and ban arcs are tracked as an open documentation item in open-threads.md, distinct from Appendix E, which chains the main cast E1–E10 only).
+The chained journey through this cast is carried both inline in the in-body beats below and, as one continuous arc, in the §11-cast continuation of Appendix E (beats L1–L6: Ada's steady state, Boreas's dormancy and self-service re-entry, and Cyrus's ban with the lagging-node heal), the large-group parallel to the E1–E10 arc that chains the main §3.1 cast.
 
 ---
 
@@ -2148,7 +2148,7 @@ A helper serving the hot or cold Group **MUST NOT** be granted authority over me
 
 **Realizes: P (usability as a first-class constraint), P (local authority, the returner bears its own cost).**
 
-`Now suppose Boreas, dormant past the liveness window and migrated to cold, returns to the hot Group. (Beat stated inline; the chained re-entry arc is not carried as a separate appendix.)`
+`Now suppose Boreas, dormant past the liveness window and migrated to cold, returns to the hot Group. (Beats L2–L4 of the chained arc, Appendix E continued.)`
 
 #### The problem, and why a stored key package does not solve it
 
@@ -2212,7 +2212,7 @@ The ceiling itself is the ban's artifact: a **quorum-stamped fact** carrying k-o
 
 #### The invariant that makes eventual consistency safe
 
-`Now suppose Cyrus's lineage is banned at a governance position, but a node has not yet synced that far and admits Cyrus's return. (Beat stated inline; the chained ban arc is not carried as a separate appendix.)`
+`Now suppose Cyrus's lineage is banned at a governance position, but a node has not yet synced that far and admits Cyrus's return. (Beats L5–L6 of the chained arc, Appendix E continued.)`
 
 Ban propagation is **eventually consistent**, and this is safe rather than a liability, because the invariant is enforced by the key layer independently of governance-propagation timing: **a lineage sees only what it was entitled to during epochs where it held keys, and re-exclusion is eventually guaranteed by post-compromise re-keying.** A node that admits a banned-but-not-yet-known lineage will, on syncing the ban, issue the removal commit; the removal re-keys and the banned lineage is cut from new entropy, having gained only prior entitlement (zero marginal exposure, since a returned lineage briefly re-holds only keys it already had). ***Synthesis***. Consequently the design **does not require consensus on membership**, only eventual convergence, backstopped by re-keying, and dormancy cannot be used to evade a ban, because return re-subjects the lineage to the current epoch's membership and the ban re-fires on next sync.
 
@@ -2897,6 +2897,22 @@ This appendix chains the running example (§3.1) into one continuous arc, from t
 **E9. Convergence.** Dave's phone, offline through the dispute, comes back. It first computes a stale-but-honest view from the facts it already holds, correct as far as it has seen and never presenting a partial state as the whole current one, then closes the gap by gap-aware history convergence, pulling the entries it missed from the history store or a peer and folding them in. A minimal push is what woke it to look. When it has caught up, its view matches everyone else's, reached with no node having held a privileged copy the others deferred to. *(Demonstrates: Part 1 §2.1, §6.8, §7.4, §6.7.)*
 
 **E10. Re-composition.** Long after the split, Bob's lineage and the Group choose to reunite. There is no MLS merge; the re-forming authority instead declares a view, re-planting a fresh Group over both memberships, taking the more restrictive of the two thresholds, and excluding anyone banned on either side. Two personae begin this beat from the same condition, banned: Bob, whom the Group banned in E7, and Erin, who went with his lineage at the fork and whom it banned during the years apart. They reach opposite outcomes, and both are legitimate. Re-admitting Bob is an explicit governed act in the view rather than an automatic carry-across, so he returns; no one moves to re-admit Erin, so the floor holds and she stays out. The difference is not the substrate's to make but the reuniting parties', and the protocol only furnishes that both moves were possible. Every node computes the same membership from the view and the shared facts, and where the view leaves a contested role unsettled the authority decides rather than the machine guessing. Being in both lineages was legitimate and permanent; reuniting is one available move, chosen and governed, never owed. *(Demonstrates: §7.6.10, §7.6.2, §7.3.5, §7.3.8.)*
+
+### Appendix E, continued. The §11 large-group cast, chained: Ada, Boreas, and Cyrus
+
+The E1–E10 arc above walks the Group's ordinary life. §11 carries its own closed cast (§11.3) for the arcs that appear only at large-group scale — dormancy and self-service re-entry (Boreas), and a lineage-scoped ban that must stay safe under lagging propagation (Cyrus) — with Ada as the steady active member they play against. As with E1–E10 these beats are additive and introduce no actor, resource, or normative content beyond §11's text; each links to the §11 subsection that specifies the mechanism it shows.
+
+**L1. The steady state.** Ada is a persona in good standing running two clients, a phone and a laptop, folded to one persona with one unit of weight. She is a live member of the hot Group, the live-membership boundary whose per-commit cost scales on the live set rather than the whole roster, which is what lets the community stay large without every member paying for every other. *(Demonstrates: §11.4, §5.2, §5.6.)*
+
+**L2. Boreas goes dormant.** Boreas, also in good standing, stops participating. After the liveness window passes, his client migrates from the hot Group to the linked cold Group, so the hot set that pays ongoing key cost shrinks to the actually-live members while Boreas's membership is preserved rather than dropped. The cold Group rolls epochs freely in his absence and keeps no frozen-epoch snapshot for him, because the resumption secret, not a held key, is what will carry his continuity across those rolls. *(Demonstrates: §11.6, §11.7.)*
+
+**L3. Boreas returns, and pays his own way.** Boreas comes back past the window. A stored KeyPackage cannot bring him in — a KeyPackage is consumed by an existing member producing a Welcome under the current epoch's secrets, which he cannot make — so he re-enters by his own external commit against a fetched GroupInfo, putting the cost on the returner rather than on an active member. He presents one bound two-part credential: a fresh governance attestation over a witnessed chain position (the standing half) welded under a single signature to a resumption-PSK ticket (the key half), each covering the other's blind spot. The GroupInfo is treated as a claim corroborated against the governance chain he already holds, never as authority. *(Demonstrates: §11.7, §7.4.2, §7.3.6.)*
+
+**L4. What Boreas recovers, honestly bounded.** On admission Boreas re-keys to the current hot epoch and participates at once, with the dormancy-window history streaming in behind him from the history DAG by hash-range query, decoupled from key continuity, so return does not stall on backfill. Reading that archived gap relies on a re-grantable archival key — a deliberate and stated bounded relaxation of forward secrecy for archived content — while live message keys stay forward-secure. *(Demonstrates: §11.7, §11.1.)*
+
+**L5. Cyrus is banned.** Cyrus, once a member, has his lineage banned by a k-of-n quorum. The ban is recorded on the single governance chain spanning both the hot and cold Groups — standing is a fact about personae, who span both, so there is exactly one standing log — and it is a fork, not a deletion: Cyrus's lineage keeps everything up to the quorum-stamped ceiling and loses only forward corroboration. Because a ban is lineage-scoped where MLS sees only clients, enforcement lives in an application-layer admission gate that resolves a returner's lineage against the ceiling at head, never over the range the returner chooses to assert. *(Demonstrates: §11.8, §7.6.4, §7.3.5.)*
+
+**L6. A lagging node admits Cyrus, and the key layer heals it.** A node that has not synced as far as the ban admits Cyrus's return. This is safe rather than a hole: ban propagation is eventually consistent, and the invariant is held by the key layer independently of governance timing — a lineage sees only what it was entitled to in the epochs where it held keys, and on syncing the ban an active member commits the removal, whose re-key cuts Cyrus from new entropy with zero marginal exposure, since he briefly re-held only keys he already had. So the design needs no consensus on membership, only eventual convergence backstopped by re-keying, and dormancy cannot be used to evade a ban. The residual floor, owned as such: exclusion latency is bounded by hot-Group commit liveness, so the thing to monitor at scale is commit liveness, not membership consensus. *(Demonstrates: §11.8.)*
 
 ## Appendix F. References and external primaries
 
