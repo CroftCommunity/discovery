@@ -1,0 +1,16 @@
+# Battery 7 — the re-plant (fork/heal/re-key) mechanism, against a REAL MLS library
+# (openmls 0.8.1, the version the mls-welcome-over-iroh spike pinned). Rung A. Standalone
+# crate (own lockfile); does not depend on the Proofs lineage-mls wrapper (absent here).
+[package]
+name = "mls-replant"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+openmls = "=0.8.1"
+openmls_rust_crypto = "=0.5.1"
+openmls_basic_credential = "=0.5.0"
+openmls_traits = "=0.5.0"
+tls_codec = "0.4"
+
+[dev-dependencies]

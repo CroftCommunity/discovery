@@ -1,0 +1,27 @@
+# E12 — blind media-meer: SFrame-over-MLS. Standalone spike (same pattern as the faithful crate):
+# path-deps the REAL openmls-backed lineage-mls so SFrame keys come from a real MLS exporter secret,
+# not a fixture. Spike-class (no TDD gate) — measures the C3 keying decision. Own Cargo.lock = own pin.
+[workspace]
+
+[package]
+name = "media-sframe-spike"
+description = "TC-KEY1-4: per-sender SFrame keys derived from a real MLS group's exporter secret + leaf index; loss-tolerant AEAD decrypt with replay reject; epoch-rotation revocation (media MD-G5); blind SFU recovers zero plaintext."
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+authors = ["Chase Pettet <chase@owasp.org>"]
+publish = false
+
+[dependencies]
+# The REAL openmls wrapper + ids, by path (NOT re-implemented) — the SFrame base key is HKDF over
+# the genuine MLS exporter secret (epoch_proof), so revocation = epoch advance = key rotation for real.
+lineage-mls = { path = "../../../../Proofs/lineage-groups/crates/lineage-mls" }
+lineage-core = { path = "../../../../Proofs/lineage-groups/crates/lineage-core" }
+# SFrame primitives: HKDF-SHA256 key schedule + ChaCha20-Poly1305 AEAD on the media payload.
+hkdf = "0.12"
+sha2 = "0.10"
+chacha20poly1305 = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"

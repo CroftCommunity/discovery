@@ -1,0 +1,38 @@
+# Standalone experiment crate. Declared as its own workspace so it is never
+# accidentally pulled into a parent Cargo workspace if one is ever added to the
+# repo root.
+[workspace]
+
+[package]
+name = "encrypted-blob-share"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Standalone experiment: encrypt a photo under an MLS-exporter epoch key, store and transfer it byte-for-byte over real iroh-blobs QUIC as ciphertext, reference it from an Automerge CRDT doc by ciphertext hash, then fetch + decrypt as a second group member."
+
+[dependencies]
+# --- p2p transport + content-addressed blob store (the headline: REAL networking) ---
+# iroh-blobs 0.102 ("canary" line; README says use 0.35 for production) paired with
+# iroh 1.0.0-rc.1. See README.md for the version-line decision and friction log.
+iroh = "=1.0.0-rc.1"
+iroh-blobs = "=0.102.0"
+
+# --- MLS group + per-epoch exporter key ---
+openmls = "=0.8.1"
+openmls_rust_crypto = "=0.5.1"
+openmls_traits = "=0.5.0"
+openmls_basic_credential = "=0.5.0"
+
+# --- CRDT document holding the attachment *reference* (not the bytes) ---
+automerge = "=0.10.0"
+
+# --- AEAD for encrypt-before-store + content hashing ---
+chacha20poly1305 = "=0.10.0"
+rand = "=0.8.5"
+blake3 = "1"
+
+# --- plumbing ---
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "rt", "signal", "time"] }

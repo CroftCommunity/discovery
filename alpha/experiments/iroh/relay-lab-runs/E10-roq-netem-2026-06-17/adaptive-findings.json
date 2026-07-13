@@ -1,0 +1,30 @@
+{
+  "experiment": "E10c / TC-CC2",
+  "title": "The media estimator, closed loop — delay-based AIMD on iroh path-RTT (bandwidth ramp)",
+  "date": "2026-06-17",
+  "design_ref": "realtime-media-over-iroh.md C1 solution point 2 (the media estimator MUST be authoritative); TC-CC2 bandwidth-ramp",
+  "harness": "relay-loadtest roq-send --adaptive (src/roq.rs): baseline RTT = running min; if path-RTT > base+rtt_budget_ms (50) -> bitrate *=0.7 (floor min-kbps 8); else += 8 kbps up to target. Recomputes datagram payload size per frame.",
+  "method": "64 kbps source, node-1->node-2, start UNSHAPED (healthy ~2ms baseline), drop a 40 kbit netem cap at t=8s mid-call. Compare fixed vs adaptive.",
+  "results": {
+    "ramp-fixed": {
+      "base_rtt_ms": 2, "final_kbps": 64,
+      "rtt_ms_min": 2, "rtt_ms_mean": 2446, "rtt_ms_max": 7024,
+      "rtt_trajectory_after_cap": "401 -> 891 -> 1837 -> 3033 -> 4980 -> 6936 (monotonic, unbounded)",
+      "verdict": "bufferbloat: RTT diverges; call unusable"
+    },
+    "ramp-adaptive": {
+      "base_rtt_ms": 1.6, "final_kbps": 8,
+      "rtt_ms_min": 2, "rtt_ms_mean": 689, "rtt_ms_max": 1609,
+      "bitrate_response": "64 -> 14 -> 8 kbps within ~1s of the cap dropping",
+      "rtt_trajectory_after_cap": "395 -> 754 -> 1010 -> 959 -> 862 -> 1110 -> 1594 (bounded, oscillating ~0.8-1.6s)",
+      "receiver": {"received": 1100, "goodput_kbps": 26.1, "loss_pct": 0.0},
+      "verdict": "bounded: estimator backs off in <1s; RTT stabilizes; receiver gets a continuous degraded-but-live stream"
+    }
+  },
+  "finding": "The C1 estimator the design requires not only CAN read iroh's path-RTT — it ACTS on it effectively. On a mid-call bandwidth drop, fixed bitrate bufferbloats unbounded (RTT 7s+ and climbing, call dead); delay-based AIMD backs off in under a second and bounds RTT to ~1s while delivering a continuous lossless (degraded) stream. Peak RTT cut 4.4x (7024->1609ms), mean 3.6x (2446->689ms). Open question #1 from the round summary is closed: the RTT signal is actionable, and adaptation is the difference between a dead call and a degraded-but-live one.",
+  "caveats": [
+    "Residual RTT ~1s (not ~50ms): the initial overshoot before backoff seeds a queue, and the netem rate qdisc + relay-path contention hold a standing queue even at 8 kbps. A real engine would pace down faster and/or flush; this is a GCC/BBR-lite stand-in.",
+    "The cap-from-START case (e10-adaptive.sh / e10both.sh) does NOT bound RTT: if the path is already saturated when the call begins, the baseline locks high and the standing queue never drains regardless of source rate or send-buffer size. Adaptation helps the DEGRADATION case (TC-CC2), not the join-an-already-dead-link case.",
+    "Synthetic CBR; a raw-UDP side-baseline (to separate iroh/relay contribution from the netem qdisc) remains the E10 follow-on."
+  ]
+}

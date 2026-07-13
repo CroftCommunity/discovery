@@ -1,0 +1,21 @@
+[package]
+name = "croft-chat-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "TDD-built, production-grade CLI for driving Croft group-chat scenarios over a pluggable transport (in-proc deterministic adapter first; real-iroh adapter to follow)."
+
+[lib]
+name = "croft_chat_cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "croft-chat"
+path = "src/main.rs"
+
+[dependencies]
+# Only deps driven by a passing test belong here (workspace convention).
+# Forced by the Phase 7 wiring test: the shell drives the pure domain core.
+group-core = { path = "../group-core" }

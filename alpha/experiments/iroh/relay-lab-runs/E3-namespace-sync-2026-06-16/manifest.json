@@ -1,0 +1,22 @@
+{
+  "experiment": "E3",
+  "facet": "namespace-sharded fan-out sync — the core co-location thesis",
+  "date": "2026-06-16",
+  "iroh_sha": "iroh=1.0.0",
+  "workload": "real eventual-sync (Automerge 0.10.0) anti-entropy over iroh bi-streams. Each member holds an AutoCommit doc, contributes one entry (p{index}=index), and runs Automerge sync sessions with the rendezvous hub until it holds the whole namespace (every member's entry). Sync protocol verified against automerge 0.10.0 source.",
+  "topology": "1 relay shard = node-1 (172.31.43.122). Rendezvous hub = node-2 (homed on the shard). Members = node-3, all forced relay-only (clear_ip_transports) and homed on the shard. Real cross-VPC on every hop. The hub is just a co-located member acting as rendezvous (NOT a meer — no always-on/confidentiality role here; that is E8/E9).",
+  "metric_source": "relay OpenMetrics endpoint (config.metrics_addr): relayserver_send_packets_dropped_total (the co-location-miss signal), accepts_total, unique_client_keys_total.",
+  "runs": [
+    { "population": 12, "converged": "12/12", "min_keys": 12, "send_packets_dropped": 0, "accepts_total": 14, "wall_s": 1 },
+    { "population": 30, "converged": "30/30", "min_keys": 30, "send_packets_dropped": 0, "accepts_total": 45, "wall_s": 1 }
+  ],
+  "result": {
+    "finding": "Within a correctly-sharded namespace, EVERY member converges to the full shared CRDT state (12/12 and 30/30), forced relay-only, by meeting a local co-located peer — no point-to-point arrangement between members. The relay's send_packets_dropped counter stayed EXACTLY 0 across both runs: zero co-location misses within the shard. This is the spec's load-bearing fact, confirmed: co-location is mandatory and sufficient for namespace convergence.",
+    "with_e2": "E2 already showed the negative: a WRONG placement (peer homed elsewhere) -> no connection at all, because relays don't mesh. Together E2+E3 prove the thesis end to end: DNS-placement-by-namespace co-locates members on one shard, and within that shard everyone converges with dropped~=0.",
+    "caveats": [
+      "The harness reached full convergence via an anti-entropy retry loop (member re-syncs with the hub until it holds the whole namespace; hub loops accept_bi per connection). A single Automerge sync session converges a peer only to the hub's state AT THAT MOMENT, so concurrent contributors need a retry round as the hub fills — expected anti-entropy behaviour, not a transport issue.",
+      "Rendezvous-hub topology (members converge via the hub) rather than a full random-peer gossip mesh. It proves co-location + dropped~=0 + 'meet a local peer, not the owner'. A full member-to-member gossip mesh (each member syncs a random co-located subset) is the stronger form of 'enough partners, not a specific one' and is a refinement.",
+      "edit-rate / churn / fan-out axes (spec) not yet swept; population swept (12, 30)."
+    ]
+  }
+}

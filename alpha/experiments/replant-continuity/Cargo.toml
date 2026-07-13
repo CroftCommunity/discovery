@@ -1,0 +1,17 @@
+# E12.7 — Rung-B governance continuity: the bridge that proves the member set the
+# governance fold DERIVES is exactly the member set the MLS re-plant STAMPS, across changes.
+# Standalone crate (own lockfile). Depends on BOTH the mutation-vetted fold and the standalone
+# re-plant crate by path — deliberately the ONLY place openmls and the substrate meet, so the
+# substrate stays openmls-free.
+[package]
+name = "replant-continuity"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+local_storage_projection = { path = "../local_storage_projection" }
+mls-replant = { path = "../mls-replant" }
+redb = "2.4"
+tempfile = "3"
+
+[dev-dependencies]

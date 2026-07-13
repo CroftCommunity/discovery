@@ -1,0 +1,48 @@
+[09:39] relay + meer A on node-1
+[09:39] meer A online
+[09:39] step 1: member-1 publishes 5 encrypted blobs (meer never sees the key)
+{"published":5}
+[2m2026-06-17T13:39:44.639718Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.
+[2m2026-06-17T13:39:44.640111Z[0m [31mERROR[0m [2mnoq::connection[0m[2m:[0m I/O error: connection closed
+[09:39] step 2: member-2 (offline-until-now) syncs through the blind meer and converges
+{
+  "all_converged": true,
+  "converged": 5,
+  "expected": 5,
+  "fetched": 5
+}
+[2m2026-06-17T13:39:45.729159Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.
+[09:39] step 3: blindness proof — meer A stats
+{
+  "meer_connections": 3,
+  "meer_admitted": 3,
+  "meer_rejected": 0,
+  "meer_blobs_stored": 5,
+  "meer_bytes_mirrored": 140,
+  "meer_sync_requests": 1,
+  "meer_blobs_served": 5,
+  "meer_payload_keys_held": 0,
+  "meer_namespaces_observed": [
+    "household-v1"
+  ]
+}
+[2m2026-06-17T13:39:46.547681Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.
+[2m2026-06-17T13:39:46.547889Z[0m [31mERROR[0m [2mnoq::connection[0m[2m:[0m I/O error: connection closed
+[09:39] step 4: anti-entrenchment — export meer A store, import into replacement meer B, re-home + converge
+{"exported":5,"to":"/tmp/meer-export.json"}
+[2m2026-06-17T13:39:47.374741Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.
+[2m2026-06-17T13:39:47.375115Z[0m [31mERROR[0m [2mnoq::connection[0m[2m:[0m I/O error: connection closed
+{"imported":5,"of":5}
+[2m2026-06-17T13:39:53.742101Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.
+[09:39] step 4b: member re-homes to meer B and syncs
+{
+  "all_converged": true,
+  "converged": 5,
+  "expected": 5,
+  "fetched": 5
+}
+[2m2026-06-17T13:39:54.577557Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.
+[09:39] step 5: admission — meer C with an allowlist denies a non-listed peer
+[2m2026-06-17T13:40:00.930200Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.
+meerC admission-denied log lines: 0
+[09:40] meer P0+P1 done. artifacts in /Users/cpettet/git/chasemp/CroftC/experiments/iroh/relay-lab-runs/E9-meer-tier0-2026-06-17

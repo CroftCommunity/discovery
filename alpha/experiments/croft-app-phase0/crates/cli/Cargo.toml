@@ -1,0 +1,20 @@
+# The Phase 0 imperative shell: feeds intents in, renders view models out,
+# performs effects. The only crate that holds and calls the port (DECISION 1).
+[package]
+name = "pond-cli"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "pond_cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "pond"
+path = "src/main.rs"
+
+[dependencies]
+app-core = { path = "../core" }
+# Needs the port trait, native types, the fake, and the real adapter.
+bluesky = { path = "../bluesky", features = ["fake", "adapter"] }

@@ -1,0 +1,12 @@
+[21:48:21] start relay-A (node-1) + relay-B (node-2)
+[21:48:26] home the mobile peer on relay-A (node-1), pinned secret => stable id
+[21:48:32] peer id=248acbdbaf9e050196de704bea2d68770e519150d103b587dae2d9cad53dd930
+[21:48:32] === PRE-CHURN: assign=A (correct) ===
+[21:48:33]   connected=True relay_used=https://172.31.43.122:3343/ err=None
+[21:48:33] === CHURN: re-home peer A->B (kill on node-1, restart on node-2, same id) ===
+[21:48:42]   re-homed peer id=248acbdbaf9e050196de704bea2d68770e519150d103b587dae2d9cad53dd930 (same as before: YES)
+[21:48:42] === WINDOW: stale assign=A after the move (expect FAIL — peer not on A, no relay mesh) ===
+[21:48:57]   connected=False relay_used=None err=timed out after 12s
+[21:48:57] === POST-CHURN: assign=B (correct, converged) ===
+[21:48:58]   connected=True relay_used=https://172.31.19.13:3343/ err=None
+[21:48:58] E7 done

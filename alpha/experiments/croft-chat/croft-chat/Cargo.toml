@@ -1,0 +1,45 @@
+[package]
+name = "croft-chat"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Drystone two-pane TUI chat demo: the shell that owns the ports and drives the tenant core."
+
+[lib]
+name = "croft_chat"
+path = "src/lib.rs"
+
+[[bin]]
+name = "croft-chat"
+path = "src/main.rs"
+
+[dependencies]
+social-graph-core = { path = "../social-graph-core" }
+group-chat-core = { path = "../group-chat-core" }
+local_storage_projection.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+ratatui = "0.29"
+tokio.workspace = true
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+thiserror.workspace = true
+
+# iroh transport — optional, behind the `iroh-it` feature, so default builds and
+# tests pull none of iroh's large dependency tree. iroh carries its own
+# ed25519/sha2 majors; they coexist with social-graph-core's pins because no
+# crypto type crosses the payload-blind transport boundary (frames are opaque).
+iroh = { version = "1.0.0", optional = true }
+iroh-gossip = { version = "0.101", optional = true }
+n0-future = { version = "0.3", optional = true }
+anyhow = { version = "1", optional = true }
+serde_json = { version = "1", optional = true }
+
+[features]
+# The iroh adapter + its network integration test + the cross-host `serve`
+# command. Off by default.
+iroh-it = ["dep:iroh", "dep:iroh-gossip", "dep:n0-future", "dep:anyhow", "dep:serde_json"]
+
+[dev-dependencies]
+tempfile.workspace = true

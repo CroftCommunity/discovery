@@ -1,0 +1,675 @@
+{
+  "role": "roq-send",
+  "target_kbps": 64,
+  "frame_ms": 20,
+  "bytes_per_pkt": 160,
+  "duration_s": 20.302186916,
+  "send_buf_bytes": null,
+  "adaptive": false,
+  "final_kbps": 64,
+  "base_rtt_ms": 0.0,
+  "sent": 1000,
+  "send_errors": 0,
+  "err_buffer_full": 0,
+  "err_too_large": 0,
+  "err_other": 0,
+  "max_datagram_size": 1162,
+  "achieved_kbps": 63.04739510556085,
+  "rtt_ms_min": 61.308927,
+  "rtt_ms_max": 9484.962871,
+  "rtt_ms_mean": 4603.88830352688,
+  "samples": [
+    {
+      "t_ms": 201,
+      "rtt_ms": 61.308927,
+      "send_buf_space": 1048416,
+      "is_relay": true,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 401,
+      "rtt_ms": 201.95464199999998,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 621,
+      "rtt_ms": 201.95464199999998,
+      "send_buf_space": 1046976,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 841,
+      "rtt_ms": 284.604664,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 1061,
+      "rtt_ms": 154.460987,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 1281,
+      "rtt_ms": 186.97455599999998,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 1501,
+      "rtt_ms": 287.4528,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 1721,
+      "rtt_ms": 429.637086,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 1941,
+      "rtt_ms": 545.220115,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 2161,
+      "rtt_ms": 655.989762,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 2361,
+      "rtt_ms": 765.948564,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 2562,
+      "rtt_ms": 881.534396,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 2781,
+      "rtt_ms": 972.3383650000001,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 2981,
+      "rtt_ms": 1064.8445769999998,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 3201,
+      "rtt_ms": 1170.567207,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 3421,
+      "rtt_ms": 1292.519283,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 3641,
+      "rtt_ms": 1401.9642110000002,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 3841,
+      "rtt_ms": 1500.498406,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 4041,
+      "rtt_ms": 1616.927641,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 4261,
+      "rtt_ms": 1726.830465,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 4461,
+      "rtt_ms": 1823.336411,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 4681,
+      "rtt_ms": 1923.9279410000001,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 4881,
+      "rtt_ms": 2030.205517,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 5082,
+      "rtt_ms": 2125.744767,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 5301,
+      "rtt_ms": 2233.1439450000003,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 5502,
+      "rtt_ms": 2341.439603,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 5721,
+      "rtt_ms": 2448.026692,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 5941,
+      "rtt_ms": 2557.432714,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 6161,
+      "rtt_ms": 2663.465489,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 6381,
+      "rtt_ms": 2770.9993600000003,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 6602,
+      "rtt_ms": 2890.605267,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 6821,
+      "rtt_ms": 2999.270035,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 7041,
+      "rtt_ms": 3119.21577,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 7261,
+      "rtt_ms": 3227.2456389999998,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 7461,
+      "rtt_ms": 3322.535528,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 7662,
+      "rtt_ms": 3430.202377,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 7882,
+      "rtt_ms": 3537.669868,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 8101,
+      "rtt_ms": 3645.504191,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 8301,
+      "rtt_ms": 3741.138014,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 8521,
+      "rtt_ms": 3860.6770460000002,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 8741,
+      "rtt_ms": 3967.900366,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 8961,
+      "rtt_ms": 4075.4220459999997,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 9181,
+      "rtt_ms": 4183.069205,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 9381,
+      "rtt_ms": 4278.771054,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 9582,
+      "rtt_ms": 4386.2776810000005,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 9782,
+      "rtt_ms": 4481.949674,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 10001,
+      "rtt_ms": 4589.502817,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 10201,
+      "rtt_ms": 4697.166957,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 10422,
+      "rtt_ms": 4804.728105,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 10642,
+      "rtt_ms": 4912.486886,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 10860,
+      "rtt_ms": 5019.904135,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 11061,
+      "rtt_ms": 5129.243343,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 11262,
+      "rtt_ms": 5225.170225,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 11481,
+      "rtt_ms": 5333.023285,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 11702,
+      "rtt_ms": 5440.995945,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 11921,
+      "rtt_ms": 5560.533206,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 12122,
+      "rtt_ms": 5656.3328950000005,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 12341,
+      "rtt_ms": 5773.318787,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 12542,
+      "rtt_ms": 5867.620769,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 12761,
+      "rtt_ms": 5975.048579,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 12981,
+      "rtt_ms": 6081.867414,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 13182,
+      "rtt_ms": 6190.248093,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 13401,
+      "rtt_ms": 6297.683072,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 13602,
+      "rtt_ms": 6393.310742,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 13802,
+      "rtt_ms": 6500.738961,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 14021,
+      "rtt_ms": 6608.148298,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 14221,
+      "rtt_ms": 6704.0206419999995,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 14441,
+      "rtt_ms": 6811.579377,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 14641,
+      "rtt_ms": 6918.781097,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 14861,
+      "rtt_ms": 7026.394938,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 15081,
+      "rtt_ms": 7146.087947,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 15301,
+      "rtt_ms": 7250.443015,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 15501,
+      "rtt_ms": 7345.227586,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 15721,
+      "rtt_ms": 7452.831287,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 15941,
+      "rtt_ms": 7571.889208,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 16141,
+      "rtt_ms": 7667.841848,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 16341,
+      "rtt_ms": 7763.1197600000005,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 16561,
+      "rtt_ms": 7882.7296369999995,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 16782,
+      "rtt_ms": 7990.387686,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 17002,
+      "rtt_ms": 8098.086758999999,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 17221,
+      "rtt_ms": 8205.643584000001,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 17442,
+      "rtt_ms": 8313.020821,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 17661,
+      "rtt_ms": 8432.846703,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 17862,
+      "rtt_ms": 8528.480274,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 18082,
+      "rtt_ms": 8636.454798,
+      "send_buf_space": 1048576,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 18301,
+      "rtt_ms": 8743.325648,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 18501,
+      "rtt_ms": 8850.899959,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 18702,
+      "rtt_ms": 8946.283075,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 18922,
+      "rtt_ms": 9054.571558,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 19141,
+      "rtt_ms": 9162.371943,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 19341,
+      "rtt_ms": 9269.620174,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 19562,
+      "rtt_ms": 9377.930022999999,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    },
+    {
+      "t_ms": 19781,
+      "rtt_ms": 9484.962871,
+      "send_buf_space": 1048416,
+      "is_relay": false,
+      "cur_kbps": 64
+    }
+  ]
+}
+[2m2026-06-17T14:45:40.756357Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.

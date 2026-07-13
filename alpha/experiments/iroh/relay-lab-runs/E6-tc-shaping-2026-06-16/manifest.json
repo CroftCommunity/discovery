@@ -1,0 +1,19 @@
+{
+  "experiment": "E6",
+  "facet": "tc netem traffic shaping — do the tiered delivery guarantees hold or degrade VISIBLY (never silently) under added latency/loss?",
+  "date": "2026-06-16",
+  "iroh_sha": "iroh-relay=1.0.0",
+  "topology": "relay + responder on node-1 (ens5, 172.31.43.122); generator (relay-only passthrough, 12 conns x 256KiB, concurrency 6) on node-2 (172.31.19.13). tc applied ONLY to node-1->node-2 egress via prio qdisc + u32 dst filter, so the Mac's SSH path is unshaped and a watchdog clears tc after 240s regardless.",
+  "method": "For each condition (baseline / +100ms delay / 10% loss / 30% loss) set the netem qdisc on the filtered band, run the generator, parse the relay-path RTT (p50/mean/max) + established/failed + establish_ms from the generator JSON summary.",
+  "conditions": [
+    { "name": "baseline",   "netem": "none",        "established": "12/12", "failed": 0, "establish_ms": 5585,  "relay_rtt_ms": { "p50": 25.3,  "mean": 41.4,  "max": 101.4 } },
+    { "name": "delay100",   "netem": "delay 100ms", "established": "12/12", "failed": 0, "establish_ms": 9608,  "relay_rtt_ms": { "p50": 249.9, "mean": 301.6, "max": 485.5 } },
+    { "name": "loss10",     "netem": "loss 10%",    "established": "12/12", "failed": 0, "establish_ms": 6358,  "relay_rtt_ms": { "p50": 35.8,  "mean": 52.3,  "max": 141.2 } },
+    { "name": "loss30",     "netem": "loss 30%",    "established": "12/12", "failed": 0, "establish_ms": 28431, "relay_rtt_ms": { "p50": 344.9, "mean": 389.6, "max": 946.0 } }
+  ],
+  "result": {
+    "exit": "MET — under every shaping condition all 12 connections still ESTABLISHED (0 failed): the eventual-delivery guarantee holds. Degradation is VISIBLE in the client-measurable RTT and establish time (delay100: RTT p50 25->250ms; loss30: establish 5.6s->28.4s, RTT max ->946ms), never a silent drop. QUIC degrades gracefully (heavier retransmit) rather than thrashing/collapsing.",
+    "ti4_mapping": "Interactive tier (prompt + fail-signal): the added latency is measurable client-side via conn.paths() RTT, so a UI can surface 'slow/degraded' rather than hang silently. Eventual tier: delivery completed under all conditions incl. 30% loss. Best-effort: never needed to drop — nothing silently lost.",
+    "caveat": "Egress shaping only (node-1->node-2); ingress is the app-layer client_rx limiter, not exercised here. Loss applied to the relay->client leg; the client->relay leg unshaped (asymmetric). Bandwidth-cap (rate) condition not run — delay+loss covered the visible-degradation claim. No sustained-throughput-under-shaping bulk test; this measures connection establishment + control-plane RTT, not steady-state goodput under netem."
+  }
+}

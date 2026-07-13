@@ -1,0 +1,22 @@
+[workspace]
+members = [
+    "crates/croft-chat-cli",
+    "crates/group-core",
+]
+resolver = "2"
+
+# croft-chat-cli inherits exactly these five fields via `*.workspace = true`
+# (version / edition / rust-version / license / authors). It does NOT inherit
+# `repository`, so this workspace deliberately does not carry the stale
+# alt-drive URL the chat CLI grew up under.
+[workspace.package]
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT OR Apache-2.0"
+authors = ["Chase Pettet <chase@owasp.org>"]
+repository = "https://github.com/CroftCommunity/experiments"
+
+[workspace.dependencies]
+# Only deps that are actually driven by a passing test belong here.
+# Add to this list when a test forces it; do not add speculatively.

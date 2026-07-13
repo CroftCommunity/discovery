@@ -1,0 +1,7 @@
+[21:44:36] starting relay + responder on node-1
+[21:44:45] responder up
+[21:44:55] === baseline (CLEAR) === established=12 live_relay=12 failed=0 establish_ms=5585 relay_rtt_ms p50=25.3 mean=41.4 max=101.4
+[21:45:10] === delay100 (delay 100ms) === established=12 live_relay=12 failed=0 establish_ms=9608 relay_rtt_ms p50=249.9 mean=301.6 max=485.5
+[21:45:21] === loss10 (loss 10%) === established=12 live_relay=12 failed=0 establish_ms=6358 relay_rtt_ms p50=35.8 mean=52.3 max=141.2
+[21:45:54] === loss30 (loss 30%) === established=12 live_relay=12 failed=0 establish_ms=28431 relay_rtt_ms p50=344.9 mean=389.6 max=946.0
+[21:45:55] E6 done

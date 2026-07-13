@@ -1,0 +1,13 @@
+{
+  "tc_key1_distinct_keys_nonmember_cannot_derive": true,
+  "tc_key2_lossy_reordered_decrypt_replay_reject": true,
+  "tc_key3_revoked_undecryptable_history_retained": true,
+  "tc_key4_blind_sfu_zero_plaintext": true,
+  "notes": [
+    "group built: epoch=1 members=3 leaf(alice)=0 leaf(carol)=2 exporter_secret_len=32",
+    "TC-KEY1: alice/carol keys distinct; non-member epoch_proof() errs (no standing)",
+    "TC-KEY2: lost 10 of 100, reordered; decrypted 90/90 out-of-order; replays rejected 90/90",
+    "TC-KEY3: removal advanced epoch 1->2, secret rotated; removed carol stuck@1 (no S2); her later frame rejected (stale+non-member); pre-revoke history still decrypts; group works post-removal",
+    "TC-KEY4: SFU routed 92/92 frames from clear headers; recovered 0 plaintext bytes (blind)"
+  ]
+}

@@ -1,0 +1,23 @@
+[package]
+name = "social-graph-core"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Tenant-agnostic Drystone social-graph substrate facade over the redb projection."
+
+[dependencies]
+local_storage_projection.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+# Crypto: implemented directly over ed25519-dalek (Pass-3 decision — no
+# cross-repo lineage-core dep). These are the only ed25519/sha2 consumers in our
+# half of the workspace, so the pins are ours to control (see the iroh
+# dependency-collision Open Question). SigningKey zeroizes on drop by default.
+ed25519-dalek = "2"
+sha2 = "0.10"
+getrandom = "0.2"
+
+[dev-dependencies]
+tempfile.workspace = true
+tokio.workspace = true

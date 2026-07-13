@@ -1,0 +1,24 @@
+# The web shell: the Leptos app that renders core view models to the DOM and
+# performs FetchFeed via the browser's fetch (no Rust TLS — see spec 0a).
+# Builds only for wasm (via trunk); kept out of the host default-members.
+[package]
+name = "web"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+app-core = { path = "../core" }
+bluesky = { path = "../bluesky", features = ["serde"] }
+design = { path = "../design" }
+shell = { path = "../shell" }
+leptos = { version = "0.8.10", features = ["csr"] }
+gloo-net = { version = "0.6.0", features = ["http"] }
+wasm-bindgen-futures = "0.4.50"
+wasm-bindgen = "0.2.100"
+js-sys = "0.3.77"
+console_error_panic_hook = "0.1.7"
+
+[dependencies.web-sys]
+version = "0.3.77"
+features = ["Element", "Event", "EventTarget", "Window", "Location", "Storage"]

@@ -1,0 +1,4 @@
+[09:13] relay on node-1
+[09:13] === rate40-defaultbuf (rate 40kbit) ===
+[09:14] === rate40-smallbuf (rate 40kbit) ===
+[09:15] done; see /Users/cpettet/git/chasemp/CroftC/experiments/iroh/relay-lab-runs/E10-roq-netem-2026-06-17/rate40-*.{send,recv}.json

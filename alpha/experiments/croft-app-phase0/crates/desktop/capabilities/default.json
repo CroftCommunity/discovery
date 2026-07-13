@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Core permissions for the main window. App-defined commands (fetch_feed, hydrate_pin) are invokable by the frontend without additional ACL.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

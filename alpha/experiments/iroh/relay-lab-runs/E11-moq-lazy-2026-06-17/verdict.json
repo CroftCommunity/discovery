@@ -1,0 +1,32 @@
+{
+  "lazy_zero_egress_when_unwatched": true,
+  "lazy_produces_when_watched": true,
+  "fanout_linear_in_n": true,
+  "fanout_measurements": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      10
+    ],
+    [
+      3,
+      30
+    ],
+    [
+      10,
+      100
+    ]
+  ],
+  "relay_blind_zero_keys": true,
+  "subscribers_decrypt_locally": true,
+  "admission_cap_enforced_from_metadata": true,
+  "admission_members_only_enforced": true,
+  "notes": [
+    "LAZY: 100 produce-ticks with 0 subscribers -> egress=0; first watcher -> egress=1",
+    "FAN-OUT (10 frames/track): [(0, 0), (1, 10), (3, 30), (10, 100)] = (subscribers, relay_egress); linear in N; relay payload_keys_held=0; every sub decrypted locally",
+    "ADMISSION: cap=5 over 8 join attempts -> admitted 5, refused_over_cap 3; members_only -> admitted 2, refused_non_member 1 (all from metadata; relay read 0 frame bytes)"
+  ]
+}

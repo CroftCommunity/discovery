@@ -1,0 +1,35 @@
+# The Tauri desktop shell (macOS). It hosts the SAME Phase 1 web bundle
+# (../web/dist) in a native window — no second UI — and differs only in the
+# effect handler: FetchFeed is performed by a native Rust HTTP client (reqwest,
+# platform TLS) instead of the browser's fetch.
+#
+# Deliberately EXCLUDED from the workspace (see ../../Cargo.toml): Tauri needs
+# system webkit2gtk to build and pulls a large dependency tree, so keeping it
+# separate keeps that tree out of the scanned workspace lock/CI. It builds on a
+# desktop host (macOS, or Linux with webkit2gtk) via `cargo tauri build`; it
+# cannot build in the headless CI sandbox.
+[package]
+name = "pond-desktop"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "pond_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "pond"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+# A normal Rust HTTP client, platform TLS — no license contortion (spec 0a).
+reqwest = { version = "0.12", default-features = true }
+serde = { version = "1", features = ["derive"] }
+# Reuse the Bluesky module's addressing hook so the desktop hydrates the same
+# way the web does; parsing stays in the shared wire module on the frontend.
+bluesky = { path = "../bluesky" }

@@ -1,0 +1,50 @@
+{
+  "lexicon": 1,
+  "id": "org.croftc.experiment.feed.post",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "An experimental, non-production feed post used to validate the public AT Protocol round-trip. Innocuous test content only.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["text", "createdAt"],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 3000,
+            "maxGraphemes": 300,
+            "description": "The post body. Length-bounded test content."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared creation timestamp (RFC 3339)."
+          },
+          "reply": {
+            "type": "ref",
+            "ref": "#replyRef",
+            "description": "Optional. Present when this post is a reply, linking the thread root and the immediate parent."
+          }
+        }
+      }
+    },
+    "replyRef": {
+      "type": "object",
+      "required": ["root", "parent"],
+      "properties": {
+        "root": { "type": "ref", "ref": "#strongRef" },
+        "parent": { "type": "ref", "ref": "#strongRef" }
+      }
+    },
+    "strongRef": {
+      "type": "object",
+      "required": ["uri", "cid"],
+      "properties": {
+        "uri": { "type": "string", "format": "at-uri" },
+        "cid": { "type": "string", "format": "cid" }
+      }
+    }
+  }
+}

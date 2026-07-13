@@ -1,0 +1,47 @@
+{
+  "experiment": "E9-Tier0 / meer P0+P1",
+  "title": "The meer — always-on blind Tier-0 message mirror, made real (meer-superpeer-design.md P0+P1)",
+  "date": "2026-06-17",
+  "class": "spike (the production-TDD meer crate, Workstream B, is the productionization of this protocol)",
+  "status": "green-real",
+  "design_ref": "discovery/thinking/meer-superpeer-design.md (P0 skeleton + P1 Role-1 Tier-0 blind mirror); RELAY-PLACEMENT-LAB-SPEC E9",
+  "harness": {
+    "binary": "relay-loadtest meer / meer-member (crates/relay-loadtest/src/meer.rs)",
+    "iroh": "=1.0.0; meer is an always-on endpoint homed on the relay; one bi-stream per request; admission via conn.remote_id() allowlist",
+    "protocol": "Publish{meta,ct_hex} / Sync{have} -> Missing{blobs} / Export / Import / Stats. Members encrypt with ChaCha20-Poly1305; the meer stores ciphertext keyed by sha256(ciphertext) and NEVER holds the key.",
+    "topology": "relay + meer A on node-1; members + replacement meer B on node-2 (same-VPC direct path).",
+    "rustc": "1.96.0 (node-1/2)",
+    "orchestrator": "emeer-orch.sh"
+  },
+  "results": {
+    "P1_blind_mirror_offline_converges": {
+      "pass": true,
+      "publish": {"published": 5},
+      "sync": {"fetched": 5, "converged": 5, "expected": 5, "all_converged": true},
+      "detail": "an offline/behind member synced through the meer and decrypted all 5 blobs LOCALLY with a key the meer never saw — E3.4's modeled blind broker, now a running always-on binary serving offline state. This is E9 Tier-0 made real."
+    },
+    "blindness_proof": {
+      "pass": true,
+      "stats": {"meer_connections": 3, "meer_admitted": 3, "meer_rejected": 0, "meer_blobs_stored": 5, "meer_bytes_mirrored": 140, "meer_sync_requests": 1, "meer_blobs_served": 5, "meer_payload_keys_held": 0, "meer_namespaces_observed": ["household-v1"]},
+      "detail": "meer_payload_keys_held=0 (asserted+logged per E9's failure mode); the only thing the meer learned is the §3b metadata (digests, lengths, timestamps, the namespace label) — the AR-4 surface, made explicit in its own stats."
+    },
+    "anti_entrenchment_state_portability": {
+      "pass": true,
+      "export": {"exported": 5}, "import": {"imported": 5, "of": 5},
+      "rehomed_sync": {"fetched": 5, "converged": 5, "expected": 5, "all_converged": true},
+      "detail": "meer A's ENCRYPTED store exported, imported into a replacement meer B, and the member re-homed to B and converged identically — losing a meer costs availability, never data. The 'materially reversible delegation' / stand-up-a-replacement anti-entrenchment guard, demonstrated."
+    },
+    "admission": {
+      "pass": true,
+      "detail": "a meer started with --allow deadbeefdeadbeef (matches no real peer) DENIED a member at connect: 'closed by peer: not admitted (code 1)'. P0 on_connect identity gate works; empty allowlist = AllowAll baseline. See admission.txt."
+    }
+  },
+  "verdict": "green-real: meer P0 (always-on endpoint + admission + meer_* metrics) and P1 (Tier-0 blind message mirror over an encrypted-blob sync workload) both run on the live fabric. The thesis property — a blind always-on superpeer that provably holds zero payload keys yet serves offline state — is demonstrated, with the state-portability anti-entrenchment guard built in and shown.",
+  "open_edges": [
+    "Spike harness, not the production-TDD meer crate (Workstream B) — this IS the experiment that crate would productionize; same protocol, TDD discipline + Zeroize secrets + no prod unwrap to follow.",
+    "Range reconciliation is have-set diff (member sends what it has, meer returns the rest); the full Willow-style range-reconciliation on (timestamp, digest, namespace/path) metadata is the richer P3 form.",
+    "The member payload key is a lab fixture; in product it is the MLS-derived group key (E12 shows that derivation). The point proven here is only that the meer LACKS it.",
+    "P2 (bridge / cross-namespace = E8), P3 (Tier-1 double-envelope + no-mirror + reliability-vs-overlap curve), P4/P5 (media SFU/MoQ roles), P6 (Tier-2 semantic) remain.",
+    "Rogue-meer detection over time (a meer that quietly logs more or upgrades tier) is a design open edge, not closed here."
+  ]
+}

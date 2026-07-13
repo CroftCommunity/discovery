@@ -1,0 +1,32 @@
+# The first ecosystem module. Owns the port trait and the native Bluesky types.
+#
+# Feature-gated so the core can depend on this crate for the native DATA TYPES
+# only (default features off => no serde, no fake, no adapter), keeping the core
+# free of any async/I/O surface and WASM-clean (DECISION 1).
+[package]
+name = "bluesky"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[features]
+default = []
+# Derive serde on the native types and pull in JSON parsing (the `wire` module).
+# Needed by both the fake and the real adapter; never enabled for the core.
+serde = ["dep:serde", "dep:serde_json"]
+# The fixture-backed fake. Used by the shell, never the core.
+fake = ["serde"]
+# The real, network-backed adapter (M6). It performs the HTTPS GET by shelling
+# out to the system `curl` (a "plain native client", philosophy §6) rather than
+# linking a Rust TLS stack. This is deliberate: every Rust TLS backend dragged
+# in a transitive crate a former employer's license policy flags as non-permissive
+# (rustls -> webpki-roots / CDLA-Permissive-2.0; native-tls -> r-efi / LGPL).
+# Shelling out keeps the dependency tree clean and the choice reversible behind
+# the port. Needs only JSON parsing.
+adapter = ["serde"]
+
+# Pinned to exact versions (the Cargo.lock is also committed); avoid floating
+# ranges so the dependency set is reproducible.
+[dependencies]
+serde = { version = "=1.0.228", features = ["derive"], optional = true }
+serde_json = { version = "=1.0.150", optional = true }

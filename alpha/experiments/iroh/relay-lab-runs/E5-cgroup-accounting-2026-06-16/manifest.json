@@ -1,0 +1,25 @@
+{
+  "experiment": "E5",
+  "facet": "cgroup per-tenant group accounting + isolation — can a co-op meter and isolate tenants on shared relay hardware?",
+  "date": "2026-06-16",
+  "iroh_sha": "iroh-relay=1.0.0",
+  "topology": "node-1 (fat, 4c/15G). Two relay 'tenants' each a transient systemd service with its own cgroup (CPUAccounting+MemoryAccounting): relayA.service (https 3343/quic 3478), relayB.service (https 3353/quic 3488). Responder + generator co-located per tenant (relay-only passthrough). Generators co-located => absolute throughput understated (known E0/E1 caveat); per-slice ACCOUNTING fidelity is the measured quantity.",
+  "method": "RUN1 accounting: asymmetric load (tenantA 40 conns x 32MiB = 1.28 GiB; tenantB 4 conns x 1MiB = 4 MiB), both CPUQuota=300%; read each service cgroup cpu.stat usage_usec delta + memory.current. RUN2 isolation: set relayA CPUQuota=50%, drive BOTH tenants 30 conns x 32MiB; measure cores used per slice = cpu_usec_delta / wall.",
+  "run1_accounting": {
+    "tenantA_heavy": { "load": "40 conns x 32MiB (1.28 GiB)", "cpu_seconds": 206.63, "rss_bytes": 8642560, "established": "40/40 relay" },
+    "tenantB_light": { "load": "4 conns x 1MiB (4 MiB)", "cpu_seconds": 0.83, "rss_bytes": 5369856, "established": "4/4 relay" },
+    "cpu_bill_ratio_A_over_B": 249.0,
+    "finding": "Per-slice cgroup accounting attributes CPU to the right tenant with high fidelity — the heavy tenant's slice accrued ~249x the CPU-seconds of the light tenant, tracking the ~320x byte asymmetry (the gap is fixed per-connection handshake cost on the light tenant). RSS is also per-slice. A cooperative gets each tenant's bill for free from the cgroup, no app-level metering."
+  },
+  "run2_isolation": {
+    "wall_seconds": 318.4,
+    "tenantA_capped_50pct": { "cpu_seconds": 156.03, "cores_used": 0.49, "established": "30/30 relay" },
+    "tenantB_uncapped": { "cpu_seconds": 162.87, "cores_used": 0.51, "established": "30/30 relay" },
+    "finding": "Under identical 30 x 32MiB load, relayA's CPUQuota=50% held it to 0.49 cores (cap honored to 2 decimals) while relayB ran uncapped at 0.51 cores. The cap throttled CPU without stranding connections — tenantA still established 30/30. A noisy tenant is isolated, not allowed to monopolize the box."
+  },
+  "result": {
+    "exit": "MET — per-slice CPU/RSS accounting is accurate under mixed load (249:1 bill), and a CPU cap isolates a tenant without breaking its connectivity. A co-op can both meter and contain tenants on shared relay hardware using only cgroup primitives.",
+    "decision": "Splintered-process-per-tenant (E5) is justified for ACCOUNTING + ISOLATION (not CPU utilization — E1 showed one fat process already scales across cores). The two rationales are orthogonal: E1 = use all cores with one process; E5 = meter/isolate with several.",
+    "caveat": "Co-located generators were the throughput bottleneck (establish_ms 176-316s), so absolute relay capacity is understated; the measured quantity here is accounting/isolation fidelity, which co-location does not distort. Memory cap (MemoryMax) isolation was not stress-tested to OOM; only CPU cap was driven to its limit."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "role": "roq-recv",
+  "received": 954,
+  "span": 1000,
+  "lost": 46,
+  "loss_pct": 4.6,
+  "reordered": 0,
+  "jitter_ms": 0.1455868145361067,
+  "goodput_kbps": 61.09280531474226,
+  "gap_events": 44,
+  "max_consecutive_loss": 2,
+  "duration_s": 19.987951015,
+  "bytes_per_pkt": 160
+}
+[2m2026-06-17T13:08:20.577707Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.
+[2m2026-06-17T13:08:20.578027Z[0m [31mERROR[0m [2mnoq::connection[0m[2m:[0m I/O error: connection closed

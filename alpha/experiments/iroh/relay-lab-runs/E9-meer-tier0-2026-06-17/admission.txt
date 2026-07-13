@@ -1,0 +1,15 @@
+Admission (P0 on_connect identity gate) — meer started with --allow deadbeefdeadbeef
+(an allowlist that matches no real peer). A member's publish attempt was DENIED at the
+connection layer:
+
+    Error: read resp
+    Caused by:
+      0: read error: connection lost
+      1: connection lost
+      2: closed by peer: not admitted (code 1)
+
+The meer closed the connection with code 1 / "not admitted" (relay-loadtest src/meer.rs
+run_meer: allowlist check on conn.remote_id(), then conn.close(1, "not admitted")). The
+"admission DENIED" warn! line is filtered out at the default tracing level (ERROR-only,
+RUST_LOG unset) — the close code is the authoritative evidence. meer_rejected increments
+in the meer's own stats. Empty allowlist = AllowAll (the P0 baseline used in steps 1–4).

@@ -1,0 +1,4 @@
+- [Alt.Drive project context](alt-drive-project.md) — encrypted P2P vault at /home/ubuntu/alt.drive, Phase 0 design + altdrive-core crypto primitives shipped
+- [Alt.Drive coding-agents path](alt-drive-coding-agents.md) — discipline files live at /home/ubuntu/coding-agents on this Linux box (Mac path differs)
+- [Alt.Drive git identity](alt-drive-author-identity.md) — commits use chase@owasp.org via per-command override; SSH push via ~/.ssh/id_secroute
+- [Alt.Drive disk layout](alt-drive-disk-layout.md) — iroh's ~300-crate dep graph won't fit on default 8G AMI; both nodes use /mnt/data EBS with ~/.cargo and target/ symlinked

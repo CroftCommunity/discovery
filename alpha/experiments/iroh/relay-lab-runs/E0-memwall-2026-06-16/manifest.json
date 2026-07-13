@@ -1,0 +1,46 @@
+{
+  "experiment": "E0",
+  "facet": "idle-relayed memory wall (relay RSS per client connection)",
+  "date": "2026-06-16",
+  "driver": "Claude Code on the Mac over SSH",
+  "iroh_sha": "iroh=1.0.0, iroh-relay=1.0.0 (=pinned + committed Cargo.lock)",
+  "topology": "single-box, co-located (relay + responder + generator all on node-1)",
+  "co_location_caveat": "Generator co-located with the relay. This understates the NIC/throughput wall (loopback), but the IDLE-CONNECTION MEMORY wall measured here is valid: per-connection relay RSS does not depend on where the generator runs. Cross-host NIC/CPU walls and the matchmaking cost gap require the SG widening + the NAT'd Mac.",
+  "node": {
+    "host": "secroute-testing-one",
+    "vcpu": 4,
+    "ram_gib": 15,
+    "kernel": "7.0.0-1004-aws",
+    "cgroup": "v2"
+  },
+  "relay": {
+    "process": "relay-loadtest relay --bind-ip 127.0.0.1 --advertise-ip 127.0.0.1",
+    "isolation": "systemd transient unit relay-e0.service, MemoryMax=4G, CPUQuota=200% (2 vCPU)",
+    "tls": "self-signed (iroh_relay testing certs); clients use CaTlsConfig::insecure_skip_verify (lab-only)",
+    "access": "AllowAll"
+  },
+  "generator": {
+    "mode": "passthrough (forced relay-only via clear_ip_transports per endpoint)",
+    "unit": "one independent endpoint (own node key) per connection = one relay client connection",
+    "concurrency": 40,
+    "hold_secs": 30,
+    "settle_ms": 1500,
+    "roundtrip_bytes": 8
+  },
+  "method": "Relay in a 4G/2-vCPU cgroup slice. Baseline RSS = relay + 1 responder connection. For each N, bring up N forced-relay endpoints, confirm establishment via the generator's ESTABLISHED marker, sample relay cgroup memory.current (median of 3 samples 2s apart) at steady state, drop, repeat. Marginal per-conn = slope across N (cancels fixed process overhead).",
+  "measurement_signal": "cgroup memory.current of the relay-only cgroup (relay process RSS; generator + responder run outside the slice)",
+  "baseline_bytes": 2039808,
+  "sweep": [
+    { "n": 100, "established": 100, "relay_classified": 100, "failed": 0, "relay_rss_bytes": 5771264, "delta_vs_base": 3731456, "per_conn_incl_base_bytes": 37314 },
+    { "n": 200, "established": 200, "relay_classified": 200, "failed": 0, "relay_rss_bytes": 9011200, "delta_vs_base": 6971392, "per_conn_incl_base_bytes": 34856 },
+    { "n": 400, "established": 400, "relay_classified": 400, "failed": 0, "relay_rss_bytes": 15126528, "delta_vs_base": 13086720, "per_conn_incl_base_bytes": 32716 }
+  ],
+  "result": {
+    "marginal_rss_per_conn_bytes": 31184,
+    "marginal_rss_per_conn_kib": 30.5,
+    "marginal_calc": "(rss[400] - rss[100]) / (400 - 100) = (15126528 - 5771264)/300",
+    "fixed_relay_overhead_bytes_est": 2650000,
+    "hypothesis_was_kib_per_conn": "50-150 (spec [HYPOTHESIS])",
+    "finding": "~31 KiB marginal RSS per idle relayed client connection on iroh-relay 1.0.0 — well BELOW the 50-150 KiB hypothesis. Linear in N (per-conn stable 30.5-32.4 KiB across the sweep). A 4 GiB relay slice => ~130k idle relayed connections on the memory ceiling alone (other ceilings bind sooner under active load)."
+  }
+}

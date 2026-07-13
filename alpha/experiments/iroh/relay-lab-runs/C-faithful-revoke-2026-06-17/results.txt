@@ -1,0 +1,8 @@
+[13:08] origin on node-1
+ADDR_OK
+[13:08] joiner on node-2 (bootstraps off node-1)
+[13:08] running gossip rounds (~42s)…
+[13:09] === node-2 (joiner) SUMMARY ===
+[13:09] === node-1 (origin) SUMMARY (may be partial — gotcha) ===
+[alice] SUMMARY root=dbff64dfc7514962 verdicts={}
+[13:09] done; artifacts in /Users/cpettet/git/chasemp/CroftC/experiments/iroh/relay-lab-runs/C-faithful-revoke-2026-06-17

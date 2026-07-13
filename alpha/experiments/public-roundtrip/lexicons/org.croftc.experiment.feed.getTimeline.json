@@ -1,0 +1,46 @@
+{
+  "lexicon": 1,
+  "id": "org.croftc.experiment.feed.getTimeline",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "Returns experimental feed posts indexed by this minimal AppView, in reverse-chronological order.",
+      "parameters": {
+        "type": "params",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["posts"],
+          "properties": {
+            "posts": {
+              "type": "array",
+              "items": { "type": "ref", "ref": "#postView" }
+            }
+          }
+        }
+      }
+    },
+    "postView": {
+      "type": "object",
+      "required": ["uri", "cid", "did", "text", "createdAt", "indexedAt"],
+      "properties": {
+        "uri": { "type": "string", "format": "at-uri" },
+        "cid": { "type": "string", "format": "cid" },
+        "did": { "type": "string", "format": "did" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "datetime" },
+        "indexedAt": { "type": "string", "format": "datetime" }
+      }
+    }
+  }
+}

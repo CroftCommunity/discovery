@@ -1,0 +1,42 @@
+{
+  "lexicon": 1,
+  "id": "org.croftc.experiment.feed.getThread",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "Given a thread root AT-URI, return the root post and its replies in chronological order, each carrying its parent link so a client can nest them.",
+      "parameters": {
+        "type": "params",
+        "required": ["uri"],
+        "properties": {
+          "uri": { "type": "string", "format": "at-uri", "description": "The thread root post's AT-URI." }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["thread"],
+          "properties": {
+            "thread": {
+              "type": "array",
+              "items": { "type": "ref", "ref": "#threadPost" }
+            }
+          }
+        }
+      }
+    },
+    "threadPost": {
+      "type": "object",
+      "required": ["uri", "did", "text", "createdAt", "depth"],
+      "properties": {
+        "uri": { "type": "string", "format": "at-uri" },
+        "did": { "type": "string", "format": "did" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "datetime" },
+        "parentUri": { "type": "string", "format": "at-uri" },
+        "depth": { "type": "integer", "description": "0 for the root, 1 for a direct reply, etc." }
+      }
+    }
+  }
+}

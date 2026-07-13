@@ -1,0 +1,21 @@
+{
+  "experiment": "E11",
+  "title": "MoQ broadcast — lazy fan-out, blind relay, metadata-only admission (the abuse lever)",
+  "date": "2026-06-17",
+  "class": "spike",
+  "status": "characterized (relay LOGIC green; full moq-rs/GStreamer + transport-carried deferred)",
+  "design_ref": "discovery/thinking/realtime-media-over-iroh.md (broadcast/MoQ); RELAY-PLACEMENT-LAB-SPEC E11 abuse-sensitive tier",
+  "harness": "crates/moq-lazy-spike — deterministic in-process publisher/relay/subscriber; ChaCha20-Poly1305 opaque frames. Proves the relay LOGIC, not the codec/transport (those are de-risked by n0's iroh-live + the proven iroh fabric).",
+  "results": {
+    "lazy_fan_out": {"pass": true, "detail": "publisher egress = 0 across 100 produce-ticks with 0 subscribers; produces the instant one subscriber attaches. 'Nothing to fan out if nobody is watching' — the battery/compute/privacy win, demonstrated."},
+    "fanout_cost_linear": {"pass": true, "measurements_subscribers_to_egress": [[0,0],[1,10],[3,30],[10,100]], "detail": "relay egress = frames * N exactly; zero when unwatched"},
+    "relay_blind": {"pass": true, "detail": "relay forwards opaque encrypted frames, payload_keys_held=0; every subscriber decrypts locally (end-to-end blindness, media analog of the message blind broker)"},
+    "metadata_admission_abuse_lever": {"pass": true, "detail": "max-audience cap (5) refuses 3 of 8 join attempts; members-only refuses 1 non-member of 3 — all from subscribe METADATA alone, reading zero frame bytes. The lever against piracy/abuse (the Rave trap) is scale + peer restriction, NOT content inspection."}
+  },
+  "verdict": "characterized: the Croft-novel MoQ relay properties — lazy (nothing until watched), blind (no payload key), and an abuse lever that is scale + peer restriction enforced from metadata alone — all hold. The full codec/transport form is meer role P5: moq-rs/iroh-live carried over the iroh fabric E9/E10 proved.",
+  "open_edges": [
+    "Relay logic only — not real moq-rs Tracks, GStreamer/Opus encoding, or WebTransport browser reach (the design calls these 'mostly assembly, not build', de-risked by n0's iroh-live).",
+    "In-process simulation, not transport-carried; the wire form is meer P5 over iroh (E9/E10 proven).",
+    "Constant-bitrate/padding to defeat per-stream bitrate inference (TC-META2) and the full AR-4-for-media bound (TC-META1) are separate metadata-cost measurements, not run here."
+  ]
+}

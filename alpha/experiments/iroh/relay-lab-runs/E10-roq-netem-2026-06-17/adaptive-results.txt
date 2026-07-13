@@ -1,0 +1,4 @@
+[10:14] relay on node-1
+[10:14] === rate40-fixed (rate 40kbit, 64kbps source) ===
+[10:15] === rate40-adaptive (rate 40kbit, 64kbps source) ===
+[10:16] done; see /Users/cpettet/git/chasemp/CroftC/experiments/iroh/relay-lab-runs/E10-roq-netem-2026-06-17/rate40-{fixed,adaptive}.{send,recv}.json

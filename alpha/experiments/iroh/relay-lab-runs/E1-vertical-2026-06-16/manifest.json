@@ -1,0 +1,16 @@
+{
+  "experiment": "E1",
+  "facet": "vertical scaling — does one relay process use multiple cores or pin one / contend on the Clients registry lock?",
+  "date": "2026-06-16",
+  "iroh_sha": "iroh-relay=1.0.0",
+  "topology": "relay=node-1 (systemd unit, MemoryMax=4G, CPUQuota=400% = 4-core headroom), responder=node-2, generators=node-3 + node-2 (two concurrent passthrough loads, 80 conns x 32 MiB each)",
+  "method": "Drive sustained concurrent passthrough from two generators; measure the relay's average cores used = delta(cgroup cpu.stat usage_usec) / delta(wall) over a 10 s window; count relay threads.",
+  "relay_threads": 5,
+  "avg_cores_used_over_10s": 2.34,
+  "cpu_headroom_cores": 4,
+  "result": {
+    "finding": "iroh-relay 1.0 is multi-threaded (5 threads, tokio multi-thread runtime) and spreads packet forwarding across cores — measured 2.34 cores under load with 4-core headroom. It does NOT pin to one core and the lock-free `papaya` Clients registry does NOT serialize forwarding. => one fat process scales vertically across cores.",
+    "decision": "One-fat-process-per-box is sufficient for CPU utilization; the rationale for multiple relay processes per box is per-group cgroup ACCOUNTING + isolation (E5), not core utilization.",
+    "caveat": "The relay was NOT saturated to 4.0 cores — the generators and responder run on 2-vCPU boxes and were themselves the bottleneck (co-located/box-class generators understate the relay wall, per E0). So the per-process core ceiling is >= 2.34 (multi-core confirmed), exact ceiling not reached on this fabric. A larger generator fleet (or the NAT'd Mac + more boxes) would find the ceiling."
+  }
+}

@@ -1,0 +1,14 @@
+[package]
+name = "group-chat-core"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Chat tenant: pure intent/effect/update/project core over the social-graph substrate."
+
+[dependencies]
+social-graph-core = { path = "../social-graph-core" }
+tracing.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

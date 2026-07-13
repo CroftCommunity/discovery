@@ -1,0 +1,9 @@
+[09:06] starting relay on node-1
+RELAY_READY url=https://172.31.43.122:3343/ https=Some(0.0.0.0:3343) quic=Some(0.0.0.0:3478)
+[09:06] === condition: baseline (CLEAR) ===
+[09:07] === condition: delay100 (delay 100ms) ===
+[09:07] === condition: loss5 (loss 5%) ===
+[09:08] === condition: loss30 (loss 30%) ===
+[09:09] === condition: rate40 (rate 40kbit) ===
+[09:09] === condition: delay100-loss5 (delay 100ms loss 5%) ===
+[09:10] E10 done. artifacts in /Users/cpettet/git/chasemp/CroftC/experiments/iroh/relay-lab-runs/E10-roq-netem-2026-06-17

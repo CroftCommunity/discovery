@@ -1,0 +1,33 @@
+{
+  "experiment": "E10",
+  "title": "RoQ-under-netem — iroh QUIC datagram congestion-control vs a media bitrate estimator (the C1 unknown)",
+  "date": "2026-06-17",
+  "class": "spike",
+  "status": "characterized",
+  "design_ref": "discovery/thinking/realtime-media-over-iroh.md (C1; TC-CC1/2)",
+  "harness": {
+    "binary": "relay-loadtest roq-send / roq-recv (crates/relay-loadtest/src/roq.rs)",
+    "iroh": "=1.0.0 (datagram path: conn.send_datagram / read_datagram / max_datagram_size / datagram_send_buffer_space; path RTT via conn.paths().rtt())",
+    "source": "synthetic CBR — 64 kbps, 20 ms frames (160 B payload/datagram, 50 fps), sequence + timestamp stamped. No codec/cpal (headless rule).",
+    "topology": "relay on node-1; roq-recv on node-2; roq-send on node-1. Media flows node-1 -> node-2 over the DIRECT (hole-punched, same-VPC) path.",
+    "shaping": "tc netem on node-1 ens5 egress, u32 dst-filtered to node-2 only (Mac SSH path unshaped); watchdog clears tc after 240-300s.",
+    "max_datagram_size_negotiated": 1162,
+    "orchestrators": ["e10-orch.sh", "e10-ratecap.sh"]
+  },
+  "conditions": [
+    {"name": "baseline",        "netem": "none",                "sent": 1000, "received": 1000, "loss_pct": 0.0,  "send_errors": 0, "rtt_ms_mean": 1.7,    "jitter_ms": 0.2, "goodput_kbps": 64.0},
+    {"name": "delay100",        "netem": "delay 100ms",         "sent": 1000, "received": 1000, "loss_pct": 0.0,  "send_errors": 0, "rtt_ms_mean": 102.2,  "jitter_ms": 0.2, "goodput_kbps": 64.0},
+    {"name": "loss5",           "netem": "loss 5%",             "sent": 1000, "received": 954,  "loss_pct": 4.6,  "send_errors": 0, "rtt_ms_mean": 1.8,    "jitter_ms": 0.1, "goodput_kbps": 61.1, "gap_events": 44,  "max_consecutive_loss": 2},
+    {"name": "loss30",          "netem": "loss 30%",            "sent": 1000, "received": 689,  "loss_pct": 30.9, "send_errors": 0, "rtt_ms_mean": 2.0,    "jitter_ms": 0.1, "goodput_kbps": 44.1, "gap_events": 206, "max_consecutive_loss": 6},
+    {"name": "delay100-loss5",  "netem": "delay 100ms loss 5%", "sent": 1000, "received": 951,  "loss_pct": 4.9,  "send_errors": 0, "rtt_ms_mean": 102.5,  "jitter_ms": 0.2, "goodput_kbps": 60.9},
+    {"name": "rate40-defaultbuf","netem": "rate 40kbit",        "sent": 1000, "send_errors": 0, "rtt_ms_min": 537, "rtt_ms_mean": 4224, "rtt_ms_max": 8829, "datagram_send_buffer_space_min": 988896, "note": "default ~1 MiB send buffer barely touched; link/qdisc queue is the bottleneck"},
+    {"name": "rate40-smallbuf", "netem": "rate 40kbit",         "sent": 1000, "send_errors": 0, "send_buf_bytes": 8192, "rtt_ms_min": 538, "rtt_ms_mean": 4205, "rtt_ms_max": 8821, "datagram_send_buffer_space_min": 0, "note": "8 KiB buffer fully consumed yet send_datagram still returns Ok — iroh DROPS OLDEST silently, never errors; RTT inflation identical"},
+    {"name": "rate40-recvcheck","netem": "rate 40kbit",         "sent": 750,  "received": 208, "loss_pct": 0.0, "span": 208, "gap_events": 0, "jitter_ms": 69.9, "goodput_kbps": 11.1, "note": "receiver got a CONTIGUOUS delayed prefix (seq 0..207, zero gaps) at ~link rate; the other ~70% never arrived in time. Receiver-side loss reads 0% while most of the stream is undelivered — proof that receiver loss alone is NOT a usable congestion signal under an over-cap source."}
+  ],
+  "findings": {
+    "datagram_primitive": "CONFIRMED end-to-end over iroh 1.0 across the real NAT fabric: max_datagram_size 1162 B (ample for Opus 160 B frames); unreliable, unordered, no retransmit.",
+    "under_loss_and_delay": "iroh QUIC datagrams are TRANSPARENT to the media path — netem loss passes straight through as sequence gaps (4.6%~=5%, 30.9%~=30%), RTT stays flat (~2ms) and tracks added delay EXACTLY (102ms = 100 + base), jitter stays sub-ms. The estimator gets accurate loss + RTT + jitter. Audio holds to ~30% loss with visible (31% PLC) degradation, never silent — meets the design exit criterion.",
+    "under_bandwidth_cap_below_source": "iroh QUEUES and PACES datagrams IN ORDER rather than dropping to fit the link, so an over-cap source produces multi-second bufferbloat (RTT 537->8829ms) and the receiver sees an ever-delayed contiguous prefix at link rate (~11kbps). send_datagram returns Ok throughout (drops oldest silently when its own buffer fills); the datagram-send-buffer size changes only iroh's own queue contribution, not the link/qdisc queue, so RTT inflation is identical.",
+    "C1_verdict": "RESOLVED/characterized: the two controllers do NOT fight destructively, but iroh will NOT rate-adapt media for you. The media engine's estimator MUST be authoritative and MUST drive bitrate down off the path-RTT trend (+ per-stream sequence loss + arrival jitter) — exactly the design's C1 proposed solution point 2. E10 confirms all three signals (RTT, sequence-loss, jitter) are exposed and accurate, and that relying on send_datagram back-pressure OR receiver-side loss alone would fail."
+  }
+}

@@ -1,0 +1,3 @@
+{"published":5}
+[2m2026-06-17T13:39:44.639718Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.
+[2m2026-06-17T13:39:44.640111Z[0m [31mERROR[0m [2mnoq::connection[0m[2m:[0m I/O error: connection closed

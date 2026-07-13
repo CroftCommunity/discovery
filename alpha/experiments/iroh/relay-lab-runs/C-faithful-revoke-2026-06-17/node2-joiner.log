@@ -1,0 +1,8 @@
+[bob] group=faithful-revoke-g1 id=51bac1f70677ed1613b5e6be2a031cbd62d625b98160e58f7ef2a395a9dc34c7 addr->/tmp/ff_n2.addr
+[bob] NeighborUp 6ab9ffc041
+[bob] vector=HONEST genesis=ec5da79124727516 -> ACCEPT
+[bob] vector=FORGED genesis=84d53a5cbe87204c -> REJECT message 0 from did:2bd806c97f failed signature verification
+[bob] vector=NONMEMBER genesis=1f3f24a82a1a0946 -> REJECT message author did:c0a497761b never held standing on this branch
+[bob] vector=REVOKE-AUTHORIZED (revoke-authority) -> ACCEPT [as-expected]
+[bob] vector=REVOKE-UNDERTHRESHOLD (revoke-authority) -> REJECT under-threshold [as-expected]
+[bob] SUMMARY root=dbff64dfc7514962 verdicts={"FORGED": "REJECT message 0 from did:2bd806c97f failed signature verification", "HONEST": "ACCEPT", "NONMEMBER": "REJECT message author did:c0a497761b never held standing on this branch", "REVOKE-AUTHORIZED": "ACCEPT", "REVOKE-UNDERTHRESHOLD": "REJECT under-threshold"}

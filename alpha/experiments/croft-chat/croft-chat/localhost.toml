@@ -1,0 +1,29 @@
+# Drystone localhost testbed — two nodes converging over REAL iroh-gossip on ONE
+# host, with NO relay and NO Internet dependency.
+#
+# `relay_mode = "disabled"` selects the direct-only path in iroh_bus.rs
+# (presets::Minimal + RelayMode::Disabled + the default loopback-inclusive bind).
+# Peers connect over 127.0.0.1 using the direct EndpointAddr each writes to JSON
+# and the other reads via --peer. This is the mode to use where Internet UDP /
+# the n0 relays are unavailable (a sandbox), or for a fast hermetic multi-process
+# run. The cross-host / real-NAT topology is stone-alpha.toml (relay_mode = "n0").
+#
+# `host`/`port` are advisory here — the actual dialable address is the runtime
+# EndpointAddr exchanged out-of-band, not this file. `seed` derives each node's
+# deterministic demo identity; both are marked public so each bootstraps the other.
+
+relay_mode = "disabled"
+
+[[node]]
+name = "local-1"
+host = "127.0.0.1"
+port = 0
+seed = 11
+public = true
+
+[[node]]
+name = "local-2"
+host = "127.0.0.1"
+port = 0
+seed = 12
+public = true

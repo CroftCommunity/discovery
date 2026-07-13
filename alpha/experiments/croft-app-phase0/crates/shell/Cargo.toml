@@ -1,0 +1,14 @@
+# The composable shell: the platform-agnostic data model for slots, the
+# serializable layout document, and pinning. Pure serde — no Leptos, no
+# protocol types. The web (and desktop) shells render from this; the model
+# persists as one value. Knows no protocol: a Pin carries an address + hints,
+# never content.
+[package]
+name = "shell"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = "=1.0.150"

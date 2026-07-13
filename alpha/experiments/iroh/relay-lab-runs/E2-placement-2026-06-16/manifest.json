@@ -1,0 +1,27 @@
+{
+  "experiment": "E2",
+  "facet": "DNS-driven placement (fast loop, in-memory injection) + the co-location requirement",
+  "date": "2026-06-16",
+  "iroh_sha": "iroh=1.0.0",
+  "mechanism": "MemoryLookup (iroh::address_lookup::memory) seeded with peer-id -> assigned-relay-url stands in for the controller's published DNS/pkarr record. Generator built with a multi-relay RelayMap {relay-A, relay-B} + the lookup + clear_ip_transports (relay-only), connects by BARE endpoint id so iroh resolves the relay via the lookup. Path.remote_addr() reads back which relay was used.",
+  "topology": "relay-A=node-1 (172.31.43.122), relay-B=node-2 (172.31.19.13), responder=node-3 homed on relay-B, generator=node-1.",
+  "tests": [
+    {
+      "name": "correct assignment",
+      "assigned_relay": "relay-B (where the peer actually is)",
+      "connected": true,
+      "relay_used": "https://172.31.19.13:3343/ (relay-B)",
+      "is_relay_path": true,
+      "finding": "Generator knew BOTH relays but reached the peer via the controller-assigned relay-B, resolved purely from the in-memory record by bare id. Placement is controllable + authoritative for reachability, NOT latency-chosen."
+    },
+    {
+      "name": "wrong assignment",
+      "assigned_relay": "relay-A (peer is actually on relay-B)",
+      "connected": false,
+      "error": "timed out after 12s",
+      "finding": "Generator dialed relay-A; the peer is not connected to relay-A; no relay-to-relay mesh => no co-location => no connection. The single architectural fact the spec hangs on, confirmed empirically."
+    }
+  ],
+  "decision_gate": "Server-published placement works and is authoritative for where a peer is reached (the published relay record IS the placement). Peer-cooperative would be the peer publishing its own record; same mechanism, different writer. The hard constraint either way: the record MUST match where the peer is actually homed, because co-location is mandatory.",
+  "integration_remaining": "This is the fast-loop (in-memory) demonstration. The integration form — custom DNS origin (DnsAddressLookup::builder(origin)) + pkarr publish (PkarrPublisher) so peers resolve via real DNS instead of in-memory injection — is the deployment form of the same mechanism; APIs verified present (address_lookup/dns.rs, pkarr.rs) but not yet wired into a run."
+}
