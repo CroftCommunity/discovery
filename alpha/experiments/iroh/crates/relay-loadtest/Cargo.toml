@@ -1,0 +1,39 @@
+# Standalone workspace: isolates the relay-lab's pinned iroh 1.0.0 from the validated rc.1 spikes
+# (their Cargo.lock stays untouched). The relay lab gets its own Cargo.lock = its own SHA pin.
+[workspace]
+
+[package]
+name = "relay-loadtest"
+description = "Croft Relay & Placement Lab harness (E0–E9): load generator, placement controller, admit hook, sync workload, meer, orchestrator. Spike-class throwaway lab tooling — measures decisions, not product."
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+authors = ["Chase Pettet <chase@owasp.org>"]
+publish = false
+
+[dependencies]
+# Pinned to the exact iroh the RELAY-PLACEMENT-LAB-SPEC.md was verified against (1.0.0 released),
+# so the rc.1 API drift the spec warns about does not apply. `=` + committed Cargo.lock = the SHA pin.
+# test-utils: enables CaTlsConfig::insecure_skip_verify() so lab clients trust our self-signed relay
+# cert (SANs are localhost/127.0.0.1; cross-VPC URLs use box IPs). LAB-ONLY — never in product.
+iroh = { version = "=1.0.0", features = ["test-utils"] }
+iroh-relay = { version = "=1.0.0", features = ["server", "test-utils"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "io-util", "signal", "time", "net", "sync"] }
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# E10 RoQ probe: datagram payloads are bytes::Bytes (iroh's send_datagram signature).
+bytes = "1"
+# Meer P1 blind mirror: sha256 digests (reconciliation key) + ChaCha20-Poly1305 (members encrypt;
+# the meer never holds the key). The meer only ever hashes ciphertext, never decrypts it.
+sha2 = "0.10"
+chacha20poly1305 = "0.10"
+# E3 eventual-sync workload — real CRDT + sync protocol (spec §5 item 4), pinned.
+automerge = "=0.10.0"
+
+[profile.release]
+debug = 1

@@ -1,0 +1,20 @@
+# E11 — MoQ broadcast: lazy fan-out + blind relay + metadata-only admission (the abuse lever).
+# Standalone spike. Proves the RELAY LOGIC (lazy, fan-out cost, blindness, scale/admission from
+# metadata alone) deterministically; the transport-carried form is meer role P5 over the iroh fabric
+# E9/E10 already proved. Full moq-rs/GStreamer codec stack is de-risked by reference (n0's iroh-live).
+[workspace]
+
+[package]
+name = "moq-lazy-spike"
+description = "MoQ-lite: a lazy pub/sub broadcast relay that publishes nothing until a subscriber attaches, forwards opaque frames blind (no payload key), and enforces a max-audience + members-only admission policy from metadata alone."
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+authors = ["Chase Pettet <chase@owasp.org>"]
+publish = false
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chacha20poly1305 = "0.10"

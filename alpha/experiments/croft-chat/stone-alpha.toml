@@ -1,0 +1,40 @@
+# Drystone "stone-alpha" test topology — the four nodes the integrated CLI
+# converges across (see plan 2026-06-26-1, P17/P18).
+#
+# Reachability (from RELAY-LAB-CONCLUSIONS.md): the security group opens UDP 2112
+# only; the workstation (node4, NAT/off-VPC) reaches the boxes via the n0 relay;
+# node3 is internal-only (no public IP) so the workstation pairs with node1/node2.
+# EndpointAddr JSON is exchanged out-of-band to bootstrap the gossip swarm.
+#
+# `seed` derives each node's deterministic demo identity (Identity::from_seed
+# [seed; 32]); a real deployment uses generated keys. `port` is the QUIC/UDP bind.
+
+relay_mode = "n0"
+
+[[node]]
+name = "secroute-testing-one"
+host = "54.172.175.109"
+port = 2112
+seed = 1
+public = true
+
+[[node]]
+name = "secroute-testing-two"
+host = "34.207.146.151"
+port = 2112
+seed = 2
+public = true
+
+[[node]]
+name = "node3"
+host = "172.31.88.18"
+port = 2112
+seed = 3
+public = false  # internal-only; reachable from the boxes, not the workstation
+
+[[node]]
+name = "node4-workstation"
+host = "nat"
+port = 2112
+seed = 4
+public = false  # off-VPC, NAT; reaches node1/node2 via relay

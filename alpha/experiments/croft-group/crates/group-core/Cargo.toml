@@ -1,0 +1,23 @@
+# The pure functional core for the group/messaging pond. No I/O, no async, no
+# clock, no platform — WASM-clean, so the same core can later back a web/desktop
+# shell. Mirrors experiments/croft-app-phase0/crates/core (the feed pond's
+# app-core). The Transport port lives in the shell (croft-chat-cli), not here:
+# the core emits effect DATA, the shell performs it (DECISION 1).
+[package]
+name = "group-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+publish = false
+
+[lib]
+name = "group_core"
+
+[dependencies]
+# Only deps driven by a passing test belong here (workspace convention).
+# Forced by the Phase 4 wire round-trip test: the version-tagged JSON frame.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"

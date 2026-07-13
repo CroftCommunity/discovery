@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+members = ["crates/core", "crates/bluesky", "crates/cli", "crates/design", "crates/shell", "crates/web"]
+# `web` builds only for wasm (via trunk); keep it out of host cargo build/test.
+default-members = ["crates/core", "crates/bluesky", "crates/cli", "crates/design", "crates/shell"]
+# `desktop` (Tauri) needs system webkit2gtk and is built only on a desktop host;
+# exclude it so its large dep tree stays out of this workspace's lock and CI.
+exclude = ["crates/desktop"]

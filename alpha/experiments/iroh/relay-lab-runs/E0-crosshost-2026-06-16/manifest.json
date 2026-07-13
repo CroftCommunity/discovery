@@ -1,0 +1,31 @@
+{
+  "experiment": "E0",
+  "facet": "cross-host matchmaking-vs-passthrough + active-passthrough throughput",
+  "date": "2026-06-16",
+  "iroh_sha": "iroh=1.0.0, iroh-relay=1.0.0",
+  "topology": "relay=node-1 (cgroup 2vCPU/4G, advertise 172.31.43.122), responder=node-2 (172.31.19.13), generator=node-3 (172.31.88.18). All same VPC, different AZs (1c/1b/1a). Real cross-VPC network between every hop. SG: all-from-self live.",
+  "matchmaking_same_vpc": {
+    "endpoints": 20, "established": 20, "live_relay": 0, "live_direct": 20, "failed": 0,
+    "direct_rtt_ms_p50": 21.51,
+    "finding": "Same-VPC peers hole-punch to direct 20/20 — the relay carries NOTHING after handoff. This is the cheap side of the matchmaking-vs-passthrough gap: where hole-punch succeeds, relay steady-state cost per pair is ~0. The expensive side (hole-punch FAILS -> matchmaking falls back to relay) needs a genuinely NAT'd client (node-4 Mac + public ingress on 3343/3478) and is NOT yet measured."
+  },
+  "passthrough_throughput": {
+    "endpoints": 50, "established": 50, "live_relay": 50, "failed": 0,
+    "bytes_sent_mib": 200.0,
+    "relay_forwarded_mib_est": 400.0,
+    "comment_forwarded": "each connection: gen sends 4MiB -> relay -> responder, responder echoes 4MiB -> relay -> gen; relay forwards ~8MiB/conn x 50",
+    "wall_s": 5.5,
+    "relay_cpu_s": 4.296,
+    "relay_mib_per_cpu_s": 93.12,
+    "relay_mib_per_s_wall": 73,
+    "relay_mem_delta_kib": 8312,
+    "relay_slice": "2 vCPU / 4 GiB",
+    "finding": "Relay forwards ~93 MiB per CPU-second => ~186 MiB/s CPU-bound on the 2-vCPU slice. At this scale the relay passthrough wall is CPU, not NIC (loopback-free, real cross-VPC). Wall MiB/s (73) is lower because it includes connection establishment + 50 concurrent transfers; the CPU-normalized number is the robust one. First-order; a sustained-transfer mode would refine it."
+  },
+  "relay_path_rtt_ms_p50_smoke": 9.51,
+  "caveats": [
+    "Throughput run conflates establishment CPU with forwarding CPU in the window; treat ~93 MiB/cpu-s as first-order.",
+    "Generators are box-class (2 vCPU), not larger-than-relay, so a single generator host can itself bottleneck before the relay does at higher scale — distribute generators (node-2/node-3 + Mac) for the true ceiling.",
+    "The matchmaking hole-punch-FAILS case (the expensive half of the cost gap) requires the NAT'd Mac + public ingress and is still open."
+  ]
+}

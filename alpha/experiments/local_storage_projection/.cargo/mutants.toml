@@ -1,0 +1,19 @@
+# cargo-mutants config for the redb storage+projection layer.
+#
+# The heavy multi-device property tests in tests_stage7 (prop_diverse_*,
+# prop_i2/i3/i4/i9) dominate per-run wall time (~130s) and primarily exercise
+# fold_derived, not the fold_auth / governance code we mutate. Skipping them
+# (plus PROPTEST_CASES=8 in the environment) turns each mutant run from ~130s
+# into ~15s, keeping the deterministic unit tests and prop_valid_sequences that
+# actually guard the authorization/governance logic.
+#
+# The leading "--" hands the remaining args to the test harness (libtest),
+# which is what `cargo test -- --skip <name>` requires.
+additional_cargo_test_args = [
+    "--",
+    "--skip", "diverse",
+    "--skip", "prop_i2",
+    "--skip", "prop_i3",
+    "--skip", "prop_i4",
+    "--skip", "prop_i9",
+]

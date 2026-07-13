@@ -1,0 +1,7 @@
+{
+  "all_converged": true,
+  "converged": 5,
+  "expected": 5,
+  "fetched": 5
+}
+[2m2026-06-17T13:39:54.577557Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.

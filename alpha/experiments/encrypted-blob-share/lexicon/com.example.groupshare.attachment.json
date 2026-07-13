@@ -1,0 +1,40 @@
+{
+  "lexicon": 1,
+  "id": "com.example.groupshare.attachment",
+  "description": "Reference record for an encrypted attachment shared in a private group. The bytes live in a content-addressed blob store (iroh-blobs) as ciphertext; this record points at them by ciphertext hash and carries the AEAD nonce needed to decrypt. Modeled on the atproto `blob` convention, diverging in that `ref` is the BLAKE3 hash of CIPHERTEXT and `nonce` is added; the decryption key is never stored.",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["$type", "ciphertext_ref", "nonce", "mime_type", "size"],
+        "properties": {
+          "$type": {
+            "type": "string",
+            "const": "blob"
+          },
+          "ciphertext_ref": {
+            "type": "string",
+            "description": "Lowercase hex BLAKE3 hash (64 chars) of the ciphertext as stored in iroh-blobs."
+          },
+          "nonce": {
+            "type": "string",
+            "description": "Lowercase hex ChaCha20-Poly1305 nonce (24 chars / 12 bytes)."
+          },
+          "mime_type": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Plaintext size in bytes."
+          },
+          "filename": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

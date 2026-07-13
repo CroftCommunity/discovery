@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = ["social-graph-core", "group-chat-core", "croft-chat"]
+
+[workspace.package]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+authors = ["Chase Pettet <chase@owasp.org>"]
+
+[workspace.dependencies]
+# Substrate (redb storage + governance fold + derived social-graph projection).
+local_storage_projection = { path = "../local_storage_projection" }
+
+# Observability — a lightweight facade; with no subscriber installed it is a
+# no-op, so library crates can emit spans without forcing a logging backend.
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Shared building blocks.
+thiserror = "1"
+
+# Async runtime (the substrate's write commands are async). Members opt in.
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros", "sync"] }
+
+# Test-only, declared here so members share one version (opted into per-crate
+# under [dev-dependencies] with `workspace = true`).
+tempfile = "3"

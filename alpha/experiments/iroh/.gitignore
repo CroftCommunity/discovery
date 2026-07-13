@@ -1,0 +1,13 @@
+/target
+
+# node-4 (Mac) contained iroh build — fully deletable
+.node4-cargo/
+.node4-target/
+.node4-stores/
+.ff-cargo/
+.ff-target/
+
+# per-crate build dirs (spikes built locally) — match target/ at any depth
+target/
+rl-target/
+ff-target/

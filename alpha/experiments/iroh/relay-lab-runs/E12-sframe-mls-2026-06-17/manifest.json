@@ -1,0 +1,30 @@
+{
+  "experiment": "E12",
+  "title": "Blind media-meer — SFrame-over-MLS through a forwarder that can't read it (C3 keying, TC-KEY1-4)",
+  "date": "2026-06-17",
+  "class": "spike",
+  "status": "green-real",
+  "design_ref": "discovery/thinking/realtime-media-over-iroh.md (C3; TC-KEY1-4)",
+  "harness": {
+    "crate": "experiments/iroh/crates/media-sframe-spike (path-deps the REAL openmls-backed lineage-mls + lineage-core)",
+    "mls": "openmls 0.8.1 (real group: alice founder + bob + carol via add/welcome; remove = epoch advance)",
+    "sframe_key": "HKDF-SHA256(MLS exporter_secret epoch_proof, info = \"croft/sframe/v1\" || epoch_be || leaf_be) -> 32 B per (epoch, leaf)",
+    "aead": "ChaCha20-Poly1305; nonce = leaf||counter; clear header (epoch, leaf, counter) bound as AAD",
+    "replay_window": "sliding per-sender counter window (width 16); loss + intra-window reorder tolerant, no contiguity requirement",
+    "rustc": "1.94.1",
+    "note": "pure crypto, no transport — the keying question is independent of the wire (E10 covers the wire/CC)."
+  },
+  "results": {
+    "TC-KEY1": {"pass": true, "detail": "alice and carol get distinct per-sender keys from the same exporter secret + leaf index; a non-member (no group) cannot call epoch_proof() -> cannot derive any key (media analog of the faithful-path UnauthorizedAuthor)"},
+    "TC-KEY2": {"pass": true, "detail": "100 frames, 10 dropped, adjacent-pair reordered: 90/90 surviving frames decrypt OUT OF ORDER; a full replay of the stream is rejected 90/90 by the window"},
+    "TC-KEY3": {"pass": true, "detail": "removing carol advances the MLS epoch 1->2 and rotates the exporter secret; removed carol is stuck at epoch 1 (no S2); her later frame is rejected (stale epoch + non-member = media MD-G5); she cannot forge an epoch-2 frame; bob's cached pre-revocation frame still decrypts (history not clawed back); a current member (alice) still sends+decrypts at epoch 2"},
+    "TC-KEY4": {"pass": true, "detail": "the blind SFU holds no exporter secret: it routes/selects all 92 frames from the clear (epoch, leaf, counter) headers yet recovers 0 plaintext bytes; ciphertext never contains plaintext (extends E3.4/AR-4 blindness to media)"}
+  },
+  "verdict": "green-real: SFrame keyed off a REAL MLS group's exporter secret realizes the DAVE-shape blind-SFU media E2EE. Per-sender keys, loss-tolerant out-of-order decrypt with replay rejection, epoch-rotation revocation (media MD-G5 + history retention), and a content-blind forwarder all hold against openmls 0.8.1. C3 keying is de-risked.",
+  "open_edges": [
+    "Synthetic media payloads (string frames), not real Opus/RTP packetization — keying is proven; codec integration is separate.",
+    "SFrame header is modeled (epoch, leaf, counter); a wire-format SFrame header (RFC 9605) is a later detail.",
+    "Run locally (pure crypto); a transport-carried version over iroh datagrams = the E10 rig + this keying, a small follow-on.",
+    "MLS key-distribution itself is real here (openmls add/welcome/remove); the broader 'key registry over the wire' honesty boundary (Workstream C) is about the faithful messaging crate, not this media path."
+  ]
+}

@@ -1,0 +1,17 @@
+# The pure functional core. No I/O, no async, no clock, no platform.
+# Depends on `bluesky` for the native post DATA TYPE only (DECISION 1, 2):
+# default-features = false pulls in no serde / no fake / no adapter, keeping the
+# core free of the port trait, of any async surface, and WASM-compatible.
+[package]
+name = "app-core"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+# Not named `core` to avoid shadowing the std `core` crate. Semantics unchanged;
+# BUILD-SPEC permits idiom adjustments to names.
+name = "app_core"
+
+[dependencies]
+bluesky = { path = "../bluesky", default-features = false }

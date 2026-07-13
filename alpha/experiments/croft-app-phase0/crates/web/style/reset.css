@@ -1,0 +1,62 @@
+/* Base + webview-tell elimination (spec 1.4). Tokens come from the :root block
+   the app injects at runtime; this file references them via var(). This is the
+   one bootstrap stylesheet — primitives never write raw values. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+html {
+  background: var(--color-surface);
+}
+
+body {
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  /* webview tells: crisp text, no rubber-band, no tap flash, app-like default */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: default;
+  /* UI chrome is not selectable; real content opts back in via [data-selectable] */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Real content (post bodies, error reasons) is selectable and gets a text cursor. */
+[data-selectable] {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+
+/* Deliberate focus: drop the webpage ring, keep a crafted, visible keyboard ring. */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: var(--hairline) solid var(--color-focus);
+  outline-offset: var(--space-1);
+  border-radius: var(--radius-sm);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+}

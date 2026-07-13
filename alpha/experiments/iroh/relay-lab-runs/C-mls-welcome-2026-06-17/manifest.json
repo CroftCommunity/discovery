@@ -1,0 +1,30 @@
+{
+  "experiment": "C-mls-welcome (Workstream C, part 2)",
+  "title": "MLS key-distribution + standing-binding over the wire — a real openmls Welcome distributes the group key AND the lineage-folded membership/standing",
+  "date": "2026-06-17",
+  "class": "spike",
+  "status": "green-real (transport)",
+  "design_ref": "open-edges.md §1 (MLS key-distribution over the wire, messaging path); the faithful crate's 'registry modeled as agreed state' honesty boundary; the E12 + C-mls-welcome + faithful integration",
+  "harness": {
+    "crate": "experiments/iroh/crates/mls-welcome-over-iroh (path-deps real lineage-mls/openmls 0.8.1 + iroh =1.0.0 — they coexist; reuses relay-loadtest's relay+endpoint code)",
+    "topology": "single process, real iroh + real relay (loopback): founder endpoint + joiner endpoint homed on an in-process relay; the openmls Welcome crosses a real iroh bi-stream founder->joiner",
+    "group": "leaves carry T1 lineage claims: alice.laptop + alice.phone under lineage-a (must fold to ONE actor, E2.9/E2.10); bob.phone under lineage-b",
+    "note": "the joiners' KeyPackages (public pre-keys) are handed to the founder in-process; the security-relevant KEY DISTRIBUTION + the membership/standing are what travel the wire (in the Welcome's ratchet-tree extension)"
+  },
+  "result": {
+    "welcome_bytes_over_wire": 1466,
+    "founder_epoch": 1, "joiner_epoch": 1,
+    "founder_member_count": 3, "joiner_member_count": 3,
+    "epoch_secret_match": true,
+    "joiner_secret_is_nonzero": true,
+    "founder_fold": {"lineage:lineage-a": 2, "lineage:lineage-b": 1},
+    "joiner_fold": {"lineage:lineage-a": 2, "lineage:lineage-b": 1},
+    "fold_matches": true
+  },
+  "verdict": "green-real: a real 1466-byte openmls Welcome travels a real iroh connection; the joiner runs join_from_welcome and derives (1) the SAME 32-byte MLS exporter secret as the founder AND (2) the SAME lineage-folded membership/standing — alice's two devices fold to one actor, bob is a second — entirely from the wire-delivered Welcome. THE INTEGRATION (E12 + C-mls-welcome + faithful): the verifying-key/standing registry the faithful messaging path needs is now sourced from the real MLS group distributed over the transport, not modeled as agreed state. Closes the faithful crate's 'registry as agreed state' honesty boundary. With C part 1 (revoke authority over the wire), Workstream C's two named transport honesty boundaries are both addressed.",
+  "open_edges": [
+    "Loopback single-process (real iroh + real relay over loopback); the iroh transport itself is already proven cross-host (node-1<->node-2) by E10/meer/faithful, so cross-host here is a deployment detail, not new evidence.",
+    "The joiners' KeyPackages are exchanged in-process (public material); a full handshake would also carry the KeyPackage over the wire (a serialization detail, not a security one).",
+    "The standing binding here is the lineage-FOLD (membership/actor view) read from the MLS leaves; wiring a lineage-history Message's per-author signature verification to a key extracted from its MLS leaf (vs the fold) is the next finer-grained step — the fold already proves the membership/standing source is the wire-distributed MLS group."
+  ]
+}

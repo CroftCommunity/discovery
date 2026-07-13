@@ -1,0 +1,12 @@
+# The design system. Produces Leptos primitives (M1.3) that consume only tokens.
+# Knows NO protocol: it must never depend on `bluesky` or any protocol type
+# (philosophy: "the design system knows no protocol"). M1.2 ships tokens only;
+# Leptos + primitives arrive in M1.3.
+[package]
+name = "design"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+leptos = { version = "0.8.10", features = ["csr"] }

@@ -1,0 +1,16 @@
+{
+  "experiment": "TC-CC3",
+  "title": "Datagram/stream isolation — does a bulk transfer starve the media datagram flow on a shared connection?",
+  "date": "2026-06-17",
+  "design_ref": "realtime-media-over-iroh.md C1 solution point 3 ('keep media datagrams and bulk/reliable transfers on separate flows so the media flow is never starved or HOL-blocked')",
+  "method": "64 kbps media datagrams + (optionally) a 20 MB bulk reliable stream on the SAME iroh connection, node-1->node-2, under a 1 mbit netem cap so they contend. roq-send --bulk-bytes; roq-recv drains the bulk bi-stream in the background.",
+  "results": {
+    "cc3-media-only": {"sent": 1000, "received": 1000, "loss_pct": 0.0, "jitter_ms": 0.4, "rtt_ms": "4/5/50", "goodput_kbps": 64.1, "verdict": "media alone on a 1 mbit link is flawless"},
+    "cc3-media-plus-bulk": {"sent": 1000, "rtt_ms": "61/4604/9485", "receiver": "unusable backlog (no finalize)", "verdict": "the bulk reliable transfer STARVES the media — RTT to ~9.5s"}
+  },
+  "finding": "Datagram/stream isolation does NOT hold on a SHARED iroh connection under link pressure. A bulk reliable stream's congestion controller fills the constrained link and the unreliable media datagrams queue behind it (the same bufferbloat mechanism E10 found for an over-cap source — the bulk simply creates the over-cap condition). RTT goes from 4-50 ms (media alone) to ~4.6 s mean / 9.5 s max with bulk. This CONFIRMS C1 solution point 3 is mandatory, not optional: real-time media and bulk transfers MUST run on separate flows/connections (so the file transfer cannot starve the call). Co-locating them on one connection is a design error.",
+  "caveats": [
+    "QUIC datagrams are not prioritized over stream data by default; whether a priority/pacing knob could protect the datagram flow on one connection is untested — the cheap, robust answer is separate connections.",
+    "1 mbit cap chosen so 64 kbps media fits easily but the bulk saturates; the starvation is the link contention, not a per-flow scheduler bug."
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "experiment": "E7",
+  "facet": "placement churn / split-brain window — does reassigning a peer between relays converge without stranding, and what is the partition window?",
+  "date": "2026-06-16",
+  "iroh_sha": "iroh-relay=1.0.0",
+  "topology": "relay-A on node-1 (172.31.43.122:3343/q3478), relay-B on node-2 (172.31.19.13:3343/q3478). One mobile peer = a responder with a PINNED secret (stable endpoint id across restarts). Connector = e2-connect (relay-only, resolves the peer by bare id through the controller-ASSIGNED relay via MemoryLookup), run on node-1, knows both relays.",
+  "method": "1) home the peer on relay-A; connect with assign=A. 2) re-home the peer to relay-B (kill on node-1, restart on node-2 with the SAME secret => same id). 3) connect with the now-stale assign=A. 4) connect with assign=B. Record connected + relay_used per step.",
+  "peer_id": "248acbdbaf9e050196de704bea2d68770e519150d103b587dae2d9cad53dd930",
+  "steps": [
+    { "phase": "pre-churn",  "assign": "relay-A", "connected": true,  "relay_used": "https://172.31.43.122:3343/", "note": "homed on A, resolves+connects via A" },
+    { "phase": "churn",      "action": "re-home A->B", "stable_id": true, "note": "pinned secret => identical endpoint id after the move (the SAME peer moved, not a new one)" },
+    { "phase": "window",     "assign": "relay-A (stale)", "connected": false, "relay_used": null, "error": "timed out after 12s", "note": "peer is now on B; the stale A assignment points at a relay it no longer homes, and there is NO relay-to-relay mesh => unreachable. This is the partition/split-brain window (~ TTL + reconnect)." },
+    { "phase": "post-churn", "assign": "relay-B", "connected": true,  "relay_used": "https://172.31.19.13:3343/", "note": "updated placement resolves+connects via B — converged, peer reachable on its new relay" }
+  ],
+  "result": {
+    "exit": "MET — reassignment converges: after re-homing, the peer is reachable via its new relay (assign=B connects) and no endpoint is left unreachable once placement is updated. The churn window is real and bounded: while the assignment is stale (points at the old relay), the connection fails (no relay mesh) until the controller publishes the new relay. Confirms E2's co-location-is-mandatory finding under motion: placement must track the peer or the peer is unreachable for the window.",
+    "what_tolerates_the_window": "Eventual-sync workloads tolerate it (they retry/reconcile once placement updates); live presence does not (a connection attempted mid-window fails). A straddling superpeer (meer) homed on BOTH relays during the move would close the window — the E8 fork.",
+    "caveat": "The window here is measured as a binary fail (12s connect timeout) during the stale period, not a precise TTL-to-reconnect distribution; quantifying the window length vs DNS/pkarr TTL is the integration follow-on (E2's pending DNS-origin form). Single peer, single move — not a churn STORM (many peers reassigned concurrently), which would also stress the controller + relay accept rate."
+  }
+}

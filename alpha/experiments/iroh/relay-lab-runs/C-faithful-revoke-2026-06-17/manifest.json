@@ -1,0 +1,28 @@
+{
+  "experiment": "C-faithful-revoke (Workstream C, part 1)",
+  "title": "Real threshold-signed revoke SignedOp over the faithful wire — retires the MD-G5 transport MAC",
+  "date": "2026-06-17",
+  "class": "spike (extends the green-real faithful path)",
+  "status": "green-real (transport)",
+  "design_ref": "open-edges.md §1 (threshold revoke-authority over the wire); revocation-authority.md; CROFT-PROTOCOL §12 honesty boundaries",
+  "harness": {
+    "crate": "experiments/iroh/crates/altdrive-spike-faithful-sync (path-deps real lineage-core gov)",
+    "transport": "live iroh-gossip (presets::N0), origin node-1 + joiner node-2, same topic as the signed-branch vectors",
+    "wire": "tagged WireItem { Branch(WireBranch) | Revoke(WireRevoke) }; WireRevoke carries the genuine gov::SignedOp (k-of-n Ed25519 bundle, Serialize/Deserialize)",
+    "verify_on_receipt": "gov::GroupState::meets_threshold_by_lineage(op, dir, lineage_of) — the green-real k-of-n, lineage-counted authority check (E2.1/E2.10), now run over the wire"
+  },
+  "group": "admins {alice, bob} (each its own lineage); Remove threshold = 2; founders {alice, bob, carol}; revoke target = carol",
+  "joiner_verdicts": {
+    "HONEST": "ACCEPT",
+    "FORGED": "REJECT (bad signature)",
+    "NONMEMBER": "REJECT (never held standing)",
+    "REVOKE-AUTHORIZED": "ACCEPT [as-expected] — alice+bob = 2 distinct admin lineages >= threshold 2",
+    "REVOKE-UNDERTHRESHOLD": "REJECT under-threshold [as-expected] — alice only = 1 lineage < 2"
+  },
+  "verdict": "green-real (transport): a REAL threshold revoke-authority signature (k-of-n Ed25519, counted by lineage) travels the live faithful iroh-gossip wire and is verified on receipt with the green-real gov::meets_threshold_by_lineage — AUTHORIZED accepted, UNDER-THRESHOLD rejected, alongside the existing signature+standing vectors. The MD-G5 transport MAC is retired: revoke authority over the wire is now a real signature, not a sha-256 MAC.",
+  "open_edges": [
+    "Part 2 (MLS key-distribution over the wire for the MESSAGING crate) remains: the faithful crate still models the verifying-key registry as agreed state. E12 proved the openmls add/welcome/remove keying in-process; carrying an openmls Welcome over iroh is the remaining transport step.",
+    "The co-sign-vs-vote ORDERING decision (revocation-authority.md) is orthogonal and still open — this proves the signature mechanism over the wire, not the accumulation policy.",
+    "node-1 (origin) shows empty verdicts (the known gossip gotcha — it exits before peers' broadcasts mesh back); the joiner (node-2) is authoritative."
+  ]
+}

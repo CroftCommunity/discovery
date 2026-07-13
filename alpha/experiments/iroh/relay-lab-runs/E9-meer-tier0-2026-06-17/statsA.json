@@ -1,0 +1,15 @@
+{
+  "meer_connections": 3,
+  "meer_admitted": 3,
+  "meer_rejected": 0,
+  "meer_blobs_stored": 5,
+  "meer_bytes_mirrored": 140,
+  "meer_sync_requests": 1,
+  "meer_blobs_served": 5,
+  "meer_payload_keys_held": 0,
+  "meer_namespaces_observed": [
+    "household-v1"
+  ]
+}
+[2m2026-06-17T13:39:46.547681Z[0m [31mERROR[0m [2miroh::socket[0m[2m:[0m Endpoint dropped without calling `Endpoint::close`. Aborting ungracefully.
+[2m2026-06-17T13:39:46.547889Z[0m [31mERROR[0m [2mnoq::connection[0m[2m:[0m I/O error: connection closed
