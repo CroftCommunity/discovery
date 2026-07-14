@@ -235,3 +235,12 @@ pass, so the FINDINGS are settled rather than deferred. Edits touched three norm
 Part 1 back-matter (FND-11, additive Map line only), `conventions-and-decisions.md` (FND-4 path-fix, FND-10
 vocabulary addition), and the code SPEC-DELTA tags (FND-3, comment-only, verified). No Part 1 body prose,
 no mechanism, and no code behavior changed; the `.rs` diff is comment-only by inspection.
+
+**Addendum (RUN-07, 2026-07-14).** FND-1's ruling is refined 2026-07-14 from "accept §7.4.2 as
+shorthand" to the explicit **range cite (§7.4–§7.4.2)** in the living docs (Part 2 §8.2(e) and the
+one EXPERIMENT-BACKLOG.md quote of that clause); the two §7.4.2 cites in the §7.4.2-hazards table
+rows are correct on their own terms and stay as-is. FND-5 and FND-6 dispositions are ratified post
+hoc by the owner: mechanical normalization to current conventions is accepted on preserved /
+provenance blocks as a narrow exception to the frozen-record rule. FND-8's original finding is
+recorded as **mistaken** — the site was already clean, so the RUN-05 flag was a false positive, not
+a fix.

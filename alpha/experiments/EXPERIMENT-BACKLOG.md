@@ -145,7 +145,7 @@ the intrinsic isolated-node limit. Four assertions, each RED-able before the beh
 
 Shares boundary machinery with EXP-H1 (both drive the §7.3 read/enforce line and the §7.4 freshness
 cursor against a withheld frontier). Discharges, at loopback grade, part of §8.2(e)'s residual that "the
-freshness precondition on originating such an op (§7.4.2) is not yet exercised over live transport" (the
+freshness precondition on originating such an op (§7.4–§7.4.2) is not yet exercised over live transport" (the
 precondition is exercised over loopback here; the relay/real-NAT path stays X1). Cross-refs:
 `corroboration-and-quantified-trust.md` §6 (the contract), Part 2 §7.3.3 (the dials and the fail-closed
 gate), §7.4 (the k-distinct-lineages threshold), §7.4.3 (the generation stamp).
