@@ -178,7 +178,7 @@ All of it is: find the common ancestor, replay forward, converge, stay local-fir
 
 ### The internal boundary: complementary vs contradictory
 
-Merkle ancestry gives verifiable convergence on content. It does not give convergence on conflicting policy decisions. These are different, and the boundary is the "hard stop" case.
+Merkle ancestry gives verifiable convergence on content. It does not give convergence on conflicting policy decisions. These are different, and the boundary is the "hard-stop" case.
 
 - Complementary divergence (multi-device, clean splits, non-conflicting concurrent change): the branches each hold a piece of the truth, the union is well-defined, convergence is automatic. "Agree on the ancestor, bring the groups back" is the literal algorithm. This is the commutative case, the same restriction that makes CRDTs work.
 
