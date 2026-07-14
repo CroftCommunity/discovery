@@ -65,8 +65,8 @@ fn build_four_changes() -> Vec<Change> {
     doc.insert(&list, 3, "e2-m3").expect("insert e2-m3");
     doc.commit();
 
-    // 0.6.x: get_changes returns Vec<&Change>; clone into owned Changes.
-    doc.get_changes(&[]).into_iter().cloned().collect()
+    // 0.7: get_changes returns owned Vec<Change> (0.6.x returned Vec<&Change>).
+    doc.get_changes(&[]).into_iter().collect()
 }
 
 fn fmt(opt: &Option<Vec<String>>) -> String {
@@ -87,12 +87,12 @@ fn main() {
     println!("=================================================================");
     println!("Automerge Rust crate verification");
     println!("Resolved crate version: {CRATE_VERSION}");
-    println!("Toolchain: rustc/cargo 1.75.0 (Ubuntu archive build)");
+    println!("Toolchain: rustc/cargo 1.94.1");
     println!("=================================================================\n");
 
     let changes = build_four_changes();
     println!("Captured {} discrete changes via get_changes(&[]).", changes.len());
-    println!("  API: AutoCommit::get_changes(&mut self, have_deps: &[ChangeHash]) -> Vec<&Change>");
+    println!("  API: AutoCommit::get_changes(&self, have_deps: &[ChangeHash]) -> Vec<Change>");
     println!("  Order: c1=init+e1-m0, c2=e1-m1, c3=e2-m2, c4=e2-m3\n");
 
     let c1 = changes[0].clone();
@@ -147,8 +147,8 @@ fn main() {
     println!("  save() -> {} bytes", bytes.len());
     println!("  API: AutoCommit::load(&[u8]) -> Result<AutoCommit, AutomergeError>");
     match AutoCommit::load(&bytes) {
-        Ok(mut loaded_doc) => {
-            // get_missing_deps takes &mut self in 0.6.x; call it first.
+        Ok(loaded_doc) => {
+            // 0.7: get_missing_deps takes &self (0.6.x took &mut self).
             let missing_c = loaded_doc.get_missing_deps(&[]);
             let read_c = read_messages(&loaded_doc);
             println!("  loaded doc read messages -> {}", fmt(&read_c));
@@ -180,8 +180,8 @@ fn main() {
     newer.insert(&list, 4, "e2-m4").expect("insert e2-m4");
     newer.commit();
 
-    println!("  API: AutoCommit::get_changes(&mut self, have_deps: &[ChangeHash]) -> Vec<&Change>");
-    let incremental: Vec<Change> = newer.get_changes(&heads).into_iter().cloned().collect();
+    println!("  API: AutoCommit::get_changes(&self, have_deps: &[ChangeHash]) -> Vec<Change>");
+    let incremental: Vec<Change> = newer.get_changes(&heads).into_iter().collect();
     println!("  get_changes(since epoch-1 heads) -> {} change(s)", incremental.len());
 
     epoch1.apply_changes(incremental.clone()).expect("apply incremental");

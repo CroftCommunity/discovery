@@ -105,6 +105,25 @@ manual mutation gate), *not* `Verified`, because the formal cross-package mutati
 run — confirm that's the bar you want. Called 2026-07-13: (1) R7 in §7.2 with a §7.3 cross-reference;
 (2) `Modeled` until X3.
 
+**Mutation evidence added by RUN-01 EXP-3.** The formal scoped `cargo-mutants` sweep now backs the R7
+enforcement: **threshold-counting has 0 survivors** in-substrate (`governance.rs` `threshold_met` /
+`count_personae_by_lineage` / `required_threshold_for_rule_change` all caught), and the F1
+approval-subject function `rule_change_approval_subject→const` was **hand-killed against the
+cross-package test** `approval_for_a_different_change_does_not_count`. This strengthens the case for
+`Modeled`; the bar for `Verified` remains the *automated* cross-package sweep (61 authorization-decision
+survivors resolve only when the consumer suite runs against substrate mutants — residual X3). See
+`local_storage_projection/X3-CROSS-PACKAGE-SWEEP.md`.
+
+**Boundary sharpened by RUN-01 EXP-4 (competing quorums).** R7 quorum enforcement is real but **not
+concurrent-conflict-aware**: a RuleChange is admitted once its own quorum is met, but the fold does
+**not** escalate when *two competing quorums* concurrently admit conflicting changes to the same rule —
+they auto-resolve order-dependently (`fork="clean"`, last-folded wins), a silent I5 violation on a
+§7.6.1 shape (refutation `two_competing_rulechange_quorums`, register `competing-quorum-autoresolve`).
+So R7 should read "enforced per-act" and must **not** be over-read as "the concurrent case is handled."
+The competing-quorum contradiction predicate is a separate, design-gated item (backlog §2a) — mirrors
+the mutual-expulsion predicate but for RuleChange. Recommend R7 land with an explicit caveat that
+concurrent competing quorums are an open §7.6.1 escalation shape, not yet built.
+
 ---
 
 ## F2 — Re-plant membership continuity: `Design` → corroborated  ·  `status-move`  ·  ready
@@ -173,28 +192,47 @@ rather than adding a claim.
 
 ---
 
-## F4 — §11.11 measurement #1: per-commit half now measured  ·  `status-move`  ·  ready
+## F4 — §11.11 measurement #1: both halves now measured (fan-out on loopback)  ·  `status-move`  ·  ready
 
 **Target:** §11.11, measurement #1 ("Per-commit and fan-out cost at hot-N = 500 / 1000 / 2000 …",
 tagged `Load-bearing, unearned`).
 
 **Why + evidence.** `mls-replant`'s M1 study measured the per-commit re-key cost band on real openmls
-(an O(N) floor ↔ O(log N) ceiling per commit). The **fan-out** half (per-boundary re-key across a real
-gossip fan-out) is now runnable with no new infra (A4, N local `serve` on the loopback testbed) but is
-not yet run.
+(an O(N) floor ↔ O(log N) ceiling per commit). The **fan-out** half is now measured too (RUN-01 EXP-1,
+`alpha/experiments/croft-chat/FANOUT-M1.md`): N local `serve` processes converging over real
+iroh-gossip at N = 2/4/8/16 on the loopback testbed. Findings: **per-node gossip cost is linear in the
+live set** (`live_sent = 2N + 1`), aggregate O(N²) (inherent to flood gossip), and **head convergence
+holds at every N** (identical fingerprints — I5 scales across the fan-out). One honest flag, carried
+into the annotation: the **connect-time resync** path is super-linear on the bootstrap hub and
+full-settle (`pending == 0`) does not complete past N ≈ 8 in the measured window — which is the same
+open gap F3 records (RBSR / steady-state anti-entropy), now with a concrete cost signal. Scope note:
+in this testbed a membership boundary is a **governance fact over gossip**, not an openmls commit, so
+this is the fan-out *volume/latency* curve; the cryptographic per-commit band stays with M1.
 
 **Diff — §11.11, annotate measurement #1** (append to its paragraph):
 
 ```diff
   1. **Per-commit and fan-out cost at hot-N = 500 / 1000 / 2000, on representative hardware.** …
      plus a gossip testbed measuring fan-out latency and total message count versus live-N.
-+    *Partial (2026-07):* the **per-commit** band is measured on real openmls 0.8.1 (an O(N) floor ↔
-+    O(log N) ceiling per commit; `alpha/experiments/mls-replant`, M1). The **fan-out** half is still
-+    unearned but is now runnable with no new infrastructure (N local `serve` processes on the
-+    loopback gossip testbed; A4). The measurement moves from *unearned* to *half-earned*.
++    *Measured (2026-07):* the **per-commit** band is measured on real openmls 0.8.1 (an O(N) floor ↔
++    O(log N) ceiling per commit; `alpha/experiments/mls-replant`, M1). The **fan-out** half is now
++    measured over real iroh-gossip on a loopback testbed at N = 2/4/8/16 (`croft-chat/FANOUT-M1.md`):
++    per-node gossip cost is **linear in the live set** (`2N+1`), aggregate O(N²), and head convergence
++    holds at every N (identical fingerprints). Two boundaries remain: the fan-out figures are on
++    **loopback, not representative hardware at hot-N = 500+** (magnitude indicative, register
++    `fanout-single-run`), and the **connect-time resync** cost is super-linear on the bootstrap hub —
++    full-settle does not complete past N ≈ 8 in-window, the RBSR / steady-state gap of §6.8.1. The
++    measurement moves from *unearned* to *earned in shape* (both halves), *magnitude-open at scale*.
 ```
 
-**Decision:** `ready`. Does not touch the §11.12 posture table (no decided posture changes).
+**Decision:** `ready`. Does not touch the §11.12 posture table (no decided posture changes). The
+super-linear-resync flag is consistent with — not a new claim beyond — F3's RBSR annotation.
+
+**Landing state (post RUN-02).** RUN-02 already landed the *half-earned* wording into Part 2 §11.11
+("fan-out half stays unearned though runnable… moves from unearned to half-earned"). RUN-01 EXP-1 then
+*measured* the fan-out, so this F4 revision **supersedes** that landed wording: it proposes a follow-on
+§11.11 edit from *half-earned* → *earned in shape* (loopback), magnitude-open at hot-N = 500+. Not yet
+applied to Part 2 — this is the next §11.11 touch, pending review.
 
 ---
 
@@ -309,6 +347,16 @@ tag.
 **Decision:** `called` (owner's decision this run). Recorded so R7's concurrency boundary is explicit
 rather than left as an unstated tiebreak. `Design`, decided; no evidence tag until the experiment runs.
 
+**RUN-01 EXP-5 assessment (no cats moved).** EXP-5 targeted exactly these gaps. Finding: the
+**MLS-key-distribution-over-wire** half is **already realized in a spike** (`iroh/crates/mls-welcome-over-iroh`
+— a real openmls Welcome over a real iroh connection; the joiner derives the identical exporter secret +
+lineage fold from the wire), so "the modeled registry" is made real there, though not yet wired into
+conformance emission. The **threshold-revoke-over-wire** half is **design-gated** (the revocation-authority
+model — who-may-revoke / the k-of-n dial / key discovery; MASTER-INDEX I9) and was **stopped, not
+improvised**, per the brief's EXP-5 stop rule (options A/B/C in backlog §6d-i). So conformance cats 7/8/9
+and the revoke-authority vector **remain not-yet-emitted** — the F7 annotation stands unchanged, now with
+a named blocker (the revocation-authority decision) rather than an open "TBD".
+
 ---
 
 ## Summary table
@@ -318,7 +366,7 @@ rather than left as an unstated tiebreak. `Design`, decided; no evidence tag unt
 | **F1** | §7.2 R7 + §8.2(e) | new-mechanism | called | RuleChange quorum *enforced* via content-hash approval subject |
 | **F2** | §7.6.2 | status-move | ready | Re-plant membership continuity → `Verified` (membership half only) |
 | **F3** | §6.8.1 | caveat | ready | Connect-time catch-up shown; RBSR + steady-state still open |
-| **F4** | §11.11 #1 | status-move | ready | Per-commit cost measured; fan-out still unearned |
+| **F4** | §11.11 #1 | status-move | ready | Per-commit **and** fan-out measured (fan-out: linear per-node `2N+1`, O(N²) aggregate, heads converge; resync super-linear past N≈8) |
 | **F5** | §8.2(a) | caveat | ready | Freshness earned on loopback; relay path (X1) open |
 | **F6** | §7.6.3 | caveat | ready | No change — `[confirm]` stands; E12.6 ≠ discharge |
 | **F7** | §10 / §9 | caveat | called | Conformance cats 7/8/9 not-yet-emitted |

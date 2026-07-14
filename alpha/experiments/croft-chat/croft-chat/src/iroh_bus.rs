@@ -9,7 +9,9 @@
 //! events into a sync channel that `drain()` reads, and an outbound task awaits
 //! `broadcast` for frames `publish()` queues.
 
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::mpsc as std_mpsc;
+use std::sync::Arc;
 
 use iroh::address_lookup::memory::MemoryLookup;
 use iroh::endpoint::presets;
@@ -76,12 +78,36 @@ enum Out {
     Resync,
 }
 
+/// Gossip message counters, shared with the bridge tasks. Pure measurement
+/// instrumentation (A4 / M1 fan-out) — it observes the wire, it does not change
+/// what is broadcast. `live_sent` counts distinct steady-state broadcasts,
+/// `resync_sent` counts per-frame connect-time re-broadcasts, `received` counts
+/// inbound frames delivered to the fold.
+#[derive(Clone, Default)]
+struct Counters {
+    live_sent: Arc<AtomicU64>,
+    resync_sent: Arc<AtomicU64>,
+    received: Arc<AtomicU64>,
+}
+
+/// A snapshot of a bus's gossip message counts.
+#[derive(Clone, Copy, Debug, Default)]
+pub struct BusStats {
+    /// Distinct frames broadcast once in steady state (`TAG_LIVE`).
+    pub live_sent: u64,
+    /// Per-frame connect-time re-broadcasts (`TAG_RESYNC`), summed over resync events.
+    pub resync_sent: u64,
+    /// Inbound frames received off the swarm and handed to the fold.
+    pub received: u64,
+}
+
 /// A gossip-backed transport bound to a single topic.
 pub struct IrohGossipBus {
     endpoint: Endpoint,
     _router: Router,
     inbound_rx: std_mpsc::Receiver<Vec<u8>>,
     outbound_tx: tokio_mpsc::UnboundedSender<Out>,
+    counters: Counters,
     _tasks: Vec<tokio::task::JoinHandle<()>>,
 }
 
@@ -135,10 +161,12 @@ impl IrohGossipBus {
 
         let (inbound_tx, inbound_rx) = std_mpsc::channel::<Vec<u8>>();
         let (outbound_tx, mut outbound_rx) = tokio_mpsc::unbounded_channel::<Out>();
+        let counters = Counters::default();
 
         // Inbound: gossip events → sync channel. A `NeighborUp` asks the broadcast
         // task to resync so the newly-connected peer catches up (sync-on-connect).
         let resync_tx = outbound_tx.clone();
+        let recv_counter = counters.received.clone();
         let inbound_task = tokio::spawn(async move {
             let mut received: u64 = 0;
             while let Some(event) = receiver.next().await {
@@ -149,6 +177,7 @@ impl IrohGossipBus {
                             continue;
                         };
                         received += 1;
+                        recv_counter.fetch_add(1, Ordering::Relaxed);
                         tracing::debug!(received, len = frame.len(), "gossip received");
                         if inbound_tx.send(frame).is_err() {
                             break; // bus dropped
@@ -172,6 +201,8 @@ impl IrohGossipBus {
         // on `Resync`, re-broadcast the retained log as `TAG_RESYNC` with fresh
         // nonces (distinct ids) so a joiner receives frames it missed. No per-tick
         // re-flood: the retained set dedups the runtime's periodic re-publish.
+        let live_counter = counters.live_sent.clone();
+        let resync_counter = counters.resync_sent.clone();
         let outbound_task = tokio::spawn(async move {
             let mut retained: std::collections::HashSet<Vec<u8>> = std::collections::HashSet::new();
             let mut nonce: u64 = 0;
@@ -187,6 +218,8 @@ impl IrohGossipBus {
                         framed.extend_from_slice(&bytes);
                         if let Err(e) = sender.broadcast(framed.into()).await {
                             tracing::warn!("gossip broadcast (live) error: {e}");
+                        } else {
+                            live_counter.fetch_add(1, Ordering::Relaxed);
                         }
                     }
                     Out::Resync => {
@@ -199,6 +232,8 @@ impl IrohGossipBus {
                             framed.extend_from_slice(bytes);
                             if let Err(e) = sender.broadcast(framed.into()).await {
                                 tracing::warn!("gossip broadcast (resync) error: {e}");
+                            } else {
+                                resync_counter.fetch_add(1, Ordering::Relaxed);
                             }
                         }
                     }
@@ -211,6 +246,7 @@ impl IrohGossipBus {
             _router: router,
             inbound_rx,
             outbound_tx,
+            counters,
             _tasks: vec![inbound_task, outbound_task],
         })
     }
@@ -219,6 +255,16 @@ impl IrohGossipBus {
     #[must_use]
     pub fn endpoint_addr(&self) -> EndpointAddr {
         self.endpoint.addr()
+    }
+
+    /// A snapshot of this bus's gossip message counts (A4 / M1 fan-out measurement).
+    #[must_use]
+    pub fn stats(&self) -> BusStats {
+        BusStats {
+            live_sent: self.counters.live_sent.load(Ordering::Relaxed),
+            resync_sent: self.counters.resync_sent.load(Ordering::Relaxed),
+            received: self.counters.received.load(Ordering::Relaxed),
+        }
     }
 }
 

@@ -55,12 +55,45 @@ are **done and green**. What remains:
 |---|---|---|---|
 | **E12.2** — atomic-swap *message* continuity | An in-flight conversation survives the §7.6.2 re-plant repoint without message loss/dup | Specified | Drystone dataplane hash structures (Rung B) |
 | **E12.7 message facet** | The message-continuity half of the bridge (membership half is done) | Specified | pairs with E12.2 |
-| **M1 fan-out half** | Per-*boundary* re-key cost across a real gossip fan-out (per-commit band already measured) | Specified | ✅ **now local** — N `serve` processes on the loopback testbed |
+| **M1 fan-out half** | ✅ **DONE (RUN-01 EXP-1, 2026-07-14).** Fan-out curve captured over real iroh-gossip at N=2/4/8/16 (`croft-chat/FANOUT-M1.md`): per-node gossip cost **linear** (`live_sent=2N+1`), aggregate O(N²), head-convergence holds at all N (fingerprints match). **Flag:** connect-time resync is super-linear on the bootstrap hub and full-settle (`pending==0`) doesn't complete past N≈8 in-window — corroborates the open RBSR/steady-state gap. Register: `fanout-single-run` (proxy-measurement, magnitude indicative). | ✅ Complete (curve + shape) | — (loopback testbed) |
 | **M2** — return-backfill vs dormancy | Cost of a returning member catching up vs staying dormant, at 1/7/30/90-day gaps | Specified (modeled lower-bound runnable now against redb history) | **Mechanism now built** — sync-on-connect resync (`iroh_bus`, `Event::NeighborUp` → re-broadcast retained log). M2 is the *sizing* study that remains (push-resync vs pull-on-connect, cost at 1/7/30/90-day gaps) + steady-state anti-entropy |
 | **X1** — live cross-host over real NAT | Convert in-process fingerprint-equality into a real-network one | Specified (`RUN.md` cross-host recipe) | secroute boxes + NAT workstation (genuinely needs real NAT) |
 | **X2** — fault injection during convergence | Kill/crash/heal mid-converge → same head, no reversion, catch-up | ✅ **DONE — all green (loopback testbed, 2026-07-13)** — `scripts/x2-fault-injection.sh` | crash-consistency + monotonic no-reversion + **catch-up** all PASS (`A head == B head`). Catch-up was first *refuted* (gossip dedups re-broadcasts) then *fixed* with a prototype nonce backfill in `iroh_bus`. See ledger Phase 7 |
-| **X3** — `cargo-mutants` re-sweep on `fold_auth`/`governance` | A surviving mutant in the authority/threshold path = a real hole in the trust claim | Specified | ✅ **tool now installed** (`cargo install cargo-mutants` works via the proxy). Remaining: an automated **cross-package** sweep (V5′ positive-path coverage lives in `croft-chat`, not the substrate's own suite) + the slow substrate suite. Targeted *manual* mutation testing was done for the RuleChange-quorum change |
-| **Fold open items** | ~~RuleChange thresholds~~ (✅ **done** — enforced via content-hash approval subject, `rulechange_threshold_enforced.rs` 4 cases); per-act approver-role granularity; two-competing-quorums → **decided (RUN-02): §7.6-class genuine contradiction, hard-stop + transparent grounded contradiction statement in governance language, never a content-address tiebreak (§7.3.2 / §7.6.1); experiment still to run to earn the fold's evidence tag**; contradicted-group byte-head naming; live "catching up…" TUI indicator (App holds no Replicator) | Sketched | — |
+| **X3** — `cargo-mutants` re-sweep on `fold_auth`/`governance` | A surviving mutant in the authority/threshold path = a real hole in the trust claim | Substrate sweep DONE; cross-package harness open | ✅ **Substrate sweep run (RUN-01 EXP-3, 2026-07-14):** 120 mutants → 54 caught, **0 survivors in threshold-counting** (`governance.rs` 13/13), 61 survivors **all** in the cross-package-covered authorization-*decision* path (`check_authorization`/`role_ge_*`/`act_subject`/`rule_change_approval_subject`). Demonstrated a survivor (`rule_change_approval_subject→const`) is killed by `croft-chat`'s `approval_for_a_different_change_does_not_count`. No real hole found. See `local_storage_projection/X3-CROSS-PACKAGE-SWEEP.md`. **Remaining:** the *automated* cross-package harness (mutate substrate while running `croft-chat`'s suite so all 61 survivors resolve mechanically) — separate crates/`Cargo.lock`, budgets the slow consumer suite. |
+| **Fold open items** | ~~RuleChange thresholds~~ (✅ done); ~~contradicted-group byte-head naming~~ (✅ **done, RUN-01 EXP-4** — `competing_quorums.rs::contradicted_group_byte_head_is_min_hash_order_independent`: the byte-head is exactly `min(H(F),H(G))`, order-independent); **two-competing-quorums** → **decided (RUN-02 F8): §7.6-class genuine contradiction, hard-stop + grounded contradiction statement in governance language, never a content-address tiebreak (§7.3.2 / §7.6.1)**; the experiment F8 said would earn the evidence tag **has now run — RUN-01 EXP-4: ⚠️ FALSIFIED** (impl currently auto-resolves order-dependently; a confirmed impl gap vs. the decided spec — see §2a); per-act approver-role granularity (**undecided design** — see §2a); live "catching up…" TUI indicator (App holds no Replicator; UX, skipped unattended) | Byte-head done; competing-quorum decided + impl gap confirmed; approver-role open | — |
+
+### 2a. Fold findings from RUN-01 EXP-4
+
+**FINDING — competing RuleChange quorums auto-resolve (§7.6.1). Design decided (RUN-02 F8); this is now
+an implementation gap.** RUN-01 EXP-4 is exactly the experiment F8 said would earn the fold's evidence
+tag, and it **refuted the current implementation**: two concurrent conflicting RuleChanges on the same
+rule, each carrying a valid k-of-n quorum, **silently auto-resolve order-dependently** (last-folded
+wins; `fork="clean"`, no hard-stop) — an I5 violation on the shape §7.6 says must escalate. Pinned by
+`competing_quorums.rs::two_competing_rulechange_quorums` (refutation) and register row
+`competing-quorum-autoresolve`. **The design is not open — RUN-02 F8 decided it** (a §7.6-class genuine
+contradiction, hard-stopped, never content-address-tiebroken; §7.3.2 / §7.6.1). What remains is
+**implementation**: extend the fold's contradiction predicate set (mutual-expulsion, removed-then-included,
+role-thrash — `2026-07-12-1-design-concurrent-contradiction.md`) to cover RuleChange. The remaining choice
+is *which predicate shape* (an implementation call, not a design one): (A) **same-rule-different-value** —
+two concurrent RuleChanges whose `rule_key` matches and `new_value` differs → `Contradiction`, byte-head
+`min(H(F),H(G))`, retain the pre-change value (no verdict); narrowest, mirrors mutual-expulsion, and matches
+F8's "hard-stop, never tiebreak". (B) a broader **same-subject** predicate keyed on the
+`rule_change_approval_subject` content hash. *(An earlier "causal-order-only / reject-as-incomplete"
+option is now ruled out — F8 requires hard-stop-and-adjudicate, not silent rejection.)* Recommend (A):
+narrowest escalation surface, and it is the direct realization of F8.
+
+**FINDING — approver-role granularity is role-agnostic (still undecided design — do not decide
+autonomously).** Step 5.6 counts distinct approver personae **by lineage regardless of role** — a
+Member's `Approval` currently counts toward a RuleChange or RoleGrant quorum the same as an Admin's.
+Whether an act's quorum should require approvers holding a minimum role *for that act* is an **undecided
+design question** (the spec's R-series is mechanism-neutral; nothing decides approver role-gating; RUN-02
+R7 explicitly lists it as an open residual). Not tested/implemented here — deciding it is a trust-model
+call. *Options for the human:* (A) **role-agnostic** (status quo — any member's approval counts;
+simplest, but a low-privilege member can help meet a high-privilege quorum). (B) **per-act role floor** —
+each act type carries a minimum approver role (e.g. RuleChange/RoleGrant need Admin+ approvers), enforced
+in `gather_approvers`/Step 5.6 by filtering approvers below the floor before counting. (C)
+**weight-by-role** — richer, likely over-engineered for now. No recommendation without the trust-model
+owner; flagged so the next session decides deliberately rather than by omission.
 
 ---
 
@@ -92,7 +125,7 @@ L1–L6 sequenced, not built. Each gets its own plan.
 
 | Item | For | Maturity | Blocked on |
 |---|---|---|---|
-| **0.7 confirmation** | Re-run `src/main.rs` against `automerge = "0.7"` on Rust 1.80+ to confirm the 4 partial-reconstruction invariants hold on the ship target (proven on 0.6.1 only) | Specified (2 API deltas noted in README) | Rust 1.80+ toolchain (was an egress/MSRV wall) |
+| **0.7 confirmation** | ✅ **DONE (RUN-01 EXP-2, 2026-07-14).** Re-ran `src/main.rs` against `automerge = "0.7"` (→ 0.7.4) on Rust 1.94.1: all 4 partial-reconstruction invariants hold on the ship target (only change-hash values differ). Register row `automerge-0.6.1` → Reconciled. See `automerge-partial-reconstruction/REPORT.md`. | ✅ Complete | — (Rust 1.94 present) |
 
 ---
 
@@ -138,10 +171,31 @@ The *running form* of E8/E9/E11/E12. P0/P1 (Tier-0 blind mirror) done.
 ### 6d. Faithful follow-ons + conformance gaps (production, TDD)
 | Item | For | Maturity | Blocked on |
 |---|---|---|---|
-| **MLS key-distribution over the wire** | make the modeled verifying-key registry a real over-iroh distribution (standing FAITHFUL honesty boundary) | Specified | — |
-| **Threshold revoke-authority as real k-of-n over the wire** | replace the MD-G5 sha-256 MAC stand-in with a genuine k-of-n authority signature | Specified | — |
-| **Conformance vectors cats 7/8/9** (AR / visibility / freshness) | recorded `not_yet_emitted`; revoke-authority-threshold vector is a `PLACEHOLDER` | Sketched | the k-of-n work above |
+| **MLS key-distribution over the wire** | make the modeled verifying-key registry a real over-iroh distribution (standing FAITHFUL honesty boundary) | **Realized in spike** — `iroh/crates/mls-welcome-over-iroh` distributes a REAL openmls Welcome over a real iroh connection; joiner derives the identical MLS exporter secret + identical lineage fold from the wire-delivered Welcome. Not yet wired into conformance emission | RUN-01 EXP-5 assessment: the *mechanism* exists; emitting cats 7/8/9 from it is the remaining integration (see below) |
+| **Threshold revoke-authority as real k-of-n over the wire** | replace the MD-G5 sha-256 MAC stand-in with a genuine k-of-n authority signature | **DESIGN-GATED — RUN-01 EXP-5 stop (see finding row §6d-i)** | **A design decision** (the revocation-authority model: who-may-revoke, the k-of-n dial, key discovery / trust root) — `iroh/TEST-LOG.md` MD-G5 note: "the next layer up, NOT in this spike"; design lives in the sibling `discovery/thinking/revocation-authority.md` (out of this workspace). Not improvised. |
+| **Conformance vectors cats 7/8/9** (AR / visibility / freshness) | recorded `not_yet_emitted`; revoke-authority-threshold vector is a `PLACEHOLDER` | Sketched — **no cats moved in RUN-01** (EXP-5 stopped at the design gate) | the k-of-n work above (which is design-gated) |
 | **Domain-tagged pre-image reconciliation** | decide whether `lineage-core` (plain sha256) + the iroh spike adopt CROFT-PROTOCOL §2 domain-tagged genesis/topic pre-images | Sketched | — |
+
+**§6d-i — FINDING / DESIGN GATE (RUN-01 EXP-5, do not decide autonomously).** EXP-5 asked to replace the
+modeled verifying-key registry with real over-iroh key distribution **and** the sha-256 MAC revoke
+stand-in with a real k-of-n threshold signature, then emit conformance cats 7/8/9 + the revoke-authority
+vector. Assessment: **half 1 is already realized in a spike** (`mls-welcome-over-iroh` — real Welcome
+over real iroh, matching exporter secret + fold); **half 2 hits a design gate** and was **stopped, not
+improvised** (brief's explicit EXP-5 stop rule). The gate is the **revocation-authority model**, which
+is the identity/key-recovery problem (§6g / MASTER-INDEX I9) applied to revoke: *who may revoke, at what
+k-of-n, and how the threshold signers' keys are discovered/trusted over the wire.* *Options for the
+human:* (A) **quorum-of-Ed25519** — a revoke is authorized by k independent Ed25519 signatures over the
+revoke fact, counted as distinct personae by lineage exactly like the fold's k-of-n governance path
+(reuses the proven `count_personae_by_lineage`/approval-subject mechanism; no new crypto; the signer set
+is the current admin/owner set derived from the fold — no separate trust root). (B) **true threshold
+signature** (e.g. FROST) — one aggregate signature, needs a distributed key-gen ceremony and a threshold
+group whose membership + key distribution is itself a design (heavier, and the DKG trust root is the
+open identity problem). (C) **defer** — keep the MAC stand-in tagged until the identity/key-recovery
+decision (I9) lands, then build revoke on top. Recommend **(A)** — it composes on the already-verified
+governance k-of-n and needs no new trust root, so it is the one that is *not* blocked on I9; but it is
+still a spec/trust decision (does a revoke reuse the governance quorum, or is revoke-authority a
+separate role?) and so is left for the human. Once decided, emitting cats 7/8/9 + the revoke-authority
+vector is downstream integration, not a new gate.
 
 ### 6e. Smaller open-edges (spike-class, RESUME §8 E)
 `metadata-leak-under-failed-ops` · E6 steady-state goodput + bandwidth-cap · E7 churn storm ·
