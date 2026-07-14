@@ -76,6 +76,16 @@ facts) as a worked realization? (2) Status tag: I've proposed `Modeled` (referen
 manual mutation gate), *not* `Verified`, because the formal cross-package mutation sweep (X3) hasn't
 run — confirm that's the bar you want.
 
+**Boundary sharpened by RUN-01 EXP-4 (competing quorums).** R7 quorum enforcement is real but **not
+concurrent-conflict-aware**: a RuleChange is admitted once its own quorum is met, but the fold does
+**not** escalate when *two competing quorums* concurrently admit conflicting changes to the same rule —
+they auto-resolve order-dependently (`fork="clean"`, last-folded wins), a silent I5 violation on a
+§7.6.1 shape (refutation `two_competing_rulechange_quorums`, register `competing-quorum-autoresolve`).
+So R7 should read "enforced per-act" and must **not** be over-read as "the concurrent case is handled."
+The competing-quorum contradiction predicate is a separate, design-gated item (backlog §2a) — mirrors
+the mutual-expulsion predicate but for RuleChange. Recommend R7 land with an explicit caveat that
+concurrent competing quorums are an open §7.6.1 escalation shape, not yet built.
+
 ---
 
 ## F2 — Re-plant membership continuity: `Design` → corroborated  ·  `status-move`  ·  ready
