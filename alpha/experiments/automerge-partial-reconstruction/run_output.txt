@@ -1,11 +1,11 @@
 =================================================================
 Automerge Rust crate verification
-Resolved crate version: 0.6.1 (MSRV 1.70; clean build on Rust 1.75)
-Toolchain: rustc/cargo 1.75.0 (Ubuntu archive build)
+Resolved crate version: automerge 0.7.4 (resolved via cargo, Rust 1.94.1)
+Toolchain: rustc/cargo 1.94.1
 =================================================================
 
 Captured 4 discrete changes via get_changes(&[]).
-  API: AutoCommit::get_changes(&mut self, have_deps: &[ChangeHash]) -> Vec<&Change>
+  API: AutoCommit::get_changes(&self, have_deps: &[ChangeHash]) -> Vec<Change>
   Order: c1=init+e1-m0, c2=e1-m1, c3=e2-m2, c4=e2-m3
 
 ---------------------------------------------------------------
@@ -13,7 +13,7 @@ SCENARIO A — partial application with MISSING dependencies
 ---------------------------------------------------------------
   API: AutoCommit::apply_changes(impl IntoIterator<Item=Change>) -> Result<(), AutomergeError>
   apply_changes([c3, c4]) returned: Ok(())
-  get_missing_deps(&[]) -> 1 hash(es): ["cea08274…"]
+  get_missing_deps(&[]) -> 1 hash(es): ["070a1759…"]
   read messages -> ABSENT (get returned Ok(None))
   doc heads -> 0 (empty => nothing visible)
   EXPECTED: apply Ok, messages ABSENT, deps buffered, no error.
@@ -43,8 +43,8 @@ SCENARIO C — snapshot via save/load
 SCENARIO D — incremental changes since a known point (heads)
 ---------------------------------------------------------------
   API: AutoCommit::get_heads(&mut self) -> Vec<ChangeHash>
-  epoch-1 heads -> 1 hash(es): ["cea08274…"]
-  API: AutoCommit::get_changes(&mut self, have_deps: &[ChangeHash]) -> Vec<&Change>
+  epoch-1 heads -> 1 hash(es): ["070a1759…"]
+  API: AutoCommit::get_changes(&self, have_deps: &[ChangeHash]) -> Vec<Change>
   get_changes(since epoch-1 heads) -> 3 change(s)
   epoch-1 doc after incremental apply -> ["e1-m0", "e1-m1", "e2-m2", "e2-m3", "e2-m4"] (len 5)
   EXPECTED: 3 incremental changes (c3, c4, c5); final ["e1-m0", "e1-m1", "e2-m2", "e2-m3", "e2-m4"].

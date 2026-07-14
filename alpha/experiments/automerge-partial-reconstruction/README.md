@@ -23,7 +23,14 @@ Matches the JavaScript (`automerge` 3.2.6) findings exactly.
 cargo run    # prints the four scenarios; see run_output.txt for captured output
 ```
 
-## Version caveat (open gap)
+## Version caveat — CLOSED 2026-07-14 (RUN-01 EXP-2)
+
+**The 0.7 gap is closed.** `automerge = "0.7"` (→ 0.7.4) builds and runs cleanly on **Rust 1.94.1**;
+all four invariants hold identically to 0.6.1 (only change-hash values differ, as expected). The two
+API deltas noted below were applied. Register row `automerge-0.6.1` → **Reconciled**. Full evidence in
+`REPORT.md` (top section) and `run_output.txt`. The historical toolchain narrative is retained below.
+
+### Original caveat (0.6.1 provenance)
 
 Built and run on **`automerge` 0.6.1**, not the shipping **0.7** target. The original session
 had no Rust toolchain and the only obtainable compiler was 1.75 (egress policy blocked

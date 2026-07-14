@@ -87,7 +87,7 @@ L1–L6 sequenced, not built. Each gets its own plan.
 
 | Item | For | Maturity | Blocked on |
 |---|---|---|---|
-| **0.7 confirmation** | Re-run `src/main.rs` against `automerge = "0.7"` on Rust 1.80+ to confirm the 4 partial-reconstruction invariants hold on the ship target (proven on 0.6.1 only) | Specified (2 API deltas noted in README) | Rust 1.80+ toolchain (was an egress/MSRV wall) |
+| **0.7 confirmation** | ✅ **DONE (RUN-01 EXP-2, 2026-07-14).** Re-ran `src/main.rs` against `automerge = "0.7"` (→ 0.7.4) on Rust 1.94.1: all 4 partial-reconstruction invariants hold on the ship target (only change-hash values differ). Register row `automerge-0.6.1` → Reconciled. See `automerge-partial-reconstruction/REPORT.md`. | ✅ Complete | — (Rust 1.94 present) |
 
 ---
 
