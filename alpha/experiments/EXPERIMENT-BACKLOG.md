@@ -60,7 +60,7 @@ are **done and green**. What remains:
 | **X1** — live cross-host over real NAT | Convert in-process fingerprint-equality into a real-network one | Specified (`RUN.md` cross-host recipe) | secroute boxes + NAT workstation (genuinely needs real NAT) |
 | **X2** — fault injection during convergence | Kill/crash/heal mid-converge → same head, no reversion, catch-up | ✅ **DONE — all green (loopback testbed, 2026-07-13)** — `scripts/x2-fault-injection.sh` | crash-consistency + monotonic no-reversion + **catch-up** all PASS (`A head == B head`). Catch-up was first *refuted* (gossip dedups re-broadcasts) then *fixed* with a prototype nonce backfill in `iroh_bus`. See ledger Phase 7 |
 | **X3** — `cargo-mutants` re-sweep on `fold_auth`/`governance` | A surviving mutant in the authority/threshold path = a real hole in the trust claim | Specified | ✅ **tool now installed** (`cargo install cargo-mutants` works via the proxy). Remaining: an automated **cross-package** sweep (V5′ positive-path coverage lives in `croft-chat`, not the substrate's own suite) + the slow substrate suite. Targeted *manual* mutation testing was done for the RuleChange-quorum change |
-| **Fold open items** | ~~RuleChange thresholds~~ (✅ **done** — enforced via content-hash approval subject, `rulechange_threshold_enforced.rs` 4 cases); per-act approver-role granularity; two-competing-quorums → §7.6.1 contradiction; contradicted-group byte-head naming; live "catching up…" TUI indicator (App holds no Replicator) | Sketched | — |
+| **Fold open items** | ~~RuleChange thresholds~~ (✅ **done** — enforced via content-hash approval subject, `rulechange_threshold_enforced.rs` 4 cases); per-act approver-role granularity; two-competing-quorums → **decided (RUN-02): §7.6-class genuine contradiction, hard-stop + transparent grounded contradiction statement in governance language, never a content-address tiebreak (§7.3.2 / §7.6.1); experiment still to run to earn the fold's evidence tag**; contradicted-group byte-head naming; live "catching up…" TUI indicator (App holds no Replicator) | Sketched | — |
 
 ---
 
@@ -80,6 +80,11 @@ L1–L6 sequenced, not built. Each gets its own plan.
 > Note the overlap with §2: croft-group L2–L5 re-derive, in the shared-shell architecture, mechanics
 > the Drystone line has already proven in `local_storage_projection`/`mls-replant`. Worth deciding
 > whether L-series builds on those crates rather than re-implementing.
+>
+> **Decided (RUN-02, 2026-07-13):** croft-group L2–L5 **reuse** the proven Drystone crates. Reuse is a
+> **condition of considered compatibility**: a re-implementation of the same mechanics does not count as
+> compatible, so L2–L5 build on `local_storage_projection`/`mls-replant` rather than proving the same
+> mechanics twice.
 
 ---
 

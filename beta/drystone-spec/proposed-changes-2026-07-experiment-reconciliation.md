@@ -23,7 +23,7 @@ The changes are independent; approve any subset.
 
 ---
 
-## F1 — RuleChange/policy-change quorum is *enforced*, not merely stored  ·  `new-mechanism`  ·  **needs-call**
+## F1 — RuleChange/policy-change quorum is *enforced*, not merely stored  ·  `new-mechanism`  ·  called
 
 **Target:** §7.2 (the grant-and-revocation interface, R-series) and §8.2(e). This is the one item
 that adds a mechanism Part 2 does not currently carry — a grep of the spec for
@@ -54,12 +54,40 @@ note, not a rewrite of R3.
 + - **R7, Content-bound quorum for policy changes.** A change to replicated policy (a threshold, a
 +   rule) **MUST** be admitted only when k distinct personae — counted by lineage (§4.5), never by
 +   client or device — have each authored an approval fact that references the **content hash of the
-+   exact change** (its "approval subject"), so an approval cannot be replayed onto a different change
-+   and the quorum is *enforced at fold time*, not merely recorded. This is R3 applied to policy
-+   changes: the approvals are governance facts that fold deterministically to the same admit/reject
-+   on every honest node. `Modeled` (RED→GREEN: `rulechange_threshold_enforced.rs`; end-to-end via the
-+   session API: `rulechange_quorum_via_api.rs`; manual mutation gate passed. Formal cross-package
-+   `cargo-mutants` sweep pending — X3).
++   exact change** (its "approval subject"), so an approval cannot be replayed onto a different
++   change and the quorum is *enforced at fold time*, not merely recorded. Three semantics are
++   normative, not incidental. (1) **The prior rule governs.** The threshold consulted is the one in
++   force at the act's position in the causal order — the rules *before* the change applies — never
++   the rules the change would install; otherwise a proposer could lower the gate with the very act
++   being gated. A change to the rule-change threshold itself is the marquee case and is gated
++   identically. (2) **Under-quorum is pending, never partial.** Approvals are ordinary governance
++   facts authored before the enacting act and referenced by it as antecedents (the §5.7 co-signed-op
++   shape); a proposal below threshold is simply a proposal whose enacting act does not yet exist,
++   and an enacting act arriving without sufficient matching antecedent approvals is rejected
++   deterministically by every honest node — it never applies partially and never waits in fold
++   state; enactment is always a new act referencing the accumulated approvals, and concurrent
++   enactors are benign per §7.3's decision-folds/enforcement-commits rule. (3) **The subject
++   preimage is the canonical payload encoding.** The approval subject is the digest of the change's
++   canonical payload bytes (§4.6), not of the enclosing fact envelope — it must be computable before
++   the enacting act exists, and an envelope digest would be circular against the antecedent
++   references in (2). This introduces no canonicalization surface beyond the one §4.6 already makes
++   load-bearing; the subject's byte-level encoding is pinned with the others (`[gates-release]`,
++   Appendix B). This is R3 applied to policy changes: the approvals are governance facts that fold
++   deterministically to the same admit/reject on every honest node. `Modeled` (RED→GREEN:
++   `rulechange_threshold_enforced.rs`; end-to-end via the session API: `rulechange_quorum_via_api.rs`;
++   manual mutation gate passed. Formal cross-package `cargo-mutants` sweep pending — X3).
+```
+
+Residuals to carry with R7 (same landing spot, one paragraph after the R-list closing remark):
+
+```diff
++ Two residuals bound R7's current evidence. First, the reference fold retains a hard-coded
++ **role-authorship gate** alongside the quorum (a RuleChange author must hold Owner; an Approval
++ author must hold Owner or Admin): a spike simplification standing in for per-act approver-role
++ granularity, which remains open — R7 does not retire it, and "enforced" here means the count, not
++ the role model. Second, **two concurrent RuleChanges to the same rule that both meet quorum** are a
++ genuine contradiction under §7.6, decided as such (see the §7.3.2 boundary note), and the fold's
++ behavior there carries no evidence tag until the two-competing-quorums experiment runs.
 ```
 
 **Diff — §8.2(e), tighten the honesty boundary** (currently a flat "not test-run"):
@@ -74,7 +102,8 @@ note, not a rewrite of R3.
 **The call for you.** (1) Is `R7` the right home, or would you rather this sit in §7.3 (governance
 facts) as a worked realization? (2) Status tag: I've proposed `Modeled` (reference-implementation +
 manual mutation gate), *not* `Verified`, because the formal cross-package mutation sweep (X3) hasn't
-run — confirm that's the bar you want.
+run — confirm that's the bar you want. Called 2026-07-13: (1) R7 in §7.2 with a §7.3 cross-reference;
+(2) `Modeled` until X3.
 
 ---
 
@@ -210,7 +239,7 @@ is complete and the non-change is deliberate, not an omission.
 
 ---
 
-## F7 — §10 / §9 conformance gaps: annotate cats 7/8/9 as not-yet-emitted  ·  `caveat`  ·  needs-call
+## F7 — §10 / §9 conformance gaps: annotate cats 7/8/9 as not-yet-emitted  ·  `caveat`  ·  called
 
 **Target:** §10.2 / §10.3 realization ledger and §9 (conformance). Tier-0 meer is `Verified` (zero
 payload keys); the conformance-vector work is partial.
@@ -226,7 +255,59 @@ MLS-key-distribution-over-wire and threshold-revoke-over-wire.
 
 **The call for you.** I've left this as prose rather than a quoted diff because the §10 ledger is a
 table and I'd rather you point me at the exact row to touch than guess the cell format. If you want it
-in, say where and I'll render the precise diff.
+in, say where and I'll render the precise diff. Called 2026-07-13: annotate now, as a footnote line
+immediately beneath the §10.5 realization-ledger table (not a cell edit), naming cats 7/8/9 and the
+revoke-authority vector as specified-but-not-yet-emitted, gated on MLS-key-distribution-over-wire and
+threshold-revoke-over-wire.
+
+---
+
+## F8 — Two concurrent quorum-met RuleChanges to the same rule are a genuine contradiction, not a tiebreak  ·  `caveat`  ·  called
+
+**Target:** §7.3.2 (the "Boundary with the §7.6 hard-stop" paragraph) and §7.6.1 (the two-member
+escalation set). New item this run, surfaced by R7: a content-address tiebreak *is* available for two
+concurrent quorum-met RuleChanges to the same rule, so the design has to say, on the record, why it is
+refused.
+
+**Why + evidence.** R7 makes policy changes quorum-gated (F1), which raises the concurrency question it
+does not itself answer: what happens when two RuleChanges to the same rule each meet quorum concurrently.
+A deterministic content-address tiebreak would resolve it silently, but a silently-losing *rule* rewrites
+the Group's constitution downstream with the disagreement never surfaced, manufacturing a utility verdict
+(Part 1 §2.5) in a way a superseded-but-visible membership removal does not. The owner's call this run is
+that this collision is a **§7.6-class genuine contradiction**, hard-stopped and human-adjudicated, never
+tiebroken. The protocol's obligation is a transparent, unambiguous, grounded statement of the two
+conflicting facts in governance language, with no editorializing. No experiment has exercised the fold's
+behavior in this case yet (the two-competing-quorums experiment is backlogged), so it carries no evidence
+tag.
+
+**Diff — §7.3.2, append to the "Boundary with the §7.6 hard-stop" paragraph:**
+
+```diff
++ One case is decided on the escalation side of this line by design rather than by tiebreak
++ availability: two concurrent policy changes (§7.2 R7) to the same rule that each meet quorum. A
++ content-address tiebreak is available and would be deterministic, but it is refused: a losing
++ membership removal remains a visible, auditable superseded entry, while a silently losing *rule*
++ rewrites what the Group's constitution does downstream without the disagreement ever being seen,
++ which manufactures a utility verdict in exactly the sense Part 1 §2.5 forbids. Such a collision is
++ most often a misunderstanding or a legitimate grievance, and the protocol's obligation is the §7.6
++ posture: hard-stop and present the contradiction as an unambiguous, grounded statement of the two
++ conflicting facts in governance language, with no editorial resolution. `Design`, decided; the
++ fold's behavior carries no evidence tag until the two-competing-quorums experiment runs.
+```
+
+**Diff — §7.6.1, extend the "Contradiction: too many valid claims" enumeration:**
+
+```diff
+- ... each committing the other's removal against the same epoch; or a removed-then-included merge.
+- Detected as concurrent commits that will not linearize.
++ ... each committing the other's removal against the same epoch; or a removed-then-included merge;
++ or two concurrent quorum-met policy changes to the same rule (§7.2 R7), which escalate here by
++ design rather than by tiebreak availability (§7.3.2). Detected as concurrent commits that will not
++ linearize.
+```
+
+**Decision:** `called` (owner's decision this run). Recorded so R7's concurrency boundary is explicit
+rather than left as an unstated tiebreak. `Design`, decided; no evidence tag until the experiment runs.
 
 ---
 
@@ -234,14 +315,16 @@ in, say where and I'll render the precise diff.
 
 | # | Target § | Class | Decision | One-line |
 |---|---|---|---|---|
-| **F1** | §7.2 R7 + §8.2(e) | new-mechanism | **needs-call** | RuleChange quorum *enforced* via content-hash approval subject |
+| **F1** | §7.2 R7 + §8.2(e) | new-mechanism | called | RuleChange quorum *enforced* via content-hash approval subject |
 | **F2** | §7.6.2 | status-move | ready | Re-plant membership continuity → `Verified` (membership half only) |
 | **F3** | §6.8.1 | caveat | ready | Connect-time catch-up shown; RBSR + steady-state still open |
 | **F4** | §11.11 #1 | status-move | ready | Per-commit cost measured; fan-out still unearned |
 | **F5** | §8.2(a) | caveat | ready | Freshness earned on loopback; relay path (X1) open |
 | **F6** | §7.6.3 | caveat | ready | No change — `[confirm]` stands; E12.6 ≠ discharge |
-| **F7** | §10 / §9 | caveat | needs-call | Conformance cats 7/8/9 not-yet-emitted |
+| **F7** | §10 / §9 | caveat | called | Conformance cats 7/8/9 not-yet-emitted |
+| **F8** | §7.3.2 + §7.6.1 | caveat | called | Two quorum-met RuleChanges to one rule → §7.6 contradiction, not tiebreak |
 
-**Landing plan.** On approval, the accepted items become one dated `part-2-changelog.md` entry
-("Pass: 2026-07 real-substrate experiment reconciliation") and the edits are applied to Part 2. The
-`needs-call` items (F1, F7) wait for your answers above; the five `ready` items can land as a batch.
+**Landing plan.** Landed by RUN-02 (2026-07-13) as one dated `part-2-changelog.md` entry
+("Pass: 2026-07 real-substrate experiment reconciliation") with the edits applied to Part 2. The
+`needs-call` items (F1, F7) were answered by the owner (see each item's call), F8 was added as a new
+decision this run, and all items landed together.
