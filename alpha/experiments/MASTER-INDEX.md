@@ -60,10 +60,10 @@ Notation: **needs** = an in-repo prerequisite stage; **blocked** = an external r
 ### Track A — Drystone verification frontier
 | ID | Stage | Needs | Blocked on |
 |---|---|---|---|
-| **A1** | Fold open items (~~RuleChange thresholds~~ ✅ done; per-act approver granularity, competing-quorum contradiction, contradicted-head naming, catching-up TUI) | F1 | — (runnable now) |
+| **A1** | Fold open items (~~RuleChange thresholds~~ ✅; ~~contradicted-head byte naming~~ ✅ **RUN-01 EXP-4**; **competing-quorum → ⚠️ FALSIFIED RUN-01 EXP-4** — auto-resolves, fix design-gated; per-act approver granularity **design-gated**; catching-up TUI = UX, skipped) | F1 | competing-quorum fix + approver-role = **design decisions** (backlog §2a) |
 | **A2** | `cargo-mutants` re-sweep on `fold_auth`/`governance` (Battery 8 X3) | F1 | ✅ tool installed; remaining = automated cross-package sweep |
 | **A3** | Local multi-process convergence + fault injection (X2) | F2 | ✅ **DONE (§5)** — X2 all-green on the loopback testbed: crash-consistency, monotonic no-reversion, **and** catch-up-after-absence — closed by **sync-on-connect resync** (the spec mechanism; the prototype spec-delta was reconciled and retired). M2's *sizing* study + steady-state anti-entropy remain |
-| **A4** | M1 fan-out + M2 (return-backfill vs dormancy) | F3, A3 | iroh testbed (fan-out); M2 modelable now |
+| **A4** | ~~M1 fan-out~~ ✅ **DONE RUN-01 EXP-1** (`croft-chat/FANOUT-M1.md`: per-node linear `2N+1`, O(N²) aggregate, heads converge; resync super-linear on hub past N≈8); M2 (return-backfill vs dormancy) still open | F3, A3 | M2 modelable now |
 | **A5** | E12.2 + E12.7 message-continuity (atomic repoint of an in-flight conversation) | F3, **B1** | dataplane hash structures |
 | **A6** | X1 — live cross-host over **real NAT** | F2 | **the secroute boxes** (needs real NAT + relay holepunch — *not* localhost-satisfiable) |
 
@@ -75,8 +75,8 @@ Notation: **needs** = an in-repo prerequisite stage; **blocked** = an external r
 ### Track I — iroh substrate
 | ID | Stage | Needs | Blocked on |
 |---|---|---|---|
-| **I1** | MLS key-distribution over the wire + threshold-revoke as real k-of-n over the wire | F4 | — (runnable now) |
-| **I2** | Conformance vectors cats 7/8/9 (AR / visibility / freshness) + revoke-authority vector | I1 | — |
+| **I1** | MLS key-distribution over the wire (**✅ realized in `mls-welcome-over-iroh` spike, RUN-01 EXP-5** — not yet in conformance emission) + threshold-revoke as real k-of-n (**⛔ DESIGN-GATED, RUN-01 EXP-5**) | F4 | threshold-revoke = the **revocation-authority decision** (I9); backlog §6d-i |
+| **I2** | Conformance vectors cats 7/8/9 (AR / visibility / freshness) + revoke-authority vector — **no cats moved RUN-01** (gated on I1's revoke half) | I1 | the I1 revoke design decision |
 | **I3** | meer **P2** bridge mode → runs lab **E8** (superpeer crossover) | F4 | — |
 | **I4** | meer **P3** Tier-1 + no-mirror curve → runs lab **E9** rest | I3 | — |
 | **I5** | meer **P4/P5** (RoQ SFU / MoQ relay) → E12-transport / E11-full form | F4 | — |
@@ -90,7 +90,7 @@ Notation: **needs** = an in-repo prerequisite stage; **blocked** = an external r
 | ID | Stage | Needs | Blocked on |
 |---|---|---|---|
 | **C1** | `croft-group` L1–L6 (identity, MLS/encryption, fork/merge, governance, real-iroh L5, shared-shell L6) | F6 | L5 needs iroh testbed; **decision:** build L2–L5 on the Drystone crates (F1/F3) rather than re-implement |
-| **C2** | automerge **0.7** confirmation | — | Rust 1.80+ — **available in this env (1.94)**, runnable now |
+| **C2** | ~~automerge **0.7** confirmation~~ ✅ **DONE RUN-01 EXP-2** (0.7.4 on Rust 1.94.1; all 4 invariants hold; `automerge-0.6.1` proxy reconciled) | — | — |
 | **C3** | Doc chores: Alt.Drive→Croft.Drive rename (TEST-LOG B5); `[HYPOTHESIS]`→`MEASURED` tag pass | — | — |
 
 ### Track G — gated (do not start without the gate)
@@ -114,18 +114,27 @@ F6 ─> C1 (L1–L6; L5<─testbed ✅)   C2 (automerge 0.7: runnable now)
 
 Reconciled spec-deltas this line of work (see `SPEC-DIVERGENCE-REGISTER.md`): `x2-backfill` (→
 sync-on-connect), `rulechange-quorum` (→ enforced), `handcrafted-assertions` (→ `Session` emits
-governance facts). Only `hermetic-gossip` remains active (needs X1 / the boxes).
+governance facts), and — **RUN-01 (2026-07-14)** — `automerge-0.6.1` (→ 0.7 ship target confirmed).
+Active: `hermetic-gossip` (needs X1 / the boxes), plus two new RUN-01 rows — `fanout-single-run`
+(proxy-measurement, EXP-1) and `competing-quorum-autoresolve` (weakened-assertion, EXP-4: a real
+§7.6.1 gap where two competing RuleChange quorums auto-resolve — fix design-gated).
 
-**Recommended critical path (highest leverage first):**
+**Recommended critical path (highest leverage first).** RUN-01 (2026-07-14) cleared items 1–3's
+runnable-now work; the frontier is now the design decisions and the automated harness.
 
-1. ✅ **iroh localhost testbed up + X2 done (§5).** The biggest multiplier is banked and X2 is
-   all-green (crash-consistency + no-reversion + catch-up via sync-on-connect). **Next on this
-   track: A4's M1 fan-out** — N local `serve` processes, runnable now with no new infra.
-2. **Runnable-now, no new infra, in parallel:** C2 (automerge 0.7 — the toolchain is present),
-   remaining A1 fold items (RuleChange thresholds ✅ done), I1→I2 (MLS-over-wire → conformance
-   vectors), I8 spikes 1 & 4, I10.
-3. **X3 automated mutation sweep** — `cargo-mutants` is installed; what's left is a cross-package
-   harness (V5′ positive coverage lives in `croft-chat`) + budgeting the slow substrate suite.
+0. ✅ **RUN-01 banked:** A4/M1 fan-out (EXP-1), automerge 0.7 (EXP-2, C2), X3 substrate sweep (EXP-3),
+   fold byte-head naming (EXP-4). See `RUN-01-SUMMARY.md`.
+1. **Highest-value now — a real §7.6.1 gap (EXP-4):** two competing RuleChange quorums auto-resolve
+   order-dependently (no hard-stop). The fix is a competing-RuleChange contradiction predicate —
+   **design-gated** (which shapes escalate; options in backlog §2a). Decide, then build (mirrors
+   mutual-expulsion).
+2. **X3 automated cross-package harness:** the tool is installed and the substrate sweep is done
+   (0 threshold-counting survivors; 61 authorization-decision survivors are cross-package-covered,
+   demonstrated). What remains is the harness that mutates the substrate while running `croft-chat`'s
+   suite so the survivors resolve mechanically (separate crates/`Cargo.lock`; budget the consumer suite).
+3. **Decide the identity/key-recovery model (I9)** — now the explicit blocker for EXP-5's
+   threshold-revoke-over-wire half. Recommended EXP-5 option A (quorum-of-Ed25519 reusing the governance
+   k-of-n) is the one path *not* blocked on I9; the MLS-key-distribution half is already spike-realized.
 4. **Build B1** (dataplane hash structures) → unblocks A5 (message-continuity, the last re-plant facet).
 5. **meer P2→P6** (I3–I6): each phase turns one lab experiment (E8/E9/E11/E12) into its running form.
 6. **Make the identity/key-recovery decision** (I9) — then the BIP39 spike.
