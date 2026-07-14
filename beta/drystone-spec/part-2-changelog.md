@@ -182,7 +182,7 @@ Folded `mls-hardcases-and-posture.md` (ten hard cases + concept-alignment map + 
 
 `Status: complete`
 
-Folded `07-history-modes.md` and `12-side-histories-and-threading.md` into two new §7 subsections, preserving each source's epistemic status (modes are settled; side-history tiers 2/3 are candidate; self-destruct is an open thread), with the Rule 1 fold-boundary check applied from the first draft (no scrubbing round needed).
+Folded `07-history-modes.md` and `side-histories-and-threading.md` into two new §7 subsections, preserving each source's epistemic status (modes are settled; side-history tiers 2/3 are candidate; self-destruct is an open thread), with the Rule 1 fold-boundary check applied from the first draft (no scrubbing round needed).
 
 - **§7.7 Dataplane history: two modes.** The two mutually-exclusive, chosen-at-Group-creation modes: **forward-only** (append-only hash-linked fold, the §7.3.1 spine applied to content, for large/loosely-coupled Groups, cleanup only via coordinated roll-up) and **Willow-mutable** (path-addressed, overwrite-and-prefix-prune, convergent capability-gated deletion, for bounded Groups). The Willow-shaped-already hedge (RBSR + content addressing from §6.8.1/§7.1 make the mutable mode an evolution not a rewrite, free in the forward-only case). **§7.7.1** prefix pruning's capability gain and its two hard limits (metadata-convergent-not-erasing tombstone; cannot reach a copy already taken), the same cooperative-non-retention wall as §6.8.4. **§7.7.2** coordinated history roll-up as a distinct governance item, separated from chosen-ephemeral and self-destruct. **§7.7.3** self-destruct as node-fidelity-bounded and inverse-of-provenance (opts out of D-meer/D-peer on principle; fidelity boundary is the membership and must be legible; **achievable semantics differ by mode**, real convergent removal in Willow-mutable, display-mask-only in forward-only). This realizes the §6.8.4 forward-pointer and keeps self-destruct an open thread.
 
@@ -385,3 +385,15 @@ Scope: a consistency-pass staleness fix, not a new decision. RUN-03 Phase B buil
 **§7.2, done.** The R7 residuals paragraph's second residual (two concurrent same-rule quorum-met RuleChanges) receives the same upgrade, keeping the first residual (the role-authorship gate) untouched. `Modeled`.
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; no code identifier or mechanism changed; cross-references (§7.2 R7, §7.3.2, §7.6) resolve. Evidence: RUN-03 Phase B, `SPEC-DIVERGENCE-REGISTER.md` (Reconciled row), `RUN-03-SUMMARY.md`.
+
+## Fan-out grade landed and re-plant preservation-banner tags normalized (§11.11, §7.6.11)
+
+`Status: complete (RUN-06, 2026-07-14)`
+
+Scope: two findings-settlement edits from RUN-05's register (FND-2, FND-5). No new mechanism, no code change.
+
+**§11.11, done (FND-2).** Measurement #1's partial-measurement annotation is updated to record the landed fan-out evidence. RUN-01 EXP-1 measured fan-out over real iroh-gossip on a loopback testbed at N of 2/4/8/16 (`croft-chat/FANOUT-M1.md`): per-node gossip cost linear in the live set (2N+1), aggregate order N-squared, head convergence at every N. The grade moves from half-earned to earned in shape (both halves), magnitude-open at scale, carrying two named boundaries: the figures are loopback, not representative hardware at hot-N of 500-plus (register row `fanout-single-run`), and the connect-time resync cost is super-linear on the bootstrap hub. This lands the follow-on edit staged as F4 in `proposed-changes-2026-07-experiment-reconciliation.md`.
+
+**§7.6.11, done (FND-5).** The re-plant subsection's preserved status banner is normalized to the canonical A.9 ladder: the lowercase `design` tag becomes `Design` and `[confirm before publish]` becomes `[confirm]` (the same B.6 mappings applied across Part 2 in the unification pass). The two cited source paths (`12-replant-experiments.md`, `mls-hardcases-and-posture.md`) get the leading `../` so they resolve from the spec directory. The block stays a preserved historical fold; only its tags and paths are regularized.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; no code identifier or mechanism changed; cross-references (§6.8.1, §7.2 R7, §7.4.3) resolve. Evidence: RUN-01 EXP-1 (`croft-chat/FANOUT-M1.md`), F4 in the proposed-changes doc, conventions A.9/B.6.

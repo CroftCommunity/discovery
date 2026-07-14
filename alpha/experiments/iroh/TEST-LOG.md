@@ -604,7 +604,7 @@ not run the MLS key-distribution over the wire. (2) node-1 *as origin* showed em
 gossip artifact (it exited before peers' broadcasts meshed back; own broadcasts aren't echoed) — so
 the verdict is carried by the two joiners, which independently agree. (3) **Threshold revocation
 authority** (who-may-revoke, the k-of-n dial) is the next layer up and is NOT in this spike — see
-`discovery/thinking/revocation-authority.md`; this spike proves the per-message authorship+standing
+`alpha/thinking/revocation-authority.md`; this spike proves the per-message authorship+standing
 gate, which is the foundation the threshold ops compose on.
 
 ## AR-4 — transport metadata-leak bound (characterization, 2026-06-16)

@@ -16,7 +16,7 @@ entire imported corpus; new divergences are added as they are introduced, via th
 Every divergence carries a greppable tag at its site:
 
 ```
-SPEC-DELTA[<id> | <kind>]: <what it stands in for> — <spec requirement> — Register: alpha/SPEC-DIVERGENCE-REGISTER.md
+SPEC-DELTA[<id> | <kind>]: <what it stands in for> — <spec requirement> — Register: alpha/experiments/SPEC-DIVERGENCE-REGISTER.md
 ```
 
 - `grep -rn "SPEC-DELTA" alpha/` lists every tagged site. Every tag should have a row here, and
