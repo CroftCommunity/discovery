@@ -176,6 +176,91 @@ has a named clause to look to, and a reviewer can check whether a change quietly
 MUST secured. This convention applies going forward and is the standard a later consistency pass reads the
 normative clauses against; a `[confirm]` may mark a clause whose grounding is not yet pinned.
 
+### A.11 The human-adjudication vocabulary and its description rules
+
+Part 2 §7.6 defines the mechanism by which a question the protocol cannot
+answer (a utility question) is surfaced to the humans who can. The mechanism
+already has a settled vocabulary across both parts; this section makes it a
+convention so experiment docs, plans, and test suites stop drifting from it.
+The canonical terms, each anchored where it is defined:
+
+- **the seam** — provenance fully settled, utility still open (Part 1 §2.0's
+  razor, restated at Part 2 §7.6.1 as "the razor's seam"). The condition that
+  triggers the mechanism.
+- **the recognizer** — the governed classifier of §7.4.1: a per-Group
+  benign-versus-dispute tolerance over verifiable provenance signals, never a
+  constant, with the rule that genuinely ambiguous cases escalate. Recognizing
+  the seam is itself partly a utility judgment, which is why the recognizer is
+  governed rather than fixed.
+- **the reconcile hard-stop** — the event (§7.6). Prose spelling is
+  *hard-stop*, hyphenated, as noun and verb; snake_case only inside code
+  identifiers.
+- **the escalation shapes** — Contradiction (too many valid claims) and
+  Under-determination (too few valid claims) (§7.6.1). Distinct from the
+  **escalation parties**, the personae surfaced by a given case, who are
+  presented symmetrically (both parties, no presumed wrongdoer).
+- **the algedonic channel** — the lineage name for the designed escalation
+  path (Part 1 §3, after Beer); in Part 2 and code, the operational family is
+  *escalate / escalation*. One mechanism, one definition, two registers of
+  name.
+- **the legible picture** — the machine's deliverable: a grounded statement of
+  the conflicting facts in governance language, full provenance, no
+  editorializing, deterministically identical on every node (§7.6.1,
+  P-Knowable-Truth).
+- **the local authority** — the holder of the utility judgment on the social
+  plane: the principal for its own judgments (A.4's adjudication locus), the
+  affected Group for shared ones. Coined here so escalation text has a name
+  for the receiving side that is not a node role.
+- **planes of authority** — infrastructure authority (held by *operators*)
+  and social-utility authority (held by *local authorities*). Operators are
+  necessary, and a good operator is aligned to the separation; the design
+  constraint is the separation itself: there is no path from the
+  infrastructure plane into intra-Group social-utility authority. The two
+  roles are mutually exclusive by design, like mutually exclusive Group Roles.
+  This names, at the authority level, the same structure A.4/A.5 establish
+  for permissions and revocation and A.7's node-role cast establishes for
+  standing ("a capability or a resource but no standing").
+
+Description rules (checkable; DR numbering is referenced by other docs):
+
+- **DR-1 (one anchor).** The mechanism is defined once, at Part 2 §7.6; every
+  other mention points there (doc-method Rule 7). No section re-derives it.
+- **DR-2 (terms front-loaded).** The terms above live here and in the Part 2
+  term surface; new docs inherit them by reference with a working definition
+  (doc-method Rule 2).
+- **DR-3 (spelling).** *hard-stop* in prose. No "hard stop", "hardstop", or
+  "hard_stop" outside code identifiers.
+- **DR-4 (planes of authority).** *Operator* names only the
+  infrastructure-plane role. The holder of a social-utility judgment is the
+  *local authority* (or *principal* / *affected Group* where the kind
+  matters). State the relation as plane separation, never as distrust: write
+  "the operator holds no path into social-utility authority" rather than "no
+  operator to trust," and scope any trust statement to its plane ("trust for
+  what").
+- **DR-5 (continuity language, never moral language).** Escalated cases are
+  described in symmetric, continuity-framed vocabulary: parties at equal
+  standing, divergence, lineage, continuity, departure point. Not used in
+  normative text about the mechanism: wrong, offender, violation, punish,
+  guilty, or dispute-as-default. Motivation is unprovable from provenance and
+  is never asserted. Test: the sentence must read identically well when the
+  underlying story is a grievance and when it is routine mechanics (a member
+  archiving a Group that removed them under a 30-days-inactive rule).
+- **DR-6 (no machine verdicts).** Machine outputs are dispositions, statuses,
+  or pictures; never verdicts, rulings, or decisions. Applies to test suites
+  and vectors.
+- **DR-7 (the recognizer is governed).** Text describing detection of the
+  seam states that the classifier is governed per §7.4.1 and that ambiguity
+  escalates. Never describe the recognizer as a constant or the protocol as
+  "knowing" a dispute occurred.
+- **DR-8 (name the shape).** Every escalation mention states which shape it
+  concerns: Contradiction, Under-determination, or both.
+- **DR-9 (the boundary sentence).** Where the machine/human boundary is
+  described, use the three-clause pattern: the protocol surfaces the legible
+  picture; the humans supply utility; the instantiation of their choice is
+  Drystone's.
+- **DR-10 (signal and authority stay local).** Escalation surfaces *to* the
+  affected Group; it never relocates the decision *up* to anything.
+
 ---
 
 ## Part B. Synthesis decisions (the record)
@@ -245,6 +330,24 @@ Two loose spots in Part 2 §7.3.1 were reconciled against this session's matured
 - **C1: authorization is a gate, not a ranking (the "issuer authority rank" sort key is absorbed, not retained).** §7.3.1's first sort key was phrased as "issuer authority rank at the causal frontier," which read as though a single author's standing orders governance outcomes. That verbiage was loose. The matured model separates an **asserted fact** (authored by one persona, ordered among conflicting facts), a **k-of-n quorum decision** (the assembly that *is* the governance act), and **the fold's handling** of the authorized decisions. The resolution is that authority is established **structurally, as a precondition**: the §7.5.2 forward pass decides who may act at each causal position, a slot moves only on an authorized k-of-n quorum, and a sub-threshold or unauthorized fact never enters the order at all. Authority is therefore **not** a comparator key, and issuer rank does **not** survive as a sort key, because ranking conflicting decisions by their author's standing would let authority tip an outcome, a center living in the comparator, which the peer-symmetry premise and the configurable-tiebreak principle both forbid. Among authorized decisions the order is operation-type precedence, then causal precedence, then the concurrent tiebreak. Applied in §7.3.1, sub-pass 2a-i.
 
 - **C2: causal-length and causal-precedence are one relation (unify the statement).** §7.3.1 step 3 ("causal length, more-informed wins") and the working fold-semantics rule ("causal precedence, a causally-later fact supersedes") describe the **same** causal-DAG relation from two ends. The merged text states it once, precisely, as causal-DAG precedence, with "more-informed / longer referenced history" and "causally-later" as two descriptions of that single relation rather than two separate keys. This session's rule set (fold-semantics R1 through R4) is the mature statement; §7.3.1 step 3 was a conceptual stub. Applied in §7.3.1, sub-pass 2a-i (causal precedence stated once, as key 2 of the order).
+
+### B.8 The human-adjudication vocabulary codified as A.11 (the adjudication-language pass)
+
+A drift audit across the spec set and the experiment corpus found the settled
+human-adjudication vocabulary (the seam, the recognizer, the reconcile
+hard-stop, the escalation shapes, the algedonic channel, the legible picture,
+the local authority, planes of authority) used consistently in Part 1 §2–§3
+and Part 2 §7.6 but re-derived, misspelled ("hard stop"), or contradicted
+(iroh's last-writer-wins-by-timestamp language) elsewhere. **A.11** promotes
+that vocabulary to a convention with ten checkable description rules (DR-1
+through DR-10), so experiment docs, plans, and test suites inherit it by
+reference rather than each restating (and drifting from) the mechanism. Two
+terms are coined here rather than merely anchored: **the local authority**
+(a name for escalation's receiving side that is not a node role) and **planes
+of authority** (the authority-level statement of the operator /
+local-authority separation A.4/A.5/A.7 already establish for permissions,
+revocation, and standing). Applied across Part 1 §2.5/§3, Part 2 §7.6, the
+conformance suite, the iroh corpus, and doc-writing-method §12.
 
 ---
 
