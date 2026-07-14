@@ -1308,3 +1308,5 @@ The component-by-component mechanism prior-art map is in Part 2 Appendix C, and 
 - **What Part 1 establishes (and does not).** The coda bounding the claims: what the reasoning secures, and what it defers to Part 2 or to the companion ownership argument.
 
 - **References (Part 1).** The source list, grouped by discipline, with versioned upstream links.
+
+- **Upstream reference links (versioned).** The pinned, versioned URLs for the sources above, kept as a separate back-matter section so the discipline-grouped list stays readable.

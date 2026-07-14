@@ -63,7 +63,7 @@ async fn two_nodes_converge_over_iroh_gossip() {
     // SPEC-DELTA[hermetic-gossip | test-hermeticization]: LocalDirect exercises
     // loopback gossip only — NOT the relay/holepunch path a real deployment uses
     // (relay_mode = "n0"). That path is unreproducible where Internet UDP is
-    // blocked; it is covered by X1 (needs the boxes). Register: alpha/SPEC-DIVERGENCE-REGISTER.md
+    // blocked; it is covered by X1 (needs the boxes). Register: alpha/experiments/SPEC-DIVERGENCE-REGISTER.md
     // Direct-only over loopback: hermetic (no relay / Internet dependency), so
     // the proof runs anywhere — a sandbox, CI, or a dev box — not only where the
     // n0 relays are reachable.

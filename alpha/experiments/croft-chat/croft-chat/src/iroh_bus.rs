@@ -357,7 +357,7 @@ mod tests {
         let topic = Topic("croft-chat/iroh-it".to_string());
 
         // SPEC-DELTA[hermetic-gossip | test-hermeticization]: loopback gossip only,
-        // not the relay path (see the register). Register: alpha/SPEC-DIVERGENCE-REGISTER.md
+        // not the relay path (see the register). Register: alpha/experiments/SPEC-DIVERGENCE-REGISTER.md
         // Direct-only over loopback: hermetic (no relay / Internet dependency).
         let mut a = IrohGossipBus::connect(&topic, vec![], RelayChoice::LocalDirect)
             .await

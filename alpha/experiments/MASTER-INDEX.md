@@ -129,6 +129,9 @@ design decisions and the automated harness.
    fold byte-head naming (EXP-4). See `RUN-01-SUMMARY.md`. **RUN-03/04 banked:** the competing-RuleChange
    contradiction predicate (RUN-03 Phase B), plus the continuity-decoupling, reconciliation-horizon, and
    corroboration-dials design passes (RUN-03/04). See `RUN-03-SUMMARY.md`, `RUN-04-SUMMARY.md`.
+   **RUN-05/06 banked:** the full consistency pass (RUN-05) and the settlement of its 11 register findings
+   (RUN-06 — F4 fan-out grade landed, register/doc-method path repoints, A.11 vocabulary extension). See
+   `RUN-05-SUMMARY.md`, `RUN-06-SUMMARY.md`, `CONSISTENCY-FINDINGS-2026-07.md`.
 1. ✅ **Closed (RUN-03 Phase B):** the real §7.6.1 gap (EXP-4) — two competing RuleChange quorums
    auto-resolving order-dependently (no hard-stop) — is fixed by the competing-RuleChange contradiction
    predicate (`fold_derived::detect_competing_rulechange`, the narrowest F8 form); the refutation pin

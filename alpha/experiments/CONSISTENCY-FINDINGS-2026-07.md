@@ -208,3 +208,30 @@ Stated explicitly so silence is never ambiguous.
   the landed state — the bannered total-device-loss-recovery item's "Direction confirmed 2026-07-07" matches
   the alignment-doc decision-4 correction, and no Stage/experiment reference is a dead pointer. The
   shared-vocabulary addition is proposed as FND-10.
+
+---
+
+## Settlement (RUN-06, 2026-07-14)
+
+Every RUN-05 FINDING above is now settled. Owner calls (FND-1/2/9 and the FND-5/10 scope) were taken
+2026-07-14; the rest carried a single clear resolution. Dispositions:
+
+| # | Sev | Disposition | What changed |
+|---|-----|-------------|--------------|
+| FND-1 | MED | **Owner call: accept §7.4.2 as shorthand.** No edit. | The GroupInfo-hazard §7.4.2 citations are correct as-is; the §8.2(e) originating-op freshness-precondition citation is confirmed as the accepted doc-wide shorthand for the §7.4 freshness + §7.4.2 recovery cluster. Closed intentional; future passes should not re-flag. |
+| FND-2 | MED | **Applied: landed F4.** | §11.11 measurement #1 regraded *half-earned → earned in shape (both halves), magnitude-open at scale*, carrying the `fanout-single-run` caveat and the super-linear connect-time-resync flag (§6.8.1). `proposed-changes` F4 marked landed; changelog entry added. |
+| FND-3 | MED | **Applied: coordinated repoint.** | All 7 short-form `alpha/SPEC-DIVERGENCE-REGISTER.md` uses → `alpha/experiments/SPEC-DIVERGENCE-REGISTER.md`: the register's own SPEC-DELTA template, the two live code tags (`iroh_bus.rs`, `iroh_convergence.rs` — comment-only), `REPO-README.md`, and three `croft-chat/plans/*` uses. Template and code tags moved together (no desync). |
+| FND-4 | MED | **Applied: repoint to `doc-writing-method.md`.** | The 5 `11-doc-method.md` cites in `conventions-and-decisions.md` repointed to `doc-writing-method.md` (bare basename, matching the doc's companion-cite style; resolves to `beta/impl/doc-writing-method.md`, the canonical writing method per `RAW-ARTIFACTS-MANIFEST`). The `alpha/seeds/p10-*` raw-seed copy left verbatim (historical seed). |
+| FND-5 | LOW | **Owner call: settle.** Applied. | §7.6.11 preserved banner normalized to A.9: `design → Design`, `[confirm before publish] → [confirm]`; the two cited paths gained the leading `../`. Block stays preserved; only tags/paths regularized. |
+| FND-6 | LOW | **Applied: repoint basename.** | `part-2-changelog.md` Pass-2 entry `12-side-histories-and-threading.md` → `side-histories-and-threading.md`. Sibling `07-history-modes.md` left as-is — that file keeps its `07-` prefix (`beta/impl/delivery-layer/07-history-modes.md`), so the asymmetry is real and correct. |
+| FND-7 | LOW | **Applied: in-repo copy is authoritative.** | The in-repo `alpha/thinking/revocation-authority.md` supersedes the "out of this workspace" reference. `EXPERIMENT-BACKLOG.md` §6d and `iroh/TEST-LOG.md` repointed; the "(out of this workspace)" phrasing dropped from the backlog. |
+| FND-8 | LOW | **Verified already clean. No-op.** | No doubled "Part 2 Part 2" survives at Part 1 §2.5 (the site now reads a single "Part 2 §7.6.1"); resolved in prior history. Recorded so the register is not left with a phantom open item. |
+| FND-9 | LOW | **Owner call: `fanout-single-run` stays Active.** No edit. | It is a live proxy-measurement gap (shape holds, magnitude indicative). The register and `MASTER-INDEX.md` already list both Active rows (`hermetic-gossip` + `fanout-single-run`); no live doc asserts a single active row, so nothing needed correcting. Consistent with landing F4 (FND-2). |
+| FND-10 | LOW | **Owner call: settle.** Applied. | Conventions A.11 shared surface extended with the RUN-02..04 terms — *approval subject*, *contradiction byte-head*, *horizon checkpoint* / *horizon-checkpoint manifest*, *corroboration dials*, *quantified trust* — each anchored to its Part 2 definition. |
+| FND-11 | LOW | **Applied: add Map line.** | Part 1's `## 0. Map` gains an entry for the `## Upstream reference links (versioned)` back-matter section (the Map already indexes non-§ back-matter, so the omission was a genuine gap, not an intentional §-only index). |
+
+**Guardrail note.** FIX/FINDING discipline is inverted for this run by design: RUN-06 *is* the owner-call
+pass, so the FINDINGS are settled rather than deferred. Edits touched three normally-protected surfaces —
+Part 1 back-matter (FND-11, additive Map line only), `conventions-and-decisions.md` (FND-4 path-fix, FND-10
+vocabulary addition), and the code SPEC-DELTA tags (FND-3, comment-only, verified). No Part 1 body prose,
+no mechanism, and no code behavior changed; the `.rs` diff is comment-only by inspection.
