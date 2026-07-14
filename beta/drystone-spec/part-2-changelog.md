@@ -371,3 +371,17 @@ Scope: land two owner-decided `Design` framings against the completeness-ahead b
 **Map, done.** Updated the §0 map §7.3 line (§7.3.3 now names the corroboration dials) and the §7.4 line (§7.4.1 now also admits the formula-valued freshness threshold k) per Rule 15.
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; MUST/MAY casing preserved; no mechanism or code identifier changed; cross-references (§7.2 R7, §7.3.3, §7.4, §7.4.1, §7.4.3, §7.6) resolve.
+
+---
+
+## Two-competing-quorums fold behavior recorded as test-run (§7.3.2, §7.2 R7 residual)
+
+`Status: complete (RUN-05, 2026-07-14)`
+
+Scope: a consistency-pass staleness fix, not a new decision. RUN-03 Phase B built and test-ran the competing-RuleChange contradiction predicate (`fold_derived::detect_competing_rulechange`; register row `competing-quorum-autoresolve` moved Active to Reconciled), but two Part 2 passages still said the fold's behavior in this case carried no evidence tag until the two-competing-quorums experiment runs. Both are corrected to record the landed evidence. No new mechanism, no code change.
+
+**§7.3.2, done.** The F8 boundary paragraph's closing clause is updated: the two concurrent quorum-met RuleChanges case is now test-run, the fold hard-stops with the order-independent `contradiction:{byte-head}` and the rule retains its pre-conflict value (RED to GREEN, `two_competing_rulechange_quorums`, RUN-03). The passage moves from decided-but-untested to `Modeled`.
+
+**§7.2, done.** The R7 residuals paragraph's second residual (two concurrent same-rule quorum-met RuleChanges) receives the same upgrade, keeping the first residual (the role-authorship gate) untouched. `Modeled`.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; no code identifier or mechanism changed; cross-references (§7.2 R7, §7.3.2, §7.6) resolve. Evidence: RUN-03 Phase B, `SPEC-DIVERGENCE-REGISTER.md` (Reconciled row), `RUN-03-SUMMARY.md`.

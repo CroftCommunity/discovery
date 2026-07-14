@@ -5,6 +5,12 @@ material; nothing here touches part-2-certifiable-design.md until you approve it
 approval, each accepted item lands as a part-2-changelog.md entry (house style: "§X, done. <what>
 (primer §Y).") and the corresponding edit is made to Part 2.`
 
+> **Historical record — all items landed (RUN-02, RUN-03). The authoritative text is Part 2.** F1–F8
+> were applied to Part 2 by RUN-02 (2026-07-13), and F8's implementation gap was closed by RUN-03 Phase B
+> (2026-07-14). One follow-on remains staged, not landed: F4's fan-out re-measurement (RUN-01 EXP-1
+> measured the fan-out; the §11.11 wording still reads *half-earned*). See RUN-02/RUN-03 summaries and the
+> Part 2 changelog.
+
 `Source of every claim below: the code spikes now in alpha/experiments/, cross-referenced in
 alpha/experiments/SPEC-ALIGNMENT-AND-ACTION-PLAN.md §3–4 and SPEC2-OVERLAY.md. Each item cites the
 experiment that earns it.`
