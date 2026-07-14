@@ -325,6 +325,8 @@ What we take:
 - The device-ID-based trust model (their device IDs ≈ our iroh NodeIds)
 - The three sharing modes (Trusted / SendOnly / ReceiveOnly) for the taint table
 - Block-Exchange Protocol's version-vector approach for conflict resolution
+  (superseded resolution model — see DESIGN §7; Drystone detects concurrency
+  and hard-stops rather than auto-resolving)
 - 128KB-16MB block sizes scaled by file size
 
 What we leave: Syncthing doesn't encrypt at rest by default. We add that.
@@ -439,6 +441,8 @@ product never crossed the chasm.
 
 7. **What's the conflict resolution policy when two devices edit the same
    file?** Syncthing keeps both with timestamp suffix. Default: same.
+   *(Superseded — see DESIGN §7; timestamp-based resolution is not reused in
+   Drystone, which hard-stops concurrent contradictions for adjudication.)*
 
 8. **Encrypted index, or unencrypted index?** Default: encrypted-at-rest
    (SQLCipher) so that loss of the device store doesn't leak metadata even
