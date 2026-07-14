@@ -76,6 +76,15 @@ facts) as a worked realization? (2) Status tag: I've proposed `Modeled` (referen
 manual mutation gate), *not* `Verified`, because the formal cross-package mutation sweep (X3) hasn't
 run — confirm that's the bar you want.
 
+**Mutation evidence added by RUN-01 EXP-3.** The formal scoped `cargo-mutants` sweep now backs the R7
+enforcement: **threshold-counting has 0 survivors** in-substrate (`governance.rs` `threshold_met` /
+`count_personae_by_lineage` / `required_threshold_for_rule_change` all caught), and the F1
+approval-subject function `rule_change_approval_subject→const` was **hand-killed against the
+cross-package test** `approval_for_a_different_change_does_not_count`. This strengthens the case for
+`Modeled`; the bar for `Verified` remains the *automated* cross-package sweep (61 authorization-decision
+survivors resolve only when the consumer suite runs against substrate mutants — residual X3). See
+`local_storage_projection/X3-CROSS-PACKAGE-SWEEP.md`.
+
 **Boundary sharpened by RUN-01 EXP-4 (competing quorums).** R7 quorum enforcement is real but **not
 concurrent-conflict-aware**: a RuleChange is admitted once its own quorum is met, but the fold does
 **not** escalate when *two competing quorums* concurrently admit conflicting changes to the same rule —

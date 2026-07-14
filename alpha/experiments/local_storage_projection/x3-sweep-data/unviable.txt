@@ -1,0 +1,5 @@
+src/fold_auth.rs:393:5: replace decode_rule_key -> Result<RuleKey, ()> with Ok(Default::default())
+src/fold_derived.rs:341:5: replace decode_rule_key -> Result<RuleKey, ()> with Ok(Default::default())
+src/fold_derived.rs:525:5: replace act_subject -> Option<TypesPrincipalId> with Some(Default::default())
+src/governance.rs:82:5: replace tiebreak -> std::cmp::Ordering with Default::default()
+src/governance.rs:197:5: replace detect_fork -> Option<ForkLineage> with Some(Default::default())

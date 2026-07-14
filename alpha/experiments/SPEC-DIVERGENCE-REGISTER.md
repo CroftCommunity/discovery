@@ -53,11 +53,14 @@ SPEC-DELTA[<id> | <kind>]: <what it stands in for> — <spec requirement> — Re
 | **handcrafted-assertions** | test-scaffold framed as an **API gap**: tests hand-built RuleChange / Approval / cross-device facts because `Session` could not emit them. | `Session` now emits them: `propose_rule_change` + `approve_rule_change` (over new substrate `rule_change`/`approve` commands); cross-device chains are just multiple `Session`s replicating. | `rulechange_quorum_via_api.rs` drives a full RuleChange **quorum end-to-end through the real `Session` API** across two replicating sessions (propose → approve → reference → apply → converge). See the residual-scaffolding note below. |
 
 > **Mutation-gate note (rulechange-quorum).** The touched substrate functions were mutation-tested
-> *manually and targeted* (each mutant above is killed by a named test). A formal `cargo-mutants`
-> sweep was **not** run: the tool is now installed (X3 mechanically unblocked), but the substrate
-> suite is slow and — as for all of V5′ — the positive-match coverage lives cross-package in
-> `croft-chat`, which a substrate-only sweep cannot see. The automated cross-package sweep remains
-> **X3**.
+> *manually and targeted* (each mutant above is killed by a named test). **RUN-01 EXP-3 (2026-07-14)**
+> then ran the formal scoped `cargo-mutants` sweep across `fold_auth` + `governance` + `fold_derived`
+> (120 mutants → 54 caught, 61 missed, 5 unviable): **threshold-counting has 0 survivors** in-substrate
+> (`governance.rs` 13/13), and the approval-subject survivor `rule_change_approval_subject→const` was
+> **hand-killed against the cross-package test** `approval_for_a_different_change_does_not_count` —
+> confirming the manual gate above. The 61 survivors are all authorization-*decision* mutants whose
+> pinning tests live cross-package; the **automated** cross-package harness (so they resolve
+> mechanically) remains **X3**. See `local_storage_projection/X3-CROSS-PACKAGE-SWEEP.md`.
 
 > **Residual-scaffolding note (handcrafted-assertions).** The `tests/common` scaffolding is **not**
 > removed and its remaining use is **legitimate, not a divergence**: (a) the Battery-5 refutation

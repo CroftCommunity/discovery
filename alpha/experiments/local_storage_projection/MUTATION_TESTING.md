@@ -173,13 +173,19 @@ dated reason) · `open` (triaged, not yet resolved).
 
 | Mutant (line: edit) | Function | Verdict | Killing test / rationale |
 |---|---|---|---|
-| _pending full sweep_ | | | |
+| all sweep-scoped mutants | `threshold_met`, `count_personae_by_lineage`, `required_threshold_for_rule_change`, `is_under_determined`, `is_ancestor`/`are_concurrent` | **caught (0 survivors)** | RUN-01 EXP-3 scoped sweep: `governance.rs` = **13 caught, 0 missed** (2 unviable: `tiebreak`/`detect_fork` `Default::default()` don't compile). The threshold-counting & quorum arithmetic is mutation-clean by the substrate's own suite. See `X3-CROSS-PACKAGE-SWEEP.md`. |
 
 > The `GroupState::from_bytes` rows above were found by the first sweep and
-> resolved in commit `b0105a0` (the four `group_state_*` tests). The remainder
-> of this ledger is populated from the completed sweep's `missed.txt`; until
-> then the governance section and any non-`from_bytes` `fold_auth` rows are
-> outstanding.
+> resolved in commit `b0105a0` (the four `group_state_*` tests). **RUN-01 EXP-3
+> (2026-07-14)** ran the scoped sweep across `fold_auth.rs` + `governance.rs` +
+> `fold_derived.rs`: **120 mutants → 54 caught, 61 missed, 5 unviable**. The 61
+> survivors are **all** in the authorization *decision* path (`check_authorization`
+> guards, `role_ge_*`, `act_subject`/`rule_change_approval_subject`), **none** in
+> threshold counting — and they survive only because the positive-path coverage
+> lives cross-package in `croft-chat` (demonstrated: `rule_change_approval_subject→const`
+> is killed by `croft-chat`'s `approval_for_a_different_change_does_not_count`). See
+> `X3-CROSS-PACKAGE-SWEEP.md` for the full triage; the automated cross-package harness
+> remains the residual X3.
 
 ## Consumer-build touches (croft-chat integration)
 
@@ -201,5 +207,13 @@ re-sweep (staged on secroute-testing-one) knows what moved.
 
 ## Score
 
-_Populated on sweep completion: caught / (caught + real survivors), with the
-equivalent and unviable counts stated separately._
+**RUN-01 EXP-3 scoped sweep (auth/threshold functions, `fold_auth` + `governance` + `fold_derived`):**
+120 mutants → **54 caught, 61 missed, 5 unviable**. Substrate-only score = 54 / 115 = **47%**.
+
+This 47% is the *substrate-only* figure and is **expected to be low by design**: the 61 survivors are
+all authorization-*decision* mutants whose pinning tests live cross-package in `croft-chat`. Read by
+population: **threshold-counting / quorum arithmetic (`governance.rs`) = 13/13 caught, 0 survivors**;
+authorization decision (`check_authorization` + `role_ge_*`, split across `fold_auth.rs` and
+`fold_derived.rs`) = cross-package-covered (one survivor hand-killed against the consumer test as
+proof). The meaningful score requires the automated cross-package harness (residual X3). Full triage:
+`X3-CROSS-PACKAGE-SWEEP.md`; raw record: `x3-sweep-data/`.
