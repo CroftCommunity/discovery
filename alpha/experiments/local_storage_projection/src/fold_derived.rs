@@ -1632,7 +1632,11 @@ fn detect_mutual_expulsion(
     // with no antecedents makes none, so it is not provably concurrent with anything —
     // treat it as sequential (no contradiction) rather than false-trip the escalation
     // channel. (In a real deployment governance facts always carry antecedents; the
-    // empty case is a bare/legacy fact.)
+    // empty case is a bare/legacy fact.) This positively-established-concurrency contract
+    // is shared across the concurrent-contradiction predicate family (removed-then-included,
+    // role-thrash, competing-RuleChange); the empty-antecedent-folds-sequential consequence
+    // is deliberate and was decided knowingly (RUN-03 audit, 2026-07-14; see
+    // detect_competing_rulechange for the F8 RuleChange marquee case).
     if g.antecedents.is_empty() {
         return None;
     }
@@ -1819,9 +1823,14 @@ fn detect_competing_rulechange(
     incoming: &AssertionEnvelope,
     incoming_hash: &TypesHash,
 ) -> Option<(TypesHash, TypesHash)> {
-    // Concurrency must be positively established (see detect_mutual_expulsion): a
-    // RuleChange with no antecedents makes no causal claim, so a bare re-set of a rule is
-    // a sequential amendment, not a contradiction.
+    // Concurrency must be positively established: a RuleChange with empty antecedents makes no
+    // causal claim, so bare re-sets never contradict and fold as sequential amendments in
+    // canonical (merge_cmp) order. Consequence, deliberate: a threshold-1 rule can flap between
+    // concurrent setters deterministically but without a contradiction banner. Every quorum-met
+    // change carries its approvals as antecedents (Part 2 §7.2 R7), so the F8 marquee case always
+    // trips this predicate. If the silent flap ever proves socially wrong for a Group, the
+    // remedies are a Part 2 note or raising that rule's threshold. Decided knowingly (RUN-03
+    // audit, 2026-07-14).
     if incoming.antecedents.is_empty() {
         return None;
     }

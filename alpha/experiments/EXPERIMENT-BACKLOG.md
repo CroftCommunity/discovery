@@ -290,24 +290,31 @@ leak the bound only characterized). All **Sketched**.
 
 ## Recommended execution order
 
-**Done this line of work (2026-07-13):** the local iroh gossip testbed (loopback, no relay);
-**X2** fault injection (all green — crash-consistency + no-reversion + catch-up via sync-on-connect);
-`cargo-mutants` installed; **RuleChange thresholds** enforced; the `Session` governance emit API. Of
-the spec-deltas surfaced, `x2-backfill`, `rulechange-quorum`, and `handcrafted-assertions` are
-reconciled; only `hermetic-gossip` (needs the boxes / X1) stays active. See
-`SPEC-DIVERGENCE-REGISTER.md`.
+**Done since this snapshot (2026-07-13 → RUN-04, 2026-07-14):** the local iroh gossip testbed
+(loopback, no relay); **X2** fault injection (crash-consistency + no-reversion + catch-up via
+sync-on-connect); `cargo-mutants` installed; **RuleChange thresholds** enforced; the `Session`
+governance emit API; **RUN-01** — A4/M1 fan-out (EXP-1), automerge 0.7 (EXP-2), X3 substrate sweep
+(EXP-3), contradicted-head byte naming (EXP-4); **RUN-03 Phase B** — the competing-RuleChange
+contradiction predicate (the F8 impl gap, closed); **RUN-03/04** — the continuity-decoupling,
+reconciliation-horizon, and corroboration-dials design passes. Reconciled deltas: `x2-backfill`,
+`rulechange-quorum`, `handcrafted-assertions`, `automerge-0.6.1`, and `competing-quorum-autoresolve`
+(RUN-03). **Active:** `hermetic-gossip` (needs the boxes / X1) and `fanout-single-run`
+(proxy-measurement). See `SPEC-DIVERGENCE-REGISTER.md`.
 
-Remaining, in leverage order:
+Remaining, in leverage order (current queue):
 
-1. **Runnable today, no new infra** — **A4 / M1 fan-out** (N local `serve` processes on the
-   testbed); automerge 0.7 confirmation (Rust 1.94 present); iroh Spike 1 + Spike 4; MLS
-   key-distribution-over-wire + threshold-revoke-over-wire (unblocks conformance cats 7/8/9); the
-   remaining Drystone fold open items.
-2. **X3 automated mutation sweep** — the tool is installed; build the cross-package harness (V5′
-   positive coverage lives in `croft-chat`) and budget the slow substrate suite.
-3. **Build B1** (dataplane hash structures) → unblocks A5 (E12.2 + E12.7 message continuity).
-4. **Meer build P2→P6** — each phase turns one lab experiment (E8/E9/E11/E12) into its running form.
-5. **Decide the identity/key-recovery model** — the largest open design problem; start with the
-   BIP39 round-trip spike.
-6. **Hardware / boxes when available** — X1 real-NAT (the last active spec-delta); macFUSE (Spike 3);
+1. **X3 automated cross-package harness** — mutate the substrate while running `croft-chat`'s suite so
+   the 61 authorization-decision survivors resolve mechanically (V5′ positive coverage lives in
+   `croft-chat`; separate crates / `Cargo.lock`, budget the slow consumer suite).
+2. **EXP-H1** — horizon-manifest determinism (§2b), runnable now against the mutual-expulsion
+   contradiction.
+3. **EXP-C1** — the completeness-ahead contract (§2c), loopback-runnable now, no new infra.
+4. **Freshness / quiescence over live transport** (§7.4.2, loopback grade).
+5. **MLS-welcome-over-iroh wired into conformance emission** — cats 7/8/9 half one (the spike exists;
+   emission is the remaining integration).
+6. **BIP39 paper-recovery round-trip** spike — the Tier-1 first step of the recovery model (the
+   recovery direction is already confirmed; see `../../beta/drystone-spec/open-threads.md` §2).
+7. **Build B1** (dataplane hash structures) → then **A5** (E12.2 + E12.7 message continuity).
+8. **Meer build P2→P6** — each phase turns one lab experiment (E8/E9/E11/E12) into its running form.
+9. **Hardware / boxes when available** — **X1** real-NAT (parked pending hardware); macFUSE (Spike 3);
    the iOS feasibility spike (Spike 7, the iroh→Veilid decision point); E4/E0-NAT.

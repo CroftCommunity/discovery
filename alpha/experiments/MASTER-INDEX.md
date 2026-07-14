@@ -60,7 +60,7 @@ Notation: **needs** = an in-repo prerequisite stage; **blocked** = an external r
 ### Track A — Drystone verification frontier
 | ID | Stage | Needs | Blocked on |
 |---|---|---|---|
-| **A1** | Fold open items (~~RuleChange thresholds~~ ✅; ~~contradicted-head byte naming~~ ✅ **RUN-01 EXP-4**; **competing-quorum → design DECIDED (RUN-02 F8: hard-stop); ⚠️ impl FALSIFIED (RUN-01 EXP-4)** — impl currently auto-resolves, now a scoped build not a design call; per-act approver granularity **still design-open**; catching-up TUI = UX, skipped) | F1 | competing-quorum = implementation (F8 decided); approver-role = **design decision** (backlog §2a) |
+| **A1** | Fold open items (~~RuleChange thresholds~~ ✅; ~~contradicted-head byte naming~~ ✅ **RUN-01 EXP-4**; ~~competing-quorum~~ ✅ **design DECIDED (RUN-02 F8: hard-stop) + impl BUILT & test-run (RUN-03 Phase B: `detect_competing_rulechange`; register Reconciled)**; per-act approver granularity **still design-open**; catching-up TUI = UX, skipped) | F1 | approver-role = **design decision** (backlog §2a) |
 | **A2** | `cargo-mutants` re-sweep on `fold_auth`/`governance` (Battery 8 X3) | F1 | ✅ tool installed; remaining = automated cross-package sweep |
 | **A3** | Local multi-process convergence + fault injection (X2) | F2 | ✅ **DONE (§5)** — X2 all-green on the loopback testbed: crash-consistency, monotonic no-reversion, **and** catch-up-after-absence — closed by **sync-on-connect resync** (the spec mechanism; the prototype spec-delta was reconciled and retired). M2's *sizing* study + steady-state anti-entropy remain |
 | **A4** | ~~M1 fan-out~~ ✅ **DONE RUN-01 EXP-1** (`croft-chat/FANOUT-M1.md`: per-node linear `2N+1`, O(N²) aggregate, heads converge; resync super-linear on hub past N≈8); M2 (return-backfill vs dormancy) still open | F3, A3 | M2 modelable now |
@@ -114,22 +114,26 @@ F6 ─> C1 (L1–L6; L5<─testbed ✅)   C2 (automerge 0.7: runnable now)
 
 Reconciled spec-deltas this line of work (see `SPEC-DIVERGENCE-REGISTER.md`): `x2-backfill` (→
 sync-on-connect), `rulechange-quorum` (→ enforced), `handcrafted-assertions` (→ `Session` emits
-governance facts), and — **RUN-01 (2026-07-14)** — `automerge-0.6.1` (→ 0.7 ship target confirmed).
-Active: `hermetic-gossip` (needs X1 / the boxes), plus two new RUN-01 rows — `fanout-single-run`
-(proxy-measurement, EXP-1) and `competing-quorum-autoresolve` (weakened-assertion, EXP-4: a real
-§7.6.1 gap where two competing RuleChange quorums auto-resolve — the design is **decided** (RUN-02 F8:
-hard-stop), so this is a scoped implementation gap, not an open design call).
+governance facts), — **RUN-01 (2026-07-14)** — `automerge-0.6.1` (→ 0.7 ship target confirmed), and
+— **RUN-03 (2026-07-14)** — `competing-quorum-autoresolve` (→ the F8-decided hard-stop is now built
+and test-run: the competing-RuleChange contradiction predicate `fold_derived::detect_competing_rulechange`;
+register row moved Active → Reconciled).
+Active: `hermetic-gossip` (needs X1 / the boxes) and `fanout-single-run` (proxy-measurement, EXP-1:
+shape holds, magnitude indicative).
 
 **Recommended critical path (highest leverage first).** RUN-01 (2026-07-14) cleared items 1–3's
-runnable-now work; the frontier is now the design decisions and the automated harness.
+runnable-now work and RUN-03 (2026-07-14) closed the competing-RuleChange gap; the frontier is now the
+design decisions and the automated harness.
 
 0. ✅ **RUN-01 banked:** A4/M1 fan-out (EXP-1), automerge 0.7 (EXP-2, C2), X3 substrate sweep (EXP-3),
-   fold byte-head naming (EXP-4). See `RUN-01-SUMMARY.md`.
-1. **Highest-value now — a real §7.6.1 gap (EXP-4):** two competing RuleChange quorums auto-resolve
-   order-dependently (no hard-stop). The **design is decided** (RUN-02 F8: hard-stop, never tiebreak);
-   the fix is a competing-RuleChange contradiction predicate — now a **scoped build**, not a design
-   call. Remaining choice is which predicate *shape* (implementation; options in backlog §2a). Build it
-   (mirrors mutual-expulsion).
+   fold byte-head naming (EXP-4). See `RUN-01-SUMMARY.md`. **RUN-03/04 banked:** the competing-RuleChange
+   contradiction predicate (RUN-03 Phase B), plus the continuity-decoupling, reconciliation-horizon, and
+   corroboration-dials design passes (RUN-03/04). See `RUN-03-SUMMARY.md`, `RUN-04-SUMMARY.md`.
+1. ✅ **Closed (RUN-03 Phase B):** the real §7.6.1 gap (EXP-4) — two competing RuleChange quorums
+   auto-resolving order-dependently (no hard-stop) — is fixed by the competing-RuleChange contradiction
+   predicate (`fold_derived::detect_competing_rulechange`, the narrowest F8 form); the refutation pin
+   flipped RED→GREEN and the register row is Reconciled. Per-act approver-role granularity stays a
+   design call (backlog §2a).
 2. **X3 automated cross-package harness:** the tool is installed and the substrate sweep is done
    (0 threshold-counting survivors; 61 authorization-decision survivors are cross-package-covered,
    demonstrated). What remains is the harness that mutates the substrate while running `croft-chat`'s

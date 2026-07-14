@@ -2,6 +2,11 @@
 
 `Date: 2026-07-14. Branch: claude/map-at-back-convention-vztuuc (off main).`
 
+> **Historical record (point-in-time docs pass, landed).** The map-at-the-back convention is landed
+> (Part 1 and Part 2 both carry their §0 Map at the back). The current run sequence and roadmap live in
+> `alpha/experiments/RUN-0N-SUMMARY.md`, `alpha/experiments/MASTER-INDEX.md`, and
+> `alpha/experiments/EXPERIMENT-BACKLOG.md`. Retained for provenance; no deletions.
+
 One purpose: the convention now says document-scale maps live at the **back**
 with a one-line head pointer for agent notice, the doc method guide states that
 rule, and every document-scale map in the live spec set (Part 1, Part 2) actually

@@ -2,6 +2,10 @@
 
 `Docs-only pass. Branch: claude/human-adjudication-language-54bkm2 (see "Branch note" below). Date: 2026-07-14.`
 
+> **Historical record (point-in-time docs pass, landed).** This pass's results are landed (conventions
+> A.11). The current run sequence and roadmap live in `alpha/experiments/RUN-0N-SUMMARY.md`,
+> `alpha/experiments/MASTER-INDEX.md`, and `alpha/experiments/EXPERIMENT-BACKLOG.md`. Retained for provenance; no deletions.
+
 Codifies the settled human-adjudication vocabulary into a named convention
 (conventions A.11) and repairs drift across the spec set and the experiment
 corpus. Source of decisions: `human-adjudication-language-survey-and-proposal.md`
