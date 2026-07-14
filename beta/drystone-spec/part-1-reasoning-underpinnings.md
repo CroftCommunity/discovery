@@ -537,7 +537,10 @@ want different things, both legitimately, the protocol's last service is to make
 retroactively), not to manufacture a consensus that was never available. This is Mill's dissenter, made
 mechanical: when people irreducibly disagree about a value, the humane move is not to compute a winner
 but to stop pretending there is one. *(Realized in Part 2 §7.6; the machine's job ends at surfacing the
-contradiction with full provenance, Part 2 §8's label-not-enforce, and the humans supply utility.)*
+contradiction with full provenance, Part 2 §8's label-not-enforce, and the humans supply utility.)* The
+move has formal precedent: Internet governance names exactly this step, a person deciding inside the
+machinery, as the Designated Expert (§3); the terminus differs only in distributing that role to every
+local authority rather than delegating it to one.
 
 The fork right has a **floor and a limit**, and both matter.
 
@@ -1002,6 +1005,55 @@ human autonomy rather than excuse automatic command is the spine here; the often
 viability, not excuses for automatic command" phrasing is a synthesis gloss, not a verbatim Beer line.)
 **[confirm, Cybersyn capacity figures and the OGAS history against primary sources.]**
 
+**Internet governance, from the discipline that runs the namespaces.** The
+formal specification tradition of the Internet age has already reconciled
+"the machine must stop and a person must decide" into its own machinery, in
+both of the shapes Drystone uses. The first is a named human role inside the
+procedure: the IANA registration policies (RFC 8126, BCP 26) define the
+**Designated Expert**, a person to whom the evaluation of a registration
+request is formally delegated:
+
+> "IANA forwards requests for an assignment to the expert for evaluation, and
+> the expert (after performing the evaluation) informs IANA as to whether or
+> not to make the assignment or registration." ... "The list of designated
+> experts for a registry is listed in the registry."
+> RFC 8126 (BCP 26), §5.2 · *Verified against the primary at edit time.*
+
+The second is a normative human-input step inside an algorithm: the W3C
+platform defines **powerful features** that a user agent must not exercise
+without the end-user's express permission, enforced by check-permission steps
+the API methods normatively depend on:
+
+> "A powerful feature is a web platform feature (usually an API) for which a
+> user gives express permission before the feature can be used." (W3C
+> Permissions.) "Geolocation is a powerful feature that requires express
+> permission from an end-user before any location data is shared with a web
+> application." (W3C Geolocation, current CR.)
+> W3C Permissions (TR) and Geolocation (current CR) · *Verified against the
+> primaries at edit time; the 2016 Geolocation REC predates the
+> powerful-feature framing, so its wording differs from the current CR quoted
+> here.*
+
+And the IETF publishes the semantics of its own human layer in the same
+document series as its wire formats: rough consensus is objections addressed,
+not votes counted:
+
+> "Rough consensus is achieved when all issues are addressed, but not
+> necessarily accommodated."
+> RFC 7282, §3 · *Verified against the primary at edit time.*
+
+The corroboration cuts one level deeper than precedent. RFC 8126 shows a
+formal spec can say, at this step a person decides, and survive as running
+governance for decades. What Drystone changes is the *locus*, not the move:
+where the registry delegates the judgment to one named expert per registry (a
+center), Drystone distributes the designated-expert role to every principal.
+The **local authority** is the designated expert for its own utility
+judgments, because a persona only represents a person if that person holds
+the adjudication (§2.3, §2.5). Beer supplies the channel (escalate the
+residue, keep authority where the context lives, §3 above); the IANA
+tradition supplies the named human step inside formal machinery; Drystone
+composes the two and removes the center.
+
 **Epistemology, finitude is the design condition.** That every node is permanently, structurally
 ignorant of most of what the others are doing is not a defect to engineer away but the condition to
 design *for*:
@@ -1201,6 +1253,12 @@ Canonical, edition- or version-specific sources for the principled lineage above
 
 - **Beer, S.**, *Brain of the Firm*, 1972 (2nd ed. Wiley, 1981), the algedonic channel and the "specify only somewhat" discipline. Grounds §2.5, Part 2 §7.6. **[confirm the "specify only somewhat" wording against the primary edition; the Cybersyn/OGAS figures and the "aids to human viability" gloss are [confirm] / labeled synthesis.]**
 
+- **Cotton, M., Leiba, B. & Narten, T.**, "Guidelines for Writing an IANA Considerations Section in RFCs," RFC 8126 (BCP 26), 2017. https://www.rfc-editor.org/rfc/rfc8126 . Grounds the named-human-step precedent, a formal spec that delegates evaluation of a registration request to a Designated Expert (§2.5, §3, Part 2 §7.6). *(§5.2 quotations verified verbatim against the primary this revision.)*
+
+- **W3C Permissions** (TR), https://www.w3.org/TR/permissions/ , and **W3C Geolocation** (current Candidate Recommendation), https://www.w3.org/TR/geolocation/ . Ground the normative human-input-step precedent, a powerful feature that requires express permission, enforced by a check-permission step the API normatively depends on (§3, Part 2 §7.6). *(Quotations verified verbatim against the current TR/CR this revision; the 2016 Geolocation REC predates the powerful-feature framing and its wording differs from the CR quoted.)*
+
+- **Resnick, P.**, "On Consensus and Humming in the IETF," RFC 7282, 2014. https://www.rfc-editor.org/rfc/rfc7282 . Grounds publishing the human layer's semantics (rough consensus is objections addressed, not votes counted) in the same document series as the wire formats (§3). *(§3 quotation verified verbatim this revision.)*
+
 - **Popper, K.**, *Conjectures and Refutations*, 1963 (Routledge). Grounds §2.0, §2.2, §3 (corroboration, never verification). *(Verified.)*
 
 - **Peirce, C. S.**, fallibilism and the *community of inquiry* (Collected Papers; e.g. "The Fixation of Belief," 1877, and the "do not block the way of inquiry" maxim). Grounds §3 (community-convergence-over-unlimited-time, humility built into the mechanism). **[confirm]** (exact wording varies by essay; confirm against the primary before quoting).
@@ -1245,7 +1303,7 @@ The component-by-component mechanism prior-art map is in Part 2 Appendix C, and 
 
   - **§2.8. Faithful representation: what the substrate is for.** The capstone: the protocol faithfully represents individual choice and never centrally resolves social conflict, only aggregates it, and the protocol/product division follows (faithful possibility is the protocol, easy representability is the product). *Depends on:* §2.0, §2.3, §2.5, §2.6. *Realized in* Part 2 §7.6, Part 2 §7.6.9.
 
-- **§3. Why these principles are corroborated, not invented.** The cross-disciplinary grounding: each principle mapped to its nearest prior art across distributed systems, ethics, economics, systems science, epistemology, and commons governance, showing the set is discovered rather than asserted. *Depends on:* all of §2.
+- **§3. Why these principles are corroborated, not invented.** The cross-disciplinary grounding: each principle mapped to its nearest prior art across distributed systems, ethics, economics, systems science, epistemology, commons governance, and Internet governance (the IANA Designated Expert, W3C powerful features, IETF rough consensus, corroborating the escalate-to-a-human posture of §2.5 and Part 2 §7.6), showing the set is discovered rather than asserted. *Depends on:* all of §2.
 
 - **What Part 1 establishes (and does not).** The coda bounding the claims: what the reasoning secures, and what it defers to Part 2 or to the companion ownership argument.
 

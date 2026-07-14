@@ -38,9 +38,10 @@ graph topology. The suite does **not** assume a trusted server, a trusted relay,
 5. **Revocation.** Post-revocation, the revoked party's subsequent branches MUST be rejected;
    pre-revocation history MUST be retained. Threshold-authority vectors: a removal op MUST carry
    signatures meeting the stated policy or be rejected.
-6. **Reconcile corpus C1–C10.** Each merge scenario → the expected verdict (converge | hard-stop
+6. **Reconcile corpus C1–C10.** Each merge scenario → the expected **disposition** (converge | hard-stop
    contradiction | re-formation fork). A conformant impl MUST hard-stop on contradiction and MUST NOT
-   auto-resolve.
+   auto-resolve. (*Disposition*, not *verdict*: machine outputs are dispositions; verdicts are what the
+   protocol declines to compute, per fork-not-verdict and conventions A.11 DR-6.)
 7. **Adversarial AR-1…AR-6 (must-reject / must-bound).** Sybil fresh-lineage (AR-1), malicious
    sequencer reorder/drop/inject (AR-2), backfill DoS bounded-rejection-cost (AR-3), metadata-leak
    bound (AR-4), MLS-tree scaling bound (AR-5), replay/double-count (AR-6).
@@ -67,7 +68,7 @@ conformance/
   signing.json            # (branch,seq,author,payload) -> signing_bytes + sig + key (cat 2)
   fold.json               # branch sets -> expected actor view (cat 3,4)
   revocation.json         # op sequences -> accepted/rejected + retained history (cat 5)
-  reconcile/C1..C10.json  # merge inputs -> verdict (cat 6)
+  reconcile/C1..C10.json  # merge inputs -> disposition (cat 6)
   adversarial/AR1..AR6.json
   visibility/V1..V9.json + S2.json
   freshness.json          # (heard?,caughtUp?,tier) -> view-state (cat 9)

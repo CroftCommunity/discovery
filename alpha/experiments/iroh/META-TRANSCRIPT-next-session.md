@@ -95,7 +95,7 @@ real. If they need the superpeer to break the tie, that's a finding too (it answ
 `discovery/thinking/experiment-suite.md` (real SHA-256 Merkle ancestry; modeled MLS epochs +
 transport; scripted social scenarios; assertions). Confirm groups A (ancestry/LCA stable across
 peers, tamper detection), B (complementary convergence + order-independence stress), C (the
-ejected-and-re-added hard stop, social-resolution-as-input, the C4 negative test that auto-resolve
+ejected-and-re-added hard-stop, social-resolution-as-input, the C4 negative test that auto-resolve
 *cannot* be bypassed), D (trap door + divergent-history still searchable). Decide the language
 (Rust on the boxes is natural given the stack; the suite is logic, not transport). Capture the
 pass/fail table.
