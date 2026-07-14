@@ -129,30 +129,147 @@ async fn two_competing_rulechange_quorums() {
         s1.rules.add_member_threshold, s1.fork_status, s2.rules.add_member_threshold, s2.fork_status
     );
 
-    // CHARACTERIZATION of current behavior (see assertion values set from the observed
-    // run). This documents whether the fold hard-stops (spec-faithful) or auto-resolves
-    // order-dependently (a refutation — the §7.6.1 gap for competing RuleChange quorums).
     let order_dependent = s1.rules.add_member_threshold != s2.rules.add_member_threshold;
     let hard_stopped = s1.fork_status.starts_with("contradiction");
     eprintln!("COMPETING-QUORUMS: order_dependent={order_dependent} hard_stopped={hard_stopped}");
 
-    // SPEC-DELTA[competing-quorum-autoresolve | weakened-assertion]: this test asserts the
-    // CURRENT order-dependent auto-resolution of two competing RuleChange quorums, which is
-    // strictly WEAKER than §7.6's required hard-stop. The fold has no competing-RuleChange
-    // contradiction predicate (only membership/role races escalate). The fix is a design
-    // decision (which competing-quorum shapes escalate) — see the backlog A1 finding row.
-    // Register: alpha/experiments/SPEC-DIVERGENCE-REGISTER.md
-    //
-    // If a future fix adds the predicate, `hard_stopped` flips true and this RED assertion
-    // fires, forcing the test to be updated to assert the fixed hard-stop behavior.
-    assert!(
-        order_dependent && !hard_stopped,
-        "REFUTATION PIN: two competing RuleChange quorums currently auto-resolve \
-         order-dependently with NO contradiction flag (order1={}, order2={}, \
-         fork1={}, fork2={}). If this fails, the §7.6.1 competing-quorum gap has been \
-         addressed — update this test to assert the hard-stop.",
-        s1.rules.add_member_threshold, s2.rules.add_member_threshold, s1.fork_status, s2.fork_status
+    // FIXED (RUN-03 Phase B): the fold now carries a competing-RuleChange contradiction
+    // predicate (§7.6.1, F8 — `detect_competing_rulechange`). Two concurrent admitted
+    // RuleChanges on the same rule with differing values HARD-STOP, surfaced identically to
+    // mutual expulsion as `contradiction:{byte-head}` where the byte-head is the
+    // order-independent `min(H(F), H(G))`. Neither contested change is applied, so the rule
+    // keeps its pre-conflict value — no verdict. Both fold orders yield the IDENTICAL
+    // contradiction status and the IDENTICAL effective rules (order-independence restored).
+    // Register: alpha/experiments/SPEC-DIVERGENCE-REGISTER.md (`competing-quorum-autoresolve`,
+    // now Reconciled).
+    let expected_head = min_hash(envelope_hash(&change5), envelope_hash(&change9));
+    let expected_status = format!("contradiction:{expected_head}");
+
+    assert_eq!(
+        s1.fork_status, expected_status,
+        "competing RuleChange quorums must hard-stop, byte-head min(H(F),H(G)) (order 1)"
     );
+    assert_eq!(
+        s2.fork_status, expected_status,
+        "the contradiction byte-head must be identical under the opposite arrival order (order 2)"
+    );
+    assert_eq!(
+        s1.rules.add_member_threshold, s2.rules.add_member_threshold,
+        "both fold orders must leave identical effective rules (order-independent)"
+    );
+    // Pre-conflict value retained: neither contested change (5 or 9) applied; the rule
+    // stays at the genesis default (1), the state before either RuleChange — no verdict.
+    assert_eq!(
+        s1.rules.add_member_threshold, 1,
+        "a hard-stopped competing RuleChange must leave the rule at its pre-conflict value"
+    );
+    assert!(
+        s1.rules.add_member_threshold != 5 && s1.rules.add_member_threshold != 9,
+        "neither contested new_value may silently win"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// A (negative cases) — the predicate must NOT over-trip
+// ---------------------------------------------------------------------------
+
+/// Two concurrent RuleChanges on the SAME rule with the SAME new_value are **concordant**,
+/// not a contradiction: there is nothing to escalate because both name the identical
+/// outcome. The fold applies the value and stays `Clean`, identically in both orders.
+#[tokio::test]
+async fn concurrent_same_value_rulechanges_are_concordant() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let group = GroupId::new([0xC2; 32]);
+
+    let id_o1 = Identity::from_seed([0xD0; 32]);
+    let id_o2 = Identity::from_seed([0xD1; 32]);
+    let id_a = Identity::from_seed([0xD2; 32]);
+    let o1_device = DeviceId::new(id_o1.device_id().0);
+    let o2_principal = PrincipalId::new(id_o2.principal_id().0);
+    let a_principal = PrincipalId::new(id_a.principal_id().0);
+
+    // rule_change_threshold stays at its default of 1, so each Owner can author a
+    // RuleChange alone; `add_a` is a shared antecedent that makes concurrency provable.
+    let genesis = sign(&id_o1, base(&id_o1, group, AssertionType::GroupGenesis, 1, vec![], genesis_payload(&o1_device)));
+    let add_o2 = sign(&id_o1, base(&id_o1, group, AssertionType::MembershipAdd, 2, vec![], membership_add_payload(o2_principal, 0)));
+    let add_a = sign(&id_o1, base(&id_o1, group, AssertionType::MembershipAdd, 3, vec![], membership_add_payload(a_principal, 1)));
+    let add_a_h = envelope_hash(&add_a);
+
+    // Both set add_member_threshold (key 0) to the SAME value 5; neither references the
+    // other, so they are causally concurrent, but concordant on the outcome.
+    let change_a = sign(&id_o1, base(&id_o1, group, AssertionType::RuleChange, 4, vec![add_a_h], rule_change_payload(0, 5)));
+    let change_b = sign(&id_o2, base(&id_o2, group, AssertionType::RuleChange, 1, vec![add_a_h], rule_change_payload(0, 5)));
+
+    let authors = [&id_o1, &id_o2, &id_a];
+    let setup: Vec<&AssertionEnvelope> = vec![&genesis, &add_o2, &add_a];
+
+    let order1: Vec<&AssertionEnvelope> = setup.iter().copied().chain([&change_a, &change_b]).collect();
+    let sess1 = fold_order(&dir.path().join("c1.redb"), &authors, &id_o1, &order1);
+    let order2: Vec<&AssertionEnvelope> = setup.iter().copied().chain([&change_b, &change_a]).collect();
+    let sess2 = fold_order(&dir.path().join("c2.redb"), &authors, &id_o1, &order2);
+
+    let s1 = sess1.get_group_summary(&group).expect("summary 1");
+    let s2 = sess2.get_group_summary(&group).expect("summary 2");
+    eprintln!(
+        "CONCORDANT: order1 -> add_member_threshold={} fork={:?}; order2 -> add_member_threshold={} fork={:?}",
+        s1.rules.add_member_threshold, s1.fork_status, s2.rules.add_member_threshold, s2.fork_status
+    );
+
+    assert!(
+        !s1.fork_status.starts_with("contradiction") && !s2.fork_status.starts_with("contradiction"),
+        "same-rule same-value concurrent RuleChanges must NOT hard-stop (concordant)"
+    );
+    assert_eq!(s1.rules.add_member_threshold, 5, "the concordant value applies (order 1)");
+    assert_eq!(s2.rules.add_member_threshold, 5, "the concordant value applies (order 2)");
+}
+
+/// Two concurrent RuleChanges on DIFFERENT rule_keys never conflict: they touch disjoint
+/// rules and commute. Both apply, the fold stays `Clean`, identically in both orders.
+#[tokio::test]
+async fn concurrent_disjoint_rulekey_rulechanges_do_not_conflict() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let group = GroupId::new([0xC3; 32]);
+
+    let id_o1 = Identity::from_seed([0xE0; 32]);
+    let id_o2 = Identity::from_seed([0xE1; 32]);
+    let id_a = Identity::from_seed([0xE2; 32]);
+    let o1_device = DeviceId::new(id_o1.device_id().0);
+    let o2_principal = PrincipalId::new(id_o2.principal_id().0);
+    let a_principal = PrincipalId::new(id_a.principal_id().0);
+
+    let genesis = sign(&id_o1, base(&id_o1, group, AssertionType::GroupGenesis, 1, vec![], genesis_payload(&o1_device)));
+    let add_o2 = sign(&id_o1, base(&id_o1, group, AssertionType::MembershipAdd, 2, vec![], membership_add_payload(o2_principal, 0)));
+    let add_a = sign(&id_o1, base(&id_o1, group, AssertionType::MembershipAdd, 3, vec![], membership_add_payload(a_principal, 1)));
+    let add_a_h = envelope_hash(&add_a);
+
+    // Different rules: add_member_threshold (key 0) → 5, remove_member_threshold (key 1) → 7.
+    let change_a = sign(&id_o1, base(&id_o1, group, AssertionType::RuleChange, 4, vec![add_a_h], rule_change_payload(0, 5)));
+    let change_b = sign(&id_o2, base(&id_o2, group, AssertionType::RuleChange, 1, vec![add_a_h], rule_change_payload(1, 7)));
+
+    let authors = [&id_o1, &id_o2, &id_a];
+    let setup: Vec<&AssertionEnvelope> = vec![&genesis, &add_o2, &add_a];
+
+    let order1: Vec<&AssertionEnvelope> = setup.iter().copied().chain([&change_a, &change_b]).collect();
+    let sess1 = fold_order(&dir.path().join("d1.redb"), &authors, &id_o1, &order1);
+    let order2: Vec<&AssertionEnvelope> = setup.iter().copied().chain([&change_b, &change_a]).collect();
+    let sess2 = fold_order(&dir.path().join("d2.redb"), &authors, &id_o1, &order2);
+
+    let s1 = sess1.get_group_summary(&group).expect("summary 1");
+    let s2 = sess2.get_group_summary(&group).expect("summary 2");
+    eprintln!(
+        "DISJOINT: order1 -> add={} remove={} fork={:?}; order2 -> add={} remove={} fork={:?}",
+        s1.rules.add_member_threshold, s1.rules.remove_member_threshold, s1.fork_status,
+        s2.rules.add_member_threshold, s2.rules.remove_member_threshold, s2.fork_status
+    );
+
+    assert!(
+        !s1.fork_status.starts_with("contradiction") && !s2.fork_status.starts_with("contradiction"),
+        "concurrent RuleChanges on different rule_keys must NOT hard-stop (disjoint)"
+    );
+    assert_eq!(s1.rules.add_member_threshold, 5, "add_member_threshold applied (order 1)");
+    assert_eq!(s1.rules.remove_member_threshold, 7, "remove_member_threshold applied (order 1)");
+    assert_eq!(s2.rules.add_member_threshold, 5, "add_member_threshold applied (order 2)");
+    assert_eq!(s2.rules.remove_member_threshold, 7, "remove_member_threshold applied (order 2)");
 }
 
 // ---------------------------------------------------------------------------
