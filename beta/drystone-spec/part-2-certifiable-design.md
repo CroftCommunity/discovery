@@ -4,55 +4,7 @@
 
 `Resolution: library, the complete reference and the coherence authority for the Drystone set. For shorter tellings see the coffee-shop overview, then the elevator pitch.`
 
-## 0. Map
-
-`A per-section index with scope, dependencies, and orthogonality, maintained as sections change. Section numbers run per part, and cross-part references name the part: Part 1 holds §1 through §3 (positioning, the principles, and their corroboration), and Part 2 holds its own §1 (this introduction) and §3 onward (the mechanics), so Part 1 §3 and this Part 2 §3 are distinct. Each entry states what the section covers and, where it matters, what it depends on and what it is orthogonal to, so a reader or a later fold can pull the relevant section without dragging in the unrelated ones.`
-
-- **§2. What makes this a system of peers: the diagnostic that orders.** The mechanical test that orders the whole specification: count the adjudication loci, since a principal is a locus that can adjudicate where a sensor only senses and relays, so a network can be any-to-any wired and still be a centralized apparatus wearing a sensor mesh as a costume. This is why rights are specified separately from resources (§5) and why the label-not-enforce posture (§8) is load-bearing. Frames everything below.
-
-- **§3. Protocol overview and the running example.** The two kinds of state a Group moves (history in the data plane, governance facts in the control plane), the Group-versus-scope distinction, and the running example the rest of the specification demonstrates on: the fixed cast and its resources (§3.1) and the helper ecosystem of node roles (§3.2), both additive to the normative text.
-
-- **§4. Data Model.** The representation layer: cryptographic foundation (§4.1), identifiers and derivations (§4.2), the signed message as the unit of history (§4.3), integrity-and-ordering versus authorship-and-standing as two distinct guarantees (§4.4), the multi-client fold, where client-count and device-count are not persona-count (§4.5), and canonical-on-the-wire encoding with free local storage (§4.6). *Depends on:* nothing internal; it is the base. *Orthogonal to:* the governance semantics of §7 (this is representation, §7 is resolution).
-
-- **§5. Identity, Principals, Rights, Roles, and Capabilities.** Who acts and with what standing: the two equalities and two inequalities (§5.0), the only-canonical-state-is-local claim (§5.1), the principal, client, and persona model (§5.2), the inherent rights floor of tenure, voice, and exit (§5.3), resources versus grants (§5.4), Group Roles and capabilities across the governance and data-access planes (§5.5), weight anchored to personhood (§5.6), membership, standing, and revocation (§5.7, §5.8), exitability (§5.9), the Group as a principal (§5.10), and read-scoped content keys that cryptographically enforce the read role (§5.11). *Depends on:* §4 (identifiers). *Orthogonal to:* transport §6 (standing does not depend on how bytes travel). §5.9 exitability is the backstop §7.6 relies on.
-
-- **§6. Transport and Delivery: the Three Planes.** How bytes move and who can see what: the two identity planes (§6.1), the two-layer encryption stack (§6.2), the Delivery Fabric versus the Group (§6.3), the metadata floor (§6.4), the three planes Carriage, Durability, and Presence (§6.5 through §6.7), gap-aware history convergence and the content-blind history store (§6.8, its connect-time catch-up demonstrated over real gossip while the diff-only RBSR construction and steady-state anti-entropy stay open), discovery and interaction tiers (§6.9), the gossip overlay realization (§6.10), the two deployment modes (§6.11), and real-time media (§6.12). *Depends on:* §4 (the message), §5 (who is a member). *Orthogonal to:* the governance-conflict resolution of §7 (delivery is mechanism-neutral about what it carries). §6.8 gap-aware convergence is the completeness machinery the §7.3 beam leans on.
-
-- **§7. Synchronization and Governance-Conflict Resolution.** The governance machinery, the largest section and internally the most separable.
-
-  - **§7.1, §7.2.** Data-model commitment, then the mechanism-neutral, normative grant-and-revocation interface (R1 through R7, where R7 is the content-bound quorum that enforces a policy change at fold time against the prior rule).
-
-  - **§7.3. Governance facts are entries, not mutations** (the core). §7.3.1 the total order (causal and cryptographic, never temporal), with policy-change threshold enforcement cross-referenced to §7.2 R7; §7.3.2 what conflicts, including the boundary with the §7.6 hard-stop and the two-competing-quorums escalation decided on the escalation side; §7.3.3 the declarative snapshot as cache and the read-and-enforce line; §7.3.4 sign-the-state-not-the-authorship; §7.3.5 the membership ceiling; §7.3.6 decision versus enactment; §7.3.7 the now; §7.3.8 the finality gate; §7.3.9 principal recovery and break-glass (a stub). *Depends on:* §5 (standing), §4 (facts). The whole §7.3 run rests on the completeness beam (Appendix B).
-
-  - **§7.4.** Freshness, no false current; §7.4.1 the governed false-positive tolerance; §7.4.2 the two MLS recovery hazards the corroboration model dissolves; §7.4.3 the governance-generation stamp that lets a data-plane entry self-locate against the authority chain.
-
-  - **§7.5.** Attributable acceptance and the regress-free fold; §7.5.2 breaks the authority-ordering regress and closes the resolution input set.
-
-  - **§7.6. The reconcile hard-stop and re-formation fork** (conflict handling). §7.6.1 the two-member escalation set (its contradiction shape now including the R7 quorum-collision); §7.6.2 one primitive, three arities (re-plant's membership-continuity half corroborated, message-continuity half open); §7.6.3 MLS subordinate; §7.6.4 a ban is a fork; §7.6.5 the three registers (mute, governance, fork); §7.6.6 fork placement; §7.6.7 the epoch roll is the audience split; §7.6.8 permanent-both and cheap merge; §7.6.9 posture dials and the protocol and product division; §7.6.10 re-composition as a view and the adjudication rubric; §7.6.11 the re-plant instantiation mechanism; §7.6.12 two-phase revocation (experiential immediacy, cryptographic exclusion, and the force-roll lever). *Depends on:* §7.3 (the order and the ceiling), §5.9 (exitability). *Orthogonal to:* §7.9 scaling.
-
-  - **§7.7, §7.8.** Dataplane history modes (forward-only versus Willow-mutable) and side histories.
-
-  - **§7.9. Scaling: commits, folds, and the relocation of ordering cost.** *Depends on:* §7.3.1 and §7.3.2 (order-independence) and the Appendix B beam; §7.7 and §7.8 (catch-up). *Orthogonal to:* §7.6 conflict-handling; a scaling change rarely touches conflict semantics.
-
-- **§8. Security Considerations.** Forward secrecy and durable history are not in tension (§8.1); the honesty boundaries the spec still carries (§8.2, now recording that policy-change quorum enforcement is test-run and freshness is earned on loopback but not over the relay/real-NAT path). *Depends on:* §6 (the stack), §7 (the governance model).
-
-- **§9. Interoperability and Conformance.** What two implementations must share to interoperate.
-
-- **§10. Substrate Requirements and Reference Realizations.** Requirement-first mapping onto the messaging backplane (§10.2), transport and overlay (§10.3), and primitives (§10.4), closed by the dependency-versus-realization ledger (§10.5, footnoted that conformance categories 7/8/9 and the revoke-authority vector are specified but not yet emitted, gated on two over-the-wire pieces). *Depends on:* §4 through §7 (it states what each layer requires, then names one conforming realization).
-
-- **§11. Large-Group Scaling, Dormancy, and Re-entry.** Cost scales on the live set, not the roster (§11.4); scaled post-compromise security, strict below 250 and opportunistic above (§11.5); the hot/cold Group split and liveness-driven migration (§11.6); the two-part re-entry credential (§11.7); lineage-scoped bans on the single governance chain (§11.8); delivery as a store-and-forward/swarm race (§11.9); the encryption posture and the two forces (§11.9.1), the optional public-projection cache (§11.9.2), and the experimental public-by-default regime above ~7k (§11.9.3); tiered performance with a buildable experiment matrix (§11.10, §11.10.1); open items and the two unearned measurements (§11.11, measurement #1's per-commit half now measured on real openmls, fan-out still unearned); the empirical basis (§11.13) and the standing research obligation (§11.14). *Depends on:* §5, §6, §7.
-
-- **Appendix A. Alternatives Considered.** A.1 decentralized MLS and the forward-secrecy cost of center-free ordering.
-
-- **Appendix B. Open Questions.** The tracked residuals. Leads with the single `Load-bearing, unearned` beam (completeness-ahead), then the governance `[confirm]` presets (enactment dial, the now's schema, tiebreak and weighting defaults), then the naming, hash, wire-encoding, substrate, and security items. Referenced by §7.3.3, §7.3.7, §7.3.8, and §7.9.
-
-- **Appendix C. Consolidated Prior Art and Positioning.** C.1 the data layer, C.2 the governance and resolution layer (same skeleton, opposite spine), C.3 the cryptographic group-state layer, C.4 the governance-as-protocol frontier, C.5 the cross-disciplinary grounding.
-
-- **Appendix D. Term lattice and invariants** (the vocabulary of record): entities and genus, the hosting chain, MLS-carried terms, lineage and the count, the four properties and the non-property, the bundle, relation, and participant senses, the invariants of record, and the delivery-plane vocabulary.
-
-- **Appendix E. The running example, chained.** The §3.1 cast walked through the Group's whole life as one arc (E1 formation to E10 re-composition), each beat listing the sections it demonstrates and linked to the in-body beat there. A §11 continuation chains the large-group cast (Ada, Boreas, Cyrus) as beats L1–L6 — dormancy, self-service re-entry, and a lineage-scoped ban. Additive, no new normative content.
-
-- **Appendix F. References and external primaries.** Every external primary the spec cites, grouped by kind and each with a precise locator, so every inline citation resolves to one entry, reconciled against the inline citations in both directions.
+`Map: the per-section index (§0, scope, dependencies, and orthogonality per section) lives at the end of this part, after Appendix F; maintained as sections change.`
 
 ---
 
@@ -3029,3 +2981,55 @@ This appendix collects the external primaries the Part 2 mechanics rely on, grou
 - **Blockchain and distributed-ledger governance, and the DAO hard-fork.** The global-consensus-on-a-canonical-chain model, with forks treated as failures to avert, that Drystone inverts (no canonical global chain, the fork a first-class designed good), and the DAO hard-fork as the documented case where human forking is forced when code cannot resolve a value dispute. Cited in Appendix C.2.
 
 - **Cross-disciplinary grounding** (Ashby on requisite variety, Beer on the algedonic channel and the Cybersyn and OGAS history, Hayek on dispersed knowledge, Popper on finitude and corroboration, Mill on the dissenter, and Ostrom on the commons). Cited in Appendix C.5 as corroboration of the Part 1 principles; the primary citations for these live in Part 1 §3's references, and the value-to-mechanism gap they leave is what Part 2 fills.
+
+---
+
+## 0. Map
+
+`A per-section index with scope, dependencies, and orthogonality, maintained as sections change; kept here at the back and pointed to from the front matter, so the opening page stays prose. Section numbers run per part, and cross-part references name the part: Part 1 holds §1 through §3 (positioning, the principles, and their corroboration), and Part 2 holds its own §1 (this introduction) and §3 onward (the mechanics), so Part 1 §3 and this Part 2 §3 are distinct. Each entry states what the section covers and, where it matters, what it depends on and what it is orthogonal to, so a reader or a later fold can pull the relevant section without dragging in the unrelated ones.`
+
+- **§2. What makes this a system of peers: the diagnostic that orders.** The mechanical test that orders the whole specification: count the adjudication loci, since a principal is a locus that can adjudicate where a sensor only senses and relays, so a network can be any-to-any wired and still be a centralized apparatus wearing a sensor mesh as a costume. This is why rights are specified separately from resources (§5) and why the label-not-enforce posture (§8) is load-bearing. Frames everything below.
+
+- **§3. Protocol overview and the running example.** The two kinds of state a Group moves (history in the data plane, governance facts in the control plane), the Group-versus-scope distinction, and the running example the rest of the specification demonstrates on: the fixed cast and its resources (§3.1) and the helper ecosystem of node roles (§3.2), both additive to the normative text.
+
+- **§4. Data Model.** The representation layer: cryptographic foundation (§4.1), identifiers and derivations (§4.2), the signed message as the unit of history (§4.3), integrity-and-ordering versus authorship-and-standing as two distinct guarantees (§4.4), the multi-client fold, where client-count and device-count are not persona-count (§4.5), and canonical-on-the-wire encoding with free local storage (§4.6). *Depends on:* nothing internal; it is the base. *Orthogonal to:* the governance semantics of §7 (this is representation, §7 is resolution).
+
+- **§5. Identity, Principals, Rights, Roles, and Capabilities.** Who acts and with what standing: the two equalities and two inequalities (§5.0), the only-canonical-state-is-local claim (§5.1), the principal, client, and persona model (§5.2), the inherent rights floor of tenure, voice, and exit (§5.3), resources versus grants (§5.4), Group Roles and capabilities across the governance and data-access planes (§5.5), weight anchored to personhood (§5.6), membership, standing, and revocation (§5.7, §5.8), exitability (§5.9), the Group as a principal (§5.10), and read-scoped content keys that cryptographically enforce the read role (§5.11). *Depends on:* §4 (identifiers). *Orthogonal to:* transport §6 (standing does not depend on how bytes travel). §5.9 exitability is the backstop §7.6 relies on.
+
+- **§6. Transport and Delivery: the Three Planes.** How bytes move and who can see what: the two identity planes (§6.1), the two-layer encryption stack (§6.2), the Delivery Fabric versus the Group (§6.3), the metadata floor (§6.4), the three planes Carriage, Durability, and Presence (§6.5 through §6.7), gap-aware history convergence and the content-blind history store (§6.8, its connect-time catch-up demonstrated over real gossip while the diff-only RBSR construction and steady-state anti-entropy stay open), discovery and interaction tiers (§6.9), the gossip overlay realization (§6.10), the two deployment modes (§6.11), and real-time media (§6.12). *Depends on:* §4 (the message), §5 (who is a member). *Orthogonal to:* the governance-conflict resolution of §7 (delivery is mechanism-neutral about what it carries). §6.8 gap-aware convergence is the completeness machinery the §7.3 beam leans on.
+
+- **§7. Synchronization and Governance-Conflict Resolution.** The governance machinery, the largest section and internally the most separable.
+
+  - **§7.1, §7.2.** Data-model commitment, then the mechanism-neutral, normative grant-and-revocation interface (R1 through R7, where R7 is the content-bound quorum that enforces a policy change at fold time against the prior rule).
+
+  - **§7.3. Governance facts are entries, not mutations** (the core). §7.3.1 the total order (causal and cryptographic, never temporal), with policy-change threshold enforcement cross-referenced to §7.2 R7; §7.3.2 what conflicts, including the boundary with the §7.6 hard-stop and the two-competing-quorums escalation decided on the escalation side; §7.3.3 the declarative snapshot as cache and the read-and-enforce line; §7.3.4 sign-the-state-not-the-authorship; §7.3.5 the membership ceiling; §7.3.6 decision versus enactment; §7.3.7 the now; §7.3.8 the finality gate; §7.3.9 principal recovery and break-glass (a stub). *Depends on:* §5 (standing), §4 (facts). The whole §7.3 run rests on the completeness beam (Appendix B).
+
+  - **§7.4.** Freshness, no false current; §7.4.1 the governed false-positive tolerance; §7.4.2 the two MLS recovery hazards the corroboration model dissolves; §7.4.3 the governance-generation stamp that lets a data-plane entry self-locate against the authority chain.
+
+  - **§7.5.** Attributable acceptance and the regress-free fold; §7.5.2 breaks the authority-ordering regress and closes the resolution input set.
+
+  - **§7.6. The reconcile hard-stop and re-formation fork** (conflict handling). §7.6.1 the two-member escalation set (its contradiction shape now including the R7 quorum-collision); §7.6.2 one primitive, three arities (re-plant's membership-continuity half corroborated, message-continuity half open); §7.6.3 MLS subordinate; §7.6.4 a ban is a fork; §7.6.5 the three registers (mute, governance, fork); §7.6.6 fork placement; §7.6.7 the epoch roll is the audience split; §7.6.8 permanent-both and cheap merge; §7.6.9 posture dials and the protocol and product division; §7.6.10 re-composition as a view and the adjudication rubric; §7.6.11 the re-plant instantiation mechanism; §7.6.12 two-phase revocation (experiential immediacy, cryptographic exclusion, and the force-roll lever). *Depends on:* §7.3 (the order and the ceiling), §5.9 (exitability). *Orthogonal to:* §7.9 scaling.
+
+  - **§7.7, §7.8.** Dataplane history modes (forward-only versus Willow-mutable) and side histories.
+
+  - **§7.9. Scaling: commits, folds, and the relocation of ordering cost.** *Depends on:* §7.3.1 and §7.3.2 (order-independence) and the Appendix B beam; §7.7 and §7.8 (catch-up). *Orthogonal to:* §7.6 conflict-handling; a scaling change rarely touches conflict semantics.
+
+- **§8. Security Considerations.** Forward secrecy and durable history are not in tension (§8.1); the honesty boundaries the spec still carries (§8.2, now recording that policy-change quorum enforcement is test-run and freshness is earned on loopback but not over the relay/real-NAT path). *Depends on:* §6 (the stack), §7 (the governance model).
+
+- **§9. Interoperability and Conformance.** What two implementations must share to interoperate.
+
+- **§10. Substrate Requirements and Reference Realizations.** Requirement-first mapping onto the messaging backplane (§10.2), transport and overlay (§10.3), and primitives (§10.4), closed by the dependency-versus-realization ledger (§10.5, footnoted that conformance categories 7/8/9 and the revoke-authority vector are specified but not yet emitted, gated on two over-the-wire pieces). *Depends on:* §4 through §7 (it states what each layer requires, then names one conforming realization).
+
+- **§11. Large-Group Scaling, Dormancy, and Re-entry.** Cost scales on the live set, not the roster (§11.4); scaled post-compromise security, strict below 250 and opportunistic above (§11.5); the hot/cold Group split and liveness-driven migration (§11.6); the two-part re-entry credential (§11.7); lineage-scoped bans on the single governance chain (§11.8); delivery as a store-and-forward/swarm race (§11.9); the encryption posture and the two forces (§11.9.1), the optional public-projection cache (§11.9.2), and the experimental public-by-default regime above ~7k (§11.9.3); tiered performance with a buildable experiment matrix (§11.10, §11.10.1); open items and the two unearned measurements (§11.11, measurement #1's per-commit half now measured on real openmls, fan-out still unearned); the empirical basis (§11.13) and the standing research obligation (§11.14). *Depends on:* §5, §6, §7.
+
+- **Appendix A. Alternatives Considered.** A.1 decentralized MLS and the forward-secrecy cost of center-free ordering.
+
+- **Appendix B. Open Questions.** The tracked residuals. Leads with the single `Load-bearing, unearned` beam (completeness-ahead), then the governance `[confirm]` presets (enactment dial, the now's schema, tiebreak and weighting defaults), then the naming, hash, wire-encoding, substrate, and security items. Referenced by §7.3.3, §7.3.7, §7.3.8, and §7.9.
+
+- **Appendix C. Consolidated Prior Art and Positioning.** C.1 the data layer, C.2 the governance and resolution layer (same skeleton, opposite spine), C.3 the cryptographic group-state layer, C.4 the governance-as-protocol frontier, C.5 the cross-disciplinary grounding.
+
+- **Appendix D. Term lattice and invariants** (the vocabulary of record): entities and genus, the hosting chain, MLS-carried terms, lineage and the count, the four properties and the non-property, the bundle, relation, and participant senses, the invariants of record, and the delivery-plane vocabulary.
+
+- **Appendix E. The running example, chained.** The §3.1 cast walked through the Group's whole life as one arc (E1 formation to E10 re-composition), each beat listing the sections it demonstrates and linked to the in-body beat there. A §11 continuation chains the large-group cast (Ada, Boreas, Cyrus) as beats L1–L6 — dormancy, self-service re-entry, and a lineage-scoped ban. Additive, no new normative content.
+
+- **Appendix F. References and external primaries.** Every external primary the spec cites, grouped by kind and each with a precise locator, so every inline citation resolves to one entry, reconciled against the inline citations in both directions.

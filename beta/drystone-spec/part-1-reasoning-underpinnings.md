@@ -6,44 +6,12 @@
 
 `Defines: P-Local-Truth, P-Knowable-Truth, P-Peer-Equality, P-Durable-Enablement (the principles Part 2 realizes)`
 
+`Map: the per-section index (§0, scope, dependencies, and orthogonality per section) lives at the end of this part, after the upstream reference links; maintained as sections change.`
+
 This part is the "why." It is prose, deliberately, and it earns its place by ending every principle on a
 consequence the mechanics in Part 2 must satisfy. Each principle states a commitment, gives its grounded
 reasoning, and names the obligation it places on the wire. A principle that does not cash out into a
 mechanic does not belong here.
-
----
-
-## 0. Map
-
-`A per-section index with scope, dependencies, and orthogonality, maintained as sections change. Part 1 is the reasoning: §1 positions the system, §2 states the principles the mechanics must satisfy, and §3 shows they are corroborated rather than invented, closed by a coda on what Part 1 does and does not establish and the reference list. Cross-part references name the part (Part 1 §… / Part 2 §…), so this §3 and Part 2's §3 overview are distinct. Each entry states what the section covers and, where it matters, what it depends on and what it is orthogonal to, so a reader can follow the argument's structure without treating independent principles as if one rested on another.`
-
-- **§1. Introduction.** What the document is and where it sits. §1.1 scope (the mechanics are Part 2; the substrate's ownership form is in scope for motivation, out of scope for mechanics); §1.2 where Drystone sits, the complement-to-ATProto positioning and the one move that is genuinely its own. Frames everything below.
-
-- **§2. Design Principles.** The principles, each ending on an obligation the wire must satisfy.
-
-  - **§2.0. The razor: compute provenance, never utility.** The founding razor: the protocol furnishes verifiable provenance and never renders the social verdict, so everything downstream is this razor applied. **§2.0.1** time is an assertion, never a fact, the razor's sharpest edge (no wall-clock is corroborable). *Depends on:* nothing; it is the root.
-
-  - **§2.1. P-Local-Truth.** The only canonical state is local; there is no authoritative global copy. The foundation that makes exit and fork mechanically real. *Orthogonal to:* §2.2 and §2.3 (where state lives is independent of how it is audited or who has standing).
-
-  - **§2.2. P-Knowable-Truth.** Verify for yourself; the record is auditable and never silently mutable. *Orthogonal to:* §2.3 (auditability is independent of standing).
-
-  - **§2.3. P-Peer-Equality.** Equal in rights, therefore equal in weight; unequal in resources and revocable Group Roles. The equality spine, and the source of the voice right (§2.6) and the center analysis (§2.7). *Depends on:* nothing internal. Its Consequence paragraph carries the enforced-by-mechanism obligations Part 2 §5 and Part 2 §7 realize.
-
-  - **§2.4. P-Durable-Enablement.** Participation, and exit, must be real on a bare node. *Depends on:* §2.1 (local-first is what makes exit possible without anyone's permission).
-
-  - **§2.5. The forced terminus: why fork, not verdict.** The provably-non-empty residue, where provenance is settled and utility is open, has no coordination-free resolution, so the terminus is a fork, not a verdict; the fork has a floor (the minimum fork is one) and a limit (a ban is the same primitive, so the harshest power leaves the member whole). *Depends on:* §2.0 and §2.0.1 (the razor's seam, no clock) and §2.3 (equal standing makes the conflicts symmetric). *Realized in* Part 2 §7.6. *Orthogonal to:* §2.6 (conflict resolution versus perception).
-
-  - **§2.6. The voice right requires field-integrity.** Voice is a right only if the field a persona asserts into is not authored by an unremovable adverse party; field-integrity is peer-governed, legible, exitable shaping, which is why the substrate's ownership form is in scope for the motivation. *Depends on:* §2.3 (voice as a right), §2.2 (legible), §2.4 (exitable). *Orthogonal to:* §2.5.
-
-  - **§2.7. Consolidation and the center: capability freely, authority revocably.** Capability is not authority, so capability may consolidate one-directionally without a center, and authority may consolidate because it is revocable and exitable; a center is authority that is irrevocable and inescapable, guarded by the escape hatch and the party-neutral-default corollary. *Depends on:* §2.3 (the capability/authority line), §2.4 (exit), §2.1 (peers hold their edges). *Realized in* Part 2 §5.5, Part 2 §5.7, Part 2 §5.9, Part 2 §7.6.9, Part 2 §7.9.
-
-  - **§2.8. Faithful representation: what the substrate is for.** The capstone: the protocol faithfully represents individual choice and never centrally resolves social conflict, only aggregates it, and the protocol/product division follows (faithful possibility is the protocol, easy representability is the product). *Depends on:* §2.0, §2.3, §2.5, §2.6. *Realized in* Part 2 §7.6, Part 2 §7.6.9.
-
-- **§3. Why these principles are corroborated, not invented.** The cross-disciplinary grounding: each principle mapped to its nearest prior art across distributed systems, ethics, economics, systems science, epistemology, and commons governance, showing the set is discovered rather than asserted. *Depends on:* all of §2.
-
-- **What Part 1 establishes (and does not).** The coda bounding the claims: what the reasoning secures, and what it defers to Part 2 or to the companion ownership argument.
-
-- **References (Part 1).** The source list, grouped by discipline, with versioned upstream links.
 
 ---
 
@@ -1248,3 +1216,37 @@ Canonical, edition- or version-specific sources for the principled lineage above
 - **Spritely Institute** (Lemmer-Webber, C.), "Technical Values and Design Goals," https://spritely.institute/about/ , and the **W3C ActivityPub** Recommendation (2018), https://www.w3.org/TR/activitypub/ . Ground the contextual-identity posture (§2.3, Part 2 §5.6). The petname tradition (Stiegler, "An Introduction to Petname Systems") is the nearest prior art for human-meaningful naming over keys. *(Spritely page quotations verified verbatim.)*
 
 The component-by-component mechanism prior-art map is in Part 2 Appendix C, and the versioned software/spec pins are in Part 2's upstream-links section. Part 1's references are the principled lineage; nothing here is a claim of priority or supremacy, only of the shoulders this stands on.
+
+---
+
+## 0. Map
+
+`A per-section index with scope, dependencies, and orthogonality, maintained as sections change; kept here at the back and pointed to from the front matter, so the opening page stays prose. Part 1 is the reasoning: §1 positions the system, §2 states the principles the mechanics must satisfy, and §3 shows they are corroborated rather than invented, closed by a coda on what Part 1 does and does not establish and the reference list. Cross-part references name the part (Part 1 §… / Part 2 §…), so this §3 and Part 2's §3 overview are distinct. Each entry states what the section covers and, where it matters, what it depends on and what it is orthogonal to, so a reader can follow the argument's structure without treating independent principles as if one rested on another.`
+
+- **§1. Introduction.** What the document is and where it sits. §1.1 scope (the mechanics are Part 2; the substrate's ownership form is in scope for motivation, out of scope for mechanics); §1.2 where Drystone sits, the complement-to-ATProto positioning and the one move that is genuinely its own. Frames everything below.
+
+- **§2. Design Principles.** The principles, each ending on an obligation the wire must satisfy.
+
+  - **§2.0. The razor: compute provenance, never utility.** The founding razor: the protocol furnishes verifiable provenance and never renders the social verdict, so everything downstream is this razor applied. **§2.0.1** time is an assertion, never a fact, the razor's sharpest edge (no wall-clock is corroborable). *Depends on:* nothing; it is the root.
+
+  - **§2.1. P-Local-Truth.** The only canonical state is local; there is no authoritative global copy. The foundation that makes exit and fork mechanically real. *Orthogonal to:* §2.2 and §2.3 (where state lives is independent of how it is audited or who has standing).
+
+  - **§2.2. P-Knowable-Truth.** Verify for yourself; the record is auditable and never silently mutable. *Orthogonal to:* §2.3 (auditability is independent of standing).
+
+  - **§2.3. P-Peer-Equality.** Equal in rights, therefore equal in weight; unequal in resources and revocable Group Roles. The equality spine, and the source of the voice right (§2.6) and the center analysis (§2.7). *Depends on:* nothing internal. Its Consequence paragraph carries the enforced-by-mechanism obligations Part 2 §5 and Part 2 §7 realize.
+
+  - **§2.4. P-Durable-Enablement.** Participation, and exit, must be real on a bare node. *Depends on:* §2.1 (local-first is what makes exit possible without anyone's permission).
+
+  - **§2.5. The forced terminus: why fork, not verdict.** The provably-non-empty residue, where provenance is settled and utility is open, has no coordination-free resolution, so the terminus is a fork, not a verdict; the fork has a floor (the minimum fork is one) and a limit (a ban is the same primitive, so the harshest power leaves the member whole). *Depends on:* §2.0 and §2.0.1 (the razor's seam, no clock) and §2.3 (equal standing makes the conflicts symmetric). *Realized in* Part 2 §7.6. *Orthogonal to:* §2.6 (conflict resolution versus perception).
+
+  - **§2.6. The voice right requires field-integrity.** Voice is a right only if the field a persona asserts into is not authored by an unremovable adverse party; field-integrity is peer-governed, legible, exitable shaping, which is why the substrate's ownership form is in scope for the motivation. *Depends on:* §2.3 (voice as a right), §2.2 (legible), §2.4 (exitable). *Orthogonal to:* §2.5.
+
+  - **§2.7. Consolidation and the center: capability freely, authority revocably.** Capability is not authority, so capability may consolidate one-directionally without a center, and authority may consolidate because it is revocable and exitable; a center is authority that is irrevocable and inescapable, guarded by the escape hatch and the party-neutral-default corollary. *Depends on:* §2.3 (the capability/authority line), §2.4 (exit), §2.1 (peers hold their edges). *Realized in* Part 2 §5.5, Part 2 §5.7, Part 2 §5.9, Part 2 §7.6.9, Part 2 §7.9.
+
+  - **§2.8. Faithful representation: what the substrate is for.** The capstone: the protocol faithfully represents individual choice and never centrally resolves social conflict, only aggregates it, and the protocol/product division follows (faithful possibility is the protocol, easy representability is the product). *Depends on:* §2.0, §2.3, §2.5, §2.6. *Realized in* Part 2 §7.6, Part 2 §7.6.9.
+
+- **§3. Why these principles are corroborated, not invented.** The cross-disciplinary grounding: each principle mapped to its nearest prior art across distributed systems, ethics, economics, systems science, epistemology, and commons governance, showing the set is discovered rather than asserted. *Depends on:* all of §2.
+
+- **What Part 1 establishes (and does not).** The coda bounding the claims: what the reasoning secures, and what it defers to Part 2 or to the companion ownership argument.
+
+- **References (Part 1).** The source list, grouped by discipline, with versioned upstream links.
