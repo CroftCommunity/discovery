@@ -1,0 +1,54 @@
+src/fold_auth.rs:233:5: replace role_ge_admin -> bool with true
+src/fold_auth.rs:233:5: replace role_ge_admin -> bool with false
+src/fold_auth.rs:237:5: replace role_ge_owner -> bool with false
+src/fold_auth.rs:241:5: replace role_ge_member -> bool with false
+src/fold_auth.rs:253:5: replace check_authorization -> Result<(), FoldError> with Ok(())
+src/fold_auth.rs:260:28: replace match guard role_ge_admin(r) with false in check_authorization
+src/fold_auth.rs:271:28: replace match guard role_ge_admin(r) with true in check_authorization
+src/fold_auth.rs:298:30: replace < with == in check_authorization
+src/fold_auth.rs:298:30: replace < with <= in check_authorization
+src/fold_auth.rs:319:28: replace match guard role_ge_owner(r) with false in check_authorization
+src/fold_auth.rs:332:28: replace match guard role_ge_member(r) with false in check_authorization
+src/fold_auth.rs:394:9: delete match arm 0 in decode_rule_key
+src/fold_derived.rs:342:9: delete match arm 0 in decode_rule_key
+src/fold_auth.rs:397:9: delete match arm 3 in decode_rule_key
+src/fold_derived.rs:345:9: delete match arm 3 in decode_rule_key
+src/fold_derived.rs:362:5: replace role_ge_admin -> bool with false
+src/fold_derived.rs:366:5: replace role_ge_owner -> bool with false
+src/fold_derived.rs:370:5: replace role_ge_member -> bool with false
+src/fold_derived.rs:377:5: replace check_authorization -> Result<(), FoldError> with Ok(())
+src/fold_derived.rs:382:24: replace match guard role_ge_admin(r) with false in check_authorization
+src/fold_derived.rs:390:24: replace match guard role_ge_admin(r) with false in check_authorization
+src/fold_derived.rs:399:28: replace match guard role_ge_owner(r) with false in check_authorization
+src/fold_derived.rs:408:34: replace < with == in check_authorization
+src/fold_derived.rs:408:34: replace < with <= in check_authorization
+src/fold_derived.rs:420:28: replace match guard role_ge_owner(r) with false in check_authorization
+src/fold_derived.rs:431:24: replace match guard role_ge_member(r) with false in check_authorization
+src/fold_derived.rs:449:34: replace < with > in check_authorization
+src/fold_derived.rs:456:24: replace == with != in check_authorization
+src/fold_derived.rs:461:35: replace + with * in check_authorization
+src/fold_derived.rs:461:31: replace + with * in check_authorization
+src/fold_derived.rs:462:34: replace < with == in check_authorization
+src/fold_derived.rs:462:34: replace < with <= in check_authorization
+src/fold_derived.rs:469:52: replace + with * in check_authorization
+src/fold_derived.rs:469:48: replace + with * in check_authorization
+src/fold_derived.rs:470:30: replace > with == in check_authorization
+src/fold_derived.rs:470:30: replace > with >= in check_authorization
+src/fold_derived.rs:525:5: replace act_subject -> Option<TypesPrincipalId> with None
+src/fold_derived.rs:537:9: delete match arm AssertionType::RuleChange in act_subject
+src/fold_derived.rs:530:34: replace < with == in act_subject
+src/fold_derived.rs:530:34: replace < with > in act_subject
+src/fold_derived.rs:2104:38: delete field created_at from struct NodeCard expression in upsert_node_stub
+src/governance.rs:45:5: replace required_threshold_for_rule_change -> u32 with 0
+src/governance.rs:45:5: replace required_threshold_for_rule_change -> u32 with 1
+src/governance.rs:101:5: replace is_under_determined -> bool with true
+src/governance.rs:101:5: replace is_under_determined -> bool with false
+src/governance.rs:101:5: delete ! in is_under_determined
+src/governance.rs:167:5: replace count_personae_by_lineage -> usize with 0
+src/governance.rs:167:5: replace count_personae_by_lineage -> usize with 1
+src/governance.rs:180:5: replace threshold_met -> bool with true
+src/governance.rs:180:5: replace threshold_met -> bool with false
+src/governance.rs:180:42: replace >= with < in threshold_met
+src/governance.rs:197:5: replace detect_fork -> Option<ForkLineage> with None
+src/governance.rs:205:17: replace == with != in detect_fork
+src/governance.rs:210:54: replace == with != in detect_fork

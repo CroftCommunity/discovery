@@ -69,3 +69,11 @@ Results:
 - Skipped the "catching up…" TUI indicator (UX, low value unattended), as the brief directed.
 
 Spec effect: one corroboration (byte-head naming order-independence, §7.6.1) and one **load-bearing refutation** — competing RuleChange quorums are a real §7.6 gap. Noted against **F1** in the proposed-changes doc: RuleChange quorum *enforcement* is real (F1), but it is **not concurrent-conflict-aware** — a second competing quorum is not escalated. No Part 2 edit; the refutation sharpens F1's boundary and adds a design item.
+
+### EXP-3 — X3 mutation sweep on the auth/governance path (§7.3 / §8.2(g) trust claim; F1)
+
+Method: `cargo-mutants` scoped (via `--re`) to the authority/threshold functions across `fold_auth.rs` + `governance.rs` + `fold_derived.rs` (`PROPTEST_CASES=8`, repo `.cargo/mutants.toml` skips, `-j 2`). Report + raw record: `local_storage_projection/X3-CROSS-PACKAGE-SWEEP.md`, `x3-sweep-data/`.
+
+Result: **PASS on the trust question, PARTIAL on X3 mechanization.** 120 mutants → 54 caught, 61 missed, 5 unviable. **Threshold-counting / quorum arithmetic (`governance.rs`) = 13/13 caught, 0 survivors** — the FALSIFY target (a surviving threshold-counting mutant) is not met. The 61 survivors are **all** authorization-*decision* mutants (`check_authorization` guards, `role_ge_*`, `act_subject`, `rule_change_approval_subject`) whose positive-path coverage lives cross-package in `croft-chat` — the known under-count, now quantified. Demonstrated concretely: hand-applied `rule_change_approval_subject→const` (a substrate-survivor) and watched `croft-chat`'s `approval_for_a_different_change_does_not_count` **FAIL** (killed), then reverted. **No real hole** in the authority/threshold path — the survivors are an instrument artifact (substrate-only can't see the consumer suite).
+
+Spec effect: adds mutation evidence to **F1** (threshold-counting mutation-clean; approval-subject cross-package-killed) — supports `Modeled`, with the *automated* cross-package harness as the residual bar for `Verified` (still open X3). No Part 2 edit.
