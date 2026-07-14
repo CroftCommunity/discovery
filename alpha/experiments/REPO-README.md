@@ -25,7 +25,7 @@ Open work across the alpha spikes — every defined-but-unrun experiment, its bl
 recommended order — is catalogued in `alpha/EXPERIMENT-BACKLOG.md`, and sequenced as a dependency
 series in `alpha/MASTER-INDEX.md`. Where a green result rests on a stand-in (prototype / scaffold /
 weakened assertion) rather than spec-conformant behavior, it is registered in
-`alpha/SPEC-DIVERGENCE-REGISTER.md` (grep the code for `SPEC-DELTA`).
+`alpha/experiments/SPEC-DIVERGENCE-REGISTER.md` (grep the code for `SPEC-DELTA`).
 
 Orientation for the whole workspace lives in `discovery/AGENTS.md`. Git identity: chasemp
 (`chase@owasp.org`, `github-personal`).

@@ -237,8 +237,10 @@ super-linear-resync flag is consistent with — not a new claim beyond — F3's 
 **Landing state (post RUN-02).** RUN-02 already landed the *half-earned* wording into Part 2 §11.11
 ("fan-out half stays unearned though runnable… moves from unearned to half-earned"). RUN-01 EXP-1 then
 *measured* the fan-out, so this F4 revision **supersedes** that landed wording: it proposes a follow-on
-§11.11 edit from *half-earned* → *earned in shape* (loopback), magnitude-open at hot-N = 500+. Not yet
-applied to Part 2 — this is the next §11.11 touch, pending review.
+§11.11 edit from *half-earned* → *earned in shape* (loopback), magnitude-open at hot-N = 500+. **Landed
+in Part 2 §11.11 (RUN-06, 2026-07-14)** — measurement #1's annotation now reads *earned in shape* (both
+halves), magnitude-open at scale, carrying the `fanout-single-run` register caveat and the super-linear
+connect-time-resync flag.
 
 ---
 

@@ -374,7 +374,7 @@ rather than a per-tick re-flood of the whole log. X2 stays all-green across repe
 mechanism (`A head == B head`). **Not** closed by this: M2's *sizing* study (push-resync vs
 pull-on-connect; cost at 1/7/30/90-day gaps) and steady-state anti-entropy (a *live* frame dropped
 to an already-connected neighbor, with no new join to trigger a resync). See
-`alpha/SPEC-DIVERGENCE-REGISTER.md` → Reconciled.
+`alpha/experiments/SPEC-DIVERGENCE-REGISTER.md` → Reconciled.
 
 **Net.** All three X2 sub-claims now hold on the loopback testbed: crash-consistency, monotonic
 no-reversion, and catch-up-after-absence (a returning node re-converges to the exact same head).
@@ -433,7 +433,7 @@ refused. No hand-crafted envelopes. croft-chat suite 22/0; clippy clean.
 remaining use (adversarial delivery: dropped/duplicated/reordered frames; withheld antecedents) is
 legitimate refutation testing a well-behaved API must refuse to produce, not an API gap. Still not
 emittable via `Session` (a lesser, separate gap): `MembershipRemove` and `RoleGrant`/`RoleRevoke`.
-See `alpha/SPEC-DIVERGENCE-REGISTER.md` → Reconciled.
+See `alpha/experiments/SPEC-DIVERGENCE-REGISTER.md` → Reconciled.
 
 ---
 

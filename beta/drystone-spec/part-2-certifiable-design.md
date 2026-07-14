@@ -1423,10 +1423,10 @@ The surface is two axes: the mode, subsume or fresh, and the view, which rungs a
 
 #### 7.6.11. The re-plant instantiation mechanism, and its validation status
 
-`design; needs verification. Preserved across the p10/p11 swap (document-pass-8) from the tree-side document-pass-7 fold, which the parallel p11 rebuild did not carry. This subsection folds the mechanism worked out in the delivery-layer and MLS
+`Design; needs verification. Preserved across the p10/p11 swap (document-pass-8) from the tree-side document-pass-7 fold, which the parallel p11 rebuild did not carry. This subsection folds the mechanism worked out in the delivery-layer and MLS
 design corpora into the spec in context. Every mechanism claim here is grounded against the named RFC
 section but the composed operation is not yet exercised end-to-end on a real stack; the validation path is
-the E12 experiment set (below), and the whole subsection carries [confirm before publish] until those run.
+the E12 experiment set (below), and the whole subsection carries [confirm] until those run.
 Tracked as an open thread (Appendix B; OPEN-THREADS).`
 
 The three arities all reduce to one instantiation: **stamp a fresh MLS group over a member set read from the
@@ -1481,7 +1481,7 @@ mechanics are **Rung A** (real library); Drystone's own governance-chain and dat
 execution and are not yet settled: whether `mls-rs` exposes ReInit as a first-class op that emits the
 resumption PSK (vs. fresh-create plus a manually derived PSK), and whether it surfaces resolution / blank
 counts directly (vs. a byte-size proxy for E12.4). **[confirm]** The full experiment plan and the design
-derivation live in `impl/delivery-layer/12-replant-experiments.md` and `impl/mls/mls-hardcases-and-posture.md`.
+derivation live in `../impl/delivery-layer/12-replant-experiments.md` and `../impl/mls/mls-hardcases-and-posture.md`.
 
 #### 7.6.12. Two-phase revocation: experiential immediacy, cryptographic exclusion, and the force-roll lever
 
@@ -2497,7 +2497,7 @@ Genuinely undecided or unearned, kept distinct from the decided-and-bounded post
 
 1. **Per-commit and fan-out cost at hot-N = 500 / 1000 / 2000, on representative hardware.** Sets how tight the liveness window can be pushed (how small the hot tree gets), whether the 3–7k and 7–10k hot trees stay comfortable or need sharding, the real hot-N comfort ceiling (provisionally ~1500), and how heavy forced strict healing would actually be above 250. Gettable from an OpenMLS-on-aarch64 build running the group benchmark at these sizes plus a gossip testbed measuring fan-out latency and total message count versus live-N. *Extension for the experimental public regime (§11.9.3.3):* run the same commit and Welcome/GroupInfo benchmark at attesting-N of 5,000, 10,000, and 20,000, to place the single-tree attesting-core ceiling in the band between the measured ~5,000 (Soler 2025) and RFC 9750's tens-of-thousands design target; and, for the sharded case, measure the added per-tree cost of PSK-linked cross-group key updates against the healing-completeness they buy.
 
-    *Partial (2026-07):* the **per-commit** band is measured on real openmls 0.8.1 (an O(N) floor ↔ O(log N) ceiling per commit; `alpha/experiments/mls-replant`, M1). The **fan-out** half is still unearned but is now runnable with no new infrastructure (N local `serve` processes on the loopback gossip testbed; A4). The measurement moves from *unearned* to *half-earned*.
+    *Measured (2026-07):* the **per-commit** band is measured on real openmls 0.8.1 (an O(N) floor ↔ O(log N) ceiling per commit; `alpha/experiments/mls-replant`, M1). The **fan-out** half is now measured over real iroh-gossip on a loopback testbed at N = 2/4/8/16 (`croft-chat/FANOUT-M1.md`): per-node gossip cost is **linear in the live set** (`2N+1`), aggregate O(N²), and head convergence holds at every N (identical fingerprints). Two boundaries remain: the fan-out figures are on **loopback, not representative hardware at hot-N = 500+** (magnitude indicative, register `fanout-single-run`), and the **connect-time resync** cost is super-linear on the bootstrap hub — full-settle does not complete past N ≈ 8 in-window, the RBSR / steady-state gap of §6.8.1. The measurement moves from *unearned* to *earned in shape* (both halves), *magnitude-open at scale*.
 
 2. **Return-backfill time as a function of dormancy-gap size.** Sets whether a 90-day return feels like a quick sync or a long wait, and therefore whether the §11.6 windows are right or want shortening. Gettable from the history-DAG hash-range backfill against a history-convergence node over representative gap sizes.
 

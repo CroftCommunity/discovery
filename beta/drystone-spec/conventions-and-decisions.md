@@ -2,15 +2,15 @@
 
 `Status: living reference, produced alongside the Part 1 / Part 2 synthesis`
 
-`Two jobs: (1) a decision record for the consolidation of the twelve-document suite into a self-contained Part 1 and Part 2, and (2) a terminology-and-conventions primer that folds into the document-structure guidance (companion to 11-doc-method.md) and that a later consistency pass reads the docs *against*.`
+`Two jobs: (1) a decision record for the consolidation of the twelve-document suite into a self-contained Part 1 and Part 2, and (2) a terminology-and-conventions primer that folds into the document-structure guidance (companion to doc-writing-method.md) and that a later consistency pass reads the docs *against*.`
 
-`Companion to: p10-full-part1-principles.md, p10-full-part2-mechanics.md, 11-doc-method.md`
+`Companion to: p10-full-part1-principles.md, p10-full-part2-mechanics.md, doc-writing-method.md`
 
 ---
 
 ## Why this document exists
 
-The synthesis that produced the self-contained Part 1 and Part 2 required a large body of decisions: which of two conflicting definitions supersedes, where a folded-in mechanism lands, which open questions dissolve once context is pooled, and, most pervasively, how a handful of load-bearing words are bounded so they stop colliding. That reasoning is a deliverable, not scratch work. Keeping it only in the session that produced it would violate the same discipline `11-doc-method.md` argues for: the design docs are end states, and the reasoning about how they reached that state belongs in a durable, separate record.
+The synthesis that produced the self-contained Part 1 and Part 2 required a large body of decisions: which of two conflicting definitions supersedes, where a folded-in mechanism lands, which open questions dissolve once context is pooled, and, most pervasively, how a handful of load-bearing words are bounded so they stop colliding. That reasoning is a deliverable, not scratch work. Keeping it only in the session that produced it would violate the same discipline `doc-writing-method.md` argues for: the design docs are end states, and the reasoning about how they reached that state belongs in a durable, separate record.
 
 This document is that record, and it is deliberately two things at once:
 
@@ -18,7 +18,7 @@ This document is that record, and it is deliberately two things at once:
 
 - A **terminology-and-conventions primer**: the bounded-context rules for the load-bearing words, stated as rules with a test for each, so a later pass (or a different instance of the same kind of work) can check the docs against them and catch the specific failure modes: a term that slipped its boundary, or the same thing defined twice under two names.
 
-The primer half is the part that carries forward. It is meant to fold into the document-structure guidance so the vocabulary discipline becomes a checkable practice, exactly as `11-doc-method.md` argues a stated practice should.
+The primer half is the part that carries forward. It is meant to fold into the document-structure guidance so the vocabulary discipline becomes a checkable practice, exactly as `doc-writing-method.md` argues a stated practice should.
 
 ---
 
@@ -221,6 +221,33 @@ The canonical terms, each anchored where it is defined:
   for permissions and revocation and A.7's node-role cast establishes for
   standing ("a capability or a resource but no standing").
 
+The reconcile and freshness mechanisms grew a set of load-bearing terms across
+the RUN-02..04 spec work; they are added to the shared surface here (same rule
+as the terms above: defined once in Part 2, inherited by reference) so
+experiment docs, plans, and test suites name them one way:
+
+- **approval subject** — the digest of a policy change's canonical payload
+  bytes that an approval fact references, so a quorum is enforced at fold time
+  and an approval cannot be replayed onto a different change (Part 2 §7.2 R7).
+- **contradiction byte-head** — the order-independent min-hash a reconcile
+  hard-stop surfaces as `contradiction:{byte-head}`, byte-identical across fold
+  orders, naming the contradiction without ranking the conflicting facts (Part 2
+  §7.3.2, §7.6.1).
+- **horizon checkpoint** — a §7.3.3 self-checkpoint extended with a manifest of
+  the contradiction byte-heads open at a frontier, recorded on the
+  reconciliation-horizon cadence; its **horizon-checkpoint manifest** is the
+  frontier head paired with the sorted set of those byte-heads (Part 2 §7.6.9,
+  a `[gates-release]` wire item, Appendix B).
+- **corroboration dials** — the family of Group-governed settings that bound the
+  completeness-ahead residual once the §7.4.3 stamp closes the behind-via-traffic
+  case: which act classes require final state, the freshness k (or its formula),
+  and the solicitation posture; safe at every setting because the fail-closed
+  rule is not a dial (Part 2 §7.3.3).
+- **quantified trust** — the standing of an answer to a read-side frontier
+  solicitation: always an assertion taken at a governed confidence level, never
+  proof, which is why the freshness threshold is a dial rather than a constant
+  (Part 2 §7.4.1, §7.3.3).
+
 Description rules (checkable; DR numbering is referenced by other docs):
 
 - **DR-1 (one anchor).** The mechanism is defined once, at Part 2 §7.6; every
@@ -353,4 +380,4 @@ conformance suite, the iroh corpus, and doc-writing-method §12.
 
 ## Part C. How to use this document in a later pass
 
-Read the docs *against* Part A. For each load-bearing word, the test is stated; a usage that fails the test is a slip to fix. The specific failure modes to hunt: a term that has slipped its bounded context (a scope-level fact attached to a Group, or vice versa); the same referent defined twice under two names; a coinage used before it is introduced; and a superseded definition left co-existing with its replacement. Part B is the record of what was already decided, so a later pass does not re-lit­igate a settled call or accidentally reverse a supersession. This is the same relationship `11-doc-method.md` has to the design docs: a stated practice you can check for.
+Read the docs *against* Part A. For each load-bearing word, the test is stated; a usage that fails the test is a slip to fix. The specific failure modes to hunt: a term that has slipped its bounded context (a scope-level fact attached to a Group, or vice versa); the same referent defined twice under two names; a coinage used before it is introduced; and a superseded definition left co-existing with its replacement. Part B is the record of what was already decided, so a later pass does not re-lit­igate a settled call or accidentally reverse a supersession. This is the same relationship `doc-writing-method.md` has to the design docs: a stated practice you can check for.
