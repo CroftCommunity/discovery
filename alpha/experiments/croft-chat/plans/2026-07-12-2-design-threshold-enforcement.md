@@ -107,4 +107,4 @@ a RuleChange's approval subject is a **content hash of its payload** (`rule_chan
 approval this note asked for, generalized to the whole proposed change. `act_subject` returns it and
 Step 5.6 enforces via the same distinct-personae path. Proven by `rulechange_threshold_enforced.rs`
 (4 cases) + the strengthened substrate `test_i6`. See the master ledger Phase 8 and
-`alpha/SPEC-DIVERGENCE-REGISTER.md` (Reconciled). The concurrency interaction remains deferred.
+`alpha/experiments/SPEC-DIVERGENCE-REGISTER.md` (Reconciled). The concurrency interaction remains deferred.
