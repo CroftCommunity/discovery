@@ -355,3 +355,19 @@ Scope: land the two design decisions made after the 2026-07-14 merge, both in §
 **Map, done.** Updated the §0 map §7.6 line (§7.6.2 continuity/decoupling passage; §7.6.9 horizon-cadence worked example) and the Appendix B line (the horizon-checkpoint manifest joins the wire-encoding items) per Rule 15.
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; MUST/MAY casing preserved; no mechanism or code identifier changed; cross-references (§5.10, §5.11, §7.3, §7.3.3, §7.3.5, §7.4, §7.6.1) resolve.
+
+---
+
+## Corroboration dials and the formula-valued freshness threshold (§7.3.3, §7.4.1)
+
+`Status: complete (RUN-04, 2026-07-14)`
+
+Scope: land two owner-decided `Design` framings against the completeness-ahead beam, both in §7. No mechanism changes; two paragraphs added and two §0 map lines updated, per the corroboration-dials call. DR language (conventions A.11) applied: continuity-framed, non-moral. The exploration and the demonstration contract live outside Part 2 (`alpha/thinking/corroboration-and-quantified-trust.md` and backlog EXP-C1).
+
+**§7.3.3, done.** Added the corroboration-dials paragraph immediately after the load-bearing-caveat paragraph. It states that what remains of completeness-ahead once the §7.4.3 stamp closes the behind-via-traffic case is not an undesigned mechanism but a family of Group-governed settings, changed under §7.2 R7: (i) which act classes require final state versus proceed on best-known (irreversible enforcement always final, reads never, the boundary per-Group); (ii) the freshness threshold k itself, including its formula-valued form (§7.4.1); and (iii) the solicitation posture, the read-side frontier ask whose answer is always an assertion taken at quantified trust. A tight Group dials k high and enforcement slow; a loose Group dials it low and accepts more delay exposure, the same temperament spectrum as the §7.6 configuration posture, safe at every setting because the fail-closed rule is not a dial. `Design`, decided as the framing.
+
+**§7.4.1, done.** Added a final paragraph admitting a formula-valued freshness threshold: a Group MAY set k as a formula over folded state (proportional to folded member count at the act's position, or weighted by folded Group Roles) rather than a constant, provided every input is folded fact and never an asserted or locally observed quantity, so the resulting k stays deterministic and identical on every honest node. Changes under R7 like any rule; introduces no new trust surface. It moves the dial, not the machinery. `Design`.
+
+**Map, done.** Updated the §0 map §7.3 line (§7.3.3 now names the corroboration dials) and the §7.4 line (§7.4.1 now also admits the formula-valued freshness threshold k) per Rule 15.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; MUST/MAY casing preserved; no mechanism or code identifier changed; cross-references (§7.2 R7, §7.3.3, §7.4, §7.4.1, §7.4.3, §7.6) resolve.
