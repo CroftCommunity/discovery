@@ -337,3 +337,21 @@ Part of the cross-suite adjudication-language codification (conventions A.11, Pa
 **Map, done.** Updated the §0 map §7.6 line per Rule 15: it now names the local authority as the receiving side and the two escalation shapes (distinct from the escalation parties), all anchored to conventions A.11.
 
 **Verification:** no em-dashes, no double-hyphens in prose; no code identifier renamed (`ForkStatus::Contradiction`/`UnderDetermined` untouched); cross-references resolve.
+
+---
+
+## Continuity decoupling and the reconciliation-horizon cadence (§7.6.2, §7.6.9, Appendix B)
+
+`Status: complete (RUN-03, 2026-07-14)`
+
+Scope: land the two design decisions made after the 2026-07-14 merge, both in §7.6, both `Design`-tagged. No mechanism changes; two paragraphs added and one Appendix B gates-release item, per the render-over-re-plant and reconciliation-horizon calls (owner-decided). DR language (conventions A.11) applied throughout: continuity-framed, no moral framing of a member's choices.
+
+**§7.6.2, done.** Added the continuity/decoupling passage immediately after the one-primitive-three-arities paragraph. It states that a member's attachment is to the Group (the lineage rooted at genesis, §5.10), never to an MLS instance, which is a disposable enforcement vessel a re-plant repoints. Two decouplings are made normative: an epoch roll carries no inherent social meaning (standing is read from the decision plane §7.3.5, never from the enforcement plane), and membership history composes over gaps (a depart-and-rejoin is one continuous relationship rendered as two spans, with §5.11 read-scoped keys making the gap substantive). Divergence is a property of folded state (§7.3), never of renders, so two members holding different narratives over identical facts is expected operation. `Design`, decided; the render layer is out of protocol scope. Design exploration: `alpha/thinking/the-shape-of-disagreement.md` and the new `alpha/thinking/reconciliation-horizon.md`.
+
+**§7.6.9, done.** Added the reconciliation-horizon cadence as a worked example of the section's temperament-dial frame, after the there-is-no-single-correct-configuration paragraph. A Group MAY set a horizon cadence (R7-governed like any rule): a boundary at which each member re-evaluates its open contradictions and MAY record a horizon checkpoint, the §7.3.3 self-checkpoint extended with a manifest of open contradiction byte-heads (§7.6.1), co-signable with unchanged §7.3.3 semantics. The cadence composes the two log-derivable streams (fire on every epoch commit; additionally on N facts since the last horizon, counter resetting at each boundary), with N a per-group temperament dial and no wall-clock in either term. The horizon gates presentation staleness, never resolution: a contradiction never expires. `Design`. Full treatment: `alpha/thinking/reconciliation-horizon.md`.
+
+**Appendix B, done.** Added one `[gates-release]` wire-encoding item alongside the existing returning-member checkpoint-encoding item: the horizon-checkpoint manifest encoding (frontier head plus the sorted set of open contradiction byte-heads that extends the §7.3.3 self-checkpoint), §7.6.9.
+
+**Map, done.** Updated the §0 map §7.6 line (§7.6.2 continuity/decoupling passage; §7.6.9 horizon-cadence worked example) and the Appendix B line (the horizon-checkpoint manifest joins the wire-encoding items) per Rule 15.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; MUST/MAY casing preserved; no mechanism or code identifier changed; cross-references (§5.10, §5.11, §7.3, §7.3.3, §7.3.5, §7.4, §7.6.1) resolve.

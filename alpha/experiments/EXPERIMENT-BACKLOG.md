@@ -95,6 +95,21 @@ in `gather_approvers`/Step 5.6 by filtering approvers below the floor before cou
 **weight-by-role** — richer, likely over-engineered for now. No recommendation without the trust-model
 owner; flagged so the next session decides deliberately rather than by omission.
 
+### 2b. EXP-H1 — horizon-manifest determinism
+
+**EXP-H1 — horizon-manifest determinism (runnable today).** The objective, no-policy half of the
+reconciliation-horizon design (`alpha/thinking/reconciliation-horizon.md`; spec landing: Part 2 §7.6.9
+horizon-cadence worked example). Two members, one contradiction; drive a **horizon boundary in both
+trigger modes** (an epoch roll, and N-facts accumulating with no epoch roll), and assert **byte-identity
+of each member's horizon manifest `(frontier head, sorted set of open contradiction byte-heads)` across
+members and across arrival orders**. The manifest carries no resolution policy and no rendered view, so
+it is the half that can be pinned as a determinism test before any Layer-2 projection machinery exists.
+**Runnable now against the mutual-expulsion contradiction** (its byte-head naming is already
+order-independent, RUN-01 EXP-4); **extends to competing-RuleChange after Phase B** lands the predicate,
+at which point the manifest simply grows one contradiction entry rather than changing shape. Cross-refs:
+`reconciliation-horizon.md` §7 (first spike), Part 2 §7.6.9 (the cadence and the manifest), Appendix B
+(`[gates-release]` horizon-checkpoint manifest encoding).
+
 ---
 
 ## 3. croft-group (shared-core / per-shell)
