@@ -7,6 +7,11 @@ part-2-certifiable-design.md `(mechanics), and` conventions-and-decisions.md `(v
 document reconciles what the code spikes actually proved against what Part 2 currently claims, and
 proposes the specific fold-backs and the remaining test surface.`
 
+> **Point-in-time reconciliation (2026-07-13); decisions recorded in §7 remain the record of those
+> calls; current roadmap: EXPERIMENT-BACKLOG.md; current evidence: SPEC-DIVERGENCE-REGISTER.md.** Not
+> maintained forward (RUN-05): F1–F8 landed (RUN-02), and the fold-backs and open decisions here are
+> superseded by the registers named above.
+
 ---
 
 ## 0. What just happened, and where things now live
