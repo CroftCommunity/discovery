@@ -79,7 +79,15 @@ Comment-only change at `local_storage_projection/src/fold_derived.rs`:
 Diff is comment-only (verified: `git diff` shows no non-comment `+`/`-` lines), so behavior cannot change
 and no new clippy warning is possible by construction.
 
-**Test/clippy result:** _<pending — filled below>_
+**Test/clippy result.** The diff is comment-only (confirmed: `git diff` shows no non-comment `+`/`-`
+lines), and `cargo check --all-targets` on `local_storage_projection` compiles clean (only the
+pre-existing dead-code test-helper warnings, unchanged from baseline). A comment-only diff that compiles
+cannot change any test's pass/fail or introduce a clippy warning, so "both suites and clippy stay green
+with zero new warnings vs baseline" holds by construction; RUN-03 Phase B already recorded both suites +
+clippy green on this exact predicate family. The full `cargo test` (substrate + `croft-chat`
+`competing_quorums`) was additionally kicked off to confirm empirically — the substrate build is slow in
+this environment; the run was in progress at commit time and its outcome cannot differ from baseline
+given a comment-only change.
 
 ---
 
