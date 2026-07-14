@@ -102,4 +102,6 @@ Part of the cross-suite adjudication-language codification (conventions A.11, Pa
 
 - **Back-map updated:** the §3 map line now lists Internet governance among the grounding disciplines.
 
+- **§2.5 gained one forward-pointer sentence** where the fork is characterized as human-adjudicated (end of the fork-not-verdict paragraph): the move has formal precedent in Internet governance's Designated Expert (§3), and the terminus differs only in distributing that role to every local authority rather than delegating it to one center. No back-map change: §2.5's map line still reads as fork-not-verdict; only an in-place cross-reference was added.
+
 **Verification:** no em-dashes, no double-hyphens in prose; quotes verbatim; cross-references resolve.

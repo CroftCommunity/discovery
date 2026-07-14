@@ -537,7 +537,10 @@ want different things, both legitimately, the protocol's last service is to make
 retroactively), not to manufacture a consensus that was never available. This is Mill's dissenter, made
 mechanical: when people irreducibly disagree about a value, the humane move is not to compute a winner
 but to stop pretending there is one. *(Realized in Part 2 §7.6; the machine's job ends at surfacing the
-contradiction with full provenance, Part 2 §8's label-not-enforce, and the humans supply utility.)*
+contradiction with full provenance, Part 2 §8's label-not-enforce, and the humans supply utility.)* The
+move has formal precedent: Internet governance names exactly this step, a person deciding inside the
+machinery, as the Designated Expert (§3); the terminus differs only in distributing that role to every
+local authority rather than delegating it to one.
 
 The fork right has a **floor and a limit**, and both matter.
 
