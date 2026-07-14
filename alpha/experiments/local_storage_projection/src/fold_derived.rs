@@ -866,6 +866,7 @@ where
                         | AssertionType::MembershipRemove
                         | AssertionType::RoleGrant
                         | AssertionType::RoleRevoke
+                        | AssertionType::RuleChange
                 ) {
                     let log = group_governance_log(&self.db, &envelope.group)?;
                     if matches!(
@@ -877,9 +878,18 @@ where
                         {
                             contradiction = Some((vec![remove_hash], label));
                         }
+                    } else if matches!(
+                        envelope.assertion_type,
+                        AssertionType::RoleGrant | AssertionType::RoleRevoke
+                    ) {
+                        if let Some((partner, label)) = detect_role_thrash(&log, envelope, &hash) {
+                            contradiction = Some((vec![partner], label));
+                        }
                     } else if let Some((partner, label)) =
-                        detect_role_thrash(&log, envelope, &hash)
+                        detect_competing_rulechange(&log, envelope, &hash)
                     {
+                        // §7.6.1 competing-RuleChange (F8): two concurrent admitted
+                        // RuleChanges on the same rule with differing values.
                         contradiction = Some((vec![partner], label));
                     }
                 }
@@ -1776,6 +1786,61 @@ fn detect_role_thrash(
         };
         if f_subject == subject
             && f_role != incoming_role
+            && crate::governance::are_concurrent(f_hash, incoming_hash, &lookup)
+        {
+            return Some((*f_hash, min_hash(*incoming_hash, *f_hash)));
+        }
+    }
+    None
+}
+
+/// The `(rule_key byte, new_value)` a `RuleChange` payload encodes, if well-formed
+/// (`rule_key ‖ new_value` — one byte then a big-endian u32, the §7.2 layout).
+fn rulechange_target(env: &AssertionEnvelope) -> Option<(u8, u32)> {
+    if env.assertion_type != AssertionType::RuleChange || env.payload.len() < 5 {
+        return None;
+    }
+    let value = u32::from_be_bytes(env.payload[1..5].try_into().ok()?);
+    Some((env.payload[0], value))
+}
+
+/// Detect a competing-RuleChange contradiction (§7.6.1, F8) for an incoming admitted
+/// `RuleChange` on rule R: an admitted, causally-concurrent RuleChange on the *same*
+/// `rule_key` whose *new_value differs* — two constitutions for R with no causal order to
+/// decide which governs, exactly the §7.6-class genuine contradiction RUN-02 F8 decided
+/// must hard-stop rather than be silently content-address-tiebroken. Two concurrent
+/// RuleChanges with the *same* value are concordant (no contradiction); RuleChanges on
+/// *different* rule_keys never conflict. Returns `(partner_hash, label)`; resolution
+/// excludes the partner and does not apply the incoming, so R keeps its pre-conflict value
+/// — no verdict on either change. Mirrors `detect_role_thrash`, and surfaces identically
+/// (`Contradiction(min_hash(...))`).
+fn detect_competing_rulechange(
+    log: &[(TypesHash, AssertionEnvelope)],
+    incoming: &AssertionEnvelope,
+    incoming_hash: &TypesHash,
+) -> Option<(TypesHash, TypesHash)> {
+    // Concurrency must be positively established (see detect_mutual_expulsion): a
+    // RuleChange with no antecedents makes no causal claim, so a bare re-set of a rule is
+    // a sequential amendment, not a contradiction.
+    if incoming.antecedents.is_empty() {
+        return None;
+    }
+    let (rule_key, new_value) = rulechange_target(incoming)?;
+    let lookup = |k: &TypesHash| -> Option<Vec<TypesHash>> {
+        if k == incoming_hash {
+            return Some(incoming.antecedents.clone());
+        }
+        log.iter().find(|(h, _)| h == k).map(|(_, e)| e.antecedents.clone())
+    };
+    for (f_hash, f) in log {
+        if f.antecedents.is_empty() {
+            continue;
+        }
+        let Some((f_key, f_value)) = rulechange_target(f) else {
+            continue;
+        };
+        if f_key == rule_key
+            && f_value != new_value
             && crate::governance::are_concurrent(f_hash, incoming_hash, &lookup)
         {
             return Some((*f_hash, min_hash(*incoming_hash, *f_hash)));
