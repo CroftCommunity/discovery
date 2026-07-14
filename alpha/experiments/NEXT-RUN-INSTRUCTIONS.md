@@ -5,6 +5,10 @@ repo while the humans merge/review the spec-alignment branch. Scoped to what run
 (no secroute boxes, no macOS/iOS hardware, no real-NAT) so it can run unattended. Everything here is
 sequenced by leverage and carries an explicit PASS/FALSIFY condition and a stop rule.`
 
+> **Superseded (RUN-05, 2026-07-14).** This is the RUN-01 operator brief; RUN-01 through RUN-04 have
+> since executed. The current run sequence and roadmap live in `alpha/experiments/RUN-0N-SUMMARY.md`,
+> `MASTER-INDEX.md`, and `EXPERIMENT-BACKLOG.md`. Retained as the historical brief; no deletions.
+
 You are continuing the Croft/Drystone experiment program. Orientation lives in `discovery/AGENTS.md`
 and the three registers in this directory: `MASTER-INDEX.md` (ordering/critical path),
 `EXPERIMENT-BACKLOG.md` (what's unrun), `SPEC-DIVERGENCE-REGISTER.md` (where a green rests on a
