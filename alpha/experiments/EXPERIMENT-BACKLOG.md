@@ -60,7 +60,7 @@ are **done and green**. What remains:
 | **X1** — live cross-host over real NAT | Convert in-process fingerprint-equality into a real-network one | Specified (`RUN.md` cross-host recipe) | secroute boxes + NAT workstation (genuinely needs real NAT) |
 | **X2** — fault injection during convergence | Kill/crash/heal mid-converge → same head, no reversion, catch-up | ✅ **DONE — all green (loopback testbed, 2026-07-13)** — `scripts/x2-fault-injection.sh` | crash-consistency + monotonic no-reversion + **catch-up** all PASS (`A head == B head`). Catch-up was first *refuted* (gossip dedups re-broadcasts) then *fixed* with a prototype nonce backfill in `iroh_bus`. See ledger Phase 7 |
 | **X3** — `cargo-mutants` re-sweep on `fold_auth`/`governance` | A surviving mutant in the authority/threshold path = a real hole in the trust claim | Substrate sweep DONE; cross-package harness open | ✅ **Substrate sweep run (RUN-01 EXP-3, 2026-07-14):** 120 mutants → 54 caught, **0 survivors in threshold-counting** (`governance.rs` 13/13), 61 survivors **all** in the cross-package-covered authorization-*decision* path (`check_authorization`/`role_ge_*`/`act_subject`/`rule_change_approval_subject`). Demonstrated a survivor (`rule_change_approval_subject→const`) is killed by `croft-chat`'s `approval_for_a_different_change_does_not_count`. No real hole found. See `local_storage_projection/X3-CROSS-PACKAGE-SWEEP.md`. **Remaining:** the *automated* cross-package harness (mutate substrate while running `croft-chat`'s suite so all 61 survivors resolve mechanically) — separate crates/`Cargo.lock`, budgets the slow consumer suite. |
-| **Fold open items** | ~~RuleChange thresholds~~ (✅ done); ~~contradicted-group byte-head naming~~ (✅ **done, RUN-01 EXP-4** — `competing_quorums.rs::contradicted_group_byte_head_is_min_hash_order_independent`: the byte-head is exactly `min(H(F),H(G))`, order-independent); **two-competing-quorums** → **decided (RUN-02 F8): §7.6-class genuine contradiction, hard-stop + grounded contradiction statement in governance language, never a content-address tiebreak (§7.3.2 / §7.6.1)**; the experiment F8 said would earn the evidence tag **has now run — RUN-01 EXP-4: ⚠️ FALSIFIED** (impl currently auto-resolves order-dependently; a confirmed impl gap vs. the decided spec — see §2a); per-act approver-role granularity (**undecided design** — see §2a); live "catching up…" TUI indicator (App holds no Replicator; UX, skipped unattended) | Byte-head done; competing-quorum decided + impl gap confirmed; approver-role open | — |
+| **Fold open items** | ~~RuleChange thresholds~~ (✅ done); ~~contradicted-group byte-head naming~~ (✅ **done, RUN-01 EXP-4** — `competing_quorums.rs::contradicted_group_byte_head_is_min_hash_order_independent`: the byte-head is exactly `min(H(F),H(G))`, order-independent); **two-competing-quorums** → **decided (RUN-02 F8): §7.6-class genuine contradiction, hard-stop + grounded contradiction statement in governance language, never a content-address tiebreak (§7.3.2 / §7.6.1)**; the experiment F8 said would earn the evidence tag **has now run — RUN-01 EXP-4: ⚠️ FALSIFIED** (impl currently auto-resolves order-dependently; a confirmed impl gap vs. the decided spec — see §2a); per-act approver-role granularity (**undecided design** — see §2a); live "catching up…" TUI indicator (App holds no Replicator; UX, skipped unattended); the competing-RuleChange **impl gap is now closed — RUN-03 Phase B** (`detect_competing_rulechange`; register row Reconciled; see §2a) | Byte-head done; competing-quorum decided + impl gap **closed (RUN-03)**; approver-role open | — |
 
 ### 2a. Fold findings from RUN-01 EXP-4
 
@@ -82,6 +82,20 @@ F8's "hard-stop, never tiebreak". (B) a broader **same-subject** predicate keyed
 option is now ruled out — F8 requires hard-stop-and-adjudicate, not silent rejection.)* Recommend (A):
 narrowest escalation surface, and it is the direct realization of F8.
 
+> **RESOLVED — impl gap closed (RUN-03 Phase B).** Option (A) landed:
+> `fold_derived::detect_competing_rulechange` extends the concurrent-contradiction predicate family
+> (mutual-expulsion / removed-then-included / role-thrash) with the narrowest F8 form — two concurrent
+> **admitted** RuleChanges on the **same `rule_key`** with **differing `new_value`** hard-stop, surfaced
+> identically as `contradiction:{min(H(F),H(G))}`, with the rule left at its pre-conflict value (no
+> verdict). Same rule_key + same value is concordant; different rule_keys never conflict. The refutation
+> pin `two_competing_rulechange_quorums` flipped RED→GREEN and now asserts both fold orders are identical
+> (byte-identical contradiction status; `add_member_threshold` unchanged at the pre-conflict `1`); two
+> negative cases (`concurrent_same_value_rulechanges_are_concordant`,
+> `concurrent_disjoint_rulekey_rulechanges_do_not_conflict`) added and green. Register row
+> `competing-quorum-autoresolve` moved Active → Reconciled (§7.3.2 / §7.6.1, F8; RUN-03). **Still open:**
+> per-act approver-role granularity (below) stays a design call, untouched by this run. **EXP-H1** (§2b)
+> can now include a competing-RuleChange entry in its horizon manifest alongside the mutual-expulsion one.
+
 **FINDING — approver-role granularity is role-agnostic (still undecided design — do not decide
 autonomously).** Step 5.6 counts distinct approver personae **by lineage regardless of role** — a
 Member's `Approval` currently counts toward a RuleChange or RoleGrant quorum the same as an Admin's.
@@ -94,6 +108,21 @@ each act type carries a minimum approver role (e.g. RuleChange/RoleGrant need Ad
 in `gather_approvers`/Step 5.6 by filtering approvers below the floor before counting. (C)
 **weight-by-role** — richer, likely over-engineered for now. No recommendation without the trust-model
 owner; flagged so the next session decides deliberately rather than by omission.
+
+### 2b. EXP-H1 — horizon-manifest determinism
+
+**EXP-H1 — horizon-manifest determinism (runnable today).** The objective, no-policy half of the
+reconciliation-horizon design (`alpha/thinking/reconciliation-horizon.md`; spec landing: Part 2 §7.6.9
+horizon-cadence worked example). Two members, one contradiction; drive a **horizon boundary in both
+trigger modes** (an epoch roll, and N-facts accumulating with no epoch roll), and assert **byte-identity
+of each member's horizon manifest `(frontier head, sorted set of open contradiction byte-heads)` across
+members and across arrival orders**. The manifest carries no resolution policy and no rendered view, so
+it is the half that can be pinned as a determinism test before any Layer-2 projection machinery exists.
+**Runnable now against the mutual-expulsion contradiction** (its byte-head naming is already
+order-independent, RUN-01 EXP-4); **extends to competing-RuleChange after Phase B** lands the predicate,
+at which point the manifest simply grows one contradiction entry rather than changing shape. Cross-refs:
+`reconciliation-horizon.md` §7 (first spike), Part 2 §7.6.9 (the cadence and the manifest), Appendix B
+(`[gates-release]` horizon-checkpoint manifest encoding).
 
 ---
 

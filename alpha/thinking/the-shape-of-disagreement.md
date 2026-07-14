@@ -298,6 +298,15 @@ everything else*. Making rule-change forks sound is making the contract-negotiat
 > What stays a design frontier is the *broader* picture: which acts fork vs. floor (the meta-dial), and
 > the whole of Layer 2 (the resolution ACL). F8 decided the *freeze*; it did not decide the *projection*.
 
+> **Note (2026-07-14, continuity resolution).** The §7.6-versus-projection tension is resolved as
+> *render over re-plant*, not a new protocol mode: at the protocol layer every fork IS a re-plant
+> (MLS absorbs members or instantiates fresh groups; there is no merge; there is always an epoch
+> change), and none of that binds a member's attachment to the Group object, which lives in the
+> lineage. Even `multi_home` reduces cleanly: membership in both re-planted groups — two ordinary
+> groups sharing an immutable prefix. Part 2 now carries the decoupling explicitly (the §7.6
+> continuity passage), and the Layer-2 evaluation cadence is designed in
+> `reconciliation-horizon.md`. Steps 3–5 below remain the design frontier.
+
 The work, in order:
 
 1. **Make Layer 1 total (un-gated).** Generalize the concurrency-plus-conflict detector so *every* act
