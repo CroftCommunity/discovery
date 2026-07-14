@@ -288,8 +288,17 @@ single lucky winner is.
 
 The competing-quorum bug is not a corner case to defer — it is *the* case, because the fork-handling
 contract lives in the rules, and concurrent edits to the rules are concurrent edits to *how you handle
-everything else*. Making rule-change forks sound is making the contract-negotiation layer sound. The
-work, in order:
+everything else*. Making rule-change forks sound is making the contract-negotiation layer sound.
+
+> **Note (RUN-02 F8).** The parallel RUN-02 already *decided* the specific competing-quorum case at the
+> spec level — two quorum-met RuleChanges to one rule are a §7.6-class genuine contradiction that
+> **must hard-stop, human-adjudicated, never content-address-tiebroken** (§7.3.2 / §7.6.1). That is
+> precisely this note's Layer-1 principle ("all conflicts freeze") applied to one act type. So step 1
+> below is no longer a design question for RuleChange — it is decided, and un-gated *implementation*.
+> What stays a design frontier is the *broader* picture: which acts fork vs. floor (the meta-dial), and
+> the whole of Layer 2 (the resolution ACL). F8 decided the *freeze*; it did not decide the *projection*.
+
+The work, in order:
 
 1. **Make Layer 1 total (un-gated).** Generalize the concurrency-plus-conflict detector so *every* act
    type that can concurrently contradict — including competing RuleChange — freezes and produces a

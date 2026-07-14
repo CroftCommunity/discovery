@@ -2,7 +2,16 @@
 
 `Branch: claude/experiments-run-01 (off origin/main). Date: 2026-07-14. Executed the queue in
 alpha/experiments/NEXT-RUN-INSTRUCTIONS.md, scoped to this environment (loopback iroh, no secroute
-boxes, no macOS/iOS hardware). One commit per experiment. No PR opened — the branch is ready for review.`
+boxes, no macOS/iOS hardware). One commit per experiment.`
+
+> **Reconciliation with RUN-02 (added when merging into main).** A parallel **RUN-02** landed on `main`
+> and folded the F1–F8 reconciliation into Part 2 — including **F8**, which *decided* the
+> two-competing-quorums case: it **must hard-stop, human-adjudicated, never content-address-tiebroken**.
+> RUN-01 EXP-4 is exactly the experiment F8 flagged as pending, and it confirmed the current
+> implementation *violates* that decision (auto-resolves). So wherever this summary calls the
+> competing-quorum item "design-gated," read it as **implementation-gated: the design is decided (F8);
+> what remains is building the predicate** (which *shape* is an implementation choice — backlog §2a).
+> Per-act approver-role granularity remains a genuinely open design question.
 
 ## Environment preflight (recorded)
 

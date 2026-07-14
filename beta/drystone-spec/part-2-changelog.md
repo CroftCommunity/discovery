@@ -293,3 +293,31 @@ Worked the remaining checkable `[confirm]` items against primaries and cleared e
 **What remains `[confirm]`, correctly:** the pre-1.0 iroh crate version pins (production profile's to fix), the DMLS working-group draft revision (moves, and only tracked not depended on), the Pkarr spec, the Keyhive canonical location, and the internal design decisions (MLS hard-case residuals, history-mode threads, capped-root test coverage). No checkable fact-verification marker is left open.
 
 **Verification:** no em-dashes, no double-hyphens in prose, no "PrincipalSet."
+
+---
+
+## Pass: 2026-07 real-substrate experiment reconciliation
+
+`Status: complete (RUN-02, 2026-07-13)`
+
+Scope: fold the reconciled results of the 2026-07 real-substrate spike corpus (imported into `alpha/experiments/`) into Part 2, per the reviewed diff set `proposed-changes-2026-07-experiment-reconciliation.md` (items F1 through F8). The two `needs-call` items were answered by the owner, and F8 was added as a new decision this run. Each item cites the experiment that earns it; the divergence register and the reviews-and-experiments log carry the evidence.
+
+**§7.2, done.** Added **R7, content-bound quorum for policy changes**, the one genuinely new mechanism this pass (a grep of the prior spec for rulechange returned nothing). A policy change (a threshold or a rule) is admitted only when k distinct personae by lineage each author an approval fact referencing the content hash of the exact change, so the quorum is enforced at fold time rather than merely stored. Three semantics are pinned as normative: the prior rule governs (the threshold consulted is the one in force at the act's causal position, so a proposer cannot lower the gate with the gated act), under-quorum is pending rather than partial (approvals are antecedent governance facts, and an enacting act without sufficient matching approvals is rejected deterministically), and the approval subject is the digest of the canonical payload bytes (§4.6), not of the enclosing fact envelope. R7 is R3 generalized from membership and role revocation to rule changes. Two residuals are recorded alongside it: a hard-coded role-authorship gate (a spike simplification; per-act approver-role granularity stays open) and the two-competing-quorums case (F8). `Modeled`, pending the X3 cross-package mutation sweep. (F1.)
+
+**§7.3, done.** Added a cross-reference at the §7.3.1 authorization precondition pointing policy-change threshold enforcement, the approval subject, and the prior-rule-governs semantics to §7.2 R7 (F1). At §7.3.2, recorded the two-competing-quorums decision (F8): two concurrent policy changes to the same rule that each meet quorum are a §7.6-class genuine contradiction, hard-stopped and human-adjudicated, never content-address-tiebroken, because a silently losing rule rewrites the Group's constitution downstream with the disagreement never seen, manufacturing a utility verdict Part 1 §2.5 forbids. `Design`, decided; no evidence tag until the two-competing-quorums experiment runs.
+
+**§7.6, done.** §7.6.1's contradiction enumeration gained the R7 quorum-collision as a third example of too-many-valid-claims (F8). §7.6.2's re-plant paragraph gained a corroboration: the membership half is `Verified` (an MLS group stamped over the fold-derived set has exactly that set as its cryptographic membership, across genesis, authorized adds, real removals, and rejected unauthorized changes, driven through the real fold-ingest path on real openmls 0.8.1), while the message-continuity half stays open pending the dataplane hash structures (Appendix B / B1) (F2).
+
+**§8.2, done.** Tightened two honesty boundaries. Clause (e): policy-change quorum enforcement is now test-run (RED to GREEN, §7.2 R7), with the freshness precondition on originating such an op (§7.4.2) still not exercised over live transport (F1). Clause (a): freshness is demonstrated over loopback live transport (2-node and 4-node real iroh-gossip convergence to identical fingerprints) but not yet over the relay plus holepunch real-NAT path, which needs live NAT traversal (X1) (F5).
+
+**§6.8.1, done.** Annotated the RBSR-construction line: connect-time catch-up was demonstrated over real iroh-gossip (a late joiner reaches an identical head on NeighborUp) but via a whole-retained-log re-broadcast, a coarser push cousin of RBSR rather than the diff-only range reconciliation itself, and steady-state anti-entropy stays unexercised. Both remain open (F3). The annotation removes a possible over-read rather than adding a claim.
+
+**§11.11, done.** Annotated measurement #1: the per-commit band is now measured on real openmls 0.8.1 (an O(N) floor to an O(log N) ceiling per commit; `mls-replant` M1), while the fan-out half stays unearned though runnable with no new infrastructure. The measurement moves from unearned to half-earned (F4). The §11.12 posture table is untouched.
+
+**§10.5, done.** Added a conformance-vector footnote beneath the dependency-versus-realization ledger: conformance categories 7/8/9 (attributable acceptance, visibility, freshness) and the revoke-authority-threshold vector are specified but not yet emitted, gated on MLS key-distribution over the wire and threshold-revoke as real k-of-n over the wire (F7). No ledger row unambiguously covers the conformance vectors, so no row was annotated.
+
+**F6, no change.** §7.6.3's ReInit-stranding `[confirm]` stands: `mls-replant`'s last-resort-availability result (E12.6) shows a re-plant can be completed from the chain (availability) but does not establish the intent-recorded-before-freeze ordering the discharge requires. Recorded so E12.6 is not mistaken for the discharge.
+
+**Map, done.** Updated the §0 map entries for §6, §7.1/§7.2, §7.3, §7.6, §8, §10, and §11 per Rule 15.
+
+**Verification:** no em-dashes, no double-hyphens in prose, no "PrincipalSet"; every F-item reflected, the F6 non-change recorded.

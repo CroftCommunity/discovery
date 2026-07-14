@@ -235,21 +235,44 @@ Now that experiments live in this repo, the honesty contract travels with them:
    its own `alpha/beta/rc/publish` staging language in `REPO-README.md`; decide whether that collapses
    into discovery's staging or is dropped.)
 
+   **Decided (RUN-02, 2026-07-13):** `alpha/experiments/` is confirmed as the home; the standalone
+   `experiments/` repo is to be **frozen/retired** so there is one source of truth. The actual freeze
+   happens outside RUN-02 (this run is markdown-only); the decision is recorded here.
+
 2. **Fold now vs later.** Of the F1–F7 spec edits in §4, which land in Part 2 now vs stage in the
    reviews-and-experiments log pending a review pass? F1 (RuleChange enforcement mechanism) is the one
    genuinely-missing mechanism; the rest are status moves and caveats.
+
+   **Decided (RUN-02, 2026-07-13):** executed by RUN-02. F1 (R7) landed in §7.2 at `Modeled`; F2
+   through F7 landed as status moves and caveats, and F8 (the two-competing-quorums decision) was added
+   this run. See the Part 2 changelog pass "2026-07 real-substrate experiment reconciliation" and
+   `RUN-02-SUMMARY.md`.
 
 3. **croft-group L2–L5.** Build on the proven Drystone crates (F1 `local_storage_projection` / F3
    `mls-replant`) or re-implement in the shared-shell architecture? The backlog flags the overlap;
    deciding avoids proving the same mechanics twice.
 
+   **Decided (RUN-02, 2026-07-13):** croft-group L2 through L5 **reuse** the proven Drystone crates.
+   Reuse is a **condition of considered compatibility**: a re-implementation of the same mechanics does
+   not count as compatible.
+
 4. **Identity / key-recovery model.** The largest open design problem (quorum social recovery vs VC
    issuer). Kept out of autonomous work by design — it needs your call before the BIP39 spike is more
    than a first step.
 
+   **Decided (RUN-02, 2026-07-13):** the "largest open design problem" framing is stale. Correcting it:
+   `beta/drystone-spec/open-threads.md` records a **direction confirmed 2026-07-07**, build the lock now
+   (a threshold across independent trust domains), with the trust predicate treated as a
+   per-deployment / per-persona policy rather than a protocol constant. Only the **trust-predicate
+   design** remains open; the BIP39 paper-recovery round-trip spike is the Tier-1 first step.
+
 5. **X1 boxes.** Real-NAT convergence is the only path to closing the last active spec-delta
    (`hermetic-gossip`) and the §8.2(a) relay honesty boundary. Worth deciding whether to provision the
    secroute boxes now or hold the boundary open.
+
+   **Decided (RUN-02, 2026-07-13):** X1 (the real-NAT relay path) stays an **open honesty boundary**;
+   no hardware provisioning is implied now. The `hermetic-gossip` delta and the §8.2(a) relay boundary
+   stay open until X1 runs.
 
 ---
 
