@@ -60,37 +60,40 @@ are **done and green**. What remains:
 | **X1** — live cross-host over real NAT | Convert in-process fingerprint-equality into a real-network one | Specified (`RUN.md` cross-host recipe) | secroute boxes + NAT workstation (genuinely needs real NAT) |
 | **X2** — fault injection during convergence | Kill/crash/heal mid-converge → same head, no reversion, catch-up | ✅ **DONE — all green (loopback testbed, 2026-07-13)** — `scripts/x2-fault-injection.sh` | crash-consistency + monotonic no-reversion + **catch-up** all PASS (`A head == B head`). Catch-up was first *refuted* (gossip dedups re-broadcasts) then *fixed* with a prototype nonce backfill in `iroh_bus`. See ledger Phase 7 |
 | **X3** — `cargo-mutants` re-sweep on `fold_auth`/`governance` | A surviving mutant in the authority/threshold path = a real hole in the trust claim | Substrate sweep DONE; cross-package harness open | ✅ **Substrate sweep run (RUN-01 EXP-3, 2026-07-14):** 120 mutants → 54 caught, **0 survivors in threshold-counting** (`governance.rs` 13/13), 61 survivors **all** in the cross-package-covered authorization-*decision* path (`check_authorization`/`role_ge_*`/`act_subject`/`rule_change_approval_subject`). Demonstrated a survivor (`rule_change_approval_subject→const`) is killed by `croft-chat`'s `approval_for_a_different_change_does_not_count`. No real hole found. See `local_storage_projection/X3-CROSS-PACKAGE-SWEEP.md`. **Remaining:** the *automated* cross-package harness (mutate substrate while running `croft-chat`'s suite so all 61 survivors resolve mechanically) — separate crates/`Cargo.lock`, budgets the slow consumer suite. |
-| **Fold open items** | ~~RuleChange thresholds~~ (✅ done); ~~contradicted-group byte-head naming~~ (✅ **done, RUN-01 EXP-4** — `competing_quorums.rs::contradicted_group_byte_head_is_min_hash_order_independent`: the byte-head is exactly `min(H(F),H(G))`, order-independent); **two-competing-quorums → §7.6.1** (⚠️ **FALSIFIED, RUN-01 EXP-4** — see finding row below); per-act approver-role granularity (**design-gated** — see finding row below); live "catching up…" TUI indicator (App holds no Replicator; UX, skipped unattended) | Partially done; 2 design-gated | — |
+| **Fold open items** | ~~RuleChange thresholds~~ (✅ done); ~~contradicted-group byte-head naming~~ (✅ **done, RUN-01 EXP-4** — `competing_quorums.rs::contradicted_group_byte_head_is_min_hash_order_independent`: the byte-head is exactly `min(H(F),H(G))`, order-independent); **two-competing-quorums** → **decided (RUN-02 F8): §7.6-class genuine contradiction, hard-stop + grounded contradiction statement in governance language, never a content-address tiebreak (§7.3.2 / §7.6.1)**; the experiment F8 said would earn the evidence tag **has now run — RUN-01 EXP-4: ⚠️ FALSIFIED** (impl currently auto-resolves order-dependently; a confirmed impl gap vs. the decided spec — see §2a); per-act approver-role granularity (**undecided design** — see §2a); live "catching up…" TUI indicator (App holds no Replicator; UX, skipped unattended) | Byte-head done; competing-quorum decided + impl gap confirmed; approver-role open | — |
 
-### 2a. Fold findings from RUN-01 EXP-4 (design-gated — do not decide autonomously)
+### 2a. Fold findings from RUN-01 EXP-4
 
-**FINDING — competing RuleChange quorums auto-resolve (§7.6.1 gap).** RUN-01 EXP-4 refuted the
-competing-quorum case: two concurrent conflicting RuleChanges on the same rule, each carrying a valid
-k-of-n quorum, **silently auto-resolve order-dependently** (last-folded wins; `fork="clean"`, no
-hard-stop) — an I5 violation on exactly the shape §7.6 says must escalate. Pinned by
+**FINDING — competing RuleChange quorums auto-resolve (§7.6.1). Design decided (RUN-02 F8); this is now
+an implementation gap.** RUN-01 EXP-4 is exactly the experiment F8 said would earn the fold's evidence
+tag, and it **refuted the current implementation**: two concurrent conflicting RuleChanges on the same
+rule, each carrying a valid k-of-n quorum, **silently auto-resolve order-dependently** (last-folded
+wins; `fork="clean"`, no hard-stop) — an I5 violation on the shape §7.6 says must escalate. Pinned by
 `competing_quorums.rs::two_competing_rulechange_quorums` (refutation) and register row
-`competing-quorum-autoresolve`. **Why it's here and not fixed:** the fold's contradiction predicate set
-(mutual-expulsion, removed-then-included, role-thrash — see `2026-07-12-1-design-concurrent-contradiction.md`)
-does not cover RuleChange, and adding a predicate is a **design decision**. *Options for the human:*
-(A) a **same-rule-different-value** predicate: two concurrent RuleChanges whose `(rule_key)` matches and
-`new_value` differs → `Contradiction`, byte-head `min(H(F),H(G))`, retain the pre-change rule value (no
-verdict); narrowest, mirrors mutual-expulsion. (B) a broader **same-subject** predicate keyed on the
-`rule_change_approval_subject` content hash (any two concurrent changes to the same rule slot). (C)
-**causal-order-only**: require RuleChanges to a given rule to be totally ordered (reject a concurrent
-second as incomplete) — shifts the cost to the client. Recommend (A) first (exact, symmetric, smallest
-escalation surface), matching the design note's "implement the narrowest shape first" discipline.
+`competing-quorum-autoresolve`. **The design is not open — RUN-02 F8 decided it** (a §7.6-class genuine
+contradiction, hard-stopped, never content-address-tiebroken; §7.3.2 / §7.6.1). What remains is
+**implementation**: extend the fold's contradiction predicate set (mutual-expulsion, removed-then-included,
+role-thrash — `2026-07-12-1-design-concurrent-contradiction.md`) to cover RuleChange. The remaining choice
+is *which predicate shape* (an implementation call, not a design one): (A) **same-rule-different-value** —
+two concurrent RuleChanges whose `rule_key` matches and `new_value` differs → `Contradiction`, byte-head
+`min(H(F),H(G))`, retain the pre-change value (no verdict); narrowest, mirrors mutual-expulsion, and matches
+F8's "hard-stop, never tiebreak". (B) a broader **same-subject** predicate keyed on the
+`rule_change_approval_subject` content hash. *(An earlier "causal-order-only / reject-as-incomplete"
+option is now ruled out — F8 requires hard-stop-and-adjudicate, not silent rejection.)* Recommend (A):
+narrowest escalation surface, and it is the direct realization of F8.
 
-**FINDING — approver-role granularity is role-agnostic (undecided).** Step 5.6 counts distinct approver
-personae **by lineage regardless of role** — a Member's `Approval` currently counts toward a RuleChange
-or RoleGrant quorum the same as an Admin's. Whether an act's quorum should require approvers holding a
-minimum role *for that act* is an **undecided design question** (the spec's R-series is
-mechanism-neutral; nothing decides approver role-gating). Not tested/implemented here — deciding it is a
-trust-model call. *Options for the human:* (A) **role-agnostic** (status quo — any member's approval
-counts; simplest, but a low-privilege member can help meet a high-privilege quorum). (B) **per-act role
-floor** — each act type carries a minimum approver role (e.g. RuleChange/RoleGrant need Admin+
-approvers), enforced in `gather_approvers`/Step 5.6 by filtering approvers below the floor before
-counting. (C) **weight-by-role** — richer, likely over-engineered for now. No recommendation without
-the trust-model owner; flagged so the next session decides deliberately rather than by omission.
+**FINDING — approver-role granularity is role-agnostic (still undecided design — do not decide
+autonomously).** Step 5.6 counts distinct approver personae **by lineage regardless of role** — a
+Member's `Approval` currently counts toward a RuleChange or RoleGrant quorum the same as an Admin's.
+Whether an act's quorum should require approvers holding a minimum role *for that act* is an **undecided
+design question** (the spec's R-series is mechanism-neutral; nothing decides approver role-gating; RUN-02
+R7 explicitly lists it as an open residual). Not tested/implemented here — deciding it is a trust-model
+call. *Options for the human:* (A) **role-agnostic** (status quo — any member's approval counts;
+simplest, but a low-privilege member can help meet a high-privilege quorum). (B) **per-act role floor** —
+each act type carries a minimum approver role (e.g. RuleChange/RoleGrant need Admin+ approvers), enforced
+in `gather_approvers`/Step 5.6 by filtering approvers below the floor before counting. (C)
+**weight-by-role** — richer, likely over-engineered for now. No recommendation without the trust-model
+owner; flagged so the next session decides deliberately rather than by omission.
 
 ---
 
@@ -110,6 +113,11 @@ L1–L6 sequenced, not built. Each gets its own plan.
 > Note the overlap with §2: croft-group L2–L5 re-derive, in the shared-shell architecture, mechanics
 > the Drystone line has already proven in `local_storage_projection`/`mls-replant`. Worth deciding
 > whether L-series builds on those crates rather than re-implementing.
+>
+> **Decided (RUN-02, 2026-07-13):** croft-group L2–L5 **reuse** the proven Drystone crates. Reuse is a
+> **condition of considered compatibility**: a re-implementation of the same mechanics does not count as
+> compatible, so L2–L5 build on `local_storage_projection`/`mls-replant` rather than proving the same
+> mechanics twice.
 
 ---
 
