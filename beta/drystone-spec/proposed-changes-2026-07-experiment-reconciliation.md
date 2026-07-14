@@ -260,6 +260,16 @@ MLS-key-distribution-over-wire and threshold-revoke-over-wire.
 table and I'd rather you point me at the exact row to touch than guess the cell format. If you want it
 in, say where and I'll render the precise diff.
 
+**RUN-01 EXP-5 assessment (no cats moved).** EXP-5 targeted exactly these gaps. Finding: the
+**MLS-key-distribution-over-wire** half is **already realized in a spike** (`iroh/crates/mls-welcome-over-iroh`
+— a real openmls Welcome over a real iroh connection; the joiner derives the identical exporter secret +
+lineage fold from the wire), so "the modeled registry" is made real there, though not yet wired into
+conformance emission. The **threshold-revoke-over-wire** half is **design-gated** (the revocation-authority
+model — who-may-revoke / the k-of-n dial / key discovery; MASTER-INDEX I9) and was **stopped, not
+improvised**, per the brief's EXP-5 stop rule (options A/B/C in backlog §6d-i). So conformance cats 7/8/9
+and the revoke-authority vector **remain not-yet-emitted** — the F7 annotation stands unchanged, now with
+a named blocker (the revocation-authority decision) rather than an open "TBD".
+
 ---
 
 ## Summary table

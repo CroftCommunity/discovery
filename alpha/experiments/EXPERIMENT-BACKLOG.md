@@ -163,10 +163,31 @@ The *running form* of E8/E9/E11/E12. P0/P1 (Tier-0 blind mirror) done.
 ### 6d. Faithful follow-ons + conformance gaps (production, TDD)
 | Item | For | Maturity | Blocked on |
 |---|---|---|---|
-| **MLS key-distribution over the wire** | make the modeled verifying-key registry a real over-iroh distribution (standing FAITHFUL honesty boundary) | Specified | — |
-| **Threshold revoke-authority as real k-of-n over the wire** | replace the MD-G5 sha-256 MAC stand-in with a genuine k-of-n authority signature | Specified | — |
-| **Conformance vectors cats 7/8/9** (AR / visibility / freshness) | recorded `not_yet_emitted`; revoke-authority-threshold vector is a `PLACEHOLDER` | Sketched | the k-of-n work above |
+| **MLS key-distribution over the wire** | make the modeled verifying-key registry a real over-iroh distribution (standing FAITHFUL honesty boundary) | **Realized in spike** — `iroh/crates/mls-welcome-over-iroh` distributes a REAL openmls Welcome over a real iroh connection; joiner derives the identical MLS exporter secret + identical lineage fold from the wire-delivered Welcome. Not yet wired into conformance emission | RUN-01 EXP-5 assessment: the *mechanism* exists; emitting cats 7/8/9 from it is the remaining integration (see below) |
+| **Threshold revoke-authority as real k-of-n over the wire** | replace the MD-G5 sha-256 MAC stand-in with a genuine k-of-n authority signature | **DESIGN-GATED — RUN-01 EXP-5 stop (see finding row §6d-i)** | **A design decision** (the revocation-authority model: who-may-revoke, the k-of-n dial, key discovery / trust root) — `iroh/TEST-LOG.md` MD-G5 note: "the next layer up, NOT in this spike"; design lives in the sibling `discovery/thinking/revocation-authority.md` (out of this workspace). Not improvised. |
+| **Conformance vectors cats 7/8/9** (AR / visibility / freshness) | recorded `not_yet_emitted`; revoke-authority-threshold vector is a `PLACEHOLDER` | Sketched — **no cats moved in RUN-01** (EXP-5 stopped at the design gate) | the k-of-n work above (which is design-gated) |
 | **Domain-tagged pre-image reconciliation** | decide whether `lineage-core` (plain sha256) + the iroh spike adopt CROFT-PROTOCOL §2 domain-tagged genesis/topic pre-images | Sketched | — |
+
+**§6d-i — FINDING / DESIGN GATE (RUN-01 EXP-5, do not decide autonomously).** EXP-5 asked to replace the
+modeled verifying-key registry with real over-iroh key distribution **and** the sha-256 MAC revoke
+stand-in with a real k-of-n threshold signature, then emit conformance cats 7/8/9 + the revoke-authority
+vector. Assessment: **half 1 is already realized in a spike** (`mls-welcome-over-iroh` — real Welcome
+over real iroh, matching exporter secret + fold); **half 2 hits a design gate** and was **stopped, not
+improvised** (brief's explicit EXP-5 stop rule). The gate is the **revocation-authority model**, which
+is the identity/key-recovery problem (§6g / MASTER-INDEX I9) applied to revoke: *who may revoke, at what
+k-of-n, and how the threshold signers' keys are discovered/trusted over the wire.* *Options for the
+human:* (A) **quorum-of-Ed25519** — a revoke is authorized by k independent Ed25519 signatures over the
+revoke fact, counted as distinct personae by lineage exactly like the fold's k-of-n governance path
+(reuses the proven `count_personae_by_lineage`/approval-subject mechanism; no new crypto; the signer set
+is the current admin/owner set derived from the fold — no separate trust root). (B) **true threshold
+signature** (e.g. FROST) — one aggregate signature, needs a distributed key-gen ceremony and a threshold
+group whose membership + key distribution is itself a design (heavier, and the DKG trust root is the
+open identity problem). (C) **defer** — keep the MAC stand-in tagged until the identity/key-recovery
+decision (I9) lands, then build revoke on top. Recommend **(A)** — it composes on the already-verified
+governance k-of-n and needs no new trust root, so it is the one that is *not* blocked on I9; but it is
+still a spec/trust decision (does a revoke reuse the governance quorum, or is revoke-authority a
+separate role?) and so is left for the human. Once decided, emitting cats 7/8/9 + the revoke-authority
+vector is downstream integration, not a new gate.
 
 ### 6e. Smaller open-edges (spike-class, RESUME §8 E)
 `metadata-leak-under-failed-ops` · E6 steady-state goodput + bandwidth-cap · E7 churn storm ·
