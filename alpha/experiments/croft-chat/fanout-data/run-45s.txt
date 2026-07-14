@@ -1,0 +1,46 @@
+===================== N=2 =====================
+node1  metrics live_sent=5 resync_sent=3 received=1 head_ms=775 converged_ms=775
+node2  metrics live_sent=5 resync_sent=0 received=4 head_ms=300 converged_ms=300
+-- fingerprints (must all match) --
+      2 fingerprint 844aafffcdb82f5b (pending 0, settled)
+===================== N=4 =====================
+node1  metrics live_sent=9 resync_sent=15 received=3 head_ms=1048 converged_ms=1048
+node2  metrics live_sent=9 resync_sent=0 received=18 head_ms=867 converged_ms=867
+node3  metrics live_sent=9 resync_sent=0 received=13 head_ms=877 converged_ms=877
+node4  metrics live_sent=9 resync_sent=0 received=8 head_ms=857 converged_ms=857
+-- fingerprints (must all match) --
+      4 fingerprint 7f2f1ac03936657f (pending 0, settled)
+===================== N=8 =====================
+node1  metrics live_sent=17 resync_sent=64 received=7 head_ms=1099 converged_ms=1099
+node2  metrics live_sent=17 resync_sent=0 received=71 head_ms=1060 converged_ms=NA
+node3  metrics live_sent=17 resync_sent=0 received=26 head_ms=1043 converged_ms=NA
+node4  metrics live_sent=17 resync_sent=0 received=35 head_ms=1077 converged_ms=NA
+node5  metrics live_sent=17 resync_sent=0 received=71 head_ms=1022 converged_ms=1022
+node6  metrics live_sent=17 resync_sent=0 received=53 head_ms=1013 converged_ms=NA
+node7  metrics live_sent=17 resync_sent=0 received=44 head_ms=1029 converged_ms=NA
+node8  metrics live_sent=17 resync_sent=0 received=53 head_ms=1030 converged_ms=NA
+-- fingerprints (must all match) --
+      2 fingerprint 8c62228365d71143 (pending 0, settled)
+      2 fingerprint 8c62228365d71143 (pending 10, catching up)
+      4 fingerprint 8c62228365d71143 (pending 9, catching up)
+===================== N=16 =====================
+node1  metrics live_sent=33 resync_sent=479 received=30 head_ms=3160 converged_ms=NA
+node2  metrics live_sent=33 resync_sent=0 received=477 head_ms=3083 converged_ms=NA
+node3  metrics live_sent=33 resync_sent=0 received=484 head_ms=3198 converged_ms=NA
+node4  metrics live_sent=33 resync_sent=0 received=329 head_ms=2980 converged_ms=NA
+node5  metrics live_sent=33 resync_sent=0 received=494 head_ms=3153 converged_ms=NA
+node6  metrics live_sent=33 resync_sent=0 received=337 head_ms=2973 converged_ms=NA
+node7  metrics live_sent=33 resync_sent=17 received=494 head_ms=3174 converged_ms=NA
+node8  metrics live_sent=33 resync_sent=0 received=409 head_ms=3075 converged_ms=NA
+node9  metrics live_sent=33 resync_sent=0 received=494 head_ms=3114 converged_ms=NA
+node10 metrics live_sent=33 resync_sent=0 received=333 head_ms=3141 converged_ms=NA
+node11 metrics live_sent=33 resync_sent=0 received=409 head_ms=3124 converged_ms=NA
+node12 metrics live_sent=33 resync_sent=0 received=333 head_ms=3103 converged_ms=NA
+node13 metrics live_sent=33 resync_sent=0 received=336 head_ms=3037 converged_ms=NA
+node14 metrics live_sent=33 resync_sent=0 received=401 head_ms=3177 converged_ms=NA
+node15 metrics live_sent=33 resync_sent=0 received=494 head_ms=3040 converged_ms=NA
+node16 metrics live_sent=33 resync_sent=0 received=283 head_ms=3111 converged_ms=NA
+-- fingerprints (must all match) --
+      1 fingerprint 3506d83c60353197 (pending 11, catching up)
+      5 fingerprint 3506d83c60353197 (pending 17, catching up)
+     10 fingerprint 3506d83c60353197 (pending 18, catching up)
