@@ -37,3 +37,15 @@ Stage 3 (adversarial scheduler, equivocation surfacing a fork, bounded model che
 Beam status: unchanged, `Load-bearing, unearned`. The experiment demonstrates completeness behind a checkpoint (referenced-gap detection) but not completeness ahead (the unreferenced tail), which is the open half.
 
 Spec effect: R1 through R4, A12, and the A1 through A3 and A7 finality mechanics are now reference-model-demonstrated. Two Part 2 status upgrades from `Design` to `Modeled`: the A12 tier-boundary projection consistency (§7.3.2) and the R3 no-fold-time-rejection with referenced-gap detection (§7.3.2). The experiments-consolidated file §1 records the full v2 result. System-level order-independence stays `Load-bearing, unearned` pending the beam.
+
+## 2026-07-14, RUN-01 (unattended experiment run, branch `claude/experiments-run-01`)
+
+A queued unattended run (brief: `alpha/experiments/NEXT-RUN-INSTRUCTIONS.md`) executing the four runnable-now experiments scoped to this environment (loopback iroh, no boxes, no macOS/iOS hardware). One commit per experiment. Entries below are per-EXP.
+
+### EXP-2 — Automerge 0.7 confirmation (§7.7/§7.9 late-joiner inertness on the ship target)
+
+Fold under test: none — this is a third-party-crate feasibility confirmation. Bumped `automerge-partial-reconstruction` from `=0.6.1` to `0.7` (→ 0.7.4), applied the two documented API deltas (`get_changes` now owned `Vec<Change>`; `get_missing_deps` now `&self`), re-ran the four partial-reconstruction scenarios on Rust 1.94.1.
+
+Result: **PASS** — all four invariants hold identically to 0.6.1. Scenario A (the load-bearing one — later-epoch changes with deps withheld held **inert**, `messages` absent, 0 heads, 1 buffered dep) holds on 0.7.4. Only change-hash *values* differ across versions (a serialization artifact), not behavior. FALSIFY condition not met.
+
+Spec effect: retires the standing proxy caveat `automerge-0.6.1` (SPEC-DIVERGENCE-REGISTER → Reconciled). No new Part 2 mechanism — this hardens an honesty boundary under the existing late-joiner design (§7.7/§7.9); the 0.7 ship target is now the evidence base rather than a 0.6.1 proxy.
