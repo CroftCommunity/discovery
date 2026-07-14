@@ -216,6 +216,10 @@ plane the sentence is on, and if the sentence asserts the technical construct *d
 that this is the social principle realized rather than a separate mechanism? If either is unclear, name the
 alignment.
 
+The worked convention set for the largest such concept, the human-adjudication mechanism and its
+planes-of-authority vocabulary, lives in the spec conventions doc (conventions-and-decisions.md A.11) and is
+normative for all Drystone docs, experiments included.
+
 ---
 
 ## 13. Work from a fixed conventions reference and a per-part changelog
