@@ -124,6 +124,32 @@ at which point the manifest simply grows one contradiction entry rather than cha
 `reconciliation-horizon.md` §7 (first spike), Part 2 §7.6.9 (the cadence and the manifest), Appendix B
 (`[gates-release]` horizon-checkpoint manifest encoding).
 
+### 2c. EXP-C1 — the completeness-ahead contract (loopback, runnable now, no new infra)
+
+**EXP-C1 — the completeness-ahead contract (loopback, runnable now, no new infra).** The demonstration
+side of the corroboration-dials framing (`alpha/thinking/corroboration-and-quantified-trust.md`; spec
+landing: Part 2 §7.3.3 corroboration-dials paragraph and §7.4.1 formula-valued freshness threshold).
+Earning the beam means demonstrating the *contract* completeness-ahead already carries, not eliminating
+the intrinsic isolated-node limit. Four assertions, each RED-able before the behavior exists:
+
+1. **Stall-at-threshold (delay over breach).** Withhold one governance fact from node X; X's attempted
+   enforcement of a dependent irreversible act stalls below freshness threshold k while X continues
+   reads on best-known state. No breach, no stall of reads.
+2. **Stamp detection.** X receives a data-plane entry whose §7.4.3 generation stamp is ahead of X's
+   frontier; the gap is detected, sized, and named, and X fills it before acting (the behind-via-traffic
+   case, demonstrated end to end).
+3. **Solicitation reach.** The withheld fact is stamped by nothing (the unreferenced tail); X's frontier
+   ask to any peer holding it surfaces it; the fold then admits it identically to normal arrival.
+4. **Formula-valued k.** With k = ceil(n/2) over the folded member set, every node computes the identical
+   k at the same act position across arrival orders.
+
+Shares boundary machinery with EXP-H1 (both drive the §7.3 read/enforce line and the §7.4 freshness
+cursor against a withheld frontier). Discharges, at loopback grade, part of §8.2(e)'s residual that "the
+freshness precondition on originating such an op (§7.4.2) is not yet exercised over live transport" (the
+precondition is exercised over loopback here; the relay/real-NAT path stays X1). Cross-refs:
+`corroboration-and-quantified-trust.md` §6 (the contract), Part 2 §7.3.3 (the dials and the fail-closed
+gate), §7.4 (the k-distinct-lineages threshold), §7.4.3 (the generation stamp).
+
 ---
 
 ## 3. croft-group (shared-core / per-shell)
