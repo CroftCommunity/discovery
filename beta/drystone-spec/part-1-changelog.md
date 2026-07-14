@@ -85,3 +85,23 @@ After Part 2 grew substantially through the folds (2751 to ~3874 lines), a read 
 `Status: complete`
 
 As part of the cross-document pre-publication verification pass (detailed in the Part 2 changelog), the **CRDT reference** in Part 1's principled lineage was confirmed and made precise: SSS 2011 (LNCS 6976, pp. 386-400, DOI 10.1007/978-3-642-24550-3_29) with the companion INRIA RR-7506 "A Comprehensive Study of Convergent and Commutative Replicated Data Types" (January 2011), noting RR-7506 is distinct from the later RR-7686. The `[confirm]` marker on that entry is cleared. All other Part 1 reference markers (Lamport, CAP, Mill, Hayek, Ashby, Beer, Popper, Ostrom, Modular Politics) remain as-is; their verbatim-wording confirmations are pre-publication work against the specific print editions, not identifier questions.
+
+---
+
+## Human-adjudication language pass (§3 Internet-governance corroboration)
+
+`Status: complete`
+
+Part of the cross-suite adjudication-language codification (conventions A.11, Part B §B.8).
+
+- **§3 gained an Internet-governance corroboration entry**, placed adjacent to the Beer / algedonic-channel block, in the section's established conclusion-then-verbatim-source format. It grounds the escalate-to-a-human posture in the formal-specification tradition in both of the shapes Drystone uses: a named human role inside a procedure (the IANA **Designated Expert**, RFC 8126 / BCP 26 §5.2) and a normative human-input step inside an algorithm (W3C **powerful features** requiring express permission, Permissions TR and Geolocation CR), plus the IETF publishing its own human-layer semantics in the same series as its wire formats (rough consensus is objections addressed, not votes counted, RFC 7282). The entry names the one-level-deeper point: Drystone keeps the move (at this step a person decides) and changes only the *locus*, distributing the designated-expert role to every **local authority** rather than delegating it to one center.
+
+- **All three quotes fetched verbatim from the primaries this run** (RFC 8126 §5.2, W3C Permissions §3.3 and Geolocation §3.1, RFC 7282 §3) and marked *Verified against the primary at edit time*; the Geolocation entry flags that the current CR wording differs from the 2016 REC.
+
+- **Three reference-list entries added** (RFC 8126 / Cotton-Leiba-Narten 2017; W3C Permissions TR + Geolocation CR; RFC 7282 / Resnick 2014) in the existing annotated-bibliography format, each carrying the verification marker.
+
+- **Back-map updated:** the §3 map line now lists Internet governance among the grounding disciplines.
+
+- **§2.5 gained one forward-pointer sentence** where the fork is characterized as human-adjudicated (end of the fork-not-verdict paragraph): the move has formal precedent in Internet governance's Designated Expert (§3), and the terminus differs only in distributing that role to every local authority rather than delegating it to one center. No back-map change: §2.5's map line still reads as fork-not-verdict; only an in-place cross-reference was added.
+
+**Verification:** no em-dashes, no double-hyphens in prose; quotes verbatim; cross-references resolve.

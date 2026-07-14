@@ -321,3 +321,19 @@ Scope: fold the reconciled results of the 2026-07 real-substrate spike corpus (i
 **Map, done.** Updated the §0 map entries for §6, §7.1/§7.2, §7.3, §7.6, §8, §10, and §11 per Rule 15.
 
 **Verification:** no em-dashes, no double-hyphens in prose, no "PrincipalSet"; every F-item reflected, the F6 non-change recorded.
+
+---
+
+## Human-adjudication language pass (§7.6 shapes/parties and local-authority terms)
+
+`Status: complete`
+
+Part of the cross-suite adjudication-language codification (conventions A.11, Part B §B.8).
+
+**§7.6.1, done.** Added a one-clause terminology note after "they differ only in how they are detected": the two members are the **escalation shapes** (Contradiction, Under-determination), distinct from the **escalation parties** a given case surfaces, who are presented symmetrically (both parties, no presumed wrongdoer), per conventions A.11. The §7.6.1 running example's "the escalation set is both Alice and Bob" was corrected to "the escalation parties are both Alice and Bob," since the two personae are parties, not shapes; the rest of the sentence (the vacant-role point, beat E5) is unchanged.
+
+**§7.6, done.** Where the hard-stop is first said to surface the conflict "to the affected Group," named the receiving side: ", the **local authority** for a shared judgment (conventions A.11)." This gives escalation text a name for the receiving side that is not a node role, per A.11 DR-4/DR-10.
+
+**Map, done.** Updated the §0 map §7.6 line per Rule 15: it now names the local authority as the receiving side and the two escalation shapes (distinct from the escalation parties), all anchored to conventions A.11.
+
+**Verification:** no em-dashes, no double-hyphens in prose; no code identifier renamed (`ForkStatus::Contradiction`/`UnderDetermined` untouched); cross-references resolve.

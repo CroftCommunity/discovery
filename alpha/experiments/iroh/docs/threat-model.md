@@ -416,6 +416,8 @@ What we explicitly assume:
    24-word mnemonic encodes 256 bits + 8-bit checksum cleanly.
 5. **The system clock is roughly correct.** Conflict resolution uses
    timestamps; wildly wrong clocks (decades-off) cause weird behavior.
+   *(Superseded — see DESIGN §7; Drystone does not use timestamps for
+   ordering, so this assumption is not carried forward.)*
 
 ---
 
@@ -438,7 +440,8 @@ How Alt.Drive's threat model compares to closest peers:
 ### vs Cryptomator
 
 **Stronger**:
-- Active sync layer with conflict resolution; Cryptomator relies on
+- Active sync layer with conflict resolution (superseded resolution model —
+  see DESIGN §7); Cryptomator relies on
   whatever cloud storage you stuff the vault into
 - Direct E2EE on the wire; Cryptomator's transit is whatever the
   hosting provider gives you
@@ -512,7 +515,10 @@ To revisit after spikes:
 
 1. **iroh-docs concurrent-write semantics**: does our model of
    last-writer-wins with `(ts, node_id)` tiebreak survive contact with
-   reality? (Spike 1)
+   reality? (Spike 1) *(Superseded — see DESIGN §7; the LWW-timestamp model
+   is not reused in Drystone, which hard-stops concurrent contradictions
+   rather than auto-resolving them. Spike 1's finding that flat-LWW is too
+   weak is the empirical corroboration.)*
 2. **macFUSE writeback timing**: are there windows where plaintext can
    appear on disk in writeback caches before encryption? (Spike 3)
 3. **Pairing code brute-force window**: should we enforce rate limiting
