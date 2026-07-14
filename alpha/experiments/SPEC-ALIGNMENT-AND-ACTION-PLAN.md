@@ -149,6 +149,11 @@ a one-line caveat wherever the corresponding spec claim hardens.
 Ordered by value. Each names the target section and the exact change. These are **proposals for
 discussion**, not applied edits — the spec is reviewed material.
 
+> **The reviewable diff for F1–F7 is staged at
+> `beta/drystone-spec/proposed-changes-2026-07-experiment-reconciliation.md`** — current Part 2 text →
+> proposed text, with the reason and experiment behind each. A four-question overlay (what's not
+> proven / pending / forces-adapting / missing) is at `SPEC2-OVERLAY.md`.
+
 | # | Spec target | Change | Source |
 |---|---|---|---|
 | **F1** | **§7.2 (R3) / §7.3 governance facts** + **§8.2(e)** | Add the **content-hash approval subject** as the realization that makes a RuleChange quorum *enforced* (not merely stored), counted by distinct personae per lineage. Move §8.2(e)'s "admin-floor rule … decided but not yet test-run" toward **tested** (cite `rulechange_threshold_enforced.rs`, RED→GREEN). | delta `rulechange-quorum` |

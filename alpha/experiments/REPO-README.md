@@ -1,5 +1,14 @@
 # experiments — Croft code-forward spikes (staged)
 
+> **Provenance / freeze notice (2026-07-13).** This is the **verbatim root README of the standalone
+> `experiments/` repo** as it was at the moment it was folded into `discovery/alpha/experiments/`
+> (source SHA `c17b8c8`). The standalone repo is now **frozen** — read-only, no new work — and this
+> directory is the **canonical home**. The paths this file names as `alpha/…` now live at
+> `discovery/alpha/experiments/…`; its `beta/rc/publish` staging language is superseded by
+> discovery's own staging (everything here is alpha-tier). Kept unedited below for the record.
+
+---
+
 Maturity lifecycle `alpha → beta → rc → publish`, aligned stage-for-stage with the `discovery/` and
 `Proofs/` repos. Each stage is a self-contained tree with its own linear git history.
 

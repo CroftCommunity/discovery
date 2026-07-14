@@ -25,8 +25,16 @@ corpus is `alpha/`**. (Beta is built next from alpha using
 `ECOSYSTEM.md`, `ROADMAP*.md`, `NAMING.md`, `ANALYSIS.md`, the dossier, the raw archive) is under the
 **current stage dir** — i.e. `discovery/alpha/<path>`. Only **`AGENTS.md`** (this file),
 **`PLAYBOOK.md`**, and a thin stage-pointer **`README.md`** live at the repo **root**: they describe
-*how we work*, not the project, so they span stages. `Proofs/` and `experiments/` are staged
-identically and aligned stage-for-stage (`Proofs/alpha/…`, `experiments/alpha/…`).
+*how we work*, not the project, so they span stages. `Proofs/` is staged identically and aligned
+stage-for-stage (`Proofs/alpha/…`).
+
+**Experiments now live *inside* discovery (2026-07-13).** The code-forward experiment corpus was
+folded into **`discovery/alpha/experiments/`** so discovery and experimentation stay tight; the
+standalone `experiments/` repo is **frozen** (superseded, read-only, no new work). Its own
+`alpha/beta/rc/publish` staging collapses into discovery's — everything imported is alpha-tier and
+sits under `alpha/experiments/`. The experiments↔spec bridge is documented in
+`alpha/experiments/SPEC-ALIGNMENT-AND-ACTION-PLAN.md` (+ the `SPEC2-OVERLAY.md` and the proposed
+spec-change diff under `beta/drystone-spec/`).
 
 **Tier cleanliness (matured docs read clean).** A doc at a given stage carries **no references back to a
 prior stage** — no sources footer, no provenance trace, no prior-stage file paths or seam-map pointers
@@ -48,9 +56,13 @@ discovery/    Thinking & synthesis. The map of everything.   root: AGENTS.md · 
 Proofs/       Durable proofs — verify an invariant that becomes a design principle.   root: LICENSE · README.md
                 alpha/  lineage-groups (real openmls) · lineage-group-model (TS) ·
                   encrypted-local-first-atproto
-experiments/  Code-forward spikes — "does this work / what's actually true?"   root: README.md
-                alpha/  appview-validation · public-roundtrip · android-p2p-app · encrypted-blob-share ·
-                  croft-app-phase0 · croft-group · iroh · automerge-partial-reconstruction
+experiments/  Code-forward spikes — "does this work / what's actually true?"   [FROZEN 2026-07-13,
+                folded into discovery/alpha/experiments/ — canonical location below]
+discovery/alpha/experiments/   appview-validation · public-roundtrip · android-p2p-app ·
+                  encrypted-blob-share · croft-app-phase0 · croft-group · iroh ·
+                  automerge-partial-reconstruction · local_storage_projection · mls-replant ·
+                  replant-continuity · croft-chat  (+ MASTER-INDEX · EXPERIMENT-BACKLOG ·
+                  SPEC-DIVERGENCE-REGISTER · SPEC-ALIGNMENT-AND-ACTION-PLAN · SPEC2-OVERLAY)
 ```
 
 ## Start here (in this order)
