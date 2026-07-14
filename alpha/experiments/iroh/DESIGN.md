@@ -21,7 +21,7 @@ This document specifies:
 - On-disk vault format (file by file)
 - Manifest format and the iroh-docs vs custom-version-vector decision
 - Sync protocol (which iroh primitives, what messages, when)
-- Conflict resolution rules
+- Conflict resolution rules (superseded — see §7)
 - Taint table schema
 - Pairing protocol (dumbpipe-shape ticket flow)
 - Recovery flow (paper mnemonic mechanics)
@@ -320,7 +320,9 @@ conflict resolution (last-writer-wins per key, with timestamp + node-ID
 tiebreak), automatic sync between peers, and is built by the same team as
 iroh-blobs so the integration is clean. We don't need full CRDT semantics
 (no concurrent edits to the same map entry need merging) — we need
-last-writer-wins, which iroh-docs gives us.
+last-writer-wins, which iroh-docs gives us. **(Superseded — see §7: Drystone
+does not resolve concurrent contradictions by last-writer-wins; iroh-docs'
+flat-LWW behavior is a characterized limitation, not the resolution model.)**
 
 > **Scope note (added 2026-06-03, from transcripts 269/271):** the "no
 > concurrent edits need merging" premise holds **only for static / append
@@ -400,7 +402,8 @@ If iroh-docs doesn't work for us, the fallback is:
 - Sync protocol: peer A sends "I have entries with these version vectors"
   to peer B; B replies with entries A is missing or has older versions of.
 - Conflict resolution: last-writer-wins per entry, with `(modified_at, node_id)`
-  tiebreak (lexicographically larger node_id wins ties).
+  tiebreak (lexicographically larger node_id wins ties). *(Superseded — see §7;
+  timestamp tiebreaks are not reused in Drystone.)*
 - Implemented on top of iroh's QUIC connection with a custom ALPN protocol
   ("altdrive/manifest/v1") similar to how dumbpipe uses custom ALPNs.
 
@@ -413,30 +416,24 @@ it doesn't, do the same for the version-vector fallback.
 
 ---
 
-## 7. Conflict resolution rules — DECIDED
+## 7. Superseded: timestamp conflict resolution (do not reuse)
 
-iroh-docs (or the fallback) handles **manifest entry** conflicts. The
-rules:
+The original §7 decided **last-writer-wins per manifest key, resolved by a
+`(modified_at, node_id)` timestamp tiebreak**, with the losing version kept
+as a `.conflict-` sidecar.
 
-1. **Same path edited on two devices independently**: both devices write
-   different manifest entries with overlapping version vectors. Last-writer-
-   wins per `(modified_at, node_id)` tiebreak. **AND** the losing version
-   is preserved as `<filename>.conflict-<short_node_id>-<timestamp>.<ext>`
-   (Syncthing-style) so no data is silently lost.
-2. **File deleted on one device, edited on another**: the edit wins (the
-   delete is treated as one version, the edit is another, and they're
-   compared by timestamp).
-3. **Tombstones for deletions**: when a file is deleted, we write a
-   tombstone manifest entry rather than removing the entry. Tombstones
-   propagate. Garbage collection of tombstones after 90 days (sync-safe
-   window).
-4. **Move/rename**: handled as delete + add (with the same file_key and
-   blob_hash retained). The local index keeps the linkage; remote peers
-   see two entries (one tombstoned, one new) but the blob is reused.
+**This section is superseded and MUST NOT be reused in Drystone work.** It
+contradicts two standing invariants: ordering never derives from timestamps
+(a wall-clock is an unprovable assertion, not a corroborable fact), and a
+concurrent contradiction **hard-stops** for human adjudication rather than
+auto-resolving to a silent winner (Part 2 §7.3.1 for the causal-and-cryptographic
+order that excludes the clock, §7.6 for the reconcile hard-stop, and conventions
+A.11 for the vocabulary). A timestamp tiebreak is exactly the "silently one
+side wins" auto-resolution §7.6 forbids.
 
-**For the file content itself, there are no conflicts** — blobs are
-content-addressed and immutable. The conflict, if any, is at the manifest
-layer ("which blob does this path point to right now").
+The original decided text (the four LWW rules and the content-addressed-blobs
+note) is recoverable from git history; it is removed here rather than
+scope-noted so no one greps the corpus and reads it as precedent.
 
 ---
 
@@ -591,7 +588,9 @@ README's "What v0 IS NOT" section flagged this explicitly.
 3. **Clock skew**: timestamps for conflict resolution. v0 uses local
    `now`; we don't try to do logical clocks. If two devices have wildly
    different clocks, the one with the later clock always wins. Document
-   this; users typically have NTP-synced clocks.
+   this; users typically have NTP-synced clocks. *(Superseded — see §7;
+   Drystone never orders by wall-clock, so this clock-skew failure mode does
+   not arise.)*
 
 4. **Manifest growth**: large vaults produce large iroh-docs replicas.
    Untested at scale. v0 caps: 10,000 files per vault (will be enforced
