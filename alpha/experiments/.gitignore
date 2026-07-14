@@ -1,0 +1,5 @@
+# Rust build artifacts across all experiment crates
+**/target/
+# cargo-mutants working output (large per-mutant logs) — committed summaries live in x3-sweep-data/
+**/mutants.out/
+**/mutants-run.log

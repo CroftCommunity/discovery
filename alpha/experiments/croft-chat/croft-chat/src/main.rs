@@ -70,6 +70,10 @@ struct ServeArgs {
     create: bool,
     send: Option<String>,
     run_seconds: u64,
+    /// A4/M1 fan-out: the timeline length at which this node counts as converged.
+    /// When >0, the serve loop records the elapsed time to first reach it (with
+    /// pending == 0) and prints it as `converged_ms`. 0 disables the check.
+    expect_msgs: usize,
 }
 
 fn parse_serve() -> Option<ServeArgs> {
@@ -87,6 +91,7 @@ fn parse_serve() -> Option<ServeArgs> {
         create: false,
         send: None,
         run_seconds: 60,
+        expect_msgs: 0,
     };
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -102,6 +107,9 @@ fn parse_serve() -> Option<ServeArgs> {
             "--send" => serve.send = args.next(),
             "--run-seconds" => {
                 serve.run_seconds = args.next().and_then(|s| s.parse().ok()).unwrap_or(60);
+            }
+            "--expect-msgs" => {
+                serve.expect_msgs = args.next().and_then(|s| s.parse().ok()).unwrap_or(0);
             }
             _ => {}
         }
@@ -315,6 +323,14 @@ async fn run_serve_dispatch(store: &str, serve: ServeArgs) -> ExitCode {
     // Run the replication loop for the requested duration.
     let mut sent = false;
     let ticks = serve.run_seconds * 4; // 250ms cadence
+    // A4/M1 fan-out: time from loop start to the first tick at which this node has
+    // folded the full expected timeline with nothing pending (its convergence latency).
+    let start = std::time::Instant::now();
+    // Two latencies, honestly distinguished: `head_at` is the first tick the full
+    // N-message timeline is folded (the conversation has converged); `converged_at`
+    // additionally requires pending == 0 (nothing buffered — fully settled).
+    let mut head_at: Option<Duration> = None;
+    let mut converged_at: Option<Duration> = None;
     for _ in 0..ticks {
         // Always drain + apply foreign frames first — this is how a joining node
         // learns the group (and its own membership) before it knows the group id.
@@ -334,6 +350,22 @@ async fn run_serve_dispatch(store: &str, serve: ServeArgs) -> ExitCode {
                     }
                 }
             }
+            // Record convergence latencies: head (full timeline folded) and, more
+            // strictly, fully-settled (also nothing pending).
+            if serve.expect_msgs > 0 && converged_at.is_none() {
+                if let Ok(tl) =
+                    session.get_timeline(&g, social_graph_core::TimelineWindow::LastN(usize::MAX))
+                {
+                    if tl.entries.len() >= serve.expect_msgs {
+                        if head_at.is_none() {
+                            head_at = Some(start.elapsed());
+                        }
+                        if replicator.pending_len() == 0 {
+                            converged_at = Some(start.elapsed());
+                        }
+                    }
+                }
+            }
         }
         tokio::time::sleep(Duration::from_millis(250)).await;
     }
@@ -343,6 +375,14 @@ async fn run_serve_dispatch(store: &str, serve: ServeArgs) -> ExitCode {
     // facts are still held (a per-device gap or a governance antecedent not yet
     // here) — the node is catching up, not settled.
     let pending = replicator.pending_len();
+    // A4/M1 fan-out measurement line: gossip message counts + convergence latency.
+    let stats = bus.stats();
+    let head_ms = head_at.map_or("NA".to_string(), |d| d.as_millis().to_string());
+    let converged_ms = converged_at.map_or("NA".to_string(), |d| d.as_millis().to_string());
+    println!(
+        "metrics live_sent={} resync_sent={} received={} head_ms={head_ms} converged_ms={converged_ms}",
+        stats.live_sent, stats.resync_sent, stats.received
+    );
     if let Some(g) = group {
         println!(
             "fingerprint {} (pending {pending}{})",

@@ -1,5 +1,36 @@
 # Verification Report: Automerge (Rust crate) partial-reconstruction and snapshot behavior
 
+## 0.7 confirmation — 2026-07-14 (RUN-01 EXP-2)
+
+**CLOSED. All four invariants hold identically on the 0.7 ship target.** The version caveat that
+dominated the original report (below) is now retired: `automerge = "0.7"` resolves to **0.7.4** and
+builds and runs cleanly on **Rust 1.94.1** (this environment), with no dependency pins and no vendoring.
+
+Method: bumped `Cargo.toml` from `=0.6.1` to `0.7`, deleted the stale `Cargo.lock` so cargo
+re-resolved the tree, applied the **two API deltas the README already documented** — `get_changes`
+now returns owned `Vec<Change>` (dropped the `.cloned()`), `get_missing_deps` now takes `&self` (the
+`load()`ed doc no longer needs `mut`) — and re-ran the same four scenarios in `src/main.rs`.
+
+Result (captured in `run_output.txt`):
+
+| Scenario | Invariant | 0.6.1 | 0.7.4 |
+|---|---|---|---|
+| **A** (critical) | later-epoch changes with deps withheld held **inert** — `apply` Ok, `messages` absent, 0 heads, 1 missing dep | PASS | **PASS** |
+| **B** | withheld deps supplied → full list materializes in causal order | PASS | **PASS** |
+| **C** | `save()` → self-contained snapshot; `load()` restores fully, 0 missing deps | PASS | **PASS** |
+| **D** | `get_changes` since epoch-1 heads = exactly 3; applying brings the doc current | PASS | **PASS** |
+
+The only observable difference is cosmetic: change hashes differ between versions (`cea08274…` on
+0.6.1 vs `e8524485…` on 0.7.4), as expected from serialization changes across the 0.x line — the
+*behavioral* invariants are identical. **FALSIFY condition not met.** The late-joiner
+partial-reconstruction inertness is now proven on the ship target, not a proxy. Register row
+`automerge-0.6.1` moves from "Already-declared caveats" to **Reconciled**.
+
+Everything below this line is the original 0.6.1 report, kept verbatim as provenance for the
+toolchain narrative.
+
+---
+
 ## Bottom line
 
 All four scenarios pass on the Rust `automerge` crate and match the JavaScript (3.2.6) findings exactly.
@@ -8,7 +39,7 @@ The critical one, Scenario A, is unambiguous: when you apply only the epoch-2 ch
 
 `messages` is absent, the document has zero heads, and nothing errors. There is no partial reconstruction. The late-joiner design is validated on the Rust core.
 
-One important caveat on version: this ran on `automerge 0.6.1`, not `0.7`, for a toolchain reason documented in full below. The four behaviors under test are core CRDT invariants of the shared Rust core, so the result is expected to hold identically on 0.7, but 0.7 itself was not compiled here and should be confirmed on a machine with Rust 1.80 or newer before you treat the 0.7-specific result as closed.
+One important caveat on version: this ran on `automerge 0.6.1`, not `0.7`, for a toolchain reason documented in full below. The four behaviors under test are core CRDT invariants of the shared Rust core, so the result is expected to hold identically on 0.7, but 0.7 itself was not compiled here and should be confirmed on a machine with Rust 1.80 or newer before you treat the 0.7-specific result as closed. **[Update 2026-07-14: this confirmation is now done — see the 0.7 confirmation section at the top.]**
 
 ---
 
