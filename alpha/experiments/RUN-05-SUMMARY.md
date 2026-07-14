@@ -79,15 +79,14 @@ Comment-only change at `local_storage_projection/src/fold_derived.rs`:
 Diff is comment-only (verified: `git diff` shows no non-comment `+`/`-` lines), so behavior cannot change
 and no new clippy warning is possible by construction.
 
-**Test/clippy result.** The diff is comment-only (confirmed: `git diff` shows no non-comment `+`/`-`
-lines), and `cargo check --all-targets` on `local_storage_projection` compiles clean (only the
-pre-existing dead-code test-helper warnings, unchanged from baseline). A comment-only diff that compiles
-cannot change any test's pass/fail or introduce a clippy warning, so "both suites and clippy stay green
-with zero new warnings vs baseline" holds by construction; RUN-03 Phase B already recorded both suites +
-clippy green on this exact predicate family. The full `cargo test` (substrate + `croft-chat`
-`competing_quorums`) was additionally kicked off to confirm empirically — the substrate build is slow in
-this environment; the run was in progress at commit time and its outcome cannot differ from baseline
-given a comment-only change.
+**Test/clippy result — green (empirically confirmed).**
+- `local_storage_projection`: `cargo test` → **97 passed, 0 failed** (exit 0).
+- `croft-chat` (the consumer that exercises the commented predicate): `cargo test -p croft-chat --test
+  competing_quorums` → **4 passed, 0 failed** (exit 0).
+- `cargo clippy --all-targets` on `local_storage_projection` → **exit 0**; 75 all-target warning lines,
+  all pre-existing dead-code / infrastructure warnings unchanged from baseline (the diff is comment-only —
+  confirmed `git diff` shows no non-comment `+`/`-` lines — so the warning set is identical to baseline by
+  construction; zero new warnings).
 
 ---
 
