@@ -124,9 +124,9 @@ Modest scale: 10 lineages, 30 devices, 500 concurrent non-conflicting ops, 100 r
 
 ---
 
-## Experiment group C: contradiction (the hard stop, the heart of the trust claim)
+## Experiment group C: contradiction (the hard-stop, the heart of the trust claim)
 
-**C1. The canonical hard stop: ejected-and-re-added.**
+**C1. The canonical hard-stop: ejected-and-re-added.**
 
 Social condition: five-lineage group, partitioned. On branch X, a scripted quorum ejects member M. On branch Y (which cannot see X), M is kept and posts normally; a scripted op on Y re-affirms M. Reconnect.
 
