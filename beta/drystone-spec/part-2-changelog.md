@@ -397,3 +397,15 @@ Scope: two findings-settlement edits from RUN-05's register (FND-2, FND-5). No n
 **§7.6.11, done (FND-5).** The re-plant subsection's preserved status banner is normalized to the canonical A.9 ladder: the lowercase `design` tag becomes `Design` and `[confirm before publish]` becomes `[confirm]` (the same B.6 mappings applied across Part 2 in the unification pass). The two cited source paths (`12-replant-experiments.md`, `mls-hardcases-and-posture.md`) get the leading `../` so they resolve from the spec directory. The block stays a preserved historical fold; only its tags and paths are regularized.
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; no code identifier or mechanism changed; cross-references (§6.8.1, §7.2 R7, §7.4.3) resolve. Evidence: RUN-01 EXP-1 (`croft-chat/FANOUT-M1.md`), F4 in the proposed-changes doc, conventions A.9/B.6.
+
+## Single-status-tag polish and the FND-1 range cite (§7.3.2, §8.2(e))
+
+`Status: complete (RUN-07, 2026-07-14)`
+
+Scope: two riders, no new mechanism and no code change. Both are consistency-pass polish carried on the RUN-07 code run.
+
+**§7.3.2, done (T11).** The F8 boundary paragraph's closing sentence carried two status tags, an inline `` `Design` `` and the terminal `` `Modeled.` ``, which double-tagged one sentence. The inline `` `Design`, decided and now test-run: `` opener becomes prose, `Decided by design and now test-run:`, so the sentence carries exactly one status tag, the terminal `` `Modeled.` `` that records the landed test evidence. No change to the decision or the evidence, only the tag count.
+
+**§8.2(e), done (FND-1).** The originating-op freshness-precondition citation is widened from the point cite `(§7.4.2)` to the range cite `(§7.4–§7.4.2)`, so the living-doc reference names the whole §7.4 freshness plus §7.4.2 recovery cluster rather than the recovery subsection alone. The same one-site widening is applied to the EXPERIMENT-BACKLOG.md quote of that clause. The two §7.4.2 cites in the §7.4.2-hazards table rows are correct on their own terms and are left untouched. This refines the RUN-06 FND-1 owner call (accept §7.4.2 as shorthand) to the explicit range in the living docs; the refinement is recorded in the CONSISTENCY-FINDINGS-2026-07.md settlement addendum.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; no code identifier or mechanism changed; cross-references (§7.2 R7, §7.3.2, §7.4, §7.4.2) resolve. Evidence: RUN-03 Phase B (`two_competing_rulechange_quorums`), CONSISTENCY-FINDINGS-2026-07.md addendum (RUN-07).
