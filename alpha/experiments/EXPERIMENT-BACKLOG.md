@@ -60,7 +60,37 @@ are **done and green**. What remains:
 | **X1** — live cross-host over real NAT | Convert in-process fingerprint-equality into a real-network one | Specified (`RUN.md` cross-host recipe) | secroute boxes + NAT workstation (genuinely needs real NAT) |
 | **X2** — fault injection during convergence | Kill/crash/heal mid-converge → same head, no reversion, catch-up | ✅ **DONE — all green (loopback testbed, 2026-07-13)** — `scripts/x2-fault-injection.sh` | crash-consistency + monotonic no-reversion + **catch-up** all PASS (`A head == B head`). Catch-up was first *refuted* (gossip dedups re-broadcasts) then *fixed* with a prototype nonce backfill in `iroh_bus`. See ledger Phase 7 |
 | **X3** — `cargo-mutants` re-sweep on `fold_auth`/`governance` | A surviving mutant in the authority/threshold path = a real hole in the trust claim | Specified | ✅ **tool now installed** (`cargo install cargo-mutants` works via the proxy). Remaining: an automated **cross-package** sweep (V5′ positive-path coverage lives in `croft-chat`, not the substrate's own suite) + the slow substrate suite. Targeted *manual* mutation testing was done for the RuleChange-quorum change |
-| **Fold open items** | ~~RuleChange thresholds~~ (✅ **done** — enforced via content-hash approval subject, `rulechange_threshold_enforced.rs` 4 cases); per-act approver-role granularity; two-competing-quorums → §7.6.1 contradiction; contradicted-group byte-head naming; live "catching up…" TUI indicator (App holds no Replicator) | Sketched | — |
+| **Fold open items** | ~~RuleChange thresholds~~ (✅ done); ~~contradicted-group byte-head naming~~ (✅ **done, RUN-01 EXP-4** — `competing_quorums.rs::contradicted_group_byte_head_is_min_hash_order_independent`: the byte-head is exactly `min(H(F),H(G))`, order-independent); **two-competing-quorums → §7.6.1** (⚠️ **FALSIFIED, RUN-01 EXP-4** — see finding row below); per-act approver-role granularity (**design-gated** — see finding row below); live "catching up…" TUI indicator (App holds no Replicator; UX, skipped unattended) | Partially done; 2 design-gated | — |
+
+### 2a. Fold findings from RUN-01 EXP-4 (design-gated — do not decide autonomously)
+
+**FINDING — competing RuleChange quorums auto-resolve (§7.6.1 gap).** RUN-01 EXP-4 refuted the
+competing-quorum case: two concurrent conflicting RuleChanges on the same rule, each carrying a valid
+k-of-n quorum, **silently auto-resolve order-dependently** (last-folded wins; `fork="clean"`, no
+hard-stop) — an I5 violation on exactly the shape §7.6 says must escalate. Pinned by
+`competing_quorums.rs::two_competing_rulechange_quorums` (refutation) and register row
+`competing-quorum-autoresolve`. **Why it's here and not fixed:** the fold's contradiction predicate set
+(mutual-expulsion, removed-then-included, role-thrash — see `2026-07-12-1-design-concurrent-contradiction.md`)
+does not cover RuleChange, and adding a predicate is a **design decision**. *Options for the human:*
+(A) a **same-rule-different-value** predicate: two concurrent RuleChanges whose `(rule_key)` matches and
+`new_value` differs → `Contradiction`, byte-head `min(H(F),H(G))`, retain the pre-change rule value (no
+verdict); narrowest, mirrors mutual-expulsion. (B) a broader **same-subject** predicate keyed on the
+`rule_change_approval_subject` content hash (any two concurrent changes to the same rule slot). (C)
+**causal-order-only**: require RuleChanges to a given rule to be totally ordered (reject a concurrent
+second as incomplete) — shifts the cost to the client. Recommend (A) first (exact, symmetric, smallest
+escalation surface), matching the design note's "implement the narrowest shape first" discipline.
+
+**FINDING — approver-role granularity is role-agnostic (undecided).** Step 5.6 counts distinct approver
+personae **by lineage regardless of role** — a Member's `Approval` currently counts toward a RuleChange
+or RoleGrant quorum the same as an Admin's. Whether an act's quorum should require approvers holding a
+minimum role *for that act* is an **undecided design question** (the spec's R-series is
+mechanism-neutral; nothing decides approver role-gating). Not tested/implemented here — deciding it is a
+trust-model call. *Options for the human:* (A) **role-agnostic** (status quo — any member's approval
+counts; simplest, but a low-privilege member can help meet a high-privilege quorum). (B) **per-act role
+floor** — each act type carries a minimum approver role (e.g. RuleChange/RoleGrant need Admin+
+approvers), enforced in `gather_approvers`/Step 5.6 by filtering approvers below the floor before
+counting. (C) **weight-by-role** — richer, likely over-engineered for now. No recommendation without
+the trust-model owner; flagged so the next session decides deliberately rather than by omission.
 
 ---
 
