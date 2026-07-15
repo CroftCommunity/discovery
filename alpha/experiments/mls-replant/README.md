@@ -1,5 +1,7 @@
 # mls-replant — Battery 7 (the re-plant, Rung A)
 
+Serves: Part 2 §7.6.2 (the re-plant membership mechanics) and §11.11 measurement #1 / §11.4–§11.5 (per-commit re-key cost) — earns/bounds: §7.6.2 `Verified` (membership half; the message-continuity half stays open) and M1 `Measured` — register: `e12.4-byteproxy` — landed: 2026-07-13 reconciliation (F2); M1 fan-out RUN-01 (EXP-1).
+
 The **re-plant** primitive against a real MLS library (openmls 0.8.1, the version the
 `mls-welcome-over-iroh` spike pinned). The whole fork/heal/re-key story reduces to one
 operation: read the member set from the governance chain, **stamp a fresh MLS group over

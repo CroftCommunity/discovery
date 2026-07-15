@@ -1,5 +1,7 @@
 # A4 / M1 fan-out — gossip fan-out cost & convergence curve (EXP-1)
 
+Serves: Part 2 §11.11 measurement #1 and §11.4–§11.5 (fan-out cost scales on the live set) — earns/bounds: `Measured` (fan-out shape; loopback, single-run magnitude indicative) — register: `fanout-single-run` — landed: RUN-01 (EXP-1).
+
 `RUN-01 EXP-1. Branch claude/experiments-run-01, 2026-07-14. Runnable-now, no new infra.`
 
 ## What this earns

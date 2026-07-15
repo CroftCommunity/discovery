@@ -441,3 +441,13 @@ Scope: one conditional annotation earned by RUN-08 Part 1B. No mechanism change 
 **§10.5, done.** The conformance-vector footnote is updated from its 2026-07 wording. The reference conformance-core is now folded into `discovery/alpha/Proofs/lineage-groups/crates/conformance` and re-proves 66/0 across categories 1 through 9 in-environment (cat 7 adversarial in real Rust, cats 8 and 9 TS-authoritative, and the cat-5b revoke-authority mechanism), so the earlier "categories 7/8/9 not yet emitted" reading is superseded for the vectors themselves. The footnote now names the true residual as the over-the-wire sourcing, split into the two pieces the footnote already named: (a) MLS key-distribution over the wire is now Verified green-real at loopback grade (a real openmls Welcome over a real iroh connection distributes the group key and the lineage-folded membership and standing; `alpha/experiments/iroh/crates/mls-welcome-over-iroh`, reproduced at `relay-lab-runs/C-mls-welcome-2026-07-15-run08`), with wiring that source into the emitter itself the residual and the real-NAT path staying X1; and (b) threshold-revoke as real k-of-n over the wire plus the co-sign-versus-vote authority ordering stays gated on the revocation-authority trust model (the I9 identity and key-recovery tier).
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; no code identifier or mechanism changed; cross-references (§9, §10.5, §8.2, X1, I9) resolve. Evidence: `mls-welcome-over-iroh` reproduced RUN-08 (`relay-lab-runs/C-mls-welcome-2026-07-15-run08/verdict.json`), conformance `run-vectors` 66/0 (`.../conformance-suite-reprove.txt`), F7 (proposed-changes, RUN-08 update).
+
+## Evidence map pointer added to the honesty-boundaries preamble (§8.2)
+
+`Status: complete (RUN-08, 2026-07-15)`
+
+Scope: one pointer sentence, no mechanism change and no status change. The RUN-08 traceability pass built a per-claim evidence index (`EVIDENCE-MAP.md`) and this records where it lives.
+
+**§8.2, done.** The honesty-boundaries preamble gains a closing sentence pointing to `EVIDENCE-MAP.md`, the regenerable per-claim index of where each status tag at or above Modeled resolves to its evidence (named tests, report files, RUN numbers, environment bounds). The sentence states the index-not-source rule: the map is an index only, and the tagged sentence in Part 2 remains authoritative wherever the two differ. No tag moved.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; no code identifier or mechanism changed; the referenced file `EVIDENCE-MAP.md` exists in this directory. Evidence: RUN-08 Part 2 traceability pass.

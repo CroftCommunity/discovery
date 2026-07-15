@@ -31,6 +31,7 @@ every unrun item).
 | `iroh/docs/roadmap.md`, `DESIGN.md` (§14), `RESUME-NEXT-SESSION.md`, `NEXT-SESSION-2026-06-16.md` | Roadmap, open questions, handoffs | Reference |
 | `croft-app-phase0/BUILD-SPEC.md` | App layer M1–M6 | **Closed** (M1–M6 done) |
 | `automerge-partial-reconstruction/REPORT.md` | Partial-reconstruction invariant | **Closed** (0.6.1; 0.7 open) |
+| `../../beta/drystone-spec/EVIDENCE-MAP.md` | Spec ↔ experiment traceability index (one row per Part 2 tag ≥ `Modeled`) | **Living index** (built RUN-08; an index, never a status source) |
 
 > Note: the `meer` superpeer and `geer` gating-peer **design** docs referenced by the iroh handoffs
 > live in the sibling `discovery`/`Proofs` repos, not in this workspace. In-repo, meer is realized
