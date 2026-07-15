@@ -461,3 +461,13 @@ Scope: one meaning-preserving edit, no mechanism change and no status-tag move. 
 **§10.4, done.** In the BLAKE3 hash note, the off-ladder token `` `Reviewer-judgment` `` is de-backticked into plain prose: "the construction-level check rests on reviewer judgment, to be formalized as a per-context note at freeze." The A.9 ladder gains no eleventh rung; the backticked form had read as a status tag, and the plain prose no longer does. The `` `Verified` `` tag on the BLAKE3 length-extension property is unchanged.
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 edit removes backticks only and preserves the sentence meaning; no code identifier or mechanism changed; §10.4 and the A.9 ladder resolve. Evidence: FND-T5 settlement, `CONSISTENCY-FINDINGS-2026-07.md` `## Settlement (RUN-09, 2026-07-15)`.
+
+## Re-plant message-continuity half recorded at loopback grade (§7.6.2)
+
+`Status: complete (RUN-09, 2026-07-15)`
+
+Scope: one conditional status record earned by RUN-09 Part 3 (the B1 → A5 build). The membership half of the re-plant is already `Verified`; this records the message-continuity half at `Modeled`/loopback grade. No mechanism change; the membership tag is untouched.
+
+**§7.6.2, done.** The re-plant sentence previously recorded the message-continuity half as not yet built, needing the dataplane hash structures (Appendix B / B1). It now records that half as `Modeled` at loopback grade: a B1 dataplane hash structure (content-addressed, causally-linked records folding into an arrival-order-independent digest, `replant-continuity/src/dataplane.rs`) carries the conversation across the repoint so that every pre-repoint entry is present after it exactly once, in-flight entries land exactly once in causal order on the post-repoint group, both members converge byte-identically across arrival orders, and an injected duplicate or dropped frame is detected rather than absorbed (RED→GREEN, `e12_2_message_continuity.rs`, 5 tests, RUN-09). It is `Modeled` rather than `Verified` because delivery is harness-driven over the real re-plant membership, not real transport; real over-the-wire delivery and the `[gates-release]` B1 record encoding remain open.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; the membership-half `Verified` tag is unchanged and no other tag moved; cross-references (§7.6.2, Appendix B / B1) resolve; the evidence parenthetical follows the A.9 recommended forward form (FND-T4, RUN-09). Evidence: `alpha/experiments/replant-continuity` (`dataplane.rs` + `tests/e12_2_message_continuity.rs`), RUN-09 Part 3.

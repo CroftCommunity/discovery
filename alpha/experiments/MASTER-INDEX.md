@@ -65,7 +65,7 @@ Notation: **needs** = an in-repo prerequisite stage; **blocked** = an external r
 | **A2** | `cargo-mutants` re-sweep on `fold_auth`/`governance` (Battery 8 X3) | F1 | ✅ **DONE (RUN-07)** — automated cross-package harness (`X3-AUTOMATED-SWEEP.md`): 61 substrate survivors → **7 killed, 54 justified, 0 unjustified**; R7 count-enforcement now cross-package `Verified` (§7.2); surfaced `fold_auth` as an off-consumer-path duplicate, then **retired it** (RUN-07 follow-up: `fold_auth.rs` deleted; register `fold-auth-duplicate` Reconciled) |
 | **A3** | Local multi-process convergence + fault injection (X2) | F2 | ✅ **DONE (§5)** — X2 all-green on the loopback testbed: crash-consistency, monotonic no-reversion, **and** catch-up-after-absence — closed by **sync-on-connect resync** (the spec mechanism; the prototype spec-delta was reconciled and retired). M2's *sizing* study + steady-state anti-entropy remain |
 | **A4** | ~~M1 fan-out~~ ✅ **DONE RUN-01 EXP-1** (`croft-chat/FANOUT-M1.md`: per-node linear `2N+1`, O(N²) aggregate, heads converge; resync super-linear on hub past N≈8); M2 (return-backfill vs dormancy) still open | F3, A3 | M2 modelable now |
-| **A5** | E12.2 + E12.7 message-continuity (atomic repoint of an in-flight conversation) | F3, **B1** | dataplane hash structures |
+| **A5** | ~~E12.2 + E12.7 message-continuity (atomic repoint of an in-flight conversation)~~ ✅ **DONE (RUN-09 Part 3)** — B1 dataplane hash structure built (`replant-continuity/src/dataplane.rs`); `e12_2_message_continuity.rs` proves pre-repoint exactly-once, in-flight causal-order, cross-order digest equality, dup/drop detection. §7.6.2 message half → `Modeled` (loopback). Real transport + wire pinning open | F3, **B1** | ✅ B1 built at loopback |
 | **A6** | X1 — live cross-host over **real NAT** | F2 | **the secroute boxes** (needs real NAT + relay holepunch — *not* localhost-satisfiable) |
 
 ### Track B — Re-plant dataplane (new build)
@@ -159,7 +159,7 @@ design decisions and the automated harness.
 3. **Decide the identity/key-recovery model (I9)** — now the explicit blocker for EXP-5's
    threshold-revoke-over-wire half. Recommended EXP-5 option A (quorum-of-Ed25519 reusing the governance
    k-of-n) is the one path *not* blocked on I9; the MLS-key-distribution half is already spike-realized.
-4. **Build B1** (dataplane hash structures) → unblocks A5 (message-continuity, the last re-plant facet).
+4. ~~**Build B1** (dataplane hash structures) → unblocks A5 (message-continuity, the last re-plant facet).~~ ✅ **DONE (RUN-09 Part 3):** B1 built at loopback, A5 message-continuity landed (§7.6.2 message half → `Modeled`). Real transport + wire pinning are the open follow-ons.
 5. **meer P2→P6** (I3–I6): each phase turns one lab experiment (E8/E9/E11/E12) into its running form.
 6. **Make the identity/key-recovery decision** (I9) — then the BIP39 spike.
 7. **Hardware/boxes when available:** A6 (real-NAT X1), I8 spikes 3 & 7, I7 E4/E0-NAT.
