@@ -180,6 +180,24 @@ precondition is exercised over loopback here; the relay/real-NAT path stays X1).
 `corroboration-and-quantified-trust.md` §6 (the contract), Part 2 §7.3.3 (the dials and the fail-closed
 gate), §7.4 (the k-distinct-lineages threshold), §7.4.3 (the generation stamp).
 
+### 2d. Vouch payload-validation is an uncovered residual (from RUN-07 X3 automated sweep) — open
+
+**FINDING — the fold's I5 Vouch payload gate is uncovered by both suites.** The RUN-07 automated
+cross-package sweep (`local_storage_projection/X3-AUTOMATED-SWEEP.md`) recorded **10 justified
+survivors** in the `fold_derived::check_authorization` Vouch arm — the I5 Vouch payload-length /
+non-empty-context / strength-byte checks (`fold_derived.rs:447–472`, mutants at `449` ×2, `461` ×4,
+`462`, `469` ×2, `470`). These are **genuinely uncovered**: no `croft-chat` consumer test authors a
+`Vouch` act, and the substrate suite does not exercise the payload boundaries either, so the mutants
+survive both suites. This is unrelated to the R7 threshold/count trust claim (§7.2) — it is a
+distinct, honestly-recorded coverage hole in the Vouch act's payload validation, not a weakened
+threshold. **Serves:** the fold's I5 Vouch gate (`fold_derived.rs` `AssertionType::Vouch`), the
+social-recovery / re-attestation vouch primitive (Part 2 §7.6.4 lineage-divergence vouch, Case-3
+recovery §7.3.9). **Register / spec tag:** none — recorded as a sweep residual against
+`X3-AUTOMATED-SWEEP.md` (not a divergence stand-in, so no `SPEC-DIVERGENCE-REGISTER.md` row and no
+status tag moves). **Retirement condition:** consumer-path `Vouch` tests that kill the 10 survivors
+(a Vouch-payload proptest driven through `surface::LocalStore`), **or** an explicit experiment-grade
+justification recorded against the sweep for each survivor. Discovered RUN-07; filed RUN-08.
+
 ---
 
 ## 3. croft-group (shared-core / per-shell)
