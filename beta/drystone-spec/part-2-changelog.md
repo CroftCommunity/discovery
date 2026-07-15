@@ -397,3 +397,37 @@ Scope: two findings-settlement edits from RUN-05's register (FND-2, FND-5). No n
 **§7.6.11, done (FND-5).** The re-plant subsection's preserved status banner is normalized to the canonical A.9 ladder: the lowercase `design` tag becomes `Design` and `[confirm before publish]` becomes `[confirm]` (the same B.6 mappings applied across Part 2 in the unification pass). The two cited source paths (`12-replant-experiments.md`, `mls-hardcases-and-posture.md`) get the leading `../` so they resolve from the spec directory. The block stays a preserved historical fold; only its tags and paths are regularized.
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; no code identifier or mechanism changed; cross-references (§6.8.1, §7.2 R7, §7.4.3) resolve. Evidence: RUN-01 EXP-1 (`croft-chat/FANOUT-M1.md`), F4 in the proposed-changes doc, conventions A.9/B.6.
+
+## Single-status-tag polish and the FND-1 range cite (§7.3.2, §8.2(e))
+
+`Status: complete (RUN-07, 2026-07-14)`
+
+Scope: two riders, no new mechanism and no code change. Both are consistency-pass polish carried on the RUN-07 code run.
+
+**§7.3.2, done (T11).** The F8 boundary paragraph's closing sentence carried two status tags, an inline `` `Design` `` and the terminal `` `Modeled.` ``, which double-tagged one sentence. The inline `` `Design`, decided and now test-run: `` opener becomes prose, `Decided by design and now test-run:`, so the sentence carries exactly one status tag, the terminal `` `Modeled.` `` that records the landed test evidence. No change to the decision or the evidence, only the tag count.
+
+**§8.2(e), done (FND-1).** The originating-op freshness-precondition citation is widened from the point cite `(§7.4.2)` to the range cite `(§7.4–§7.4.2)`, so the living-doc reference names the whole §7.4 freshness plus §7.4.2 recovery cluster rather than the recovery subsection alone. The same one-site widening is applied to the EXPERIMENT-BACKLOG.md quote of that clause. The two §7.4.2 cites in the §7.4.2-hazards table rows are correct on their own terms and are left untouched. This refines the RUN-06 FND-1 owner call (accept §7.4.2 as shorthand) to the explicit range in the living docs; the refinement is recorded in the CONSISTENCY-FINDINGS-2026-07.md settlement addendum.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; no code identifier or mechanism changed; cross-references (§7.2 R7, §7.3.2, §7.4, §7.4.2) resolve. Evidence: RUN-03 Phase B (`two_competing_rulechange_quorums`), CONSISTENCY-FINDINGS-2026-07.md addendum (RUN-07).
+
+## R7 content-bound-quorum count upgraded to Verified by the automated cross-package sweep (§7.2, §8.2(e))
+
+`Status: complete (RUN-07, 2026-07-15)`
+
+Scope: an evidence-tag upgrade earned by the RUN-07 X3 automated cross-package mutation sweep. No mechanism change and no code change; the sweep is a test-driver harness that patches and reverts in place.
+
+**§7.2 R7, done.** R7's evidence tag moves from `Modeled` to `Verified` for the content-bound-quorum count. The RUN-07 automated harness re-ran the current-code substrate sweep (61 survivors) and drove each survivor through the croft-chat consumer suite: all 61 resolve mechanically as 7 killed and 54 individually justified. The 7 killed are exactly the count-enforcement path on the live fold: the approval subject (`rule_change_approval_subject`), the approval-subject resolution (`act_subject`), the rule-key decode, and the membership-admin gate that carries the count, on top of the already mutation-clean `governance.rs` threshold counting. The evidence line now cites the automated sweep instead of the prior pending-X3 note. The tag is scoped to the count: the role-authorship gate stays the open residual named in the same subsection (the role model, not the count), which the sweep quantifies as unpinned by the consumer suite.
+
+**§8.2(e), done.** The R7 clause is updated to record that policy-change quorum enforcement is now cross-package mutation-Verified for the count, alongside the existing RED to GREEN note.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; no code identifier or mechanism changed; cross-references (§7.2 R7, §8.2) resolve. Evidence: `alpha/experiments/local_storage_projection/X3-AUTOMATED-SWEEP.md`, `x3-sweep-data/cross-package-run07.json`, `SPEC-DIVERGENCE-REGISTER.md` (mutation-gate note + `fold-auth-duplicate` row), `MASTER-INDEX.md` A2.
+
+## Origination freshness precondition exercised at loopback grade (§8.2(e))
+
+`Status: complete (RUN-07, 2026-07-15)`
+
+Scope: one honesty-boundary refinement earned by EXP-C1 (backlog §2c). No mechanism change and no spec status change; the completeness-ahead contract is demonstrated at loopback / fold grade only.
+
+**§8.2(e), done.** The clause on the origination freshness precondition is refined from "not yet exercised over live transport" to "exercised at loopback grade (EXP-C1, RUN-07) but not yet over live transport (real-NAT path remains X1)". EXP-C1 landed the completeness-ahead contract's four assertions at loopback / fold grade (`croft-chat/tests/completeness_ahead.rs` + `local_storage_projection::completeness_ahead`): stall-at-threshold below freshness k with reads unaffected, generation-stamp gap detection-and-fill, solicitation reach for the unreferenced tail folding to the identical fingerprint, and the formula-valued k = ceil(n/2) identical across arrival orders. This records the loopback exercise without upgrading any status: the relay/real-NAT path stays X1.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; no code identifier or mechanism changed; cross-references (§7.4, §8.2, X1) resolve. Evidence: EXP-C1 (`croft-chat/tests/completeness_ahead.rs`, 4 tests), backlog §2c (RUN-07 done).
