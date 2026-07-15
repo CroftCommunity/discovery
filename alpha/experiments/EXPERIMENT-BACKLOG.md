@@ -180,7 +180,15 @@ precondition is exercised over loopback here; the relay/real-NAT path stays X1).
 `corroboration-and-quantified-trust.md` §6 (the contract), Part 2 §7.3.3 (the dials and the fail-closed
 gate), §7.4 (the k-distinct-lineages threshold), §7.4.3 (the generation stamp).
 
-### 2d. Vouch payload-validation is an uncovered residual (from RUN-07 X3 automated sweep) — open
+### 2d. Vouch payload-validation is an uncovered residual (from RUN-07 X3 automated sweep) — RETIRED (RUN-09)
+
+**RETIRED (RUN-09, 2026-07-15).** The retirement condition is met: `croft-chat/croft-chat/tests/vouch_payload.rs`
+(9 tests) drives the fold's I5 Vouch gate end-to-end through `surface::LocalStore`'s
+`DerivedFold` path and reads the accept/reject decision back through folded state
+(`get_trust_signals`). The RUN-09 cross-package re-run of the sweep (addendum in
+`X3-AUTOMATED-SWEEP.md`) shows **19/19 Vouch-region mutants killed, 0 survived** — the 10 RUN-07
+justified survivors plus the 9 additional operator mutants. Coverage residual closed; no status tag
+moved (this was never a claim). Original finding preserved below for provenance.
 
 **FINDING — the fold's I5 Vouch payload gate is uncovered by both suites.** The RUN-07 automated
 cross-package sweep (`local_storage_projection/X3-AUTOMATED-SWEEP.md`) recorded **10 justified
