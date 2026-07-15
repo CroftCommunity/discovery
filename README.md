@@ -1,5 +1,9 @@
 # discovery — Croft thinking & synthesis (staged)
 
+**Published Drystone spec site:** https://croftcommunity.github.io/discovery/ — Part 1, Part 2, and the
+companions with every cross-reference as a followable link. Built by `site/build.py`; the same build is a
+broken-reference gate on every push and PR (see `site/README.md`).
+
 This repo is organized as a **maturity lifecycle**: `alpha → beta → rc → publish`. Each stage is a
 self-contained tree with its own linear git history; the stages cohabit, and material matures upward.
 

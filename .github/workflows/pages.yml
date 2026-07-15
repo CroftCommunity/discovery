@@ -1,0 +1,76 @@
+# Drystone spec site — build, broken-reference gate, and GitHub Pages deploy.
+#
+# On push to main: build the site and deploy it to Pages.
+# On pull_request:  run the SAME build, which runs the broken-reference gate, but
+#                   do NOT deploy. A broken §-reference in Part 1 or Part 2 fails
+#                   the job, so the gate is a standing consistency guard on the
+#                   corpus (see site/README.md).
+#
+# The generator is a single Python script (site/build.py) plus its unit-tested
+# resolver (site/resolver.py); the only dependency is markdown==3.7 (pinned in
+# site/requirements.txt). Actions are pinned to major versions.
+#
+# One-time setup by the repo owner: Settings -> Pages -> Build and deployment ->
+# Source: "GitHub Actions". No other configuration is needed.
+
+name: pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Least privilege; the deploy job needs pages + id-token, granted at job scope.
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build + broken-ref gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependency
+        run: pip install -r site/requirements.txt
+
+      - name: Resolver unit tests
+        working-directory: site
+        run: python3 -m unittest -v test_resolver
+
+      # Builds the site AND runs the broken-reference gate; a broken Part 1 / Part 2
+      # §-reference exits non-zero and fails the job (on push and on PR alike).
+      - name: Build site (runs the broken-ref gate)
+        run: python3 site/build.py -o site/_site
+
+      - name: Upload Pages artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/_site
+
+  deploy:
+    name: deploy to Pages
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

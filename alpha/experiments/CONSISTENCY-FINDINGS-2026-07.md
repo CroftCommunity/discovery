@@ -354,3 +354,55 @@ are evidence-linkage conventions, not new rungs; the §10.4 edit (FND-T5) remove
 off-ladder token without changing the sentence's meaning; the FND-T7 edit is a single hyphen. The
 `EVIDENCE-MAP.md` §D band note and its open-FINDINGs list are updated to mark FND-T1/T4/T6 settled
 (the map stays an index, not a status source). FND-T2/T3 stay open as recorded.
+
+---
+
+## RUN-10 findings (2026-07-15) — read-derived, from the three briefs and the site build
+
+All five are read-and-report findings; **no spec, register, crate, or frozen record was edited this
+run.** They are recorded for the owner. Prefix `FND-R10-`.
+
+**FND-R10-1 (LOW, framing) — §5.10's "communal-namespace key ... rotates under churn" presupposes an
+object Meadowcap's communal model does not have.** Part 2 §5.10: *"What is unworked is the key rotation
+scheme, how the Group and its members jointly own the namespace and how the key rotates under churn"*
+(and §5.2: *"key establishment and rotation under membership change"*). Live Meadowcap (Final, as of
+21.11.2025): communal authority *"is derived from ownership of a given subspace key pair"*; the
+namespace secret key is used only in an **owned** namespace. This is **not a contradiction** of any claim
+Part 2 asserts — §5.10 correctly leaves the scheme "unworked" — but the framing presupposes a shared
+whole-namespace key that a communal namespace does not have. Recommended (owner-decides, not this run):
+restate the seam as (a) per-persona subspace-key rotation + (b) the read-scoped asset key
+(`asset-keying.md`) + (c) a near-free identifier assignment. Source: `group-principal-seam.md` (RUN-10
+Part 2). No edit made.
+
+**FND-R10-2 (LOW, consistent — recorded so it is not re-litigated) — Meadowcap's only described
+revocation workaround is structurally unavailable to a communal Group-principal.** Live Meadowcap: *"No
+built-in revocation mechanism"*; the sole workaround (owner writes future-timestamped overwriting
+entries) is **owned-namespace-specific**. Part 2 §5.10: the Group-principal is *communal by default*, and
+*"the owned model is the apex Drystone rejects"*. Reconciliation (already consistent with §10.4's
+"differ only on revocation immediacy"): revocation MUST come from the governance fold (R3/R4), never from
+Meadowcap. Recorded so no future draft reaches for the overwrite trick. Source: `group-principal-seam.md`.
+No edit made.
+
+**FND-R10-3 (LOW, informational) — the welcome-over-iroh emitter residual is already ~80% realized as
+the brief's Option B, informally.** RUN-08 §1B produced two co-located artifacts —
+`relay-lab-runs/C-mls-welcome-2026-07-15-run08/verdict.json` (over-the-wire welcome sourcing) beside
+`conformance-suite-reprove.txt` (the 66/0 re-prove) — and called the emission "realized in the existing
+formats without a vector-format change." So Option B (a thin adapter that hardens that side-by-side into
+an asserting crate) is a low-marginal-cost formalization, not net-new work. Strengthens B as the fallback
+to the recommended defer. Source: `EMITTER-INTEGRATION-BRIEF.md` (RUN-10 Part 3). No edit made.
+
+**FND-R10-4 (LOW/MED, stale claim inside the frozen record) — `alpha/Proofs/FROZEN-NOTICE.md` undercounts
+the emitted conformance categories.** FROZEN-NOTICE.md (line ~23): *"conformance-core that emits
+categories **1–6**"*. But `crates/conformance/src/bin/emit_vectors.rs` `categories_present` lists cats
+**1, 2, 3, 4, 5, 5b, 6, 7, 8, 9**, and Part 2 §10.5 confirms *"66/0 across categories 1–9"*. A
+documentation lag **inside the frozen tree** (same theme as FND-T2, the superseded §10.5 "cats 7/8/9 not
+yet emitted" footnote). **Not editable this run** — the frozen record is out of scope — so recorded here;
+the owner may correct it at the next deliberate freeze-break (e.g. the `[gates-release]` pass). Verified
+this run against both files. Source: `EMITTER-INTEGRATION-BRIEF.md`.
+
+**FND-R10-5 (LOW, definitional) — two distinct layers share the label "Layer 2 / L2".** croft-group's
+**L2 = MLS / encryption** (the `Frame`→ciphertext plan step) is different from the **parked "Layer-2
+resolution-ACL"** design (fork-projection read-scope), which maps to croft-group **L3** (fork/merge +
+reconvergence). No EVIDENCE-MAP row or Part 2 sentence is contradicted; the load-bearing correction is
+that **croft-group L2 (MLS) does not depend on the parked resolution-ACL design**, so the L2a slice is
+buildable now. Recorded, not auto-rewritten. Source: `CROFT-GROUP-L2-READINESS.md` (RUN-10 Part 4).
