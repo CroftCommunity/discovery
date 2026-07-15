@@ -159,8 +159,11 @@ Footprints, heaviest first:
   backup-versus-delegation. **Direction confirmed 2026-07-07:** build the lock now (threshold across
   independent trust domains) and treat the trust predicate as a per-deployment / per-persona policy rather
   than a protocol constant. **Still an open confirm:** the trust predicate is not yet designed, so this is a
-  committed direction, not a settled mechanism. `Design`, open (the trust-predicate design is the user's
-  call).
+  committed direction, not a settled mechanism. **Tier-1 lock spike landed (RUN-08):**
+  `alpha/experiments/bip39-recovery-roundtrip` proves the lock's cheapest first step — a KAT-verified BIP39
+  recoveryKey ⇄ 24-word-mnemonic round-trip (incl. checksum-failure negatives) plus a secretbox-wrap of the
+  masterKey, all bit-exact; the trust tier (Tier 2) remains the open call. `Design`, open (the trust-predicate
+  design is the user's call).
 
 ## 3. Confirmations against primaries or stress-tests (`[confirm]`, reasoned not proven)
 
