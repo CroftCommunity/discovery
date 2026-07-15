@@ -16,9 +16,10 @@ commit. An extra infra commit folded the Proofs corpus into discovery (owner-aut
 | **2.2b** | Backward-link test doc-comments (comment-only) | ✅ done | `87ca3ce` |
 | **2 (md)** | Forward/backward links, EVIDENCE-MAP, findings, summary | ✅ done | this commit |
 
-Both suites (`local_storage_projection` 97 tests; `croft-chat` 25 test binaries) + clippy green at
-every commit boundary; the BIP39 spike is green in isolation; zero new warnings vs the pre-existing
-baseline (`tables.rs` `STATE_CHECKPOINTS` unused-const is a RUN-07-era warning, untouched).
+Both suites (`local_storage_projection` 88 lib tests, post-`fold_auth` deletion; `croft-chat` 25 test
+binaries) + clippy green at every commit boundary; the BIP39 spike is green in isolation (11/11,
+clippy 0 warnings); zero new warnings vs the pre-existing baseline (`tables.rs` `STATE_CHECKPOINTS`
+unused-const is a RUN-07-era warning, untouched).
 
 ---
 
