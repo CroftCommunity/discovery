@@ -803,6 +803,28 @@ where
         Ok(())
     }
 
+    /// Read the current derived [`GroupState`] for `group`, or `None` if the group has
+    /// no folded state yet. A read-only accessor (a read transaction + deserialize) that
+    /// exposes the folded state the horizon manifest (EXP-H1) and other fold-level tests
+    /// compute over. It does not fold or mutate.
+    pub fn read_group_state(&self, group: &GroupId) -> Result<Option<GroupState>, FoldError> {
+        let read_txn = self
+            .db
+            .inner()
+            .begin_read()
+            .map_err(|e| FoldError::StorageError(e.to_string()))?;
+        let table = read_txn
+            .open_table(STATE_GROUP)
+            .map_err(|e| FoldError::StorageError(e.to_string()))?;
+        match table
+            .get(group.as_bytes().as_ref())
+            .map_err(|e| FoldError::StorageError(e.to_string()))?
+        {
+            Some(bytes) => Ok(Some(GroupState::from_bytes(bytes.value())?)),
+            None => Ok(None),
+        }
+    }
+
     /// Ingest an assertion, writing auth + derived state in one atomic transaction.
     pub fn ingest(&self, envelope: &AssertionEnvelope) -> Result<IngestResult, FoldError> {
         // Step 1: Hash + duplicate check.

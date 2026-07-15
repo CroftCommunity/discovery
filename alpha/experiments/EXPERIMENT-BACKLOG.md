@@ -109,7 +109,21 @@ in `gather_approvers`/Step 5.6 by filtering approvers below the floor before cou
 **weight-by-role** — richer, likely over-engineered for now. No recommendation without the trust-model
 owner; flagged so the next session decides deliberately rather than by omission.
 
-### 2b. EXP-H1 — horizon-manifest determinism
+### 2b. EXP-H1 — horizon-manifest determinism ✅ DONE (RUN-07)
+
+**✅ DONE (RUN-07, landing run RUN-07).** Landed as pure fold-side functions in
+`local_storage_projection::horizon` (experiment-grade: no wire format, no persistence, no networking;
+the `[gates-release]` manifest encoding stays `Design`) plus `read_group_state`, exercised cross-package
+by `croft-chat/tests/horizon_manifest.rs` (4 tests, green). `horizon_manifest(state) -> (frontier_head,
+sorted open-contradiction byte-heads)` is **byte-identical across members and arrival orders** for both
+ways a contradiction now arises — **mutual expulsion** and **competing quorum-met RuleChange** — compared
+via a test-only serialization explicitly not the `[gates-release]` encoding. The `frontier_head` is an
+order-independent digest of the folded state's converging content (members + rules + gov_seq), because the
+raw `computed_at_gov_head` is the last-INGESTED hash and is arrival-order dependent. The `HorizonCadence`
+trigger fires on an epoch roll and on N facts since the last boundary (counter reset each boundary), and
+both members locate the boundary at the same fact position. Negatives pinned: a resolved/absent
+contradiction is absent from the manifest, and an open one persists across horizon boundaries (decay is
+presentation, not truth). Earns the **manifest-determinism** claim only; §7.6.9 stays `Design`.
 
 **EXP-H1 — horizon-manifest determinism (runnable today).** The objective, no-policy half of the
 reconciliation-horizon design (`alpha/thinking/reconciliation-horizon.md`; spec landing: Part 2 §7.6.9
