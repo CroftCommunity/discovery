@@ -1,0 +1,64 @@
+# Smoke gate — proves the three self-contained Rust crates build, test, and clippy-clean
+# on a FRESH clone of the repo. This is the clean-checkout reproducibility check the
+# in-session gate cannot give (it caught nothing this run only because Proofs was folded
+# in; the failure mode it guards is "green in-session, broken on a fresh clone").
+#
+# Deliberately scoped to the crates that need NO external tree: local_storage_projection,
+# croft-chat, and bip39-recovery-roundtrip. The heavy MLS/conformance path
+# (alpha/Proofs/*, mls-welcome-over-iroh, the TS-authoritative conformance cats) is NOT
+# gated here — it needs the Proofs tree + openmls + iroh + a TS toolchain and stays on
+# the in-session gate.
+name: smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# One run per ref; cancel superseded runs so a rapid push series doesn't pile up.
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: test + clippy (${{ matrix.crate }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        crate:
+          - alpha/experiments/local_storage_projection
+          - alpha/experiments/croft-chat
+          - alpha/experiments/bip39-recovery-roundtrip
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned to the toolchain the in-session gate uses, so CI and local agree.
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.94.1"
+          components: clippy
+
+      # Cache the per-crate target/ + registry so warm runs land near the ~2-minute
+      # target; the first run (cold, compiling iroh for croft-chat) is longer.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ matrix.crate }}
+
+      - name: cargo test
+        working-directory: ${{ matrix.crate }}
+        run: cargo test
+
+      # Report mode, NOT -D warnings: the tree carries a known baseline warning
+      # (local_storage_projection/src/tables.rs STATE_CHECKPOINTS). The run-wide rule is
+      # "zero NEW warnings", which -D warnings cannot express without a baseline diff, so
+      # this step fails only on clippy ERRORS, matching the in-session discipline.
+      - name: cargo clippy
+        working-directory: ${{ matrix.crate }}
+        run: cargo clippy --all-targets
