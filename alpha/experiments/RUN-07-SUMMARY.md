@@ -70,8 +70,10 @@ MembershipAdd guard `→ true`; `role_ge_admin` Approval guard `→ false`.
 - **31 in `fold_auth.rs` — off-consumer-path duplicate.** The load-bearing finding: `fold_auth::AuthFold`
   is instantiated only in its own `#[cfg(test)]`; the live path is `surface::LocalStore` →
   `fold_derived::DerivedFold`. Every fold_auth survivor survives the consumer suite because the copy is
-  never linked. This refutes the original X3 reading ("all survivors cross-package-covered"). New register
-  row `fold-auth-duplicate` (Active, flagged not fixed — retiring the copy is a production change).
+  never linked. This refutes the original X3 reading ("all survivors cross-package-covered"). Register
+  row `fold-auth-duplicate`: **retired in the owner-authorized RUN-07 follow-up** — `fold_auth.rs` (1685
+  lines) deleted and `pub mod fold_auth;` removed, so `fold_derived` is the single authorization path;
+  both crates + clippy green after removal (row moved to Reconciled).
 - **7 role-authorship gate** (`role_ge_owner/member`, various `check_authorization` guards) — R7's own text
   excludes the role model ("'enforced' here means the count, not the role model"). Outside the R7 claim; the
   sweep quantifies that documented-open residual.

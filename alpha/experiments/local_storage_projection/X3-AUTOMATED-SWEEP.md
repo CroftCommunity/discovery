@@ -143,10 +143,10 @@ mutation-clean `governance.rs` threshold counting — all die to the consumer su
   not the count"); the sweep quantifies it. Closing it is the per-act approver-role work (backlog §2a).
 - **Vouch payload validation** (10 survivors) is uncovered by both suites — a future Vouch-payload
   proptest, unrelated to the R7 trust claim.
-- **`fold_auth.rs`** is a dead parallel copy of the authorization logic. It is not on any consumer
-  path; if it is meant to remain, its own unit tests should pin it, or it should be retired in favor
-  of the single `fold_derived` path. Flagged for the register, not fixed here (would be a production
-  change, out of this run's stop rule).
+- **`fold_auth.rs`** was a dead parallel copy of the authorization logic, not on any consumer path.
+  **Retired in the RUN-07 follow-up (owner-authorized):** `fold_auth.rs` deleted and `pub mod fold_auth;`
+  removed, so `fold_derived` is now the single authorization path — the one the consumer suite pins.
+  Both crates + clippy green after removal; register row `fold-auth-duplicate` moved to Reconciled.
 
 **Stop rule (Phase B.6):** not triggered. The harness required no production-code change — only a
 test-driver script and in-place patch/revert.

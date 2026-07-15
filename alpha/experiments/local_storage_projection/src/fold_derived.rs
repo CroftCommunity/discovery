@@ -34,7 +34,7 @@ use crate::tables::{
 use redb::{ReadableTable, TableDefinition};
 
 // ---------------------------------------------------------------------------
-// Table definitions (mirrors fold_auth + derived tables)
+// Table definitions (auth + derived tables)
 // ---------------------------------------------------------------------------
 
 const AUTH_ASSERTIONS: TableDefinition<'static, &'static [u8], &'static [u8]> =
@@ -334,7 +334,7 @@ fn u8_to_role(v: u8) -> Result<Role, ()> {
 }
 
 // ---------------------------------------------------------------------------
-// RuleKey helpers (mirrors fold_auth)
+// RuleKey helpers
 // ---------------------------------------------------------------------------
 
 fn decode_rule_key(v: u8) -> Result<RuleKey, ()> {
@@ -348,7 +348,7 @@ fn decode_rule_key(v: u8) -> Result<RuleKey, ()> {
 }
 
 // ---------------------------------------------------------------------------
-// Authorization helpers (duplicated from fold_auth for independence)
+// Authorization helpers (self-contained: the single authorization path in the crate)
 // ---------------------------------------------------------------------------
 
 fn author_role_in<'a>(
