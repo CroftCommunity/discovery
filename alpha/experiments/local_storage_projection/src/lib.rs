@@ -1,7 +1,6 @@
 pub mod traits;
 pub mod types;
 pub mod tables;
-pub mod fold_auth;
 pub mod fold_derived;
 pub mod governance;
 pub mod surface;
