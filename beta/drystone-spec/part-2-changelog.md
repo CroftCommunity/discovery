@@ -421,3 +421,13 @@ Scope: an evidence-tag upgrade earned by the RUN-07 X3 automated cross-package m
 **§8.2(e), done.** The R7 clause is updated to record that policy-change quorum enforcement is now cross-package mutation-Verified for the count, alongside the existing RED to GREEN note.
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; no code identifier or mechanism changed; cross-references (§7.2 R7, §8.2) resolve. Evidence: `alpha/experiments/local_storage_projection/X3-AUTOMATED-SWEEP.md`, `x3-sweep-data/cross-package-run07.json`, `SPEC-DIVERGENCE-REGISTER.md` (mutation-gate note + `fold-auth-duplicate` row), `MASTER-INDEX.md` A2.
+
+## Origination freshness precondition exercised at loopback grade (§8.2(e))
+
+`Status: complete (RUN-07, 2026-07-15)`
+
+Scope: one honesty-boundary refinement earned by EXP-C1 (backlog §2c). No mechanism change and no spec status change; the completeness-ahead contract is demonstrated at loopback / fold grade only.
+
+**§8.2(e), done.** The clause on the origination freshness precondition is refined from "not yet exercised over live transport" to "exercised at loopback grade (EXP-C1, RUN-07) but not yet over live transport (real-NAT path remains X1)". EXP-C1 landed the completeness-ahead contract's four assertions at loopback / fold grade (`croft-chat/tests/completeness_ahead.rs` + `local_storage_projection::completeness_ahead`): stall-at-threshold below freshness k with reads unaffected, generation-stamp gap detection-and-fill, solicitation reach for the unreferenced tail folding to the identical fingerprint, and the formula-valued k = ceil(n/2) identical across arrival orders. This records the loopback exercise without upgrading any status: the relay/real-NAT path stays X1.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; no code identifier or mechanism changed; cross-references (§7.4, §8.2, X1) resolve. Evidence: EXP-C1 (`croft-chat/tests/completeness_ahead.rs`, 4 tests), backlog §2c (RUN-07 done).

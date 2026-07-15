@@ -146,6 +146,15 @@ design decisions and the automated harness.
    off-consumer-path duplicate (31 survivors never linked by the suite; register `fold-auth-duplicate`),
    and the role-authorship gate (7) plus Vouch payload validation (10) are uncovered residuals outside
    the R7 count claim.
+2b. **EXP-H1 horizon-manifest determinism (§2b) — ✅ DONE (RUN-07).** `local_storage_projection::horizon`
+   (pure fold-side, experiment-grade) + `croft-chat/tests/horizon_manifest.rs`: the manifest
+   `(frontier_head, sorted open-contradiction byte-heads)` is byte-identical across members and arrival
+   orders for mutual expulsion and competing RuleChange; both trigger modes fire at the same fact
+   position. Earns manifest-determinism only; §7.6.9 stays `Design`.
+2c. **EXP-C1 completeness-ahead contract (§2c) — ✅ DONE (RUN-07).** `local_storage_projection::completeness_ahead`
+   + `croft-chat/tests/completeness_ahead.rs`: all four assertions green at loopback / fold grade
+   (stall-at-threshold, stamp detection, solicitation reach, formula-valued k = ceil(n/2)). §8.2(e)
+   records the loopback exercise; real-NAT path stays X1.
 3. **Decide the identity/key-recovery model (I9)** — now the explicit blocker for EXP-5's
    threshold-revoke-over-wire half. Recommended EXP-5 option A (quorum-of-Ed25519 reusing the governance
    k-of-n) is the one path *not* blocked on I9; the MLS-key-distribution half is already spike-realized.

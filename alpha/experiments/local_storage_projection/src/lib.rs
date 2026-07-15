@@ -6,6 +6,7 @@ pub mod fold_derived;
 pub mod governance;
 pub mod surface;
 pub mod horizon;
+pub mod completeness_ahead;
 
 #[cfg(test)]
 mod tests_stage7;
