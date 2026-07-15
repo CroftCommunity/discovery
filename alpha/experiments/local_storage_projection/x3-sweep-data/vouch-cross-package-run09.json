@@ -1,0 +1,142 @@
+{
+  "total": 19,
+  "killed": 19,
+  "survived": 0,
+  "errors": 0,
+  "wall_secs": 1243.6,
+  "results": [
+    {
+      "mutant": "src/fold_derived.rs:449:34: replace < with == in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 73.8,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:449:34: replace < with > in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 66.7,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:449:34: replace < with <= in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 65.1,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:461:45: replace + with - in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 64.5,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:461:45: replace + with * in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 62.7,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:461:35: replace + with - in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 62.8,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:461:35: replace + with * in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 64.9,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:461:31: replace + with - in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 63.5,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:461:31: replace + with * in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 65.9,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:462:34: replace < with == in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 67.9,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:462:34: replace < with > in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 65.8,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:462:34: replace < with <= in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 64.7,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:469:52: replace + with - in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 65.6,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:469:52: replace + with * in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 64.5,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:469:48: replace + with - in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 64.6,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:469:48: replace + with * in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 65.1,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:470:30: replace > with == in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 65.4,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:470:30: replace > with < in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 64.5,
+      "disposition": "KILLED cross-package"
+    },
+    {
+      "mutant": "src/fold_derived.rs:470:30: replace > with >= in check_authorization",
+      "croft_killed": true,
+      "reason": "nonzero exit",
+      "secs": 65.3,
+      "disposition": "KILLED cross-package"
+    }
+  ]
+}

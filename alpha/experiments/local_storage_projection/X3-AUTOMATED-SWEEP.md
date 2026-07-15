@@ -152,3 +152,72 @@ mutation-clean `governance.rs` threshold counting — all die to the consumer su
 
 **Stop rule (Phase B.6):** not triggered. The harness required no production-code change — only a
 test-driver script and in-place patch/revert.
+
+---
+
+## Addendum — Vouch payload validation now covered cross-package (RUN-09, 2026-07-15)
+
+`RUN-09 Part 2. cargo-mutants 27.1.0, Rust 1.94.1. Closes backlog §2d — the Vouch
+payload-validation residual this report recorded as "uncovered by both suites" (10 justified
+survivors, the "10 uncovered Vouch payload checks" line of the verdict above). The original
+verdict text is unchanged; this addendum records the follow-on coverage.`
+
+**What changed.** A consumer-path test — `croft-chat/croft-chat/tests/vouch_payload.rs` (9 tests) —
+now exercises the fold's I5 Vouch payload gate (`fold_derived.rs:447-477`) end-to-end: a hand-crafted
+`Vouch` envelope is driven through the real `DerivedFold` (the path `surface::LocalStore` builds),
+well-formed accepted / malformed / empty-context / truncated / bad-strength rejected, with the
+accept/reject decision read back through **folded state** — the derived VOUCHES edge surfaced by
+`LocalStore::get_trust_signals` — plus the fold's public accept/reject outcome. No production code
+changed; this is coverage only.
+
+**The re-run.** The same cross-package harness (`x3_cross_package_harness.py`, restricted to
+`--file src/fold_derived.rs` since `fold_auth.rs` was retired in the RUN-07 follow-up) applied each
+Vouch-region mutant to the real substrate and ran the croft-chat consumer suite. The scope is the
+whole Vouch payload region (lines 449/461/462/469/470) — the **10 previously-justified survivors**
+of the RUN-07 sweep plus the **9 additional** operator-substitution mutants the current tool lists
+there.
+
+```sh
+cd alpha/experiments/local_storage_projection
+# the 10 previously-justified survivors:
+sed -n '45,54p' x3-sweep-data/missed-run07.txt > x3-sweep-data/vouch-survivors-run09.txt
+# the full current Vouch-region set (10 + 9):
+cargo mutants --list --file src/fold_derived.rs | grep -E ':(449|461|462|469|470):' \
+  > x3-sweep-data/vouch-region-all-run09.txt
+python3 x3_vouch_harness.py x3-sweep-data/vouch-region-all-run09.txt \
+  x3-sweep-data/vouch-cross-package-run09.json   # fold_derived.rs-only SCOPE_FILES
+```
+
+**Result — 19 killed, 0 survived** (wall ~1244 s, 19 × ~65 s per rebuild-and-test cycle). Every
+Vouch-region mutant now dies to the croft-chat suite, including all 10 RUN-07 justified survivors:
+
+| Mutant (`fold_derived.rs:` line:col) | RUN-07 | RUN-09 cross-package |
+|---|---|---|
+| `449:34 < → ==` , `< → <=` | justified survivor | **KILLED** |
+| `449:34 < → >` | (caught in substrate) | **KILLED** |
+| `461:31/35/45 + → -` | justified survivor (`-`) | **KILLED** |
+| `461:31/35/45 + → *` | (caught / new) | **KILLED** |
+| `462:34 < → >` | justified survivor | **KILLED** |
+| `462:34 < → ==` , `< → <=` | (new) | **KILLED** |
+| `469:48/52 + → -` | justified survivor | **KILLED** |
+| `469:48/52 + → *` | (new) | **KILLED** |
+| `470:30 > → <` | justified survivor | **KILLED** |
+| `470:30 > → ==` , `> → >=` | (new) | **KILLED** |
+
+How the kills land, by check: the **min-length** mutants (449) flip the rejection *reason* at the
+37-byte boundary — the empty-context test pins "reject as AuthorizationFailed, not too-short". The
+**`required`-arithmetic** mutants (461) shrink `required` below the actual length, so the truncation
+check passes and the strength read runs off the end — the one-byte-short test's clean-gate rejection
+is the divergence. The **truncation-comparison** mutant (462 `< → >`) rejects a valid-with-trailing
+payload — the oversized-trailing test pins that trailing bytes are accepted. The **strength-index**
+mutants (469) misread the strength byte — the offset tests place a `>2` byte (or an underflowing
+index) where the mis-index lands, so a valid vouch is wrongly rejected (or panics). The
+**strength-bound** mutant (470 `> → <`) rejects the valid low strengths — the well-formed
+(strength 1) test's acceptance is the divergence.
+
+Raw artifacts: `x3-sweep-data/vouch-survivors-run09.txt` (the 10), `x3-sweep-data/vouch-region-all-run09.txt`
+(the 19), `x3-sweep-data/vouch-cross-package-run09.json` (per-mutant disposition + timings).
+
+**Scope note (unchanged claims).** This closes a **coverage residual**, not a spec claim: no status
+tag moves. R7's count-enforcement verdict above stands as written; the role-authorship gate residual
+is untouched. Backlog §2d is retired (landing run RUN-09).

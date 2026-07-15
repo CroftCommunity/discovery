@@ -1,0 +1,10 @@
+src/fold_derived.rs:449:34: replace < with == in check_authorization
+src/fold_derived.rs:449:34: replace < with <= in check_authorization
+src/fold_derived.rs:461:45: replace + with * in check_authorization
+src/fold_derived.rs:461:45: replace + with - in check_authorization
+src/fold_derived.rs:461:35: replace + with - in check_authorization
+src/fold_derived.rs:461:31: replace + with - in check_authorization
+src/fold_derived.rs:462:34: replace < with > in check_authorization
+src/fold_derived.rs:469:52: replace + with - in check_authorization
+src/fold_derived.rs:469:48: replace + with - in check_authorization
+src/fold_derived.rs:470:30: replace > with < in check_authorization
