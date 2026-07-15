@@ -1,5 +1,7 @@
 //! V3′ — regress-free: an unadmitted grant authorizes nothing (Battery 6, Rung B).
 //!
+//! Earns/bounds: Part 2 §7.3 — authority is a fold over admitted state: an unadmitted grant authorizes nothing.
+//!
 //! The authority-side complement to G1, and the line that makes G1 precise.
 //! Authority is checked against the partial state the fold has already built, so
 //! a fact whose authorizing grant is not (yet) admitted authorizes nothing.

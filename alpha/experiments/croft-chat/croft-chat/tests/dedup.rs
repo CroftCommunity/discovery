@@ -1,5 +1,7 @@
 //! G3 — duplicate and reordered delivery is idempotent (Battery 5, Rung B).
 //!
+//! Earns/bounds: Part 2 §6.6.4 (and §6 content-addressing) — content-addressed dedup makes duplicate and reordered delivery idempotent.
+//!
 //! Completes the delivery-adversary set: G1/G2 cover *loss*; G3 covers *duplication
 //! and reorder*. A gossip medium redelivers and reorders freely, so the claim is
 //! that content-addressed dedup (§6) makes redelivery a no-op — a node that receives

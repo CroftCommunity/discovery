@@ -1,5 +1,7 @@
 //! E12.5 — a fresh stamp is a group-wide leaf-key rotation (Battery 7, Rung A).
 //!
+//! Earns/bounds: Part 2 §7.6.2 (and §8.1) — a fresh stamp is a group-wide leaf-key rotation (a free group-wide re-key).
+//!
 //! Because each fresh group draws a fresh KeyPackage per member, the re-plant rotates every
 //! member's leaf (HPKE) encryption key at once — a free group-wide re-key. The stable
 //! signature key (the persona's identity) is preserved, so it is a *re-key*, not a change of

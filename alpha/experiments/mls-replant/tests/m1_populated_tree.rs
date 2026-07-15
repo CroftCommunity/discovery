@@ -1,6 +1,8 @@
 //! M1 — the per-commit **cost band**: sparse (lone committer) vs populated tree (Battery 2,
 //! Rung A). This is the honest close on the M1 refutation started in `m1_per_commit_cost`.
 //!
+//! Earns/bounds: Part 2 §11.11 measurement #1 (and §11.4/§11.5) — the per-commit cost band: sparse committer vs populated tree.
+//!
 //! `m1_per_commit_cost` measured the *sparse* regime and refuted "commits are log-cheap": a lone
 //! committer on a bulk-add-stamped tree pays **O(N)** per commit, because the stamp populates
 //! only the adder's direct path, leaving every other member's subtree interior blank — the

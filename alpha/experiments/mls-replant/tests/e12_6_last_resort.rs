@@ -1,6 +1,8 @@
 //! E12.6 — KeyPackage availability is bounded by the last-resort package: the swap never
 //! blocks (Battery 7, Rung A).
 //!
+//! Earns/bounds: Part 2 §7.6.3 — KeyPackage availability is bounded by the last-resort package: the re-plant swap never blocks.
+//!
 //! When a member's fresh KeyPackage is not fetchable at boundary time, the last-resort
 //! package (marked reusable) seats them anyway, so the swap does not block on an unreachable
 //! member — it trades that member's key refresh for availability until they republish. So a

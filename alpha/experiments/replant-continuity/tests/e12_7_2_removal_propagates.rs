@@ -1,6 +1,8 @@
 //! E12.7 — an authorized **removal** propagates through the re-plant: the removed principal is
 //! gone from the fold's derived set *and* absent from the fresh stamp's crypto membership.
 //!
+//! Earns/bounds: Part 2 §7.6.2 — an authorized removal propagates through the re-plant: gone from the fold AND absent from the fresh stamp.
+//!
 //! This is the load-bearing half of "removal is real". In MLS a removal must actually re-key the
 //! group so the removed member cannot read on; the re-plant achieves this by stamping a fresh
 //! group over the *post-removal* derived set. If the removed principal still seated, they would
