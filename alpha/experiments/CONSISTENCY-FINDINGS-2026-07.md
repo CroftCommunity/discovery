@@ -244,3 +244,89 @@ hoc by the owner: mechanical normalization to current conventions is accepted on
 provenance blocks as a narrow exception to the frozen-record rule. FND-8's original finding is
 recorded as **mistaken** — the site was already clean, so the RUN-05 flag was a false positive, not
 a fix.
+
+---
+
+## Traceability findings (RUN-08)
+
+`Companion to RUN-08-SUMMARY.md Part 2. The spec ↔ experiment traceability pass ran against the
+branch's post-Part-1 state. FIX = mechanical/provable/meaning-preserving (applied this run); FINDING
+= judgment or meaning-adjacent (recorded here for a settlement pass, same as RUN-05 → RUN-06). Part 2
+never moves a status tag; every tag that looks wrong is a finding, not an edit. IDs are FND-T*.`
+
+**FIXes applied this run** (not findings, listed for completeness): backward-link Serves: headers on
+the five load-bearing reports (2.2a); §-ref doc-comments on 21 spec-earning tests (2.2b, comment-only
+commit); the `handcrafted-assertions` register row gained its retirement landing (2.2c); backlog §2d
+(Vouch residual) and §6d/§6g rows carry spec/register pointers + retirement conditions (2.2d); the
+`EVIDENCE-MAP.md` index (2.3). The Part 1B conditional edits (§10.5 footnote, F7) reconciled the
+conformance ledger. No status tag was moved by Part 2.
+
+### HIGH
+
+None. Every Part 2 tag at or above `Modeled` resolves either to a named test + RUN (the reconciled
+governance claims) or to a primary-source / substrate reference (the §4–§6/§10 band). No tag was
+found unresolvable, and no cited test/path/RUN failed to resolve on grep.
+
+### MED
+
+- **FND-T1 — the substrate `Verified`/`Verified-RFC` band carries no test/RUN pointer and no
+  standardized evidence parenthetical.** ~40 tags in §4–§6, §7.4.2, §7.6.3–§7.6.4, §8.1, §10.2–§10.4
+  name *what was exercised* but point at an RFC/draft/spec section or a phrase like "against iroh
+  1.0", "measured" — not a named experiment test + RUN. Example, §4.1: "`Verified` against real
+  Ed25519 over live iroh: a forged message is rejected …". Meaning-adjacent: for a `Verified-RFC`
+  claim the literature *is* the evidence (A.9), and for the substrate `Verified` rows the anchor is
+  the conformance-core (cats 1–6, now 66/0) and the feasibility review, not an experiment RUN.
+  **Proposed:** leave `Verified-RFC` rows as literature-anchored; add one standing note (not a
+  per-sentence edit) that the substrate `Verified` band is anchored in the conformance-core + review;
+  `EVIDENCE-MAP.md` §D carries this band explicitly. No auto-FIX (adding a RUN where the claim rests
+  on an RFC would be an invented link).
+
+- **FND-T2 — the §10.5 conformance footnote materially understated the emitted suite.** The 2026-07
+  footnote said cats 7/8/9 and the revoke-authority vector were "specified but not yet emitted in the
+  reference conformance-core", yet the folded conformance-core re-proves **66/0** (cat 7 real Rust,
+  cats 8/9 TS-authoritative, cat-5b revoke-authority *mechanism*). Quoted (original): "conformance
+  categories **7/8/9** … and the **revoke-authority-threshold** vector are **specified but not yet
+  emitted**". **Reconciled by RUN-08 Part 1B** (the footnote now names 66/0 and the true residual, the
+  over-the-wire authority distribution). Residual, recorded as a finding for ratification: the word
+  "emitted" is doing two jobs — "vectors exist and re-prove" (true) versus "emitted from real
+  over-the-wire MLS + real k-of-n" (the honesty boundary). **Proposed:** owner ratifies the RUN-08
+  wording, or splits the two senses explicitly in a future pass.
+
+- **FND-T4 — the standardized evidence parenthetical does not exist in Part 2.** 2.1d asks for
+  `(evidence: <test or report>, RUN-NN[, grade])`; grep finds **0** occurrences in
+  `part-2-certifiable-design.md`. The reconciled governance claims already carry inline test+RUN
+  prose (e.g. §7.2 R7: "RED→GREEN: `rulechange_threshold_enforced.rs`; … X3 …"), just not in the
+  standard shape. **Proposed:** adopt the parenthetical in the claims where all components already
+  exist (§7.2 R7, §7.3.2 competing-quorums, §7.6.2 membership half, §8.2(e)); recorded rather than
+  auto-applied this run to avoid churning tag-adjacent sentences the `EVIDENCE-MAP.md` columns already
+  index in the standard form.
+
+### LOW
+
+- **FND-T3 — a few spec-earning test §-refs were mapped at the section level from the corpus.** The
+  §-refs added in 2.2b are strongly supported for the governance/re-plant families (reviews-log,
+  backlog, RUN summaries map them explicitly). Four are *inferred* rather than drawn from a prior
+  explicit mapping: `convergence.rs` (P7 → §7.3), `iroh_convergence.rs` (P18 → §6.10/§7.3, loopback),
+  `regress_free.rs` (V3′ → §7.3), `dedup.rs` (G3 → §6.6.4). **Proposed:** owner confirms or corrects
+  the four; each is a section-level anchor, not a claim-changing edit.
+
+- **FND-T5 — the off-ladder token `Reviewer-judgment` appears as a status-like tag in live Part 2
+  text.** §10.4 (BLAKE3 length-extension): "`Verified` for the BLAKE3 length-extension property; the
+  construction-level check is `Reviewer-judgment`". `Reviewer-judgment` is not on the A.9 ladder.
+  **Proposed A.9 mapping:** `[confirm]` (rests on a judgment not yet independently verified) or
+  `Synthesis`; **not auto-rewritten** — the normalization exception covers preserved blocks' tag
+  *format*, not a live sentence's tag *meaning* (2.4a).
+
+- **FND-T6 — former-tag vocabulary (`green-real`/`green-model`/`not_yet_emitted`/`PLACEHOLDER`) lives
+  in alpha-tier and staging docs.** It appears in `conformance-suite.md`, the relay-lab-runs
+  manifests, and `proposed-changes-…`/F7 — all pre-A.9-unification or staging vocabulary, acceptable
+  there (A.9 records green-real→`Verified`, green-model→`Modeled` as the absorption). One instance
+  introduced into the live §10.5 footnote by the Part 1B draft was removed this run. **Proposed:** if
+  any of these tokens migrate into live Part 1/Part 2 sentences, map them to the ladder per A.9.
+
+- **FND-T7 — bound-qualifier spelling drift: `real-NAT` vs `real NAT`.** Both spellings appear for
+  the same bound (e.g. "real-NAT path remains X1" and "real NAT traversal"). The other qualifiers
+  (loopback / substrate / cross-package / single-run) are single-spelling. **Proposed FIX (deferred
+  to settlement to avoid a wide mechanical sweep this run):** canonicalize the compound *qualifier* to
+  `real-NAT` (hyphenated) and leave the free-noun "real NAT" where it reads as prose; low risk, but a
+  broad find-replace, so recorded rather than swept.

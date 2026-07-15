@@ -1,5 +1,7 @@
 # Verification Report: Automerge (Rust crate) partial-reconstruction and snapshot behavior
 
+Serves: Part 2 §7.7 / §7.9 (late-joiner partial-reconstruction inertness on the 0.7 ship target) — earns/bounds: `Verified` against automerge 0.7.4 — register: `automerge-0.6.1` (Reconciled) — landed: RUN-01 (EXP-2).
+
 ## 0.7 confirmation — 2026-07-14 (RUN-01 EXP-2)
 
 **CLOSED. All four invariants hold identically on the 0.7 ship target.** The version caveat that
