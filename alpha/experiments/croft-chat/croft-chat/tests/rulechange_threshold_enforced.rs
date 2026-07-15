@@ -1,6 +1,8 @@
 //! Verification — k-of-n thresholds are enforced on **RuleChange** too, over distinct
 //! personae (Battery 6 / V5′, Rung B — the RuleChange facet).
 //!
+//! Earns/bounds: Part 2 §7.2 R7 — the k-of-n threshold is enforced on RuleChange via the content-bound approval subject.
+//!
 //! This reconciles the `rulechange-quorum` spec-delta: RuleChange threshold enforcement
 //! was previously deferred (a RuleChange has no principal subject, so Step 5.6 skipped it
 //! and the fold fell back to an Owner-role proxy). The fold now gives a RuleChange a

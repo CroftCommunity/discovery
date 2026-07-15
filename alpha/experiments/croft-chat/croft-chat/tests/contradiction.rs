@@ -1,5 +1,7 @@
 //! P20 — hard-stop on contradiction (Proof B), headless.
 //!
+//! Earns/bounds: Part 2 §7.6 / §7.6.1 — hard-stop on a Contradiction: no silent merge of two genesis claims for one group.
+//!
 //! Two devices each claim a genesis for the *same* group id — a contradictory
 //! governance fact at the same gov slot. The substrate must flag the fork
 //! (§7.6: no silent merge), `get_group_summary` must surface it, and the app must
