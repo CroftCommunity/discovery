@@ -10,6 +10,8 @@
 //! over) and an **MLS identity** (an `mls_replant::Persona`). The experiment asserts the two
 //! never drift: whoever the fold seats is exactly whom the stamp seats.
 
+pub mod dataplane;
+
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
@@ -79,6 +81,24 @@ impl Member {
             device: DeviceId::new(dk),
             principal: PrincipalId::new(pk),
             persona: Persona::new(&format!("member-{i}")),
+        }
+    }
+
+    /// Author a data-plane [`dataplane::Record`] as this member: a conversation entry carrying the
+    /// author's principal, the governance-generation stamp it held, its causal antecedent, and the
+    /// (opaque) body. The message-side face of the same member the fold seats.
+    #[must_use]
+    pub fn record(
+        &self,
+        gen_stamp: u64,
+        antecedent: Option<[u8; 32]>,
+        body: &[u8],
+    ) -> dataplane::Record {
+        dataplane::Record {
+            author: *self.principal.as_bytes(),
+            gen_stamp,
+            antecedent,
+            body: body.to_vec(),
         }
     }
 }

@@ -53,10 +53,10 @@ are **done and green**. What remains:
 
 | Item | For (claim under test) | Maturity | Blocked on |
 |---|---|---|---|
-| **E12.2** — atomic-swap *message* continuity | An in-flight conversation survives the §7.6.2 re-plant repoint without message loss/dup | Specified | Drystone dataplane hash structures (Rung B) |
-| **E12.7 message facet** | The message-continuity half of the bridge (membership half is done) | Specified | pairs with E12.2 |
+| **E12.2** — atomic-swap *message* continuity | ✅ **DONE (RUN-09 Part 3).** In-flight conversation survives the §7.6.2 re-plant repoint with no loss/dup, `Modeled` at loopback grade. B1 dataplane hash structure built (`replant-continuity/src/dataplane.rs`); `e12_2_message_continuity.rs` (5 tests) proves pre-repoint exactly-once, in-flight causal-order, cross-order digest equality, and dup/drop detection. §7.6.2 message half → `Modeled`; EVIDENCE-MAP row added. | ✅ Complete (loopback) | — (real transport / wire pinning open) |
+| **E12.7 message facet** | ✅ **DONE (RUN-09 Part 3).** The message-continuity half of the bridge (membership half already `Verified`) — landed with E12.2 in `replant-continuity`, driven over the real re-plant membership. | ✅ Complete (loopback) | — |
 | **M1 fan-out half** | ✅ **DONE (RUN-01 EXP-1, 2026-07-14).** Fan-out curve captured over real iroh-gossip at N=2/4/8/16 (`croft-chat/FANOUT-M1.md`): per-node gossip cost **linear** (`live_sent=2N+1`), aggregate O(N²), head-convergence holds at all N (fingerprints match). **Flag:** connect-time resync is super-linear on the bootstrap hub and full-settle (`pending==0`) doesn't complete past N≈8 in-window — corroborates the open RBSR/steady-state gap. Register: `fanout-single-run` (proxy-measurement, magnitude indicative). | ✅ Complete (curve + shape) | — (loopback testbed) |
-| **M2** — return-backfill vs dormancy | Cost of a returning member catching up vs staying dormant, at 1/7/30/90-day gaps | Specified (modeled lower-bound runnable now against redb history) | **Mechanism now built** — sync-on-connect resync (`iroh_bus`, `Event::NeighborUp` → re-broadcast retained log). M2 is the *sizing* study that remains (push-resync vs pull-on-connect, cost at 1/7/30/90-day gaps) + steady-state anti-entropy |
+| **M2** — return-backfill vs dormancy | Cost of a returning member catching up vs staying dormant, at 1/7/30/90-day gaps | Specified (modeled lower-bound runnable now against redb history) | **Mechanism now built** — sync-on-connect resync (`iroh_bus`, `Event::NeighborUp` → re-broadcast retained log); **steady-state anti-entropy** now demonstrated at loopback (RUN-09 Part 4: `croft-chat` `anti_entropy` range-summary/diff + `steady_state_anti_entropy.rs`; §6.8.1 → `Modeled`). M2 is the *sizing* study that remains (push-resync vs pull-on-connect, cost at 1/7/30/90-day gaps); the range-partitioned production construction and real-transport loss stay open |
 | **X1** — live cross-host over real NAT | Convert in-process fingerprint-equality into a real-network one | Specified (`RUN.md` cross-host recipe) | secroute boxes + NAT workstation (genuinely needs real NAT) |
 | **X2** — fault injection during convergence | Kill/crash/heal mid-converge → same head, no reversion, catch-up | ✅ **DONE — all green (loopback testbed, 2026-07-13)** — `scripts/x2-fault-injection.sh` | crash-consistency + monotonic no-reversion + **catch-up** all PASS (`A head == B head`). Catch-up was first *refuted* (gossip dedups re-broadcasts) then *fixed* with a prototype nonce backfill in `iroh_bus`. See ledger Phase 7 |
 | **X3** — `cargo-mutants` re-sweep on `fold_auth`/`governance` | A surviving mutant in the authority/threshold path = a real hole in the trust claim | Substrate sweep DONE; cross-package harness open | ✅ **Substrate sweep run (RUN-01 EXP-3, 2026-07-14):** 120 mutants → 54 caught, **0 survivors in threshold-counting** (`governance.rs` 13/13), 61 survivors **all** in the cross-package-covered authorization-*decision* path (`check_authorization`/`role_ge_*`/`act_subject`/`rule_change_approval_subject`). Demonstrated a survivor (`rule_change_approval_subject→const`) is killed by `croft-chat`'s `approval_for_a_different_change_does_not_count`. No real hole found. See `local_storage_projection/X3-CROSS-PACKAGE-SWEEP.md`. **Remaining:** the *automated* cross-package harness (mutate substrate while running `croft-chat`'s suite so all 61 survivors resolve mechanically) — separate crates/`Cargo.lock`, budgets the slow consumer suite. |
@@ -180,7 +180,15 @@ precondition is exercised over loopback here; the relay/real-NAT path stays X1).
 `corroboration-and-quantified-trust.md` §6 (the contract), Part 2 §7.3.3 (the dials and the fail-closed
 gate), §7.4 (the k-distinct-lineages threshold), §7.4.3 (the generation stamp).
 
-### 2d. Vouch payload-validation is an uncovered residual (from RUN-07 X3 automated sweep) — open
+### 2d. Vouch payload-validation is an uncovered residual (from RUN-07 X3 automated sweep) — RETIRED (RUN-09)
+
+**RETIRED (RUN-09, 2026-07-15).** The retirement condition is met: `croft-chat/croft-chat/tests/vouch_payload.rs`
+(9 tests) drives the fold's I5 Vouch gate end-to-end through `surface::LocalStore`'s
+`DerivedFold` path and reads the accept/reject decision back through folded state
+(`get_trust_signals`). The RUN-09 cross-package re-run of the sweep (addendum in
+`X3-AUTOMATED-SWEEP.md`) shows **19/19 Vouch-region mutants killed, 0 survived** — the 10 RUN-07
+justified survivors plus the 9 additional operator mutants. Coverage residual closed; no status tag
+moved (this was never a claim). Original finding preserved below for provenance.
 
 **FINDING — the fold's I5 Vouch payload gate is uncovered by both suites.** The RUN-07 automated
 cross-package sweep (`local_storage_projection/X3-AUTOMATED-SWEEP.md`) recorded **10 justified
@@ -346,8 +354,8 @@ governance emit API; **RUN-01** — A4/M1 fan-out (EXP-1), automerge 0.7 (EXP-2)
 contradiction predicate (the F8 impl gap, closed); **RUN-03/04** — the continuity-decoupling,
 reconciliation-horizon, and corroboration-dials design passes. Reconciled deltas: `x2-backfill`,
 `rulechange-quorum`, `handcrafted-assertions`, `automerge-0.6.1`, and `competing-quorum-autoresolve`
-(RUN-03). **Active:** `hermetic-gossip` (needs the boxes / X1) and `fanout-single-run`
-(proxy-measurement). See `SPEC-DIVERGENCE-REGISTER.md`.
+(RUN-03); `fanout-single-run` (RUN-09 Part 5 repeated-run). **Active:** `hermetic-gossip` (needs the
+boxes / X1) — the only remaining Active row. See `SPEC-DIVERGENCE-REGISTER.md`.
 
 Remaining, in leverage order (current queue):
 
@@ -362,7 +370,7 @@ Remaining, in leverage order (current queue):
    emission is the remaining integration).
 6. **BIP39 paper-recovery round-trip** spike — the Tier-1 first step of the recovery model (the
    recovery direction is already confirmed; see `../../beta/drystone-spec/open-threads.md` §2).
-7. **Build B1** (dataplane hash structures) → then **A5** (E12.2 + E12.7 message continuity).
+7. ~~**Build B1** (dataplane hash structures) → then **A5** (E12.2 + E12.7 message continuity).~~ ✅ **DONE (RUN-09 Part 3):** B1 built at loopback (`replant-continuity/src/dataplane.rs`); A5 message continuity landed (`e12_2_message_continuity.rs`), §7.6.2 message half → `Modeled`. Real transport + wire pinning remain the open follow-ons.
 8. **Meer build P2→P6** — each phase turns one lab experiment (E8/E9/E11/E12) into its running form.
 9. **Hardware / boxes when available** — **X1** real-NAT (parked pending hardware); macFUSE (Spike 3);
    the iOS feasibility spike (Spike 7, the iroh→Veilid decision point); E4/E0-NAT.

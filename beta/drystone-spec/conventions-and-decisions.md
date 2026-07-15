@@ -148,6 +148,14 @@ Part 1 and Part 2, and the working documents as they fold, carry **one** status-
 
 Two linkage markers sit alongside the ladder and are **not** status flags: **`Realizes: P-X`** (a Part 2 section names the Part 1 principle it discharges) and the **`P-X` principle codes** themselves (`P-Local-Truth`, `P-Knowable-Truth`, `P-Peer-Equality`, `P-Durable-Enablement`). Normative keywords are **MUST / SHOULD / MAY** (BCP 14).
 
+**Evidence-linkage notes (settled RUN-09, 2026-07-15).** Three conventions govern how a tag points at its evidence; each settles a RUN-08 traceability finding.
+
+- **Forward-link target, per evidence band (FND-T1).** A tag's forward link to its evidence takes one of two forms, chosen by band. An **experiment-earned** tag (a `Verified` resting on real crypto/transport, a `Modeled` reference model, a `Measured` benchmark) resolves to a **named test or report plus its RUN**. A **`Verified-RFC` or otherwise literature-anchored** tag (an `Established` primitive, an RFC/draft/spec-section citation) resolves to its **primary-source anchor** — the RFC and section, or the inherited primitive — which already *is* its correct evidence and needs no experiment pointer. The substrate `Verified` band that is not RFC-anchored is anchored in the feasibility review and the conformance-core (cats 1–6); `EVIDENCE-MAP.md` §D carries that band explicitly.
+
+- **The evidence parenthetical is the recommended forward form, not retrofitted (FND-T4).** An evidence sentence written from RUN-09 onward SHOULD carry the standardized `(evidence: <test or report>, RUN-NN[, grade])` parenthetical. It is **not** back-fitted onto sentences that already carry inline test+RUN prose; adoption is forward-only, so existing tag-adjacent prose is left as-is.
+
+- **Legacy status vocabulary is alpha-tier only (FND-T6).** The former tag words `green-real`, `green-model`, and `not_yet_emitted` (and `PLACEHOLDER`) belong to pre-A.9-unification, alpha-tier, and staging docs, where they are acceptable (B.6 records the absorption: `green-real → Verified`, `green-model → Modeled`). They never appear in a live Part 1 / Part 2 sentence; a token that migrates into one is mapped to its ladder rung.
+
 ### A.10 Normative clauses carry their grounding (both MUST and MUST NOT)
 
 A normative clause **MUST** be stated with an affirmative account of *why*, and the requirement is
