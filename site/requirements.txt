@@ -1,0 +1,4 @@
+# Pinned build dependency for the Drystone spec site (site/build.py).
+# The resolver (site/resolver.py) and its tests are pure standard library;
+# only the markdown -> HTML rendering needs this.
+markdown==3.7
