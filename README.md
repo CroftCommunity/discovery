@@ -4,6 +4,8 @@
 companions with every cross-reference as a followable link. Built by `site/build.py`; the same build is a
 broken-reference gate on every push and PR (see `site/README.md`).
 
+[![pages](https://github.com/CroftCommunity/discovery/actions/workflows/pages.yml/badge.svg)](https://github.com/CroftCommunity/discovery/actions/workflows/pages.yml)
+
 This repo is organized as a **maturity lifecycle**: `alpha → beta → rc → publish`. Each stage is a
 self-contained tree with its own linear git history; the stages cohabit, and material matures upward.
 
