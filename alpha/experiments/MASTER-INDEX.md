@@ -61,7 +61,7 @@ Notation: **needs** = an in-repo prerequisite stage; **blocked** = an external r
 | ID | Stage | Needs | Blocked on |
 |---|---|---|---|
 | **A1** | Fold open items (~~RuleChange thresholds~~ ✅; ~~contradicted-head byte naming~~ ✅ **RUN-01 EXP-4**; ~~competing-quorum~~ ✅ **design DECIDED (RUN-02 F8: hard-stop) + impl BUILT & test-run (RUN-03 Phase B: `detect_competing_rulechange`; register Reconciled)**; per-act approver granularity **still design-open**; catching-up TUI = UX, skipped) | F1 | approver-role = **design decision** (backlog §2a) |
-| **A2** | `cargo-mutants` re-sweep on `fold_auth`/`governance` (Battery 8 X3) | F1 | ✅ tool installed; remaining = automated cross-package sweep |
+| **A2** | `cargo-mutants` re-sweep on `fold_auth`/`governance` (Battery 8 X3) | F1 | ✅ **DONE (RUN-07)** — automated cross-package harness (`X3-AUTOMATED-SWEEP.md`): 61 substrate survivors → **7 killed, 54 justified, 0 unjustified**; R7 count-enforcement now cross-package `Verified` (§7.2); surfaced `fold_auth` as an off-consumer-path duplicate (register `fold-auth-duplicate`) |
 | **A3** | Local multi-process convergence + fault injection (X2) | F2 | ✅ **DONE (§5)** — X2 all-green on the loopback testbed: crash-consistency, monotonic no-reversion, **and** catch-up-after-absence — closed by **sync-on-connect resync** (the spec mechanism; the prototype spec-delta was reconciled and retired). M2's *sizing* study + steady-state anti-entropy remain |
 | **A4** | ~~M1 fan-out~~ ✅ **DONE RUN-01 EXP-1** (`croft-chat/FANOUT-M1.md`: per-node linear `2N+1`, O(N²) aggregate, heads converge; resync super-linear on hub past N≈8); M2 (return-backfill vs dormancy) still open | F3, A3 | M2 modelable now |
 | **A5** | E12.2 + E12.7 message-continuity (atomic repoint of an in-flight conversation) | F3, **B1** | dataplane hash structures |
@@ -137,10 +137,15 @@ design decisions and the automated harness.
    predicate (`fold_derived::detect_competing_rulechange`, the narrowest F8 form); the refutation pin
    flipped RED→GREEN and the register row is Reconciled. Per-act approver-role granularity stays a
    design call (backlog §2a).
-2. **X3 automated cross-package harness:** the tool is installed and the substrate sweep is done
-   (0 threshold-counting survivors; 61 authorization-decision survivors are cross-package-covered,
-   demonstrated). What remains is the harness that mutates the substrate while running `croft-chat`'s
-   suite so the survivors resolve mechanically (separate crates/`Cargo.lock`; budget the consumer suite).
+2. **X3 automated cross-package harness — ✅ DONE (RUN-07).** The harness (`x3_cross_package_harness.py`,
+   `X3-AUTOMATED-SWEEP.md`) mutates the substrate in place and runs the `croft-chat` suite per survivor
+   (the single-invocation config is blocked by the separate workspaces; the thin driver is the shape the
+   X3 report anticipated). All 61 substrate survivors resolve mechanically: **7 killed, 54 individually
+   justified, 0 unjustified.** The 7 killed are R7's content-bound-quorum count path, so **R7's count
+   claim is now cross-package mutation-`Verified`** (§7.2). Two findings: `fold_auth.rs` is an
+   off-consumer-path duplicate (31 survivors never linked by the suite; register `fold-auth-duplicate`),
+   and the role-authorship gate (7) plus Vouch payload validation (10) are uncovered residuals outside
+   the R7 count claim.
 3. **Decide the identity/key-recovery model (I9)** — now the explicit blocker for EXP-5's
    threshold-revoke-over-wire half. Recommended EXP-5 option A (quorum-of-Ed25519 reusing the governance
    k-of-n) is the one path *not* blocked on I9; the MLS-key-distribution half is already spike-realized.

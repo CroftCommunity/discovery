@@ -42,6 +42,7 @@ SPEC-DELTA[<id> | <kind>]: <what it stands in for> — <spec requirement> — Re
 |---|---|---|---|---|---|---|
 | **hermetic-gossip** | test-hermeticization | `croft-chat/croft-chat/tests/iroh_convergence.rs`; `.../src/iroh_bus.rs` unit test | The two convergence tests were moved from `presets::N0` to `RelayChoice::LocalDirect` so they run without Internet. They now exercise **loopback gossip only**. | The real deployment reaches peers via the **n0 relay + holepunch** (`relay_mode = "n0"`); cross-host convergence must hold over that path. | The relay/holepunch path is **X1** — it genuinely needs the boxes (unreproducible where Internet UDP is blocked). Until X1 runs, these tests do not cover it. | **Bounded — intentional.** Green ≠ relay path proven. |
 | **fanout-single-run** | proxy-measurement | `croft-chat/FANOUT-M1.md`; `croft-chat/scripts/fanout-measure.sh`; `croft-chat/fanout-data/` | The A4/M1 fan-out curve (EXP-1) is from 1–2 runs per N (no averaging), latency sampled at ±250 ms tick resolution, over a **star-bootstrap** loopback topology. `live_sent = 2N+1` (linear per-node) and head-convergence are topology-robust; the super-linear creator `resync_sent` magnitude is topology-sensitive. | §11.11 #1 wants the fan-out re-key cost on representative hardware across the live set. | Re-run with replicates + a mesh bootstrap + finer timing for tight magnitudes; the *shape* (linear per-node, O(N²) aggregate, super-linear connect-time resync) is what is claimed, and it held across both runs. | **Bounded — direction/shape hold, magnitude indicative.** |
+| **fold-auth-duplicate** | dead-parallel-copy | `local_storage_projection/src/fold_auth.rs` | `fold_auth::AuthFold` reimplements the authorization/ingest path, but is instantiated **only in its own `#[cfg(test)]`**; the live path is `surface::LocalStore` → `fold_derived::DerivedFold`, and `fold_derived` even labels its copy "duplicated from fold_auth for independence". RUN-07's automated cross-package sweep found **all 31 `fold_auth.rs` survivors survive the consumer suite** — the copy is never linked by croft-chat, so no consumer test can pin it. | One authorization path pinned by the consumer suite; a second, uncovered copy of security-critical decision logic is a latent divergence surface (the two copies can drift silently). | Retire `fold_auth` in favor of the single `fold_derived` path, or give `fold_auth` its own tests that pin these 31 mutants. A production change, out of RUN-07's stop rule. See `local_storage_projection/X3-AUTOMATED-SWEEP.md`. | **Active — flagged RUN-07, not fixed (production change).** |
 ## Reconciled (the spec mechanism now exists — tag retired)
 
 | ID | Was | Reconciled to | Evidence |
@@ -59,9 +60,18 @@ SPEC-DELTA[<id> | <kind>]: <what it stands in for> — <spec requirement> — Re
 > (120 mutants → 54 caught, 61 missed, 5 unviable): **threshold-counting has 0 survivors** in-substrate
 > (`governance.rs` 13/13), and the approval-subject survivor `rule_change_approval_subject→const` was
 > **hand-killed against the cross-package test** `approval_for_a_different_change_does_not_count` —
-> confirming the manual gate above. The 61 survivors are all authorization-*decision* mutants whose
-> pinning tests live cross-package; the **automated** cross-package harness (so they resolve
-> mechanically) remains **X3**. See `local_storage_projection/X3-CROSS-PACKAGE-SWEEP.md`.
+> confirming the manual gate above. See `local_storage_projection/X3-CROSS-PACKAGE-SWEEP.md`.
+> **RUN-07 (2026-07-15) closed the automated harness** (`x3_cross_package_harness.py` +
+> `X3-AUTOMATED-SWEEP.md`): re-running the current-code substrate sweep (61 survivors) and then
+> driving each survivor through the croft-chat consumer suite resolves all 61 mechanically — **7
+> killed, 54 individually justified, 0 unjustified**. The 7 killed are exactly R7's content-bound
+> quorum *count* path (approval subject `rule_change_approval_subject`, approval-subject resolution
+> `act_subject`, rule-key decode, membership-admin gate), so **R7's count claim is now cross-package
+> mutation-`Verified`** (§7.2, RUN-07). The harness also refuted the original "all survivors are
+> cross-package-covered" reading: **31 survivors are in `fold_auth.rs`, an off-consumer-path
+> duplicate** the suite never links (`surface` → `fold_derived`); the rest are the role-authorship
+> gate (7; R7 excludes the role model), uncovered Vouch payload validation (10), node-card provenance
+> (3), and boundary/adjacent-rule mutants (3). See the new `fold-auth-duplicate` row.
 
 > **Residual-scaffolding note (handcrafted-assertions).** The `tests/common` scaffolding is **not**
 > removed and its remaining use is **legitimate, not a divergence**: (a) the Battery-5 refutation
