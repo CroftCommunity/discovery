@@ -1,6 +1,6 @@
 # A4 / M1 fan-out — gossip fan-out cost & convergence curve (EXP-1)
 
-Serves: Part 2 §11.11 measurement #1 and §11.4–§11.5 (fan-out cost scales on the live set) — earns/bounds: `Measured` (fan-out shape; loopback, single-run magnitude indicative) — register: `fanout-single-run` — landed: RUN-01 (EXP-1).
+Serves: Part 2 §11.11 measurement #1 and §11.4–§11.5 (fan-out cost scales on the live set) — earns/bounds: `Measured` (fan-out shape; loopback, magnitude replicated K=5 at RUN-09, open at hardware hot-N) — register: `fanout-single-run` (Reconciled, RUN-09) — landed: RUN-01 (EXP-1); repeated-run addendum RUN-09 (Part 5).
 
 `RUN-01 EXP-1. Branch claude/experiments-run-01, 2026-07-14. Runnable-now, no new infra.`
 
@@ -103,4 +103,56 @@ steady-state-anti-entropy gap rather than contradicting the live-set posture.
 ```sh
 cargo build -p croft-chat --features iroh-it
 BIN=target/debug/croft-chat RUN_SECONDS=45 ./scripts/fanout-measure.sh 2 4 8 16
+```
+
+---
+
+## Addendum — repeated-run (K = 5) at N = 2/4/8/16 (RUN-09 Part 5, 2026-07-15)
+
+`RUN-09 Part 5. Same harness (scripts/fanout-measure.sh), same loopback testbed, real iroh-gossip,
+relay_mode = "disabled", RUN_SECONDS = 30. The single-run arm of the fanout-single-run register row:
+re-run the sweep K = 5 times and report the per-N spread. Raw per-node metrics in
+fanout-data/repeated-run09.csv (150 node-samples).`
+
+Per-N spread across the 5 runs (min / median / max):
+
+| N | `live_sent`/node | creator `resync_sent` | head-convergence `head_ms` | fully-settled `pending==0` | fingerprints |
+|---|---|---|---|---|---|
+| 2  | **5 / 5 / 5**   | 3 / 3 / 3       | 305 / 682 / 1034 ms   | 2/2 every run | ✅ all equal, all 5 runs |
+| 4  | **9 / 9 / 9**   | 15 / 15 / 15    | 852 / 860 / 1096 ms   | 3–4 / 4 | ✅ all equal, all 5 runs |
+| 8  | **17 / 17 / 17** | 64 / 65 / 67   | 980 / 1050 / 1390 ms  | 1–2 / 8 | ✅ all equal, all 5 runs |
+| 16 | **33 / 33 / 33** | 349 / 401 / 422 | 2899 / 3569 / 4049 ms | 0–1 / 16 | ✅ all equal, all 5 runs |
+
+**What the replicates confirm.**
+
+1. **`live_sent = 2N+1` is exact and zero-variance** — 5, 9, 17, 33 at N = 2, 4, 8, 16, identical in
+   all 5 runs (150/150 node-samples). The load-bearing per-node-linear claim is reproduced tight, not
+   indicative.
+2. **Head-convergence holds at every N in every run** — `fp_unique = 1` (all fingerprints equal) on
+   all 20 sweeps. Order-insensitive convergence (I5) scaling across the fan-out is robust to repetition.
+3. **The connect-time resync is super-linear on the hub, reproducibly** — creator `resync_sent`
+   3 → 15 → 65 → 401 (median), a tight band at each N (N = 16 spans 349–422, ≈ ±9%). Same ≈ O(N²)
+   shape as the single run. The N = 16 central value comes in at ~401, **below** the single-run 479:
+   the replicates *tighten and slightly lower* the hub-resync magnitude rather than widening it. This
+   is the value of averaging — the magnitude is now a measured band, not a single indicative point.
+4. **Full-settle degrades past N ≈ 8, reproducibly** — 0–1/16 settled at N = 16 within the 30 s window,
+   the same honest incompleteness the single run reported (heads match; the resync/anti-entropy tail
+   does not drain). RUN-09 Part 4 built the steady-state anti-entropy repair this flag points at
+   (§6.8.1, `Modeled` at loopback).
+
+**Disposition.** The spread is **narrow**: the load-bearing per-node linearity is exact, head
+convergence is universal, and the hub-resync super-linear shape reproduces with a tight (and slightly
+lower) magnitude band. This **supports the recorded magnitudes**, so the `fanout-single-run` register
+row is **retired (Reconciled, RUN-09)** and the §11.11 measurement-#1 caveat clause that names it is
+updated. The one dimension the repeated-run does *not* address — the **topology-sensitivity** of the
+resync *magnitude* (star versus mesh bootstrap) — is carried forward as a narrow note, not a blocker
+on the shape claim; a mesh bootstrap would spread the hub-absorbed `NeighborUp` load. Hardware hot-N
+(500+) stays X1-adjacent and out of scope.
+
+## Reproduce (repeated-run)
+
+```sh
+cargo build -p croft-chat --features iroh-it
+# K sweeps at N = 2/4/8/16, per-node metrics to fanout-data/repeated-run09.csv:
+K=5 RUN_SECONDS=30 ./scripts/fanout-repeated.sh      # driver committed alongside
 ```
