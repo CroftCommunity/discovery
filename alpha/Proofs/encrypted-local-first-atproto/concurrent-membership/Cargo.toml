@@ -1,0 +1,15 @@
+[package]
+name = "concurrent-membership"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+
+[dependencies]
+automerge = "0.7"
+openmls = "0.8"
+openmls_rust_crypto = "0.5"
+openmls_traits = "0.5"
+openmls_basic_credential = "0.5"
+chacha20poly1305 = "0.10"
+rand = "0.8"
+hex = "0.4"

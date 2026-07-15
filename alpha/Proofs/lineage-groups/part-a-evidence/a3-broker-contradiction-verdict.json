@@ -1,0 +1,67 @@
+{
+  "branches": [
+    {
+      "label": "/tmp/a3_boot.json",
+      "head_hex": "25e6fdead0a883cd95c942191b1d20bed5c20b6f73ca271b6237b2ccfb87cdb5",
+      "members": [
+        "alice",
+        "bob",
+        "carol",
+        "dave"
+      ],
+      "ops": [
+        {
+          "seq": 0,
+          "kind": "Remove",
+          "subject": "erin",
+          "signers": [
+            "alice",
+            "bob"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "/tmp/a3_keep.json",
+      "head_hex": "7d355aad61c4495d415b7417b34f7b4e6db92cecd2d6acbf126e46bc538dae93",
+      "members": [
+        "alice",
+        "bob",
+        "carol",
+        "dave",
+        "erin",
+        "grace"
+      ],
+      "ops": [
+        {
+          "seq": 0,
+          "kind": "Add",
+          "subject": "grace",
+          "signers": [
+            "dave"
+          ]
+        }
+      ]
+    }
+  ],
+  "fork_detected": true,
+  "distinct_heads": 2,
+  "pairwise": [
+    {
+      "left": "/tmp/a3_boot.json",
+      "right": "/tmp/a3_keep.json",
+      "resolution": "HardStop",
+      "conflicts": [
+        "RemovedThenIncluded(erin)"
+      ]
+    }
+  ],
+  "contradiction": true,
+  "contested": [
+    "erin"
+  ],
+  "survivor_head_hex": "7d355aad61c4495d415b7417b34f7b4e6db92cecd2d6acbf126e46bc538dae93",
+  "survivor_label": "/tmp/a3_keep.json",
+  "survivor_order_independent": true,
+  "equivocations": []
+}

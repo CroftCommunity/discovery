@@ -1,0 +1,23 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §7 (reconcile/fork); conformance-suite cat 6 corpus",
+    "category": 6,
+    "note": "no ops either side -> converge (trivial heal) — verdict DERIVED from real conflict::detect (+ DAG fork for re-formation), never hand-set."
+  },
+  "vector": {
+    "id": "C8",
+    "label": "no ops either side -> converge (trivial heal)",
+    "branches": [
+      {
+        "label": "idle-left",
+        "ops": []
+      },
+      {
+        "label": "idle-right",
+        "ops": []
+      }
+    ],
+    "verdict": "converge",
+    "contested": []
+  }
+}

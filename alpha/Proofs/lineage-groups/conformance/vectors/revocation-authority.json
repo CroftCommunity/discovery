@@ -1,0 +1,207 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §6 (revoke-AUTHORITY threshold); conformance-suite cat 5b; E2.1/E2.10",
+    "category": 5,
+    "note": "Green-real revoke-authority SIGNATURE + lineage-counted-threshold mechanism: a real k-of-n Ed25519 bundle verified via gov::meets_threshold_by_lineage (dir.verify is real Ed25519). Thresholds count distinct admin LINEAGES, not device DIDs (E2.10), and only genesis admins with standing count. SCOPE: this vector covers ONLY the signature-verification + threshold-counting logic a second implementation must reproduce regardless of transport. Over-the-wire authority distribution + the co-sign-vs-vote ORDERING decision remain Workstream C (see discovery/thinking/open-edges.md §1)."
+  },
+  "vectors": [
+    {
+      "label": "accept: 2 distinct admin lineages meet threshold 2",
+      "admins": [
+        {
+          "did": "alice",
+          "lineage": "lin-a",
+          "verifying_key_hex": "269a5afa8afd79a788b8f6e816504a1fe19918aaface2e14345d521c3d163f1b"
+        },
+        {
+          "did": "bob",
+          "lineage": "lin-b",
+          "verifying_key_hex": "c2857407bcbb35f67637bad1a41b486dbf89d6b45375dfde3dc710099d4313f2"
+        },
+        {
+          "did": "carol",
+          "lineage": "lin-c",
+          "verifying_key_hex": "4d7078c325d1e523dfa151895eb874603bdcdd0af412f10b6e36a836c07a8edd"
+        }
+      ],
+      "non_admin_signers": [],
+      "op_kind": "Remove",
+      "subject": "erin",
+      "signing_bytes_hex": "6f702d7631a984b3ef7deb3e8793367b7f1d8f13f95704afc18d4bc9313834614d5d70dd410000000000000000a984b3ef7deb3e8793367b7f1d8f13f95704afc18d4bc9313834614d5d70dd4101016572696e",
+      "sigs": [
+        {
+          "did": "alice",
+          "signature_hex": "3e2c5eb0a31e3cbb6825f50cbd8bdab5511627751edbc6f8e611e126810e48244bf2254b54a80d7e6747bbd933dc17f89c6081ec3881c0a5e59d0c3445af890b"
+        },
+        {
+          "did": "bob",
+          "signature_hex": "e84c149558f3a1e65cadad410f7a16bc4c0f3c8577c700aeaec6fdb8d585957db2fe41dbecf485c8b49d596efb2cd1ce79aa786e7f7b793363c46e37084cdf08"
+        }
+      ],
+      "lineage_of": [
+        [
+          "alice",
+          "lin-a"
+        ],
+        [
+          "bob",
+          "lin-b"
+        ],
+        [
+          "carol",
+          "lin-c"
+        ]
+      ],
+      "threshold": 2,
+      "expect": "accept"
+    },
+    {
+      "label": "reject:under_threshold — only 1 admin signs (needs 2)",
+      "admins": [
+        {
+          "did": "alice",
+          "lineage": "lin-a",
+          "verifying_key_hex": "269a5afa8afd79a788b8f6e816504a1fe19918aaface2e14345d521c3d163f1b"
+        },
+        {
+          "did": "bob",
+          "lineage": "lin-b",
+          "verifying_key_hex": "c2857407bcbb35f67637bad1a41b486dbf89d6b45375dfde3dc710099d4313f2"
+        },
+        {
+          "did": "carol",
+          "lineage": "lin-c",
+          "verifying_key_hex": "4d7078c325d1e523dfa151895eb874603bdcdd0af412f10b6e36a836c07a8edd"
+        }
+      ],
+      "non_admin_signers": [],
+      "op_kind": "Remove",
+      "subject": "erin",
+      "signing_bytes_hex": "6f702d7631a984b3ef7deb3e8793367b7f1d8f13f95704afc18d4bc9313834614d5d70dd410000000000000000a984b3ef7deb3e8793367b7f1d8f13f95704afc18d4bc9313834614d5d70dd4101016572696e",
+      "sigs": [
+        {
+          "did": "alice",
+          "signature_hex": "3e2c5eb0a31e3cbb6825f50cbd8bdab5511627751edbc6f8e611e126810e48244bf2254b54a80d7e6747bbd933dc17f89c6081ec3881c0a5e59d0c3445af890b"
+        }
+      ],
+      "lineage_of": [
+        [
+          "alice",
+          "lin-a"
+        ],
+        [
+          "bob",
+          "lin-b"
+        ],
+        [
+          "carol",
+          "lin-c"
+        ]
+      ],
+      "threshold": 2,
+      "expect": "reject:under_threshold"
+    },
+    {
+      "label": "reject:non_admin_signer — lone signer is a member but not an admin",
+      "admins": [
+        {
+          "did": "alice",
+          "lineage": "lin-a",
+          "verifying_key_hex": "269a5afa8afd79a788b8f6e816504a1fe19918aaface2e14345d521c3d163f1b"
+        },
+        {
+          "did": "bob",
+          "lineage": "lin-b",
+          "verifying_key_hex": "c2857407bcbb35f67637bad1a41b486dbf89d6b45375dfde3dc710099d4313f2"
+        },
+        {
+          "did": "carol",
+          "lineage": "carol",
+          "verifying_key_hex": "4d7078c325d1e523dfa151895eb874603bdcdd0af412f10b6e36a836c07a8edd"
+        }
+      ],
+      "non_admin_signers": [
+        {
+          "did": "mallory",
+          "lineage": "lin-m",
+          "verifying_key_hex": "d637f53dd26c00d5de147bc4b41c01e9f08d39eb743983bd66e848c48a4dfe2d"
+        }
+      ],
+      "op_kind": "Remove",
+      "subject": "erin",
+      "signing_bytes_hex": "6f702d7631420fe60a74a800f9d393725a60ec2d16f010fb5d6eb8631d1753ee3933c5cdfe0000000000000000420fe60a74a800f9d393725a60ec2d16f010fb5d6eb8631d1753ee3933c5cdfe01016572696e",
+      "sigs": [
+        {
+          "did": "mallory",
+          "signature_hex": "ea8e6456fa30ae096edfb6f9ef3de1a841495c532767e39c166996c33dc64b31fd7b38ab2b310f4f6dc79267df181ba2b4a3f4fea5f263664eb2f4eb53412f0b"
+        }
+      ],
+      "lineage_of": [
+        [
+          "alice",
+          "lin-a"
+        ],
+        [
+          "bob",
+          "lin-b"
+        ],
+        [
+          "mallory",
+          "lin-m"
+        ]
+      ],
+      "threshold": 2,
+      "expect": "reject:non_admin_signer"
+    },
+    {
+      "label": "reject:one_lineage_multi_device — 2 devices of one lineage count as 1 (E2.10)",
+      "admins": [
+        {
+          "did": "p-phone",
+          "lineage": "person-p",
+          "verifying_key_hex": "a9996c0dd52e35e19beb5242b860875c7901b464637c0fa7657362d33ca0788d"
+        },
+        {
+          "did": "p-laptop",
+          "lineage": "person-p",
+          "verifying_key_hex": "b315007ae691fbd2061f4c65e1a14244fd4d9ac5ea3e629d573bf1acde729755"
+        },
+        {
+          "did": "carol",
+          "lineage": "lin-c",
+          "verifying_key_hex": "4d7078c325d1e523dfa151895eb874603bdcdd0af412f10b6e36a836c07a8edd"
+        }
+      ],
+      "non_admin_signers": [],
+      "op_kind": "Remove",
+      "subject": "erin",
+      "signing_bytes_hex": "6f702d7631f5d5810b677fc37810d09638da42afe9626fab4d459577cd4c39fbbc8b234b180000000000000000f5d5810b677fc37810d09638da42afe9626fab4d459577cd4c39fbbc8b234b1801016572696e",
+      "sigs": [
+        {
+          "did": "p-laptop",
+          "signature_hex": "51697466be845c1b186d3f36e940cff6441756762bae6895b3cf8907587a88960dbf14d3167399a1d861a04c17344632013e7d47f3ededafa18a6a83ba4b7306"
+        },
+        {
+          "did": "p-phone",
+          "signature_hex": "82bfbf7759af3f01f51706397d8583c1724b2a46370272f185679941ed8dde26023085fa35dd67d46c68d73ef809017fe775ca3c3c07ef42ac22e5e26c382d04"
+        }
+      ],
+      "lineage_of": [
+        [
+          "p-phone",
+          "person-p"
+        ],
+        [
+          "p-laptop",
+          "person-p"
+        ],
+        [
+          "carol",
+          "lin-c"
+        ]
+      ],
+      "threshold": 2,
+      "expect": "reject:one_lineage_multi_device"
+    }
+  ]
+}

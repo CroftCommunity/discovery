@@ -1,0 +1,12 @@
+[package]
+name = "lineage-history"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+description = "Per-branch message history (Automerge wrapper). Phase 2 — scaffold only."
+
+[dependencies]
+lineage-core.workspace = true
+serde.workspace = true
+thiserror.workspace = true

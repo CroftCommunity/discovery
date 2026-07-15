@@ -1,0 +1,30 @@
+[package]
+name = "local-appview"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+
+[dependencies]
+# --- private stack (carried from prior phases; lives behind RecordSource) ---
+automerge = "0.7"
+openmls = "0.8"
+openmls_rust_crypto = "0.5"
+openmls_traits = "0.5"
+openmls_basic_credential = "0.5"
+chacha20poly1305 = "0.10"
+rand = "0.8"
+blake3 = "1"
+
+# --- records, lexicons, JSON (shared) ---
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hex = "0.4"
+
+# --- AppView: indexer (SQLite) + server (HTTP/XRPC) + in-process client ---
+# Pinned to 0.32: rusqlite 0.40 pulls libsqlite3-sys 0.38.1, whose build script
+# uses the still-unstable `cfg_select` and won't compile on stable 1.94. 0.32
+# uses an older libsqlite3-sys; the API surface we use is unchanged.
+rusqlite = { version = "0.32", features = ["bundled"] }
+axum = "0.8"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net"] }
+reqwest = { version = "0.13", default-features = false, features = ["json"] }

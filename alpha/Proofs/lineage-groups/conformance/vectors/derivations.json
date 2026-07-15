@@ -1,0 +1,49 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §2 (derivations); tagged wire identities + structural GenesisId",
+    "category": 1,
+    "note": "Exact 32-byte values, derived by the real lineage-core. Two flavours: (1) the TAGGED wire-identity derivations lineage_genesis/group_genesis/group_topic = sha256(tag ‖ id) with tags croft-lineage-genesis:/croft-group-genesis:/croft-group-topic:, now canonical in lineage_core::ids (spec §2 is the source of truth — the prior divergence with the iroh spike is resolved, the spike's inline form is byte-identical); and (2) the STRUCTURAL GenesisId = sha256(canonical_bytes), which is the content-hash anchor, NOT a wire identity. The runner re-derives the tagged rows through the real lineage_core::ids functions."
+  },
+  "vectors": [
+    {
+      "kind": "genesis_id (structural: sha256 of canonical bytes)",
+      "derivation": "structural",
+      "input_hex": "63726f66742d6c696e656167653a7661636174696f6e2d32303235",
+      "input_id": "",
+      "expected_hex": "7f912487788a9c28db03ade0de3eec11e286b3dd3a4f781f26e20e2c59bbe0ab",
+      "expect": "accept"
+    },
+    {
+      "kind": "lineage_genesis (tagged wire identity: sha256(tag ‖ id))",
+      "derivation": "lineage_genesis",
+      "input_hex": "63726f66742d6c696e656167652d67656e657369733a6c696e2d61",
+      "input_id": "lin-a",
+      "expected_hex": "e1d1d13d80d133c60ddb47ccf01a0f5f9b9b101544a0caedc244e9621097c93d",
+      "expect": "accept"
+    },
+    {
+      "kind": "group_genesis (tagged wire identity: sha256(tag ‖ id))",
+      "derivation": "group_genesis",
+      "input_hex": "63726f66742d67726f75702d67656e657369733a6772702d31",
+      "input_id": "grp-1",
+      "expected_hex": "7a7f2300dd542ef7650b31e0dabe694c644c7886c9d9d8c92d1fdfe9bb359efa",
+      "expect": "accept"
+    },
+    {
+      "kind": "group_topic (tagged wire identity: sha256(tag ‖ id))",
+      "derivation": "group_topic",
+      "input_hex": "63726f66742d67726f75702d746f7069633a6772702d31",
+      "input_id": "grp-1",
+      "expected_hex": "4cb63102d3c6b599fcfc4693ed71ff6d04f9007c96579b159c7455d6d769a1d8",
+      "expect": "accept"
+    },
+    {
+      "kind": "group_genesis (structural: Genesis::new over real rules+founders)",
+      "derivation": "structural",
+      "input_hex": "67656e657369732d763172756c65732d76310061646d696e00616c6963650061646d696e00626f62010200000000666f756e64657200616c69636500666f756e64657200626f6200666f756e646572006361726f6c",
+      "input_id": "",
+      "expected_hex": "2c135a4aaf2b4917d3fbb5813cee1e6bd6b84d3d420e62d264d50e4e8d28d1da",
+      "expect": "accept"
+    }
+  ]
+}

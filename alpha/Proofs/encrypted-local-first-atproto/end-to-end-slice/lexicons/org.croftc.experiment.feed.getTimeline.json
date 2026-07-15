@@ -1,0 +1,59 @@
+{
+  "lexicon": 1,
+  "id": "org.croftc.experiment.feed.getTimeline",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "EXPERIMENTAL. Get the group feed timeline: posts in reverse-chronological order, each hydrated with its author and attached reactions.",
+      "parameters": {
+        "type": "params",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50,
+            "description": "Maximum number of posts to return."
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["feed"],
+          "properties": {
+            "feed": {
+              "type": "array",
+              "items": { "type": "ref", "ref": "#postView" }
+            }
+          }
+        }
+      }
+    },
+    "postView": {
+      "type": "object",
+      "description": "A post hydrated with author and reactions.",
+      "required": ["uri", "author", "text", "createdAt", "reactions"],
+      "properties": {
+        "uri": { "type": "string", "format": "at-uri" },
+        "author": { "type": "string", "description": "DID of the post author." },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "datetime" },
+        "reactions": {
+          "type": "array",
+          "items": { "type": "ref", "ref": "#reactionView" }
+        }
+      }
+    },
+    "reactionView": {
+      "type": "object",
+      "description": "A reaction hydrated with its reactor.",
+      "required": ["emoji", "reactor"],
+      "properties": {
+        "emoji": { "type": "string" },
+        "reactor": { "type": "string", "description": "DID of the reactor." }
+      }
+    }
+  }
+}

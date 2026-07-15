@@ -1,0 +1,39 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §7 (reconcile/fork); conformance-suite cat 6 corpus",
+    "category": 6,
+    "note": "complementary adds of DIFFERENT members -> converge — verdict DERIVED from real conflict::detect (+ DAG fork for re-formation), never hand-set."
+  },
+  "vector": {
+    "id": "C10",
+    "label": "complementary adds of DIFFERENT members -> converge",
+    "branches": [
+      {
+        "label": "add-frank",
+        "ops": [
+          {
+            "kind": "Add",
+            "subject": "frank",
+            "signers": [
+              "carol"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "add-grace",
+        "ops": [
+          {
+            "kind": "Add",
+            "subject": "grace",
+            "signers": [
+              "dave"
+            ]
+          }
+        ]
+      }
+    ],
+    "verdict": "converge",
+    "contested": []
+  }
+}

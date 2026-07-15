@@ -1,0 +1,37 @@
+{
+  "lexicon": 1,
+  "id": "org.croftc.experiment.feed.post",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "EXPERIMENTAL. A short text status posted to a private group feed. Schema mirrors app.bsky.feed.post conventions so records could later be published to a PDS unchanged.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["text", "createdAt"],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 3000,
+            "maxGraphemes": 300,
+            "description": "The status text. Byte length is capped by maxLength; rendered length by maxGraphemes."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared timestamp when this post was originally created."
+          },
+          "langs": {
+            "type": "array",
+            "maxLength": 3,
+            "items": {
+              "type": "string",
+              "format": "language"
+            },
+            "description": "Indicates languages used in the post text, as BCP-47 tags."
+          }
+        }
+      }
+    }
+  }
+}
