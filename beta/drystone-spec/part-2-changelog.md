@@ -451,3 +451,43 @@ Scope: one pointer sentence, no mechanism change and no status change. The RUN-0
 **§8.2, done.** The honesty-boundaries preamble gains a closing sentence pointing to `EVIDENCE-MAP.md`, the regenerable per-claim index of where each status tag at or above Modeled resolves to its evidence (named tests, report files, RUN numbers, environment bounds). The sentence states the index-not-source rule: the map is an index only, and the tagged sentence in Part 2 remains authoritative wherever the two differ. No tag moved.
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; no code identifier or mechanism changed; the referenced file `EVIDENCE-MAP.md` exists in this directory. Evidence: RUN-08 Part 2 traceability pass.
+
+## Off-ladder token de-backticked in the length-extension note (§10.4)
+
+`Status: complete (RUN-09, 2026-07-15)`
+
+Scope: one meaning-preserving edit, no mechanism change and no status-tag move. Settles the RUN-08 traceability finding FND-T5 (owner-confirmed for settlement 2026-07-15).
+
+**§10.4, done.** In the BLAKE3 hash note, the off-ladder token `` `Reviewer-judgment` `` is de-backticked into plain prose: "the construction-level check rests on reviewer judgment, to be formalized as a per-context note at freeze." The A.9 ladder gains no eleventh rung; the backticked form had read as a status tag, and the plain prose no longer does. The `` `Verified` `` tag on the BLAKE3 length-extension property is unchanged.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 edit removes backticks only and preserves the sentence meaning; no code identifier or mechanism changed; §10.4 and the A.9 ladder resolve. Evidence: FND-T5 settlement, `CONSISTENCY-FINDINGS-2026-07.md` `## Settlement (RUN-09, 2026-07-15)`.
+
+## Re-plant message-continuity half recorded at loopback grade (§7.6.2)
+
+`Status: complete (RUN-09, 2026-07-15)`
+
+Scope: one conditional status record earned by RUN-09 Part 3 (the B1 → A5 build). The membership half of the re-plant is already `Verified`; this records the message-continuity half at `Modeled`/loopback grade. No mechanism change; the membership tag is untouched.
+
+**§7.6.2, done.** The re-plant sentence previously recorded the message-continuity half as not yet built, needing the dataplane hash structures (Appendix B / B1). It now records that half as `Modeled` at loopback grade: a B1 dataplane hash structure (content-addressed, causally-linked records folding into an arrival-order-independent digest, `replant-continuity/src/dataplane.rs`) carries the conversation across the repoint so that every pre-repoint entry is present after it exactly once, in-flight entries land exactly once in causal order on the post-repoint group, both members converge byte-identically across arrival orders, and an injected duplicate or dropped frame is detected rather than absorbed (RED→GREEN, `e12_2_message_continuity.rs`, 5 tests, RUN-09). It is `Modeled` rather than `Verified` because delivery is harness-driven over the real re-plant membership, not real transport; real over-the-wire delivery and the `[gates-release]` B1 record encoding remain open.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; the membership-half `Verified` tag is unchanged and no other tag moved; cross-references (§7.6.2, Appendix B / B1) resolve; the evidence parenthetical follows the A.9 recommended forward form (FND-T4, RUN-09). Evidence: `alpha/experiments/replant-continuity` (`dataplane.rs` + `tests/e12_2_message_continuity.rs`), RUN-09 Part 3.
+
+## Steady-state anti-entropy recorded at loopback grade (§6.8.1)
+
+`Status: complete (RUN-09, 2026-07-15)`
+
+Scope: one conditional status record earned by RUN-09 Part 4. Connect-time catch-up was already recorded; this records the other §6.8.1 half, steady-state anti-entropy, at `Modeled`/loopback grade. No mechanism change to any existing claim.
+
+**§6.8.1, done.** The sentence previously read that steady-state anti-entropy (a live frame lost to an existing neighbor, no new join) is not yet exercised. It now records that half as `Modeled` at loopback grade: a range-summary compare over the `(device, lamport)` key space detects the gap (invisible to live delivery, since gossip carries no per-recipient ack and the lagging peer buffers no stranded successor) and a diff-only repair re-converges the folds byte-identically with no reconnect and no whole-log re-broadcast (RED→GREEN, `steady_state_anti_entropy.rs` + `croft-chat` `anti_entropy` module, RUN-09). It is `Modeled` rather than `Verified` because it runs at loopback over the whole-set range compare in its simplest form; the range-partitioned production construction (Willow 3d-range versus Negentropy) and real-transport loss remain open (§5 / Appendix B).
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; the connect-time catch-up record and the RBSR scaling-shape `Verified` tag are unchanged and no other tag moved; cross-references (§6.8.1, §5, Appendix B) resolve; the evidence parenthetical follows the A.9 recommended forward form (FND-T4, RUN-09). Evidence: `croft-chat/croft-chat/src/anti_entropy.rs` + `tests/steady_state_anti_entropy.rs`, RUN-09 Part 4.
+
+## Fan-out magnitude replicated; `fanout-single-run` retired (§11.11 #1)
+
+`Status: complete (RUN-09, 2026-07-15)`
+
+Scope: one caveat-clause update on §11.11 measurement #1, earned by RUN-09 Part 5 (the repeated-run arm). No mechanism change; the `Measured` tag is unchanged.
+
+**§11.11, done.** Measurement #1's fan-out caveat is updated to record the replicated evidence. RUN-09 Part 5 re-ran the FANOUT-M1 sweep K of 5 at N of 2/4/8/16 on the same loopback harness (`croft-chat/FANOUT-M1.md` addendum, `fanout-data/repeated-run09.csv`): per-node cost 2N+1 reproduced exactly with zero variance, head convergence held in every run at every N, and the super-linear connect-time hub-resync shape reproduced with a tight magnitude band (N of 16 spanned 349 to 422, median 401, refining the single-run 479 downward). The spread is narrow and supports the recorded magnitudes, so the `fanout-single-run` register row is retired (Reconciled, RUN-09). The clause now records the replicated band; the remaining boundaries are hardware hot-N of 500-plus and the star-bootstrap topology-sensitivity of the resync magnitude (a narrow note, not a divergence).
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; the `Measured` tag and the per-commit band are unchanged and no other tag moved; cross-references (§11.11, §11.4, §11.5, §6.8.1) resolve. Evidence: `croft-chat/FANOUT-M1.md` repeated-run addendum + `fanout-data/repeated-run09.csv` + `scripts/fanout-repeated.sh`, RUN-09 Part 5.

@@ -63,9 +63,9 @@ Notation: **needs** = an in-repo prerequisite stage; **blocked** = an external r
 |---|---|---|---|
 | **A1** | Fold open items (~~RuleChange thresholds~~ ✅; ~~contradicted-head byte naming~~ ✅ **RUN-01 EXP-4**; ~~competing-quorum~~ ✅ **design DECIDED (RUN-02 F8: hard-stop) + impl BUILT & test-run (RUN-03 Phase B: `detect_competing_rulechange`; register Reconciled)**; per-act approver granularity **still design-open**; catching-up TUI = UX, skipped) | F1 | approver-role = **design decision** (backlog §2a) |
 | **A2** | `cargo-mutants` re-sweep on `fold_auth`/`governance` (Battery 8 X3) | F1 | ✅ **DONE (RUN-07)** — automated cross-package harness (`X3-AUTOMATED-SWEEP.md`): 61 substrate survivors → **7 killed, 54 justified, 0 unjustified**; R7 count-enforcement now cross-package `Verified` (§7.2); surfaced `fold_auth` as an off-consumer-path duplicate, then **retired it** (RUN-07 follow-up: `fold_auth.rs` deleted; register `fold-auth-duplicate` Reconciled) |
-| **A3** | Local multi-process convergence + fault injection (X2) | F2 | ✅ **DONE (§5)** — X2 all-green on the loopback testbed: crash-consistency, monotonic no-reversion, **and** catch-up-after-absence — closed by **sync-on-connect resync** (the spec mechanism; the prototype spec-delta was reconciled and retired). M2's *sizing* study + steady-state anti-entropy remain |
+| **A3** | Local multi-process convergence + fault injection (X2) | F2 | ✅ **DONE (§5)** — X2 all-green on the loopback testbed: crash-consistency, monotonic no-reversion, **and** catch-up-after-absence — closed by **sync-on-connect resync** (the spec mechanism; the prototype spec-delta was reconciled and retired). **Steady-state anti-entropy** now demonstrated at loopback (RUN-09 Part 4: `anti_entropy` range-summary/diff + `steady_state_anti_entropy.rs`; §6.8.1 → `Modeled`). M2's *sizing* study remains; the range-partitioned production construction + real-transport loss stay open |
 | **A4** | ~~M1 fan-out~~ ✅ **DONE RUN-01 EXP-1** (`croft-chat/FANOUT-M1.md`: per-node linear `2N+1`, O(N²) aggregate, heads converge; resync super-linear on hub past N≈8); M2 (return-backfill vs dormancy) still open | F3, A3 | M2 modelable now |
-| **A5** | E12.2 + E12.7 message-continuity (atomic repoint of an in-flight conversation) | F3, **B1** | dataplane hash structures |
+| **A5** | ~~E12.2 + E12.7 message-continuity (atomic repoint of an in-flight conversation)~~ ✅ **DONE (RUN-09 Part 3)** — B1 dataplane hash structure built (`replant-continuity/src/dataplane.rs`); `e12_2_message_continuity.rs` proves pre-repoint exactly-once, in-flight causal-order, cross-order digest equality, dup/drop detection. §7.6.2 message half → `Modeled` (loopback). Real transport + wire pinning open | F3, **B1** | ✅ B1 built at loopback |
 | **A6** | X1 — live cross-host over **real NAT** | F2 | **the secroute boxes** (needs real NAT + relay holepunch — *not* localhost-satisfiable) |
 
 ### Track B — Re-plant dataplane (new build)
@@ -119,8 +119,9 @@ governance facts), — **RUN-01 (2026-07-14)** — `automerge-0.6.1` (→ 0.7 sh
 — **RUN-03 (2026-07-14)** — `competing-quorum-autoresolve` (→ the F8-decided hard-stop is now built
 and test-run: the competing-RuleChange contradiction predicate `fold_derived::detect_competing_rulechange`;
 register row moved Active → Reconciled).
-Active: `hermetic-gossip` (needs X1 / the boxes) and `fanout-single-run` (proxy-measurement, EXP-1:
-shape holds, magnitude indicative).
+Active: `hermetic-gossip` (needs X1 / the boxes) — now the **only** Active row. `fanout-single-run`
+retired (Reconciled, RUN-09 Part 5: K=5 repeated-run, `live_sent=2N+1` exact, head-convergence every
+run, super-linear hub-resync shape reproduced with a tight band; addendum in `FANOUT-M1.md`).
 
 **Recommended critical path (highest leverage first).** RUN-01 (2026-07-14) cleared items 1–3's
 runnable-now work and RUN-03 (2026-07-14) closed the competing-RuleChange gap; the frontier is now the
@@ -159,7 +160,7 @@ design decisions and the automated harness.
 3. **Decide the identity/key-recovery model (I9)** — now the explicit blocker for EXP-5's
    threshold-revoke-over-wire half. Recommended EXP-5 option A (quorum-of-Ed25519 reusing the governance
    k-of-n) is the one path *not* blocked on I9; the MLS-key-distribution half is already spike-realized.
-4. **Build B1** (dataplane hash structures) → unblocks A5 (message-continuity, the last re-plant facet).
+4. ~~**Build B1** (dataplane hash structures) → unblocks A5 (message-continuity, the last re-plant facet).~~ ✅ **DONE (RUN-09 Part 3):** B1 built at loopback, A5 message-continuity landed (§7.6.2 message half → `Modeled`). Real transport + wire pinning are the open follow-ons.
 5. **meer P2→P6** (I3–I6): each phase turns one lab experiment (E8/E9/E11/E12) into its running form.
 6. **Make the identity/key-recovery decision** (I9) — then the BIP39 spike.
 7. **Hardware/boxes when available:** A6 (real-NAT X1), I8 spikes 3 & 7, I7 E4/E0-NAT.
@@ -207,5 +208,5 @@ nodes. See `croft-chat/RUN.md` → "Same-host recipe."
 **What this unlocked (no boxes):** A3 (multi-process convergence + X2 fault injection — `SIGKILL`
 a node then heal), A4's M1 fan-out (N local `serve` processes), `croft-chat`'s
 convergence-over-real-gossip proofs, and `croft-group` L5's adapter tests. **What still needs the
-boxes:** A6/X1 (real NAT traversal + relay holepunch) — by definition unreproducible where Internet
+boxes:** A6/X1 (real-NAT traversal + relay holepunch) — by definition unreproducible where Internet
 UDP is blocked.

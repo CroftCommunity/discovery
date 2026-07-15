@@ -330,3 +330,27 @@ found unresolvable, and no cited test/path/RUN failed to resolve on grep.
   to settlement to avoid a wide mechanical sweep this run):** canonicalize the compound *qualifier* to
   `real-NAT` (hyphenated) and leave the free-noun "real NAT" where it reads as prose; low risk, but a
   broad find-replace, so recorded rather than swept.
+
+---
+
+## Settlement (RUN-09, 2026-07-15)
+
+Five RUN-08 traceability findings were confirmed for settlement by the owner 2026-07-15 (FND-T1,
+FND-T4, FND-T5, FND-T6, FND-T7). The other two RUN-08 findings (FND-T2, FND-T3) are left as
+recorded — FND-T2 was already reconciled by RUN-08 Part 1B with its residual meaning-ambiguity
+noted for a future ratification, and FND-T3's four inferred section-level anchors await an owner
+confirm-or-correct that this run's rulings did not cover. Dispositions:
+
+| # | Sev | Disposition | What changed |
+|---|-----|-------------|--------------|
+| FND-T1 | MED | **Owner call: redefine the forward-link target per band. Applied.** | One A.9 evidence-linkage note now states the two forms: an *experiment-earned* tag (`Verified` on real crypto/transport, `Modeled`, `Measured`) resolves to a named test/report + RUN; a `Verified-RFC` / literature-anchored tag resolves to its primary-source anchor, which already *is* its evidence. **Substrate-band re-audit (≈40 tags, §4–§6, §7.4.2, §7.6.3–§7.6.4, §8.1, §10.2–§10.4):** under the right form the band closes as satisfied. The `Verified-RFC` and literature-anchored rows (§6 RFC 9420/9750 and iroh-1.0 citations, §7.4.2 recovery hazards, §7.6.3–§7.6.4 MSC/RFC and Part-2 self-cites, §10.2–§10.4 MLS-RFC + BLAKE3/Ed25519 primitives) resolve to their primary source. The *experiment-earned* substrate rows (§4 wire derivations, the §6 loopback-gossip rows, §6.6.4 dedup) already carry test+RUN pointers in `EVIDENCE-MAP.md` §B (conformance-core cats 1–6, `convergence.rs` / `iroh_convergence.rs` / `dedup.rs`). No experiment-earned tag in the band was found still lacking a pointer, so none stays a FINDING. |
+| FND-T4 | MED | **Owner call: adopt going forward, no retrofit. Applied.** | One A.9 evidence-linkage note adopts the standardized `(evidence: <test or report>, RUN-NN[, grade])` parenthetical as the recommended form for evidence sentences written from RUN-09 onward. It is **not** back-fitted onto Part 2 sentences that already carry inline test+RUN prose; the `EVIDENCE-MAP.md` columns already index those in the standard form. |
+| FND-T5 | LOW | **Applied: de-backtick.** | §10.4 (BLAKE3 length-extension) `` `Reviewer-judgment` `` → plain prose "the construction-level check rests on reviewer judgment". No eleventh rung is introduced; the off-ladder token no longer reads as a status tag. |
+| FND-T6 | LOW | **Owner call: settle. Applied.** | One A.9 evidence-linkage note records that the legacy `green-real` / `green-model` / `not_yet_emitted` (and `PLACEHOLDER`) vocabulary is alpha-tier / staging only (B.6 records the absorption) and never appears in a live Part 1 / Part 2 sentence; a token that migrates in is mapped to its ladder rung. |
+| FND-T7 | LOW | **Applied: canonicalize the qualifier.** | The compound *qualifier* `real-NAT` is hyphenated across the living docs. The only living-doc drift instance was `MASTER-INDEX.md` ("real NAT traversal" → "real-NAT traversal"); the spec set (`part-2-certifiable-design.md`, `part-2-changelog.md`, `EVIDENCE-MAP.md`) and the active tracking docs were already compliant. The free-noun "real NAT" (e.g. "behind a real NAT", "needs real NAT") is left as prose, and the frozen iroh-testbed transcripts and bannered historical records are out of the living-doc scope by design. |
+
+**Guardrail note.** Part 1 is markdown-only and moves no status tag: the A.9 additions (FND-T1/T4/T6)
+are evidence-linkage conventions, not new rungs; the §10.4 edit (FND-T5) removes backticks from an
+off-ladder token without changing the sentence's meaning; the FND-T7 edit is a single hyphen. The
+`EVIDENCE-MAP.md` §D band note and its open-FINDINGs list are updated to mark FND-T1/T4/T6 settled
+(the map stays an index, not a status source). FND-T2/T3 stay open as recorded.
