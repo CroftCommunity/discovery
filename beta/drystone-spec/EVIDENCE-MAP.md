@@ -86,17 +86,27 @@ and adding a test/RUN pointer where the claim rests on an RFC would be an invent
 parenthetical is adopted here in the map's columns (section B) rather than retro-fitted into every
 spec sentence.
 
+**Settled RUN-09 (2026-07-15).** FND-T1's forward-link target is now defined per band in A.9:
+literature-anchored / `Verified-RFC` rows resolve to their primary source (their correct evidence);
+the experiment-earned substrate rows already carry a test+RUN pointer in section B. The band re-audit
+found no experiment-earned tag still lacking a pointer, so it closes as satisfied. FND-T4's
+parenthetical is adopted as the recommended forward form (A.9), not retrofitted; FND-T6's legacy
+vocabulary is fixed as alpha-tier only (A.9). See `CONSISTENCY-FINDINGS-2026-07.md`,
+`## Settlement (RUN-09, 2026-07-15)`.
+
 ---
 
 ## Open FINDINGs referenced by this map
 
 - **FND-T1** — the substrate `Verified`/`Verified-RFC` band carries no standardized evidence
-  parenthetical and no test/RUN pointer (resolves to RFC/substrate reference).
+  parenthetical and no test/RUN pointer (resolves to RFC/substrate reference). **Settled RUN-09**:
+  forward-link target defined per band (A.9); band re-audit closes as satisfied.
 - **FND-T2** — the §10.5 footnote's "cats 7/8/9 not yet emitted" was superseded by the folded
   conformance-core (66/0); reconciled by RUN-08 Part 1B, residual meaning-ambiguity recorded.
 - **FND-T3** — a few spec-earning test §-refs (convergence P7, iroh_convergence P18, regress_free
   V3′) were mapped at the section level from the corpus rather than a prior explicit mapping.
 - **FND-T4** — the standardized `(evidence: <test/report>, RUN-NN[, grade])` parenthetical (2.1d)
   exists nowhere in Part 2; proposed for the reconciled governance claims where all components exist.
+  **Settled RUN-09**: adopted as the recommended forward form (A.9), not retrofitted.
 
 See `alpha/experiments/CONSISTENCY-FINDINGS-2026-07.md`, `## Traceability findings (RUN-08)`.

@@ -451,3 +451,13 @@ Scope: one pointer sentence, no mechanism change and no status change. The RUN-0
 **§8.2, done.** The honesty-boundaries preamble gains a closing sentence pointing to `EVIDENCE-MAP.md`, the regenerable per-claim index of where each status tag at or above Modeled resolves to its evidence (named tests, report files, RUN numbers, environment bounds). The sentence states the index-not-source rule: the map is an index only, and the tagged sentence in Part 2 remains authoritative wherever the two differ. No tag moved.
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; no code identifier or mechanism changed; the referenced file `EVIDENCE-MAP.md` exists in this directory. Evidence: RUN-08 Part 2 traceability pass.
+
+## Off-ladder token de-backticked in the length-extension note (§10.4)
+
+`Status: complete (RUN-09, 2026-07-15)`
+
+Scope: one meaning-preserving edit, no mechanism change and no status-tag move. Settles the RUN-08 traceability finding FND-T5 (owner-confirmed for settlement 2026-07-15).
+
+**§10.4, done.** In the BLAKE3 hash note, the off-ladder token `` `Reviewer-judgment` `` is de-backticked into plain prose: "the construction-level check rests on reviewer judgment, to be formalized as a per-context note at freeze." The A.9 ladder gains no eleventh rung; the backticked form had read as a status tag, and the plain prose no longer does. The `` `Verified` `` tag on the BLAKE3 length-extension property is unchanged.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 edit removes backticks only and preserves the sentence meaning; no code identifier or mechanism changed; §10.4 and the A.9 ladder resolve. Evidence: FND-T5 settlement, `CONSISTENCY-FINDINGS-2026-07.md` `## Settlement (RUN-09, 2026-07-15)`.
