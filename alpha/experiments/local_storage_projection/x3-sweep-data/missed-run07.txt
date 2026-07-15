@@ -1,0 +1,61 @@
+src/fold_auth.rs:237:5: replace role_ge_owner -> bool with true
+src/fold_auth.rs:241:5: replace role_ge_member -> bool with true
+src/fold_auth.rs:260:28: replace match guard role_ge_admin(r) with true in check_authorization
+src/fold_auth.rs:271:28: replace match guard role_ge_admin(r) with false in check_authorization
+src/fold_auth.rs:282:28: replace match guard role_ge_owner(r) with true in check_authorization
+src/fold_auth.rs:282:28: replace match guard role_ge_owner(r) with false in check_authorization
+src/fold_auth.rs:298:30: replace < with > in check_authorization
+src/fold_auth.rs:319:28: replace match guard role_ge_owner(r) with true in check_authorization
+src/fold_auth.rs:332:28: replace match guard role_ge_member(r) with true in check_authorization
+src/fold_auth.rs:347:30: replace < with == in check_authorization
+src/fold_auth.rs:347:30: replace < with > in check_authorization
+src/fold_auth.rs:347:30: replace < with <= in check_authorization
+src/fold_auth.rs:355:24: replace == with != in check_authorization
+src/fold_auth.rs:360:45: replace + with - in check_authorization
+src/fold_auth.rs:360:45: replace + with * in check_authorization
+src/fold_auth.rs:360:35: replace + with - in check_authorization
+src/fold_auth.rs:360:35: replace + with * in check_authorization
+src/fold_auth.rs:360:31: replace + with - in check_authorization
+src/fold_auth.rs:360:31: replace + with * in check_authorization
+src/fold_auth.rs:361:30: replace < with == in check_authorization
+src/fold_auth.rs:361:30: replace < with > in check_authorization
+src/fold_auth.rs:361:30: replace < with <= in check_authorization
+src/fold_auth.rs:367:48: replace + with - in check_authorization
+src/fold_auth.rs:367:48: replace + with * in check_authorization
+src/fold_auth.rs:367:44: replace + with - in check_authorization
+src/fold_auth.rs:367:44: replace + with * in check_authorization
+src/fold_auth.rs:370:17: delete match arm 0 | 1 | 2 in check_authorization
+src/fold_auth.rs:384:24: replace match guard role_ge_admin(r) with true in check_authorization
+src/fold_auth.rs:384:24: replace match guard role_ge_admin(r) with false in check_authorization
+src/fold_auth.rs:395:9: delete match arm 1 in decode_rule_key
+src/fold_auth.rs:396:9: delete match arm 2 in decode_rule_key
+src/fold_derived.rs:343:9: delete match arm 1 in decode_rule_key
+src/fold_derived.rs:344:9: delete match arm 2 in decode_rule_key
+src/fold_derived.rs:362:5: replace role_ge_admin -> bool with true
+src/fold_derived.rs:366:5: replace role_ge_owner -> bool with true
+src/fold_derived.rs:370:5: replace role_ge_member -> bool with true
+src/fold_derived.rs:382:24: replace match guard role_ge_admin(r) with true in check_authorization
+src/fold_derived.rs:390:24: replace match guard role_ge_admin(r) with true in check_authorization
+src/fold_derived.rs:399:28: replace match guard role_ge_owner(r) with true in check_authorization
+src/fold_derived.rs:408:34: replace < with > in check_authorization
+src/fold_derived.rs:420:28: replace match guard role_ge_owner(r) with true in check_authorization
+src/fold_derived.rs:431:24: replace match guard role_ge_member(r) with true in check_authorization
+src/fold_derived.rs:441:24: replace match guard role_ge_admin(r) with true in check_authorization
+src/fold_derived.rs:441:24: replace match guard role_ge_admin(r) with false in check_authorization
+src/fold_derived.rs:449:34: replace < with == in check_authorization
+src/fold_derived.rs:449:34: replace < with <= in check_authorization
+src/fold_derived.rs:461:45: replace + with * in check_authorization
+src/fold_derived.rs:461:45: replace + with - in check_authorization
+src/fold_derived.rs:461:35: replace + with - in check_authorization
+src/fold_derived.rs:461:31: replace + with - in check_authorization
+src/fold_derived.rs:462:34: replace < with > in check_authorization
+src/fold_derived.rs:469:52: replace + with - in check_authorization
+src/fold_derived.rs:469:48: replace + with - in check_authorization
+src/fold_derived.rs:470:30: replace > with < in check_authorization
+src/fold_derived.rs:517:5: replace rule_change_approval_subject -> [u8; 32] with [0; 32]
+src/fold_derived.rs:517:5: replace rule_change_approval_subject -> [u8; 32] with [1; 32]
+src/fold_derived.rs:526:9: delete match arm AssertionType::MembershipAdd | AssertionType::MembershipRemove | AssertionType::RoleGrant | AssertionType::RoleRevoke in act_subject
+src/fold_derived.rs:530:34: replace < with <= in act_subject
+src/fold_derived.rs:2178:50: delete field created_by from struct NodeCard expression in upsert_node_stub
+src/fold_derived.rs:2225:38: delete field created_at from struct NodeCard expression in upsert_node_full
+src/fold_derived.rs:2225:58: delete field created_by from struct NodeCard expression in upsert_node_full

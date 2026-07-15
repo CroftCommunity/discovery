@@ -34,7 +34,7 @@ use crate::tables::{
 use redb::{ReadableTable, TableDefinition};
 
 // ---------------------------------------------------------------------------
-// Table definitions (mirrors fold_auth + derived tables)
+// Table definitions (auth + derived tables)
 // ---------------------------------------------------------------------------
 
 const AUTH_ASSERTIONS: TableDefinition<'static, &'static [u8], &'static [u8]> =
@@ -334,7 +334,7 @@ fn u8_to_role(v: u8) -> Result<Role, ()> {
 }
 
 // ---------------------------------------------------------------------------
-// RuleKey helpers (mirrors fold_auth)
+// RuleKey helpers
 // ---------------------------------------------------------------------------
 
 fn decode_rule_key(v: u8) -> Result<RuleKey, ()> {
@@ -348,7 +348,7 @@ fn decode_rule_key(v: u8) -> Result<RuleKey, ()> {
 }
 
 // ---------------------------------------------------------------------------
-// Authorization helpers (duplicated from fold_auth for independence)
+// Authorization helpers (self-contained: the single authorization path in the crate)
 // ---------------------------------------------------------------------------
 
 fn author_role_in<'a>(
@@ -801,6 +801,28 @@ where
         txn.commit()
             .map_err(|e| FoldError::StorageError(e.to_string()))?;
         Ok(())
+    }
+
+    /// Read the current derived [`GroupState`] for `group`, or `None` if the group has
+    /// no folded state yet. A read-only accessor (a read transaction + deserialize) that
+    /// exposes the folded state the horizon manifest (EXP-H1) and other fold-level tests
+    /// compute over. It does not fold or mutate.
+    pub fn read_group_state(&self, group: &GroupId) -> Result<Option<GroupState>, FoldError> {
+        let read_txn = self
+            .db
+            .inner()
+            .begin_read()
+            .map_err(|e| FoldError::StorageError(e.to_string()))?;
+        let table = read_txn
+            .open_table(STATE_GROUP)
+            .map_err(|e| FoldError::StorageError(e.to_string()))?;
+        match table
+            .get(group.as_bytes().as_ref())
+            .map_err(|e| FoldError::StorageError(e.to_string()))?
+        {
+            Some(bytes) => Ok(Some(GroupState::from_bytes(bytes.value())?)),
+            None => Ok(None),
+        }
     }
 
     /// Ingest an assertion, writing auth + derived state in one atomic transaction.

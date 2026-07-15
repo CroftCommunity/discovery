@@ -109,7 +109,21 @@ in `gather_approvers`/Step 5.6 by filtering approvers below the floor before cou
 **weight-by-role** — richer, likely over-engineered for now. No recommendation without the trust-model
 owner; flagged so the next session decides deliberately rather than by omission.
 
-### 2b. EXP-H1 — horizon-manifest determinism
+### 2b. EXP-H1 — horizon-manifest determinism ✅ DONE (RUN-07)
+
+**✅ DONE (RUN-07, landing run RUN-07).** Landed as pure fold-side functions in
+`local_storage_projection::horizon` (experiment-grade: no wire format, no persistence, no networking;
+the `[gates-release]` manifest encoding stays `Design`) plus `read_group_state`, exercised cross-package
+by `croft-chat/tests/horizon_manifest.rs` (4 tests, green). `horizon_manifest(state) -> (frontier_head,
+sorted open-contradiction byte-heads)` is **byte-identical across members and arrival orders** for both
+ways a contradiction now arises — **mutual expulsion** and **competing quorum-met RuleChange** — compared
+via a test-only serialization explicitly not the `[gates-release]` encoding. The `frontier_head` is an
+order-independent digest of the folded state's converging content (members + rules + gov_seq), because the
+raw `computed_at_gov_head` is the last-INGESTED hash and is arrival-order dependent. The `HorizonCadence`
+trigger fires on an epoch roll and on N facts since the last boundary (counter reset each boundary), and
+both members locate the boundary at the same fact position. Negatives pinned: a resolved/absent
+contradiction is absent from the manifest, and an open one persists across horizon boundaries (decay is
+presentation, not truth). Earns the **manifest-determinism** claim only; §7.6.9 stays `Design`.
 
 **EXP-H1 — horizon-manifest determinism (runnable today).** The objective, no-policy half of the
 reconciliation-horizon design (`alpha/thinking/reconciliation-horizon.md`; spec landing: Part 2 §7.6.9
@@ -124,7 +138,23 @@ at which point the manifest simply grows one contradiction entry rather than cha
 `reconciliation-horizon.md` §7 (first spike), Part 2 §7.6.9 (the cadence and the manifest), Appendix B
 (`[gates-release]` horizon-checkpoint manifest encoding).
 
-### 2c. EXP-C1 — the completeness-ahead contract (loopback, runnable now, no new infra)
+### 2c. EXP-C1 — the completeness-ahead contract ✅ DONE (RUN-07)
+
+**✅ DONE (RUN-07, landing run RUN-07).** All four assertions landed and green at loopback / fold grade
+(`croft-chat/tests/completeness_ahead.rs`, 4 tests + `local_storage_projection::completeness_ahead` pure
+helpers, 3 inline unit tests). None required MLS internals or network transport, so nothing was split
+out. (1) **Stall-at-threshold**: a node denied a governance fact stalls the dependent irreversible act
+below freshness `k = ceil(n/2)` (fail-closed, no breach) while still serving reads on its best-known
+prefix state. (2) **Stamp detection**: `detect_stamp_gap(local, entry_stamp)` detects and sizes a
+data-plane entry stamped ahead of the governance frontier, and returns `None` once the node fills the gap
+before acting. (3) **Solicitation reach**: an unreferenced-tail fact absent on X is surfaced by a frontier
+ask (re-delivered into X's live pipeline) and folds to the **byte-identical fingerprint** of a node that
+received it live. (4) **Formula-valued k**: `quorum_k(n) = ceil(n/2)` over the folded member count is
+identical at the same act position across arrival orders (member count converges by construction). The
+freshness / generation-stamp values are integers the test seeds, standing in for the attested values; the
+`[gates-release]` stamp and `(G, D)` cursor encodings are untouched. Spec touch: §8.2(e) records the
+origination precondition exercised at loopback grade (real-NAT path remains X1). Experiment-grade,
+loopback only.
 
 **EXP-C1 — the completeness-ahead contract (loopback, runnable now, no new infra).** The demonstration
 side of the corroboration-dials framing (`alpha/thinking/corroboration-and-quantified-trust.md`; spec
@@ -145,7 +175,7 @@ the intrinsic isolated-node limit. Four assertions, each RED-able before the beh
 
 Shares boundary machinery with EXP-H1 (both drive the §7.3 read/enforce line and the §7.4 freshness
 cursor against a withheld frontier). Discharges, at loopback grade, part of §8.2(e)'s residual that "the
-freshness precondition on originating such an op (§7.4.2) is not yet exercised over live transport" (the
+freshness precondition on originating such an op (§7.4–§7.4.2) is not yet exercised over live transport" (the
 precondition is exercised over loopback here; the relay/real-NAT path stays X1). Cross-refs:
 `corroboration-and-quantified-trust.md` §6 (the contract), Part 2 §7.3.3 (the dials and the fail-closed
 gate), §7.4 (the k-distinct-lineages threshold), §7.4.3 (the generation stamp).
