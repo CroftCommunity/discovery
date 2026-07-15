@@ -306,6 +306,21 @@ immediately beneath the §10.5 realization-ledger table (not a cell edit), namin
 revoke-authority vector as specified-but-not-yet-emitted, gated on MLS-key-distribution-over-wire and
 threshold-revoke-over-wire.
 
+**RUN-08 update (2026-07-15).** Two things reconcile this annotation to ground truth. (1) The reference
+conformance-core is now folded into `discovery/alpha/Proofs/lineage-groups/crates/conformance` and
+re-proves **66/0** across cats 1–9 in-environment — cats **7** (adversarial AR-1…AR-6, real Rust), **8**
+(visibility, TS-authoritative), **9** (freshness, TS-authoritative), and the cat-5b revoke-authority
+*mechanism* (real Ed25519 bundle over a lineage-counted quorum) are all emitted — so "cats 7/8/9
+not-yet-emitted" is **superseded for the vectors themselves**; the honesty boundary is the over-the-wire
+*sourcing*, not the vectors' existence. (2) Part 1B lands the **MLS-key-distribution-over-wire** half
+`Verified` green-real at **loopback grade**: `mls-welcome-over-iroh` reproduced in-environment
+(`relay-lab-runs/C-mls-welcome-2026-07-15-run08` — a real 1466-byte openmls Welcome over real iroh;
+identical exporter secret + identical lineage fold), so the verifying-key/standing registry is
+demonstrably sourceable from real over-the-wire MLS. Wiring that source into the conformance *emitter*
+itself (today in-process) is the residual, and the real-NAT path stays X1. The **threshold-revoke-over-wire**
+half, together with the co-sign-vs-vote authority ordering, **stays gated** on the revocation-authority
+trust model (MASTER-INDEX I9) — the RUN-08 firewall; untouched. Part 2 §10.5 footnote updated to match.
+
 ---
 
 ## F8 — Two concurrent quorum-met RuleChanges to the same rule are a genuine contradiction, not a tiebreak  ·  `caveat`  ·  called
@@ -377,7 +392,7 @@ a named blocker (the revocation-authority decision) rather than an open "TBD".
 | **F4** | §11.11 #1 | status-move | ready | Per-commit **and** fan-out measured (fan-out: linear per-node `2N+1`, O(N²) aggregate, heads converge; resync super-linear past N≈8) |
 | **F5** | §8.2(a) | caveat | ready | Freshness earned on loopback; relay path (X1) open |
 | **F6** | §7.6.3 | caveat | ready | No change — `[confirm]` stands; E12.6 ≠ discharge |
-| **F7** | §10 / §9 | caveat | called | Conformance cats 7/8/9 not-yet-emitted |
+| **F7** | §10 / §9 | caveat | called (RUN-08 update) | Cats 7/8/9 + revoke-authority *mechanism* emitted, 66/0 (RUN-08); key-distribution-over-wire green-real at loopback; threshold-revoke-over-wire + authority ordering gated (I9) |
 | **F8** | §7.3.2 + §7.6.1 | caveat | called | Two quorum-met RuleChanges to one rule → §7.6 contradiction, not tiebreak |
 
 **Landing plan.** Landed by RUN-02 (2026-07-13) as one dated `part-2-changelog.md` entry
