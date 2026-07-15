@@ -1,0 +1,12 @@
+[package]
+name = "membership-sequencer"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+
+[dependencies]
+openmls = "0.8"
+openmls_rust_crypto = "0.5"
+openmls_traits = "0.5"
+openmls_basic_credential = "0.5"
+hex = "0.4"

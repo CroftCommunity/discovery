@@ -1,0 +1,36 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §6 (revocation mechanics); E2.11 / MD-G5",
+    "category": 5,
+    "note": "Mechanics only: post-revoke branches rejected (UnauthorizedAuthor), pre-revoke history retained. Derived from real backfill_import."
+  },
+  "vectors": [
+    {
+      "label": "pre-revocation: author has standing -> retained/importable",
+      "branch_hex": "4a02d536f6430c2683eb34e8c0df5c80a18df15a3077febf7ca9d16e679a9237",
+      "author_has_standing": true,
+      "messages": [
+        {
+          "author": "carol",
+          "seq": 0,
+          "payload_hex": "61206d6573736167652066726f6d206265666f7265207265766f636174696f6e"
+        }
+      ],
+      "expect": "accept"
+    },
+    {
+      "label": "post-revocation: author lost standing -> subsequent branch rejected",
+      "branch_hex": "4a02d536f6430c2683eb34e8c0df5c80a18df15a3077febf7ca9d16e679a9237",
+      "author_has_standing": false,
+      "messages": [
+        {
+          "author": "carol",
+          "seq": 0,
+          "payload_hex": "61206d6573736167652066726f6d206265666f7265207265766f636174696f6e"
+        }
+      ],
+      "expect": "reject:unauthorized-author"
+    }
+  ],
+  "deferred_authority_note": "The revoke-AUTHORITY threshold sub-case (a removal op MUST carry signatures meeting the genesis threshold, lineage-counted, or be rejected) is now emitted as REAL vectors in revocation-authority.json — it exercises the green-real gov::meets_threshold_by_lineage. What remains Workstream C is ONLY over-the-wire authority distribution + the co-sign-vs-vote ordering (open-edges.md §1)."
+}

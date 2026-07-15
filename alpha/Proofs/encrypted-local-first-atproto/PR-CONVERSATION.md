@@ -1,0 +1,7587 @@
+# PR #3 — Encrypted local-first + atproto architecture: full validation (Phases 1–12)
+
+source: https://github.com/croftc/SecurityPolicy/pull/3
+
+captured: 2026-06-15 (via cpettet_croftc). State at capture: OPEN. 201 files, +45029/-0.
+
+branch: claude/encrypted-local-first-sync-y2hj1m → main
+
+> The comprehensive validation of the central architectural bet: a private, encrypted,
+> local-first group (MLS + CRDT) can interoperate with public atproto such that the
+> public/private split is a policy + transport boundary, not a data-model fork. 14
+> sub-experiments across Phases 1–12, hypothesis-accounting (H1–H9) in README.md.
+> The live-bsky-validate/ subdir is the PENDING live spike — ready to run once egress is
+> allowlisted + creds set; see its RESUME.md. Companion transcript: CODING-TRANSCRIPT.md.
+
+---
+
+## PR description
+
+A connected line of Rust proof-of-concepts under `experiments/`, validating an encrypted, local-first group-sync architecture and its composition with the AT Protocol — on the real crate stack. Goal: prove the model end to end, surface the issues, and document approaches + conclusions. See **`experiments/README.md`** for the full-picture overview. iroh transport is a swappable, stubbed seam; MLS, AEAD, CRDT, lexicon validation, SQLite, HTTP, WebSockets, real CIDs, and Ed25519 bindings are exercised for real.
+
+## Phases (all green)
+1. `encrypted-sync-slice` — encrypted CRDT core; per-epoch key match + rotation. **5/5**
+2. `local-first-lexicon-app` — local-first ↔ atproto data-model interop. **6/6**
+3a. `local-appview` — source-agnostic AppView (RecordSource; SQLite + axum XRPC; hydrated views). **5/5**
+3b. `jetstream-appview` — same AppView from the real Jetstream wire format; real CIDv1; byte-identical modules. **5/5**
+4. `public-private-split` — selective mirroring, default-deny + redaction; non-leakage. **5/5**
+5. `local-pds-bridge` — live flip on loopback: a real atproto PDS in Rust + client + WS firehose; CID parity. **4/4**
+6. `end-to-end-slice` — whole model in one program: group → mirror → PDS → firehose → AppView. **6/6**
+7. `concurrent-membership` — membership needs total order; content auto-merges (CRDT). **3/3**
+8. `identity-binding` — verifiable group `did:key` ↔ PDS `did:plc` binding; forgery/tamper rejected. **5/5**
+9. `stable-record-identity` — pinned rkeys → pure URI mapping; idempotent create; `putRecord` edits. **5/5**
+10. `membership-sequencer` — explicit delivery-service sequencer; 3 concurrent adds, no fork/starvation. **3/3**
+11. `binding-lifecycle` — binding expiry (signed window), revocation, key rotation. **6/6**
+12. `removal-redaction` — removal ≠ redaction; forward secrecy + re-encryption with honest limits. **5/5**
+
+## Validated conclusions
+Encrypted local-first core works on the real stack; the data model is atproto-native (publish path is transport+auth, not a data migration); the AppView is source-agnostic (byte-identical modules across stack/Jetstream); the public/private boundary holds (end-to-end non-leakage); live mechanics are real (PDS + firehose over sockets, CID parity); concurrency splits cleanly (order membership, merge content); cross-network identity is cryptographically bound with lifecycle; record identity is stable across the boundary; deletion semantics are understood and bounded.
+
+## Open design decisions (characterized, not unknowns)
+Sequencer ownership & trust; revocation distribution (dedicated rotation key); "delete from history" product semantics; real-network deployment (egress-blocked here — a base-URL + creds change); real iroh transport (swappable seam).
+
+## Versions
+automerge 0.7.4 · openmls 0.8.1 · chacha20poly1305 0.10.1 · ed25519-dalek 2.2.0 · rusqlite 0.32 · axum 0.8.9 · tokio 1.52.3 · reqwest 0.13.4 · tokio-tungstenite 0.29.0 · cid 0.11.3 · serde_ipld_dagcbor 0.6.4 · serde_json 1.0.150 · rustc 1.94.1. iroh 0.98.2 / iroh-blobs 0.102.0 resolvable, not linked.
+
+Each crate has a README with full findings, deviations, and friction notes.
+
+https://claude.ai/code/session_0135VEQJnzj8xuFvd3toxagF
+
+---
+
+## Issue comments
+
+### coderabbitai — 2026-06-13T03:39:48Z
+
+<!-- This is an auto-generated comment: summarize by coderabbit.ai -->
+<!-- review_stack_entry_start -->
+
+[![Review Change Stack](https://storage.googleapis.com/coderabbit_public_assets/review-stack-in-coderabbit-ui.svg)](https://app.coderabbit.ai/change-stack/croftc/SecurityPolicy/pull/3?utm_source=github_walkthrough&utm_medium=github&utm_campaign=change_stack)
+
+<!-- review_stack_entry_end -->
+<!-- This is an auto-generated comment: review paused by coderabbit.ai -->
+
+> [!NOTE]
+> ## Reviews paused
+> 
+> It looks like this branch is under active development. To avoid overwhelming you with review comments due to an influx of new commits, CodeRabbit has automatically paused this review. You can configure this behavior by changing the `reviews.auto_review.auto_pause_after_reviewed_commits` setting.
+> 
+> Use the following commands to manage reviews:
+> - `@coderabbitai resume` to resume automatic reviews.
+> - `@coderabbitai review` to trigger a single review.
+> 
+> Use the checkboxes below for quick actions:
+> - [ ] <!-- {"checkboxId": "7f6cc2e2-2e4e-497a-8c31-c9e4573e93d1"} --> ▶️ Resume reviews
+> - [ ] <!-- {"checkboxId": "e9bb8d72-00e8-4f67-9cb2-caf3b22574fe"} --> 🔍 Trigger review
+
+<!-- end of auto-generated comment: review paused by coderabbit.ai -->
+<!-- walkthrough_start -->
+
+<details>
+<summary>📝 Walkthrough</summary>
+
+## Walkthrough
+
+Adds four Rust experimental crates implementing encrypted local-first sync, lexicon-validated local-first records, a source-agnostic AppView (SQLite indexer + Axum API), and a Jetstream-fed AppView; includes manifests, build scripts exporting resolved versions, address/crypto/MLS/Automerge primitives, lexicon validators, blob stores, indexer/server code, and end-to-end binaries.
+
+## Changes
+
+**Encrypted Sync Slice Implementation**
+
+|Layer / File(s)|Summary|
+|---|---|
+|**Project setup and build plumbing** <br> `experiments/encrypted-sync-slice/.gitignore`, `experiments/encrypted-sync-slice/Cargo.toml`, `experiments/encrypted-sync-slice/README.md`, `experiments/encrypted-sync-slice/build.rs`|Crate metadata and README; build script parses `Cargo.lock` and emits `cargo:rustc-env` for resolved crate and rustc versions; `.gitignore` ignores `/target`.|
+|**Address and conflict resolution layer** <br> `experiments/encrypted-sync-slice/src/address.rs`|`Address` (namespace, subspace, path, timestamp) with BLAKE3-based `storage_key()`, `entry_id()`, `resolve_conflict()` (timestamp → payload-digest → length) and unit tests.|
+|**AEAD encryption & store** <br> `experiments/encrypted-sync-slice/src/crypto.rs`, `experiments/encrypted-sync-slice/src/store.rs`|ChaCha20-Poly1305 wrappers: `encrypt()` returns nonce||ciphertext; `decrypt()` validates length and authenticates/decrypts. In-memory BlobStore provides `put/get/set_pointer/resolve`.|
+|**MLS group key management** <br> `experiments/encrypted-sync-slice/src/mls.rs`|OpenMLS Ed25519 ciphersuite, `Member` type, `create_group`, `add_member` (Welcome bytes), `join_from_welcome`, and exporter-derived per-epoch 32‑byte content-key derivation.|
+|**Automerge CRDT document layer** <br> `experiments/encrypted-sync-slice/src/doc.rs`|Automerge-based chat doc: create/load/snapshot, `append_message`, `read_messages`, `heads`, `changes_since`, `apply`, and `is_complete` (missing-deps check).|
+|**End-to-end integration and lifecycle test** <br> `experiments/encrypted-sync-slice/src/main.rs`|Executable exercises full lifecycle: snapshot/encrypt/store, bootstrap fetch/decrypt/load, incremental sync, epoch rotation with new member, change serialization helpers, and build-time version printing.|
+
+**Local-first Lexicon App**
+
+|Layer / File(s)|Summary|
+|---|---|
+|**Project setup and build plumbing** <br> `experiments/local-first-lexicon-app/.gitignore`, `experiments/local-first-lexicon-app/Cargo.toml`, `experiments/local-first-lexicon-app/README.md`, `experiments/local-first-lexicon-app/build.rs`|New crate manifest, README documenting Phase 2, and build script exporting resolved crate and rustc versions; `.gitignore` ignores `/target`.|
+|**Lexicon JSON schemas** <br> `experiments/local-first-lexicon-app/lexicons/*`|Adds `org.croftc.experiment.feed.post` and `org.croftc.experiment.feed.reaction` lexicon JSON definitions describing post and reaction record shapes.|
+|**Address and conflict resolution** <br> `experiments/local-first-lexicon-app/src/address.rs`|Willow 4-tuple `Address` with deterministic storage keys and `resolve_conflict()` plus unit tests mirroring the encrypted-slice addressing model.|
+|**AEAD encryption** <br> `experiments/local-first-lexicon-app/src/crypto.rs`|ChaCha20-Poly1305 `encrypt`/`decrypt` with 12‑byte nonce prefix and explicit error strings.|
+|**Automerge document plumbing** <br> `experiments/local-first-lexicon-app/src/doc.rs`|Automerge helpers: new/load/snapshot, heads/changes_since/apply, completeness via missing-deps, and change serialization/deserialization (u32 length-prefixed).|
+|**Lexicon validator** <br> `experiments/local-first-lexicon-app/src/lexicon.rs`|Embeds POST/REACTION lexicons; `Lexicon` with `load`/`id`/`validate` implementing recursive schema checks (string, array, object, ref), `$type` enforcement, `is_atproto_datetime`, and unit tests.|
+|**Records, ids, repo** <br> `experiments/local-first-lexicon-app/src/record.rs`, `experiments/local-first-lexicon-app/src/repo.rs`|Post/Reaction/StrongRef types with `$type` serde mapping, `at_uri`, deterministic `cid_for`, monotonic `new_tid` (13-char base32), `now_iso8601`, and Automerge-backed repo helpers (`put_record`, `get_record`, `list_collection`, `collections`).|
+|**MLS group key management** <br> `experiments/local-first-lexicon-app/src/mls.rs`|OpenMLS integration with `Member`, `create_group`, `add_member`, `join_from_welcome`, and exporter-derived content keys (uses expect/panic on errors).|
+|**Executable and integration** <br> `experiments/local-first-lexicon-app/src/main.rs`|Demonstrates MLS setup, encrypted snapshot/changes, Bob/Alice/Carol flows, lexicon validation of reconstructed records, feed rendering, version report, and exit-on-failure behavior.|
+
+**Source-Agnostic Local AppView**
+
+|Layer / File(s)|Summary|
+|---|---|
+|**Project setup** <br> `experiments/local-appview/.gitignore`, `experiments/local-appview/Cargo.toml`, `experiments/local-appview/README.md`, `experiments/local-appview/build.rs`|Manifest, README for Phase 3a, and build script exporting resolved versions; `.gitignore` ignores `/target`.|
+|**Lexicons and validator** <br> `experiments/local-appview/lexicons/*`, `experiments/local-appview/src/lexicon.rs`|Adds getTimeline/getPostThread/post/reaction lexicons and an embedded validator with output validation and tests.|
+|**Groupdoc, ingest, and store** <br> `experiments/local-appview/src/groupdoc.rs`, `experiments/local-appview/src/source.rs`, `experiments/local-appview/src/store.rs`|Multirepo Automerge layout, `put_record`/`list_all`, `RecordEvent`/`RecordSource` abstraction, `LocalStackSource` event generation, and in-memory BlobStore.|
+|**Indexer and views** <br> `experiments/local-appview/src/indexer.rs`, `experiments/local-appview/src/views.rs`|SQLite-backed Indexer with ingest/validation/rebuild, timeline/thread queries, and hydrated `PostView`/`ReactionView` DTOs.|
+|**Server and integration binary** <br> `experiments/local-appview/src/server.rs`, `experiments/local-appview/src/main.rs`|Axum router exposing XRPC endpoints wired to Indexer, plus an integration binary that ingests, queries, validates lexicon outputs, rebuilds, and reports versions/results.|
+
+**Jetstream AppView (Phase 3b)**
+
+|Layer / File(s)|Summary|
+|---|---|
+|**Project setup and docs** <br> `experiments/jetstream-appview/.gitignore`, `experiments/jetstream-appview/Cargo.toml`, `experiments/jetstream-appview/README.md`, `experiments/jetstream-appview/build.rs`|New crate manifest, README for Phase 3b, and build script exporting resolved versions; `.gitignore` ignores `/target`.|
+|**CID / content id helpers** <br> `experiments/jetstream-appview/src/content_id.rs`|DAG-CBOR encoding and CIDv1 generation (`record_cid`) and validation (`is_atproto_cid`).|
+|**Jetstream source mapping** <br> `experiments/jetstream-appview/src/jetstream.rs`|Parses NDJSON Jetstream events into `RecordEvent`s with cursor resume semantics, filtering, and synthetic NDJSON generators for tests.|
+|**Indexer, lexicons, records, server, and main** <br> `experiments/jetstream-appview/src/*`|Reuses Indexer/server/views/lexicon/record types adapted for Jetstream; adds a Jetstream-driven binary that synthesizes events, ingests/resumes, validates lexicon outputs, and asserts parity with local-appview artifacts.|
+
+Estimated code review effort
+
+🎯 5 (Critical) | ⏱️ ~120 minutes
+
+Suggested reviewers
+
+- croftc/infosec
+
+Be direct: actionable issues observed
+- Build script parsing (all build.rs variants): naive plain-text scanning of Cargo.lock can mis-parse workspace entries, duplicate package names, or different lockfile formats. Fix: use cargo_metadata or parse Cargo.lock as TOML to reliably read package versions. Data at risk: SLICE_VER_* env values and reported versions.
+- Panic/expect usage in crypto/MLS/Automerge paths: many library functions call expect/panic on malformed inputs (Welcome parsing, change deserialization, Automerge apply). Fix: return Result from library APIs and handle errors at the binary boundary; validate inputs before unwraps. Data at risk: corrupted blobs, malformed Welcome bytes, or attacker-supplied inputs causing process abort.
+- Change deserialization and bounds checks: deserializers use expect and minimal bounds checks for length-prefixed change buffers. Fix: validate length prefixes against buffer length and propagate errors; avoid panics. Data at risk: malformed change payloads leading to panic.
+- RNG source for nonces: ensure nonce generation uses a secure OS RNG (OsRng) and never a deterministic RNG. Fix: explicitly use rand::rngs::OsRng for nonce generation. Data at risk: AEAD nonce reuse leading to confidentiality/authentication compromise.
+- Crypto misuse surface: ensure AEAD uses unique nonces per key and includes associated data if required. Fix: document nonce/key lifetime and consider deterministic nonce derivation only with safeguards. Data at risk: ciphertext reuse or cross-message forgery.
+- OpenMLS error handling and message parsing: Welcome parsing assumes message shape; malformed messages may panic. Fix: add robust pattern matches and error propagation in join_from_welcome and welcome extraction. Data at risk: malformed network data causing crashes.
+
+</details>
+
+<!-- walkthrough_end -->
+
+<!-- internal state start -->
+
+
+<!-- DwQgtGAEAqAWCWBnSTIEMB26CuAXA9mAOYCmGJATmriQCaQDG+Ats2bgFyQAOFk+AIwBWJBrngA3EsgEBPRvlqU0AgfFwA6NPEgQAfACgjoCEYDEZyAAUASpETZWaCrKPR1AGxJcAohgYu3DT0HvgMaB5gAGbwFIi49rL+kCQAHtyU8GwYuMgAFFawaIjSkACMgMgEAMwCAJSQgCgEkAJU/rCMHmjYSgD0ZAGyQXRgoeGRMXG4YIhJDGCyAEywQmXMkIBJhJDM2lgFdmZV9XKMGbg0uAD6HvBRJFUAbAAMGpAA8hkYADSQnQIkHlwSgxsBR1LJvgESNQ6JAFo8FvcwI9EWUqhojABBBQYchiGElBL4KKQGzYeI8Cj4IlgalMfwkILIbAYJR8NIZUHZXI9SASCLwWjUeAYIjoLD9QLBb6jCLRWLkoiU7DcaazdAUBgIGhiEEkBTMbj4Er0ADu6nauFgeox0GslIITA8kEFuDQW0U/xe0FaiENFASeVi+Fg9VQ8WwqjoAG5sTQcuhaLQKNJEMKiN8ALIAGQAyt8MT4MQARb4AYRsReg0rS8DpvP5Lvg+C+kBzAEUs+oSN8ABLQaBWb6YeiBrCFYp6mr1ZMRSClgCSReQzj1aUoDCQMObkBnToC0MQXqtkBN+AoAGsUMgomeflCKBg0zHLXrrlJIORcKeL1ePyQpHwBDYJqdDogY44lOUjQpOkmRcogfT+JKwwzP40zXAwJA9BwBhQH4AxDPQ5aVgoyaQGSaaQAA6vAHihCakAACxgLgypeAmSYpmm3z4B8zAeMg7JnjQfCbByYAMmE7TniQ4KMEUmpoHChoeLIqKPAArJABbFvmeAsJQpCQM8ADs6J4ak66boggIkKx3DfCaoI0N8iAYGg3CILA+AJAIVK5LgVAOSgSEkFys6oQw3ySZqO4+UK25mpaf4mmAbDMH8fB+T58RBdBEROlp8QMsgVgYjmObmSS0j4B4Uj0Bi+lsBQRmmRojGQDyFBkrgDDlBoACcjEaGU+rcEKajXLgsgxjF0mycg2y9e0w5xa6NAxuQDHpZlzT+blHlMiylBrdC9AybIYEQXqCzQeycHsAhMrjPKUxeKktbNmAHncNhuGQBmtaUgIoREAA1DOYhNhgyBKMwzYHeIIo/GEsoTOSgAphNptpWPaYS1XeH11sKIm8eRqbI7uhOfVgiAgdsiCufTaBgEmkhkPW1wumeQ4suguC8D5+A7pJ7pKE626NQQzWkFVna3AwsgMF4XBdJaZ4wpsfJc2dGwpEhgzBHrxHQKq9L0JsyZ0rlwFG2gARGoJhqxfaCVYLI8D/LQyAvjB9sJJC0I2KIZ70ONsihGg9CrdrAoHtB9z2DQnnWOVlVGNdkBVG6TT3Zyj09M933cNwEieyaf1QDm+Agph31EBgRriH1GIlwAauXkB5MHTAULQ1e13qgXaLg3w96HPhSPGJRoMwtQxlmqMeDmroMOeA8anqM7e86ojIfQio19wzphDG3WIAAjlNerCkoll8KtaCpI4kAABo2FYpb2JQAGxjsH7CylgZFqWFsw5h6ARAgPQgztGTLcZM9JDz/WgKeSAF9sCUHkO9GmyASgUHfLAWQSZdZlxICafI4g2DXHIJAIQ+BhTIENPERAEMoRQwRvUMubo+wDjPiQAQ2BaK0GiJSZg0wa6bwpFSYkq0YjvmuArJW7FiopzKhVK6RRII1DurBfOOQEIiACjOMRP1SEVxwlAAAUnZXKUJmAb0wigA0Xh4LVV7v3CRjj8C/yptYoxdj9TMHUBJKeCRLE5leAAORPOaSA55b4QNql4dhWAYgeBEtxfgHI3brH9tDLYP1MmrWBHEM8PRkwODYLyeAbpKEkAuGSKqpZQglGQAuIskAiAeRiclUgGBBE0JtHaIWjo5yLgkKNPIRYMQAHEwClgAEKvDsGDVsPYMRgAWBpe488Qp30oBoOIPQ8EAUOQhMxh44jqj1HIGgYABTsFrLOAgWc3SrW6jkLIJAwAgTXqBbSdFIBFWTqVNOLxOzvisEWcBVF+HVz+QkEmJBFRu1/Eiz5zYCryBYOoYIMZUIvmbpAW4MIySlDSP7GJZEbwUCWmBYOsp4j20vABVMCMfhICNsKRgVAaD5DVsA1qGgzKMR4nxASxkNAAA4RoQgUkUZStU1JVE0pKsozwyjfBBmgGSVR+oyo0q5SgSgLhCEQNuMoGgNUaUeN8c+V8uySqqAsIcz81jPBlQNb4BB4nC0tRpBYGgqh2pIBfE00gEgarRKKxgAo1WWuDd/Pu9T4DcA8LQC4goiAMD8nwZ49x2rfGYNgdJ8BNGwB+R6V0IM9TPEDS6ncPU+qWqGiNWoLwYE8vjhU2qfIa3NDwAAhI1CZK0BeD4e27R9w0BCsrbopQ3Q2ELEWDMPgentBiCyNMy4+ZKC4eIBGYELBzhYEEhIbBECIDQKQXBjhtguExImUqmi9SMS4NwCMGEei8EkNCb+yTxDviCRQSkoJkarUFiIFJYEoBl1TJNMEZz32UDAFbUO1T4O0TBFsOyUdqBujyDXKY1IBDFOuOwHDroXRoFqN8JQUQujpNZmQS6/1gOgaQ1IqDuQeCftrCxa9pB6Bob7sgEmwtMDkXIAbQivGQa1hFoaaKGAaWYWQA7S9YA/LMkFC4EKNBFTYbyB++TfVIYHphiLeB/RKKNwwGAEzGERbuOXGRZMgo8S0Fo2KEINY6RgFji6UoImd5/BpXqDTFMiBVUc7WC4yZDScayGmsKj1IC+2ZBKQ2MJvzptQ1CQU/aEvCySu0OzIwoTnmvRFq0a8kFQHNYPTjsW+qQdEBZlIZ6fbHivVU8efdJ4UbpMPMQ2JKkwmOL7TOerW7cA7mQsCGJAVaT5QkFRoKKpcCCZZYRcH4AIems50OgkZN2wSBUhImx2O3ja2IRhfGzMh1E13dz/tGGgj5DQaBGBAtWcoP0aQ9QxIPaO89wLf7H54G8nwIsi5migloDe9LwswEoCUJ8w7wPTP2AeZ19QYmRQRpSKE9TzgXC2eFj+z7epqMvAAGIltUvwKIURqF6neSQMl72mx8CZXVnz2l26dzTET4bVAxAwbAIYAwJgoBkHoESHABBiBkGUEbJgrB2Dvr4IIbj7MZDyCYKyFQahNDaF0FLmX4AoBwFQKgSTAqVfkF5TCDXXIuBUAYpU+98hjhG+UKodQWgdD6CMFb0wBg85fP0YhSBKFZjoVrFhDQRB1DwAbhrHCAAiHPBhj0YnnE7tX+I73OGxcSRShPECPqUPQAABj0V0IDcB1+R+l48deo/wVj/vM2cxEAYWT6n8QGfkyt5eWQBwZFfZ16b6QFvzpYjtbPPIO3o+JvyGH2BcwlglsiTdj7YWvslDK2cAf5nME/RGxuyDx54hpBGEic2EgYFOzkHU0UQntAuBgzKD0JERgPg8QWQus/uIsZiKQLOwkXAi8JoBgOeWeRgEAYARgXeBcWWhEfeiemEPQpYzgRA+AGg0sAI8Bue+ehefSxe9A3uZeF+leN6NeMIboW0JIPUXaM62wj4tw5I1AkAneui0e3IGBwQWBA+SeuB+BhBxBreNKPAzK1WfBwh8eaEYhmEreeQrK+SdeGqVqde0UtAae24decICwZQehfB58Uwmh24AAvPqo8HXu2pAEWKIJ0O5rvB8OjhuKUL6JgI+CKFwEAjLHqHkNocKo4d8O8GQKjnzpeKEbxGQPxMgB6q3mmmSCLJ0EbHXgkRgEkRcAAFSt7TqlBGHPAaSt5s7ebCH5I/pnr67VJuh16KSKSKqqTqTlFdxhHqqOEC516tC0DqFhFSoRGxgUZRycSXqUSlZ8Haq6qDFmHearR4BYb37IDXAyR8FWipCDHPCMSOEvCQBh55677pJq7QyH7t406uFn4WbICK5CT+hbh8Atb6ziCrGP7P6v7CilD0F0A/7Or/6PCAHAFLSu4ejgGdwkBQH+gwH4BwEIFIER5oEx5KHCKRTYFYRLrFiroaDMDf6kGIHkFF4u7UGl56aK6/HV4GAYiJhMEpSKECHd6omiGD49BYkro+C4kDG7x0yghqDgZYCAA4BKiSjGMHKJMIkP4IALgErB5IAEzcEUg+R4NOYQjgFGRGbOy4xK7MIwaAsgJ0zgmoXYOoZEeQ4YkY9Aw8MMV+iSOQFG8QZ41WIas4DyGO8g4xFSUWzpToYCWmE49ADxIk0we8dkLEhAc0cSskmSVMOkHS1RzYvMwmUIToQRhkeoJsSc0I3mL4WAJoEQ543WSoRAFox48uYZEkfMCiogSiIRBIyojkzkWEwhxyBAyYWq+0w8v0kctAPQJ+ko3wwokI4UTokUiZKQzssC8UFmTh84CQEQ5qoOO8PadUMISgnh/Q8g1hMMymapLusM/4NStxxKoiYo/AoIqe7kToAiQi8OnsxIgYlIFoPoV+OOxamR0Mek0saZPAwo5Alpwspk3wdeQCpYp66greGIVg84OODc1Auoi+LO/2iCYqiREqGu40j424xRvIlAbKWA/IDcXIY5XSRs4aHgGuq4qQI2HWfwRQZcZ4ixfMvoogNwns3WQ8qCDgDAamdxeAFFgkBomi8AAAXhvpcZfg9DkNvscQCvvkeS8sftcbyucRfoGU8XJk5nfmxUgZAE/jQnkLQKqeFBZjSBgEzr8SFAyRyIIQhMyeiaoZicujiXifsUYG/j8Z/kJj/lKgNICcCZQqAeCcmBAVCTSpwJALAQSYiSgZHoyegadsof3qydeemkhlFUSZQSSfYGSeXvJJgAwQYPwdZUyQlWiQng5T0ClWOnEK3o3AxJlfHFVSxF8vrGXJSLkRRnyKCCoF4Ops2K6MKJRMufVB4fLhuThXECpVECeXXngS1IQaMOeOobeHXlnsyOeHVRgFnq3jcOgOwauDkOSXwFuRyjQuEBgIAJgEvkeoN4OmM5CQ40cQpQs1khGgi1rexwdMfhlEshde7kVSdhWewAxRFw/1JAeg21AuOZME1FlEvsDgAgJQ6CFGdeJ1gNGgGN219Ot4boMQO238hIFeLuBSJc26A5CQYU+OfB4Q81HAlhcwZAEgre2sGC14K1OYWY84pYPgFwbcPgNgFwGIAAqtAK8KujYDMj4OYXXhzVzTzXzQLa8FYD4JEmAtLbLdzbzfzRcErSrWAhcDYELTmNABcOWAAJpWCi3q2c2a0K2m3rKljrLmGrQy023y3a0LJZgYgADSPgVQdeLws56AAkwslNPGTRkhdNlAzI9yUQPynldANhc1BBb1YQS1Au4QQQuo7FFhTazNuF+SxwwoEg+A8SyMdehtxtpY6hDGdElEpGa8befRed9Qq0YdSMoortctBtRt0ApYWtNgOY84US5h0xq161m1kNu1vsbuq0RGH6uAvZIcBhyMDGtESCYe+epxyl7KClx4J+bh5+9x6Qwk6lLxWlD+/0T+l+p9PZLxpI5IF9yA4aZE4x6l8MBhMQMIeQVV9gAQqaCQXO+mlAl5fBUQWAi1FwW5eQGNGgtQreLt4DBSwoeQ8D/AZlsg7abl3xH++VfxkAYMGkjEflBgQBAV6uQVB5ZCkBYVXAGYdA8AjgUVuESJcVKJpVLJ4hiAGoPQHpKYaVCJGVquWVNB5JFeCdVJNJteVlklQhHD9lrJ3DDAvDiYnpZy5hJMlItAwElEboNEdEcJ0wRQGQ9AzE9k7EfDkxyMnQ+pFAgdCQ9GODp5wFqjKYreNso23k6alEdeeQYNvhmErkEYAT3Ychlo3qXyTKBoaDxQzQsgM6UgYgZ4jCHg6RboQSddQIzYlpkTroBoLwLjExNkHADpVApAFwF0qDreSgIkQSj4wBYwTOrI9RbopTChF0cTkA5alEXgIoloDmcC8A+N6Fz++iUNx4dSUTx8FEyMntPtftAu/QigcNx4FSJac5yAWxyp2pFjIdTiKWrikmneh1sgFwAoVT6A3FKYt4shvsrpbx8gV+Whfjs80g40gT2ViN7zoT40loaDeQkzeTx8aQc6teThUjhhl5qk5NUiZcSgyAfRNUK5FwdIrOtYuAFzyWLijyyM+j9E2IaLo2JQnBzcNkXT6eVofAs+uTs83AreZoMMMY09NLBoPsns3qpZJz664lioUIIkkAczvteq5aF+vs4c3ZMSjLKAxIwBgK9+tA3w4r+AUcd4fT7QJ+Dyh4kAQtj4CQq2yAAENw8gHTNTlAdTSAzAvZnKg5uA7+O6lpx4qLGEUwy5yx24ocmQyMtFaA9FdjRxW9clKle9Vxp+O9lmx9V+Z9t+GO2l/0UjMILxHj4VhTnpO1WARVsjtl8j5VijPDljlyiA9LsSX96aCL/j3zXAbcogwA2AUqeg0tCNITlb1btb9bQFvzsAzbDANbdb0tgLtLXA2A9wexcbtJYcIO1sgUtsZ4XAdeWL2krjl6kAAA3nJsSlgFtC8xehW/s06PODkPgMAFW92623oEE18/bN4Lu5APuwQEey23W2e2E529e7e4e8ez23oE+/2waIO8O/UFLq2P8MSAAL516jvSMvFsDqzf58HztSOekrtrtINtPlOVMABkJQHgUQAHegrYgUlEYHEHCbIO0H3ksHc7ziC7RTSHJm67rxLgZztAeQmHwHuHXc6HAA2rWwALrfBce8f8fcdSo8f1BEdQDxvjvY5RDMgpKzt0dIPDX1JOvot5BoBcDocIcphDgXBKtRwafCd8fNAadaeXpaq6d6ndkGe8fsevDJpgZEDgcGDuW4Nf4/6ohVAkNkMgEUNKAQnUOhXQEAwMNMMIksMxXIlyNx5lUqG5vKOQKEFxDZ5kG74UHCO6yiO5WUluAIDXi0Q3yHWKDAQLr/px3DY7Awixn6yQL5I2MnQzOiilhFBNdKSPBgBWBKrtH2McQ+yoIvEyf+C3GzvCGj0ICxQNV8p7XTXSCwLDgsCQADSIim4AL0g8AnQXpXqkDKaQI52CxwsJudBIpUVSash7XOpabxMRb9UUYXRjnJisQPhlvNiOIAA+L3sa3AlLNAVFdeMYLtfZhso3tY7Q4Ok3dzGAC9f8DC/Md4xQerx4dmjivTRA4TMN4u4diPeob3H3X3aQLeQ4ZwYUjI2ky6u8NXzYvDUOjy4QHWOmJ08Nrzox8Yt3Au93IIlmJA5o9P+9e82WYch3dpx3ONScDnKQIGt48L/9/JooyPyUa9qTZEONVPnyNP0MS95PqS2gCvL+/rJxgbu9R+PPobR9xIalCuzx0bbxsbEnY7GlCmA3cnfBCn4op2eQw27AFTsk1nUqMYzqRnaaOw334VAnIn7HH7rbabMjeiUXveCjXDPDCX6jxHUnTmDvFm8nEY9HAPQQbv13OQnvsg3vvvCwRnIMgg3vonugeHwcDg6S97J7db3wK8Dn9bllGb0fWb0XnDOBSjECkoiXhbRxMlGYmANwROdO+X2kl5sgolFA2D7+eVbnBDjE9wXnIJgVfnwVkJ0J4VkVYXyBqBbDMffP3fWEvfhlDAAjKX2kaXzuGXOVdBEjRgpYM4WRkXnfsfOb8fyjF/6j6AWpGZC/mqXjB1csogidJOg20hNRvybUGAMeA/olorim6EropAcZGV7SrZJgjuigFfkQEHKckCW3oBg168G3arIW2657dNWXTf4ByAuKBwZ0zBALgaEOxACiKKMFVtNXm6tN3InkbyKPAFyCxtGjibgYdD4HEpbw2UIxIUhFAvB6Gl6BQpwVTQlpUUduZxKljtL0AuEfBH6PLguCkDSAQPWKJ0GEq0RDcr/UoDPn0HSAKinKfgMIHayQD0YgDEoAORhiUAeMjAr3AR3Azw8DqCrDOmBR4y+wrSV6FJH9z5iIso4eglMGQMMGwICsOda4I/WxZjNikzYeUoJEnScwMEbeRdGwRlreDHOYEOnDdhIAnRIosAdqiJTdgcs9QCA9iEJFaSbEEh4+YWGzwfDiVWBFGK0FHHyCyE3QgpOiiQBlIEhvMTRCRhcAphqE287QrAHCT/Kzpkww5RfkjlTxTxRqx0fwPIHLTSAxydeH6KpFaHoAS4TON0FbE54jUCQj/PBvkAwq1gy6oobcPL3gpaCM2YgfYpAAn5Qs5I6gHrnB0QAosWAKWGgHEN3i1MnG4QMkLOHQpeA4wKYTpr8geEngrQL4KlvPj0FIAosmaEqCx046idW8sw7AUT0OxXDeUlLdvJJga44Z5BpAEYLYOJE4MtWcAG6pP3nLCxByqTeFjDUnzswxYiAirFICdBdCcgqKRuB3XsAZANwMQFuNALwGmRtIUFCSmIHPyrRi01aFYrIB6Cs4yQ7QYlpgFJbiCqWIFQIa3gSJhsN6O+WSmcQN6dClKJvG+o8XN528+oT9HSpJ2dHEpZO6fJ3pnyQZbRM0YQVBlXxwH4BQKrAcCm33f494T+cfHvjw1/41Vk+HotPtDAz4CB6O3ZM0jwK8g+QK+7HY0eGIXzcp2+NlaMZgVjFn94xYQJPjb0g4g4UxzYNMfRzciiCfIBlMIBpzVEhiwxZ6MPg+1b7FioxdlL/nGJ/7VjExtYkjtJy9GpifR6YpBjoJZDRCaRJAdsQwE7GDoCxZ6b1Hjw065Q0Gg4o/h/xjEjjKxY4y/hOOo5TjU+M4xsXOPo7bxlxm3aQGuJM76Qex6gPsd22b5pgBx6bIcdm1i7f9ey44wfpOJT729bxGAJsUgx6HexXxkAdDl2K3GfjgxH7FroTh7DFBYAf4qPqWOHFATRxIEi8WBKvEQS+oDY6CfeKQaUlJhg5VcRfw3EJAUJ/AoYdiM8gGcMJpALCV5Er6Ad0JCdXCSWJKpd8KxxyKsSRPA7gTkxUEmCfhROGyAEJSEzce+MCFyobhXbYAFxPBoHj/xR4ssSITEnn9QJUksiTJMG6zi68zvK8ICLUE0AlJyE1SYWPY7ZQPAkfYSfFVEmnjxJ54pPs5whEJ1YOYMKVFKjX7kMwSm/KhgxEC4wlIAPYClswwP6xViqnkz/oRLPE9BtgwoK/oSVS7El7+TgMRisMvrujPBspCmpZGBDVp2IHk9hl5PSk+TMpOwP/li3UHijJMZZZXPLmlBLxxSj9Uqp0iVDHxIokAQUvKSeQjlB8UpbZoLBRRrAqq2A30g3VHSDSj4hogFOIQWSCA6MmQKQIwhQwRl3ezPBaGOUNZf0ZAPkdoDtFwp7IGQY1HIE012l1DqARpZGBGQuhasg69AhdFgFTJ4DhR/AlsbwJygoB+BwhHOkDJzEJBpiilD7DCHemyRXImAsTIinwpM8pg+bCbKEHTGlM9QWgt0GYzYh6gU2bjMctDU0QCtBAxKOyJqHV6ShC4yrf8pzDjgzoAZY0WEariXZpC7S+ibrjJ39DkiOQNKZgATiHLsAIoswLgFtPTGLid46TGIVtzGh4APKNwnHKtyWxJ4Lq3OW8HBMZhJoak1wUSseMZAtkNYOdQcksPFl7gE6J3E6NLK1lo478mo/NrUKwAUyNZjiW4MtDpmGwl6eCA2SJSwgHD3SfMUHnqC8jhyyhF05KFYK1ZfCsUMLOGAjGHiTdrpcQBAL9AjKuwaK7pRMJRDmq1QQ0zGD7LZgC4TlIysgPWdUXAzHkZu9gbMWILp58APZJAB2dnJhAs8Y4DYIUMjALl7hJMXs2mdn0XoStj86A+ME3PEosE5o2zNcFVJ6p6gf0YzFRBd2mDJxU4FUHoHTgLxZgRYtfDwXzA5HzotSTVOpBNTwqKZhIDRVqkGA6rxhtgGmaSgG2tGWZg2ZPQ+keQja30zyHo10QYD0ohEConoiyQjFtLMJrkK3MAFZIjBFtLQ3KOBXly8BYN/JC/X4kFIRC+UACpDdfr5y3hRSaGQXeKcWUSmsMUpdUtKUlWAlJEcpMlAvPlKNiZdrhVeRgtHHpIP1z0RXdiK1K5C6MhSBEyhZhBlKHxlQYADppwWqxcgfgeperlFjeAfBUceQVHDyBsB04v4Q0OEPdV3jIDsBdeHwLQC2QaQygA0OvH6WNByLoiuYHHrhUEQMC+YuNIZvDJPqPE+Avwf4LaSD6uzYWmrCxNpD4L0MMolAcfIMAOqZ1a+Pc0UJJiiIYBUcCXLxayEzCWLIQ6OcQBEDHKphYKD3PUBdHGixAqo/i3aJBXnAXFGh7OLAPcyMyJt08/hUUB01uSA5vgE3ArmXHWgqVXh3tWSFYHkIGCxyzTd8G6HEhpys4CwC7jOnEgRlBSR0hIBdBlKcC1gvsVHGpV5whlNA/0BnCAtfnCxvpp5Qaikp9KWLhFx8UIt9IuAHKRi4xPaiwUGWvDxi0QgJRQHUJRw+Q/gFZquHLkc4Hu1S/WfyFEr0BYU5FAyHEz5SMV6AdCblG6AOXHl5u/s75TCD+UUVAVpQUIqCowAXBZlFwMihRR6LHB4WmQb5bo2oj/B4VVggXEygvKihfh4mZxhmAEgzIhpAdHLjfDUHGV8kQDN4S3h6BWTR+DAEADIRuZa94KHbfIB0wm5q9UOoTCFfQI/I4Y7lHESFokkLE4YWomSDFQCuhWGy3Yfs3FeqosyORCVAKvHujylWrRkVaYFstejTDILLRe+F+RcUUrG9P5pvJxdfgt7Y4/50kydvqKbGTsxkVgHsPzRzBC15w0AHwFwFLCppKWDgLsO5IAn1SBFGU6hZePdEeqcgXq5OZAB8CvwrAyyYNQLS9oLIfAWYPcYFGjX6T+FGJRqQmtIlJrk5nq+8d6ozVZqbAOa02lEmDWvxoAFfEtWQuP7ljvJvfStaZPdFJsmxSbYLncq7WZsDJiVctf2oEh/9pihAstq8y4A/iRQ0tSgayC4BRLqViAdhS/0Nj4BpaSSx5BEFDXuYT1HgGiJaHaWyAG2VSygCuqqVwVkwN6zpbEEHW29KJNkAwJAF0DUSsAxyg5XkFurHQKAGnfJZQHY47raVR8CdR3ynUxc41FaudYmN/VQBoF84/ComFuWZQ8gBypiQDBpVDSIQgQkSOBrCiZRvg/otOeRruVfjP2cG/CYBKQ2zqC24HNDf+toT0IUVaKlVWwDyA0bEJEGigLqv+VsALgdSsliHz4l4doNdKyMaWuY0zqeGA6pMXXmE2t4yOigb9Rxow30dN2YNItRQHY45hgO7Gv9XpqQblLpoLHLDjhzQn9jzN6G6yRdAs5rxqstmtjsGNfVdKSACyHTF4Cc2cbJlBfTzdhwaVDTwNRGo+Ox2E7F8eOTnFzsVKCllBGIxDLBd51BL0AwCW/ALjvy4BELYAJCiLoptjXKblGuMmhUIzv4MKH+FJJ/tSVt61Se1hkvtTw0q01UByTKnFhErKX2ZBYPFEjTzIxmLszFZfHGZgKTgRhuujjBfo0QWTYyeJsAelkFA5BdxBWCzLYovhvR6sPkNPGELIQMK+gbGrdOxXwQW2CAV4GscfEUHPSB8dgvXYWNsA4noMbqJ5SZV02wlt5xtCK/IA8gNA+QUaC9D6vIAMI7bTt0cMUeSNmVbA8AC80aWKormIAZSeQQmSlh4Dcb+WdITCEEHqBvySkCCXAEzjgRIVMI9eC7QICW0B04B4cybSUrLZkJ11eAdQuhWVnIANtwrL7atFxkG4gVQFefOoXu6gh/wpQSTQiLz4JBy0YwgkLp0x2BKXsT2HeL7Ge3cAfqJ5RHR0xeRS69hSnGukkjhK7c5dgENoXZHZ7iVDQSKbLRLt+2WraF29c/G/IPo3EVKX8x0T/PPoxtL60k6aBkBHVTtRsFOpbcZkz6rqiAukvCSJIoXlbTZyYGsWZMo5pok43+DgFEGYCcAOARYJAAH3kCyFA92Ej9dIx91Xs9No6inVdrHxdwx61kraEzsw28Z8enGgXe219G0w7IsupFPcub117ddoYPSd2uNmtaGpvfDrYPxQUqyl+YMEyH/gy04KIpeCkKvluC4GFQuuecLof370MyxSTgirETC+g/QegKeNPOvmS65Sb+9CkvIVKy4NaA6w+KpddpPCxNlQQWJmXfunwd5G8+BOyNUyXxJMXAT8vXjarbx2qP5Lux1ZGydEe6reXu3Ss/nn7j6vKBDafUCWwXhSrdkUhfbQwipwlit6+ydUXG33YJ/M++5OlIRYAkFBGeUxpaSUv1MKCqL/PlnSRYLsKuMDgxQdwQSC/V8Dr0HfTTGLh0sdpm6F5XIXc1GRoOeGV0J0TBrS0ty0tBhhZmlqWEAsBdZsD0Ufh5ya5VwxXGuXuneE2aLi3qU4LnAVhbQDgEuFfLyB/TSA3mMBGyVUULdGIcIVacqArkFJ3IpASRXkG3WWK0hBoUflhT3I/kcQMIF5GUQ0CpBvMsZCBPKla4qRlUmkO1HNzWCY89ZHO9GRxE9KZJTNyaHoFkb87hIok60wg9uBCxdwlAtQNVdUI6xdydYOqngKkwRZbFqdPYtLGzIzA5gbAbcYOlUskXc7JRrFPqCdUnZUASYFxH1vQktLDHz0FrF6VaAtF279eGy20fatAMOjnVv8z3VSSgAAKu4CC4qeg1OFPol62ivgiQaIJkHUivmyjOIbeS7o7pmwxWO/Od0cIviqCwKf8U84z7UDCgdA9v0wP0Nl9zAHA8lLwMGHuDRR+zPvvZLOV8SFBs/VQeyo0H6tNwlhRcuobNanooJyYDwaIMlw2STlTki5R5JS98VmcW6IKS4OTBqwu++zBUklEd0ZS5rPg9syhNroAZOdSLg7IIKzg8gFJ8kEMlxgjICY4J50PhjSgegnQHes0SoA1HroiMIpiQxUmMYWrHIt2kWFlMszmk/gI4RuBykhTQoegrwKWLAB6Cw4iw5Sf4HqS1FL5vIJQJlo+XSzPkr5mprAZZUzhlBvMyYMlFboB3SYeMeQVI/m0yR4s4STEFiETISU5hVjJ0BGZXLLDNcFUbXDrm0RVSGolcgqReakwyjKmBcW0JnJoyK5k65C/oChKgipjCn8j0SOmFaAZh1H0izB+oaUFkLCnQeUqkox/X+BFIztxWRJHRHaxq8LwskRcmLH+CaLmKUotitTDrDdReq4ggxuGn8FkBdy8cN0IiBUQcpFEysPUCaEpZ4KXMECphFKElJk7nSnmZHN8DDnRwukYKqIPyyzlTkjVfMTdFin/54IjYLyJaLFDFaWdGZ9gYxnqC9OdMmiLALQALDxiHJJIGgb6f1gGLdc2R+AnjEp3oDaH7jm5ZQ5Zjbr9Jmo8cdkBhF+F7pDy5xLUaCBSRdwX80WKjcLGFP+4+kEWjyNWau7Mh2pJcSkB9CWhSr2kmZFkPchbAVm15ovL6m4STiOkjI3KSw6EzHMGy+CAAEiL2t5P8tAahOmChqoImANYYAuBlG2UQZgxUEWcCuxCgtSg0xbc7wV9jkBjun3CcH+DoB6GRYs4KFJGdixeQ0w/+q0eaKANG8QD7KV3WscgNp5oD2xtccAJaVfRmw5lBOptE2Uehv0IOQpY8bcsf1WKdAZBUlrQXucygCwMKT5zn3+dopi+vfqvqSlRjeTb0PzHvtxNVUqtlB9LrVsRPiNkTBgfzTeV5IAMAEDEbeAi1OPvUYe6FSfnUmihUV0eOdRC+fKmq3gSgAECKH0a/rZaAjxwGUOKJfCxA+CnHTju8yqykAeOCWhjhOYgzOBZFvsG8HOZ8Zo1IAWeWBpDTZzddoaYdBFjTQIJ00m0FZCQDYVgbf6rYgGCwcLCuGM1b5kirqjUhrT5AyLGgIChrXdoC1haotcWpLWtrd07autVWrmHMI0y4G7lo0HgvNQrlNBaFvWWkS1IlBHqf6LuprUrp90B6Q9EetkL1CCABqCwouj9lLo+N6aFuGQ13CpF14pLpN6utKwJo8RURZoSCM3XiAMAPh84U3lzwfj7UHZJ1W8L7GZuDG/CPkZoFcXBF/kYWtdCVMtKbprUMAG1eYVjRp1/1QQQQYOguSd0VIKRAcCRk3U6tp13G3kEtBMfTykA+AyYBadfIjq01kwHyWOvHTwa0Ak6r1d6i5etVuXHddoh1VGYgOW8/Lmx3StQzSTfIvAgosBhAzTpQM0LPJtOkZohAu5Qay6xCfuODGh6EGtvQ8RvuKvYmyrv0CqzVSqh14kG6pi5r/XYB6Y369AcuyCa31gnSrEJ8q+AOqrkC4DrnBA4Qw0iZWst3x+fb8aC7/HGGgJ/fqQq7towe71Jvg4XF7sIQzw0WKsg8GeCRcNAJKMdAeY0BmpGx6VKqzVov0+5aDJU23mVPLMRJoks2yFutOyItQ3qY/PexoAPtH2NAB56nUHVm0lc686pgkYrtFbBKLCiu2BStD4LiBuSHTR+HMPsFEtmYIsdBLEB8ZB8EGEQ76bQAxAN6j5K9UUEMcD42XZ8ePQYtsFSBZgyAKPZbUBRoe0q6LqWQtmMPweEOEGCLILHUmdp8xeIFmWcHXk6AihC2//U8mTj1IX5RHRAbANVmiBngloDCwofkGmLpMn4WQF+LLxDAHFN6ABsO4bxDaeXw2YB7+TfldUbGdKAV3Y4nf2O5y5ZkACs5Oe3BVmwoboF+xZgitT2JITq/ELIAyi1RXMi8ipOwGSsBT/b/xEyBPY37T28tfxkLgvYKtL34Nld8E+vfBNb2P7u9p4D/aP6H2yh1VNhBZlPvmpoJF9uE9Vevu0EkTzCgwLbhHvs4n0qJhiMKbscv2BSElaPrOBKNuPtg60g851nwBCAdA5mFSmCopC/oZ0EKv+4beFP5mhBJXdU0OfiLZOv7uT3+4U/At5IVD9QaYsmEwfuFF160uW8U5LyoOAwsTVpoFGbCigSdCCTCNmVWbFP8kYUYZzoDNKFDuWOjnoCik+6pYOUXWPS40U4cL4f2hyuvLw6+S8raU1ATRXBeAdak68uUW58HCiCmiLn6WKB+V0Go1z7nAOJMu4j4Igh4AgxagGABJcwuloEOvak0QFDuNChId+3fJSMdxX7RZvd3THfeJX1qGwp9u8N30lpPe7GTzez0G3uf3bg39zZ6BDGfNhSnKhn9X+siS8ve7aOWduK5yf738nf92VxgCC3KuGIkLqEoeDAdDm+nBGIvdA/cQ9F9noaQRO4UFgchVifBBGtxlkPwwRn/D+vKC/1don6Mh4FFyKDRfuN0Htrw5wm0pBOuJzdeSl70Q3ADFh7yWn/IxFCmfGsraBuJ7lcwP5XECa+4E6k8xPxAq7fd36L33zaVXKnV96gzfdqcFUsQTBtgg2d3ZtStSgpYM6lC8geQ6AMpNHRY00vWNpFx1GpM41M7iPR1OLz5X9VeYhMG2wTb5uuuoDLau4QCuvOH17bAv4HLLOlp0SHZ7F4XzT01rSkGoNMhLZTb5MKuqv5JQiYqgvliu2HYT8VOjgZlCQcUBl/AyzZGIrgOuvR28yYIeETLGijMeMeN8SuC/JiUQOdirLRjoxrlbbcozlm9nOT2YbqfpihE5kxzks0CToswoQ743LaXtz2ITRVou4PHJLsM5jEIq/rhpbuaXboFTmIHyyY23WqSKCZ0SU6AiVMzrHopaF4IesrkX4SK3XRIfbXRd2wilkTjA9ODPFxwPTkhfTxE5/TXtIVhflk827pPjzb8yqx0fbMm3xD0oMyF+H6sFAhrZGEdqRijYKPLhgz8jTtYRML0QLCkKIDoAA4yZnsLTDOCRHetfWAzzT3J520CDfPKQdBPyGmjSV5jgB8O8sa8tmO3dFjzSlY55cMRE2/uucmOz93dRRso7pDvh8wiaTW2hHndmu6fYds8vjfdLFu7/YdQwOCmiu4W5Ktr399Zb0bXHoNceitN0cNL5xoM3Tud287N9vX0/ZPtG2vXqjv16K/FfF3XAPrwewG+ns7PEaAduRH/bF2zNkAkmZelMmteoOdkcjhxHwaWbaYrZarKFtY7YcTNhQ00em1HebfqG23mDnt4o7WTW7pzc5qd/s2AdcRgnRCYZyE42dLvfBa74l/MkkX+XnG9j/R4xbqdEJo7nTrJ4r5aoTOo28znD++82dgxdnZpmupq/L2XoWJ9J417zbNfExY+xpylqqAfHkDmW2JzlYIWxS57K+3N4VcFd1fi3693vonyS4VO6F8JxhbW7vvSMyp9ZzhUPFVMofsBVXeMhA0HfrTtGVAftLJ6ZHHg7HdVLRRCJrWpC+YAn4H0NzQ+QJQRrKlri1zhBJm4jHRdR7XK8hM54Ti3LTL8P6LzdMekh57quPSv1BseG4f548R+78A8AC9PS0a718qngeRZpoTx4SCO/eAL71IDtJ26U8cyCpMHo63DXuC8ed3U3Y9xSAS3zdAvIPj/Ouei9KAoGLuMQ/xUSXpRYvIv7IXG24Joc/LHj1gFMvO/VWDDgXOCuEYKY1YVoFXqimeFkRC/t4SWKT178kBbdz8wx0sZMd3EYvPlrl9bzMn9dZJnG4Qrn2G0F8i+Qy/3jn93Go/Q+DmhvkJKKss/8fuJ9n/3zj3uiF/6yuSWT0lAr+4wlwC6Ov795apsZeY4MTX3Wazeyvoeg/8z+7t4/hXAn3i4z/YnxSs3jZflX403Sexy18FGKXCp6fJJ0Z8UnUsSFcGvE/wkkK3bnyqdq3Gpzqs6nBpx2YCuG50Wd8bbYEBQTYHoDEtRpNIizMRQGUlAETnY8GKsXHeSW4AZtF9zm0CaFT3rEoJQ/C4AtlMqWJF5AKgLZlQif0Qv5HCGMAlYPHceQ4MTyVph9Z8QBuSVtQibsh6J2be6HeFTFA7X5UyIeS0UsYwRpSm5GceuVbEODCQQ7JVtSiGvdlAlvF2QhdT2HfACdCjDZldZdaQtk2pCWWSBQiXWUkDqZZaH4ATQBYQ8DlhSkjVlhBLgK0M7jLwnvcI5fIHGEbhOiXpA/A4OWcwLhGEBCCrZYqVGNRSWcFED9hBSRtdYkNlRMVSMMxWH9PtFkAMCBcQ9zqYIsLoCvQ9wIEQ5k7WBEVqwkRWQiCQrGUUGQsvCCc1CIkAWyWBESAHoleF0RLoKxE1yRAFxF8RMCCDo4LcYiZBxAKaAnMXkNawUJMgkUWtlVZW5kdN/QGPQUIrnNWSIB2IFH2RctVQORRYJGVImg81MPaifdI/PGm/psAZ1GaB08CsgMJMAeoGx1oQdyA6x7iLIV+I25NAAYhJNPYRxVuqQ2WU5rg8AlwoLBXLk6YuwZSmRhLQIshLIbkS7gHREKETTR48kN6SyEdHRzzxpWeEOBhgUvHxm0kMXbjGvATyGejPBaTbJi0tB8LuDuE14SiFeFNAhfG3Bi6BsD2NJNJwkOJ9HVywd1WXc23Zc/HaO0scoDOO3dEm3L9Wx8C3f/yLdj/UtwwCaqHCF01q9MhADEGAIMUA4WJILQO92BZjkhk+BN/31CnJM9ENDrJU0LbFGJRCUckCAD8VwB6NCPkVdnNFvWoFehByRUknQwIXo1tJJbXrZ3Q4LQmEphBiQ7EHQ30NDE1JT7SkB2JKTU45Aw7CRk1IAASTwZgwzUM9Dg5H0OYlLQ9QHUkq8TSW0k9AeBhDCjQwYJhE7ICMPXEowvML9DnJYMVclrQz0IqNRKK4JuE3eCRk4kE6VMKK8WwuvQhCA5dsMpIf6S7kTC0ffiWrYSwxLQicJ9EyAp9/KdNynsafOALoZEnIE0P8lQ+r14MgAje2pNMA2/ioIETGtzwCCqW9luDnqLcJXsAAtANVDlGcE3UYhwUrkrQRRb4ktJP9M7EFgXkOh2pNmZbmDsZEPTrC1NHtJxyfsWAv+mrNYmUIizVjaC4CzAM1LmhHogKLElLBoAYekiR4IxCNLAR6Gl0RdaXX8JpgglDIEttjQrUmFM2ZGHQrN+raikSFVXOdgGJTpbuUm4SjXXHaxlwK8zJDxKcEwdkjXKIBNdmpELBDcoIl4DbhmI15xUwzwO4I5tZLIL3kcpoeQDfkeImQBXBdKIehLAMHe1wO1PYUtjHJlYdGwVxMXPURV58gZMD1xkYOnlDZtIr2HtZF8RoPogfGGS2CV/vd/GvwLnRACcIJ+L2H/DUUUwyvxcEZmFZg4ZADXaCKHeDyx9RwUFh8YaHOhzVZpaZhyCh6LcRx+gWLZcNeFFIOIFQZILGuByAqmNJSmsFMBuyUdqAOS2HBFLbKlihYmSF2hA+HRVnqNmgYoEKjZHeRwMFeicl1jdERDyKAopHW9Ur1igmKPodLQf7x6iccUShJCSkVMHfAuwNYBbNmwbzFciYQbIgudhI9xz1kXaOBHAcmPDrFKx4FJgN7teI/12p0pGBFkGDqAb8PwBM0GqOhdm3HhRrkyHd8JvYIkMAClQngP/BUVSwMAHJ8qgAaHlM7IFqk7cSIxES7hOCACMUivkYSmfwBcZUA5BwgQW2gBRbfwE5F9PXVnSwI0A1kyAogD2FM8roqpFmj8KPmDKCFMQZ2bNxI7cC88ecZdyuZieN0F+wSjDnGpCTwdqk7onIjIHMIJgoajtcl8egEXUxySyLcJrI0tlt1wvcf2AMnjUxyjtOXKUNjs3RW3heJk1cOlgiTaBCNfgkIyJFwd68VCPQiokLCJVicItWIVCUAo/0AD0Ah8N7tz/WWJBxR1OvEIi6wVdgFAV1QoToxIwsSNSY9Qar07tFQm8OVDjY+8P3CaYc2NrwjjB6Lu9yOO4nTYbYlQw1CLNayUzElGIzRM0zNcsOslXvOzXY5MOYtSTjPQsOTC0ogENHcQNOF2IwR2OD/zr5UGJvkKFgw6SUv8SLCsIBEzovGEujzgL5DNJ44psKpA3JA2O7xUA3cJNi/YukD8kwAyJwIYFgBYEwVKfWfQzdVwxfUK1Nwv/y9idwnE19j1TQ8PP0cAoqWy5GtRxwbdH6I/lnB+SWgjD9d4eGDJCAjZgMFIgkB2DL5RQVZF1dkdamQyC7SSN25Z64oWAgjzXJkFkUOpDhgzJvwc8FZw4SGaUpA5pHxUXhehCCNB5kmAZybhbI2+KqhTNHjGcNJMVHBmdZbVBDTl8gFuR6BpZbzF6VSgD8wQA3pCcjABokD7Q+k0lZGVPIW5b6ChwNYMOCbgqofCElBxfWUSMhbQwBlA0eWIaTSMWeJyC7AUZXIVyCrybGVPctzWJDo8gRZWQ68aOC3UfjPFCmWll/AoeV54ggBmRVYx5YEB6M+YZMACxmIkX13Nk5DLyNhBnZx2vQHtXwRYCmkcwS1JdXP7AechDQZ3xkReW5ysxi/RGO6AtLCMG4xtWGwGgpVodpG8wedUGUsp7ZNYiXgT4KKE6QqnUWUtktgowxIgwg8MI2lMIB2R/QdZBIW24mEmPXhD0bbILHIDhVYOrMGoxuheQW5GYTGpAIY8Cf1dYP+3+gbAKcjwSKNXCgzlOmcYnxU4FPuGlVdoPID7kcEp6S1Jp5cuVITEZPaByhOyNpGcACYGHVxpFTarn3hTA4GX4Fh5DEzAS+5B2QBk0/HRJqMF0QFEGcOcHZywAQsZcEixxKCMm0wWQMvCqgrASgGFlsBSU2PhigV80Lp5AA1TxDRQU5yGNbYBNibghzExNDkMYrGPJVEUNYmFdfsVURmN4QyijpNForPBZiSASGlHA4wQvWFg/gO3k7d+0dKOAsX4ggHAtEsKCxgdZTQdEVMPIC1SqhvQZlH2kKANeQZAN5cBG3l5wXeTWZ0kXGzAwPBEawp4CAWqA5ir8MchrAeMaYjAI68Mwh5tMAeQDXN5eOYzH8RQifzFip/CWLi8FMN1RgN9KHUww1qmCO3OIYwUK1XxH40BitAPAWgVb8+CU12e8MdEmAgVgHLzBeN4DfBjBgFgHyhidcFKeMwMZ4xexK1avbcNZ89wytRP1aFI8JEY6tM8MvoCAux0WC9qKsJnRyTOrxlIFFd6PsMNFJw2PgxFTAAkUKMBgKpEvDBy05A08PaW64FnYrj6oyQ/URssPHKEkYwEgPRQMUjFbQOy1k/OIBsVSlVhSeCAyPxxcUVANxXd5juACxeRcEtbkpSIyc7jqVuEhaBeAsQdTUaT7lEXlthfwduzbx+gQ6GUFbFcxWiVElfvjiVKAXmABgV05z0+RUlVvywAK0jSEMUfo9JWdw6o9Ij1SDUl5AEDOk9dJvpIIKmms1NRF4lqVxwqDwLN2cPgh80RDPzQC0Rg9wJ+w08EUB6UnpUGQpSJIQZOt0OmKZPTY5NWDQ9tAySYWWVqdZkUIDTbSnEpB9ua8F4C28a9JYJkErhN4IIyR4E6JANOlUWJEwFpxvSsoQ3FI1TVGWEohPCSiDdwqad5XZ4tLC4J+UCVMTQxDJuUIhuU05M5T5hkVU8nwy1pGHTbDYVPVSqQxdbFWkAOM3hVnQcUZGFRw4VAFSsEkZc1WRgCwgQVuCFM9TWi1lQGF3EpBlJFW41UVURHRUpMkYKcIfAcXiuRVI/QJhAOQ2CHeEOVVkP+8KgwVR3BF3bnkkwcPcuhLiW8JlwWNbVDyxlTVKCUMlj4vaUJljpGeWNTUuIhcF9V/VQNWDVQ1WtMjUQRTuILhu4xeOQ02NJMXiy61NNQbVs1bWjzUC1IzUY0u4o2LvD8sgOLBJC0lNWKyuI0rKbVtaPWLbUO1Hfy2sPYw2I9SVQ+rMTVbeYdXvFR1DTWyyY8XLOrshsqtVt52vMOL8Vx0uvCjiPQuvW682AVuMA5TNbDgHD6OR9JzjXQ3tkzi69VzXWDSAQ7O80OlXzX80qgkYJOz6OELQw47NCLSPgotRABg1lQWLVrZ4tAvQO1eA1bOC1zBE5SGlgNHKM3UhNcdKg0DMulgeyFxbDTTk8NSLTrDCND7OI1AkXFAfVIcu5So1tQwTXQ5hNI7MzDo4z0ORVzMlgEszuMgTXHTaNSjRPArMiTXHDzQ2TRhzZw14yHjf8NLQdTsrXLSzdCFBKVdTcDT2Nx9vYurN74QsFeJ58A07IJy5UAOxzzS7g5gOFMSjTxxUoliZYNjt1pD5KhgfBc6LpENiaiMdlPkL+jiBXPez1pZPpBxg4CLBUswgci9eII654gaWgZQUkHohA9GiZvlRcoSVIiN0sXDIGigshMejMBOOPBCUAtrFXW3RZ0s9FpdYUmQh0iRwKkVIwyISJHUixsV0H0QaXELGmACoiiXjy1ieAA2ImicwQIcF8NTmQB5wJ6JejHgUaHCiiADyJeBQKE+OnYrkGCKbgOADgBr0UIl50bEO8xnXqBDQD9EyJiZIvQuAZCWkOedk7fUTUi4ceWJJU7IammLyLgEqOvlWmIoHcIz5C9IOQgI0NP2FLgElwuYq/Aex8ZqADgB6AegYAE78zwMED0Bz8x0AAxoYG/OAABzWQFb5a82yLpcM0GlAuZtzYP1wStSWoOPciUQUgYwNidpBlI/cCRPakBWJT0200gbbSJxvEE6HOpmwCaTAiCjIPmxpXbMhKCTuFNLD+ptQhBwuYXkIwLdBUQP23R5b0ooz+cxuZ83NR/QeHTKC7gW6CWZhPRXHSZmwIWEfA+oYdlt8EgFmn/NP4qRB4owAM0D85qAHFD6gmARi3p5Q6GGHgp4PUbA8CJwTAvK9zc1lhhYxfPgjqozmc1CryygA/OKizgJjJBBCdbVj7pVC9nARYzaawrNowADMAzAwAIsErAewHsA4B7CjgHURWAZgAAAtDRjcThPN0Gegbo8WX+DiQHsDhJnAegHikcQfUTWS9SRAHLINwMuCdAIgAgmchYANYCOVJAWiHJzmAS6MrluPSKx+x3BEUxozGLAnCvSIgeXGcBfoiVIMcpU0WLctvLKNiljuXLY2oYGzAUX+A08otMmzuQabJLdGpCXPVCHs71UViLgFPMXAqs0YrTVNYjCImL1I6YvaKkvS2JS8CcCPRyzasnuN9jhiwtkByS9FL2sBvk1dhHyHYhzh3EqKM4syR8HJfPCpQ9aUHyoyWd4AswBvH/zw4iOLMIm1DE/DiZi0XJDhJcrioDNjRYOUPUgAPiknK+Kp0l3I6wTi4JQuBASpS1dd2sM4q9zc4oZxGcES3OwYMM0E/J+LCOG7xWLscedgWz9i+dkdyEgVdi1CTQAFm39pvO9h/8HisRy3UggaGFeKK40sJW9sOMEsND52aEvyRKSz0M3YkSsQBRKg3KEmigPXeACm9RvGbx/8E4rkvE547QkpvF1ldYvRNN9eeM9Te43YpWy4c/Cj3zQQNThoTnIQvkLtAoEjV7NHedOJxDn8rbLw4S7PUuBLUVM8DyAQsU1DKc7SvErXVHS/0UILzvBzj2y/ROEh0L8APQr1D7Si70TdUrRA3uBFwlA2XCYAjA1nsNwwXPzd+szUsGzxciC059YTLAKrcTw3AJlz6nBEPlzCuEgMoSWE75GWkYQQUixTCAeIAjhhhQRMvlUwVsndJEaWGjlcgIwJLvy+zdlBMtjwKgJsBXgV4FtBYmZ7WQALoMSiAtLS+Qy7hJiosD0sdo8UEBCkkPssO8zZRcmXBFobpFbsJzKcvoBjgPoguh6WG0zxkIgVmggVkCrgtnBnHN/JmkYrRUU0LN8/j2Fg8gd0xChXzMVwAheEmdEOTkRSfklUUQx1jXKSLZ7UcEf3MlACFCxBa0HLKyh00wBQhWozyAFgeoEHk4HKLHYgSjZxyPLey13I5Vn88wjyBDgeC2DonQf8omc8KqowRZXSlnjPsMANBhyUrkOgqNgjywirHJUdeoCSEkPJoNnL8kBcvew5M+MF2i8FQ0HsBv5KgsSiJpVSFkFMRJjNAqjyWYT4IAFIzLrx0RISLyTxQZgVQtf9N+24rARPipUNgsiL1FD1U6LzlSXVaLOlikxSiWv8F6eLEV1cw7sVjCqK2cWtK7UR/zNKbSxXXdK7xa0vD11SgYrZ8eGYrAazuYxfyND1KxyvtDNOfMP4FXKvytygPKr3i8rbOFkubBgAH/2qzNigbJ9ihi7MrmzpGWys419KhKowAlJFiQtL78xKsCh6NPIHuKvSsPV/93UjMryqsyxLGGyiqiKuskyq6YJiqWJejSyq+ijE1yqxckKoKq2c61KCl7gVN3HivjRMpns6fFMuSc3UnHz6kF4mbOH1MBSXOwCCy9eIa1g01kWadBfRt2F9giz5BrlxYfbGLwmcZ038FJlb6FG0sZKmUR0Z4ZgFzSyy/NPO1FtfPWfCjtbPRERPYKoPkAnIHQQfglQM7VSMttMHSJxa8nYz21dYF5DKBE4DKJsthZagA7p4XPZh3yy9TAX4cQoAZjCB4RTt3cJcZbli18O9UBgnKuASGIjzkYD7R2ELiH7TBC90y6XW5pBCJVh1qpV9DDN0dQUg11ZIEYS+d8dEwpRo89LyHUIZEkSB6B/qHpkHcnCFDLJr6dLQsZ1m9UvMZrftblgDMmKChJfA1gf7UNB7/JnGOBtdPggF0FdAjhF1edUT0+0vIaXTb0pa+XVdLFdHOjprRQcTKO8jITXSKL7/W2pDAddJFikB1CVkChJSdErgFrFI1lzF1fhZwIelHmTHUPxR/eopZdpUpoun8WiqyraL5/VYsMT0vKdPFrYAYPXTFQ9AKuvCRcjasGKtqjWDCqPRUbIOLvi3Gvv0+smrNGrtixqRH0/sjuwwAdze+R29FAWdnnYC6pDiQZU9DFlgYxOZmmHcE9EclwBk9UevbzM9Y7Wkdc9H6olrhqjUvLqtS32I7qkxYUB7rz0Pup3gjCRurHx9iqkvDKgOXbMdKF6Fji7EXs37WZyBWVeuW1HS+fBzjvgctA04C6tKpeLpNYnLWzmxB2qN1b6wdHvqb3Tyvcq/aqWWfqywz4ofFA61cTe8kZYS3qQIGou0A5ni1kr/rJq0nx/wp9bnMnjec2n3gDlqpANWrhcvgzMQD9W/WP0ufP1IKlTwostKk+CQ/RHxG4CvRNSXkV/T0S+CD/Wbw3rZfD0xm6nKtlBTEcuGoaj9dhpGDjKkWLCy06iyvWMYs/+U+Ioy8AN/wCGlcKIa1wrA3hIVqoXPTLIgMRrIQJCeajON+IH1Oq1jw3n0DTJGJrTLrKG8RtONpCVX0+UTq8kHOyQiER16kjGk0GZodCW1BSADCDrBMJNURtCLcTqS1ClRHgGlyppeg8agJAPqgy0YRfyJzJxstcjWB5QD1SgMrKDTeRRXTlzPmBwtawTwEeZoeIWwdQssl5DCJnUWB3Eo68ARDuzuSW4GfVQmflNPQWjaQGJMNDdUQUjKqAe2mB/6E23QoJoGU3uipKbfL2YzQC225QTkSgG+x9kXnFXhLwOJueVEVfYTdQ+2Rm0PVaPLAB4QrADoCBqAwRFjDQI0N3Pqi3cVxw4zUUZYhWC1m0PJGCgKe5t8q9XICkaMBQ3XmFCU6xovFDwDKLIVSEvABStTcGghhVQNGhavicguHN2ip9GlutEaS4KhpZMuSCxsvsrG6XI3iCAiykWCegKpMm5Aq7xvhbxGxFsJNu02QNGkHEb5AxAM8E90XgxgQXDmxO4AoBfRXkWoGmkgIyXj5IIU4BmOgu6/zzOTdMUHWCiWkvgmgtyWhvArpFdQbByB3GOxFqFv4Qm1CL9LEBiOTKQJdmRdPEF/E604OY6Hvgnwl1x/gDkTVrUqhpBMULY9hC5F1bVoX2E5CYQDSCpTj4KskVhNzLuDrJgoEXHiAjUfBCwhkaFwA/qiEMNi41uUcmJ5gSQqqm/RKQPXG3AAC+pjnhYLPZm4qhrArBYCP4g7RWp58dwCoRviMVvnxySuAG3hzCTQppi0moEFqNFzLC0m58LA/CIt0WK92BsgKe1GvhUiX8iKQS6AUCZtQ0cNCdyWG71sUl4GItHWZ4AfLDEqIVC/ikVZAIjFcgkgF8FTBOM00yVxocMED0sNSJxmMsEgabHTFyAayxXy+CPxFsRZ4clq4ARW9Vtgc5TegiENb4NcAoBjkfVv0NU8S/g+bQ7Borkafm8x0sr/mpRq2NIYwK2ZUQrDBj2NhGqbPxbS4QlvxMuSVyhJ8k3RA1HiwWyhiTLYpKFrzd7Gnxr6ahEHavzLrGosoID6mgez/5mrE2xV9HqJoRepTGrq14Jf6M+QnwBrSlGGtsKLcmLTtSfGk0NiQFZt0NFmLrEuI1gKqLut8AB62FsnrZmmcAAbGc1CIwbAegKJRbJDwXIbramkjpvbGOhuA/bL/EDtiOu23ErxKX+lw7zsaOksxtzDmF9hFqOx0pIR0vOSEc6IH4XOxmQBFmZsIAVmzyB2bTm17pubXagJA+bSlgFtiZemlUNCmp1QTb95CR2JseaLm3JsMI8wnowy0uGmFhx6XW0nodqYkAI7KIW8FnovO0QGY9iULXjqLPmoNlMqovcWI5d5Ul0QS8P2/SlsdJ+fCKaoNOlGFvb7HbxzN5orbHFisn6cJ3ZyJ9DSDHilw6AJg7FqkhoBNZ4lqsMaCW4xsycxXNZ0lcNnbVy2ds2puFzaCseV3Kdcy+hpqtGGjeIvD30/pIC5d4p0AoiOA1+1+oNXdZy1du1Ap1AgJu+ICm6o4ZDL2i/w/CMaJu26hx2BuPVU3tgcdVlIOctI+vFjdCbaDhOgLDU2CFofEzPPT9LMZxwndS/NMBqlUQgrDjzvI/F2eVy6MwAPN5sXxtjazba3IRY4epuAR7uHU8jYi0HKCPWk3QQhGIQjEpuBDRDnHxkpduo40r7YqHICh9dSjHGJH8A6/ZPEc1OfChAxpHRXDrwzAXVwx7PI4UATkgk/CM57ue8uFqaXurmMUJJS9WOgd/YM8HUJZ2r92ecZe4zT0chQh9q+an2yO1y7X2/LvfazJFgjad8uAV166HGgbtFddukbv27ZGQ7rHRju3AFO6x0eitbxAyHplVc4cd+x3s9uvJwO6/7W3vt7am0Bzu60EDBB9anedHpF7GelJAx7II9xz9zpAIFog7CGdLTmqEyjrohalq7rtTLEO/rorhBu83ruBRu73vG67IdNo7NyAGbuRbK3VFtqsmGprTz6pXMbqO7i+r5DZwKiVV2ccOnXrS6dBCWcG7bSIwkVpcj7BBjZ7cqKyTD7GdOwWpDtmAPuFBW8Xvse6GQcOmuArQ1xIMwToSoHVQAm0LvWYgUaJoFx56PAGQBnHc3zF73CBu0Kcbgs0VC9Q++ICj72W66q1ICerKkGcx6cnu0FKeruFNMxhHBxp7i8rhzp6m4tgH99b4h5WH6L8SIUj6RepwnAGLMKPvbMJUNhHiF9k7lhP7Fot509deiczFl6P+xcCTqMum0W+bNeyLLy7XiayuWKII1XKeEjq2vCN61qpDtz7hu/Pst7o+a3pTwm+jNrL7HekMNa9u29VwYH6+wvsb67e5vszauB6hnNdY+5AGh7CzSbGPBe+hkLcF5OMft8a627vIwAMe1Ro5yWu6Dp+M0+8KhdS9GtMtha+uoDtN7qTLJw96Ler3qt6/7E+3oqK+vMqr7FuhrWYb9e1VwoH9SjYoA6xSOgbN6+BgvusGtnWwbKdVKuvv8HmBmwabhAHK3OONGiU1xKNtzHJPEH7cFBy8Sw3V7vgcqHZ1q+cx6AaLiis4R4AKHeiBKNYcL0VvBVRomknvSGi87Er/6DKenpF5szOenSrQGER0eKQBqgHkBnDF5D1RmohR1dBRQN/O5Yio2F3CpehgwQVrnnIlz099yDTt5Fc/JlHFFfha7CuQCgtgMRpzwS6AiHO2ukFCQ1cvmFZUEHTHt9gLoGRsfbjHcLOaLJQzOrn9WvPl0693eiV0YGrB8IcCHIhruETsaBihp8GzBobosGnh6V2Pt6Ex3tqAgfXp3QcZ05cu4je7Wdn9dcSQPoBYoHRFmtdvgDpmpYBiPZ2LY88jIZ+4f+moYb0XaWR1H1B4ifSqBonKAOp8tGxfQQCeu2gez6+40BVCGmBwQhYHdXcvrobV4vaqv16reg0RqO8RkeeHmRnV1UHW+v8IrNtmFgnEGru5HBVBk7bouFN1HdNnpdeiWEbiGIHO/ul5TySLlnA0B0Z1UG8eyZ2pwE0++LHRuygqOCxOYo5yxHr3TxPax3Xd5yPVf+uwKG0DoMpp1HMe1fKdNsh/qKfhYohhyl6A+1IBYd/nUoaYitk260dH3R36LPla8pHokxjql1xucxS9Fwn6HBdwdIjphzSPF6Y3UEAeUpgElxpcP8yHt0juWO/uaGCcAwlV4tMoFPuCwk5NNBgchDno1wQLc6JxTCCQNyIBg3U4fV7zh+Rq17FG0gb16VXS7q27vRB4c1cBRrkBZHhR9eqLhvhnBF+HHh/gYCGZXVQZm6/CqKPLoVRwPrpiIhWEfbHg3FMYlwNBifRTdtBzN2Ib1wjPoMGs+kwYrgmvIplQ7HBwsqW7Pqws3SZBqMgNGl23Ixi7daAGUkDMB3WxnWlSmeLvcjwPGuV7di9LdjeYCPT5iI9n2ebymZ4GIzoF8rvUbQZdvitpqbzdK/At8bDUqNutY+oZF09rUG2SAuZ2vUiL/y9qKGq+0NCYdweDBmYZiBEgParg/cw9SFTmUJmAD0pV8euApjGAUBclwKNBND0CgXvZjjQYKOphB4bH09LAA88PHr1gnhvWCY7Y0GH/K4VR8ajzULgoR+GgdMbeMIh8D81j0PiWC0oHbcCWZ1m/gSWWsDJYEAYshOhqWLSaLZtycr1F0PPTplU9UjGGvdaBcfmVREXJmQDcmZPQL208b2fwtJQUYozzOkAUuyPM89WImXex30mKZtZT3dpgWhxmXggh895WqBS6+PH6n11yEUDy3cWILv1Zh5PItxzIKsNVkbReqLscy7U659ti9tekgazqL/HOqnT1vZAFXYcvK9iK8CvS9lK8JvS0AGnEJoFkq9uSmccA6qG+8bUZOq68UKj4OUbXbyNsmCY+YlJj5g7YRp2lnzF0JpMReJp66jk9J288BrIm3vf0rTBO6j0X2nR3dvOe8mOS7I+9pNX7xE4np/EV2meA9ZV0ne0ZTmbBCWSH0R8imWH1894fYzmh8kfZoAs4I4RmUfqMfT1kc5jx0ew84zxp1MhbsDTPrnjjBqaYT4QA79Tm6OR9Do3j3RPFu8G6R0/wPUWpbrQurO+iX1Ow1eYeVq5pfdm0N8EzE33aJam6ZLrl7fNYBt9luCP3W4FZF/ENsm3QXpG4g/cbiiTnGV4F3UsfTHgyTDYXbi39juc3xQ96AAdMxChkuSDnpffA/q0Km/d31rScHTon7Csa5HuOMA/SUFBEw5HOh+0dHVyDTQqaP6l1n3uD31x4cR3tJuSSeYsBv9DYNXk79qeVFBhkQK4bQrk0/D5UEgs/O1TmSA+I7kJAH4cUDsy+CEu0cFdAnXlV7mXOqYIGVjPsd8sWpi2OnEr/Jf1d4nslKpD54tOqMD5t/aTSJzsqrwbhbbxxqQ59CquaYoluqz0OHk7/D3gga4tDfxf9y+HrOLjpAT/16nGq5qtpG650maCAB+HBoT6V+JGcpHnUgXOvH0Zk3rvG1QnGev4HB/1Or6CZ++zYVTq7RnYhQiG8cxnfJGqn7yMM1tprk4FLAAoCR2mgI1GGA6ssPL5AfYUrLW8WARQy7HQMkLIyhbX3OJZ2cQMDEJJzZXMFNR7SoB84q6plkCgKWONsC8xI4R2Vhwt7S4EXXRQKqZCaxZ2oJbAlkK5UkRZzLpMPM5Of982EpyoGqjhCTM6FSWl5FxoTAthI9tf+K9CkAqmWqfwGNezOaIGmpxVPdFiqo0IAXdQ/MQgWJp4mbHnV5i6e4WY4xmSzEzAx+oNDBF2uePniJGurEXWw2wJIW4qqudkWMZ8RuMlJJeGZtSR42edgCqR0huhbDBkRs0XjG3vgOUTW+wfm7qnfavqtDqvt0cchffeZF9eCKUbfJxAQdsAR4KmxjlNZCECeRhZsBHq3LlbAhNYVxW9xFFaUR2SDEpL8mHEXAPq4gK+roFS4A0qAK2KEnxs6P8GKh68Efm3dsenjDUtzAqlmHLRy4MQMJ6AQDjKrgxdisZi+Eq11DhnmhBgSBjy2SC9cMcoIX3pZA2Mb+FGifSoKhMPfVN8yrc1W0InnzUtuLxBIACFFTMBQl3Qx7YFVuXBAUeJYNwFAPiuRgPpGHgQG7wQUVchhISiFNMEIXqvKRsC7eEogdlkLGlsLy0Jh2H3BSiEM8JMBoeRgdOrACYR4MLwBDm2MmuUSZWyMAYMoBQKqvXLkquSHoqJJ+KZHT7AMgIlMdU4RyyXkwPQQ8hW8G5uwwVAA6DuxxKQUnnwaQSlK2VntcApIA6KCmNkIO9NgE+CZ0dTSRWAEeFmYXFjDOfMqs52f2gMuFlubr17KkLFUWGw7cUXxYOSBrKqc7HcDQbzSxcmeb446uf6LJprRZ4YrFkyRsrWVjMU5Ql8uiAqq1Fvf2AB6qx2Mary484saragEea+GSZ6VeNbZV8DujKwYe4HHtyRx1Lnnkyq8bIaYWsxeXnGpc9p1acy9edsW14rkbqd63ahhcXEBFxtQ868fdgWabtXgnVNabf/Kz0jQBeRDQqqeHXbBOwGdG5q2PF2tUMtSW7AVbByJTM7poLSVpbxLcnyMm43Wo2H/LTEhhAeoUMGpcycWQ6BN5BJB1QY8jlbcLFPchDGTkBRfkxtLW7qKMEkzNLMPIFraF87EtuL8275I8VbLGuLdHlR+lwmGCuO+GyozDYsyHNxYP6ITJPRQFDdsB7a+STBeIVXRFBzTICreSJmGNYFxCYvqF76SShQEYshqA3W+B0KjmKZ79RwZz49pyupcEEYPTmuCo4Q+OnapaofAFvbnkYQZoRFcA802Y/W3WADnOeV2wbWQ54XTLgNDUHsXlvkscOJccx+oEf7wN2JFgT72tOZYWexhqZn9Wim4bEHDi0H3rqp04NYvbxVkarkWpV5RhdWDW0iVa8KJ0jeskciM5hRV0oFfAvqds5MaMIKN++AJLKMXbxY3PQjdaERDs/7yDXtWwJSB9mN+4eskcwpBuJwNOXNdCR+5/eWABXJbVd/FJN/jZk2yBuTeoHgtHKIxZTp4MXgBh2XTek37lWTcPqHva/zqQ2cd+sBd1AQdmdR6NckoR7W+Pjes3BNwzf29rJcHqjhnNgEtSr0fZoeABPN8uG8302PTZs3TVtRrKB8Gq1Z5zDF+eeIU0Z43qQ7e+R8LdXT9DeYYbnx5wd3nyQJtyJmaNixZ4Zct8R3txbeYyYCUd4TxdTQLGUC1fiI4rAGcdE7WyILaOUYsi/BOePrcLXZbVU06i0C6JFLW+YXvv36PBTiPJArWhrekZJRkcfOJ2AmIcun2t4iNESY5Q+ouJpAiCKojwI1QMZkRiMOWktZIsta4i9O+iPpdlMKfB4bp+vV2j7+nVACtaXMktcV0egXvuFlOiMOWkNdEi4Gm3BMwlxBBJo/4E3JdEw8e5BjnKkXEGxDWnDeBMXPGP1hVMUoAmUWkbt0h21lsyL7MLI46Csiw4SN3uXEVAqDhJHI2SK1SYeOW38gAk6GOEhLOi0boAix72FDGWZRs3jyJBt+1rzpaHqOlokUF22lpCljpfEHEWZMddYOsV4UOiXgUEqR2yAFHYRZchv0a7gRaOnGei1PI1KfggxpKIeVmLfAFSAXgdKLXzpg9tCkLco+Bj0s0MBuEDkEWdGoXwxmnjF+ooXNgGloxhh5rai8xnMYKYbdrgEd2/01AAvMhW4EAdI1gCvNeBno16NsMPor6IGh9cxeT2svuudjrjWtggEbi/op3bx1VTFAewFoY9cEss68eGMNSQY8Qr0w6kCGP0pOePybrxfCn+TrwAARpcK3CjMFHpYkQR2hhZwaan2SIoUkO9gZ1vkV2ZBJsKaOhDPNGOM9YZqMZaokdnSfGhugrUS14GM75KR26YMgAE7hYKkXm2tTaRiot1fXIFpXQsvDcIHfm4gc4Xc5pzHli1So+do36RjAHUYuAQ4l/U68cYuVjVY53MLA0I+Ysf29Y6WkloTadCNXROaSJB5p395CL4Iv9i4HGLoAHsHZIdYp/benscIvTzrRsDbY0WnVnLbNjZp8iSE3tNNb0QP/2iVaEX5F6rZWzf1RVyNDY4jUE9KeN1vFv3ONFOK81AOa0soPiD6yWzilNkLALibl9Tc/8y44eYYO79pg/+3pt5zf4K2D12I4PS47zCyqYDlUsd5a424vOiU9upBbiwtwDmbCkD7Laq3UDokbnDR7BEEeADF2Dr0GF5+1dMWa58xZXnlGZeLy3fUvGbRbnB+Menl1u8qTeD3IPTEPml5tQ/MPBI9h0om3nE+OXNxKweHrhG4E90FJgl8uHALwcmp1/gv46LiPNMyNeEAS/1qgGYAfFRq1LY9qRAGhXN0yMwhU/gfrY5hSk1aGllZZ6mPmSoZC/BblOTLhPWSBcWEXZ0qZYeVUSO7FZSgAeJSmRlljSval1dPFYtfrX95DmL3NXhGloiAV4ZlFFbf3GuGLJaXQ9sHg2SCVtCQPqCI6EaD2bZXsxONvTATXHUKTZDWqoKtlBBzpEKB21C6QlZ9YKY44AeT7l5GFpiIHE3YPkHWXghLTrgTKGhAmcMgOFkYQEo1QBsd08xkHZ1i9rgSm8VlKCK9mpNF/g1ON1HqBGhBTPfhP4Y0YVFoKR+c6ZweBZohACoBFjTbANv9JdpfeyoQh68ky9HcFejw0DcFJ0k0iwhfu6CmthOUDcjlhGZWyMtm345mBss/IZKHkHWkTxVG30NizB6BhMoNrA1Cp9gbxlO4HMUdtZ0JGPEpzMYYDWDvk4/r1H+1yUoIZx1v5c/6AhEDAcF4l5wkSXak/hAHtzZbVs6YzQXdd60kybPV0ZAUEXTGYYdeGnVbW/fE8XW5BgeaZSIFcpVpa35BBZ6dmQS5JZSwMtczURaUneUzJWIWyN5Tn6WJHKxZ+L63Wh0id1gmtAUYf1vX8puJbZSDkySH9AZHYUBWkRmX03S61e9OdYWGV9hf7Gs6gKxVSTMHahoARZB70yllmaa0spiupBV0X0FWMr0POugrUMOTF8/cq3zDlDTXn8tj1c5Hb7WxoF8StjhVcXzq9qSFJ8k1Xm3AzEIRS4Sk0twzalR2k6G3ACAY+EVwM0ruFjT1FaJp08zqqUabSsjqxTrTHUHSdcUvAZtMjY+AVFnTwQQa5rMVu0kDP6UDpcuVVmI09WZmUTyHZbTkHZBZRbTv4SEBWUDAIOgVyQHCbMtc50zyAXSFMjc9iUUPHEKQSt0sj13TkHdNX0VD0oxRgo/g+CmyVtAQCJQzBlc6kiSr7T9Ouzv05F3/TmlA/H6spJ0DKNyHmTWryAD0o9I9ELoPSx7SqaMZQgyg5qDPkCYM1nPgynVRDIAvkV/ayV9X3KM1bS/gDwHcU8eMCHwuzquC00KIVB1prJqBYZaS5B16EBBy4M76SJEiE4jNEznDfoXEEm5GMH2EEc5bL6X6SQZSpFWmBDc6WRIItDTJdueXHkqFVSlV9gDlL5Yz8JM35SszNa25mPBkVSgDMuyc3jSsy1UiTOQBVM6TNfTcQjFd9gYrm5EUA5IUlVKBtM7mQyEcC5Y6OZYMwzMYC9QE1WRg05MCAzBvk/vz4B9Ah5bEwKZo2FeErBsQBgYMaGJj5hWQxbMyw3tmEGJUAYxFQHXysJK+pFnxLqIKQOg5OcEh0gXCznJzOz5DYAd99yz322Fg/Y4WCusySKy9Nb1SSy/VQelSyQ1OcAyz60qjY3rkDlTW7OLpta7o561TNTKzc1DEHzVC1LysOvZxw1a7OCs91S32Es8kDazm1TrIzVus6TUevJVzs8ylTryQ4Uw66ujnGzLLnA+o3TD2bNqb+uPPLPrM+QzUaq9suC+ZLoiASD3V++PbOPUd0gEDnBz1fG6vVYAG9T2yT0rHJzAn1TJR8131UG76gFstbw00kb9bLIRoJ8g8Ti4GqzTI8bNMzanD9/QMqwAzs3zXum8OL9PWsf0u7MFv0ZE73vr8NITRhzvsn3g38Lp6uKG5HS0jKPgwcpuVpzINYMTyvYcrm6w0M0RHPlvlJBIANuSNGCqxyCc8dNxyTQHDRtvCctVbdCjbgNp40LMvjVXF8c4TVE0KKRnL5RH6g26nmzV1LST62uikbS3+cjLcXmst56/3XQ4R8c3mnB+qxcHfVvef9WO+lgLXlGyoc3tyBcF8vIgNc1YkDpXx56nJL/RvkpUMSTv0zHp7mzTQ5qKHWPLjcIx7zHdyE5xMY7Hvcmu/JgXTM4QgcpBgWYFNMMtS8vTkUzdd3zT8jlW8SilTomoAGkVDahphYHtLdB2kGPbqNL2LxlO44amHWvLUC5x1svoC+ZmFY4CryaOb43Z0vuUZyWq4SnhC4+M4KO/JPfrLpodiHQiOkEVW3AxAggunXwJzmrIKMo/2BOhGC87hYr4dFgsyQETs46u9pYWsCFpLN2dLkKyIBQo4UxRFAo3BDsSEbFZKQHihQnYYeoZt3xRQK4ixRa+MBFov4M+TBUn718PRr4wEPb0LDRTIodmHbpAFDLXokYipFwivMg6Toi9yByA4iyuXWAki2iFZgIcDwDSLzQRh6EePAXIvyKvDq9PSESinViGYRHsorGZKVMYGqKrz5iazO5ryL0n8Ispa8LO5/RvKZRUhe4fGKFyqrN6I5i7WMseHr1Q/judS/6Gb4p0kTchLRsCu+5ZjnWfDhKqe12eqGzoYdegW2hhx+EXlGJx6rgSN+Tcz5R1T3KTHam7x9f7Cx0J/kWInn4tcfon9x4SAq7x7YXUsRnx4yBR8x5ptH3hICjdHcRwJ+Xzobo6/cOE7vuDj0THlLxxp7hskuOLkODdjZvx6zktA4AbvA4v20nxp8MTmnozf2mcn2jkFLOn5q+6fxp6p6euwnup8HtTJNZRB9Mn+jnnv98+JbBABV/la8qQV8g4u8Un/p8V049ZZ6qNVnmiQFBL752vcRRVpQ4jKAyw56Bu0n05/yQ3H/TW/vxJ4uwOfZnwG7MOFnk59Y83noMuYfdC16O43vnvvVHnUn459ACtDm1ORq4yqn2tWo72KX0GjDjs7+fZmuxksPLG5O6K36rZbowW9qZgwxA3UOKX7B9mrF973GVA5h61TyaE4+iGyrCsTbClbZnacUe9I7Xy6ADlm3hpgNAFuBbpe+EqCFLTxpzAuX7kjsJgKDUGAAMwZWVSBgAOLa/YRibXIPltIMl6VB+WGGVQQv9/WFoApao6FO4Z8HoFSAKAbgGUZXrZ9jWi+YKZs5blZ38xXBqCdaCIDhYRzLiAUJ947tcicXvri7kYJNjo7HN74l1epazoiX7XNuRReKXghYHrZaPX90Tb5cYN9CJQtku2vvaX4SbUq29AN/IAjhRanEp6NnEN76HJ0vr/TzfLfogFQ3wmh36OgWlmCM/UCoA37vLjrfAier6OARZV2LPCPss8LgFgZuSwOlqvFo9EQPMLgILe5IXkHN6ROL229ZpkSybeHlM3QY4HJOQ0D5R8Y234d87fIAbt+q9XHYCB4of5YE8YhHgDqG3B2Y7GNdAXgV4BoRXX3u4RZLEMpyPYbl1viUqDCd62hYAK9iF9g2aqDdDnhWh09wBgAG94yrC48GnLi4KRAFAolAVvgnx33Pzkb8pgEDWy1lC7DZCz5rtl332X2ox+ZXj9hTEtd+QYoCbFLXMV4dfIAOwgxBpX2V++4FX6zaVfHnzF+vaa6tW8slrJDV8oBPnaEBXVxX4uKIx5dH576egbrF4Hi4XoKSIZmz3QcvH57GkYNX5nxrE3gk7wrfsX8Akssn4QLnOkFJi19AA7LDVZsHoDpfIh+bLQj27xfRVtpxmYJioqEI1i5j9gE01xTYGNiBQMSiB3bAoAJGYyODLEfuPsqCgAYwkeEXQ8BGKAH1dz9YF+GmI4at2qteIl6Y83hx8SY2REckzvBJwQGtbDY5NNOzf763QZ/CMYlbbirAHVNiz4LXoaISfDohj5eCWboljJfaAWgAUCRwsHqZxDY5ksSzNVG6SbCoBNCGuTtfgKARfyCZV9cQ4ABluiE86AyM9HFFZqcwRMUKdyJYnh5jmy0uXjnz4VvBJv9xA0K49iGTmWxt55fJUcrvVuTRRVjgEA/zCAlFmMrd9I/TzhEYsXjcRLnxlmI7gU0V/g5bEEOW+xdYzEYmcsYoIEAqgKBT0spmBFkEBZmnEoXxV9x1hIe9WFqm5QMmJIS72DWKeu0LgfpACYXEPkyvqnUPxqfQ+47Vr1Lb7N+8RR+MQPz+4+KtzF/VaWvDors2gX36Tk4OAYoEmFAoM0loO8OdDgAByBYbBvi1aj/brcfy8Va9R1N59HUsvqVsZ/h9Zn+Z7F1Wdn2TpaSpaPUFK6GAUMTymnvtjw31kqyqVB/OLTCblgXcRp9W776m9LNkEYM2Cf856wBOf9PX3y+b+5/Onuf9rV5/BN4eF+E3n83+yfFdMY7HokGc09yA4v0rno1df/VYMbjrirVN+gfNn9WfR1Ar5GO14cluABqftADd+jBj3+OQvfsgZVfhngLc9D/for/Valptm5iqQ/5ysbDts1byx/Ybnn6axLxMlIpVar1FFI3eSm3+tPZCBP9GP1W4P4uBW+O3/FBYv82+d+1V138E3KJVH54XgyyH6N3zN+B+z+I/qT8wh+PproRnGIJAwjvkX/Q9E+Gfds7cP47kfRsXrDredsOhz5g2FBCawbXRlHqopmeqJtDJrRXOy1JDGstHd8k6c52R8i0xsZQtnXu3q8UY6K9zjl7rwC6h5TsiAa6aiBqFLeQChrT7sqehlVtSDWfCT/2xk5ej/SW93rol0jSM1fgrkYlBFYOkwJsNxEQ2HeiXOfADdqK3wR0JEyR0MpCvS/3zSMjNW64ytSABl2kwEyf2UGPonVqX2lWQZNRZq/mU7oz/zGE5tWdqltXfAMmWfmdAMeaQDQ70DykvQYQEPIH6Qjqz8W+qggCp0QAwQaeujnMKUy9qg5k2AIrE2A/IV0eWXX0elwz+aOvQHGrU2xwddQLqRdV1WvT2x+7dW2qaB1rqKXlnYJ9V92kLwk+8ix3qVcRBwDyR4B1SQiqJgJIB3Gyz+ZgPd+tT0sB2dWxw7XmMBwAOIBHABvqTf3vqkmkfqz/2N+FWn0Bjc3QOXgMEBAgBAB7eTfqSm0/qiEm/q4W1/qhnDD+jqzcB4QNVupHEPq3gKIBmeBKYHAMfiTvzAaJEzX8uzygaT9SEB2ElLqc/0k+WQPpuGBwo4DgKjoek0QapQJQa5QP8qKQKwaaQJ0BOf3a0DQOkkdeEXq2eh2oRfw6wv1BCB/f0yB1dWJ8QoRH4XBHH4k/AxA0/Fn4DZzwa4/3jK7XR0GfOXT6Yn0y2ULwv25rRxeKLTxecnwKojiyQETjC18LWA9aw4Xh0gwjA2dVzCOs7xru2S1kIenwYg021nYOTyj6cp3ecCp0wGCS0XKvRCi24/TyAC7znat4FNMirFHWqfh5Q2JW+gAPy0mXylM+fnR9ceSVIqiuE5Oi0T+BIvVBkYUHrylMmSgfr13gcMgTmHGVd2s1FCAWbz2ELhAEQjnD2E4ILwmQDFaYxqDwUYNAKuml2CAw621IXsHkBcP0WuaH2zmc/jUBTmCti+IPH6MwPjuJwPEceTxsi+xR1GCJUNCwIJVBjQKtiLIP6BEfzlBCT0Ru5YSTekZV008S3VBumiD4poIs0NxVxKicwp+kIUDkLbx5BdAC4cII100t8U0kUoJNAwYQS2HOQWA4d22Bkdyn+OjXE+pYkMQu7RMQdI1Ya3DUX+UuWX+9VnVKoYIc+s8CdWkYPXw9LEf03AGf0beG4adTT4a5tSfegjVYwqcyQ+ejwuG6dSuGb7WsqgLQ2BiBmE+ewN34qM1juk6gTBxiCdWTjTIM0YN2q+MxX+jBnTu5IGwobBiJwv1CjEzYLsQy8zVSghmRgHjSuM1GC7gXILrwI4KTBPjXMIJ1C6IuhH0Ir9mMI8IDMIdqB6gShkmoRhEiaDhBpcky2RCgKX3I65C2EBNB08o/HYMop2Pk9r1JqVzSqM+w2LuoOmiCNmDuaHINqauCXYBG30d6rzTSAChmHA0tHO+/tB8+GxxnQsRA9s9bSjUXcAaaIry8wG6T2aV7U9aizWZQHtifgjgH9GPqCbA+NWBOysEOa0EPbapzS7gd5Vp2qZy1SeljXuyYCHyVumG0YADhwfkSvk6URu263xNQzWwzQWaBzQsvT2ETW3LQlaBqYC8nUIOYHWQmyFh0paCl0KvStUOGzpWeZxy6BZ1FB/llDoEoVq6TmGYMT9HNSSlHfo1Z09gXdXbwqACI6KdGcaidnj6Zqyg6KW0IaKLy66BwMbB8GgXB4YLrmRLRhM7qyX+Kd3k+eoBZMrVnCSQVmU+9nxbBdOEq4QuGoYjLUssNQFcEpUzpgzW2+ILLV1e5ZHlwYSxOOt4F++eClnA/JjxgoyD8hASBteDD2oA3XDL8BSV4Ia7X0wl4VW6hrjC+0wjy+qKEPiQsiUc9a1nA7SAmQJplmQ8yCWQdgCquyMDd4LSHsSoIFvAHFi6Q3AG8wE5SccNiETBawCc+xODSwlKlG+A2HmO3LG+k2LQzB0ICXoHMlcg8SBTgDESdkYrUe6Jmyd6JODSU5EJ4wE0TPA1aT3kapA9sdSAaQ5AgmaC5AWG8IV4Ic7Gs2urXOCqEItaEQl1BECjqU9yDI8Lp2Fg02AIwZ0l0hHtj08ZPwoAPKm8wak1fAvInNQCKB6A9lgNMRpnGizYFxAi9FnaYu3yQSwn/gzIBSomgENsnkIzGgRTH4jrXYgiIm4qz4VQBya2GaovGzgdayzg84itGJfnpqZOGimAiHD8SthdWbbSZoG7gy+wGxSaSFnfBl4No6goPpW8kMMeikKR+n7QBkbsFMoYVjwY69XshTqychYHWJGo9gGgWwKReqW0DB8HSZ8G+nlhSHVrsPZysOMYLchlwIRC6nUGa0MiucY7HNMv5TjAOGQ8gmSiymWNjnAkhA2EMQSTOtkV9gv9CFsvUHzo+4KwAsvjcuqunfIXZSDo7VhOMQdjtsxHieo/CVHeqMBnQOy3yhruBdwvERkMPKTY6ntnus9ND469YG6ogNk6IInTtohRDQqw2xySxRFwQrLlmkSR0YAfmRTO5iQpQo2BHQqTT9hBawRc1YSPcC/BnwHnScOtBBOoWghnwXNid6AGXaof1gE68OmA0BUHro6EKqaHnWPBbHQt+CLBE6gXQVoFNjVi2zHK6yYFTwxUBWGttjXgkYzE26aAdMzthOg6URk6WnV9saCiU6KdHeovMUI6Otj1sQQUhoRwQ1sWtleWSZzeBqAGPejwipYVnT3BeFFNEWswDgmACuoytlssPZBPwHoDHQMP1kaC13zOosKZW4sKjsqkIUwJL0VEGkNUiCVhrOu0Tlyk/EDA0QycYDdjTsa8AzsfsP9GjdkD6lENMhajQ0gZI2T6OwPPG2jWpGhwLshI0JbBc42tgC43HGAI1YGuABzaOJyjgbI1xmRsPxe3qx3mLBEyhs8Agi7fWW2TwhWo/Iy4R2JzzabLxK6HL2u6wfV6iwpnjemOlIiroBkg1iQZ2b3RzGNaz5MP3T+6RZleY/LFYyGfkkwhSyh4rjUzGp/WHe4DmJAVTTR6N/RF6vS0ThCLHh6BIPWiqgyj678VcEG4zuc+iIx0BAitG2Y1JcFPXVgnemxGDegCewQC4cKgyZ6vX0VO+SGOch80l6SSN/0IxB06ZEGgG5xB2o2AhGiHPS56fiPcRUCLOGKH2FBCPzFh1jiHGNMCD6mCADWFHDkRDfRt6dkF4RebTlhLCNHBbCIZGfgyZGk4x96HSMm6fCId6wQz6iyUAe266iUGHS3yRzYH8R6DjgQHkWrBifVrBF4yX0NkPRe+kl1hdI3oGfwyXGLw0EGJfUusdg3ZGQiIuB/Ph7BDEHERawEfsBRizuM+FaRAg3aRQgwFOTvQcO3bW2Ywpk8RtLnLeFxiSObcJX6yKFvS6/QKGAhjLSO/R2aPvgFgg6DvK6DkPiyXzAY5/XVAHQzAG3iOlB5Zy1YE6Figo/TcR0oIH2KG0iRb/WiRfjziRmIMNS8yJhgQ/TRRHPWF6mKKJBKpn+wKQCyENiQzGneEl6GA2KcsvSFhckNlSjK0I2/lnqRdYDn69w2eRy41eRJyMza3SP8Qi4L2RvgwORYQ0FGRfTeRRbzXGlCM0GrXX9Bk/xbOQYKYRIYJ6RcqLrm+yMXGSqKGRrw3iAAiJchFyK9WdblER1DFuRkiPAi90OHBhqIchVDRNRnCLaR/9iBGwQyUR7EClGIjl7stTTjQY4096XCIActiJB6IoBqkqoyJc5rjXh6DmSGkO3sR2DkyGLtApRY9ANmYzRre6u1ocg0SXc5Q2IyLtGKGwY2sE+QwCa8SKdBC+COC1UQAGf6VrymlSyQJnT4IhIxpR7PWJAXQ2FgeqAWQpYCsAYAEYgJkCkUIoBaitOgc42Zxkhu+yqRsCJFB8CLqRrTjcG0iONu+3nFRRyMBGnbWqeuyONRCqNNRgyPYALAyCG1d2ue6GHEGk8j4iAkRn6jXSmqUTnWRDCOMWCHR2RbqKdWnqPDR3qNZGZyMERnYJsOqd3tRNyLdRlAQHAeMHIGS6Jh48YKfRfSJhgHCNfRLyO2c0GEd63yNVcSn2cYSow56q6OVRK40F+AgOmRS6xAxB5UAshwx2kzVg1GHUgcOOo1SRK5yeWVOGhAxAC4SR9lCROMJQy2GJKMmexdcJTziR5TxbueI1G4zKORcbGMKRtLn3G3uTKenKNQAOaKfmBSFYsL8DhqhIVWg1BQBcc6C3hl6xyAewlp69uDH2bAEUcIwxUcDnF6WUo09MV6H7QxE1+K3dxsR4gzSGWY1jcanHd28AALGJ3yyGDnDQqeeV5RMCJFhs6MFRSP2FRrjnQcHw08G3IC3RHqJ3RXqJgx76OCGogwXR1Jl4GiqL3RUlCFGgvzCxOGMEMo4y3GM/QV0RLjwxR5UOGGIxZOISO8ewpVLygmJw4wmPtGFTwSRLeHixJNWCMwShhGxrg0ABWNF6ISIiR/oxO+qyNPGFkM0aVkNbOMd22ROsPAx8dxC0AoBk+C3WERdqKHO28RHO/qzy+ujCoeTLyu4Qc3KUJuXyA7SGJBwFzLuWpFnyOn2mQcyEWQyyHEhzcA9AfUDbo3nXSwfXHemKSDJYSIyaWJ31FmuoipBSLiyMiC346rsTbwm2JahO2JZqrOkm4boBEhGyC2QicD4h2EmdGaxT2oDUNGgEG2cIzUO2xdgH9wESUsRlmCpoO9yUc4Qnrwp0SfuKLFYhP+UqihPGYEFxAI6H6Q4scNRjgGMQnMFKjaQ4yFBxsSF9gL2MhxU9kv4gszOqrKieaHEMui2aFzQRmXAeApCTIX7wbs85D/S24FxxqXVog2SxEqhazSRUEmcx06NcxNSLnRqykBe2vxFW8bmAA3WXuxMKj0AGhBuWGnGgAZ0yx8m6N6x8z36xizxlxH00J+NkjrKaOJNCnpRUOOuNlR7qIv2+uIaeW+w7+3qk2xptFahY0zsIjwFSAU+kOu/mNtxEuiY4w/2vRw8UgCtCIDBuqK1hyAW7wPuKBueb0Gxdi1tRQaQU+Ti3xsh3wiAkMQghVZWZQD8QWa60hCOQUJNAUpBzupwXDa65QLWV3Vi2vm1IiORAQgbpyhCtyVWObzj0w1GEYKWGMOS4+Hh05rhROLHlM6IsDI6R637Q2Kkjchp33Wr/AeW/AlWgPR2/e7iDzW5F2uUCkiYWbwD60O2hhYWHHYi4lBSivEG6oFK0QOjBQVwDfkmGocAdkNSwXKIaAZiE9HmE6y2qqzk3pO80Jxa+iWewF2zm2F3RpgNEUGsjoJLyqRHqiLe0xQToF4xy0Q5Uk62OcshFvi9wJhU7Jk+QbmAgchuW50FCQpUyxwuxomFbw6WOfmlmPZs84BTy/NFtAO2KXQVgC9o3NA+ELhA5kE0LGYSwkQKcUAKmR5UpcxQlvA3bUyQvwk0KQFkYsBhWN0roHIqBukSaSMQqKIDFnAL5QuI4FWrWshF6qS9yVkf5T1GFyH1Gawg5ggznJOnTDSQGSHLorePWkNiRqWLtDyx5hGfW4mLaWt6m64dy0XWuMjoS5IEpABUymhWoM6YQ4TxUvryW+zjgo61FFiR5hHJkzwPvWZ2OvkpzgfWL5XpwfPVM6MLAIBmb1XE5byAWiiXaAIG0son6yeoZ5FO4yG00JkV0wgW6BFAXFSyAXYA0J/yL2Ew71s6oIH8J6FXSO9l0Gc87x8SBd2eBN8GhkmGwbW4uLFC8PwI21wyFRXgm+K7P0OKcWyQ4dICokjeWRhUqkHe70BgIvdhPMFmCuAaQHaJf4XdiLgMjxuuPkWMeJZ+t3msB3AI3AdgNVKmUh22D3jW8cW11KbtzY2woFuUXG3lK6LkdK+8OY4p02luim3vq/4BU25nxyAoh1/eWm24OGtxM2otxQAlm0dKPhOc25bzc2qFTVWLIP/qnGhSJSm1C23QIwaEWxeJTnAWBN4OWB7EFWBEQBn4lAFWRSWzVhE8XaxgYMYRtkINR1uIj+9kNjxnqwHOsuUQU1wIX4jqJtemmKWgHOxQukSCLAvFgRO00I8Qg8FDWAcAUei60dREykCEMpAd+FRXZEsKx/xuv0exrNCSWJULRB1Qn7QZINCItyOnxQFGdCPRHwSQhmyhPV0ABtyLGOh8SRC8cEQKfAAJJzjk1Ir7wOoqmA5ilSHh0R0KWUVkwYA8QQuhZIBGIshJukcpnKw40PpJOZi+g9Gyt0hlWcmQ0PGhUpiPIRyiG+HKlvxYrWXWIIl70VTQx+8hjyStACeUdwRnoIOwH8tMDWhJjHd02DxTA8MhJw2zDAICwWacGRyAUu3z+iFEkKco91wos7Cc+VwGlRE+Gjy4iULEISAow8pPAibOC7gOKCMKlMA+28bhl8/wGrCz9C78a6QdBdeBUqBY0fSGZKzeUeQt+kChNJoSG0RPWGtOqAGtaTMkQAa0JKJZlUlx5RIrBOczrE6gKMB27TdR0+JlRYYMRJbqPnUmIxsifBEqWKoKAoupLJYu7mloZdBBKF3hp6gQmZKLxWdC9bCqg4oPp+udROMJonnJo0MXJ1uOXJcvHyewVA3JfBDtJs4hLsh5KtJr5M0JP5NYO0vwA+97yPUUv0waGVSyq55Mw+fUDrqEpKPat5NYR8dyRJNVG5YcsQMSzeQQgjN1wmwGkKcQKzOxvbTAYFmQ1JWFO5eF+JLxEIADJxmjmRhFJ2JVUHnAfbwmMI8F+BZf0Hg60hgpZJO5YFExi+j0BKBlPzTC1bFb+EFMnJUh1HG6ZKc2XT22yF3gEpTc2AU0h2bJTm3XJFQK3JlXi1xRQnBJWgzax4LTrBnWKK0+qMGJCJNqe1Ww7BaHW/RIiOkYYGL0p8dwIOXWlTeUBTs0r4VpswRk/CTBCfuEVFVcECTwu8AjOqjSUa2/bXR09yOiQXWz869Bx6K+iAEMRnz4IiB1HUh8W7ICEFxx5ETcGpLUOxtEVouDEQ6WmhSR2jNyvS7QSHMhSw4iZiShGf4SYxEDnEGq0HtOvoARgC6Fm2rS2Xi021qxzMGp0LsRZkEkTl29iIFizOw6ABkRTRjriJ2pkRIA5kVFAfMUI+xzlWgR2hJ2DLFFAC0XrwseT0s4kHEGlrjt2YUQPJ2gmH6vOztI/OyAoguwDqouyRYKXQl2xrmp0JQkWa46K8JkkU3g8ux9GBaPUIyu1V2/ISYcGu0SibDm12gsFYsJCGHcSjzAIAlhqKNxze+VZNPMwwyWgBIkQE8QR92zu3yoo6O521mPUCn8T60IkFAYPu3kgogBkgfAGMuYmJJAqik+i5Pmj26xHDkf5n9R7OD2YGYwM8erGH2TABM8PQXqGE+zO0p62oCTcBlIJRgX227xTAM+0FxZECWgoID12RByLBsP2Fh/KIUh0uLeuTWR4wVuIXJ+lI0OixIhKaeWsArwDgigB0iQ0xTga3qhsemERlpctPFp3qhAOP+wLUaBIAO2ESiQKtIAaatJ8AJtDAOEB2XQUBz1iSxTMklrjI2CB2DRyFJyBMHB004tKQYpB1rCXxPtKnNydpZSm2JqcWDE9B0dKzB3vq/5PQ4gHxOJ6q3EOFcWluYcgB2ACMEO6uMQkIdPf8P7zDp2mxFAlcTMk7fxkOpuJ92ihzdpIyTckqyJ0Ot6KMWdq1n+PWPMp8zwsOBsNxesn3jxg51Khjh33iLhzMpwtPjuldPu67izhkdeLSgDePkAjqNU+/NTzI3ACwBEaDyhk7T2+RsmGhCJJmxnSyIJfphvxi0K+wrpJH8tZnxswZIyCPN2eSoSCtuC9HNGPTggcS2LHIR9nZMJOHGO2AEmOdeFYp4X30wEmD603dPhgemC2OlGyustZKZQi619gP0AdkpLykx17RROdEDRObAyLeUvXpOvsGcc023QAlVONCMIGrWxSFCiffT1GnJ3yQ/VArh3yTCAzgUgR/8gRBdvgHmF6AOOEaDSR4+RCcB5BrgA+GeS/X1dw5FN/u4lDbWTQVoCEZNTSf62dawZIuWzgHIwWUBmMYAFGg9JMWICkni6v7UbYnrwnkC9OkAy0OrJGyXpOzJ3RCXTHyJOTAFOaRktax4EGcw7zbkDawSh3nghhaGRFx5dAUREPQgiqLGKi9IGKEHhJfe88NfM1tS+hfsydAj1GwwuR3DQunQRCFlhKAvERGJprXW+pyE1aLtHeh8jMg2o0jmeM5yUxIkEeouQCg8Ixldh41BOowoBvAPKQ+gfKViQAqSFSu1BFS8NP5w8vGHJ2XR5pcCPcxsWXhkJzClqAvxGkZCJQYLVzFEGGymRweRwh3HQ4A6pl6yAxILgUeL+ebdILpXOXUpqfU0pcUjbOD6LLpLdPmeuxUMpT40uRVJCuBxUJW6wrxEKzkFthzBncGtkRRWzrn6EfCkfR5dL8ZyuQgccA1gszTnv2bwxdoOT3Ac8aKBxddy/BnJOEoVUNVMUnUaIzd0IEUaOAqNyFUix+JXp/ILSOwpMuZb8T/MriSCRb+L/6CCGnce/WaGs4Bd2pFXahYel0xKiI7uxmOTGkVJN01mFW4rTBzyQ5leEsbgzR9LjkuHlNHOz5Sw8r5TTy3xUnuZ+W2Z6GHJO8QXWei9x8MO9LSM82M9gVyBh02FUO2H+UvuOSJ3My31QAuOMh0DrEkJ5xyZkReVY+HAH1x7eTdKdmLWCl4U6OyZDGQRYCoJUGymGZHgWxMLFDS/SjDJmmHvuBAC4KVJk+g1BWkqoqWEg8OjfuRFzVwt4C/uDt0yx2hJYA/JB+IOAIviKrVB+AgM5m7VMbomZ3YAnijZB0DwkKcDz2IKMDJgY9Eph9SBBYCdCOE8Kx4ab60LM/BV/AyDzzMoUEaiLy3NAwuIG08IjCwGTXZxgKWvpe1H/ua+UAebDJKAID1VZ3JMZcRgAOpFhXe+ErLWZ2hRYeehXzaumU6cdZWoe+jISAZD3UxY6KmIsSG7+Xe0c8G4Dwo3wEPugsC8ALJTmAtKmRQV+UkwgoErkiRWyKTQWKKfsODo4j0tAkj37ZMjx7Z7DlSZigLLBygOamYoNt4p+zgpvSMceMLz2KfBAseixQeuKERf2WsUwidjz9p0kg5cZIKFpd5NqeOpVnYFd1Bsnd2DcXeTixR7Miy8oVPZ8FO6Za7LFp6GnxZ8ACNK0SK2eFQJ2ekDVtKdz1Ru5YQvuX+TdKdgyA5DpV00vpXOYylMNCebNBe1eXBeAZXBJ9wGDxE/w1huqLRepdKbBQxIv2fH1OBlfXOBtdJRMZUi/pawGBOTHz4Ak2M6cDL0LxKUIagUFF3Oo5ylGFWPrwCxOFe7EEgez8xI+3bDI+aQAo+CzSVe1F3RsSLio5RBQz2yKCpO/Hm1ehtKDeCdVtkVLGNepr3NeGNA6WeX02YZURuk1ULj2jSL0wH3TbhesjHePWHFegr1vSvfR8JjeDGRs7wbey31ZOcfQXxfgmDep+FZY4p09euS1bR8RLBcTyyvQAr1aARkFhxrb1OsHby7eGNG5Kz4GPAH7xFgXOJXeYyLXeG73+8XFB3et4D3eB72REdjLwUyNA85w7xnuv4DFEJlxZA07NLBCjVqRyCCgcM6SLqGEFqAeHygcBH3cIxH1I+cr0E5F7So+z7JXZkn1o+l4hee24Aq5LWGq5YPk4+FABY+NADY+Drw4+ysgnSbXKNRFgM65mhxH+NqSE+zTN2BGyNhJ3WNw5CzPw5vP16ZxHNRJm8WuRjhyFmW3UeZbHNwZfYP6o6PG5BXwJ/IGQEusQESQxRzE9JYv38+awEC+XzjdqgAJZJPdwSwoTkpmACFhc6IKzysoydAppMiinIkoguCR7IX+NAYxzixp1NCVGLtE++Kvz5B7dwiRTBOUcAAMpR5UL/SVvzvSemXpJ3FLO8LfyOJuAFb4FE0Pig/xpeKQmCslmGLQBAhLQaSA8ARXN7GvNMyZQPhR+pG0e51dym5NuN4+Xvw40TGy1+IzwXEAIlygFP0J5dB1p+LSigpGcTIGPvxGen3O55A/z55Srnx+93lI2SDH1+PtPEpKHLIGOPNI2WPO9xeHN55ef0H4/PNV5u3hQGFHHt+jfzvqPFI/Yrf1WRGkEReUJI0pK3PvR2sPW5XTPkWcoO25NdN25hM1dRG3KBu70MeRPWA5BwZDtBhzP7QTwMJ6TmVeBM4KTY2SwAsPxzpaCPUYp+yX+BZGJvi3KJBBBYxMJqRPgAQ4A6OsINRiVFCxKlT3i+kfJdMVaPfxWIO5hxIFxB9eGAGThC2kpIKBxPaRloVIOlozSGfwcyIZBZ9Kb2yUB1MiOhxoJwieQHWFBgCmD086DOkhxYIUBxXIFRFRJlCkFJru6fIgG1DFXYyoMaqfCCV6CJRmeNTJjwdTMakuoI1B05PWZ+KIYgq7ENBDnD+4xpQRKz4G38oehjAVoLuKXzltBiC3rJPrnsCDa3dBZSLIQ7xUN5QfL+eJ/O9BE+l9BRdIScJdI6Zk6hawAzCq+2eSmgEjTYameHORX6NjBJlKYIZSnXw1Uxuow22JkuYK/0i+HesK+HXqsAqoxdyGO06gCQF3DXpUnNOgREuPSZbmKX51jlgMoAoRmEApRmujTW58GjIFH2GoxlAsXobYPMaqAqMp6ApNh2CIDRQLLGxwhgluc4gwgcAupwCAojEGhH8a64OCaW4KyxcDnNYxaDWAzBhlsxIEPB7JOGZzHQnMTEP9ACmRFIgpHIFTZSghFhkrKkRDyaeYCXSqOGYMCXEbwkxgQgVNLxuuyjPSt1miMrRFN8QEJZAIEM6AcxEWItINFA0xArMKEIeBtPGLu/QWehSgAbYHIOaWAEO2InkTy6+WCJcAEyUsFv2acHFlWgVONahu2LLQX2hMFazSuxbEJTQaaE4h16G4hMSNAc/bX4h/uG5q/vU7cCwDA6s/K5pfKIMeTAvHJRGyS8lxgHBPBCthFqU+GpYl4F8AoEFJjSMh5xi7gJBhkFChDBoPQC3IfQCCa/Zl3BJ1BA8zHSwQnKCFix6EWBY/HJAE/CBJawLBJbAr0W6HO1RmHJE+eqLhJ3eEmFigumFTkN95Q2P6ZRgHVKjwv4Fds0XoisK8hbJlGkVgAewsML4FM6BzAPwq7gmcEYgMUN6MLFH2OK+KhgQGBs+V+VXovF1mSfPANGf6AhUPE2dEEIC8AzgFz8dZQlEl7GZM+JgDWoESKa6D0xFDxmnM0gFVgWijLSzGAwAm5CQA+2BlMcA0oZRGBpAcdFIwfMAIh7AGmAuODh2+GFnBStn7uRLkIEG7kiwWmEWO2qQMwJpRwFcDI8wfpm3WnkFO0jzBBwNiQSGkEDyxtiQBw/SS+gLxGsFed3QyDv1h4Et264S7U4CtrTXMRIDRYNCBUuTrXu+VXyNGV2GRFokEgU+ItkFo202AJMRqM+SFWQppmgQG9NvIiOEogmwCu5xa00FSoiNgvpxhR/FEWYqQCo6EDjNFNxxC+AZ05ayziIwFFG1wLoviWHrz3M5AF/gxyQ8uCjJBwGaxZUZlHhElIpKaBSAHM5EkcgoZy+gXosOCtpxeBbyGV+q3GA2oIqHgePGDFjyAWxtZzD5VfPQOFYpDhEnUosnKF6OX0z5hF4IeMtHUWYmFimWu8H3QhFnf+JFn1eriTvpJAr2wB2FmWGTR0+HXFLAIaGVFrz1hgkbkI8hQgGamABOh5WBbFRkE6i+0IXWa2CYAJEWMumFRCcLou6mxyHsuTnxEgvPW+Ey+PUA8jkm4UIqHF1NhjOKRQ1AWoHaw8FENIp9MmOqSWeIL6HUwJaDqY4SnAlD4MCh9LWoYqnzFwlKDgB9ly6AQTXh0ywwx0GEELBXQvoFpROqRY5JUBRZ0/ankMlhHWAsoFCNWRi3A4F+wJn+0Ap4FD2AUF3wsQF+sNeFceN25nwr4l1gqUFi9H1h/GPbsC0MzBlRSzoffiTFo2GGsOwvdhHE3DhynV3hMPDI6LVEOxNFz1qyH2YMv9BPhXtkesjNEHhbVGbAI8NzhNU2uhmynth2S07hTaBZsaFn/hsKIDAyUOFaDnUslOcPS5byx+5/Ag/ebnQZF/bRRCEXRnhAgj4wcQSCSVUUXhDnSC6I9BUKOy2vOcjncIakuwoYNGXx51ESEadDscOnweZndBWsHjU2sg8NEmiYqSp8NGCYAjNaWJ1jOsmNHMIGtknhxSQi6d8Oi6PNh9e7tTS6P8h1M+CV/AcHyZ5+Gwzq/QsqJKjGkYZsONsHBgiqztPTs0DEWo2zzzsKN1zpic2qeXwooFPwuQ6qVFGJFcBnSE0pasz3lyZqdmQY5VVqBG+jWl3yGmF0ksd5VwvVhlkJhJ7vIjxBcHOlkksv25g13RE433RWw00AH6OtRaAuNhVyNYUrg1FG4EXZeE4M7oaGPNRoEEjRRwTBGuPVmZXfWWEEkpmcyZJPsczlVcvyMaIhw2Dm/LPDc9eANmeQByG51LyGRaKKGd1JKG5aPKGtmIjGm51UUUezXJ9PQwmjQwEc3zJ/xbaIkcDuFAGiuF7R/aMHRw6LkcChH6G/KFAGhIUzoIZN4IhwG2YKuU6ak0vyQt0Ihk6DmWGCLB+gGgHWGmwwtRtuwUeGKEWMZgqmlDsMcsBCX6pbQH9sg0rKJw0volAwogipGwhln0vVlh12el0wpfRlgwjRvqKPRJRnlGxQSxlLPEocP3A5UtPUt5YqBbRrQzEcjhFWRpI04l1kO4lHvN4lpmH4l60sQFjsv+Gb6NXGP0t7OrkOGxJUnpIflNQyeZGXAtvCzuJGO7UwjmtlMWK2curmxZ9T0NsSQ0JRsQ23GduSgc5mMtGNkQaAv+Ldcy7icSSY3o5eovpAYwknWnzlF4KNOOANDmb8loF+c91IvQ/vlp6dQ3rROJIxq+IEKExs2XuQLKMxqJSpCDgjmp/VB2AHMVxlRKNzGFLlBAOUJdCcbiVGfcuzM0xFLGH1mnBIoun560h2WhAhNltErNl87KUhyqQdRhZPRl3mPy43jn9wXRWB5KkJeI9XQ2McVhhAO5ivRwLTBgrWJDxOqNuF4ePIaEwvElPYpel7Pj9xA2MI5BWzeFJHL25rCj9WXClquU2L1y09I+0JLK+6IOPqA0zLYoRgvLKjRG5ZSo3b+5PNuxIUEh4/BQuIRQrexcVw+xJXG+xmyG2QJQvLQekVQpGK1XuZOMoZlOIhxxQqa20OMXe3yxjZRwX4m8wWxqazJRxch0qFGOMCJC3wO+ovCOCBQr5FsDKlJ1Y0EVRYAmQ5NWPALCqhx+2MkVD4HxUrkihA+MQmMfLAYyunOH825TAYPONoFVEsqRNEpnRUuNZ5UAG65y6Me8omx8qCuKVxVINVxQh0QkmuK+eDz1Wl8CqmFG0qQVq/hQVpEl8VHf2TiieyUV5zCk06DTw4luIP53IHtlcSoT4yCoNxHzUOFt4JOF1oDOFc/AuFjZ3DlsJC4FOHOjl8gokl0wvHm2KVQVfZy7BP6NGxaJgbmln1HONHKpmpPEl8PsmaGyAJl8t53l8vnlLxj/2X8RczkgUc0F4LoXJJV7xOM8Zla4LMxTMbMwt8s3BZA83G5mvwl5mKAP5mPEAART3FW4es0983/QC8XBTEwpvBpmTwjS6gLNNmbczmVPczqAyyuAZx4B+0qAAiF+sAmOFoB9q/8GM+9IBfxb2CnkTfmKQ+swRBNUNpQyACq4dMwp4vs278tRkC5UxyTpQ8yGqCowr8t4GJUPXOV4CfjSRyc1xpd4K5EnRSB53kO/a/sOllbIseZjvht2JKgwBvEHtg2GC5Mc6gqR3YwYFvQq8VzArlW+cyNCsyr9xncx+y3cw3u0c0fq/YVIFMSqeFBSuACZMwMBSi0HCyiQxYcyqf8JfDeVj9UCyX/ifYQ1WiVMcuaVMqr74cqrm5gePAVN0pd5LTI2R2HJ4lcCr1VCCpaVq82ElKJL58VJDEltqtiViAu0WLUlzlgcVvxTMhQ8e1G0FqUPgqeQFMg9QDZkd8zlqtjAoVX1Q5cPBJwyIC3ZmXkE6wQQB45bX1Ja2rJ1CIxD22lEXkCKC0YWaDFoWR2zO612LkINyqTmzNIZ6OmUSm1C0BQkggOgpNF9eWC2gyMEGtYpnnTVyLlsCHwg/mrInxphKLJVXnwpVIRXyQobCNYKzAHK9LKZaQDAp21DNKOYglqI2aURUOpk2CLBNiOPBNwGOZ1w2nKqUBh+xWurXnb+xuN4WF9RkWuqqaVdqoNVJrTb+suJGe4i2C2bCWkWAixPV/GH1VHqpEWQPn3VcuOIWMVUdCMYQz+eHAlVj6rmAz6qoFnqvmBlolKVgJIqVIJPWB1Sp/w+iyW59COLpWyIaVNqtPV7quA1RqyPg1ixEFfTIwVgzPu59JBECpLT8Wg6ACWrZEogkYqrw72z3MRwSa23i3JYygGglxrFiW4mPVOpplWZO8FSWDlWRGJX31gd22QAE1L8UVKxypLaoIEK1DKWtoEA4lS2DENS0A4dS1/KnLQpZBRnuhdSx8MbHWCEPoH2SvSx3y3XzckJaoImDTAmWS4oCMQClLWxyVWWnTBYqhy0XAesl6qd3DOWdkFg2zDJdgiugdkcNX4KDb3xUvywH8ziPimfBABW91VF+q62fy3wDBWtApQyhd2OYd20RW27gP+r+N9gWK1DIx0O+kBKyJWNzBxV3SEbg8LCbZsijrwrwGEA0ACqxbhSpW+kpx2wSKjgPQHk1WSFh+SXK2c7KtzOLmMYF3KpGly/MEpkEj5V1knZW0VUjCTf0qqPK22egWqokAHKFW3lRueEHP8qdsqlVAkvQ1yjA6+dH1Oxo4xjiiqwKgKqy5WqEn5u6qwaqm2s1WJdXSBMeHyVL6pm1xqx0WMGoIYFq1qVmyMjlj0r21k2rjl02sv2yJP7OzqsxAw52peVlznw1YWjgzlPa2Q2wqShGQa2oESzlAVNiYPVi8AzVCqQgwyWIofkKSsTCtOzFK/c3UDl4t4BbMZZKJczjiYV0aruCjREQOlriiptJxJUo/Gmg8dARpwKWBlBRlUC0I3KAyNko6CVyfxdYBSp3mE+VrnxKMFMlOc28pkizkWUwzVP0iZilMxjJwV0p+Lx2/MW5ieeUbFpIL6M3BLKieUypYzdwp2A5S3g1OxZ2QWDy4q5O2hfcHC6Y2wGaUEXXu81MwlwpmvcBz0JC5bz1kUPLyC9PULgoNOqwvDGsxSTILI3UWWpKQCp5IuJ65fMCHlNszfJy0WcwIOwfMTfO7uaMMSgobPTYh0R72Tbjgs+MKwAIezD21eQj26NO+iFQBRpcNLcpnREUVDcWBpNLkJpqMXAUJNNH2cNPn6QQEwAOBC+Oz4MPKjUT6gisRhZpMV2ANWqXYIHkcV60icgziXZ1rMSLQclTLJ28p5iUMUF1hHy6p5gsBw98s8VdEqflLWsaypj1yAl7KlpSsR1pstPsemzN3Zb+0n1VjwA1scoulBqoIOSYnBuMT0OK32rti+5J1W9oUA++/N8xMVJu1y+oO192oMBNgMmJRsC/UMxIdpWB2DRLNwzEEizjikHI9pADW5uVxL9pbtwDpwHDziocGEORcUTpGmy4OEh2kkCqv2yaSpT19PRzpWSrzpE2rdV0qtP1q+pO1tqXMhkCpuFrTKtVUcpQ1T6rPVp+srpjqse1NjTRJqGTUxEoxTxtII8hbBEi4n2gfA8IkPi7tmiOcyVRwVgp7FCaU+AMpAYQBJy2Ar7gCwrIr3FoS0q5tYDDaLoqCJIHheIt8UNSNiSkG+KmNFB5iqIp2F24rBohUvBAuwZMlrJistCWOIqNFxeJIsh93U07oqTMtYC0JQESXkPGGWGWlhaUDTG621yVqhJQvR05x3MFCMC4A75W+CUKuO4hlFKA+XInc5ulYNCyvmGyym+AKFXqAFO3ENLtQgUywxywCAGZeELLuCV+QvIGEph0xoo+0qkVewnmECNJFTFY5Yp0NE/Mqw/GvL25Ikq+hoyBA93FL5rMIqSn4sNGB5gdk5J1OWwyU4q3BrsyBYuOwha3ZwEDPXxP6D/Q0DM18VoCWsrGus1BSACCr2yhS9AFRwgyiOWHFQ0g6e0XkWRuGc65SkQ5ZS+BnctU+ppMPi3hp1MxouKN8+Xh2KGUrhEiPlway1MNpfgf40xF9OW8n9Oa2kREEpVxQFguiZK4Q56QqVfhiTIcNkwLS6ahskJLKXxU9NC1EfLF1AKwrQsl8lTOMOlPkLVB+sw8M6oo8MBsfetHJj8sVSyPy5Ywb3V5WACbsp0pgFx+sQVKmk8OZv14gP8pTJSNOwyM6UX1QGsXo/akxN+xSQYlSwB2UQAE0nYgEg7eWdu2vPOm5YRQ465QBYYqyZNbyweSztX3kUmi7EH7BY4kvKFA0vJxCrkj1WVGgLsNPzp+Qpp4g54C4AIppDuajThAuh3g1yM1Re7TKwNDwrRN9qvMO7ooe1nSowF9eCjE+2ru1yw11aAytpcywxkIRk1F82RvrWe5imSmIvjhA0kI1GiQowWhonY+Iq98rSyBFpmGDghoGRWHCVuBfAppFgNJpqv7X/K2or1A0hNUiNYqJ08gHvQK0nv2D2BB0figMNnKUVgQ/TqE7ou/opbymA6OEwYafiQG/5UDAYrMBhrwl1c3RL12sHNUMZEFVFIZOnoPRqpYeWI0Asbg8N/GqVsUl2cS+OkgK+IHnywGxBwuLIV0p4vpqSyxlFOmFoIxosHuxII/mrHlipLKNigCIqo1B+MP6T9gDlre27xsuykiCmr1GqRo6wtIvPMuiQTa2QogZpzknyIAlVcoRFaJgEOr25ZvegIxE4Ni61gJb8lCNSmBJCX7wkZ5ul4gC6Q9eYlRdogMDsyIx1yARRBM2N0iOUCMAeQ7mHiiWZsYifBBkgQQF04PYoUMdAEAeGaGWRHwlsyoGFhgJLmRgzjk6lNR1cpFet7uMjHeEXj3EuscihNjWoH1R+2vVG+u+Kf5tAwAFpq2uSqP18Bqm1xJpU0OpqQpCoLSOQFhhg4FvwYFEFEokFsaNsHAEt1INgtlwGsFg7Gna1IJ3NdAAcq/ESktgcnpU4Emv8yw2dF1OB1Cb4lW1/AhUgRhvA0qZoolcIPiAFZo047W06J0MBMtiEna27HAKAD2F9N+AEzA7ooYtKJsaVOBrQ1bFu1NdmXUYGqIn0UqGd581QtVd6KgF6pqelmpoNV3qWw1O3Ke1xZQkFTTkcc4aT1AWKznOg5nEU7hlTSg7hmUt4BjSdhm3OpCtkUGaUM+nATHS46jU+6Kw6wh8XmE2Ahguq6TguEZkRBSFw8AY5CYuGFxPSLTQrkTFQx1pQE4uUkCGUIykSt753JBUznwZ83HmUlikWU/5xKNh9wPO41rPOAQkWVouskZ6KHh49x0BQ6CUwlvWD1AEKluhg1vfADPCqQSDm6NYa3HSTlmPgYQXbkoMjmCE4rXSmzFRZ0lJTqLhsRBEOCwAhl3uSFNHLkxGQdJDBm0uhmW8wQRo4glGSuUw7jsuMaKu41t1jmnOLN0vly4y8KjF0On2CufAD4yFl3HUelmIq9QGEy4Klox6uipBfl24ymtVkybYSEMoxuOV8V1gqeoAGufkFoAqV36Go+LHIPrL0ywd25BRV1FAJmXnBZmXCu3GU6FwsXcVI5IotMJpWu1agFpH1wSAm1xSyQal2uYak98mWVMBh+qQRgGtwNxppBu/NJH1QtvTUV13ayN1zuuC+qYtstqX16JpeuNdXOumfEuujam+ural+unaklVLFtu1HluBur1zMk6+qyeY6l2gApXXaBdgaqdHHRuzgqxuPUH3UE80VYRtqJuuyjPU26V2UJNxvU/tpxk96j5OVNwyUuoFpufAH6JMtqNNNttU00kiiBRoWE0jgKWlMBooOlttQ1CBoVtdttlCuQM40mdo4AB2QN+vFIFuedrctBdpTtitrMk6duskZduFu36SuJ4t2qwt2RFecBvztrFrhuSYibtnoTLtcyuc2ZtwNuSt1+yNdrlt7lv7toBvlWNEmByQGjg+Ttyhy+t34uhJvlt9dqLtn6nntxt0duQ3LNuXYktuDlxXtOORSg+9t1uxmhduvbCntutq1NttsUWu9vduMjy9u1OTuUl9r9uBkADudIr7ma9rRycGQ3tM9tY0AeLAVYd3O1mBqu1eSrCtp+pawDlQ6qVdLOBfvOitPqwYg2CoxJ5dzstkkHMI33KEq45ykwqJEcgZ4Dyw28EeBLWFppkkFbKJArHFV+27KFCQoqHTw85T/29AZQnyW5FyQJfmqk1mwBqWlsFYuUvU0KGVO46/0HOU/5VeEwOn+gJ4NEeM9VoSoS2mIuaEMJHrxiNpQDLNqa3+g7CtA88UHIq1xxM2REJueNx1Mk5Cyta4BOmN2OGKwAiWccq7kV+50IuijvTZsOWqeadgw4Aye34KUvWZAoNQbVYen+gMKo46r5HR0d4sqwChCBiEBUHZpNsvky3yoWaAMtaeDJeWKInJEMdQ3l0PHBU7MFpgwTC+crwi9Fo+jcVHKo8V0JvLB5sow+rWoZuZ1UmUZ+30kydsaksDtCqIxTN5VRPam3powg9lr1B3kURYTCClkzDpIA+S0yqmqwWQbTo6dDVW6df7l6dmq0A+X7FeJrXmJKO2yjibt03Y6xPM0bt38BtvPC0fWr/ZA2oFWgHIA5iukrY7B1mdntK3KVxL5NW2p1WDVWDp7B2Jybt25ZlxMrtolu2db+ob81jrKcezsV+irjdu6Tuc2G7RFeFuPbi8po5yTZ2VNNqy4liAWQ1GpqttJ+ru1PTMitSDqINmCqTt0DtBdb7JcaLvTXsCJxKM+d3VyKxHIVd3NWxG7I2ZEQi2ZZriBxBMuKC9dxJohpybu52zwcrd1uZHuRvZ3d0dqh1NtgAeVigWEyTYaSXUu3WF4IA+S/NZ2w51WbKBY6YsXUxKsUu58y5Eu+QXuX7LQYh+SEQx+U4AZ+QvyxpWvyt+QG1j+Wfyr+VUcR8s/yLpVUmY3FUV0cIYVcKOdRfIu7NeiNnARIpKMHFnSiLuHbynLKjoujoRZ03xFZ6GFymQJUL+1lIZ0OrKrNbeBIK5QBe+ADzxALilKsSrMaYKrPoK/eInA53BMm9AHVZMOmNZ6NjpAcsjO0+kUtZ2j2tZvGqwtAwwI4o2FlZaD2wwmDwUZ0rI/iemUIc9rPgeOk1dZ30C4s7rNlhoQF4g7hMAlsUtzZwZXzZYL3SJhhXEosdRRBlhUkcVDz0ZsLlIe5hThpjaMoZ3CAiK3D1/IU+UnZgj37Zw7Kvyo7JIy47LRUk7KqYeOiKK8pHHIUkBUe/jIZJ1cN6YumF+igHh0edWs3V2Tt5tuTsH186OCpHgjLs2trKdWZXcQ1+xmKXEU3ZUxQeu97vJAitIWKT7sPZSpRru3qofi0LuBdetv+eVTvFpo6nJKSHAS5kyPaA+01A9Ltvee1JXNBr7FlKFcUZKdeWPJrJQ/YbxXWJ3JRdBwHsOKcTy7uxIFXYCXIeyHPz1GhHrC51XgJdUyNL+SAxg9fojZueWNFK+HolK7zmlKien68cpWmeYHA1+X7vlCBJqvdMLpttF7MdKn7O/Z87Wmg/Wu/JFQLWdOdqNBOztA5LpXA5HpUg5snpud59r9KkSsZNUzobdiHP0KcHNQ5ZqoCty3KCtSGutVQLt7t1tqZ+JvIINeppGx+3LQd8LseZLxDwl53MpQOnysFx+olEU0DpJ+TgxdyS2kin3Lv8m8vAwKSCtYPZDKqtRpDkrCnMdQkTkIkMyjg0YsaI++TQYL5Q+5TFKvpOPMPiHsBV1OFF0qHPRZJ6YsTNPpskgxXxUVjMUOgtLjqdtYAadXcuEEh8hvuk+NDgYxyLogbEeZxWF4ihyQuYYDLbo/X0ogEynMEdJJPpshFm+idw5pmTvq1W6tnZO6t16rPyie8vOJ5Pdtrtfdtz+0n22l17H82FHF1+7eU15PFJWl/Hv/d99op5ePwYgevPuGBvNvtRJss9K3vlBNbLs2BCNnp0wQCBdvL4pxPL0AUYEE2cvP28lXoYA9lqD+If121UDv29BqsO9q3pj+D8HMemDsNA+7V7y1JWKwGnC+99lpmd53s3tl3qH+q3px5lULOeIz1L+US3L+t4Hh9xXur+1P1r+/vWt5XFMe94vL/Vz3qnxoSC9BysIW5lqzQNd0qw5apsgdzFvM9ILpttu4o1EupuMptnvrwXPoUif/HzlBzQFFqYCUAirBQwdNL4N7Iqs+xlxawwhqKNPwtLufnueoHcEwwCkXUI+RvsmuMCq+poipYX3pSRjRDotZ4EMN6ZtIigSQF92GA1YeFHWKjRCW0rDugB4mInNEDhtAYAHJOLwGHuVAgEd6LNceoUogEuloeM2rJGIVwhLSDbLSRwvAkJWAGkJ17i/0ell76lvsOwoRAT9t6gS9fvtzNLGFUZPOFVgzIu4N3QTJ4rIuKMCDQuIq7ml9CkXbyOvupwriq5tWTp5tXKsot/Ntt4HLlLas7DV9bIo19SPqAdPDGT9j5JB4o8LGY9+wQtYIKTNklIvO38jrqxvooApvt6igDrrtx/NL9iGCQpwGnZ2AfgL9MMAK02EkGdOq1b9e4ujeI/qaB1/mmd3T0k2E/qn9ylsbtJdqNCBIAJ5aJU+JSVV5AlbHn900DQYRhBP9aZq0JA9ov9TB0f9ikg+JoIE9K2/o1Ex/oMtRhtoFdPqCk+73O1q3MRI0uFlwurwvwjuHhMbuC1w3mS9wD/AgKxuEDwZuBDwluFgDBAWTRCAd2qSAeaygkPy4k8TL4jdEYU/nJtq/uDl8puGDwFuGlwnHGXYWeCoD84FoAnbxYDeDCXyZQAEAJkAtWtACiAUqDbSWeE+AWeA7YHAZjUUegqoKYKkaIgazwr9NwA7lE7emqCzw8uCUDHABUDmXA4DhLy+qjRAIFRYmwFtIswlN+kka9+iHBpWikDg+ADocgf9wF2jXgYYhSw0TNkAHAfogWeBA4nwGYDrAfYDHAE4DhOAuAjEBa6JkBIA6FxUAJkCiAcgfEDPgckDJ4gakQgo8AcgYUD6gZUDage+Inb2dQoga0DPgZ5GifgiwxNFSlt50mBK1DLUDlB2+U1mimU4OFFEhggwTbUeZakquE/QnsFzgtzAPQBiUgdoNkesmpmGvASMuyuYAtngLuD7j3W0bKLuaLrj6NgY9AdgfPADgewQ00BcDcJDcDHgd8DpADYDHAaoDFwEeAAgA0gaAG+i6qDKAtABMgCwAiDi7gkDFgZiDSGichCQYBOSQdEDKQfIAnbx8oGQZyo2gcxdB1hMCnkJ0+kXCdiLpt+5enUHcq5GkAVSmlAhMNUu62BDQbQNnFOhlQszcK1Q/TTK+UJBXFBFgRgbxpcMVevUwjZG6oGgDGDSgAmDUwd5SzgZ8DrgfcDngbwYywZ8DqwYGgfAdjKA0ARAVQFoAjwAYAhwctAxwY30xQeSo2HTiAFwYJFVwdUDLIHUDRDAeDl+g4Dx0Uoye0pNsiKISEmkqvhkcJJtuCGhZNHTSaWglTAaglKNf9G+oQJX0ldO3Y6GIJk65kp+w/HVsluwg0ZzvVa9CDSb5edDfhcUrdoPdCroiUv1iGFinwQhl/osnW06tZMMhC1BU6hnUxDfmkWoOIacDHAbJW89nmDRIcJwJIcWD9SCiASW0eAJkAYAFqzQAJkEPSDIdgATIcnULIeAk5bnZDGQcuDqQY0D1wZ5DWYd9B/IZ9wTwZV9i0GF8OJuYl+SHVGZ7R5kplOgm8EzWmPzEXcm02iYpdiKYlEA5Fw1I5eQxu/kHUwwmU6Vkdl3CUMulStZYzBR5O5J5dtLAxDogdsD3oeaCuIdmDJoEDDoYZDDqwfuAaAA0gUQEjDfAdoAY/ylQCYaTD8GhTDREjTDiAA5D/oHUDCIBzDtAHUDM1QLDZeG0D9Xo6mJAKMyKrwLd6Ew0lOhPEA/aGFAC9D1kxE06BlTHFdEvDbh5rBPcJrF2kqKC0EqRllJw8orQjwXEulnmHDwHnqiwQi3cewlum7rskmOSTuYIYss88k23YikzncykxI8x7UHQ4LknDWeGnDadB9DYID9DiTkXDXgZWDXAY2DWyGjD+734Q9wAGge4aiDJwd7UQ+kJ8D43TD8gczDtwY4AJkFtQ3IavDWYZ2Dt4ZcAgobWZ4Ph+mzrG/ysSH01RKEddMvD/W9vFQSgni5gFy0OobFH4CQIlUi4Ljy4lJkuIAGiMjZEE8mv/1lSX5ji9/gmhorrNi9ErB0cTivsUoDHvw7nkqwByE9D2IdnDvoZ8D/occA9EeJD3gdDDmaBMgtAHVQW4YYAtIbQAXEdUDPEcH0LGn4jM0xPDGYc5DUkceAwaAkjSQfJ8MkbxDWeCFD6eqM8Wev4sGAJNYrarEAdrCXoYywyOc1t+mjHmymNFGOO3nlkItkwKNW7lsiZ9w3sVU08jLQEqwzll8jM4bUEAUazwBIYWDDEdJDXAbCDmECiAAgYYAJkD8tBwdEDkQcSjzIaU0FVFaVA/FPDigakjl4fUDK/AKjckaV0nLHEALNLOqZpuOYevg5Uw8iMysvnh0qnm/C65WG4p2FbwjSmsSiRnKAwykHSjvlRVDs3OVTswb06jLNmgPBt1i0A/GL8GtmBaNtmU0DbN9IAgQbhp0tNhthVHsw6QCKpbAYKRTgtepeQcNQquh4GGjVEf8jNEcCjdEcJDS4bCjqwaUgGwfuARigPeZQCiAVQASj0Qd4jKUZPm6UaEjmUZEjyQdzDIkaqAhqHkDjwZ8DOgb9JSLP9WVzl+k8FXlEEylVMAMi0+QEzUMO8A5coPoQgZCsbMCXRHxNchYIrX20t5hG7IaumQWbCVptRbM5qtCyr8lgQ8g5Ecoj9geJjMwfxDcwfJjU0fCj6VjhAzqDtSUQFIwTMdWjRwe4jG0bK0W0dXmu0fUDDwAOjWYcHRx0eFjD4dlkT4mqwRwhnet4GMEpgketSaw7wschsE5IEKWQ4BLg8ULKkBOLrhLID4VhYhjArKk5CRwnl4qXQzjyZ3K1kqgp495opodmQJjU4fGDI0ccDJMfGjDscmjoUcYjfgZMgA0DpDA0FoAhii2QUYeZjSUenUAcfZjQcbDjXqFyjWYYtWEcazwtFJdd0vRNu/M3EcuMf5eYO045mZrz9oDjXjyZpoBoCxTVOXtbILnUoAIUulJ4ogy+buvOW+IUyWVPL4VwTtHxAiQKEDzzHopcZOheMStjzcaJjo0bbjQUeYAIUeDDlMa4DDGFoAFq1ijVQCiAA8bhS3scZDvseTDm0bi4Ci0EjiQbnj9wFDjIkd7jC8aFDFQiqEhzI6wPBNnYvgV3gXgBIon1jNqbel8CNPTDC9EnAcX73mEHr25NGkvTelwEpIcyODkCDDH55o3hgM6DCCs+LTQpzHYTQw1Lj2KsqukupkEhMZtjf8btjWeAATQCaWDICb8DcIAGgRDCGgYQaiAHEdHjfscsDwEhNaU8ZEjUqB5jkkcMTUqAXjS8ap5J0QBECVuTN7NnGCLeqIACYRmCaDAZErQRh1IFTsknMg/wCNO8yfk3r8n5TpMUxBid3PGJkacdIqE7kEglie/jWIZbj0wcKjE0aDDiie7j5TEMUz3w2DtIZVQA0F3DcCcTDCCYPDSCaoUnhwMTcKWzDs8ZEjCwBMg5ieeDpZEqkcOhrQDsibcUzWsC5lyKYDowPUQvzCA8UQEgDbDxq3mGSwdOzJkqCAPOS7ND54cmZC3UxqCpLVQEz7GiTXod/jrcdkTCSYpjySfqQz3yqASW32DGkG3DAgHuA2icQT/seQTldOKTnbztSmCZKT/MZwT8Y0LuLyE3QLtlMNvVsHSWyypE2tW5ihhXYoawEO0WehsYvgvSOmR2tgtUEjkKSDAAcEhOgphp8jTcZiT8ybiT84YUTJAGXDXAdMICwAEAmkCEDUQDjD4QZyT+4aY0BycKT2UlQTwkfOTGCbKTJSZHilScFjAocjjy8ZeDgKEdFXCnTYYDlsgCCXuSYIjNYgBQUwlWoTd54HL5fKG+Ny0B+kb7h24s6qVsqyGXVs4FvxhZH+Ve1HG0a8g1gY0sQ4fTlCY9JzZk21tkyNXA5xxoVNUwcnI18FWownigSwfLBzo/8QYgiy0dgVGROtxUj6A5cmzk+SFfhfcmnSY7D+4RAF5Y5CbWIbaXPONKTON9KVOhjp0OxVNDDOlAGFgDyorV8ZznMiZxOoxWFTOjTFmTfkZkThUY6jsKfhTfgfz62yClQCwDQAIUjEjeyfyTOKaIkRyYyjZ4bzDo8TOTJyYDQlyZ3gbYQ1UZhO1U+SDjVUVILRz7mJCOyyoCs1A9ZwIVBC44TZsrwTUARAA+CNSAYqiMOwmrS0pCmO0RCLXsPWaITU6mIQEQ2IW5YfLW8TdWGjTsSbnDpMYBMCaaUTKSalQQQd7jDAAGgfcaqA9IcxTeSexTuidzTRSfzTe0fKTfIeJTJyY4jZaa8RLKWIRNvok57Lq9OA6CEQYOoOoVkrvk6frhk2NiHZgw1B57iRrkY0n+N/UPapxoHoC0UO5BzBg5S5FCKAYKj5gYEbnF5CqkTkwdtj8SY7jiSbhT66bdZCICn0jECqAUqEFASKazTx6dOD0ekrUxydKTNwZJTZifJThYeFjmLv7VKdnLDkbWpVGoy7DzimLk7MDDgz5x6tD1SQcOu0nQ3pNOjeoBgu+10dQNevEuM1rdTc1tz8p+0XTUKeXT7cYXDjsa7j00b8DUQBUTvAad5C4QYAGKbEDPsfWj+yZPT8am7OVGaLT16Y4Am6bvT5uhBwxVsygm2wFwVNFB9gSLB5k4KFdczW8FBsh/FDcHKEpumCgIHm99SlRkm72ITVfWmaU3yG3gTGo0836WAyFILdAr51mxvtR4u83CKowkCEu93GsDEKbmT0iYWThUfkTameATKyZRYDGCiaBQ1JGtMdgThmfgTxmezTpmdmyVGfuDVmfVQLqHozd4cpTlicdB31u3cLyF/o4+N1YiC1PIG5xQSbIHetwisDmMQDSlruAkztimEw4KSmADn0oocYAvkBIA7oimbyz0Kftjqmc7jxWY0z5TGHYHsdpDUqH0zB7wEApGcj05GYnjD9vxTXMZKT6qFFQLWfzD7WdkjnWZbc2giRtjmdyEFGTKkgNrdAYCCcueAjFYrl3pqsYVhxBzMkyuNthteApCgkWfoAJV1Qz1EdkThWd2zSSf2zqybTTkUcYg5IZmqAgDKAF2dSkV2cOT5mfPTSQYvDLWbS05iYfDYV09uEVzbwVacDkimTqYooHJtcVxeSFnmPAA12JUFNqptGwTHxrVz5ZuV34uwV3oAk8iwe3iAeQ8OfHSKSU8zdjERz6Gdojq6aKzaOfCjHEdXDJkCCDpGAWA6yYJz5CiJzwEhH0VGeMT6gan0C8b8A50ZZETi3wYAIvHx9Xskw6/3DZS7AeqmMkPKwiTJq5pCGGIQJA8hAJiBeNXnWTzFBz9EJdzEgM8awOg5UAuhpcaonh0t8B/04u2HctLviCMulpdYrR70G2bQzsaZhTyuewzJWZIAUqEYg/CAYAkYduA1CN1zuB1aqdWRkDGsCNzxadKTmQaKjx1SwFUjUVFOnwbw72oXw+YN/02qRltQVX30lebHwaeaRzGGZ2zWGcTT5TEYgvAbxzU+mCDGwYPTNWdyTdWfd+BBjyqcQerzVmfyjL2cKjQoepTP+LiDDdyWBomqpYPeZLg643czooAqDuGBnBGhDQsawrlUihi3INLjpCnidCZl4KuEdgtwEisg3OUEN3WCwhCMGgA0gYRnUkLREeAsRnaI3Qf8EoEI9avQHsdZTg/qaQGjFwoCLJbRg6MAuC3IaUGmMAQTFEowZyzMafyzmedRz2efRzEmjEjVQHHzCwAYAaaZIAnEcPTC+fD+S+bqy5wdJz+0Zaz6ViqTKvqZZa6ydApJgRlFGBZMJGlJpvGFNe6NhDQUFQkAWrBYIiEaM5wrjHM7Mj7TjiFpFa0XZk1YUgAq5nXkU+3zyG5jpTrzLmgqGHvMhfoppM1gYM0FmcjP5juSL5nuWq6zUltHWouk1zHOqKAratxDHIZlimADjMy5WkXggA+YVz22bXTJWf3TWwZeiOaDjD2yFLzMN3WqW9U2lg9lXzNGZOTZKbrzQoa8aRCNThPGq+or8iV8JgVdDqdG0lufmRpycKXUANEgAAAB0gaMUQ9AIUWbBDQhdrDq7TLHjw+CCdZCi7AxSi1TZzFZO5Ci2figgg0XdqPlyBpfLmM814Ws86Pn6kDagBoPumlABUm0AGUBqs2tH7GnQW26vrCLMzPGoixwAAgwvGhaEIyrZhPdTXEam28BKx0i9fC8cHORpOl7Yz4fJ0L4TvClqGORL4xBKDSPR0urhzUwBgXDtaIURWqH5L/GPGq/0P4wYwEN7hM0EkpOhnDuOlnDGaDYRfaGbQbCE/kTQ4+mH8tlmKIz/HNs8pmUcyPmcMxcBe4xpBWIyZBsc2gA0OcEWjrtMW8srMXGCyJGjo1ZnD0lUmS6Lojc6MLZXJSQj3hjNR7OlXQYunWTvMB+HcELPU5TOE6COJrhHXjqsNbCpEWpXwQWi1F15hA0Wg09rw04Q+k+ClPUuOjx1eoE9YbCPFLrQ8vCMIiCX+CmeTui7gXei/gX+ixcAFgFEANIKIABoFHBMIItxMS0fmuyIFjoMRKifUZaj6KpEXeY+cmYi0LGs8K14FSaq5QZfgji5ZoAvpVsrCqfGjmYJUMsHOXQDZhmiIxoDjhjJO4DZj845MRehbZnCLopjXy/+lVFgaSJmFMibrWZSE8RotMQXdixBglE0ciQR4Wei3ImyY+qWES3sGtg1EACM1qXUQOdnqC1MXV7G3UE5Ycj0MUU5NNVaW8S/dma8ym5bMzmThgpnK2+k290HFncw0U7Kk5YL83M0BnD1qEna5TszDEvBQhvfKcJDV4yExiCynEWHUU0WPR2ooYj4WU00nMSqWtsypnvC4QWTIFrmBoH8ABAPooR4kaWtinllppvwxbswWnuYzXmbwxvmiwxyTmM90VWMzYryRXU1rvD3cx6N1NZ3Bew1CO2xF3HMjwXCfnRy2Gl+FX8sg/b0k6o0Sg/w2e5b3MITUUIp5j7vwBf4AxMo/GCQfTGlgQPOC5gXP+J0PPDyrmNwDftZp0v3sEJuJiGKQWKfnxw/kxty7CWCy/CWfC2UJ90wNB+EGUB005WW581inaCzWXLy6lHryxzG0E1gnxIwsXpI4+WfA3EWFI5x50WKCITJtFdaIPRBO5ZlN1IzfL9I4ZYKcT1hGeHhGVpuJZCI+tNiI+LpfDKLxC3lMw48mZHoaNZH/PMBtAvCzVZEEYyNPPZGYI0yxq5bvBGQWYXHDXvi5dQxxV8DzcJzPglcy6qX8y0rnCyyVmc0Ghd884KA6AF7GuK0emeK7eE26leXL0Gcgjc9lGa8x5xbMyVHh9lFMx1Q4wqo6l4d/glNFnElNBuCHmkdByxeCB1H6eF1HJWOZN0WI7DmPGobCMsF4nQCZH4cJVh/Ju5NAvGfdxmBzBqGb7gHKxKw7XCF5LoHRWxo0smnY1THkU6MWGAC9EeA5xXJi0vNsS5tUsZkarrSyYmSkwSW68yLG6SAla0Y5k0J5mMrGk8UERuMqMlVR9RwBISB02EzN1lZ1xNlSOXhPI75/mVu10rH1aiQkMwT1iXrdXSVYqpvoWxE8S6pdXO0/Zi8aK1Y3GoS5CmYS2NXMM8snCC1FH2K0oBDFPcAxIytGYqzQXHVktXK6oHGWy8oG2y5oH7S1vmEeNQxnTUFY4Tm58PPlewa4y2BaFt2RjkIoFYCyqwHAv+A29mNZZgJO9loPF0ggg/ExZLEkEkvRJn8w8ZGankkeGSjr0gtloJGAtaiLS3gToayFM/YGTjQrwwFJALjteKDXrY+nnAq+NX1M+FGZqweWSAI8BaAAPHfQRMWjM9WX4q3xXJ41jXFizlGFi9jnWCxyTOyy0F4REDFD4lG0fiA0FoRLOG4REuw/cBPCtGW3pP4U4muOPiIoaFE7IhcEnyjbn6osMxgU4IylqxkIEAqzuX1a3tnwo2gByQ2gBHgJQWngHakTIOeXW6qbWUE4JWCU528bUDXmFwlTmqU3sFiTRgChg1X5wUrKkwgofdI3m8Ee065dJMISE4I6kBe0sVJnK0k0eSE+D8kOTycpWp1sADOnzfHOmbdZ0R1GToBVkB1BgAHYRJNG9QyAIu7f9YOmOrB6yR0zDoE4YPhabVypblXyEO06pEeQlzA46/RXgq4xXCCyqgIq/cABAFEBC80Yns6+XmEq+ocDwjeWL062WrM89nYi804Xy0KJZAsX9Cmv9rjsZRYeywUZxBhDr7sNjgl2a8JgYblAeVEfXIa8Pnoa6rn+ECZA0ALnnHgLunHgAZmFq8b10a8FVTYk/X863dmS0zXntkAvGXCKbMNtvdW7PoWTGZKapcLUWr0RgqziYNHAiK/EFp1mTJsTeSq6aQRaTUgm9UaLol26RTQTqdJFm7oVLWeJx9N3V6WT0eg4v46NX/4wxWEGyuG4a4xAtg898tk9FWsG2tUcG3uFqtlRnqETXm886XWus3w2tkgDsPdZB8Udi1ThdauTLTj1hwRnyL0dsIhTMe44TIp0xC9ZRABqY3LS2H9w9mBdhiLOHRm7lCIjIL0FeGely/E5FzMXC9tVmP5BYG3I2T6wo2uA9xQneUeWxI/bBwE3fXN6pmVH6/7Fn6+oGXomlWSG+JXF4w+Go6YQI448l1JqIKJwdlskqbGstZqcEpKGwER8i/ZgFy0b9RtgIT6QmvL6m82i1zXmjfRkNEOVKWitdmORky2AxDCqVEqgs0mEy62iLdd0ptBBDTagE02P2fbrLXEjtpiCM3pLS5s5yFolym6DtCQTNEK9Ys33da3Ll1iRQ+6xF0o6YLtDmyLtNos1Gzm2uS9qSJ46TgRaH8eYlhrOa5DmxVcQmxZ0DofiAEUcEoOYyrXB8xwH4030WES4Ojxi6lotM3nmSAIxB0m6EXMm3g3smwQ3by/dmWumlWsk7ZmE9rIdIDfWjnaLvAKxiQhmIsNsMprAzxEr4cHonDT6VdMRC9m2ULCqXtayAdCEWFXsVqGDB/8PXt7CidsDzdto6CZ0BMIFyBeoww48knOY7iCzLjyB3sRyKD8Ym8jn5GxNWuA0YnGIOQWHgGMXta3C2tG73EdG+bXFTTXmR4jPGP6zvBMq5nrZSeDz6hrhb5Cx9XUwPl1hEF1JWrt8k/RY1TP7iiGBcE1t0dBUFYYr3rZG4smoa7K2/AwwAV+AaWoSJhABAFQWUa8bXRcg/WPDninkWy/Xsa1Zn2y4U3tq+yYj+A0mzqk0n1U73BZsSPqEIEQmPwApNHEHy0y8LnYD1AG6XDLcnKAPcmCHpkhi2n3XPAJ+LKZmn4mEOoAqHYu4ffSRZ+hP25RQPwpjC70IpW0Pm9y+FGChtlGAi0IHR4rC2qy4tXeK8tWI21fscm9PH7y21m9W3FS/wkjtrkxnsLOuFToRhwBftqhWri4prokO5rJnMvIGaZegmadrxF8NeggjgaIGYWOWIIoCtXzezwT5O3FrFXshx+eyECLdmKDID228C6fXnYwIApUGimNID5QIw+wGx29g2J2xjWp28lXza7GV9GwLGF27CcEEJj5D1iobSQmSDakHjx5ItUhqGHNZW1WfnvknskSLIIT7TdUdTW5ATwIh5csy9+7XssqBHCR1gdRmstTnIo79CedhO5I+ZDCiE6NcAayFcAAjP2yumAw6C2Ss/cBwgHrXx8wNAjs+o2ja+O2Ta5O2mpJG2ms2SmFixUmco1tX6vYY6rW+GQdatVgLzrIw2+AynDzltaAs4w2voP7tBnBTWDgqQAENEKm1sCzW2jgESRlYvRgqLolvgAokbEojppiKKnIgBZQRSCNItbCUlN687DKQE6B0EhnJLUz1brU2TELY8fBm1V52sFjXqTAtokJ9sck5oOmL3Iz8zhXDvjgGE/Fb4w7WsqVKTrSKvj3khBWmjR0lVPCVrfqYUXYUqUWG8gpUmS9Slo68ykQmdc4GQKvIfTmnBPU7vJMuMBlVbCURIJXIRj2ykyPW3GmKWH23Vgx7G4QDwGbULQAomvNWJO6B2pO+B2ZO9O2o2+eHUS9q3ms3B3akO3FTVOGna4f+daeLIpgTVUhQTdZLwTfqHbIil3LGXm7UYu3DUUPzKOksZNomSGc2+SB8+CA8bayYkyxUlrxQIAN2v2/E3lE1snM62dnyQ9kmQ25J2w27nXKM+bXjc1JGlO3jX4xl/WiTDLLtwAt55ME5ZkYN5BjvceAXrRXJqrly0kUiAivTFwBtC9anJwShg05KPK1pOrMdrT34TyL+dLzjCiF6HidKkGWN1QODljgqDq/xXzM7lOamPQ9gWl03A3hu1wHxi8iA0Uyk2SC+J3as6G2K6rg2bs0t2pI49mFO3Rmtq5i6OXDEofpjed/Wqft6RTmamg5GZnZtYoTzmdpprX+czzjJdO0uUEgIzBWFMAJnBzL0o3YDx3dy/x39ywzHxi3akAgwIAFgMB2Qe7N2we9J2Ie5zGUWycn5izaW7g3aWKU1ngyGzcCO8BNkE+Sl44JXV7l4y+G+cfVELoPlhaIbia9ZFe26LmCAdbR0x2c7UY68B3bSAF3bAtMnHvdQ8nMQt1bYoJT3be3HnGiAhlNjQvhm1fpl/7YZl7e3CXfu+UwpUAB3kannnf25pBHgKq2wO9L2/e0JWSk81nRK/CBDG+9mq0T1mjhP1n6SFj3CMuNmwcfkH3CHr3jznNnfEyBBFs3+5uRLxake+5Aa0P4IvJcvaKADLmJc6yBfM87g++CHaDZG32ZWxrXVg4el7gImAhoGUBkatjnB+3N3h+yTn/e9G2NAwe80q+/X7SxYnp+/xlLLlQsfsxFmEiVRlchOKAPoOpZRQBCovJRz2z+wlN9uJe0KbjiFoaMEQXLjETSHIEJIBJ5cCMts2v3lDbWc5NwdPpcpx0vb2QWyFXCC3jnYowRnf28jUxi1/2fe/N2R+wXWNA+TnRK5Tn429Tm2bbTmObaYS5MpHyGMp5mcbTDa964tJLFOpkSbUIYBrrJ4NMmSogkgVK7blWqhBPioRc34pWcsXGmhKyE+gG9sZazrgkTegWQIHcQkaWNdaB0N3He+FGpu8iAjFF9Fdg+wOpe3uFdimtWTczD2w+0KGlmUS587q3kncnezXcg/mTOYR9X4yvLY+g02BhhyC7mUmQXi79Rm7oGWuMT8nz+enoa9Byocnk+GW262Q2XfF9WlmcyTyAuVz3d1tPzUPk38XyCbGzTh6hm4Tvu7x3go3YOyQ4OiggwwAdSyvwHDK4Owize7E7jO2sE3RmFi2t2QB5i6RXUl7VKifkz8ha9pCRW31U1Syv8oBG+ACKpLqsBG2U9LzhwNxZBWWgCTagMHSHJgA0HreVwItMQXk9FypFbS5nvlAo3q/jRoar/97ewnWVc6sH1k2MX+YwuECM2gBR2173NG0P33B2uyqM6omgB94OGM0U3l4yWzp6eqyP7lgBXhDBzxJqd8a5PGyz8L66GosmzhlKA9+0NGznwo7mEiqIViZIW6L4g6zPWUI2q2Rm6OCnKzimtNA6+VSBj4NMRSwOVA28I5kL8av6ayRlydrU5kblnlylbLyxoQL9q98YQz6KFGcy+nUOs8HQPv26sHKC6xXwgAPHYylPpOhwi3APbL3uY1sg0q+vm4O5TVhHIgBnUBcATJt/ktXaxMuRCuZmIMtw/WaWKWRDthKpi35YRxQUk2UwVxEMG7dmBZZcjr3cNCZCOmFvyPbhwQXwo7umJuwxgA0OsGs6yB2Ph9/2vh7e7eh/dnCM2lXra4U24iwhzWHkhzNXcH4bdjnQ23WYVyHnpKikV26fpmWzHoqHt6HnDVqWwpXNwLG762av7eiFXsS9s/ghtONJfXqazEkhGR1HlUVzkkjSty7z2lM2NH2+963ymMWXHgJumBAMo35o4bWJe6D23B9qVvh5D3DFGlXoO+GPmnMqOf8VI8J2fEULmBw9h3VEVR3Xw88Hr2zlcFI8p3ekU5lMu6SilKyAU22ywAB2zxHt2zpHDcdY2b4x9SM4Ai0P1RYAHRg9SGgwJC2/ZIx2GVkJvyOWx4/2uAx2OhA0iXfQYOjex/PnJe10PxqvA7PB3mHxI3B34e2+WEezSrr26AJvzUaBG23pgORRRi1zjIhJY+/mVSF8Gtm/QB0e9TQBtSnmTyqRB5Bn6qFZpp0iXPNYVKDm7qvhiLE+bHpnR1633x34HtwzUB3+wRnU05KPfRxQ01WzsUCqhZmoe3zHYO0MPiw2QCuNaHBQRFW6CyORBDlBrGGDI2tgc7isBtSSARyraBwKgNnTGW5zUdU28vnGei6lo5HAhDnQqAiEJNNa+OH+4nWqY9rnbgLwHvoncB4oxxPF858PBx8BPza6SM2y/O3BJxyTWEyJO+4KCIGa3tJW3QpPntJ4p0Kpy1Iid5XW/FjjiePI9gneJQ9CVTZY2W6A7ypqtD4w2Te+TzY6QlaTp0p2KY5uJQDR25BgEfn4ho42OIa23GXRxqXxu1C2QpKHVxe/+P+x4BPwnjxPza/wOFi7TGba8MyRHIqsyqt5OAekSIwFl5qkaTiqHEyRSzsWfGKABfG5KNskf8YRV1imlPL8aCqMVjss/WTIrNVlRUaKsFraEGU5GKrhd0xSxUfOtv02KieV7+3E3Wx/Uh3+9rnR4oEWSy1KO2qkBOdo1B3La8H2OAA+Wle0JOZypfiXGaV7lp2RVFJ+Ustlrnx0pwJV3SU8tepySoNQ3rUbh/RPTJ1wHyfPcB+EFpmKC6iBLp2NUwgXMDZR6/WFi6bnCm+bml8KhlinU6cy7v4J+yyEDkK8p4rh/543HWtoYZAjUsiKMCbGIb7b6eiPogSADllTrKC0vf5t/p6RFogvRfnIQKIMEbpdSEBNzghJajdOaY2gZCXAW54WHe/QPVc3akc0HcAdMwGg4W0h0+89VnR+zG3RKwvHGMUrO48uxAVfOyj9A0cJI/F2SZ8G3mBGp3mNJX8A4aOLgVpMcAt8HRP4G0dOLgLNWtSzmhmmhrmFZ3SMV85D2a8yqgF49kHbXtkbXDEcLCiclBz81RgRRR2GrIssshRPzDdDNEP0jjnlnzN/nFojBCssidRZED8akHj9T7SVh1GmmcoIhWL77tphDmAGK1ymSnniIZ21gTlBCVCV+COVNAWVDBypGjAczrmvEKsC2DXcs6rX46+DO7hwk3f2zag1k/CAhi27PHISB08SCBO5R7q23J8Mzt8ySAyRR9pKw48y/obp888eqAjSNqBMlK4JeWrKLYwBdzQiAbzMh/N6GS0m74wKyc2/bHZAQxoXadCVBExcMaTB5IXEXZnikyGVTiTnjEdpHOLIQzb6KLFygJgRWGDyFRceq9YAmWtohHUYgBB6RvdPKw9RQnJ60Too9CaqDXPZuR9RWozzgwZ3bOGJ+UxVAKxWfKPcBBAwPHg2xo3zAeI1cS3/2uQ1bXbM2V1zYV6FTuEQGeMHPOkO1blX5+pL5y97CRbOaGyIJnRMlJ9q30wfDyOk9oZjNxF0zkwRzBR58ELD5lORxkRoptuA18rQB/cCEBpSXOpbZwL2/AwPH7YFfWi82onB51Q0CFyrOOAALG0Zy1Pyyl1tK5OWdv0Iu55VCDF9mBqHLeYoSCsBSEI4dpKBsySWmbHnQkF/IuDs+EB882MWDSy/21F/gu2QyjPO3kH31q9EWp+64h4i+eBwSyoYS1ckWc6EHwMOzsX3Q9bobk7fA6msVLfNKVLQp8ZdI/ftQc21UhEqXFqesNVKbPLVL/jXYQ6ixjRSi00WfGHyX74RgAGi6/CY6kAjrqAVyIDHHsx0MZPDpyguBi3qWhA4xA9a9fWBALPncF64C6RhovuB5ZmFi2i2BB8vHsMS8gZ3rEvd4VcbWlhKWnQ+fDApJfC3Q3MunWWucojtcX4c7cWOevcWBaI8Wju9+mkdK8WZ0C8XMI6mdJvmCGkzp4pnaznRGF77CL5K8IaS33QU8y5LrOm5Kr5xqH54QnNLQ0vD/VMF13ht7XRQD52IupUvNqIKXNeBWr20K0u+O5LPVgz5QneauH90+sGBA14vTBvOM3SywNtGfwjmy4QumC2MvHs+t3FCzOgKIqS185fAPC5U6ALOcLAMicDaTgohtH8dvBY56zrWaA9Qz8J90tHodRKUIm8CWd0aMbEScdReg5QiI4jgxHijcAFH0x6MAMxV/SjfGjCvCp+3PlMyVOES3NWZq1qXRAFKgSAMjWBl+H8IMW9KgseaX0TgKcZuqPOSk+MunpxySp55vtuV6NgdugMiPpSXLjkRidQK8J5LBIH1vXhyvDOSG8vOSkjTnI/OhV7j1QiIP10UbMjMdgy72gFKuG1qaJiQFSieegdO4V0KOmIydnL62UB9MyoBDFOiuc+qaXByzBjD0VtRPZ2vnQ+wCOE25RknS3+ExQ5vCRIB997V87LO2rCLxzMFPksY9tYZe45Y5xYvvZTWjyXVxi4h2o5YkOGWx5Q2lK2eizyHNCiRm0HK68u2j5AJR72gBmX+hk7qGKk4vGh1wHD0otxkQMg2U3L3HM169KoMTmvzSyFjmwKavO3nG3iV7tWgZQ0jxBi6XJ3E2vBdNuaIHA3LWqVXJ5TvNSelPg82OxapTq/xFasdS7kxs7Vt5WuWdAI1i1XfsQ5F0uu/A8o3RAHSG6Q1GHUS1uvEqwWxD1xwBgB2H3fZznRtY1+XLXDg6SgN8GO8LWHvmH1N9K6jxcK63hIJtywOXENTbjJ3StcrSDTVEoBGQaoO26M1XEMCBv4V8uv0U1CRvotuGhA7Bv+K0lWgxzen7y4r2QBw+Gvy4n3wR+D9JnnAw+HZ5mEWMdMe2qeVf8ssP6mAqRu8RrV0K8MnD575AO097mQK3FPqBO3Xa8t42FyDvl0I1COykh8pc3iGKHx1RWwKyZWgWKLPoS4qvmxyZOu5z3GooxuHWh35bRO572dVxkD47seGqM2JG0q9XlMW1JXfpk1dJN2Od8VKpGFMCpWjA7cxUED2HHm+b6uXtFOtK7huCI/+WGw38xCDq6yEWDpupPOZGu2/QBLK0TgWatDRVPDo4u6xwS9qLRuz6e5XyraqZsI07I93Wlh/K7CuGhyxue47wHNVz5Qp9Brn+lzN2jgUDd/N5D3Uqy1nFR7D39WxFNiaUa2OoR+V+AfpqOOrug8q60FPk9iEKMK1XVoH9bMpn7qsALyd1pJVXAIFu5JWLZFbmG54Bozqh66ANWfzN1Xp13JFhq/5KitzuVloPKvW5zgWO58guIZ34GTs4IH1kyQW+l/sHuN7KqJ5pB38V3eXY20SmLV8MyyOaTxYlEdWpkSdXFhx+svoy9XfoxCrSBycOAY69wnZkjG5kXdHNGczbIY/NJhEm7qBBeKJMeIjHLldCqUY8zm9qxjGxyKgDa9ZSo8Yw3GbB8WRnF/Ughix7HEa0YmyhEeWgd3nWENyPFdF19VfYIAIEqep8kBg/MHHKXJopI+zsMgITNY530hAuAtdYz1Io4M/H7TTOrC1UrMuVKZRogMnMJa0Dt5je+tjAoChaFq8IGFquIXxwqugW2qXE1z3G6AJGBkaoJ3lGwLvZtXxvqM/dPkarZmIJz/WOsNQvxKBmQ3ZXqQ5TDRr+2nRqaJ/LrAdOwuK6EpPzCAJqzjsXzFwOycBtXqmWeMCAPAOhLFhhuV3CLu3F151vymKrDaQ7sGD3jUA/2+7ujtaDvNF0lttW5DuJ5+WVONekt3p1Yku4I4kXysEaoNkAwZ8A76EaKzBZAhQ5hfnG48Jw2QGlvASM0DY7tJxL8BBDTvmEuhOZ6fy86/MeB5NQXuHd+UwkU/NGSC6mvtc/pnK95hrQJBZn+h/dPvorZnweDDS4Vog96kM9pkVq+DSIrPLscWUkVWNYjMXK59fGI9Rk3bw7cgkXrjhxn5Xtjh2U0be3pJ34dtYw76bEa/DP4fGuOt2vv6kOPn0rNjnJF0EHd03vun9AfuGp3xOSk/PHxxxxqdNaCI8yB4AJJ4Y6LcyGJgiA6Yf5jDo496OVzCB9OtloRkCQl599lm/TCkodpFN4RMwibDNnSErGshDFP924yWgkuE6Ep6LxX4e8t9sJ8s721YjiUJkQ4RNIuM4zGv/NThTajKtPQtVuVID4AnQN+UxSRlSHf27QAVUBrmB+7ZPdV/HdnGQhuJtz4PmnMrozqiCmcQv0nizLK108U9syWyPruQePv148etw5/zF7lxxzR1GADHmXYeGiXMaxDU3BzTFLvN7KvuO+/Uhtc9nA9axsHUS4KABd0YenJ9ov7pwB2gl3gU4tu3lliRxse6UcIBArfS1jvIA7D0WAFkM5nBszCpop3Y3fMGYMRMwiw0j1HQqqEcJVReNEQFp3DU1ulgF5CoeOd4iWsk0RnNwzpmBt32O47vM94j2DuMDyJXvd+CiJl0Y2aj5wn6c1WS/ygbo1vJzzoJBnpZj67s56ABpzBHJLWPv+h8u8eB2jZvjXwKq4IClaT9zWGN1JwssIGdpk8++GMh1svktt0AS9RmVV6gC3LbRv/jMkRDnDUyYEoCfsNPIFwbXhGgScwBgS3gHYBsCbgSpaHwgv3jp0/JmcIQzGgo8/HHMi/NmPayYXqvu7bvxZ4KOwjxcBEa1shk62nXYozmg4j9AvfFwAO2s6JX1UJi3wTNSyykm0DwK+lOiFcbpM/GE3GV8OhVXLeAbEuCYeIJ+8zdB1J45rIRWixZGrScrWHN3buJZ9AeJNOuG1w6lpFuNuGfR+8O8F9HjCT0bmWC8wWi1x1n68xxq9HW3gLOQjxHALtBFcIYS1Sq3iIUWFK3khF0HCJAIvtkSrmN6KeBoIXm0GyqhfW7QBeAwSeFmtXvuB+/2j9wEuNAyYeAR5JWG1pSeXkPadCzfMf0l0k76Mblyl/dvRpyh1PeiKoT/uuZvxWhnyCQUwq2D+4Q9p+0t2j2oeww3+34QNshJu2uGcF4Nu5T388hjzXuLkxTnca6YeONYYSh3hdEDzGYh9Z7pz4aJYSyO2t80hxj1Zp+KJBnB2upeggyyyQ+tlHUz1qWaEf7Z99FFo4YpsczUBP+/offN4MeFT5D2HDPk3BN5We8t86vNT2oiwz/Q7YQqES+PHBDn5oRUiTCDn2Jub5y3mWOSipcsQzFU0TCWWbgysns6z+H0AhLOVvU9vt2t6ofC96snIoyg3fQXCBk69N3+j0Nviz3Ofhj8oHxl6JX0Z3B3Z8GMiy41O9MiSDawzxQT1yza2zuccef95O4VKjzZOi+Dlhm/zZNwFIzCes/HjCaGvbXEz0Mz2+fM0ItwdS/opdg2inMG4WfBl/M8NW0Bevd56fTk1geBKOvsoGUA3KzNadQGx6IIG1PUoG4FAeVEWhLt48zG6aKlgOHZSKuK8mUAT5T2ID8jGTsOf2lw7ONIO73ED0MXJu/jnpzyYcI/gxfNF6Mv7p0sX429UniZIgdkvNUT4+0Y21AqRDwIp1LDO+CPr888apVHn2EXQ0j6dbcyGIhcx5+sRXFL19ux8+C3RAJon1VxpABd7pfuBwSW0ZxWfi1yp2OGwOqZdvCaE6rOwt26NsSjI3rMTsebaddyEAtSphYgBWc3VyljxBnuTp0o0svJ8BkyE/HAXkDYi8YmZcLmwAjfYYlYzqSli1MXXgbuigWuW9kRuO+a57N+DXHN7E2E1xifyfKmv9FAwB0rAeWbJ7Ke6L/gcNDgFuST2MewJ5NvbTV7r3wJVeCLUn7+DstF09oRl8R/Ws29SLqRYALrzbBG5L+qsFhYDJBqUu/FRpNzruXv+MDXYVwJUJCfyRKlf+MRyAyGZoIgbemxRqUO84SqU2JD9egSL6KfL6x2OSCzNXB47fWtL2XmBgYi3+4p7uxK6JWbM6xfPdRU2WRN5EkdqteTG6U36gDrKtLOg4Cnn+l/rL0V9dQGU7dR0MVqav0GhYLt+8vVFrm/VWGtxOnz0b9wSVT4QvnP2vyZeDHeiDbtxmwpYAa3WjU9tSCXdhwmIaWzvEw5meLgNsgiGGUBtkCJ3VEyFepr5D2+49q3LM+Bfk9ULB5DtdFSvV46fYI5T6AO9EY9ZjSC8jVhidYCAfhYtk89suC2rzYVbCvYVHCkWB82moqRm+3sUkJ3tY3emKWMTTFeQpXs9fXwQ69q4UOW3S3PiC+eOj5GGU6wPGd0wiBdk2DeQiyLT8GxZn1k3Xu5r8uepMEPtwFMjqyafWiQ/PXQEFzjR43c9x7uH4I4oREJ2tu3lMxOPUNANnFx6iG4l9j1D9Rr9gHEtYo+qKwAhS/BQ3W2o4mYly6m9eHWt5ekNCBE2zO9Z43LUlaeMT7rX5o1PpFuHiftV7ReDDxXSz04xf0D4H2Rd6LG9QPYdu1OrtI27U1VzjibDuWkzzfQyAEAekZGaW4KL+OT2UD3RtrNpftbbQs8UIQBBI/jMdcZCsLy4HrI4EPfkNDOq1Ajk3AFMPm3G8f8GG4D5eXN6gvNV/nmyhCm5+XjRe/z0WeK1FPfNF97OrM4jXbM3GSaU2EkeCWAp08qPqslzpXftN8BZ2tMPRQKEQKTUSBg/f4ePjUCUYYgKKhgxeb3hBu5TjXSkGUj+9FyPHs1C8BvUT3mXlVyVmWJwsASAOxX7gL6DIowLu804xeHy6JWi6xMfp+6a5BSMbQfAPs1KgAsApSIZHl6yJl9lLRjbwJgkijuiKTZEskat6S0jY38IgiTpMujoVuJ8fCYSSdPiaQmlnK/oH9YKTxNcjz3S+CAsTY5wXKbC68clHMMBmMb1S5jathEYX3BK0IxZ6tytt/b8LfoZ3+2EQDqXh2FshuH+A+3TyOOWsyFIUj2MwRH8Gp9mlUApH1Shgpxxzmd6ZyqXrdCNMousHcGS8K5z/S3ZrYaqYAy9NIsPsw3B21+cy281J5ZycufZzYc337nzww/Aq2+PfL2GGbUAxggg3SHul3ofxrxPf5Fjw+a9+P37p6YQiV0Jvl4zE+xH0xAEn9FSGTlBE9ZJ8q9QMCdQGacrGe1waEGRTxhMr3B3rKtvheIM5M+zYkdRkEfdKrO1IcNEiNTkKyfH6RfkG3cBNg7wHHgH4WQn7J3NW+LftW85PBH64hRn/s0NIAk+tibqc51scADTrwpjTjYwLloN6CGf4dJEDAzideb78lxgh4wKwmpUa2S6uwMbPzMeAa8XpznkspLYzX9eMT3CBf230v4QMnXQb10+Zzz0/Qn4Q3ENyGO362OO4O0+YJYAAit57VBVYE6mN4QU0CdiEy1zHV3gmakI34RGm5AvNwDu5+mc4emLgznNDwSIKlTyhzAnjW2LCVevRv766PVgxg3BA12OysyDfuH7/2a99q3x52H2S137vMJ7/W+YccZfYOJnJbfWlbmUb26eyb2O0s4IU2nwBelAxk+M1X3IMsOl+7/bOtM1SGVUDsHNEzKefN9pfanlwPSX5A+Bh0uefT2Yeo+xAPyuQa6WaRM6ch7AO3Bd5nZwKCRIQiJz70iGKWar/Ri6I6gOmB410xSvdy+3wmHXzno0Rc33Pstu5xrQ33MX/bOhr5ontS5pB0rH0fqpwMeen6q/uB/0/PT61mon+HRNboZloQ5K7OnFj3V+0hWdnwtnSD8tmeRHNEM6ErvNRvpcjRif3wcpQBz+xgOr+waQ+RW0GIgDK+NS6mnEwGP9YysL3vN+PeiXxftfXwH2AB/L3vd0huor5MvwByVbIB4DL8fjKprlJ9ncKHYT1Dc5dzdIeeF9xjufLtjbobQCpoc2HX4bWW+lL8jV1UFpngg8jUr6yq/4N5D3eB97v+B8p3JlzTmKcl7dkzQzmTBLix/LizVnL+qnSVIoO0PyldH4+WOY2eY/dBy33t3HDbuNG2GaB2c/RT0ovMF7SG8c5unge16/wbxH8PBwWu0Z/8PVTxH2O4Rlfkzv4P/m50Qr2cCyV5cEP5DNGLEhX+lzmR8ycGYkOyXd64gy903v8XzLR0ZxyQm2kOOlirHSIhy7yhzjfR8hpLOM0bBih0uzudPPka+XyCIR9p6ox7p6ur23PhT40+f7/Uhetzaf6MKRgUGwLuWP4xe4wzXm5b/DeozXzAOLIXcv1AL8DSqS4D5Topxh+flNntNBH8mVUlXRdAVXTqsNy5Sf2FVqRv/u3Xuq9BHxc/tx6AB2sLh+lc9WNwuAgg7hnKYWMb/jjTKPxieFW30uqQ+SHwgOqhXP0OPGL6rCFR+x/Xs4COus6CPL3NOdxN267oLRx3cXKQ4jWUDAY3dkxHu3A5OZvaDygG1xluJymWt8pjkdlJELDX433QKg8uCthhbLnaycR/A9S3WsPgF90gq3dpNCmlB9W1h4TlC3qPfhAaO1vk2kTR8lAzR4myER5aPkR8og3+ci41RyZN6H29u+e23H0T+W/5o9Qi/LXwHCnHV/Ax0SfUQMe+W35S/5r4mOMx/Q9JPG+utMumwnx2w8/55OOt3Zo9sQCdQItdOP53fEV1CJw9Iim0yYisuONxxI8l3UyPIABePL2sfER5T2yNJUo9UgOu60xf++mn5ie6Q+AntSzafkSwWeQHxNf8ObNyhdyqeWv77PIdGq8X4FRzXtWfL/d1KoLUqB4xkXy8BXidy83hmLY+vnDxXsbuOXFQrBuZaaPphWvpOaBEdXkx9bIvyRRM3WSMxau+ES7unWHw8BU1wEHFowLuCOUSf9L56fyX3q26SHnsMTp0okjuI5e+mz8LL21J+3hm9Vz9MvE2tYjRW21OrQlnHBE2n6GMuc1OgAaBrAmCiKhqi/c3tZsLCmzhbOfFPwIjYjgeuXRB+oz+7P/4HC84RmKL+oo/x9xW937x9efw1PRj56er087+Ilvb13f7PBPf+ufvfx3Y6KZQnBZ8ZbRVzcnoLzlyZwfBfiUYfGj+h7LIL49vI/Fhusp6lyOoMJ1IzqB8PQO3lIkKOULgHThXgELQCSTa43u5lPc/7K+Pxy/2YW0oBU1wGg3h4x+I7/P9efsYfIr6qehQ3jweREBhSw+SrIJ4HvweP55YtfslZWuihpGIKRbkQ5gBOtNAGTLcXfqCySY5ClekNSSDxj0v8GnGQD+C9eiJxMBGEkqXxlHId6Tr5KXtsgFSZDFkimUIBZJrb+Z/5OTjNe1f6BvqqeJa4z4Iseg8IvwKEQvs75tJTeKxZBYGK0BBLVhHqGfaa5ADE0wm7E/KT8ovL+EuBUeN5jMLHCL9ButmgC18BUALIu9T4fbh0eki57BlKgJ5brBrsGv551vv+eKPoatESeTwD6NngBLX6cfs9Qn3LuJgveJnzjfoDyA6pmij1cLzLUVktEX3x8gihcY64nfLR4azKbehwAow5t4PSqmLLn5JUsUX6KuufkyrpWfu9ux9Z9XvbOo8SqJnSGZQCbplsgR/67vt6+p/4m8j8OVf7qBuSGpDZaQvcuZ3o48ub4cAFiCMWs+SCxWGKGXOL28i96Y+RpZvjy5Po4cK4BH36etp9uef5CBsimpGBlCK0O+J7h3jU8wQFXej8OHp55RkM+mr4PhiY+68CE+qH8H1D3zi0kV3hpqphO0j5kguQem7AX8HhSFxaRzqEsYwRHaoXeS2o9fFHCTQgxTs44U0K1zkse23wTtDkA49LPUHZi5B6gQqVESaoK9HqAOFRxXASASsp+fB6SxPxkAeQkFuTu6kYBy+Ts2BD8uY5G7LkBTY69XlAeGJ561vaeflqogAB2O75c/t0+m3IhAZD2Icblnpi21wGZMEQUkVgGgMrIrbo4ArT+FhSWULWyTt7syoqMlmym/iVmeeaMQB58WpaqJtqWtv7hAghuYF4N7roG9JBwVnIBfSoTYrgqnTjr/HkeQ2iszsHmP2hk1Ob4PuZU6Er+RM5+0NxmI1AkzhGgMbw+5ozOkL7PikyWKIogrh2mWw5eQIu8jmpesLEEN44khHpMV26TcI4kUeZpsuVGKDSiKLJA5ZAisLS6z7bvWNDAiIGEFpfWUCb/tmmmvW4C7nKCQu71AcWumLr3NBHyDwKGYh6C/owmEmSCmG50vI3yqfKdwLqmJKr4qCZ+y+TnMlDaYOKxlgvgXII6TAJqVKJksGkBiZ7/8kzsGoHhRqRgIUiGKJhAheavDpiWR/JKzghuF/4tfoTMes7IfNmCGXzC4iYGyAoV6CZCiAFM/q8OJAAHltoe5BZJbMFeFQFH8h7O097qvnPenLQzqukWxkIw5vOCRvJ4TMUQRqClkmfmQwoX5mHOtxgjqqZ40c6mChhQnygVpnEKIwZ6yHYeXl5rRG6gjeBbNCCc2HhXrGwAJPSlPiL68YBkQs+KeSTTYi/c6ZCLgE1CW2JiKk0KX2gSFqGB9w7QJpoeTwBX1n3GsYFNgXiY2JAEmJ72ar5WZo1+hTbdqlwoWpAzqp5Ct+Lm+maMz6ChQumIrKq2RCu006SHyLlOiKB0UlwAWJJL4DPKqMiHHJ1+byD4gQby3pCCso1CJiobDmCOTrYc1NFAXZIGkhoqfIrkUsLOZ0LGRKSwTaLPGjWUn0LOnBEAQijyOK0ANAC4ClSwzjJitHb+YrTvQqyg6RB/QkywV1oAihjCfX4ngGeAl4An9D0wvIifgL/E8MJQ4CaYcOC7bjUcU4oZEIzW8YCrYIXAQIZOtOtgAgi8wnzWb87ePoIBSq6dztv+fgYFDMjU5BZ/AC9EKl4XgUAK4RaunqS+M95aLvz+m+bxjLtWWHQodEhSOnI6urMu6dDWEhdy+UJ9QJYWONjzLu8mEjgg6t8gZ8hHLjZKgnRrNPsuYnQMlo5KFtjv0jqAwjg/wqzY0dZ+dLKWZNjylkAcRn7tvqfCPtjHFisupxZ4jndsPeI6nI9uenR5SoBUEjBb/hqWJ5aYQHQAqa6olkgeZYGXgXWWZqI2yoIMnSLTdHiud4GErtWB7Ba7VvJeuPSdbLIiNa7eojiu0FqZ9r7AvfT4SqNgv65VDO90HK6hDgKu5VJbzjyuEF5dInAgTdAYonKuPyYz4MtB/oyyrqvKOPSrRCSEO142RIeBoCbk+IYoKgBp1qIApYGEvofyNUHZronKMGJGrmqizUFunsQ2Gr4AjihuVDImBJt0iWLh+lSwWK7DIqqiLfQsrrIM654GcljoLnqjQaH+4FBTQXvIgq7hyMKuZ/SM7HrA4q5R9JsAsa6QDMgMOWIufJr4wShaiC26itjU8oKe3V7Cnkw++5ZZJr4WXfaF5hgB1UFGQbVB0WLulurKJq6sfsfuFkFPlu+krCinrp5ijbwPIkdy17YDljdB5paRoh3izoGt6p3e4SJXKl6BKSI66r9QBszu5HMIIf5syj1EB0F+Bg8AFSZO8lAmi3AuDpTBXvLiNNTBDq60wRhicGJlOAhux672lq9BU848wfWWkMqNln587J4OetzBcaJSNnDKM3yzlioycAIHQj4wdWL2HmjBbOqUuL7KNCoYwZoIBFoSwUUGnKLJDmdAXDgKwSkm7m4nZmQWdAAs4IZBmsFA3Hbi0N517gvGTGwP/DEMqY6+GJ+G7EB9Qh1+75Z4xLOw1CrckHJWX1YSOCYqH9TYSOpWyUCcKr9iwZa2wAAIQipeSkhBEipiHikWm4EdIAZu/wjYtsredmKzmvlO4GD1wR0g4L784Ga6/xqFCqIqO2LNwUlOtdAlAP94/OL4xuHBynAv9qJ2Yka9xim4Y96fAbUyl4G98CWej0EtZjiBmr7GXiSueoB2Hgr+GPqziE3illhLbJ9Bq6wz4BxyRehnztWQTrTvkuyg8RAfAOxsqxIuAIhadR59JpRqz7Bz3IUE0YriQFWs+Fr+is7q8ywdJAlOKDRGDof8Y5C99IUo8QR6OpuSzq6bkpBeG16S6PkSWLoX8vViSAzmtGV+9s4qXqxWdMbrBig2tb6l/pdBRkG98IhSwP5tls9B+AFMZnf+A6qQTjhYQXrXtmBB1KA4wfyu/1bhShl2LQyAAa34E44A6Ius3uZ8kvMcHKiCkm8CUe4jfkmgfnBDgUccqWoI2pn2pgEmiHL8ok4qYtOsC8HqjiDehTisPkRmJf6xVpvBFCE8MFQhujZhAVJGte4vPngUl9LTCLWiZ3rQRpJgBZIFGHDBA0H+FMYUpSCUpOl2g5KpoIacnRBbkpAAM9aMAORS+pK0QHISjwiDoMaShA6mkqtA5WCiNrZqXCEEDgqoz8GLGMBQfnxYqtmCHbDrSHyeVWrmiLXBOuQ5rPN6pRilpMae7d7l0E584FjWuG3gzjj9IHRAelg4tEIYGpLrSO+aniHZxoyyexZGwPSSgt4dHlsGonZAflE0f35xwWeyCFJLktDez2b8PrQhSYGxkmABRKAOIdEgE3DJMGmSgQgtkn+kulx7UDSShYgDehRg5vj6PsFQUvRjrkJEPsGbljZEQfg1SLJS0qLLIcCqlaAKqCp8G9LrIfGA0xAqpE58Fxj2RhohiNbV5IzGw7CaQMg2/SEvspNeUd4MwcxeSgGFRlq+DCEsZhL+YCHARJu0zrZyXpxeg6qpCGA2EoJfOHxejRACXqDCdwFFTvkBHR7Y5h58QQYCBhuuXyHtcj8hSLZzFveWcd5Bvkb+1sS20i3+Y5wk6g0i+sZ7rHQ2XjRndNGKaOrPNhEISozOXqus0sFwcKZu44FngMVBZv5iRkMWqia6gaWWeKHTchfsoV6kvs1OLWbjHrB+XWZgMnFeoky8NjVeHkriwRk0y16gIbsAxjas7KY2brhoIazeFi7kbm+4XOoONiOmWEw3OL2Yk1KyRP8yfKElZl2O7FYDxjwG0CbIlqKhPPJ/PBKhh74w3t7ucN6yoe9m5rjfQFw8SN4HwijeWqFBYKio8eSqGMckOsowgM44OYCBRLDyAQ5GYudMRN56kCTeIKJk3stEKgzouD/BrzKj1o+KaAL0qqNsU8o83ubqI6KW6v+u5uyh1A84GNi3NiuclQiSpldsBVKS7PyOX35KXhuG19YiAYEGaaYuoTpeMt7T3pE+ET5jIYVGPfJQ6iZettJnwWTEi1AaIYtGjp4cPjSGtMbRht2hkd6EobLepiHlJpA+it4QGsreUzZeOvioKNIR6noU0ep0ygnqBFpBTJNQJ7xYQGfID44c4KT0l8zgxJ+03hQ/yF7eDew0uMg83LYlLMo4BU7vfvcB0rZtLkz+YkYMxjUAepbi3guhGsEDIfRevaF6XjHeFL4koZf+zTgGtvbsEvDk0iyhxeoWttnc6XZI7MZcVgo00ouQQ4CSvl6wEAKgpC7qsl5NKLyEi+zOHE2A+MHWfuLORMHhRrnmUJBj/FoeWq5jXsf+3JxbwRia9z6VgW/WAKHMweWUnsJ89C4AybajnKm27tQJdNbocaCT8hEkebzfAEAu6rR2Xr/qd3b/Nh60PiCDcscgqT5OvPsszFIv/ikgp0idwBJhGiEr8KEG6aaDosNeAQEbweQh8cH1MiS+h74O/ryGTMESVrGSmRxBFIXcasY2WIcaFY4kWJYeesgjYEiIFD7+nOy+M+6bwDkAFZBG4JpMRbxWcjO8vfTfhgf0GiGejojWC4SqJhw+HwHSAcwihiEQdp7uIF5jHtxhPgYrwNSkxGQMGpKQhKAKYGwh3yD0qtMhDUQBBDDo8JhaPts2TPTb0mzogrJGcn+s+Ni0sA0IW9IoFkTid0LmJOwqRED9GqpEv2CCkLuA/4zOUiDiNTYRcjfAlFZdknbgYUx6QvlBImGtpPywTSHeIbycNqGEFgq2L/Y6liQWZQjBPqBh3yH7vlZh//bqoP4ueUYwYS1+OWHHwKNAE+Lw0JMhb948LlNCViGu7EMBrSF0MiFSxwh2zBCkW45J/tuKD9LWPtXCikqctBqSHL6HQiZsyXZtinkOWfaHYKaSL9DhyGvSpoBRGnjSmjpEuE58z9DMohaSK2Gq5jsmE+Y8BvzGaADMYYEBfmJsYWlhwP5QYaJWCgGFNmdhsIASiNDwiCS/SGS8VLwr9jgCCv7pPnpy0bh3Qf9BLRo+dNDBE2ZDwBicLARLPoweyHYPrFDhuF5ZUEgyoHia3mGe8jJeVmAyUe6IvrMYMYoH4B0hwt655h72JAAzVBN2M1SLoa3S+2FJBlKhCnbIgAvG5OF6oGswODKJAU8IIL5ISgEhbiEyEoU4u6H6sg9EM6pmiqDAFzKd9O+BOkxL0uH+5GBhxEzgVRbRSHtChW7aJN60LOEAMi30vRD9QfTeJjJcGhlgQjIiMvHCiFAYrKgyotQtIeIyEAL2crlS5ayXEEtYtJh9mPIgIR7NobYOpF59xkvBCIDkFso2VU5kIfjhqWELdiZB1mGRhtq2vgEG4evIHUCjbIfED0Iunoa09EFmtHfef/BeUtIwWCKMIEy0qkQkQd9CzyCsuJGkPHz54vQu2zZ7mH6u6zD6YZIuogDgJmuGg6KmYclh8JIWYWA+HGF6XkYo2rYwfvaWOvoa+OAyzqZ/oAi+HXb09trMPkEfpm/CETKGFF9BfNZsUGTIrKZ/BH7ORNRLsHchX0DhnC2qFJJ+cI8aOfquPo5eQpaUYW4B/PbC3r9uM1RBBjqWLXSdPixhR/LdDvU8ScFWZiXW8N6mgRWm/aB+DuhgMfZTlhbYgQ5xInh6t7LfvIL82aEGAc3csiHQQVUKztRcgsUuMKRF6IUWeFIguNTKEn5L7POBe6Tyfi0MbMrnMr9QFdwjpL2q3daYUmXeOQ6QJHQqBQ4yfhjog+RE2D64GiHJ1r4BqaYBPsNe68Gr4bpS6+GwEREW5tYefveBrk7x3iMOhiI3Ji26dgGyuj+ykX4KulaSMX6yQK3wA5oJfjSgDZ6hEru20FREsvoqHtjFEJa6RSpcsoEqrEIaBG9sRmS8WPzigWBMbmpBTm6/oXn+VQAwtrNGDwAa5hw+muGvskD+NQFADvXuDQGTLpCOkYwBsnGaRI5oPIZ2Abq0FKmy7EA3fvCO7X41aElCsijaWOWc3BoaYKD8z4Rjfpxk6qC8FBayl4CIRk2iwFAwPAwAuI5jQCuAZbrCIBW6hOAbLgg8FjaZuit+GDwB6j4aL+EyAFCQUbKHfpImvhEPAa+eVH7k+NXkNqBT6ElsuOFmYRXhihHjVJER855mQeLe6hGkoU9wILwWfvrOguaQ/vuhr0RDrtmONbI3AXWykfhh+p/cAdAY0NAAGNAcALcRYXK4kKwAvhTfBN2a3MRY2rCBiSS+wJCBEZCyIGx2cfJ0eLWOO7o6EhfIOFZfINyK67rgIgDorZTqgbmBef5iRv92G75EMFqu4RHQvCsR095XpiThMRGbEXDyyRQzjgUUdPSrjoQA645BYGj+/xrzjlw8i44E/rgADsipFNO6GRQk/jrKOszbEQWyh+KAkZ9SEQCZ7grheCGtoaxWPS4qAKdmUBF44QYgBOEX3gxsfP7VgSWGLHKgoS2A1h5BMpy8hHzDvLL+vxxCvNtalrihELxyMrxNcoq80bxNohy45HIWEINyykai8Fr4ev7iNjSOWnJ4mqqU3LAnctta+SQonl+haKEFZs5umkHr7ozGqgDwgKiWO6Zh3hdBixFgYTNyL0Ke7jZhWYbenrBhjjjIfjCAHq6AogthhxShEHC+JAAN/iLIRQTJQMH+gcr/InEOEhEpuI6huwbpWKuGKJE8/gGRRJ4kFl7OWWGtfu9mKEayMjq8rrxcAItQEMimclJhwhIoCDH+IZLgwe3mhSGloNwhRdbM4c9QPhIdLEiioDKYuFn+17Z/2LCRLpEwHgEG2UbaHuqgnG55keX+BZFUZvu8bZZGgaGR/+RiDh/yif7AweUIMZF57GMiCZFeHIORtLixuDGMI5EalvqW+iisVuiWmkCkIfoh5mF+kfmRbjJEnoZerUEWIZwBCjJNwMVMM7yVkRaR1ZFp0LWRhHz1keJOTIDHwPNBOjIp8na8UIL99EP+yUDBCNZyr8JwfMNOIUpETlIhk/7PIZoe5Wbi3haschHl4cKRleHA+tQhCBESkcZkwKHdFCNBaAg6vh1gdPyPMqp8Hehk1v6y4rz9it34KRTHJC4WesjqMp/Q8CAPLFyOinKqQFpYvZJfznK4x5EIlkYmHY5octPmRihSAVhRrGE4UVgBjF61AXmGAk7x3oQBfnwo/KQBQ3xAUJQB0IDS0DQBbpLOZlHGIvIM/O+Yu5RZCBwBeX7gVqqcj87CeNJiMi4aIXnmrFaXkVE0/LyevkKRklFLEZ78PwGMXhUmbZYlkSoB0QH5IWz8qG6aAZxkZoqWuFxaO8D9CNphWfbisiwRwjiVCgjyyvyetN98qVLSbkSiwIEHys4wYX7LsJUsIHA9AMuwZVRZUcuwz+TVeEeRYxHoocLeXY42ngEGBtaEZt6R0BEikbhRJiHENs1+hUbeUXU0MQGRfFiqnFL6INf6LvzpAU0CEjiw6pvAL94nuKbh0NLXJCSKAlGhVuEAhGa8BqiAyNR6IajWN5G7YcHyXeHwEaJWjVE8YSksloHsytIh3yCd8lXyreCVgK8AIibBwREIwIJM7Bn2LiHFXERR39ZkUfkgMeaVjGOWkEBiEn1KJ5pSQcyeS7aOgUuiMCTuONygH6A1mvhgGiHYoU7OqgDHgfMR8hEGIS5Rt95kIBB+096g/ueGS5EtfiWubZ4+IvjY4fK7UQ9izhCi0MhS3ySVBgRgjWJRItDgZKJnKBUOy+Q73OzsUNpi5h3gtPQsdhEsboJV2sAAHoKt8OwROsjSMuRiMMAxYS9EK/BRRmeRYH4VAWU68YF/IVyGUO6UKviBms6hThR0Blg5gsbORAoFghpKgxjncrVAGiFlCNQi80bV5ENASgCYlmU6FYEtQQM+WJHLkW9BgKB1gXMKwwolLHU0ydqt4MwYHjRRllKI5QYdgaHOEhjQTH8afsI35lycd+ZoWHhESlDg8n2B6sYI2h+UjBoYihmk1aQK+n+gsRCBGk8SpoHpdtEKcHgHQhxUJFTtINuBr2IrIGsgP2I8Kl9oOsoaIVfWRDCDxk8A+eaxRhrRAnpXgRyQXJAIbotwd6bfYEJO6FDJgF34uzaQTm56X3ogii6K4IpTQJCKTLTQit563aixzlRiwZq9UDxALOBFkjaK68i0ppCk7WC/zn46OqCtio8kiIZ+wKNg77ZsAH0AXZKchL/OqkrRzipBk9H2FmuKfjb5IJgW6YpisC+gKSTwTh1gwuKGkDBKpJzLzhoho8Q61t9EgqFCBgx+TlFlOsMupkHENrrR4yGOOAsKIobLWpp0YCSOQVTqSVJAIcTQw1gLipSofL4HFpnCOoZM0DnCgUHxBMFBRcJp+NPhHiZBwsfCo8ELwn8uCUqJQfrE7NgDwgRUedDi1nXg4K4ClpDQz8LkpJAIn8KzvGjhqwZ99l32UUZarr4BK+ESUWU62sG1rt9KBsEC0cGRdmFZ4K9BZUhmwXVBjq7rogvgaBEdJFfBnEHtrgGWXa6hwY32WIzplgWi2MEjDMOuIxg/JmOubMqzrtegqKInjgYkUl4CJLA+gXaaODoKMEZToUNAKbiTdkDem6Z50YD68crXQebB9UGWwSU4D0EP0bG2JZFChl/ERB4fQQgsMiLfQb1BwWLCjK4Ifnq4eHbB/DHCrveu9eCqEkVinrglYtWihvoLlpEOMuF3bu2ucLJ4OGw2wdDOJCFRMjEa+NJeuJLnyqpBDpE9XiVRpF7ppv4Bw7BoXBuGxjHs+gB6icF4UQp2T9GAoZi6lyhXUSUOyliU4PNqf8yvaDhk3ZrA4kIqUyDjwXYAPIDVwdsgaFS5qigR7EB+sloISEFDBqsg/2JJqqsgHFiibppUUXIvIKdsh8R9weSoA8GGKmDi/ZLg4juBE8H7YhbUmO7TwbziHJqhEvjGr25izow+GkGlTpfWiNZ45k7y4gGFMYt6FnrbRtXhB2HotgRRvsBVcHDue5zSkXPkTKaWNnfhBoaZ9kuyOnwHnPsqrMKrcNp441GEFuMWheaxlKSMmq7kFlcx09qz+rcxgZGroecma1H2YRxqIsw8aiq8SLjXVsb4t1aaQEUQtaQaSolmP0ZqzHm+DSjizGcIX0YyzHk+qMadBpKAZfZRXOJQXXpnKtjuR5z4yqyESIgH9hrwita6gAcxQp7izrZ+o5H+Bq8OgREDxqSM7vaaXj6RbPrXMRz69czYzFRmZZ5W1uUxJ0Y8OGdWJarN4ci+EPCDoBEmMPD4io/iGgEgqp569syO+BcqLswN6OredO5Kqj7M+KovtqusWMbXgGNcL8aBZE708cxFURkxNn7OkRqWvoKpaEYocYZnZudBLGHXupjWnGEKdhsRetF5CKVsl0YkgeOmP8x6kfBUOsY/qsv086ofWGSwOR7JqiwIUCzGhASxlna2Oj4woiZrBFyokAgVXN9SVfJm7iOQWCwS7NWIVu55RPExIbLJQJQusMCyBEIYbCTSwr7gEXbeIS4WGiFUXkNA5PhRwOPmc1GGmvnRlixV7itR3u6KsSixkpH8iPf+bzGP/gTW20AR7qY6VATEalMozGotJMnuHSA7zkpOFSxxoNUsCk6yah0wsmqK6P+8ergxNAhYFpi3EM0k4ToW4R+K1CTHPouxGiEAdr+2mibfRIzGqaYwsXfaBqoe7vb+iLH8bkZez06datxqLe4yTp8xAmrgVJIh3IIZLpC4AoA9mJfiEXo7fBQk4+7NLKBiKmoGuoWI+k7wVIZO0GDckUz+ZQippr625VF/tjQx15EA+kUx99ofsYfuXs6DoUqxaHhRatfuz4SZUApgK7bIdkwCqHjFLExkURo7LmucmLinoewAVpjeRB0wQB5FrBswEsz5aoVqDvrgHg4mGiHwgGQWHFaxhgxg4lGEcZKxsLFLehhqR953MYdGZkGYHkLRKSw4HiWqw8CsoJy0jyBkQETWkigIAAxqmoDukGZqKyzGlHrIlmrIwEcsUHEl4hF6NljRbn1A6kYcHk5q8QhEuAtOyeLxfu++k7hyHoNOCh50VOtOZUrC6IAReQFOkf4RArHcUB/22L7kFnGGr7EXeigcvyFBsQM+djHNOD3hHF5/hIZ+h8iHweSh1Ji9hp4wtUCurgoyzS7kDAlSh8hFLNTqWRAIsiCx4Ub4Zsg2YBF9LjUACXHI+klxy6GMXv6+905d9m2+CLAF3l18x2xAUH1xrEJ5cTTA7eS/bEiG6baQ7DiaSOzGTFtenzHt6pdeaJDoOLycd3D+QM2xrd6YnHOY+eov4JhxARHOoJEe1eRkFivwLXGd+pDecrie7nk2LWYFNj6hriCECNNxBFpNmO/KuPT25LHOcNQ66gJoRMqCthJimuxsOK9hqURsWDaxrHbSMZ1EixCgDO9xCuzJka1cKGDTRPOuHpg7NryI6qH2tpjGJ1G+6ttStfb3NvxEqKGZMYN27O7C3omA30QA3huGqTYncXCxWTZQ3sD+GWEtvhi28N5YtlnSDMoS+u58Sjil+Om6a2Cx9vwBY9a/UObedhQOFE4U4Bze3hmAHhQ5gDAwLOA4cAAA/HkA3hQvcE+h9hSqTDWyw4BF7GDEbAD0tgLg5UALgNBQYOhnfhXqpDFyttAmDGEMxoXmrD4k8UpxZ3GLdhZm4x7BsRRxY7EJ3kTSSd7iROehZ8i4WodiVkCiXAceS7ZEtqYOe1Bl6iUYASxHtrZErkFcsSwuE4DN3g3qseTN6nn6BqHx5LzEPd6HXk64mDDWUfCAY/zIlpGGvgFJYbQxA7HsYabxzDHlJpbxWeAoZByY47HKICCANFGoAAde/gg/MRpuNlgfaNZqhbZ+2kaMbJh2XnrI5hpAlADmoL5qYOeY3/pYgs+a+AD4oACoXQAfQNcAtBANmME4DN6HlIOgMZqnCKGmTMgopEoAKrD+4B2xewalltDO6aZocnJx81FEcVKxAHq9PtwOnXHV/idhlkHlppkcmD49ANm2H2L4qBg+aIpE2mfabmExDh5hBWC4UDAxocCUQL5hXqYIvjiKJ3IIvr1OGiGSLkpAWpZRwFqumEBG8TcxGfGqcVmG4T6iVixeN3FpYMro/8BzyCl0mxakapfOo0CrQAsA/ASt7pfxmUAIQAcoNmoQVnChQhqyGt8kE2xJkA+sgGasFDQgNiRihoo66ay+Gk3A8hqCpoUaWIpcJBo+GhpumiY6osB6Gq/6FEqFsiEy3Zh0/FYaekQ6KqqYTfEEDoxY5piniu6wfFAGQM9umSxvbFyRxVE48ULepF6i3rGU0CYqoIzGqfHycTraiXHACcMhR2Fy9nvxHAakgK3Bnor+OgFykr5eWFd88AhQWh6I1DoIPNlB9AmQQssoOmQuinSe+QA+fsJgrFwQKGisybohYEIY0dba8comgoDOoGEGJ0E6loAJ0rEkmpvhbp5j/Pk2OfENUkrqDRqgYEV2csgQMtWs6XZYUApO98Gs3nMxq1pWCXTEq7E7lMfAoK4nJJ1cIxpyDuOkJz7O3mEaboDP8VmA/gnlMCoA0M4djrsG+ihp1mEJm/Ha4VJGpOGgXqOxbDGt7o0Q+PqQ+ke0O5BltOlcv8H0koDh7yZ84V0sXlbt0M9hgtJhTAAgDpqApiUaM4KS4XXCXZKnjvgk+nElCQkJ0jqHJHUJ9SCL4cXus6EbBpz+YNHXaiYxxpodCdzGGubotjnx++GqvLKSQCg1Cf2cEPIaSiFgruChRKua3+JM4EK+r3LPdnEyBCzBpk4JnL7bdi+Qmn7VJDNQjNA8qBwuVrbj7BCaNUy1ccKONz6paNoeLODv9n2xpTrp8Z5aHGDDsS2+yLFqngXxSdiMIVOx7Gb2JMCKGxoQivOWWvgbmpvALL58gF3RiKg5mkyKcZruiv8+IsBiCXMIsXSaiioy0hoeZi6KeWL15EiJgvZocsiA0XG0hrvuvNHYiZlIHFrA/rDReYbw0RUxQk4WLrKR3UZe0cm04mLK6O6KFXS1gLHO3TCr0MQM0hLeYZkgVATjgdJhNl57WJ2YBOyzGhZ4fH6hEB180tAUNhuyEPqHqCohJV4pmnZkp/ocqAAGGvo8sQTB1GHHMWb+AgZRNNqBgnbIkVKJlwkp2rKJFmaJHo7+iYFNUY/8E/oMWrU0Nxzackfgls5dMCGYnBDyAOGazKLojsRSERr+CPdwajGxMNYKafjKiquQOQhcND9gvITSiu/eOYl6jIKJX/HSEdnR7Y7qCWvxCnFvsXga0YlOTndOnp5+Wj1xRqTuioQc8bSfTv+UVQ5LCeEkUHghwKCBOQaRBNyJ2OADmuzYHAkgBuTQy4qohJKmJmphGuoytSHl0EmJ60AuMnaR+5AMYOswLIk7MCEh8ZxQbIWaYRpXHqxiFzjNmgheSFiRuCdgltQ1kokMbGKsjg9QD2AnHqzstprNGi82a+I67B0apK4dEvUsOQb61HASAwmuiS3BNFQVOpJAGmQMAVjxbrGRcRqWmkBIpjumZOhEZphRGgkBsfraeInnhmlxjWzVMQ/+ZImPMktI/pC9pOBkoXb3mMjAEKgdMAqmPyYHnDEos2aDrjJmUlym9hSSAtIaiTfKLaQnQtX24EYlOMKJCi7Y4YtweparhqPEbQn32ge+//ZBkYYmrDEEAWWK2OAOZvLo2HwVcX1QivDZIDr4om4shLLmN/YNWlf2lEA4XLEAfSaUVk6oEjhYDh6ILNQZvpcYKEEkrABkeMGddo/hrB5JZpRJh0h5vlT26PG09qfQSygAXEYqRo5QMm6mHEkHCeqOqK42nkYodqT8xpJJ4VqNvqS+zb5JBpP2NPEdvvwYPGoMGnxcxH5s4uNmKA5q9tNmNaRGvgb2b7gLyENYg75LZnv2eFAA0b6CaKY3PlfW0YaYiWdK0onSSfFJ8olyjoqJlHEtJvva+vhNCPSuxMKkaDIU/1q/ZtLmk5SDmFOCb8heXIqoFXwKMq++40KGjkaMTOGoquQOaH4dpqR+nEEI5nIJiuYeAUpe+ebZRgB2B5aX0eKx/rH1STFJHqFQfi2+u+EaEfB+eRSIfnpqq5GgEkzmkoELoLIOkZjyDreJiVw4fpTaKg6ctF7cjNpkfsVcGg6ZXFwaj5pPLDoOhb50qMFJECaGKEls+PHJ1lFJMDoPYHA6N04pcWD+BFGFevU6WDpbUYve38gYEbbAuoDZaqXIjDr9Oiw6SKxOcSweJ7gqVtASvIHbUXwQ23yhLOw6EHHQWi9O65RzIoRUHbH7BuiWiYDDXprm0Ml3anBJjk59ofeWBIn41sTIUEkQUFBQPQHkhL2BJ4mOnFBWrgiPJCjqzRoXmszofSZjpmOJYRqEfowmlpAAeBl8sjr0hHCQSQk1ems0reIHzlesFhJ7CVUJxyTAceV6oRDnOoxYeD7iDo8yBnGiVEfgwsDOOCKudzq7OOcWkbHpHCk6DnAnQuSYlWAykKawulSfUPeAr0iRCn0R8NCfvgIezSbpOm9+hzENPu6xCJZQgKOeMxGjFsA+5wnr8YpxQAl1TmiR2tGenogRmnGK5Kq4yLpQOJMy/H6RDNeyi5bCfmL8on5EugwRLxYkCWTszkScYqIxqqGDpgIRqphXCI9eNTa6fiBUZlFEnMJ4LxAGflvspQ6iERSsL/LQjte2J3Jw0rUOq0n27hieOpYDtjaeLOCBEY5RCxGdiVoJWck9DkSeqhELFkMWmLYies260jF2AeXK9ABmEbEx6rpDcv4Sajpktr7UdJ6dVmehwSIaTgUYcwEpCg46VMkdhmVe4ogTMZAUVUIRdA4RHLJOEda6l2I1cTPJQVbrSUz+k3YEZtnAKgCTdidmnMmCevV+mi7U8eAJ8kkPho6O/hI+sh+kklR0WMqy4lTWjnqAWRH8sOqybwm73AN+xRGwge3cDMArSOay0341EQIC6I4iFLjgdRFFuo6y8KwLfnVW3RFT8kGyj1FA2k0R2iRrDm0RRkB7fsFJg8YjxGth6JbY5mcJafGRiflU2clunixeq1HyUdiR9uZMki64L35QfNbuQyxraKsalJJdLKDaO9L0ADwUy3Dqsud+b8iXfoSEBClAPKG6SI4ZEVWyFkQu8edoao4RIE2ot1wIRAgw+qRFALkcMWEjxLwGrw4Mxmw+frG30dKJbn417tEJLWZocoOJTDwhlM+OZTbmboV++CobgZD+YHjHETHIpxH5jucRq/paoO0BUDw8IdFRc7oWZAu6946UkhfItJGbjkAYPoDlDtoW1P5pirGyh45dsgBobJHWvn+gB4G7cQKx/CBX1gRmOpZaliKhEYnEcUD60lE5ybyGiil0IUJOZUjFrOIgmmGS7o7wgvQBepn2qPJm7Kl6OPpsUhl6knKpAVT6Y3zsAG2wlKJQSWMceGBDACRWJNAIsFBJzhEuYBcwe5SjCS8gfXoMGDKQBj7jfAiI1G7Hcs2eBRgS5EJJ5TDv9sdmsUYdjummZeE4SdKJ3fr4SVJGJZFAoa4sZYZvMcwhnEHJ+t5B5GBBYfnOl8qugMBk+r41Jr80Jfrq+mCAxAEvcsUEFfoaUUP6pmB0AUWkMWHJ1nFxqaZ6liqgcClz+iipoXjQ3roJa6Gn7oip3YYriWb647jxOnYideD2+h5AnTpb+t/6jNGlCJSk0hIQqdb66TGxyUIBwt6kjKoJLOBoNsEGqclSKb0pp+p/Kfb+sYmHRvoJb2bBLvSpvUQXrLhMQFoyPopQEskU0GAsAfozQHq0C+CBJDTE3/r5+hfIxlzknNVe3/r0Jve20U5LfPyp7rDWvm2RQQgRdJipWWSPGpv+Pj48cMYA1uBwBmwU+kAcjJQu3uy4YKQGK4TkBpeAlAaqyOgGAeB0BubgoeCwBumSAoAAiLzkcloKBgwG3qkQAAtwuebRhr+2o8TolqmuaHLlTlsg3W6GKIPGxmGPsWuGUYbbhmmpsAb7cWIBz7H2wH4+Srallg4YwxYMADSGjp4EZlPoQgbV5P+hQ6JxqT6pgREtdLFGaKZtqcEGi3CaJo90dIaT5pW+fS7v9ieWLQ5bJhsG1akDqemmVIbY5siAQ0CbpoERo8Tv9tXk/ik7JnrW8+FQzj9u2h56oKHg4eBQAAmp3sAOVGYgclrxQv2pGamR+NEIICBXBMTqZPwEimmpBgDLsIq4WeBIALYAEwZ0AM0YOQDklHQAa7zbMZ8AP6lIAK8AAEAI4OjgYGk84hBpv6hZ4BfwteSgUBNYSwZMkgBaJSYrsE86p1gsxslG5aizFlwA36m/qKRpp1gEACwSvionhlwALqC4aUhpX6gk3EWAYQBv5Gu8QJBkae4GuGkdiQhop/AysatWxGl0aeRpGjpUaWu8tGlkafRpvASMacxpqjgiabhpHGlkaVxph4YZSPom/GliaYJplGm8BGu8XqACae28EmnmgExp2pLSaVwAqICyaYhppGkKaQUmR4ZE+NRpOGmqaVngFGkRAMJpXABmJtppDGl6aVJp46IiaWUAJmmcafhp48aHJkUmKmliaXZpQmkaaVwAGCYuabpploD6aSxpNGneafJpvmmIaBRm5maBafJp9mkeAI5pkACVJhFpqpSSaQZpHmlGaWxppGlyaWZpCWk8aVXUsejshilpZmlpaRlp4Wm2aa5pUWnuaduga7yMQHFpJWk1ToNkRGk2aUFpNWmhabCApmnyaQ1psADRaYZpxkBtaUhpAE7Sjv5uVWlIab1pqpRrvM5p9WmRacNpTWliOJ5p42l4aR1pV07A7m0q1mkkaT1pIWnzaTRpA2lmaUNpI2n5abCAG2lcacaWjUjKad1pqWmHaWdimmknaeJpOWluaXlpzWlGaQsAV2mTadtpZ+p7adppc2lPaU5pL2nBcstp52mfaUCgP2lbaYjOMvZrvPtpD2nqaUdpmWmg6Tppb2mNaR9pa2kFadDp3vYDjtxOkREzaWppDml9aYtpQWlnaatpdeRrvKloOOl+jhwO0vaVOgDptmlA6bcQLWmo6eTpmOmU6WFpNOmcTvZOS8QBafdp1WmPaSzpYWls6eDpFOnWaVUA3Ol2Tv6OvcSG5oTpwWlI6cDpyhai6ejpK2kc6dZprWnsaSdp12m/PMZBlWkC6bNpQunnECJpKulnYrlpMWljaVrpPml1AvIsd2kI6YLpiunC6VnApum3EObpo2mS6Vbp8Wk26bbisrHy6czpxunHadlpZunvaRbp32me6e1p9b4X7NNpBulE6elpJOku6ecQbukXaaYQUulfAfKebeGM6QdpjukB6eUAmqBB6a7pIemjaVKgqell/n88pHF+6UbpCMBrvMGg+emJ6YXpF2ke6UVp2ukYvI1IOjYV6dnpVelcAFppS2mq6RDpWOmZaSXpQQEV0slpMekK6cTpyOlZaT3pwekY6Rbp6qCD6Ux+Pr786fbphukd6TDAa7yGoLXpCMBJ6ZDpYelN6dbpkelPPN8O7enj6UrppOmDaWLp6ulU6Zrpe+le6QfpNHxzkcfpcenI6TXpU+kF6TPpo2mFab+oxWkTad7pxvLVAY/pGWkb6a/pdenv6RdpXmnh6T/pd+l6AsjO8OmA6ZXpa+ki6ZvpMMDb6f3p1+lf6c3p8zIQ0SUxsBlM6fAZ1mmiaWTpF+mh6fPp2FEQ0UYeABl9ae/2Celb6fXpkOnF6RAZm2mdMreRQNzGIRQZyOl1aYQZveni6evpJBnOUcwZbqFTXmwZSund6ZwZ0+lq6RbpJkC8GTAR2gmZ6YjpJ+lO6aKgSBmIACgZnOnlAFIZIpEeDkIZTuln6adpRBmjaeLe6hk4Ubz+Whk56S/pohlv6eIZH+mGGRDRdVEmGZ3p/WlKGSoZ1mmf6WCUGBl1SdIpXWnL6bHpGWkEGefpXBmX6VwALhnf6YwZqJrSKfCxshkO6fIZOem+GboZ/hnEGQwZXGm4STJc+fCJKjgZWelRGfYZMRmvaWIZfemqGbvp6Bn76aEZ0ql3anbpcBmr6RLp1BnIGbQZ/emN6QUZt+lFGRvxJHFDsREZK+kZGQgZzumOGdUZqhm1Ga4ZhRmuWhnJ4Qlk8edxLRneGfHpnRmgGZDpGkC8GUkZRyZ2Ge0ZihnAGTQZExn96fkZvRn1Gf0ZXYnGmtGJcxnWaXnpixlVGcsZqhlBGW4ZDRkDGZvxI+leGWPpT+lK6ZPp5hkgGZYZYBnHGX0Z2BpnGffa3Mk7RjsZa7wcGX4ZORncGVwAaBlrGRHppxmbGTbathmj6f7p9hlmGT8ZFhm5Gc4Z0xlBKUfp4Jl4GQtplRnKGV0ZuxlTGQkZ/bFhGV363/rJVp8ZXABQmbEZvxkBGVnAsmmKuMVprc42ACbg6gBUQPaA8ZEUAO4AROjYaeBpP6mdAPEATXAI0oFk1mmccLhplxmIiJEgrzBrvOH2FOknoOhpsCbaaQsMZIBrvFOw3YDaacwhfwTQwMKZuRkj7Ge4v4Ab9FagjwAAAKQ8amGAQ9bSiIc0ksohIuD0OYgHwqgAUTSamVqZk4baae2YwplcPNUoIgbaaXEaHhKcmWvAgplsAMKZKGnSaRtp/JntBO6Z2GlZ4G/gK0hFKA4AHlAI0o6ZtmlSmdZpspmo6QqZbsDCma6Z4akw4crYkIiQQDqYjcId2Jegl5RC4XB8jAT0snF27nKaABGZQWm2mVwAWeD2mWmAxZnyac6Zl5CJmf6ZwpkZmSGZrNAYgPicl6BcgIgQDBm+mQjS9Zllma8Ag6CK4LGhCRBzgNbYiIhVmWZpUZkymd1Acpm2aXGZFmAJmVlSi2ETYKIADQQaAadQK0iYiNmZzKK5mYFc+ZnrrIWZ1pm2aaWZp1gVmSKAY5lIaTWZEQB1mUKZZZlEYK8AUQCDmRkA2kiIAC2ZrSAZHOwAHZk36aRpXZlumdeZp1ivADnKx8CmaCUgRmCwoAIA+YCq6IhIEVBZ7rUAZ5mnWBOZXACsmbZpaGDZXtNm8GkCQNOZQWmzmUqZZZmyvKWg6OjMgMHmrwBUQOVAlLzlNthgG5k8Jv/AwuJgEGtoFuFENHWx76A4LCE29j60oNGhT9jHILYEBODFQCqw9xDxzP8yMYDhoDqgJcEo3jnqVMSC0vkwmNCo6btuwplZeEAoWkCs4IJgGQRZmT/aD1pYSHdky3xzwQ3G0IGyiQ9OeqDlrIm01lZcFA8IMYB/Wj4AE1wkjsTozj6jYJkhghJA/DpZcYYmWSRUUjDeZO0RhaGU/u0AZQAcMg2g1P6eWTHemYkggDKJGABXtH1AwABPAL3oFiRXILw451io6UeZ5ZnOAA6ZqOkXmR4AV5kemWWZgezSwB+ZdRlfmdppApm/mVng/5nFAMfAZVyTQNaAY/JTnFgAQFkkuDMGqOnwWal06FlSWaSEU2a6gJOZGCCxmRNcyaRzmWWZKGTpWfNwQMRHiW8AxFk5gPs0xVkrAmVZqKCVWQqKFhgsgJSAkHHwAFLSJP79KPBQFtGUgNSAtIDO+CbYGaxRkllS5ayGJGrkLNJIAARQCwhg4v7AGHb+4M3iFr4HmUFp0lllmc0gAnSYxKE25IhEWSRZ7oAlWf+cVVk5iYDSv5g1wAfCqQQvIBMy0gDngKucopFsgEeIgdDEgA1QKRQlwG9ZCool8f8G7mBW0UawYuHN4BvcuADCyBxJ3IJAgO9ZNuqXWfJpsVknmUQAsFlZ4ElZKVkBmT1ZgCY+mTlZfpl5WTqwic70AC4QyGalAOhw2kBPaTVZM/5oWS4I2mnIWU1ZyYDs2RhZt+miOPGZZZkT8O+AcQaEBMm0UmC02QUgdCB2MHUwSOppNP2sKeAg2GmYwRA2EIUWpkCFFpAWJACq2VngZQA0EchgR7hmGsKAZSC/MLFA4qbRQJg42sAbbsLAAAB6icJuvP52koaN0AFSY/4UYHUQ5CaKYLpke4rRWZzZaPHYWadYVgDcoKLZC4oUdJSgJtnxCDqxvVyK2UXy6E7a2W1AjEAa2dtR2tmWoNagjwA0ETGApxbB0NFmopASTv/RaTTc6A7YB8IopBz2LS4xWR6AdpnxWZWZiVnnkC6ZVNmpWadYZNmZWYCZv6jfmeeAPZn+2fAAOgBM2UBZ93Dl5FgAi8CU6azZIHwtWXzZZmlc2er2LJkIafKZ7VmKmQeuZZnX0FBQ84BGoABcNmrLvgJA3qCl0JPgHJ7fwLxaF8ozgj8qf6xCYC8AN6jD8WCmu+KnCJpyEcj0AMjU5BS3fqW2pryvpmpwYlmPRrPKD4BOEELQeCAcjK4+hCqDEY+ADcBHxBGc46Le2UhZvtmz2R+AjOCl2erRZZn42YTZxNm12aTZPUAsAI3ZwRkt2W3Z4fb4YM3igMAooB1gOYCbxrd23sCE2bVZMZk+2av2E9n1WVPZAfAz2VtQc9nL3Og5llhBIFg5aSL5cPkA+RAyiQw5oCj5EHRgAgCsOS7gPQAcOZM4cZLcOZW0fDlVFFmYyjC0dLw5t6yqQHmQmoiXwNJcfDkJohQAYFmQAPkQtWJXwK3QF0af0IDCfeHWADYADeRZUq2aQ6CvYTJUhNnXWWA5dEAQOQGZ0DlV2engNdndmXlZDdkU2bZpuVl12VngCyAeePnINsj6aUFY8ZmD2YGcw9kNWSQ5vNltWRQ5gtn+2XYAoaQU7IvesjBu1n5wk8hRiF3AGub0kF1s3wAf4Rgi1rGLGMs4Z1kTgE4Q19AscZOCj5Sz3IPhlIAyQC2AJBL1QFvZkn4onj7ZW0R+2VUhjVo2mWXZUDkV2aeZ1jnxGslZcDnCmQ45nZmU2XY5LjnBwI3A1OChqNlJdoC4OlPw9ABxCQQ5bNlcAEQ5wDmBOQhZk9kzmdPZoTlZ4LYAJ8CeGkrYBHBOpidA/TneIE0pwzmIiKrAgKC9xmLZYsCJWNHAZEBxOfpInzAd5mRq0gARWOUWZEDcoKY6K1n8CKw0sAARgD0AW9mJMtsBJlwoAigUS3w7OYaMqUpi2V6A55Au2EA5V1kgOVQ5Zjn1OYeZjTnHmc05BNmtObY5P5kuOV05n5nN2T05qLkBmWB80am/CI3kU2ZcAPuwlLDqANtxnwidAEi5kplTOQ6YrVnEOdlJzVnzOWQ5izkhOZ1Zp1jX0AHQNAY0mZoAsgCzwB3Edjg5ynMSOKo6Qr+6uxi2AGNhY9YGOflywcg42aPZULlrvHU5Fjnl2RYqLTlOmdXZtZkdOWlZCDnk2d05TjkauadYLhCzDNuAiZmTOUPZ0zlTmcE5AtmsuWwxC5nJmVAAuLnUmZgGDsgdRjiajCh9kof255wyuUhpeNmIuTA5armXmXq5yGnUqs0MSDknaSg5eVlMmcTC7QQmuX45Zrm0ucy5lrl+2bnxEzA1tpcwJSDPHKKkZJD7fNAJ3KC/EPSKtGouFso+RsDMBEfRxpAOwtMQaUKCmDCs8oo1CC0ab7hqdh8ElzBLLExAPAAoSmjB0Ij98MW2w1KimByKzSmKuU05yrmUubM59Lk82Yy5HNm2abA5vTkBmW8QXgBIOYq4fHBsmXDwtgAGuebCibkOoVoemq661nqWNz5sPu6Og6IkFk7yNqDrJkQwUcCGKBuGl9a0hgeWfcaLcHnmSgD8xoKALXQ61qYQxKnFmeNGi7lNqDW2npnoXH5amq4cPuOp0Ya14CqgAV4MxpGGtMZaZivwyIHzRgPGFzECobrW7/ZhiZARki7cUNjmC4QvucKc6aATBrYAQTk/qZUshgnLuYj2GADGuaO5GFnIaQKAhgkRuSQAhHk0ucR5OHnMgPppoeigfFG5sbkkAAYAIHDpqVAAT6nBEK+pdWDqjnzAD6lQAAKgFnBkoO+pNADvqamc56nMBuyZPCIrmSXkwcC3qbQAzoSgUIxYhdaseRepaZiCeSUAwnlusrx5OAY+qcwADADcABx4QfCieQkA4nk/qZnQ0pi3NIgAOYBCxqdY+RD5EE6w0L51wHp53AB2eQe0DmqOBKUAhDjsmamADuCVkHwuDrCxAMIggTI0ZIsq4hKhns1uDXyKBPfJtFw0QgfgGcjKtKamPrJykV4yQpC4gnfE8NDQssJqho5LWDOqPrBa8OqS1ujJQktYLgldwBiAPiQIQL90WYDEgu/ZUJAloHj0MMAv0JRAWXLyUJJy4bjYgMjCq5AiigrZ5FhXgKGZyABYwGuQoQABOI9AxHhI4FjAsXkMKN8wCEAXwa0g36AkALxASCi+JgUan+D2ODBeDK6Q7A7I/Lqoede0hDgEcCzCftl4iCx5bHlbAPp5hnl48Dx5VSw6eRmpk46aeTepq/rGeZ+pzAbyaiGGqtGiAElscwBlZtHs+wbfRM9EonaIgFAmZBY1vtGGTwAD9ip5sAY3ebdCd3l4UBd5DAZAAA=== -->
+
+<!-- internal state end -->
+
+---
+
+
+## Reviews
+
+### Review — coderabbitai — COMMENTED — 2026-06-13T03:46:39Z
+
+**Actionable comments posted: 4**
+
+<details>
+<summary>🤖 Prompt for all review comments with AI agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+Inline comments:
+In `@experiments/encrypted-sync-slice/src/crypto.rs`:
+- Around line 20-33: The encrypt/decrypt functions currently use
+ChaCha20Poly1305 without AAD; update the signatures of encrypt and decrypt to
+accept aad: &[u8] and pass that as associated data to the AEAD calls, and change
+the plaintext payload handling to use a deterministic Payload { msg: plaintext,
+aad } (or equivalent) so the AEAD tag covers both the message and the provided
+context bytes; ensure the caller (e.g., where content_key is derived and where
+store pointers are chosen) constructs aad from the deterministic context
+(namespace, subspace, path, timestamp, and epoch/content-key id) and supplies it
+when calling encrypt/decrypt so context mismatches cause authentication
+failures.
+
+In `@experiments/encrypted-sync-slice/src/main.rs`:
+- Around line 241-252: In deserialize_changes, validate the length prefix before
+slicing: after reading len from bytes[i..i+4], check that i + len <= bytes.len()
+(and that len is reasonable) before doing bytes[i..i+len]; if the check fails
+handle the corrupted payload safely (e.g., stop parsing and return the changes
+parsed so far or return an Err) instead of slicing out-of-bounds—update the loop
+in deserialize_changes to perform this bounds check and early-exit or propagate
+an error when the length is invalid.
+
+In `@experiments/encrypted-sync-slice/src/mls.rs`:
+- Around line 127-143: Change join_from_welcome to return Result<MlsGroup,
+String> and stop panicking on untrusted input: replace the current
+expects/panic!s in join_from_welcome (including the
+MlsMessageIn::tls_deserialize_exact call, the match on message.extract(),
+StagedWelcome::new_from_welcome, and the final into_group) with fallible
+handling that maps/propagates errors as Err(String) (use ? where appropriate and
+map error types to a descriptive String) so malformed, non-Welcome, staging, or
+join failures are returned instead of terminating the process.
+- Around line 40-54: The code creates a BasicCredential from name.as_bytes()
+while the addressing identity uses the signature key bytes, causing a mismatch;
+modify Member::new (pub fn new) so the BasicCredential identity is the signer
+public key bytes (use signer.to_public_vec()) instead of name.as_bytes(), then
+construct CredentialWithKey with that same public-key-derived identity and the
+signature_key as before (ensure signer.store(provider.storage()) remains and
+that the created BasicCredential and CredentialWithKey use the same byte
+sequence); update any comment that states these bytes are the “same” to reflect
+they are now derived from the signer public key.
+```
+
+</details>
+
+<details>
+<summary>🪄 Autofix (Beta)</summary>
+
+Fix all unresolved CodeRabbit comments on this PR:
+
+- [ ] <!-- {"checkboxId": "4b0d0e0a-96d7-4f10-b296-3a18ea78f0b9"} --> Push a commit to this branch (recommended)
+- [ ] <!-- {"checkboxId": "ff5b1114-7d8c-49e6-8ac1-43f82af23a33"} --> Create a new PR with the fixes
+
+</details>
+
+---
+
+<details>
+<summary>ℹ️ Review info</summary>
+
+<details>
+<summary>⚙️ Run configuration</summary>
+
+**Configuration used**: Central YAML (base), Organization UI (inherited)
+
+**Review profile**: CHILL
+
+**Plan**: Enterprise
+
+**Run ID**: `15744bd9-c9bc-4c09-9f24-2051f0d645eb`
+
+</details>
+
+<details>
+<summary>📥 Commits</summary>
+
+Reviewing files that changed from the base of the PR and between 34a18be1f82e22c5f20a79e47b0cdf30590a0e82 and 9e8c6b829a61c66f28825b7851d547cf63a57cd4.
+
+</details>
+
+<details>
+<summary>⛔ Files ignored due to path filters (1)</summary>
+
+* `experiments/encrypted-sync-slice/Cargo.lock` is excluded by `!**/*.lock`
+
+</details>
+
+<details>
+<summary>📒 Files selected for processing (10)</summary>
+
+* `experiments/encrypted-sync-slice/.gitignore`
+* `experiments/encrypted-sync-slice/Cargo.toml`
+* `experiments/encrypted-sync-slice/README.md`
+* `experiments/encrypted-sync-slice/build.rs`
+* `experiments/encrypted-sync-slice/src/address.rs`
+* `experiments/encrypted-sync-slice/src/crypto.rs`
+* `experiments/encrypted-sync-slice/src/doc.rs`
+* `experiments/encrypted-sync-slice/src/main.rs`
+* `experiments/encrypted-sync-slice/src/mls.rs`
+* `experiments/encrypted-sync-slice/src/store.rs`
+
+</details>
+
+<details>
+<summary>🔗 Linked repositories identified</summary>
+
+CodeRabbit considers these linked repositories for cross-repo context during reviews:
+
+- `croftc/architectural-decision-records` _(manual)_
+
+</details>
+
+</details>
+
+<!-- This is an auto-generated comment by CodeRabbit for review status -->
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:27:21Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:27:22Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:27:23Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:27:24Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:27:24Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:27:25Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:28:22Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:28:22Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:29:22Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:29:23Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:30:23Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:30:24Z
+
+
+
+---
+
+### Review — coderabbitai — COMMENTED — 2026-06-13T11:38:30Z
+
+**Actionable comments posted: 6**
+
+<details>
+<summary>🧹 Nitpick comments (2)</summary><blockquote>
+
+<details>
+<summary>experiments/local-first-lexicon-app/src/main.rs (1)</summary><blockquote>
+
+`282-282`: _💤 Low value_
+
+**Hardcoded iroh versions may drift from Cargo.toml.**
+
+Since other dependency versions are extracted via `build.rs` environment variables, consider doing the same for iroh (even though it's stubbed) to keep the version report accurate if `Cargo.toml` is updated.
+
+Alternatively, add a comment noting these must be manually synchronized with `Cargo.toml`.
+
+<!-- cr-comment:v1:28995ed48838f4069cbe0483 -->
+
+</blockquote></details>
+<details>
+<summary>experiments/local-first-lexicon-app/src/address.rs (1)</summary><blockquote>
+
+`88-92`: **Make `resolve_conflict` precondition enforceable in release builds**
+`resolve_conflict` documents that it’s only defined when `a.entry_id()` and `b.entry_id()` (namespace/subspace/path) collide; using `debug_assert_eq!` means mismatched `a`/`b` can silently produce an ordering based on `a_payload`/`b_payload` in release builds. Replace with a release-time assertion.
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+-    debug_assert_eq!(
++    assert_eq!(
+         a.entry_id(),
+         b.entry_id(),
+         "conflict resolution is only defined for entries with the same (namespace, subspace, path)"
+     );
+```
+</details>
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-first-lexicon-app/src/address.rs` around lines 88 - 92, The
+precondition in resolve_conflict is only checked with
+debug_assert_eq!(a.entry_id(), b.entry_id(), ...), which is skipped in release
+builds; replace that call with a release-time check such as
+assert_eq!(a.entry_id(), b.entry_id(), "conflict resolution is only defined for
+entries with the same (namespace, subspace, path)"), so mismatched a.entry_id()
+and b.entry_id() will panic in release builds rather than silently proceeding
+(update the call site inside resolve_conflict to use assert_eq! instead of
+debug_assert_eq!).
+```
+
+</details>
+
+<!-- cr-comment:v1:44c94a39ab5fb945405de3aa -->
+
+</blockquote></details>
+
+</blockquote></details>
+
+<details>
+<summary>🤖 Prompt for all review comments with AI agents</summary>
+
+````
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+Inline comments:
+In `@experiments/local-first-lexicon-app/README.md`:
+- Around line 14-17: The fenced code block containing the cargo commands is
+missing a language tag; update the opening fence from ``` to ```bash so the
+block becomes ```bash and the two lines "cargo run ..." and "cargo test ..." are
+annotated (this removes the markdown-lint warning and enables proper syntax
+highlighting).
+
+In `@experiments/local-first-lexicon-app/src/doc.rs`:
+- Around line 63-73: The function deserialize_changes currently slices
+bytes[i..i+len] without validating that i+len <= bytes.len(); add a bounds check
+in deserialize_changes immediately after computing len to ensure
+i.checked_add(len).map(|end| end <= bytes.len()).unwrap_or(false) (or
+equivalent) and if the check fails, handle gracefully (e.g., break the loop and
+return the collected Vec<Change> or return an error if you prefer to change the
+signature to Result<Vec<Change>, _>); this prevents out-of-bounds panics when
+the length prefix is corrupted or malicious.
+
+In `@experiments/local-first-lexicon-app/src/lexicon.rs`:
+- Around line 166-198: is_atproto_datetime currently only checks digit shapes
+and accepts impossible values; parse the numeric parts and validate their
+semantic ranges: in is_atproto_datetime parse year/month/day from dparts (e.g.,
+let year = dparts[0].parse::<i32>()?, month = dparts[1].parse::<u32>()?, day =
+dparts[2].parse::<u32>()?) and ensure month ∈ 1..=12 and day ∈
+1..=days_in_month(year, month) (implement a small days_in_month that handles
+February leap years); parse clock parts from tparts (split seconds to remove
+fractional part already done) and ensure hour ∈ 0..=23, minute ∈ 0..=59, second
+∈ 0..=59; for timezone offsets when using offset (the off variable) parse offset
+hours/minutes and require offset_hours ∈ 0..=23 and offset_minutes ∈ 0..=59
+(keep the existing 'Z' branch untouched); return false on any parse error or
+out-of-range value. Ensure you update the code around the dparts/tparts/tz_ok
+handling in is_atproto_datetime to perform these numeric parses and range
+checks.
+
+In `@experiments/local-first-lexicon-app/src/repo.rs`:
+- Around line 38-42: Change get_record and list_collection in repo.rs to stop
+silently dropping non-string values: update get_record(doc: &AutoCommit,
+collection: &str, rkey: &str) to return a Result<Option<String>, E> (or
+Result<String, E> if missing is error) and return an Err when
+value.into_string() fails instead of mapping to None; update list_collection to
+return a Result<Vec<(String, String)>, E> (or Result<Vec<RecordType>, E>) and
+propagate conversion errors from v.into_string() rather than using filter_map to
+drop bad entries. Adjust all callers in main.rs that use collection/rkey (the
+code paths that currently call get_record and list_collection and use
+expect("post missing") or rely on dropped entries) to handle the Result
+(propagate the error or map it to a clearer application error) so
+type-corruption is surfaced instead of treated as missing data. Ensure error
+type E is consistent across repo.rs exports and main.rs handling.
+- Around line 26-35: Change put_record to return a Result and validate the
+existing collection node is a map before calling doc.put: in function put_record
+(accepting &mut AutoCommit, collection, rkey, record_json) check doc.get(ROOT,
+collection) and if Some ensure the returned object id points to an ObjType::Map
+(or otherwise return an Err describing malformed state), create the map with
+doc.put_object(ROOT, collection, ObjType::Map) on None, then call doc.put(&coll,
+rkey, record_json) and doc.commit() and return Ok(()); update the two callers of
+put_record to handle the Result (e.g., unwrap/expect or propagate the error).
+
+---
+
+Nitpick comments:
+In `@experiments/local-first-lexicon-app/src/address.rs`:
+- Around line 88-92: The precondition in resolve_conflict is only checked with
+debug_assert_eq!(a.entry_id(), b.entry_id(), ...), which is skipped in release
+builds; replace that call with a release-time check such as
+assert_eq!(a.entry_id(), b.entry_id(), "conflict resolution is only defined for
+entries with the same (namespace, subspace, path)"), so mismatched a.entry_id()
+and b.entry_id() will panic in release builds rather than silently proceeding
+(update the call site inside resolve_conflict to use assert_eq! instead of
+debug_assert_eq!).
+````
+
+</details>
+
+<details>
+<summary>🪄 Autofix (Beta)</summary>
+
+Fix all unresolved CodeRabbit comments on this PR:
+
+- [ ] <!-- {"checkboxId": "4b0d0e0a-96d7-4f10-b296-3a18ea78f0b9"} --> Push a commit to this branch (recommended)
+- [ ] <!-- {"checkboxId": "ff5b1114-7d8c-49e6-8ac1-43f82af23a33"} --> Create a new PR with the fixes
+
+</details>
+
+---
+
+<details>
+<summary>ℹ️ Review info</summary>
+
+<details>
+<summary>⚙️ Run configuration</summary>
+
+**Configuration used**: Central YAML (base), Organization UI (inherited)
+
+**Review profile**: CHILL
+
+**Plan**: Enterprise
+
+**Run ID**: `483a5751-001b-4255-9530-6f4ff0f4cdf4`
+
+</details>
+
+<details>
+<summary>📥 Commits</summary>
+
+Reviewing files that changed from the base of the PR and between 9e8c6b829a61c66f28825b7851d547cf63a57cd4 and 3238bf38ac6e836af4423cdc3ddb43718a017017.
+
+</details>
+
+<details>
+<summary>⛔ Files ignored due to path filters (1)</summary>
+
+* `experiments/local-first-lexicon-app/Cargo.lock` is excluded by `!**/*.lock`
+
+</details>
+
+<details>
+<summary>📒 Files selected for processing (15)</summary>
+
+* `experiments/local-first-lexicon-app/.gitignore`
+* `experiments/local-first-lexicon-app/Cargo.toml`
+* `experiments/local-first-lexicon-app/README.md`
+* `experiments/local-first-lexicon-app/build.rs`
+* `experiments/local-first-lexicon-app/lexicons/org.croftc.experiment.feed.post.json`
+* `experiments/local-first-lexicon-app/lexicons/org.croftc.experiment.feed.reaction.json`
+* `experiments/local-first-lexicon-app/src/address.rs`
+* `experiments/local-first-lexicon-app/src/crypto.rs`
+* `experiments/local-first-lexicon-app/src/doc.rs`
+* `experiments/local-first-lexicon-app/src/lexicon.rs`
+* `experiments/local-first-lexicon-app/src/main.rs`
+* `experiments/local-first-lexicon-app/src/mls.rs`
+* `experiments/local-first-lexicon-app/src/record.rs`
+* `experiments/local-first-lexicon-app/src/repo.rs`
+* `experiments/local-first-lexicon-app/src/store.rs`
+
+</details>
+
+<details>
+<summary>🔗 Linked repositories identified</summary>
+
+CodeRabbit considers these linked repositories for cross-repo context during reviews:
+
+- `croftc/architectural-decision-records` _(manual)_
+
+</details>
+
+<details>
+<summary>✅ Files skipped from review due to trivial changes (2)</summary>
+
+* experiments/local-first-lexicon-app/.gitignore
+* experiments/local-first-lexicon-app/lexicons/org.croftc.experiment.feed.reaction.json
+
+</details>
+
+</details>
+
+<!-- This is an auto-generated comment by CodeRabbit for review status -->
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:45:55Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:46:02Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:46:03Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:47:48Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:47:51Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T11:47:58Z
+
+
+
+---
+
+### Review — coderabbitai — COMMENTED — 2026-06-13T11:55:16Z
+
+**Actionable comments posted: 9**
+
+<details>
+<summary>🧹 Nitpick comments (1)</summary><blockquote>
+
+<details>
+<summary>experiments/local-appview/src/main.rs (1)</summary><blockquote>
+
+`241-244`: _💤 Low value_
+
+**Variable `all` shadows the earlier `all` from line 115.**
+
+Both are in scope, different types (Vec vs bool). Consider renaming to `all_passed` or `success` to avoid confusion during future edits.
+
+
+
+<details>
+<summary>Suggested rename</summary>
+
+```diff
+-    let mut all = true;
++    let mut all_passed = true;
+     for (name, ok) in &results {
+         println!("[{}] {}", if *ok { "PASS" } else { "FAIL" }, name);
+-        all &= *ok;
++        all_passed &= *ok;
+     }
+-    println!("\nOVERALL: {}", if all { "PASS — source-agnostic AppView composes with the encrypted stack" } else { "FAIL" });
++    println!("\nOVERALL: {}", if all_passed { "PASS — source-agnostic AppView composes with the encrypted stack" } else { "FAIL" });
+     ...
+-    if !all {
++    if !all_passed {
+```
+</details>
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-appview/src/main.rs` around lines 241 - 244, The local
+boolean variable named all in the loop shadows an earlier variable named all (a
+Vec) and should be renamed to avoid confusion; change the boolean all to a
+clearer name like all_passed (update its declaration where let mut all = true;
+to let mut all_passed = true;) and update all uses in that loop (the all &= *ok;
+check and any subsequent references) to use all_passed so the earlier Vec all
+remains unchanged and there is no shadowing.
+```
+
+</details>
+
+<!-- cr-comment:v1:b541382ac00db2645c16cdf7 -->
+
+</blockquote></details>
+
+</blockquote></details>
+
+<details>
+<summary>🤖 Prompt for all review comments with AI agents</summary>
+
+````
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+Inline comments:
+In `@experiments/local-appview/README.md`:
+- Around line 11-14: Add a language tag to the unlabeled fenced code block so
+the block is recognized as bash by the linter; change the opening fence from ```
+to ```bash for the block containing the cargo run / cargo test commands (the
+fenced command block shown in the README).
+
+In `@experiments/local-appview/src/crypto.rs`:
+- Around line 21-29: The encrypt/decrypt functions in
+experiments/local-appview/src/crypto.rs currently call ChaCha20Poly1305 without
+AAD and use expect(...) on encryption which can panic; change encrypt and
+decrypt to accept an additional AAD parameter (e.g., aad: &[u8]) and pass that
+to cipher.encrypt(...) and cipher.decrypt(...), return Result<Vec<u8>,
+CryptoError> (propagate errors instead of panicking) and ensure decrypt verifies
+the same AAD; update any callers (for example in
+experiments/local-appview/src/main.rs) to compute and supply a stable AAD
+derived from the record identity (e.g., Address/storage_key and epoch) so
+ciphertexts are bound to the logical record.
+
+In `@experiments/local-appview/src/groupdoc.rs`:
+- Around line 33-38: The traversal code that calls doc.get(...) and then expects
+a Map (using expect/unwrap) must be hardened: instead of assuming Some((_, id))
+is a Map, match on doc.get(parent.as_ref(), key) -> Ok(Some((obj_type, id))) and
+if obj_type == ObjType::Map return id, otherwise replace the non-Map by creating
+a new map with doc.put_object(parent.as_ref(), key, ObjType::Map) (or delete
+then put if API requires) and return that id; also handle Ok(None) by creating
+the map as you already do and propagate Err by returning/propagating the error
+instead of panic. Apply this change to both traversal sites that use
+doc.get/doc.put_object with ObjType::Map (the blocks handling did, collection,
+and rkey) so malformed scalar nodes are detected and safely replaced rather than
+causing expect() panics.
+
+In `@experiments/local-appview/src/indexer.rs`:
+- Around line 120-123: The code currently uses unwrap() on SQLite operations in
+functions like timeline, reactions_for, and thread which causes panics on DB
+errors; change these functions to return Result<... , rusqlite::Error> (or a
+crate-local Error type) and replace unwrap() calls (e.g., the prepare(...) call
+and any step/query_row/rows_iter uses) with ? to propagate errors, handling row
+iteration errors by mapping rusqlite errors into the Result as well; update
+callers (HTTP handlers) to map these Results into
+StatusCode::INTERNAL_SERVER_ERROR on Err so operational DB failures return 5xx
+instead of panicking.
+
+In `@experiments/local-appview/src/lexicon.rs`:
+- Around line 192-229: is_atproto_datetime currently only checks formatting;
+extend it to validate numeric ranges and fractional-second content so impossible
+timestamps are rejected. After splitting into date/time (variables date, time,
+dparts), parse year/month/day as integers and enforce month in 1..=12 and day
+within the correct range for that month (handle February with leap-year logic
+using the parsed year). After extracting clock and base (variables clock, base,
+tparts), parse HH:MM:SS as integers and enforce hour 0..=23 and minute/second
+0..=59; if fractional seconds exist (the portion after '.'), ensure it consists
+only of digits and is non-empty. For timezone handling (the tz offset logic that
+sets tz_ok and off), validate offset hours and minutes as integers with hours
+0..=14 and minutes 0..=59 (and reject offsets with malformed lengths or
+non-digit chars). Update is_atproto_datetime to return false on any out-of-range
+or non-digit findings rather than accepting them.
+
+In `@experiments/local-appview/src/mls.rs`:
+- Around line 127-143: Change join_from_welcome in
+experiments/local-appview/src/mls.rs (lines 127-143) to return a
+Result<MlsGroup, E> instead of panicking: replace the expect/panic! calls inside
+MlsMessageIn::tls_deserialize_exact, the match that currently panics on a
+non-Welcome, StagedWelcome::new_from_welcome, and into_group with
+mapped/propagated errors (e.g., map deserialization, unexpected message kind,
+staging, and join failures into a typed error or Box<dyn Error> and return Err
+on failure). In experiments/local-appview/src/doc.rs (lines 15-17) change load
+to return Result<AutoCommit, E> (matching the error type chosen above) instead
+of calling expect(...), and update its callers to propagate or handle the Err
+case; if a site does not need direct changes beyond handling the propagated
+Result, state that the root-cause fix in join_from_welcome/doc::load suffices
+and handle errors at the call sites.
+
+In `@experiments/local-appview/src/server.rs`:
+- Around line 35-36: Replace occurrences of state.lock().unwrap() with explicit
+error handling: call state.lock() and match on the Result (e.g., if let Ok(idx)
+= state.lock() { ... } else { return
+HttpResponse::InternalServerError().body("mutex lock error"); }), and then use
+idx.timeline(...) as before; do this for both places where state.lock().unwrap()
+appears so a poisoned mutex returns HTTP 500 instead of panicking. Ensure the
+error branch returns an appropriate HTTP 500 response (matching your handler
+return type) and includes a concise message or logs the underlying error.
+
+In `@experiments/local-appview/src/source.rs`:
+- Around line 120-121: The code currently swallows JSON parse errors by using
+serde_json::from_str(&json).unwrap_or(Value::Null) which emits a Create with
+record = null; instead, when handling create events change this to propagate or
+surface parse failures (e.g., use serde_json::from_str(&json)? or match on the
+Result and return an Err) so malformed JSON does not become Value::Null; update
+the code that sets record (and any callers that expect a Result) to
+return/handle the error rather than coercing to Value::Null while leaving cid
+creation as-is.
+
+In `@experiments/local-appview/src/store.rs`:
+- Around line 62-69: Change set_pointer to refuse dangling hashes by checking
+that the target blob exists before inserting into self.pointers: call
+self.get(&hash) (or otherwise check the blob store) and if it returns None, do
+not insert and return an error/false; if it exists, perform the insert and
+return Ok/true. Update the set_pointer signature to return a Result or bool (and
+propagate handling to its callers), keep resolve and get unchanged, and ensure
+self.pointers.insert is only called when the existence check passes.
+
+---
+
+Nitpick comments:
+In `@experiments/local-appview/src/main.rs`:
+- Around line 241-244: The local boolean variable named all in the loop shadows
+an earlier variable named all (a Vec) and should be renamed to avoid confusion;
+change the boolean all to a clearer name like all_passed (update its declaration
+where let mut all = true; to let mut all_passed = true;) and update all uses in
+that loop (the all &= *ok; check and any subsequent references) to use
+all_passed so the earlier Vec all remains unchanged and there is no shadowing.
+````
+
+</details>
+
+<details>
+<summary>🪄 Autofix (Beta)</summary>
+
+Fix all unresolved CodeRabbit comments on this PR:
+
+- [ ] <!-- {"checkboxId": "4b0d0e0a-96d7-4f10-b296-3a18ea78f0b9"} --> Push a commit to this branch (recommended)
+- [ ] <!-- {"checkboxId": "ff5b1114-7d8c-49e6-8ac1-43f82af23a33"} --> Create a new PR with the fixes
+
+</details>
+
+---
+
+<details>
+<summary>ℹ️ Review info</summary>
+
+<details>
+<summary>⚙️ Run configuration</summary>
+
+**Configuration used**: Central YAML (base), Organization UI (inherited)
+
+**Review profile**: CHILL
+
+**Plan**: Enterprise
+
+**Run ID**: `49021148-0e73-445e-add3-d9f8f8e47e65`
+
+</details>
+
+<details>
+<summary>📥 Commits</summary>
+
+Reviewing files that changed from the base of the PR and between 3238bf38ac6e836af4423cdc3ddb43718a017017 and 3e59cdf7c3e596f6acc0cb17f6fbc11bd7ec5db5.
+
+</details>
+
+<details>
+<summary>⛔ Files ignored due to path filters (1)</summary>
+
+* `experiments/local-appview/Cargo.lock` is excluded by `!**/*.lock`
+
+</details>
+
+<details>
+<summary>📒 Files selected for processing (21)</summary>
+
+* `experiments/local-appview/.gitignore`
+* `experiments/local-appview/Cargo.toml`
+* `experiments/local-appview/README.md`
+* `experiments/local-appview/build.rs`
+* `experiments/local-appview/lexicons/org.croftc.experiment.feed.getPostThread.json`
+* `experiments/local-appview/lexicons/org.croftc.experiment.feed.getTimeline.json`
+* `experiments/local-appview/lexicons/org.croftc.experiment.feed.post.json`
+* `experiments/local-appview/lexicons/org.croftc.experiment.feed.reaction.json`
+* `experiments/local-appview/src/address.rs`
+* `experiments/local-appview/src/crypto.rs`
+* `experiments/local-appview/src/doc.rs`
+* `experiments/local-appview/src/groupdoc.rs`
+* `experiments/local-appview/src/indexer.rs`
+* `experiments/local-appview/src/lexicon.rs`
+* `experiments/local-appview/src/main.rs`
+* `experiments/local-appview/src/mls.rs`
+* `experiments/local-appview/src/record.rs`
+* `experiments/local-appview/src/server.rs`
+* `experiments/local-appview/src/source.rs`
+* `experiments/local-appview/src/store.rs`
+* `experiments/local-appview/src/views.rs`
+
+</details>
+
+<details>
+<summary>🔗 Linked repositories identified</summary>
+
+CodeRabbit considers these linked repositories for cross-repo context during reviews:
+
+- `croftc/architectural-decision-records` _(manual)_
+
+</details>
+
+<details>
+<summary>✅ Files skipped from review due to trivial changes (4)</summary>
+
+* experiments/local-appview/.gitignore
+* experiments/local-appview/Cargo.toml
+* experiments/local-appview/src/address.rs
+* experiments/local-appview/src/views.rs
+
+</details>
+
+</details>
+
+<!-- This is an auto-generated comment by CodeRabbit for review status -->
+
+---
+
+### Review — coderabbitai — COMMENTED — 2026-06-13T12:06:21Z
+
+**Actionable comments posted: 3**
+
+<details>
+<summary>🧹 Nitpick comments (1)</summary><blockquote>
+
+<details>
+<summary>experiments/jetstream-appview/src/record.rs (1)</summary><blockquote>
+
+`88-92`: _💤 Low value_
+
+**`cid_for` panics on invalid JSON — document or handle gracefully.**
+
+`expect("record is valid JSON")` will panic if fed malformed input. This is fine if all callers control the input, but a `Result` return would be safer if this ever processes untrusted data. For an experiment crate this is acceptable but worth noting.
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/jetstream-appview/src/record.rs` around lines 88 - 92, The
+function cid_for currently panics on invalid JSON due to expect; change its
+signature to return a Result<String, serde_json::Error> (e.g., pub fn
+cid_for(record_json: &str) -> Result<String, serde_json::Error>) and replace
+serde_json::from_str(...).expect(...) with let value =
+serde_json::from_str(record_json)?; then return
+Ok(crate::content_id::record_cid(&value)); update any callers to propagate or
+handle the Result (use ? where appropriate or map_err to convert errors) so
+malformed input no longer causes a panic.
+```
+
+</details>
+
+<!-- cr-comment:v1:780f567d6ada2d97a4091fcc -->
+
+</blockquote></details>
+
+</blockquote></details>
+
+<details>
+<summary>🤖 Prompt for all review comments with AI agents</summary>
+
+````
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+Inline comments:
+In `@experiments/jetstream-appview/README.md`:
+- Around line 8-11: Replace the fenced code block that contains the commands
+"cargo run     # 5-step lifecycle: feed -> ingest -> serve -> resume -> swap
+proof" and "cargo test    # lexicon/datetime validation tests" with a
+language-tagged block by changing the opening fence from ``` to ```bash so the
+snippet becomes ```bash ... ``` to satisfy markdownlint MD040.
+
+In `@experiments/jetstream-appview/src/lexicon.rs`:
+- Around line 192-229: is_atproto_datetime currently only checks format shape;
+update it to validate numeric ranges: parse year/month/day from dparts and
+ensure month is 1..=12, day is within valid range for that month (handle
+February leap years using year % 4/100/400 rules) and >=1; parse HH:MM:SS from
+tparts and ensure hour 0..=23, minute 0..=59, second 0..=59; restrict fractional
+seconds (the portion after '.') to only ASCII digits (no letters) if present;
+for timezone offsets (the off slice in the '+'/'-' branch) parse offset hours
+and minutes and ensure hours/minutes are numeric and within 0..=23 and 0..=59
+respectively (or a narrower valid max for offset hours if desired). Make these
+checks inside is_atproto_datetime, returning false on any numeric violation.
+
+---
+
+Nitpick comments:
+In `@experiments/jetstream-appview/src/record.rs`:
+- Around line 88-92: The function cid_for currently panics on invalid JSON due
+to expect; change its signature to return a Result<String, serde_json::Error>
+(e.g., pub fn cid_for(record_json: &str) -> Result<String, serde_json::Error>)
+and replace serde_json::from_str(...).expect(...) with let value =
+serde_json::from_str(record_json)?; then return
+Ok(crate::content_id::record_cid(&value)); update any callers to propagate or
+handle the Result (use ? where appropriate or map_err to convert errors) so
+malformed input no longer causes a panic.
+````
+
+</details>
+
+<details>
+<summary>🪄 Autofix (Beta)</summary>
+
+Fix all unresolved CodeRabbit comments on this PR:
+
+- [ ] <!-- {"checkboxId": "4b0d0e0a-96d7-4f10-b296-3a18ea78f0b9"} --> Push a commit to this branch (recommended)
+- [ ] <!-- {"checkboxId": "ff5b1114-7d8c-49e6-8ac1-43f82af23a33"} --> Create a new PR with the fixes
+
+</details>
+
+---
+
+<details>
+<summary>ℹ️ Review info</summary>
+
+<details>
+<summary>⚙️ Run configuration</summary>
+
+**Configuration used**: Central YAML (base), Organization UI (inherited)
+
+**Review profile**: CHILL
+
+**Plan**: Enterprise
+
+**Run ID**: `dca7ff84-98aa-44b9-afda-969777cb51b7`
+
+</details>
+
+<details>
+<summary>📥 Commits</summary>
+
+Reviewing files that changed from the base of the PR and between 3e59cdf7c3e596f6acc0cb17f6fbc11bd7ec5db5 and 3a892490694873e291101e15b6d9dce3368cfd33.
+
+</details>
+
+<details>
+<summary>⛔ Files ignored due to path filters (1)</summary>
+
+* `experiments/jetstream-appview/Cargo.lock` is excluded by `!**/*.lock`
+
+</details>
+
+<details>
+<summary>📒 Files selected for processing (17)</summary>
+
+* `experiments/jetstream-appview/.gitignore`
+* `experiments/jetstream-appview/Cargo.toml`
+* `experiments/jetstream-appview/README.md`
+* `experiments/jetstream-appview/build.rs`
+* `experiments/jetstream-appview/lexicons/org.croftc.experiment.feed.getPostThread.json`
+* `experiments/jetstream-appview/lexicons/org.croftc.experiment.feed.getTimeline.json`
+* `experiments/jetstream-appview/lexicons/org.croftc.experiment.feed.post.json`
+* `experiments/jetstream-appview/lexicons/org.croftc.experiment.feed.reaction.json`
+* `experiments/jetstream-appview/src/content_id.rs`
+* `experiments/jetstream-appview/src/indexer.rs`
+* `experiments/jetstream-appview/src/jetstream.rs`
+* `experiments/jetstream-appview/src/lexicon.rs`
+* `experiments/jetstream-appview/src/main.rs`
+* `experiments/jetstream-appview/src/record.rs`
+* `experiments/jetstream-appview/src/server.rs`
+* `experiments/jetstream-appview/src/source.rs`
+* `experiments/jetstream-appview/src/views.rs`
+
+</details>
+
+<details>
+<summary>🔗 Linked repositories identified</summary>
+
+CodeRabbit considers these linked repositories for cross-repo context during reviews:
+
+- `croftc/architectural-decision-records` _(manual)_
+
+</details>
+
+<details>
+<summary>✅ Files skipped from review due to trivial changes (3)</summary>
+
+* experiments/jetstream-appview/.gitignore
+* experiments/jetstream-appview/src/content_id.rs
+* experiments/jetstream-appview/lexicons/org.croftc.experiment.feed.getTimeline.json
+
+</details>
+
+</details>
+
+<!-- This is an auto-generated comment by CodeRabbit for review status -->
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:21:40Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:21:41Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:21:42Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:21:43Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:21:44Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:21:45Z
+
+
+
+---
+
+### Review — coderabbitai — COMMENTED — 2026-06-13T12:31:34Z
+
+**Actionable comments posted: 6**
+
+<details>
+<summary>🤖 Prompt for all review comments with AI agents</summary>
+
+````
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+Inline comments:
+In `@experiments/public-private-split/README.md`:
+- Around line 13-16: Label the unlabeled fenced code block that contains the two
+shell commands ("cargo run" and "cargo test") by changing its opening fence from
+``` to ```bash so the block is explicitly marked as shell script; leave the
+contents and closing fence unchanged.
+
+In `@experiments/public-private-split/src/doc.rs`:
+- Around line 15-17: Change doc::load from a panicking wrapper to return the
+underlying error: update the signature of pub fn load(snapshot: &[u8]) to return
+Result<AutoCommit, automerge::AutomergeError> (or the exact error type returned
+by AutoCommit::load) and implement it by directly returning
+AutoCommit::load(snapshot) instead of calling expect; update any callers to
+handle the Result (propagate with ? or handle the error) so corrupt/tampered
+snapshots no longer cause a process panic.
+
+In `@experiments/public-private-split/src/lexicon.rs`:
+- Around line 161-198: The is_atproto_datetime function currently only checks
+format; update it to validate numeric ranges: parse year, month, day from dparts
+and check 1 <= month <= 12 and day is within the correct max for that month
+(handle February leap years using the usual (year%4==0 && (year%100!=0 ||
+year%400==0)) rule); parse clock parts (HH, MM, SS) and ensure 0 <= HH <= 23 and
+0 <= MM, SS <= 59 (allow seconds fractional part after '.'); when validating a
+numeric timezone offset (the off string from the '+'/'-') parse offset
+hours/minutes and ensure 0 <= offset_hours <= 23 and 0 <= offset_minutes <= 59
+(or otherwise enforce your desired limit) and only accept 'Z' or a properly
+ranged +/-HH:MM; perform all checks using numeric parsing (e.g., parse::<u32>())
+and return false on any parse error so that impossible timestamps are rejected.
+
+In `@experiments/public-private-split/src/mirror.rs`:
+- Around line 63-76: The code currently panics on malformed mirrored records via
+serde_json::from_str(...).expect and lex.validate(...).expect; change the logic
+in mirror.rs to handle errors gracefully: replace
+serde_json::from_str(json).expect(...) with matching on Result and if Err {
+increment a suitable stats counter (e.g. stats.bad_json or similar) and continue
+}, replace the lex.validate(&value).expect(...) with matching on its Result and
+on Err { increment a stats counter for invalid_lex_records and continue }, and
+avoid unwrap_or("") for subject lookup by checking
+value["subject"]["uri"].as_str() and treating None as non-public (incrementing
+stats.redacted_refs if appropriate) so malformed shapes do not panic but are
+skipped. Ensure you reference the same symbols: serde_json::from_str(json),
+reaction_lex/post_lex selection, value["subject"]["uri"].as_str(), public_uris,
+lex.validate(&value), and stats counters when implementing the non-panicking
+early-continue behavior.
+- Around line 75-76: The mirror boundary currently falls back to reaction_lex
+for any non-post collection (lex selection uses let lex = if collection ==
+post_lex.id() { post_lex } else { reaction_lex }), so update the selection to
+explicitly match known collection IDs and reject unknown ones: replace the
+fallback with an explicit match/if-else-if that checks collection ==
+post_lex.id() and collection == reaction_lex.id(), and if neither matches return
+or propagate an error (or panic with a clear message including the unknown
+collection id) before calling lex.validate(&value). Ensure you reference
+post_lex, reaction_lex, collection, and the validate call when making the change
+so unknown collections are rejected at the mirror boundary.
+
+In `@experiments/public-private-split/src/public_repo.rs`:
+- Around line 58-62: The current leaks() searches the JSON string produced by
+to_json(), which can miss matches due to JSON escaping; change leaks to parse
+the JSON into a serde_json::Value (via serde_json::from_str or from_slice on the
+output of to_json()) and recursively inspect all string values for needle
+(checking Value::String.contains(needle)) so you search the unescaped content
+rather than the escaped JSON text; implement a small helper (e.g., fn
+value_contains(v: &Value, needle: &str) -> bool) and call it from leaks()
+instead of using to_json().to_string().contains(needle).
+````
+
+</details>
+
+<details>
+<summary>🪄 Autofix (Beta)</summary>
+
+Fix all unresolved CodeRabbit comments on this PR:
+
+- [ ] <!-- {"checkboxId": "4b0d0e0a-96d7-4f10-b296-3a18ea78f0b9"} --> Push a commit to this branch (recommended)
+- [ ] <!-- {"checkboxId": "ff5b1114-7d8c-49e6-8ac1-43f82af23a33"} --> Create a new PR with the fixes
+
+</details>
+
+---
+
+<details>
+<summary>ℹ️ Review info</summary>
+
+<details>
+<summary>⚙️ Run configuration</summary>
+
+**Configuration used**: Central YAML (base), Organization UI (inherited)
+
+**Review profile**: CHILL
+
+**Plan**: Enterprise
+
+**Run ID**: `08bf67d4-f709-4e10-ac3b-04a99d05e207`
+
+</details>
+
+<details>
+<summary>📥 Commits</summary>
+
+Reviewing files that changed from the base of the PR and between 3a892490694873e291101e15b6d9dce3368cfd33 and 543b6db21c42ef175a6e4c55ce2b0db6742c85ad.
+
+</details>
+
+<details>
+<summary>⛔ Files ignored due to path filters (1)</summary>
+
+* `experiments/public-private-split/Cargo.lock` is excluded by `!**/*.lock`
+
+</details>
+
+<details>
+<summary>📒 Files selected for processing (18)</summary>
+
+* `experiments/public-private-split/.gitignore`
+* `experiments/public-private-split/Cargo.toml`
+* `experiments/public-private-split/README.md`
+* `experiments/public-private-split/build.rs`
+* `experiments/public-private-split/lexicons/org.croftc.experiment.feed.post.json`
+* `experiments/public-private-split/lexicons/org.croftc.experiment.feed.reaction.json`
+* `experiments/public-private-split/src/content_id.rs`
+* `experiments/public-private-split/src/crypto.rs`
+* `experiments/public-private-split/src/doc.rs`
+* `experiments/public-private-split/src/groupdoc.rs`
+* `experiments/public-private-split/src/lexicon.rs`
+* `experiments/public-private-split/src/main.rs`
+* `experiments/public-private-split/src/mirror.rs`
+* `experiments/public-private-split/src/mls.rs`
+* `experiments/public-private-split/src/public_repo.rs`
+* `experiments/public-private-split/src/record.rs`
+* `experiments/public-private-split/src/source.rs`
+* `experiments/public-private-split/src/visibility.rs`
+
+</details>
+
+<details>
+<summary>🔗 Linked repositories identified</summary>
+
+CodeRabbit considers these linked repositories for cross-repo context during reviews:
+
+- `croftc/architectural-decision-records` _(manual)_
+
+</details>
+
+<details>
+<summary>✅ Files skipped from review due to trivial changes (4)</summary>
+
+* experiments/public-private-split/.gitignore
+* experiments/public-private-split/Cargo.toml
+* experiments/public-private-split/src/content_id.rs
+* experiments/public-private-split/lexicons/org.croftc.experiment.feed.reaction.json
+
+</details>
+
+</details>
+
+<!-- This is an auto-generated comment by CodeRabbit for review status -->
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:33:16Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:41:39Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:41:40Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:41:41Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:41:42Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:41:43Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:41:44Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:53:09Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:53:10Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:53:11Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:53:12Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:53:13Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T12:53:14Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:00:35Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:00:36Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:00:37Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:00:38Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:03:55Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:04:37Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:08:55Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:08:56Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:08:58Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:09:01Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:09:02Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:09:03Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:18:54Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:18:54Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:18:55Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:18:56Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:22:00Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:22:04Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:22:12Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:22:19Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:22:19Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:22:23Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:22:28Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T13:22:34Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T14:24:49Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T14:24:50Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T14:24:51Z
+
+
+
+---
+
+### Review — cycode-security — COMMENTED — 2026-06-13T14:24:52Z
+
+
+
+---
+
+
+## Inline review comments (line-level)
+
+### coderabbitai[bot] on `experiments/encrypted-sync-slice/src/crypto.rs` :L33 — 2026-06-13T03:46:38Z
+
+_⚠️ Potential issue_ | _🟠 Major_
+
+<details>
+<summary>🧩 Analysis chain</summary>
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+# Locate crypto.rs and show the relevant section with line numbers
+sed -n '1,200p' experiments/encrypted-sync-slice/src/crypto.rs | nl -ba
+
+# Find encrypt/decrypt definitions and usages across the repo
+rg -n "pub fn encrypt\\(|pub fn decrypt\\(" -S .
+rg -n "\\bencrypt\\(" experiments/encrypted-sync-slice -S || true
+rg -n "\\bdecrypt\\(" experiments/encrypted-sync-slice -S || true
+
+# Find any AAD usage patterns in crypto-related code
+rg -n "aad\\b|Payload\\s*\\{" -S experiments/encrypted-sync-slice src || true
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 109
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+sed -n '1,200p' experiments/encrypted-sync-slice/src/crypto.rs | nl -ba
+
+rg -n "pub fn encrypt\\(|pub fn decrypt\\(" -S .
+
+rg -n "\\bencrypt\\(" experiments/encrypted-sync-slice -S || true
+rg -n "\\bdecrypt\\(" experiments/encrypted-sync-slice -S || true
+
+rg -n "aad\\b|Payload\\s*\\{" -S experiments/encrypted-sync-slice src || true
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 109
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+echo "=== crypto.rs (top 200 lines) ==="
+sed -n '1,200p' experiments/encrypted-sync-slice/src/crypto.rs | nl -ba
+
+echo "=== encrypt/decrypt definitions ==="
+rg -n "pub fn encrypt\\(|pub fn decrypt\\(" -S experiments/encrypted-sync-slice/src/crypto.rs
+
+echo "=== encrypt/decrypt call sites in experiments/encrypted-sync-slice ==="
+rg -n "\\bencrypt\\(" experiments/encrypted-sync-slice -S || true
+rg -n "\\bdecrypt\\(" experiments/encrypted-sync-slice -S || true
+
+echo "=== AAD/Payload usage patterns ==="
+rg -n "\\baad\\b|Payload\\s*\\{" -S experiments/encrypted-sync-slice/src || true
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 161
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+ls -R experiments/encrypted-sync-slice/src | sed -n '1,200p'
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 156
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+ls
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 96
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+pwd
+echo "files:"; find . -maxdepth 3 -type d -name "encrypted-sync-slice" | head
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 127
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+# Print crypto.rs with line numbers via awk (nl is unavailable)
+awk '{print NR "\t" $0}' experiments/encrypted-sync-slice/src/crypto.rs | sed -n '1,220p'
+
+echo "=== encrypt/decrypt definitions ==="
+rg -n "pub fn encrypt\\b|pub fn decrypt\\b" experiments/encrypted-sync-slice/src/crypto.rs
+
+echo "=== encrypt/decrypt call sites (anywhere in experiments/encrypted-sync-slice) ==="
+rg -n "\\bencrypt\\(" experiments/encrypted-sync-slice/src || true
+rg -n "\\bdecrypt\\(" experiments/encrypted-sync-slice/src || true
+
+echo "=== AAD/Payload usage patterns ==="
+rg -n "\\baad\\b|Payload\\s*\\{" experiments/encrypted-sync-slice/src || true
+rg -n "encrypt\\(.*Payload|decrypt\\(.*Payload" experiments/encrypted-sync-slice/src || true
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 3476
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+echo "=== main.rs (relevant sections around encrypt/decrypt call sites) ==="
+sed -n '70,130p' experiments/encrypted-sync-slice/src/main.rs | awk '{print NR+70 "\t"$0}'
+echo "----"
+sed -n '130,230p' experiments/encrypted-sync-slice/src/main.rs | awk '{print NR+130 "\t"$0}'
+
+echo "=== address.rs ==="
+sed -n '1,200p' experiments/encrypted-sync-slice/src/address.rs
+
+echo "=== mls.rs (search for exporter/content key derivation) ==="
+rg -n "exporter|content key|content_key|derive|Key" experiments/encrypted-sync-slice/src/mls.rs
+sed -n '1,240p' experiments/encrypted-sync-slice/src/mls.rs
+
+echo "=== store.rs (how ciphertext is stored/fetched; look for metadata) ==="
+sed -n '1,240p' experiments/encrypted-sync-slice/src/store.rs
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 22912
+
+---
+
+
+
+</details>
+
+**Bind ciphertext authenticity to storage/epoch context with AAD.**
+
+`experiments/encrypted-sync-slice/src/crypto.rs` encrypts/decrypts with `ChaCha20Poly1305` using only `plaintext` + `content_key` (no `aad`/`Payload`), so the AEAD tag doesn’t cover the addressed metadata. In `main.rs`, the `(namespace, subspace, path, timestamp)` tuple is used only to choose `store` pointers, but that tuple (and the MLS epoch/content-key identity) is not bound to the ciphertext; `content_key` itself is derived per-epoch from MLS exporter secret with a fixed app context, not per-address/per-timestamp. With a storage/transport adversary that can redirect `resolve(storage_key)` to a different blob produced under the same epoch key, decryption will still succeed and the wrong payload could be applied.
+
+Fix: change `encrypt`/`decrypt` to accept an `aad: &[u8]` and authenticate deterministic context bytes (e.g., namespace/subspace/path/timestamp plus epoch/content-key id) via `Payload { msg: ..., aad }` so context mismatches fail authentication.
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/encrypted-sync-slice/src/crypto.rs` around lines 20 - 33, The
+encrypt/decrypt functions currently use ChaCha20Poly1305 without AAD; update the
+signatures of encrypt and decrypt to accept aad: &[u8] and pass that as
+associated data to the AEAD calls, and change the plaintext payload handling to
+use a deterministic Payload { msg: plaintext, aad } (or equivalent) so the AEAD
+tag covers both the message and the provided context bytes; ensure the caller
+(e.g., where content_key is derived and where store pointers are chosen)
+constructs aad from the deterministic context (namespace, subspace, path,
+timestamp, and epoch/content-key id) and supplies it when calling
+encrypt/decrypt so context mismatches cause authentication failures.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:6accf61e8bb375514a01c8fa -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/encrypted-sync-slice/src/main.rs` :L252 — 2026-06-13T03:46:38Z
+
+_⚠️ Potential issue_ | _🟡 Minor_ | _⚡ Quick win_
+
+**Missing bounds check before slicing payload.**
+
+Line 247 slices `bytes[i..i + len]` without verifying `i + len <= bytes.len()`. If the length prefix is corrupted (e.g., decryption with wrong key yields garbage), this panics on out-of-bounds access.
+
+
+
+
+
+<details>
+<summary>Proposed fix</summary>
+
+```diff
+ fn deserialize_changes(bytes: &[u8]) -> Vec<automerge::Change> {
+     let mut out = Vec::new();
+     let mut i = 0;
+     while i + 4 <= bytes.len() {
+         let len = u32::from_be_bytes(bytes[i..i + 4].try_into().unwrap()) as usize;
+         i += 4;
++        if i + len > bytes.len() {
++            panic!("truncated change data: expected {} bytes, only {} available", len, bytes.len() - i);
++        }
+         let raw = &bytes[i..i + len];
+         out.push(automerge::Change::from_bytes(raw.to_vec()).expect("bad change bytes"));
+         i += len;
+     }
+     out
+ }
+```
+
+</details>
+
+<!-- suggestion_start -->
+
+<details>
+<summary>📝 Committable suggestion</summary>
+
+> ‼️ **IMPORTANT**
+> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.
+
+```suggestion
+fn deserialize_changes(bytes: &[u8]) -> Vec<automerge::Change> {
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i + 4 <= bytes.len() {
+        let len = u32::from_be_bytes(bytes[i..i + 4].try_into().unwrap()) as usize;
+        i += 4;
+        if i + len > bytes.len() {
+            panic!("truncated change data: expected {} bytes, only {} available", len, bytes.len() - i);
+        }
+        let raw = &bytes[i..i + len];
+        out.push(automerge::Change::from_bytes(raw.to_vec()).expect("bad change bytes"));
+        i += len;
+    }
+    out
+}
+```
+
+</details>
+
+<!-- suggestion_end -->
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/encrypted-sync-slice/src/main.rs` around lines 241 - 252, In
+deserialize_changes, validate the length prefix before slicing: after reading
+len from bytes[i..i+4], check that i + len <= bytes.len() (and that len is
+reasonable) before doing bytes[i..i+len]; if the check fails handle the
+corrupted payload safely (e.g., stop parsing and return the changes parsed so
+far or return an Err) instead of slicing out-of-bounds—update the loop in
+deserialize_changes to perform this bounds check and early-exit or propagate an
+error when the length is invalid.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:medusa:ocelot -->
+
+<!-- cr-comment:v1:345545af5469fa886a4d75d7 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/encrypted-sync-slice/src/mls.rs` :L54 — 2026-06-13T03:46:38Z
+
+_⚠️ Potential issue_ | _🟠 Major_
+
+<details>
+<summary>🧩 Analysis chain</summary>
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+file="experiments/encrypted-sync-slice/src/mls.rs"
+echo "== File: $file =="
+nl -ba "$file" | sed -n '1,140p'
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 183
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+rg -n "CredentialWithKey|BasicCredential::new|identity\\(|to_public_vec\\(|SignatureKeyPair" experiments/encrypted-sync-slice/src/mls.rs
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 530
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+rg -n "CredentialWithKey|BasicCredential|OpenMlsRustCrypto|MLS credential|signature_key" experiments/encrypted-sync-slice/src
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 1099
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+rg -n "identity\\(\\)" -S .
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 556
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+file="experiments/encrypted-sync-slice/src/mls.rs"
+awk 'NR>=1 && NR<=110 {print NR ":" $0}' "$file"
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 4514
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+file="experiments/encrypted-sync-slice/src/address.rs"
+awk 'NR>=1 && NR<=160 {print NR ":" $0}' "$file"
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 5156
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+# Find where MLS credential identity bytes are consumed (likely from BasicCredential/credential field)
+rg -n "BasicCredential|credential\\.identity\\(|credential.*identity|credential:.*BasicCredential|into\\(\\)" experiments/encrypted-sync-slice/src
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 1133
+
+---
+
+🌐 Web query:
+
+`openmls_basic_credential::BasicCredential::new identity bytes credential identity semantics`
+
+💡 Result:
+
+In OpenMLS, the BasicCredential::new function is used to instantiate a BasicCredential, which is the library's primary supported credential type [1][2]. It accepts an identity as a vector of bytes (Vec<u8>) [1][3]. Regarding the identity bytes and semantics, the library treats the identity as an opaque byte string [1][4]. It does not impose any internal structure or semantics on these bytes, nor does it define how this identity relates to signature keys [1][2]. The OpenMLS protocol and library leave the validation of these identities and the binding between the identity and its corresponding signature keys entirely to the application's Authentication Service [1][4]. Because OpenMLS does not perform semantic validation, applications are responsible for verifying the identity bytes according to their own business logic, such as checking them against a list of authorized users or parsing them as specific identifiers like email addresses [5][6]. When using BasicCredentials, the application must ensure that the credential is correctly associated with the appropriate signature key material, as this link is not enforced by the MLS protocol itself [1][7][2].
+
+Citations:
+
+- 1: https://www.mintlify.com/openmls/openmls/concepts/credentials
+- 2: https://book.openmls.tech/print.html
+- 3: https://book.openmls.tech/user_manual/identity.html
+- 4: https://openmls-openmls.mintlify.app/concepts/credentials
+- 5: https://www.mintlify.com/openmls/openmls/user-manual/credential-validation
+- 6: https://www.mintlify.com/openmls/openmls/security/app-validation
+- 7: https://docs.rs/crate/openmls_basic_credential/latest
+
+---
+
+
+
+</details>
+
+**Unify MLS credential identity with addressing/subspace identity bytes**
+
+`experiments/encrypted-sync-slice/src/mls.rs` uses `name.as_bytes()` as the `BasicCredential` identity in `Member::new`, but addressing identity (`Member::identity()`) is the signer public key bytes; the comments also claim these are the “same bytes”. OpenMLS treats `BasicCredential` identity as opaque and doesn’t enforce any binding to the signature key, so this mismatch can mis-map authors across layers. At-risk input: `name`.
+
+<details>
+<summary>Suggested patch</summary>
+
+```diff
+ pub fn new(name: &str) -> Self {
+     let provider = OpenMlsRustCrypto::default();
+     let signature_algorithm: SignatureScheme = CIPHERSUITE.signature_algorithm();
+
+-    let credential = BasicCredential::new(name.as_bytes().to_vec());
+     let signer = SignatureKeyPair::new(signature_algorithm)
+         .expect("failed to generate signature keypair");
+     signer
+         .store(provider.storage())
+         .expect("failed to store signature keypair");
++    let identity_bytes = signer.to_public_vec();
++    let credential = BasicCredential::new(identity_bytes.clone());
+
+     let credential = CredentialWithKey {
+         credential: credential.into(),
+-        signature_key: signer.to_public_vec().into(),
++        signature_key: identity_bytes.into(),
+     };
+```
+</details>
+
+<!-- suggestion_start -->
+
+<details>
+<summary>📝 Committable suggestion</summary>
+
+> ‼️ **IMPORTANT**
+> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.
+
+```suggestion
+    pub fn new(name: &str) -> Self {
+        let provider = OpenMlsRustCrypto::default();
+        let signature_algorithm: SignatureScheme = CIPHERSUITE.signature_algorithm();
+
+        let signer = SignatureKeyPair::new(signature_algorithm)
+            .expect("failed to generate signature keypair");
+        signer
+            .store(provider.storage())
+            .expect("failed to store signature keypair");
+        let identity_bytes = signer.to_public_vec();
+        let credential = BasicCredential::new(identity_bytes.clone());
+
+        let credential = CredentialWithKey {
+            credential: credential.into(),
+            signature_key: identity_bytes.into(),
+        };
+```
+
+</details>
+
+<!-- suggestion_end -->
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/encrypted-sync-slice/src/mls.rs` around lines 40 - 54, The code
+creates a BasicCredential from name.as_bytes() while the addressing identity
+uses the signature key bytes, causing a mismatch; modify Member::new (pub fn
+new) so the BasicCredential identity is the signer public key bytes (use
+signer.to_public_vec()) instead of name.as_bytes(), then construct
+CredentialWithKey with that same public-key-derived identity and the
+signature_key as before (ensure signer.store(provider.storage()) remains and
+that the created BasicCredential and CredentialWithKey use the same byte
+sequence); update any comment that states these bytes are the “same” to reflect
+they are now derived from the signer public key.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:13157efc26ee23fa523f1b22 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/encrypted-sync-slice/src/mls.rs` :L143 — 2026-06-13T03:46:38Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _⚡ Quick win_
+
+**Do not panic on untrusted Welcome bytes.**
+
+`welcome_bytes` is wire input; current `expect`/`panic!` paths can terminate the process on malformed or non-Welcome messages.  
+At-risk input: `welcome_bytes`.  
+Fix: return `Result<MlsGroup, String>` and propagate parse/type/stage/join errors.
+
+<details>
+<summary>Suggested patch</summary>
+
+```diff
+-pub fn join_from_welcome(member: &Member, welcome_bytes: &[u8]) -> MlsGroup {
++pub fn join_from_welcome(member: &Member, welcome_bytes: &[u8]) -> Result<MlsGroup, String> {
+@@
+-    let message = MlsMessageIn::tls_deserialize_exact(welcome_bytes)
+-        .expect("failed to deserialize Welcome message");
++    let message = MlsMessageIn::tls_deserialize_exact(welcome_bytes)
++        .map_err(|_| "failed to deserialize Welcome message".to_string())?;
+     let welcome = match message.extract() {
+         MlsMessageBodyIn::Welcome(welcome) => welcome,
+-        _ => panic!("expected the message to be a Welcome"),
++        _ => return Err("expected the message to be a Welcome".to_string()),
+     };
+-    StagedWelcome::new_from_welcome(&member.provider, &config, welcome, None)
+-        .expect("failed to stage Welcome")
+-        .into_group(&member.provider)
+-        .expect("failed to join group from Welcome")
++    let staged = StagedWelcome::new_from_welcome(&member.provider, &config, welcome, None)
++        .map_err(|_| "failed to stage Welcome".to_string())?;
++    staged
++        .into_group(&member.provider)
++        .map_err(|_| "failed to join group from Welcome".to_string())
+ }
+```
+</details>
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/encrypted-sync-slice/src/mls.rs` around lines 127 - 143, Change
+join_from_welcome to return Result<MlsGroup, String> and stop panicking on
+untrusted input: replace the current expects/panic!s in join_from_welcome
+(including the MlsMessageIn::tls_deserialize_exact call, the match on
+message.extract(), StagedWelcome::new_from_welcome, and the final into_group)
+with fallible handling that maps/propagates errors as Err(String) (use ? where
+appropriate and map error types to a descriptive String) so malformed,
+non-Welcome, staging, or join failures are returned instead of terminating the
+process.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:535c28ca9ba411625d44169b -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### cycode-security[bot] on `experiments/local-first-lexicon-app/Cargo.lock` :L720 — 2026-06-13T11:27:21Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 24cec017-ec4a-465f-9982-eb90e6a9128c -->
+
+---
+
+### cycode-security[bot] on `experiments/encrypted-sync-slice/Cargo.lock` :L1376 — 2026-06-13T11:27:22Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 999eb731-c5cd-4f5c-bfab-9ac54f5b14a7 -->
+
+---
+
+### cycode-security[bot] on `experiments/local-first-lexicon-app/Cargo.lock` :L1378 — 2026-06-13T11:27:23Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- af70d781-4908-4f83-91cf-541110332e87 -->
+
+---
+
+### cycode-security[bot] on `experiments/local-first-lexicon-app/Cargo.lock` :L702 — 2026-06-13T11:27:24Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 57207184-ff3f-4fbd-8dcf-0255d716b17e -->
+
+---
+
+### cycode-security[bot] on `experiments/encrypted-sync-slice/Cargo.lock` :L763 — 2026-06-13T11:27:24Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-rust-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- efa0c909-8fb6-49c9-92cc-b38162be34fb -->
+
+---
+
+### cycode-security[bot] on `experiments/local-first-lexicon-app/Cargo.lock` :L748 — 2026-06-13T11:27:25Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-rust-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 1b1e2a27-a3d5-4246-bd46-d82aa7388072 -->
+
+---
+
+### cycode-security[bot] on `experiments/encrypted-sync-slice/Cargo.lock` :L1382 — 2026-06-13T11:28:22Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 6.0.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- bcae6945-6db1-46e0-870e-231cb807bd7c -->
+
+---
+
+### cycode-security[bot] on `experiments/local-first-lexicon-app/Cargo.lock` :L1384 — 2026-06-13T11:28:22Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 6.0.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 59692b3d-55f5-44dc-a125-3a16a1271dc1 -->
+
+---
+
+### cycode-security[bot] on `experiments/encrypted-sync-slice/Cargo.lock` :L735 — 2026-06-13T11:29:22Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- e1b87458-eff1-4b62-8247-fbefc9f9e148 -->
+
+---
+
+### cycode-security[bot] on `experiments/encrypted-sync-slice/Cargo.lock` :L745 — 2026-06-13T11:29:23Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-libcrux`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 8e20b514-9df9-4b62-b37e-6d8da485cdcb -->
+
+---
+
+### cycode-security[bot] on `experiments/encrypted-sync-slice/Cargo.lock` :L717 — 2026-06-13T11:30:23Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 5f5e8112-c307-4cc9-b4d3-c4b54074a02a -->
+
+---
+
+### cycode-security[bot] on `experiments/local-first-lexicon-app/Cargo.lock` :L730 — 2026-06-13T11:30:24Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-libcrux`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 33864c92-7a13-4a7a-99d4-7022802f5815 -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-first-lexicon-app/README.md` :L17 — 2026-06-13T11:38:28Z
+
+_⚠️ Potential issue_ | _🟡 Minor_ | _⚡ Quick win_
+
+**Add a language tag to the fenced command block.**
+
+Markdown lint will keep warning here, which can mask real docs issues in CI.
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+-```
++```bash
+ cargo run     # 6-step lifecycle + interop assertion + pass/fail summary
+ cargo test    # datetime + lexicon validation + 4-tuple comparator unit tests
+ ```
+```
+</details>
+
+<details>
+<summary>🧰 Tools</summary>
+
+<details>
+<summary>🪛 markdownlint-cli2 (0.22.1)</summary>
+
+[warning] 14-14: Fenced code blocks should have a language specified
+
+(MD040, fenced-code-language)
+
+</details>
+
+</details>
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+````
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-first-lexicon-app/README.md` around lines 14 - 17, The
+fenced code block containing the cargo commands is missing a language tag;
+update the opening fence from ``` to ```bash so the block becomes ```bash and
+the two lines "cargo run ..." and "cargo test ..." are annotated (this removes
+the markdown-lint warning and enables proper syntax highlighting).
+````
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:554049959ee992029505323b -->
+
+_Source: Linters/SAST tools_
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-first-lexicon-app/src/doc.rs` :L73 — 2026-06-13T11:38:28Z
+
+_⚠️ Potential issue_ | _🔴 Critical_ | _⚡ Quick win_
+
+**Missing bounds check before slicing with length prefix.**
+
+Line 69 slices `bytes[i..i + len]` without validating that `i + len <= bytes.len()`. If the length prefix is corrupted or malicious (claiming more bytes than available), this will panic with an out-of-bounds slice access.
+
+The corrupted input is: the `bytes` parameter containing serialized change batches, at risk when deserializing received encrypted payloads that were tampered with or corrupted during storage/transport.
+
+
+
+
+
+<details>
+<summary>🛡️ Proposed fix to add bounds validation</summary>
+
+```diff
+ pub fn deserialize_changes(bytes: &[u8]) -> Vec<Change> {
+     let mut out = Vec::new();
+     let mut i = 0;
+     while i + 4 <= bytes.len() {
+         let len = u32::from_be_bytes(bytes[i..i + 4].try_into().unwrap()) as usize;
+         i += 4;
++        if i + len > bytes.len() {
++            panic!("corrupted change batch: length prefix exceeds buffer");
++        }
+         out.push(Change::from_bytes(bytes[i..i + len].to_vec()).expect("bad change bytes"));
+         i += len;
+     }
+     out
+ }
+```
+
+</details>
+
+<!-- suggestion_start -->
+
+<details>
+<summary>📝 Committable suggestion</summary>
+
+> ‼️ **IMPORTANT**
+> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.
+
+```suggestion
+pub fn deserialize_changes(bytes: &[u8]) -> Vec<Change> {
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i + 4 <= bytes.len() {
+        let len = u32::from_be_bytes(bytes[i..i + 4].try_into().unwrap()) as usize;
+        i += 4;
+        if i + len > bytes.len() {
+            panic!("corrupted change batch: length prefix exceeds buffer");
+        }
+        out.push(Change::from_bytes(bytes[i..i + len].to_vec()).expect("bad change bytes"));
+        i += len;
+    }
+    out
+}
+```
+
+</details>
+
+<!-- suggestion_end -->
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-first-lexicon-app/src/doc.rs` around lines 63 - 73, The
+function deserialize_changes currently slices bytes[i..i+len] without validating
+that i+len <= bytes.len(); add a bounds check in deserialize_changes immediately
+after computing len to ensure i.checked_add(len).map(|end| end <=
+bytes.len()).unwrap_or(false) (or equivalent) and if the check fails, handle
+gracefully (e.g., break the loop and return the collected Vec<Change> or return
+an error if you prefer to change the signature to Result<Vec<Change>, _>); this
+prevents out-of-bounds panics when the length prefix is corrupted or malicious.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:puma -->
+
+<!-- cr-comment:v1:4ace25732446503c62d0ae99 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-first-lexicon-app/src/lexicon.rs` :L80 — 2026-06-13T11:38:28Z
+
+_⚠️ Potential issue_ | _🟠 Major_
+
+<details>
+<summary>🧩 Analysis chain</summary>
+
+🌐 Web query:
+
+`In atproto Lexicon validation, should unexpected/unknown fields be treated as hard errors, or tolerated (warning/ignore) for schema evolution forward compatibility?`
+
+💡 Result:
+
+In atproto Lexicon validation, unexpected or unknown fields should be tolerated rather than treated as hard errors [1][2][3]. According to the official Lexicon specification, data that conforms to a Lexicon should be allowed even if it contains unexpected fields, which should be ignored or, at most, treated as warnings [1][2]. This approach is explicitly designed to support schema evolution and ensure robustness when dealing with out-of-date Lexicon definitions [1][2][4]. Key points regarding this design include: * Forward Compatibility: Allowing unknown fields enables schemas to evolve by adding new, optional fields without breaking existing implementations that are unaware of those changes [1][2][4]. * Protocol Neutrality: AT Protocol is designed to be unopinionated about the contents of records beyond the base data model; therefore, validators should generally pass through unknown fields to ensure that records are carried faithfully across the network [5][3]. * Risk of Clobbering: Implementations that serialize and deserialize data must be careful not to strip (or "clobber") unexpected fields. When updating records, it is recommended to retain unknown fields or pass through the original data object rather than re-serializing it based solely on a known schema [1][2]. * Reserved Fields: While unknown application-level fields are tolerated, implementations must handle reserved fields (those starting with `$`) carefully, specifically ignoring unknown `$` fields to allow for future protocol evolution [6][7]. * Recommendation: Although the protocol does not forbid inserting custom, unspecced fields, it is generally discouraged because it may cause future collisions if the official schema later adopts those same field names [1][3]. If developers do use them, they are encouraged to namespace them to avoid conflicts [4][3].
+
+Citations:
+
+- 1: https://atproto.com/specs/lexicon
+- 2: https://github.com/bluesky-social/atproto-website/blob/867580a166ffd5de97ec23be89deb2cb320da18c/src/app/%5Blocale%5D/specs/lexicon/en.mdx
+- 3: https://github.com/bluesky-social/atproto/discussions/855
+- 4: https://whtwnd.com/samuel.bsky.team/3ljlqmchv2b2a
+- 5: https://github.com/bluesky-social/atproto/discussions/2126
+- 6: https://atproto.com/specs/data-model
+- 7: https://github.com/bluesky-social/atproto-website/blob/867580a166ffd5de97ec23be89deb2cb320da18c/src/app/%5Blocale%5D/specs/data-model/en.mdx
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+FILE="experiments/local-first-lexicon-app/src/lexicon.rs"
+echo "== file existence =="
+ls -la "$FILE" || true
+
+echo
+echo "== lines 1-140 (limited) =="
+sed -n '1,140p' "$FILE" | nl -ba | sed -n '1,140p'
+
+echo
+echo "== find validate_object =="
+rg -n "fn validate_object|validate_object\\(" "$FILE" || true
+
+echo
+echo "== surrounding validate_object (if found) =="
+LINE=$(rg -n "fn validate_object" "$FILE" | head -n1 | cut -d: -f1 || true)
+if [ -n "${LINE:-}" ]; then
+  START=$((LINE-40))
+  END=$((LINE+80))
+  sed -n "${START},${END}p" "$FILE" | nl -ba | sed -n "1,200p"
+fi
+
+echo
+echo "== search for \"closed object\" semantics =="
+rg -n "closed object|objects are closed|allow_type_field|\\$type|undeclared field" "$FILE" || true
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 278
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+FILE="experiments/local-first-lexicon-app/src/lexicon.rs"
+
+# Show more targeted snippet around the cited lines (70-90) with context
+echo "== snippet around lines 60-100 =="
+sed -n '55,105p' "$FILE" | nl -ba
+
+echo
+echo "== show entire validate_field / validate_object functions if small =="
+# crude extraction: print function bodies for validate_object and validate_field if they exist
+for fn in validate_object validate_field; do
+  if rg -n "fn $fn" "$FILE" >/dev/null; then
+    L=$(rg -n "fn $fn" "$FILE" | head -n1 | cut -d: -f1)
+    echo "--- $fn at line $L ---"
+    # print until next "fn " at col 5 or "impl" boundary (best effort)
+    # Use sed range heuristic: from L to L+200
+    sed -n "$L,$((L+220))p" "$FILE" | nl -ba | head -n 240
+  fi
+done
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 161
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+FILE="experiments/local-first-lexicon-app/src/lexicon.rs"
+echo "== file existence =="
+ls -la "$FILE" || true
+
+echo
+echo "== snippet around lines 55-105 =="
+sed -n '55,105p' "$FILE" | nl -ba
+
+echo
+echo "== find validate_object / validate_field =="
+rg -n "fn validate_object|fn validate_field" "$FILE" || true
+
+echo
+echo "== surrounding validate_object (best-effort, if found) =="
+LINE=$(rg -n "fn validate_object" "$FILE" | head -n1 | cut -d: -f1 || true)
+if [ -n "${LINE:-}" ]; then
+  START=$((LINE-60))
+  END=$((LINE+140))
+  sed -n "${START},${END}p" "$FILE" | nl -ba | sed -n '1,260p'
+fi
+
+echo
+echo "== search for closed/unknown field enforcement =="
+rg -n "undeclared field|objects are closed|allow_type_field|nested object may not carry \\$type|\\$type" "$FILE" || true
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 284
+
+---
+
+🌐 Web query:
+
+`atproto lexicon spec unexpected fields tolerated closed objects`
+
+💡 Result:
+
+In the AT Protocol (atproto) Lexicon specification, unexpected fields in data that otherwise conform to a schema are tolerated and should be ignored by validators [1][2][3]. This permissive approach is designed to ensure forward and backward compatibility, allowing schemas to evolve over time without breaking existing implementations [1][4]. The following key points summarize how unexpected fields and object constraints are handled: 1. Handling of Unexpected Fields: According to the official Lexicon documentation, implementations should ignore fields that are not explicitly defined in the schema [1][3]. When performing schema validation, such fields should be treated at worst as warnings, not errors [1][2]. 2. Risk of Clobbering: A known concern when handling unexpected fields is "clobbering," where an implementation deserializes an object, strips out unknown fields, and then re-serializes it [1][3]. To prevent data loss, developers are advised to retain extra fields or pass through the original data object when possible [1][5][3]. 3. Evolution and "Closed" Objects: While the documentation notes that the validation rules for unexpected fields could change—potentially allowing for a "closed" object mechanism where unexpected fields are explicitly disallowed—this has not been implemented as a standard feature for generic objects [1][3]. 4. Union Types vs. Object Types: The "closed" property is currently a feature of Union types in Lexicon, not standard objects [1][3]. For Unions, the closed flag (if set to true) indicates that the list of reference types is fixed and cannot be extended [1][3]. Standard object definitions remain open to unexpected fields to facilitate protocol evolution [1][4][6]. In practice, the protocol is intended to be unopinionated about the content of records, and services are generally expected to pass through unknown fields faithfully rather than stripping them [4].
+
+Citations:
+
+- 1: https://atproto.com/specs/lexicon
+- 2: https://github.com/bluesky-social/atproto-website/blob/867580a166ffd5de97ec23be89deb2cb320da18c/src/app/%5Blocale%5D/specs/lexicon/en.mdx
+- 3: https://bluesky-jp.github.io/specs/lexicon
+- 4: https://github.com/bluesky-social/atproto/discussions/2126
+- 5: https://github.com/bluesky-social/atproto/issues/2569
+- 6: https://atproto.com/guides/lexicon-style-guide
+
+---
+
+🌐 Web query:
+
+`atproto lexicon closed objects unexpected fields ignored`
+
+💡 Result:
+
+In the AT Protocol (atproto) Lexicon specification, unexpected fields in data that otherwise conform to a schema should be ignored [1][2]. The documentation explicitly states that implementations must be permissive when validating, as this is necessary to support schema evolution and ensure robustness against out-of-date Lexicons [1][2]. It is important to note that the "closed" flag in Lexicon, which is a boolean property used specifically for `union` definitions, indicates whether the set of types in that union is fixed or extensible [1][2]. It does not change the general behavior regarding unexpected fields in objects. When a union is "open" (the default, `closed: false`), future revisions can add more types [1][2]. When it is "closed" (`closed: true`), the set of types is fixed and cannot be extended [1][2]. Because unexpected fields should be ignored, developers must be cautious of "clobbering" data [1][2]. If an implementation deserializes an object, modifies it, and re-serializes it, it risks stripping out fields that were present but unrecognized by its version of the Lexicon [1][2]. To prevent data loss, best practices include retaining these extra fields or passing through the original data object instead of re-serializing it [1][2][3]. While the specification currently mandates ignoring unexpected fields, the documentation acknowledges that future validation rules may evolve, such as potentially introducing a mechanism to explicitly disallow unexpected fields or adopting a convention like `x-` prefixes for unofficial extensions [1][2].
+
+Citations:
+
+- 1: https://github.com/bluesky-social/atproto-website/blob/867580a166ffd5de97ec23be89deb2cb320da18c/src/app/%5Blocale%5D/specs/lexicon/en.mdx
+- 2: https://atproto.com/specs/lexicon
+- 3: https://github.com/bluesky-social/atproto/issues/2569
+
+---
+
+🌐 Web query:
+
+`spec lexicon unexpected fields ignored forward compatibility`
+
+💡 Result:
+
+In system design and API development, ignoring unexpected (unknown) fields is a common strategy to ensure forward compatibility, allowing systems to evolve by adding new fields without breaking older consumers [1][2][3]. However, the appropriateness of this behavior depends on the format and the specific use case. ### Mechanism and Forward Compatibility Forward compatibility is the ability of an older system to correctly process messages generated by a newer version of a schema [4][2]. * In binary formats like Protocol Buffers, parsers explicitly store unrecognized field numbers as "unknown fields" [5][6]. This allows the system to preserve these fields if it re-serializes the data, preventing data loss in middle-tier services or gateways [2][5]. * In text-based formats like JSON, the mechanism is usually a deserialization configuration [7][8][9]. By default, many libraries (such as those in Go and.NET) ignore fields in the payload that do not match the target model [7][10][9], though this can often be toggled to strict validation [10][11][9]. ### Trade-offs and Best Practices While ignoring fields supports the "Tolerant Reader" pattern [3], it carries risks: * Preserving Data (The "Pass-through" Problem): If a service is intended to act as a bridge, ignoring fields is insufficient; it must preserve them. If a service parses and then re-serializes data using a strict schema, unknown fields will be dropped, breaking forward compatibility for downstream consumers [2][5]. * Strict vs. Tolerant APIs: * Tolerant (Postel’s Law): Ignoring unknown fields is standard practice for external clients consuming APIs, protecting them from unexpected updates [3]. * Strict (API Contracts): For command-oriented APIs (e.g., POST, PUT), strict validation (rejecting unknown fields) is often recommended to prevent clients from silently sending incorrect data or assuming fields are being saved when they are not [12]. Zalando’s RESTful API guidelines, for instance, explicitly advise against ignoring unknown input fields in these cases to provide clear feedback to clients [12]. ### Summary of Implementation To maintain forward compatibility, developers should: 1. Use tolerant reading (ignoring unknown fields) by default for public-facing read APIs [3]. 2. Implement strict validation for write-heavy or authoritative APIs to ensure data integrity [12][10][9]. 3. Ensure that internal services designed to pass messages along are configured to preserve unknown fields rather than merely dropping them [2][5].
+
+Citations:
+
+- 1: https://www.speakeasy.com/docs/sdks/manage/forward-compatibility
+- 2: https://kmcd.dev/posts/protobuf-unknown-fields/
+- 3: https://www.techinterview.org/post/3233469419/lld-backward-compatibility/
+- 4: https://adhdecode.com/api-architecture/grpc-deep-dive/protobuf-evolution-backward-compatibility/
+- 5: https://protobuf.dev/programming-guides/editions/
+- 6: https://www.mintlify.com/protocolbuffers/protobuf/concepts/encoding
+- 7: https://pkg.go.dev/encoding/json/v2
+- 8: https://github.com/Kotlin/kotlinx.serialization/blob/v1.6.3/docs/json.md
+- 9: https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/missing-members
+- 10: https://oneuptime.com/blog/post/2026-01-23-go-json-unknown-fields/view
+- 11: https://dcw.ritviknag.com/en/latest/common_use_cases/handling_unknown_json_keys.html
+- 12: https://github.com/zalando/restful-api-guidelines/blob/main/chapters/compatibility.adoc
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+FILE="experiments/local-first-lexicon-app/src/lexicon.rs"
+
+echo "== validate_object location =="
+rg -n "fn validate_object" "$FILE" || true
+
+echo
+echo "== lines 60-95 (target area) =="
+sed -n '60,95p' "$FILE" | awk '{printf "%5d:%s\n", NR+59, $0}'
+
+echo
+echo "== search for unknown/undeclared handling in object validation =="
+rg -n "undeclared field|objects are closed|closed object|allow_type_field|nested object may not carry \\$type|\\$type" "$FILE" || true
+
+echo
+echo "== validate_object body (best-effort excerpt) =="
+L=$(rg -n "fn validate_object" "$FILE" | head -n1 | cut -d: -f1 || true)
+if [ -n "${L:-}" ]; then
+  START=$((L-10))
+  END=$((L+200))
+  sed -n "${START},${END}p" "$FILE" | awk '{printf "%5d:%s\n", NR+START-1, $0}'
+fi
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 2051
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+FILE="experiments/local-first-lexicon-app/src/lexicon.rs"
+
+# Show more context above the closed-object loop to see how `props`/`obj` are computed.
+sed -n '40,85p' "$FILE" | awk '{printf "%5d:%s\n", NR+39, $0}'
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 2234
+
+---
+
+
+
+</details>
+
+**Fix forward-compatibility: `validate_object` hard-rejects unknown record fields**
+
+`experiments/local-first-lexicon-app/src/lexicon.rs` `validate_object` treats objects as “closed” by returning `Err("undeclared field ... (objects are closed)")` for every key not present in `schema["properties"]`. Since `validate()` validates the full `record` JSON via `validate_object(..., record, true)`, any schema-evolved payload from peers/PDS that includes additional (otherwise-valid-to-ignore) fields will be rejected, breaking publish/sync interoperability.
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+-            let Some(pschema) = props.and_then(|p| p.get(name)) else {
+-                return Err(format!("undeclared field `{name}` (objects are closed)"));
+-            };
+-            self.validate_field(pschema, val, name)?;
++            if let Some(pschema) = props.and_then(|p| p.get(name)) {
++                self.validate_field(pschema, val, name)?;
++            } else {
++                // Forward-compat: tolerate unknown fields from newer schema revisions.
++                continue;
++            }
+```
+
+</details>
+
+<!-- suggestion_start -->
+
+<details>
+<summary>📝 Committable suggestion</summary>
+
+> ‼️ **IMPORTANT**
+> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.
+
+```suggestion
+        // Closed object: every present field must be declared (plus $type at root).
+        for (name, val) in obj {
+            if name == "$type" {
+                if allow_type_field {
+                    continue;
+                }
+                return Err("nested object may not carry $type".into());
+            }
+            if let Some(pschema) = props.and_then(|p| p.get(name)) {
+                self.validate_field(pschema, val, name)?;
+            } else {
+                // Forward-compat: tolerate unknown fields from newer schema revisions.
+                continue;
+            }
+```
+
+</details>
+
+<!-- suggestion_end -->
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:69dd91f7a31d5ca3d45f85f2 -->
+
+_Source: MCP tools_
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-first-lexicon-app/src/lexicon.rs` :L198 — 2026-06-13T11:38:29Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _⚡ Quick win_
+
+**Datetime validator accepts semantically invalid timestamps.**
+
+`is_atproto_datetime` only checks shape/digits; it currently accepts impossible values (e.g., month `13`, hour `25`, timezone `+99:99`). Input at risk: `createdAt` and any field with `format: "datetime"`.
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+-    let dparts: Vec<&str> = date.split('-').collect();
++    let dparts: Vec<&str> = date.split('-').collect();
+     if dparts.len() != 3
+         || dparts[0].len() != 4
+         || dparts[1].len() != 2
+         || dparts[2].len() != 2
+         || !dparts.iter().all(|p| p.bytes().all(|b| b.is_ascii_digit()))
+     {
+         return false;
+     }
++    let (Some(year), Some(month), Some(day)) = (
++        dparts[0].parse::<u32>().ok(),
++        dparts[1].parse::<u32>().ok(),
++        dparts[2].parse::<u32>().ok(),
++    ) else {
++        return false;
++    };
++    if !(1..=12).contains(&month) {
++        return false;
++    }
++    let max_day = match month {
++        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
++        4 | 6 | 9 | 11 => 30,
++        2 => {
++            if (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0) { 29 } else { 28 }
++        }
++        _ => return false,
++    };
++    if day == 0 || day > max_day {
++        return false;
++    }
+@@
+-        let ok = off.len() == 5
++        let ok = off.len() == 5
+             && off.as_bytes()[2] == b':'
+             && off[..2].bytes().all(|b| b.is_ascii_digit())
+-            && off[3..].bytes().all(|b| b.is_ascii_digit());
++            && off[3..].bytes().all(|b| b.is_ascii_digit())
++            && off[..2].parse::<u8>().ok().is_some_and(|h| h <= 23)
++            && off[3..].parse::<u8>().ok().is_some_and(|m| m <= 59);
+@@
+-    let base = clock.split('.').next().unwrap_or("");
++    let (base, frac_ok) = if let Some((b, frac)) = clock.split_once('.') {
++        (b, !frac.is_empty() && frac.bytes().all(|c| c.is_ascii_digit()))
++    } else {
++        (clock, true)
++    };
++    if !frac_ok {
++        return false;
++    }
+     let tparts: Vec<&str> = base.split(':').collect();
+-    tparts.len() == 3
+-        && tparts.iter().all(|p| p.len() == 2 && p.bytes().all(|b| b.is_ascii_digit()))
++    if !(tparts.len() == 3
++        && tparts.iter().all(|p| p.len() == 2 && p.bytes().all(|b| b.is_ascii_digit())))
++    {
++        return false;
++    }
++    let (Some(hh), Some(mm), Some(ss)) = (
++        tparts[0].parse::<u32>().ok(),
++        tparts[1].parse::<u32>().ok(),
++        tparts[2].parse::<u32>().ok(),
++    ) else {
++        return false;
++    };
++    hh <= 23 && mm <= 59 && ss <= 60
+```
+</details>
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-first-lexicon-app/src/lexicon.rs` around lines 166 - 198,
+is_atproto_datetime currently only checks digit shapes and accepts impossible
+values; parse the numeric parts and validate their semantic ranges: in
+is_atproto_datetime parse year/month/day from dparts (e.g., let year =
+dparts[0].parse::<i32>()?, month = dparts[1].parse::<u32>()?, day =
+dparts[2].parse::<u32>()?) and ensure month ∈ 1..=12 and day ∈
+1..=days_in_month(year, month) (implement a small days_in_month that handles
+February leap years); parse clock parts from tparts (split seconds to remove
+fractional part already done) and ensure hour ∈ 0..=23, minute ∈ 0..=59, second
+∈ 0..=59; for timezone offsets when using offset (the off variable) parse offset
+hours/minutes and require offset_hours ∈ 0..=23 and offset_minutes ∈ 0..=59
+(keep the existing 'Z' branch untouched); return false on any parse error or
+out-of-range value. Ensure you update the code around the dparts/tparts/tz_ok
+handling in is_atproto_datetime to perform these numeric parses and range
+checks.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:b7cb515f24f57e19d9dc7997 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-first-lexicon-app/src/repo.rs` :L35 — 2026-06-13T11:38:29Z
+
+_⚠️ Potential issue_ | _🟠 Major_
+
+<details>
+<summary>🧩 Analysis chain</summary>
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+# Verify call sites that must handle Result if put_record signature changes.
+rg -nP -C3 '\bput_record\s*\('
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 2201
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+# Inspect the exact implementation and nearby helpers/types.
+sed -n '1,120p' experiments/local-first-lexicon-app/src/repo.rs
+
+# Show just the put_record implementation with a bit of context.
+nl -ba experiments/local-first-lexicon-app/src/repo.rs | sed -n '1,120p'
+
+# Check what ObjType is and how it's used in this repo.
+rg -n "ObjType::Map|ObjType::" experiments/local-first-lexicon-app/src -S
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 3174
+
+---
+
+🌐 Web query:
+
+`automerge-rs AutoCommit doc.get(ROOT, key) return type and behavior when value is not an object map`
+
+💡 Result:
+
+In automerge-rs, the `AutoCommit::get` method returns `Result<Option<(Value<'_>, ExId)>, AutomergeError>` [1][2]. Regarding its behavior and return types: 1. Return Type: The method returns a `Result`. If successful, it contains an `Option` [1][2]. - `None`: Returned if the key does not exist at the specified object/property location [2]. - `Some((Value, ExId))`: Returned if the key exists [2]. - `Value`: An enum representing the data found (e.g., `Value::Scalar` for primitives like strings or numbers, or `Value::Object` for nested containers like maps or lists) [3][4]. - `ExId`: The exact identifier of the operation that created or last modified that specific value [2]. 2. Behavior when the value is not an object (map): - The method does not require or assume the returned value is a map [2]. It will return the `Value` regardless of its type [3][4]. - If the value is a scalar (e.g., a string, integer, or boolean), it is returned as `Value::Scalar` [3][4]. - If you were expecting an object but received a scalar, you would typically handle this by pattern matching on the `Value` enum to verify the expected type [3][4]. If you attempt to use the returned `ExId` to perform nested lookups (e.g., `doc.get(&ex_id, "key")`) on a non-object value, the operation will generally fail with an error, as the `ExId` must point to a container (map or list) [2][3]. The `ExId` is provided for both scalars and objects [2]. For objects, it serves as the identifier needed to navigate deeper into the document; for scalars, it identifies the specific operational state associated with that value [2].
+
+Citations:
+
+- 1: https://automerge.org/automerge/src/automerge/autocommit.rs.html
+- 2: https://automerge.org/automerge/src/automerge/read.rs.html
+- 3: https://automerge.org/automerge/automerge/
+- 4: https://docs.rs/automerge/latest/i686-pc-windows-msvc/automerge/?search=
+
+---
+
+🌐 Web query:
+
+`automerge-rs AutoCommit::put behavior when target ExId is not a map container`
+
+💡 Result:
+
+In the automerge-rs library, the AutoCommit::put method (which implements the Transactable trait) requires the target object to be of the correct type for the operation being performed [1][2]. If you attempt to use AutoCommit::put on an ExId that does not refer to a map container (e.g., attempting to put a key/value pair into a List or Text object), the operation will fail [1][3][4]. Specifically, documentation for the Transactable trait indicates that the put method returns an AutomergeError if the key is of the wrong type for the target object [1][3][4]. In Automerge, maps use keys that are strings, while lists use numeric indices [5]. Therefore, attempting a map-style put operation on a non-map container is fundamentally incompatible with the object's structure and will result in an error [1][4].
+
+Citations:
+
+- 1: https://automerge.org/automerge/src/automerge/transaction/transactable.rs.html
+- 2: https://docs.rs/automerge/latest/automerge/transaction/trait.Transactable.html
+- 3: https://automerge.org/automerge/automerge/transaction/struct.Transaction.html
+- 4: https://docs.rs/automerge/latest/automerge/transaction/struct.Transaction.html
+- 5: https://automerge.org/automerge/src/automerge/lib.rs.html
+
+---
+
+🌐 Web query:
+
+`automerge-rs automerge::Value enum variants Value::Object ObjType::Map pattern match example`
+
+💡 Result:
+
+To pattern match on an `automerge::Value` enum variant specifically for an `ObjType::Map`, you should match against the `Value::Object` variant [1][2][3]. When using methods like `doc.get()`, the return type is typically an `Option<(Value<'_>, ExId)>` [4]. You can pattern match on this tuple to verify the type and extract the object ID [1][5]. Example Pattern Match: match doc.get(automerge::ROOT, "my_map_key")? { Some((automerge::Value::Object(automerge::ObjType::Map), obj_id)) => { // Successfully matched a Map object // obj_id can now be used to query nested values }, Some((other_val, _)) => { // Handle other types (e.g., Scalar, List, Text) }, None => { // Key does not exist } } Key components: 1. Value::Object(ObjType): The `Value` enum distinguishes between composite objects and scalar values [3][6][7]. 2. ObjType::Map: This is the specific variant within `ObjType` used to identify Map structures [1][2]. 3. Object ID: The second element of the tuple returned by `get()` is the `ExId` (or object ID), which is required for subsequent read/write operations on that nested object [1][4]. For more examples, refer to the official Automerge documentation and source code, which frequently use this pattern when navigating documents [1][2][5].
+
+Citations:
+
+- 1: https://automerge.org/automerge/automerge/
+- 2: https://automerge.org/automerge/src/automerge/lib.rs.html
+- 3: https://automerge.org/automerge/src/automerge/value.rs.html
+- 4: https://automerge.org/automerge/src/automerge/read.rs.html
+- 5: https://docs.rs/automerge/latest/aarch64-apple-darwin/src/automerge/lib.rs.html
+- 6: https://docs.rs/automerge/latest/automerge/enum.Value.html
+- 7: https://automerge.org/automerge/automerge/enum.Value.html
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+rg -n "\bput_record\s*\(" -S
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 500
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+sed -n '100,200p' experiments/local-first-lexicon-app/src/main.rs
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 6015
+
+---
+
+
+
+</details>
+
+**Guard `collection` node type in `put_record` to prevent panics on malformed replicated state**
+
+`put_record` accepts any existing `collection` node (`Some((_, id)) => id`), and then calls `doc.put(&coll, rkey, record_json).expect(...)`. If the existing `collection` value isn’t an Automerge map, `doc.put` fails and the `.expect("failed to put record")` will panic, crashing sync/write paths for corrupted/older repo state.
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+-pub fn put_record(doc: &mut AutoCommit, collection: &str, rkey: &str, record_json: &str) {
+-    let coll = match doc.get(ROOT, collection).expect("read failed") {
+-        Some((_, id)) => id,
++pub fn put_record(
++    doc: &mut AutoCommit,
++    collection: &str,
++    rkey: &str,
++    record_json: &str,
++) -> Result<(), String> {
++    let coll = match doc.get(ROOT, collection).map_err(|e| e.to_string())? {
++        Some((automerge::Value::Object(ObjType::Map), id)) => id,
++        Some((_v, _id)) => {
++            return Err(format!("collection '{collection}' exists but is not a map"));
++        }
+         None => doc
+             .put_object(ROOT, collection, ObjType::Map)
+-            .expect("failed to create collection map"),
++            .map_err(|e| e.to_string())?,
+     };
+-    doc.put(&coll, rkey, record_json).expect("failed to put record");
++    doc.put(&coll, rkey, record_json)
++        .map_err(|e| e.to_string())?;
+     doc.commit();
++    Ok(())
+ }
+```
+
+</details>
+
+Also update the two call sites in `experiments/local-first-lexicon-app/src/main.rs` to handle the new `Result` (e.g., `.expect(...)` or proper error propagation).
+
+<!-- suggestion_start -->
+
+<details>
+<summary>📝 Committable suggestion</summary>
+
+> ‼️ **IMPORTANT**
+> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.
+
+```suggestion
+pub fn put_record(
+    doc: &mut AutoCommit,
+    collection: &str,
+    rkey: &str,
+    record_json: &str,
+) -> Result<(), String> {
+    let coll = match doc.get(ROOT, collection).map_err(|e| e.to_string())? {
+        Some((automerge::Value::Object(ObjType::Map), id)) => id,
+        Some((_v, _id)) => {
+            return Err(format!("collection '{collection}' exists but is not a map"));
+        }
+        None => doc
+            .put_object(ROOT, collection, ObjType::Map)
+            .map_err(|e| e.to_string())?,
+    };
+    doc.put(&coll, rkey, record_json)
+        .map_err(|e| e.to_string())?;
+    doc.commit();
+    Ok(())
+}
+```
+
+</details>
+
+<!-- suggestion_end -->
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-first-lexicon-app/src/repo.rs` around lines 26 - 35, Change
+put_record to return a Result and validate the existing collection node is a map
+before calling doc.put: in function put_record (accepting &mut AutoCommit,
+collection, rkey, record_json) check doc.get(ROOT, collection) and if Some
+ensure the returned object id points to an ObjType::Map (or otherwise return an
+Err describing malformed state), create the map with doc.put_object(ROOT,
+collection, ObjType::Map) on None, then call doc.put(&coll, rkey, record_json)
+and doc.commit() and return Ok(()); update the two callers of put_record to
+handle the Result (e.g., unwrap/expect or propagate the error).
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:0fca287db1cc0803eb43b7b6 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-first-lexicon-app/src/repo.rs` :L42 — 2026-06-13T11:38:29Z
+
+_⚠️ Potential issue_ | _🟠 Major_
+
+<details>
+<summary>🧩 Analysis chain</summary>
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+# Verify all callers that currently assume Option/Vec and must be updated for Result.
+rg -nP -C3 '\b(get_record|list_collection)\s*\('
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 6673
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+# Inspect repo.rs around the reported line ranges
+sed -n '1,120p' experiments/local-first-lexicon-app/src/repo.rs | nl -ba | sed -n '1,120p'
+sed -n '30,90p' experiments/local-first-lexicon-app/src/repo.rs | nl -ba
+
+# Inspect main.rs call sites that use get_record/list_collection
+sed -n '1,260p' experiments/local-first-lexicon-app/src/main.rs | nl -ba
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 109
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+echo "=== repo.rs (relevant functions) ==="
+sed -n '1,140p' experiments/local-first-lexicon-app/src/repo.rs | cat -n | sed -n '1,140p'
+
+echo "=== repo.rs (tail around list_collection/get_record) ==="
+sed -n '140,260p' experiments/local-first-lexicon-app/src/repo.rs | cat -n
+
+echo "=== main.rs (call sites for get_record/list_collection) ==="
+sed -n '1,280p' experiments/local-first-lexicon-app/src/main.rs | cat -n | sed -n '1,280p'
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 19388
+
+---
+
+🌐 Web query:
+
+`automerge Value into_string signature Result Option`
+
+💡 Result:
+
+In the Automerge Rust crate, the `into_string` method on the `Value` enum has the following signature: pub fn into_string(self) -> Result<String, Self> This method attempts to convert the `Value` into a `String`. If the conversion is successful, it returns `Ok(String)`. If the `Value` is not a string (e.g., if it is an object, list, or a different scalar type), it returns `Err(Self)`, where `Self` is the original `Value` that failed to convert [1][2]. Note that this differs from the `to_str` method, which has the signature `pub fn to_str(&self) -> Option<&str>` and returns an `Option` containing a borrowed reference to the string if the value is a string, or `None` otherwise [1][2].
+
+Citations:
+
+- 1: https://docs.rs/automerge/latest/automerge/enum.Value.html
+- 2: https://automerge.org/automerge/src/automerge/value.rs.html
+
+---
+
+
+
+</details>
+
+**Do not silently drop malformed record values**
+
+- `get_record` turns non-string stored record values into `None` via `value.into_string().ok()` (repo.rs:41), so callers treat type corruption as “missing” (`expect("post missing")` in main.rs).
+- `list_collection` uses `filter_map` and drops any non-string record values via `v.into_string().ok()` (repo.rs:52-56), so later `len()` checks and lexicon validation loops can succeed even when some records are corrupt/non-JSON-string.
+
+Fix by changing these APIs to return `Result` (e.g., `Result<Option<String>, E>` / `Result<Vec<...>, E>`) and propagating conversion/type errors instead of converting them to `None`/dropping them, updating `collection`/`rkey` callers in main.rs accordingly.
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-first-lexicon-app/src/repo.rs` around lines 38 - 42, Change
+get_record and list_collection in repo.rs to stop silently dropping non-string
+values: update get_record(doc: &AutoCommit, collection: &str, rkey: &str) to
+return a Result<Option<String>, E> (or Result<String, E> if missing is error)
+and return an Err when value.into_string() fails instead of mapping to None;
+update list_collection to return a Result<Vec<(String, String)>, E> (or
+Result<Vec<RecordType>, E>) and propagate conversion errors from v.into_string()
+rather than using filter_map to drop bad entries. Adjust all callers in main.rs
+that use collection/rkey (the code paths that currently call get_record and
+list_collection and use expect("post missing") or rely on dropped entries) to
+handle the Result (propagate the error or map it to a clearer application error)
+so type-corruption is surfaced instead of treated as missing data. Ensure error
+type E is consistent across repo.rs exports and main.rs handling.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:67db28b2c8a384be460530e8 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### cycode-security[bot] on `experiments/local-appview/Cargo.lock` :L855 — 2026-06-13T11:45:55Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 3c01a7e7-d1fb-4819-a815-d0c704e2d4e3 -->
+
+---
+
+### cycode-security[bot] on `experiments/local-appview/Cargo.lock` :L837 — 2026-06-13T11:46:02Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 55683495-ecb8-412b-bb2c-abf236f01e1a -->
+
+---
+
+### cycode-security[bot] on `experiments/local-appview/Cargo.lock` :L883 — 2026-06-13T11:46:03Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-rust-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 81b0f4d9-897c-4011-8834-e6aaa628d178 -->
+
+---
+
+### cycode-security[bot] on `experiments/local-appview/Cargo.lock` :L1776 — 2026-06-13T11:47:48Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 6a4f80a9-408c-4f18-800a-5c02b3943ed6 -->
+
+---
+
+### cycode-security[bot] on `experiments/local-appview/Cargo.lock` :L1782 — 2026-06-13T11:47:51Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 6.0.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- a1d73ff5-acb6-433d-af08-9146a812af1f -->
+
+---
+
+### cycode-security[bot] on `experiments/local-appview/Cargo.lock` :L865 — 2026-06-13T11:47:58Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-libcrux`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- d4b404f9-9015-40fe-a88d-c06670f504fb -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-appview/README.md` :L14 — 2026-06-13T11:55:13Z
+
+_⚠️ Potential issue_ | _🟡 Minor_ | _⚡ Quick win_
+
+**Add a language tag to the fenced command block.**
+
+The fence is unlabeled, which triggers MD040 and creates avoidable lint noise.
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+-```
++```bash
+ cargo run     # 5-step lifecycle: setup -> ingest -> serve -> hydrate -> rebuild
+ cargo test    # lexicon/datetime/comparator unit tests
+ ```
+```
+</details>
+
+<details>
+<summary>🧰 Tools</summary>
+
+<details>
+<summary>🪛 markdownlint-cli2 (0.22.1)</summary>
+
+[warning] 11-11: Fenced code blocks should have a language specified
+
+(MD040, fenced-code-language)
+
+</details>
+
+</details>
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+````
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-appview/README.md` around lines 11 - 14, Add a language tag
+to the unlabeled fenced code block so the block is recognized as bash by the
+linter; change the opening fence from ``` to ```bash for the block containing
+the cargo run / cargo test commands (the fenced command block shown in the
+README).
+````
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:b97f829e9a0e8ffead937fa8 -->
+
+_Source: Linters/SAST tools_
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-appview/src/crypto.rs` :L29 — 2026-06-13T11:55:14Z
+
+_⚠️ Potential issue_ | _🟠 Major_
+
+<details>
+<summary>🧩 Analysis chain</summary>
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+# Verify all encrypt/decrypt call sites that must be updated with stable AAD.
+rg -nP --type=rust '\b(encrypt|decrypt)\s*\(' experiments/local-appview/src
+
+# Locate available context fields to build canonical AAD (storage key / address tuple / epoch).
+rg -nP --type=rust 'storage_key|address|epoch|content_key|derive' experiments/local-appview/src
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 6272
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+echo "=== crypto.rs ==="
+nl -ba experiments/local-appview/src/crypto.rs | sed -n '1,120p'
+
+echo
+echo "=== main.rs (encryption/decryption call sites) ==="
+nl -ba experiments/local-appview/src/main.rs | sed -n '60,140p'
+
+echo
+echo "=== address.rs (storage_key derivation) ==="
+nl -ba experiments/local-appview/src/address.rs | sed -n '1,160p'
+
+echo
+echo "=== store.rs (what is keyed by storage_key vs blob hash) ==="
+nl -ba experiments/local-appview/src/store.rs | sed -n '1,140p'
+
+echo
+echo "=== mls.rs (content key derivation context binding) ==="
+nl -ba experiments/local-appview/src/mls.rs | sed -n '1,140p'
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 145
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+echo "=== crypto.rs ==="
+nl -ba experiments/local-appview/src/crypto.rs | sed -n '1,140p'
+
+echo
+echo "=== main.rs (encryption/decryption call sites) ==="
+nl -ba experiments/local-appview/src/main.rs | sed -n '60,160p'
+
+echo
+echo "=== store.rs ==="
+nl -ba experiments/local-appview/src/store.rs | sed -n '1,140p'
+
+echo
+echo "=== address.rs ==="
+nl -ba experiments/local-appview/src/address.rs | sed -n '1,170p'
+
+echo
+echo "=== mls.rs ==="
+nl -ba experiments/local-appview/src/mls.rs | sed -n '1,160p'
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 145
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+echo "=== crypto.rs ==="
+nl -ba experiments/local-appview/src/crypto.rs | sed -n '1,160p'
+
+echo
+echo "=== main.rs ==="
+nl -ba experiments/local-appview/src/main.rs | sed -n '60,160p'
+
+echo
+echo "=== store.rs ==="
+nl -ba experiments/local-appview/src/store.rs | sed -n '1,200p'
+
+echo
+echo "=== address.rs ==="
+nl -ba experiments/local-appview/src/address.rs | sed -n '1,200p'
+
+echo
+echo "=== mls.rs ==="
+nl -ba experiments/local-appview/src/mls.rs | sed -n '1,200p'
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 145
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+printf "=== crypto.rs ===\n"
+nl -ba experiments/local-appview/src/crypto.rs | sed -n '1,120p'
+
+printf "\n=== main.rs ===\n"
+nl -ba experiments/local-appview/src/main.rs | sed -n '60,140p'
+
+printf "\n=== store.rs ===\n"
+nl -ba experiments/local-appview/src/store.rs | sed -n '1,120p'
+
+printf "\n=== address.rs (storage_key) ===\n"
+nl -ba experiments/local-appview/src/address.rs | sed -n '30,90p'
+
+printf "\n=== mls.rs (content_key) ===\n"
+nl -ba experiments/local-appview/src/mls.rs | sed -n '1,120p'
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 145
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+echo "=== Cargo.toml (relevant deps) ==="
+rg -n "chacha20poly1305|aead|chacha" -S experiments/local-appview/Cargo.toml Cargo.toml 2>/dev/null || true
+ls -R experiments/local-appview | head
+
+# find Cargo.toml within repo (top-level)
+fd -a "Cargo.toml" . | sed -n '1,50p'
+
+# show the local-appview Cargo.toml if present
+if [ -f experiments/local-appview/Cargo.toml ]; then
+  nl -ba experiments/local-appview/Cargo.toml | sed -n '1,200p'
+elif [ -f Cargo.toml ]; then
+  nl -ba Cargo.toml | sed -n '1,260p'
+fi
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 579
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+nl -ba experiments/local-appview/src/crypto.rs | sed -n '1,70p'
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 109
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+nl -ba experiments/local-appview/src/crypto.rs | sed -n '1,120p'
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 109
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+
+echo "=== crypto.rs ==="
+awk '{printf "%5d %s\n", NR, $0}' experiments/local-appview/src/crypto.rs | sed -n '1,220p'
+
+echo
+echo "=== main.rs (encryption/decryption call sites) ==="
+awk '{printf "%5d %s\n", NR, $0}' experiments/local-appview/src/main.rs | sed -n '1,220p'
+
+echo
+echo "=== address.rs (storage_key derivation) ==="
+awk '{printf "%5d %s\n", NR, $0}' experiments/local-appview/src/address.rs | sed -n '1,260p'
+
+echo
+echo "=== store.rs (pointer -> blob hash) ==="
+awk '{printf "%5d %s\n", NR, $0}' experiments/local-appview/src/store.rs | sed -n '1,220p'
+
+echo
+echo "=== mls.rs (content_key derivation) ==="
+awk '{printf "%5d %s\n", NR, $0}' experiments/local-appview/src/mls.rs | sed -n '1,240p'
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 28339
+
+---
+
+
+
+</details>
+
+**Bind ciphertext to record identity (AAD) and avoid panic on encryption failure**
+
+- `experiments/local-appview/src/crypto.rs` `encrypt`/`decrypt` use ChaCha20Poly1305 with **no AAD**, so a ciphertext produced under the same per-epoch `content_key` will still authenticate/decrypt even if substituted for a different logical record (e.g., different `Address::storage_key` target).
+- `encrypt` uses `.expect("AEAD encryption failed")`, which can panic instead of propagating an error.
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+ use chacha20poly1305::{
+-    aead::{Aead, KeyInit},
++    aead::{Aead, KeyInit, Payload},
+     ChaCha20Poly1305, Key, Nonce,
+ };
+
+ /// Encrypt `plaintext` under a 32-byte content key. Output is `nonce || ct`.
+-pub fn encrypt(content_key: &[u8; 32], plaintext: &[u8]) -> Vec<u8> {
++pub fn encrypt(content_key: &[u8; 32], aad: &[u8], plaintext: &[u8]) -> Result<Vec<u8>, String> {
+     let cipher = ChaCha20Poly1305::new(Key::from_slice(content_key));
+     let mut nonce_bytes = [0u8; NONCE_LEN];
+     rand::rngs::OsRng.fill_bytes(&mut nonce_bytes);
+     let nonce = Nonce::from_slice(&nonce_bytes);
+-    let ciphertext = cipher
+-        .encrypt(nonce, plaintext)
+-        .expect("AEAD encryption failed");
++    let ciphertext = cipher
++        .encrypt(nonce, Payload { msg: plaintext, aad })
++        .map_err(|_| "AEAD encryption failed".to_string())?;
+     let mut out = Vec::with_capacity(NONCE_LEN + ciphertext.len());
+     out.extend_from_slice(&nonce_bytes);
+     out.extend_from_slice(&ciphertext);
+-    out
++    Ok(out)
+ }
+
+ /// Decrypt a `nonce || ct` blob under a 32-byte content key.
+-pub fn decrypt(content_key: &[u8; 32], blob: &[u8]) -> Result<Vec<u8>, String> {
++pub fn decrypt(content_key: &[u8; 32], aad: &[u8], blob: &[u8]) -> Result<Vec<u8>, String> {
+     if blob.len() < NONCE_LEN {
+         return Err("ciphertext too short to contain a nonce".into());
+     }
+     let (nonce_bytes, ciphertext) = blob.split_at(NONCE_LEN);
+     let cipher = ChaCha20Poly1305::new(Key::from_slice(content_key));
+     let nonce = Nonce::from_slice(nonce_bytes);
+     cipher
+-        .decrypt(nonce, ciphertext)
++        .decrypt(nonce, Payload { msg: ciphertext, aad })
+         .map_err(|_| "AEAD decryption/authentication failed".to_string())
+ }
+```
+</details>
+
+- Update call sites (e.g., `experiments/local-appview/src/main.rs`) to pass stable AAD derived from the record’s canonical identity (such as the `Address` tuple / `storage_key`, and/or epoch data).
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-appview/src/crypto.rs` around lines 21 - 29, The
+encrypt/decrypt functions in experiments/local-appview/src/crypto.rs currently
+call ChaCha20Poly1305 without AAD and use expect(...) on encryption which can
+panic; change encrypt and decrypt to accept an additional AAD parameter (e.g.,
+aad: &[u8]) and pass that to cipher.encrypt(...) and cipher.decrypt(...), return
+Result<Vec<u8>, CryptoError> (propagate errors instead of panicking) and ensure
+decrypt verifies the same AAD; update any callers (for example in
+experiments/local-appview/src/main.rs) to compute and supply a stable AAD
+derived from the record identity (e.g., Address/storage_key and epoch) so
+ciphertexts are bound to the logical record.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:11124d75de0a431ff1b5cf12 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-appview/src/groupdoc.rs` :L38 — 2026-06-13T11:55:14Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _⚡ Quick win_
+
+**Harden path traversal to avoid panics on malformed repo shape.**
+
+`did`, `collection`, and `rkey` come from replicated CRDT keys, but traversal assumes intermediate nodes are always `Map`. Right now, a scalar at `ROOT/<did>` or `.../<collection>` can trip `expect(...)` paths and crash ingest.
+
+<details>
+<summary>Proposed fix</summary>
+
+```diff
+-pub fn put_record(doc: &mut AutoCommit, did: &str, collection: &str, rkey: &str, record_json: &str) {
+-    let repo = ensure_map(doc, ROOT, did);
+-    let coll = ensure_map(doc, repo, collection);
+-    doc.put(&coll, rkey, record_json).expect("failed to put record");
+-    doc.commit();
++pub fn put_record(
++    doc: &mut AutoCommit,
++    did: &str,
++    collection: &str,
++    rkey: &str,
++    record_json: &str,
++) -> Result<(), String> {
++    let repo = ensure_map(doc, ROOT, did)?;
++    let coll = ensure_map(doc, &repo, collection)?;
++    doc.put(&coll, rkey, record_json).map_err(|e| e.to_string())?;
++    doc.commit();
++    Ok(())
+ }
+ 
+-fn ensure_map(...) -> automerge::ObjId {
+-    match doc.get(parent.as_ref(), key).expect("read failed") {
+-        Some((_, id)) => id,
+-        None => doc.put_object(parent.as_ref(), key, ObjType::Map).expect("failed to create map"),
++fn ensure_map(...) -> Result<automerge::ObjId, String> {
++    match doc.get(parent.as_ref(), key).map_err(|e| e.to_string())? {
++        Some((automerge::Value::Object(ObjType::Map), id)) => Ok(id),
++        Some(_) => Err(format!("path segment `{key}` is not a map")),
++        None => doc
++            .put_object(parent.as_ref(), key, ObjType::Map)
++            .map_err(|e| e.to_string()),
+     }
+ }
+```
+
+</details>
+
+
+
+
+
+
+
+Also applies to: 48-53
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-appview/src/groupdoc.rs` around lines 33 - 38, The
+traversal code that calls doc.get(...) and then expects a Map (using
+expect/unwrap) must be hardened: instead of assuming Some((_, id)) is a Map,
+match on doc.get(parent.as_ref(), key) -> Ok(Some((obj_type, id))) and if
+obj_type == ObjType::Map return id, otherwise replace the non-Map by creating a
+new map with doc.put_object(parent.as_ref(), key, ObjType::Map) (or delete then
+put if API requires) and return that id; also handle Ok(None) by creating the
+map as you already do and propagate Err by returning/propagating the error
+instead of panic. Apply this change to both traversal sites that use
+doc.get/doc.put_object with ObjType::Map (the blocks handling did, collection,
+and rkey) so malformed scalar nodes are detected and safely replaced rather than
+causing expect() panics.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:94144ec8cf052dcd20b30d4b -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-appview/src/indexer.rs` :L123 — 2026-06-13T11:55:14Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _🏗️ Heavy lift_
+
+**Remove `unwrap()` from SQL query paths and propagate DB errors.**
+
+`timeline`/`reactions_for` currently panic on SQLite failures. In the HTTP path, that turns operational DB errors into panics instead of 5xx responses.
+
+<details>
+<summary>Proposed fix direction</summary>
+
+```diff
+-fn reactions_for(&self, post_uri: &str) -> Vec<ReactionView> {
++fn reactions_for(&self, post_uri: &str) -> Result<Vec<ReactionView>, String> {
+     let mut stmt = self
+         .conn
+         .prepare("SELECT emoji, did FROM records WHERE collection = ?1 AND subject = ?2 ORDER BY rkey")
+-        .unwrap();
++        .map_err(|e| e.to_string())?;
+     let rows = stmt
+         .query_map(params![self.reaction_nsid(), post_uri], |r| {
+             Ok(ReactionView { ... })
+         })
+-        .unwrap();
+-    rows.filter_map(Result::ok).collect()
++        .map_err(|e| e.to_string())?;
++    rows.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())
+}
+```
+
+Apply the same pattern to `timeline`/`thread` and return `Result<...>` so handlers can map failures to `StatusCode::INTERNAL_SERVER_ERROR`.
+</details>
+
+
+
+
+
+
+
+Also applies to: 131-131, 145-148, 153-153
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-appview/src/indexer.rs` around lines 120 - 123, The code
+currently uses unwrap() on SQLite operations in functions like timeline,
+reactions_for, and thread which causes panics on DB errors; change these
+functions to return Result<... , rusqlite::Error> (or a crate-local Error type)
+and replace unwrap() calls (e.g., the prepare(...) call and any
+step/query_row/rows_iter uses) with ? to propagate errors, handling row
+iteration errors by mapping rusqlite errors into the Result as well; update
+callers (HTTP handlers) to map these Results into
+StatusCode::INTERNAL_SERVER_ERROR on Err so operational DB failures return 5xx
+instead of panicking.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:6bbcf77b61c5936da87a5860 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-appview/src/lexicon.rs` :L229 — 2026-06-13T11:55:14Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _⚡ Quick win_
+
+**`is_atproto_datetime` accepts invalid timestamps.**
+
+`createdAt` values with impossible components (month/day/hour/minute/second/offset) or malformed fractional seconds can pass. That allows invalid record input through ingest validation.
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+ pub fn is_atproto_datetime(s: &str) -> bool {
+@@
+-    // Date: YYYY-MM-DD
++    // Date: YYYY-MM-DD
+     let dparts: Vec<&str> = date.split('-').collect();
+@@
+-    // Time + timezone.
++    let year: i32 = match dparts[0].parse() { Ok(v) => v, Err(_) => return false };
++    let month: u32 = match dparts[1].parse() { Ok(v) => v, Err(_) => return false };
++    let day: u32 = match dparts[2].parse() { Ok(v) => v, Err(_) => return false };
++    if month == 0 || month > 12 { return false; }
++    let dim = match month {
++        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
++        4 | 6 | 9 | 11 => 30,
++        2 => if (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0) { 29 } else { 28 },
++        _ => return false,
++    };
++    if day == 0 || day > dim { return false; }
++
++    // Time + timezone.
+     let (clock, tz_ok) = if let Some(rest) = time.strip_suffix('Z') {
+         (rest, true)
+     } else if let Some(idx) = time.rfind(['+', '-']) {
+         let (clock, offset) = time.split_at(idx);
+@@
+-        let ok = off.len() == 5
++        let ok = off.len() == 5
+             && off.as_bytes()[2] == b':'
+             && off[..2].bytes().all(|b| b.is_ascii_digit())
+             && off[3..].bytes().all(|b| b.is_ascii_digit());
++        if ok {
++            let oh: u32 = off[..2].parse().unwrap_or(99);
++            let om: u32 = off[3..].parse().unwrap_or(99);
++            if oh > 23 || om > 59 {
++                return false;
++            }
++        }
+         (clock, ok)
+@@
+-    // clock: HH:MM:SS with optional fractional seconds.
+-    let base = clock.split('.').next().unwrap_or("");
++    // clock: HH:MM:SS with optional fractional seconds.
++    let (base, frac_ok) = if let Some((b, frac)) = clock.split_once('.') {
++        (b, !frac.is_empty() && frac.bytes().all(|c| c.is_ascii_digit()))
++    } else {
++        (clock, true)
++    };
++    if !frac_ok { return false; }
+     let tparts: Vec<&str> = base.split(':').collect();
+-    tparts.len() == 3
+-        && tparts.iter().all(|p| p.len() == 2 && p.bytes().all(|b| b.is_ascii_digit()))
++    if tparts.len() != 3 || !tparts.iter().all(|p| p.len() == 2 && p.bytes().all(|b| b.is_ascii_digit())) {
++        return false;
++    }
++    let hh: u32 = tparts[0].parse().unwrap_or(99);
++    let mm: u32 = tparts[1].parse().unwrap_or(99);
++    let ss: u32 = tparts[2].parse().unwrap_or(99);
++    hh <= 23 && mm <= 59 && ss <= 59
+ }
+```
+</details>
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-appview/src/lexicon.rs` around lines 192 - 229,
+is_atproto_datetime currently only checks formatting; extend it to validate
+numeric ranges and fractional-second content so impossible timestamps are
+rejected. After splitting into date/time (variables date, time, dparts), parse
+year/month/day as integers and enforce month in 1..=12 and day within the
+correct range for that month (handle February with leap-year logic using the
+parsed year). After extracting clock and base (variables clock, base, tparts),
+parse HH:MM:SS as integers and enforce hour 0..=23 and minute/second 0..=59; if
+fractional seconds exist (the portion after '.'), ensure it consists only of
+digits and is non-empty. For timezone handling (the tz offset logic that sets
+tz_ok and off), validate offset hours and minutes as integers with hours 0..=14
+and minutes 0..=59 (and reject offsets with malformed lengths or non-digit
+chars). Update is_atproto_datetime to return false on any out-of-range or
+non-digit findings rather than accepting them.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:03e60117249ab2f7c50e9886 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-appview/src/mls.rs` :L143 — 2026-06-13T11:55:14Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _⚡ Quick win_
+
+**Untrusted sync payloads currently use panic-based failure paths.** Both boundaries should return typed/recoverable errors so malformed peer or storage input cannot terminate the process.
+
+- `experiments/local-appview/src/mls.rs#L127-L143`: change `join_from_welcome` to return `Result<_, _>` and replace `expect`/`panic!` with mapped errors.
+- `experiments/local-appview/src/doc.rs#L15-L17`: change `load` to return `Result<AutoCommit, _>` instead of `expect(...)`, and handle this at caller boundaries.
+
+<details>
+<summary>📍 Affects 2 files</summary>
+
+- `experiments/local-appview/src/mls.rs#L127-L143` (this comment)
+- `experiments/local-appview/src/doc.rs#L15-L17`
+
+</details>
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-appview/src/mls.rs` around lines 127 - 143, Change
+join_from_welcome in experiments/local-appview/src/mls.rs (lines 127-143) to
+return a Result<MlsGroup, E> instead of panicking: replace the expect/panic!
+calls inside MlsMessageIn::tls_deserialize_exact, the match that currently
+panics on a non-Welcome, StagedWelcome::new_from_welcome, and into_group with
+mapped/propagated errors (e.g., map deserialization, unexpected message kind,
+staging, and join failures into a typed error or Box<dyn Error> and return Err
+on failure). In experiments/local-appview/src/doc.rs (lines 15-17) change load
+to return Result<AutoCommit, E> (matching the error type chosen above) instead
+of calling expect(...), and update its callers to propagate or handle the Err
+case; if a site does not need direct changes beyond handling the propagated
+Result, state that the root-cause fix in join_from_welcome/doc::load suffices
+and handle errors at the call sites.
+```
+
+</details>
+
+<!-- consolidated_sites_start -->
+<!--
+<consolidated_sites>
+<site>
+<role>anchor</role>
+<file>experiments/local-appview/src/mls.rs</file>
+<line_range>127-143</line_range>
+</site>
+<site>
+<role>sibling</role>
+<file>experiments/local-appview/src/doc.rs</file>
+<line_range>15-17</line_range>
+</site>
+</consolidated_sites>
+-->
+<!-- consolidated_sites_end -->
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:7e9469f9b883a585e668ea0a -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-appview/src/server.rs` :L36 — 2026-06-13T11:55:14Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _⚡ Quick win_
+
+**Handle mutex lock failures explicitly instead of panicking.**
+
+`state.lock().unwrap()` can panic on poisoned mutex state. Return HTTP 500 for this path so the service degrades gracefully.
+
+<details>
+<summary>Proposed fix</summary>
+
+```diff
+-async fn get_timeline(State(state): State<Shared>, Query(p): Query<TimelineParams>) -> Json<Value> {
+-    let idx = state.lock().unwrap();
++async fn get_timeline(
++    State(state): State<Shared>,
++    Query(p): Query<TimelineParams>,
++) -> Result<Json<Value>, StatusCode> {
++    let idx = state.lock().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+     let feed = idx.timeline(p.limit.unwrap_or(50).clamp(1, 100));
+-    Json(json!({ "feed": feed }))
++    Ok(Json(json!({ "feed": feed })))
+ }
+ 
+ async fn get_post_thread(...) -> Result<Json<Value>, StatusCode> {
+-    let idx = state.lock().unwrap();
++    let idx = state.lock().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+     ...
+ }
+```
+
+</details>
+
+
+
+
+
+
+
+Also applies to: 49-50
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-appview/src/server.rs` around lines 35 - 36, Replace
+occurrences of state.lock().unwrap() with explicit error handling: call
+state.lock() and match on the Result (e.g., if let Ok(idx) = state.lock() { ...
+} else { return HttpResponse::InternalServerError().body("mutex lock error");
+}), and then use idx.timeline(...) as before; do this for both places where
+state.lock().unwrap() appears so a poisoned mutex returns HTTP 500 instead of
+panicking. Ensure the error branch returns an appropriate HTTP 500 response
+(matching your handler return type) and includes a concise message or logs the
+underlying error.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:d8bed7e705aa8dd67a91fa49 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-appview/src/source.rs` :L121 — 2026-06-13T11:55:14Z
+
+_⚠️ Potential issue_ | _🟡 Minor_ | _⚡ Quick win_
+
+**Don’t coerce JSON parse failures to `Value::Null` for create events.**
+
+When `json` is malformed, this emits a `Create` with `record = null` instead of surfacing a parse failure. That masks bad input and makes ingest failures harder to diagnose.
+
+<details>
+<summary>Proposed fix</summary>
+
+```diff
+-        groupdoc::list_all(self.doc)
+-            .into_iter()
+-            .map(|(did, collection, rkey, json)| {
+-                let record: Value = serde_json::from_str(&json).unwrap_or(Value::Null);
++        groupdoc::list_all(self.doc)
++            .into_iter()
++            .filter_map(|(did, collection, rkey, json)| {
++                let Ok(record) = serde_json::from_str::<Value>(&json) else {
++                    return None;
++                };
+                 let cid = Some(format!("b3-{}", blake3::hash(json.as_bytes()).to_hex()));
+-                RecordEvent {
++                Some(RecordEvent {
+                     action: Action::Create,
+                     did,
+                     collection,
+                     rkey,
+                     cid,
+                     record,
+                     observed_at: now,
+-                }
++                })
+             })
+             .collect()
+```
+
+</details>
+
+<!-- suggestion_start -->
+
+<details>
+<summary>📝 Committable suggestion</summary>
+
+> ‼️ **IMPORTANT**
+> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.
+
+```suggestion
+        groupdoc::list_all(self.doc)
+            .into_iter()
+            .filter_map(|(did, collection, rkey, json)| {
+                let Ok(record) = serde_json::from_str::<Value>(&json) else {
+                    return None;
+                };
+                let cid = Some(format!("b3-{}", blake3::hash(json.as_bytes()).to_hex()));
+                Some(RecordEvent {
+                    action: Action::Create,
+                    did,
+                    collection,
+                    rkey,
+                    cid,
+                    record,
+                    observed_at: now,
+                })
+            })
+            .collect()
+```
+
+</details>
+
+<!-- suggestion_end -->
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-appview/src/source.rs` around lines 120 - 121, The code
+currently swallows JSON parse errors by using
+serde_json::from_str(&json).unwrap_or(Value::Null) which emits a Create with
+record = null; instead, when handling create events change this to propagate or
+surface parse failures (e.g., use serde_json::from_str(&json)? or match on the
+Result and return an Err) so malformed JSON does not become Value::Null; update
+the code that sets record (and any callers that expect a Result) to
+return/handle the error rather than coercing to Value::Null while leaving cid
+creation as-is.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:5cd4538637ed295cd6f0d13c -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/local-appview/src/store.rs` :L69 — 2026-06-13T11:55:14Z
+
+_⚠️ Potential issue_ | _🟡 Minor_ | _⚡ Quick win_
+
+**Reject dangling pointer writes in `set_pointer`.**
+
+Line 62 currently accepts any `hash`; if that hash is absent, `resolve(storage_key)` later fails silently. This can hide upstream write-order bugs and drop reads for that `storage_key`.
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+-    pub fn set_pointer(&mut self, storage_key: &str, hash: BlobHash) {
++    pub fn set_pointer(&mut self, storage_key: &str, hash: BlobHash) -> Result<(), String> {
++        if !self.blobs.contains_key(&hash.0) {
++            return Err(format!("cannot set pointer for missing blob hash: {}", hash.0));
++        }
+         self.pointers.insert(storage_key.to_string(), hash);
++        Ok(())
+     }
+```
+</details>
+
+<!-- suggestion_start -->
+
+<details>
+<summary>📝 Committable suggestion</summary>
+
+> ‼️ **IMPORTANT**
+> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.
+
+```suggestion
+    pub fn set_pointer(&mut self, storage_key: &str, hash: BlobHash) -> Result<(), String> {
+        if !self.blobs.contains_key(&hash.0) {
+            return Err(format!("cannot set pointer for missing blob hash: {}", hash.0));
+        }
+        self.pointers.insert(storage_key.to_string(), hash);
+        Ok(())
+    }
+
+    /// Resolve a 4-tuple storage key to the content it currently points at.
+    pub fn resolve(&self, storage_key: &str) -> Option<&[u8]> {
+        let hash = self.pointers.get(storage_key)?;
+        self.get(hash)
+```
+
+</details>
+
+<!-- suggestion_end -->
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/local-appview/src/store.rs` around lines 62 - 69, Change
+set_pointer to refuse dangling hashes by checking that the target blob exists
+before inserting into self.pointers: call self.get(&hash) (or otherwise check
+the blob store) and if it returns None, do not insert and return an error/false;
+if it exists, perform the insert and return Ok/true. Update the set_pointer
+signature to return a Result or bool (and propagate handling to its callers),
+keep resolve and get unchanged, and ensure self.pointers.insert is only called
+when the existence check passes.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:e136dd8ea3711337d0dabb49 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/jetstream-appview/README.md` :L11 — 2026-06-13T12:06:20Z
+
+_⚠️ Potential issue_ | _🟡 Minor_ | _⚡ Quick win_
+
+**Add a language tag to the fenced code block.**
+
+This currently triggers markdownlint MD040 and can fail docs lint gates.
+
+   
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+-```
++```bash
+ cargo run     # 5-step lifecycle: feed -> ingest -> serve -> resume -> swap proof
+ cargo test    # lexicon/datetime validation tests
+ ```
+```
+</details>
+
+<details>
+<summary>🧰 Tools</summary>
+
+<details>
+<summary>🪛 markdownlint-cli2 (0.22.1)</summary>
+
+[warning] 8-8: Fenced code blocks should have a language specified
+
+(MD040, fenced-code-language)
+
+</details>
+
+</details>
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+````
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/jetstream-appview/README.md` around lines 8 - 11, Replace the
+fenced code block that contains the commands "cargo run     # 5-step lifecycle:
+feed -> ingest -> serve -> resume -> swap proof" and "cargo test    #
+lexicon/datetime validation tests" with a language-tagged block by changing the
+opening fence from ``` to ```bash so the snippet becomes ```bash ... ``` to
+satisfy markdownlint MD040.
+````
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:2c03f381c2efcdc3b16d6af3 -->
+
+_Source: Linters/SAST tools_
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/jetstream-appview/src/lexicon.rs` :L229 — 2026-06-13T12:06:20Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _⚡ Quick win_
+
+**Datetime validation accepts invalid timestamps.**
+
+`record["createdAt"]` can pass with impossible values (e.g., month/day/time out of range) and non-digit fractional seconds because the parser checks shape but not numeric validity.
+
+   
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+ pub fn is_atproto_datetime(s: &str) -> bool {
+@@
+-    // Date: YYYY-MM-DD
++    // Date: YYYY-MM-DD
+     let dparts: Vec<&str> = date.split('-').collect();
+@@
+     {
+         return false;
+     }
++    let year: u32 = dparts[0].parse().ok()?;
++    let month: u32 = dparts[1].parse().ok()?;
++    let day: u32 = dparts[2].parse().ok()?;
++    if !(1..=12).contains(&month) {
++        return false;
++    }
++    let leap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
++    let max_day = match month {
++        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
++        4 | 6 | 9 | 11 => 30,
++        2 if leap => 29,
++        2 => 28,
++        _ => return false,
++    };
++    if day == 0 || day > max_day {
++        return false;
++    }
+@@
+-    // clock: HH:MM:SS with optional fractional seconds.
+-    let base = clock.split('.').next().unwrap_or("");
++    // clock: HH:MM:SS with optional fractional seconds.
++    let (base, frac_ok) = if let Some((b, frac)) = clock.split_once('.') {
++        (b, !frac.is_empty() && frac.bytes().all(|c| c.is_ascii_digit()))
++    } else {
++        (clock, true)
++    };
++    if !frac_ok {
++        return false;
++    }
+     let tparts: Vec<&str> = base.split(':').collect();
+-    tparts.len() == 3
+-        && tparts.iter().all(|p| p.len() == 2 && p.bytes().all(|b| b.is_ascii_digit()))
++    if !(tparts.len() == 3
++        && tparts.iter().all(|p| p.len() == 2 && p.bytes().all(|b| b.is_ascii_digit())))
++    {
++        return false;
++    }
++    let hh: u32 = tparts[0].parse().ok()?;
++    let mm: u32 = tparts[1].parse().ok()?;
++    let ss: u32 = tparts[2].parse().ok()?;
++    hh <= 23 && mm <= 59 && ss <= 60
+ }
+```
+</details>
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/jetstream-appview/src/lexicon.rs` around lines 192 - 229,
+is_atproto_datetime currently only checks format shape; update it to validate
+numeric ranges: parse year/month/day from dparts and ensure month is 1..=12, day
+is within valid range for that month (handle February leap years using year %
+4/100/400 rules) and >=1; parse HH:MM:SS from tparts and ensure hour 0..=23,
+minute 0..=59, second 0..=59; restrict fractional seconds (the portion after
+'.') to only ASCII digits (no letters) if present; for timezone offsets (the off
+slice in the '+'/'-' branch) parse offset hours and minutes and ensure
+hours/minutes are numeric and within 0..=23 and 0..=59 respectively (or a
+narrower valid max for offset hours if desired). Make these checks inside
+is_atproto_datetime, returning false on any numeric violation.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:38c7244b5f58b1ba8850eb9a -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/jetstream-appview/src/server.rs` :L6 — 2026-06-13T12:06:20Z
+
+_⚠️ Potential issue_ | _🟠 Major_
+
+<details>
+<summary>🧩 Analysis chain</summary>
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+# Verify blocking + sync mutex usage in async handlers
+rg -nP 'use std::sync::\{Arc, Mutex\}|async fn get_(timeline|post_thread)|state\.lock\(\)\.unwrap\(|idx\.(timeline|thread)\(' experiments/jetstream-appview/src/server.rs
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 413
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+sed -n '1,120p' experiments/jetstream-appview/src/server.rs
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 1606
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+rg -n "fn (timeline|thread)\b" -S experiments/jetstream-appview/src ../ -S || true
+rg -n "struct Indexer\b" -S . || true
+rg -n "mod indexer|pub mod indexer|crate::indexer" -S . || true
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 1184
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+sed -n '1,240p' experiments/jetstream-appview/src/indexer.rs
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 6650
+
+---
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+set -euo pipefail
+ls -la experiments/jetstream-appview
+find experiments/jetstream-appview -maxdepth 2 -name Cargo.toml -print -exec sed -n '1,200p' {} \;
+rg -n "tokio::task|spawn_blocking" -S experiments/jetstream-appview || true
+rg -n "tokio\s*=" -S Cargo.toml experiments -g'Cargo.toml' || true
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 1967
+
+---
+
+
+
+</details>
+
+**Move SQLite work off Tokio async request threads (prevents availability degradation)**
+
+`get_timeline` and `get_post_thread` lock `std::sync::Mutex` with `state.lock().unwrap()` and then run synchronous rusqlite queries inline via `Indexer::timeline(...)` / `Indexer::thread(...)` (both do `prepare/query_map` / `query_row`). Under concurrent requests this blocks Tokio workers; request inputs (`limit`, `uri`) directly drive the DB work.
+
+<details>
+<summary>Suggested fix</summary>
+
+```diff
+ use std::sync::{Arc, Mutex};
++use tokio::task;
+@@
+-async fn get_timeline(State(state): State<Shared>, Query(p): Query<TimelineParams>) -> Json<Value> {
+-    let idx = state.lock().unwrap();
+-    let feed = idx.timeline(p.limit.unwrap_or(50).clamp(1, 100));
+-    Json(json!({ "feed": feed }))
++async fn get_timeline(
++    State(state): State<Shared>,
++    Query(p): Query<TimelineParams>,
++) -> Result<Json<Value>, StatusCode> {
++    let limit = p.limit.unwrap_or(50).clamp(1, 100);
++    let feed = task::spawn_blocking(move || {
++        let idx = state.lock().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
++        Ok::<_, StatusCode>(idx.timeline(limit))
++    })
++    .await
++    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)??;
++    Ok(Json(json!({ "feed": feed })))
+ }
+@@
+ ) -> Result<Json<Value>, StatusCode> {
+-    let idx = state.lock().unwrap();
+-    match idx.thread(&p.uri) {
++    let uri = p.uri;
++    let view = task::spawn_blocking(move || {
++        let idx = state.lock().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
++        Ok::<_, StatusCode>(idx.thread(&uri))
++    })
++    .await
++    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)??;
++    match view {
+         Some(view) => Ok(Json(json!({ "thread": view }))),
+         None => Err(StatusCode::NOT_FOUND),
+     }
+ }
+```
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:e1c540f4f4b0667d547be441 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### cycode-security[bot] on `experiments/public-private-split/Cargo.lock` :L1582 — 2026-06-13T12:21:40Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 6.0.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 6216d5d7-f8e9-4020-adea-d47ffdcb7d2e -->
+
+---
+
+### cycode-security[bot] on `experiments/public-private-split/Cargo.lock` :L812 — 2026-06-13T12:21:41Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- e1451b82-635c-471f-a316-19f48f2ec394 -->
+
+---
+
+### cycode-security[bot] on `experiments/public-private-split/Cargo.lock` :L1576 — 2026-06-13T12:21:42Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 031acc7e-42a8-4288-9b37-2d98a604619f -->
+
+---
+
+### cycode-security[bot] on `experiments/public-private-split/Cargo.lock` :L822 — 2026-06-13T12:21:43Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-libcrux`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 97e74eeb-270c-43a5-a6fd-0b1bb4e2382c -->
+
+---
+
+### cycode-security[bot] on `experiments/public-private-split/Cargo.lock` :L794 — 2026-06-13T12:21:44Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- efb552e8-e4d7-4def-85f3-f79cf2899467 -->
+
+---
+
+### cycode-security[bot] on `experiments/public-private-split/Cargo.lock` :L840 — 2026-06-13T12:21:45Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-rust-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 60539393-e0b8-4d5d-8875-f0a3b946e6d6 -->
+
+---
+
+### coderabbitai[bot] on `experiments/public-private-split/README.md` :L16 — 2026-06-13T12:31:32Z
+
+_⚠️ Potential issue_ | _🟡 Minor_ | _⚡ Quick win_
+
+**Specify the language on the fenced shell block.**
+
+The fence starting at Line 13 is unlabeled; this triggers markdownlint and weakens tooling support for docs pipelines.
+
+
+
+
+
+
+<details>
+<summary>Proposed fix</summary>
+
+```diff
+-```
++```bash
+ cargo run     # 5-step lifecycle: private group -> mirror -> non-leakage -> validity -> ingest
+ cargo test
+ ```
+```
+</details>
+
+<details>
+<summary>🧰 Tools</summary>
+
+<details>
+<summary>🪛 markdownlint-cli2 (0.22.1)</summary>
+
+[warning] 13-13: Fenced code blocks should have a language specified
+
+(MD040, fenced-code-language)
+
+</details>
+
+</details>
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+````
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/public-private-split/README.md` around lines 13 - 16, Label the
+unlabeled fenced code block that contains the two shell commands ("cargo run"
+and "cargo test") by changing its opening fence from ``` to ```bash so the block
+is explicitly marked as shell script; leave the contents and closing fence
+unchanged.
+````
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:b6253f07fa702cec6306bc1a -->
+
+_Source: Linters/SAST tools_
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/public-private-split/src/doc.rs` :L17 — 2026-06-13T12:31:32Z
+
+_⚠️ Potential issue_ | _🟠 Major_
+
+<details>
+<summary>🧩 Analysis chain</summary>
+
+🏁 Script executed:
+
+```shell
+#!/bin/bash
+# Verify all call sites that use `doc::load` so they can propagate/handle Result.
+rg -nP --type=rust '\bdoc::load\s*\(|\bload\s*\(' experiments/public-private-split/src
+```
+
+Repository: croftc/SecurityPolicy
+
+Length of output: 789
+
+---
+
+
+
+</details>
+
+**Avoid panicking on malformed automerge snapshots in `doc::load()`**  
+
+`load(snapshot: &[u8])` panics via `AutoCommit::load(snapshot).expect(...)` when the `snapshot` bytes are corrupted/tampered, which can take down the process instead of returning an error.  
+
+<details>
+<summary>Proposed fix</summary>
+
+```diff
+ /// Load a document from a `save()` snapshot.
+-pub fn load(snapshot: &[u8]) -> AutoCommit {
+-    AutoCommit::load(snapshot).expect("failed to load automerge snapshot")
++pub fn load(snapshot: &[u8]) -> Result<AutoCommit, automerge::AutomergeError> {
++    AutoCommit::load(snapshot)
+ }
+```
+</details>
+
+Update any callers to handle the returned `Result` (the only match for `doc::load` under `experiments/public-private-split/src` is the function definition itself, so caller handling may live elsewhere).
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/public-private-split/src/doc.rs` around lines 15 - 17, Change
+doc::load from a panicking wrapper to return the underlying error: update the
+signature of pub fn load(snapshot: &[u8]) to return Result<AutoCommit,
+automerge::AutomergeError> (or the exact error type returned by
+AutoCommit::load) and implement it by directly returning
+AutoCommit::load(snapshot) instead of calling expect; update any callers to
+handle the Result (propagate with ? or handle the error) so corrupt/tampered
+snapshots no longer cause a process panic.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:d5933098c07cc53ec7523798 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/public-private-split/src/lexicon.rs` :L198 — 2026-06-13T12:31:32Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _⚡ Quick win_
+
+**`createdAt` validation accepts impossible timestamps.**
+
+`is_atproto_datetime` currently accepts structurally-correct but invalid values (e.g., month/day/hour/minute/second out of range), so malformed `createdAt` input can pass `Lexicon::validate`.
+
+
+
+
+
+
+<details>
+<summary>Proposed fix</summary>
+
+```diff
+ pub fn is_atproto_datetime(s: &str) -> bool {
+@@
+-    // Date: YYYY-MM-DD
++    // Date: YYYY-MM-DD (with range checks)
+     let dparts: Vec<&str> = date.split('-').collect();
+@@
+     {
+         return false;
+     }
++    let month: u8 = match dparts[1].parse() { Ok(v) => v, Err(_) => return false };
++    let day: u8 = match dparts[2].parse() { Ok(v) => v, Err(_) => return false };
++    if !(1..=12).contains(&month) || !(1..=31).contains(&day) {
++        return false;
++    }
+@@
+-    // clock: HH:MM:SS with optional fractional seconds.
+-    let base = clock.split('.').next().unwrap_or("");
++    // clock: HH:MM:SS with optional fractional seconds.
++    let mut split = clock.split('.');
++    let base = split.next().unwrap_or("");
++    if let Some(frac) = split.next() {
++        if frac.is_empty() || !frac.bytes().all(|b| b.is_ascii_digit()) {
++            return false;
++        }
++        if split.next().is_some() {
++            return false;
++        }
++    }
+     let tparts: Vec<&str> = base.split(':').collect();
+-    tparts.len() == 3
+-        && tparts.iter().all(|p| p.len() == 2 && p.bytes().all(|b| b.is_ascii_digit()))
++    if !(tparts.len() == 3
++        && tparts.iter().all(|p| p.len() == 2 && p.bytes().all(|b| b.is_ascii_digit())))
++    {
++        return false;
++    }
++    let hh: u8 = match tparts[0].parse() { Ok(v) => v, Err(_) => return false };
++    let mm: u8 = match tparts[1].parse() { Ok(v) => v, Err(_) => return false };
++    let ss: u8 = match tparts[2].parse() { Ok(v) => v, Err(_) => return false };
++    hh < 24 && mm < 60 && ss < 60
+ }
+```
+</details>
+
+<!-- suggestion_start -->
+
+<details>
+<summary>📝 Committable suggestion</summary>
+
+> ‼️ **IMPORTANT**
+> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.
+
+```suggestion
+pub fn is_atproto_datetime(s: &str) -> bool {
+    let Some((date, time)) = s.split_once('T') else {
+        return false;
+    };
+    // Date: YYYY-MM-DD (with range checks)
+    let dparts: Vec<&str> = date.split('-').collect();
+    if dparts.len() != 3
+        || dparts[0].len() != 4
+        || dparts[1].len() != 2
+        || dparts[2].len() != 2
+        || !dparts.iter().all(|p| p.bytes().all(|b| b.is_ascii_digit()))
+    {
+        return false;
+    }
+    let month: u8 = match dparts[1].parse() { Ok(v) => v, Err(_) => return false };
+    let day: u8 = match dparts[2].parse() { Ok(v) => v, Err(_) => return false };
+    if !(1..=12).contains(&month) || !(1..=31).contains(&day) {
+        return false;
+    }
+    // Time + timezone.
+    let (clock, tz_ok) = if let Some(rest) = time.strip_suffix('Z') {
+        (rest, true)
+    } else if let Some(idx) = time.rfind(['+', '-']) {
+        let (clock, offset) = time.split_at(idx);
+        // offset like +HH:MM
+        let off = &offset[1..];
+        let ok = off.len() == 5
+            && off.as_bytes()[2] == b':'
+            && off[..2].bytes().all(|b| b.is_ascii_digit())
+            && off[3..].bytes().all(|b| b.is_ascii_digit());
+        (clock, ok)
+    } else {
+        return false; // no timezone
+    };
+    if !tz_ok {
+        return false;
+    }
+    // clock: HH:MM:SS with optional fractional seconds.
+    let mut split = clock.split('.');
+    let base = split.next().unwrap_or("");
+    if let Some(frac) = split.next() {
+        if frac.is_empty() || !frac.bytes().all(|b| b.is_ascii_digit()) {
+            return false;
+        }
+        if split.next().is_some() {
+            return false;
+        }
+    }
+    let tparts: Vec<&str> = base.split(':').collect();
+    if !(tparts.len() == 3
+        && tparts.iter().all(|p| p.len() == 2 && p.bytes().all(|b| b.is_ascii_digit())))
+    {
+        return false;
+    }
+    let hh: u8 = match tparts[0].parse() { Ok(v) => v, Err(_) => return false };
+    let mm: u8 = match tparts[1].parse() { Ok(v) => v, Err(_) => return false };
+    let ss: u8 = match tparts[2].parse() { Ok(v) => v, Err(_) => return false };
+    hh < 24 && mm < 60 && ss < 60
+}
+```
+
+</details>
+
+<!-- suggestion_end -->
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/public-private-split/src/lexicon.rs` around lines 161 - 198, The
+is_atproto_datetime function currently only checks format; update it to validate
+numeric ranges: parse year, month, day from dparts and check 1 <= month <= 12
+and day is within the correct max for that month (handle February leap years
+using the usual (year%4==0 && (year%100!=0 || year%400==0)) rule); parse clock
+parts (HH, MM, SS) and ensure 0 <= HH <= 23 and 0 <= MM, SS <= 59 (allow seconds
+fractional part after '.'); when validating a numeric timezone offset (the off
+string from the '+'/'-') parse offset hours/minutes and ensure 0 <= offset_hours
+<= 23 and 0 <= offset_minutes <= 59 (or otherwise enforce your desired limit)
+and only accept 'Z' or a properly ranged +/-HH:MM; perform all checks using
+numeric parsing (e.g., parse::<u32>()) and return false on any parse error so
+that impossible timestamps are rejected.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:8776b3f02c05c326d96da311 -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/public-private-split/src/mirror.rs` :L76 — 2026-06-13T12:31:32Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _⚡ Quick win_
+
+**Do not panic on malformed mirrored records.**
+
+`json` and record shape from `groupdoc::list_all(private_doc)` are input data; `expect(...)` here lets a single bad public-tagged record crash the entire mirror run.
+
+
+
+
+
+
+<details>
+<summary>Proposed fix</summary>
+
+```diff
+-        let value: Value = serde_json::from_str(json).expect("record is valid JSON");
++        let value: Value = match serde_json::from_str(json) {
++            Ok(v) => v,
++            Err(_) => {
++                stats.kept_private += 1;
++                continue;
++            }
++        };
+@@
+-        lex.validate(&value).expect("public record must be lexicon-valid");
++        if lex.validate(&value).is_err() {
++            stats.kept_private += 1;
++            continue;
++        }
+```
+</details>
+
+<!-- suggestion_start -->
+
+<details>
+<summary>📝 Committable suggestion</summary>
+
+> ‼️ **IMPORTANT**
+> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.
+
+```suggestion
+        let value: Value = match serde_json::from_str(json) {
+            Ok(v) => v,
+            Err(_) => {
+                stats.kept_private += 1;
+                continue;
+            }
+        };
+
+        // Rule 2: a public reaction must not reference a non-public subject.
+        if collection == reaction_lex.id() {
+            let subject = value["subject"]["uri"].as_str().unwrap_or("");
+            if !public_uris.contains(subject) {
+                stats.redacted_refs += 1;
+                continue; // redact: dropping avoids leaking the private subject
+            }
+        }
+
+        // What crosses the boundary must be valid atproto.
+        let lex = if collection == post_lex.id() { post_lex } else { reaction_lex };
+        if lex.validate(&value).is_err() {
+            stats.kept_private += 1;
+            continue;
+        }
+```
+
+</details>
+
+<!-- suggestion_end -->
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/public-private-split/src/mirror.rs` around lines 63 - 76, The
+code currently panics on malformed mirrored records via
+serde_json::from_str(...).expect and lex.validate(...).expect; change the logic
+in mirror.rs to handle errors gracefully: replace
+serde_json::from_str(json).expect(...) with matching on Result and if Err {
+increment a suitable stats counter (e.g. stats.bad_json or similar) and continue
+}, replace the lex.validate(&value).expect(...) with matching on its Result and
+on Err { increment a stats counter for invalid_lex_records and continue }, and
+avoid unwrap_or("") for subject lookup by checking
+value["subject"]["uri"].as_str() and treating None as non-public (incrementing
+stats.redacted_refs if appropriate) so malformed shapes do not panic but are
+skipped. Ensure you reference the same symbols: serde_json::from_str(json),
+reaction_lex/post_lex selection, value["subject"]["uri"].as_str(), public_uris,
+lex.validate(&value), and stats counters when implementing the non-panicking
+early-continue behavior.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:030bcec0ea4a1d171c548ecb -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### coderabbitai[bot] on `experiments/public-private-split/src/mirror.rs` :L76 — 2026-06-13T12:31:32Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _⚡ Quick win_
+
+**Reject unknown `collection` values explicitly at the mirror boundary.**
+
+The `else { reaction_lex }` fallback means any non-post `collection` is treated as reaction. This weakens the collection/schema contract for mirrored records.
+
+
+
+
+
+
+<details>
+<summary>Proposed fix</summary>
+
+```diff
+-        let lex = if collection == post_lex.id() { post_lex } else { reaction_lex };
+-        lex.validate(&value).expect("public record must be lexicon-valid");
++        let lex = match collection.as_str() {
++            c if c == post_lex.id() => post_lex,
++            c if c == reaction_lex.id() => reaction_lex,
++            _ => {
++                stats.kept_private += 1;
++                continue;
++            }
++        };
++        if lex.validate(&value).is_err() {
++            stats.kept_private += 1;
++            continue;
++        }
+```
+</details>
+
+<!-- suggestion_start -->
+
+<details>
+<summary>📝 Committable suggestion</summary>
+
+> ‼️ **IMPORTANT**
+> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.
+
+```suggestion
+        let lex = match collection.as_str() {
+            c if c == post_lex.id() => post_lex,
+            c if c == reaction_lex.id() => reaction_lex,
+            _ => {
+                stats.kept_private += 1;
+                continue;
+            }
+        };
+        if lex.validate(&value).is_err() {
+            stats.kept_private += 1;
+            continue;
+        }
+```
+
+</details>
+
+<!-- suggestion_end -->
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/public-private-split/src/mirror.rs` around lines 75 - 76, The
+mirror boundary currently falls back to reaction_lex for any non-post collection
+(lex selection uses let lex = if collection == post_lex.id() { post_lex } else {
+reaction_lex }), so update the selection to explicitly match known collection
+IDs and reject unknown ones: replace the fallback with an explicit
+match/if-else-if that checks collection == post_lex.id() and collection ==
+reaction_lex.id(), and if neither matches return or propagate an error (or panic
+with a clear message including the unknown collection id) before calling
+lex.validate(&value). Ensure you reference post_lex, reaction_lex, collection,
+and the validate call when making the change so unknown collections are rejected
+at the mirror boundary.
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:e179d96c57b5c74c64fb5a1f -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+✅ Addressed in commits 543b6db to d668591
+
+---
+
+### coderabbitai[bot] on `experiments/public-private-split/src/public_repo.rs` :L62 — 2026-06-13T12:31:33Z
+
+_⚠️ Potential issue_ | _🟠 Major_ | _⚡ Quick win_
+
+**`leaks()` can miss real leaks because JSON escaping changes byte sequences.**
+
+Line 61 checks `contains(needle)` on serialized JSON, so sensitive text with escaped characters can evade detection. Input at risk: `needle` containing control characters or escape-sensitive content.
+
+<details>
+<summary>Proposed fix</summary>
+
+```diff
+ pub fn leaks(&self, needle: &str) -> bool {
+-    self.to_json().to_string().contains(needle)
++    if needle.is_empty() {
++        return false;
++    }
++    fn contains_needle(v: &Value, needle: &str) -> bool {
++        match v {
++            Value::String(s) => s.contains(needle),
++            Value::Array(a) => a.iter().any(|x| contains_needle(x, needle)),
++            Value::Object(m) => m
++                .iter()
++                .any(|(k, v)| k.contains(needle) || contains_needle(v, needle)),
++            _ => false,
++        }
++    }
++    contains_needle(&self.to_json(), needle)
+ }
+```
+</details>
+
+<!-- suggestion_start -->
+
+<details>
+<summary>📝 Committable suggestion</summary>
+
+> ‼️ **IMPORTANT**
+> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.
+
+```suggestion
+    /// Does any byte of the public projection contain `needle`? The core
+    /// non-leakage check: private content must never appear here.
+    pub fn leaks(&self, needle: &str) -> bool {
+        if needle.is_empty() {
+            return false;
+        }
+        fn contains_needle(v: &Value, needle: &str) -> bool {
+            match v {
+                Value::String(s) => s.contains(needle),
+                Value::Array(a) => a.iter().any(|x| contains_needle(x, needle)),
+                Value::Object(m) => m
+                    .iter()
+                    .any(|(k, v)| k.contains(needle) || contains_needle(v, needle)),
+                _ => false,
+            }
+        }
+        contains_needle(&self.to_json(), needle)
+    }
+```
+
+</details>
+
+<!-- suggestion_end -->
+
+<details>
+<summary>🤖 Prompt for AI Agents</summary>
+
+```
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@experiments/public-private-split/src/public_repo.rs` around lines 58 - 62,
+The current leaks() searches the JSON string produced by to_json(), which can
+miss matches due to JSON escaping; change leaks to parse the JSON into a
+serde_json::Value (via serde_json::from_str or from_slice on the output of
+to_json()) and recursively inspect all string values for needle (checking
+Value::String.contains(needle)) so you search the unescaped content rather than
+the escaped JSON text; implement a small helper (e.g., fn value_contains(v:
+&Value, needle: &str) -> bool) and call it from leaks() instead of using
+to_json().to_string().contains(needle).
+```
+
+</details>
+
+<!-- fingerprinting:phantom:poseidon:hawk -->
+
+<!-- cr-comment:v1:d78da335ee08a8be9a8793de -->
+
+<!-- This is an auto-generated comment by CodeRabbit -->
+
+---
+
+### cycode-security[bot] on `experiments/local-pds-bridge/Cargo.lock` :L951 — 2026-06-13T12:33:16Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 90f007f9-e459-46df-ac05-2621385a647b -->
+
+---
+
+### cycode-security[bot] on `experiments/end-to-end-slice/Cargo.lock` :L2003 — 2026-06-13T12:41:39Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 6.0.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 3a2e3164-dbe6-4007-93b6-79e7059da385 -->
+
+---
+
+### cycode-security[bot] on `experiments/end-to-end-slice/Cargo.lock` :L994 — 2026-06-13T12:41:40Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 7ed63dfb-4ff8-4088-9fda-f2c4583cfd60 -->
+
+---
+
+### cycode-security[bot] on `experiments/end-to-end-slice/Cargo.lock` :L1997 — 2026-06-13T12:41:41Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 589a6cbe-a22c-44ef-ab99-fadba901da9f -->
+
+---
+
+### cycode-security[bot] on `experiments/end-to-end-slice/Cargo.lock` :L976 — 2026-06-13T12:41:43Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- aaed23e5-c6a0-4e45-a49c-0647140c0535 -->
+
+---
+
+### cycode-security[bot] on `experiments/end-to-end-slice/Cargo.lock` :L1022 — 2026-06-13T12:41:43Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-rust-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 923e41a2-13fb-418d-8bbe-09c15d3b5f18 -->
+
+---
+
+### cycode-security[bot] on `experiments/end-to-end-slice/Cargo.lock` :L1004 — 2026-06-13T12:41:45Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-libcrux`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 96c867b5-e87f-4780-ac18-3a8a2efe250c -->
+
+---
+
+### cycode-security[bot] on `experiments/concurrent-membership/Cargo.lock` :L1333 — 2026-06-13T12:53:10Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 6.0.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 90bf4b5c-f141-4fc0-8d5b-3760747911e2 -->
+
+---
+
+### cycode-security[bot] on `experiments/concurrent-membership/Cargo.lock` :L686 — 2026-06-13T12:53:10Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 934741b1-d7e5-40db-8c20-f60ff73a316e -->
+
+---
+
+### cycode-security[bot] on `experiments/concurrent-membership/Cargo.lock` :L668 — 2026-06-13T12:53:11Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 709bced1-036c-493f-8e7e-8d90c1b8454f -->
+
+---
+
+### cycode-security[bot] on `experiments/concurrent-membership/Cargo.lock` :L1327 — 2026-06-13T12:53:12Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- e11db644-45b9-4892-b68a-37d5a54081ef -->
+
+---
+
+### cycode-security[bot] on `experiments/concurrent-membership/Cargo.lock` :L714 — 2026-06-13T12:53:13Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-rust-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- ebf3041f-26ab-4a03-811b-7bd30f45e001 -->
+
+---
+
+### cycode-security[bot] on `experiments/concurrent-membership/Cargo.lock` :L696 — 2026-06-13T12:53:14Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-libcrux`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- e2f1f777-900d-4e7e-859e-be19fa9f7522 -->
+
+---
+
+### cycode-security[bot] on `experiments/identity-binding/Cargo.lock` :L547 — 2026-06-13T13:00:35Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 0cb38fd1-e2ac-4263-a7c9-3324ab422503 -->
+
+---
+
+### cycode-security[bot] on `experiments/identity-binding/Cargo.lock` :L557 — 2026-06-13T13:00:36Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-libcrux`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 67d8455c-e545-4ab8-840a-96e90a4e1a8b -->
+
+---
+
+### cycode-security[bot] on `experiments/identity-binding/Cargo.lock` :L529 — 2026-06-13T13:00:37Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- ce8e5e9a-7b1d-4c4c-8e81-0f9e4890ac00 -->
+
+---
+
+### cycode-security[bot] on `experiments/identity-binding/Cargo.lock` :L575 — 2026-06-13T13:00:38Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-rust-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- b1f3c005-087c-4f1f-8470-b7cf95828cdb -->
+
+---
+
+### cycode-security[bot] on `experiments/identity-binding/Cargo.lock` :L1175 — 2026-06-13T13:03:56Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 6.0.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- aa02470a-0ac7-461e-9a75-fd8492672a04 -->
+
+---
+
+### cycode-security[bot] on `experiments/identity-binding/Cargo.lock` :L1169 — 2026-06-13T13:04:37Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- d70f79e4-7a10-416e-8e29-cedc47e5a36a -->
+
+---
+
+### cycode-security[bot] on `experiments/membership-sequencer/Cargo.lock` :L547 — 2026-06-13T13:08:55Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- fe5d8152-7a8e-4fac-bed2-ccdc81d455bd -->
+
+---
+
+### cycode-security[bot] on `experiments/membership-sequencer/Cargo.lock` :L1171 — 2026-06-13T13:08:56Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 6.0.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 980e5645-2ee8-493a-951e-f35d71cd49ed -->
+
+---
+
+### cycode-security[bot] on `experiments/membership-sequencer/Cargo.lock` :L557 — 2026-06-13T13:08:58Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-libcrux`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 8bc9dec2-39c5-48a9-9d59-94b838ba6ee7 -->
+
+---
+
+### cycode-security[bot] on `experiments/membership-sequencer/Cargo.lock` :L1165 — 2026-06-13T13:09:01Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- df794702-4db2-4011-9a08-fb20177745fc -->
+
+---
+
+### cycode-security[bot] on `experiments/membership-sequencer/Cargo.lock` :L575 — 2026-06-13T13:09:02Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-rust-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 611e9c25-9305-4a06-bafb-8d3e4aefdf12 -->
+
+---
+
+### cycode-security[bot] on `experiments/membership-sequencer/Cargo.lock` :L529 — 2026-06-13T13:09:03Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 9a7cf9e1-3690-41c0-891c-79bc4e35362e -->
+
+---
+
+### cycode-security[bot] on `experiments/binding-lifecycle/Cargo.lock` :L1175 — 2026-06-13T13:18:54Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 6.0.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- d9aa8e8f-4b26-4db7-82ff-cc70d5cd5c59 -->
+
+---
+
+### cycode-security[bot] on `experiments/binding-lifecycle/Cargo.lock` :L562 — 2026-06-13T13:18:55Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- ba136e89-a5b2-4507-99c3-fcd9a77cf99e -->
+
+---
+
+### cycode-security[bot] on `experiments/binding-lifecycle/Cargo.lock` :L1169 — 2026-06-13T13:18:55Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 46384142-053b-4ed6-9085-8921eabae773 -->
+
+---
+
+### cycode-security[bot] on `experiments/binding-lifecycle/Cargo.lock` :L544 — 2026-06-13T13:18:56Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- d247c5a9-b1f7-4fb3-82bc-bc4898260d32 -->
+
+---
+
+### cycode-security[bot] on `experiments/binding-lifecycle/Cargo.lock` :L590 — 2026-06-13T13:22:00Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-rust-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- fe5a616c-8ac7-42f4-bef9-5db0b6547c83 -->
+
+---
+
+### cycode-security[bot] on `experiments/binding-lifecycle/Cargo.lock` :L572 — 2026-06-13T13:22:04Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-libcrux`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 5ac43006-58d2-4d3e-8059-bee137d87ed5 -->
+
+---
+
+### cycode-security[bot] on `experiments/removal-redaction/Cargo.lock` :L1160 — 2026-06-13T13:22:12Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 6.0.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- dd51cb39-60f9-4c09-8c91-3676f826cdf1 -->
+
+---
+
+### cycode-security[bot] on `experiments/removal-redaction/Cargo.lock` :L547 — 2026-06-13T13:22:19Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 4dd454d2-3d51-4fcc-8003-b4d31f1776ec -->
+
+---
+
+### cycode-security[bot] on `experiments/removal-redaction/Cargo.lock` :L1154 — 2026-06-13T13:22:20Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 6c8990ee-6520-4642-b3d4-d197b458babd -->
+
+---
+
+### cycode-security[bot] on `experiments/removal-redaction/Cargo.lock` :L557 — 2026-06-13T13:22:23Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-libcrux`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 9d8b374d-056e-45ce-8182-6e8394e096ec -->
+
+---
+
+### cycode-security[bot] on `experiments/removal-redaction/Cargo.lock` :L529 — 2026-06-13T13:22:28Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- a60257b2-e800-4703-ace4-2e47ab68c109 -->
+
+---
+
+### cycode-security[bot] on `experiments/removal-redaction/Cargo.lock` :L575 — 2026-06-13T13:22:34Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `hpke-rs-rust-crypto`
+**Version:** 0.6.1
+**License:** MPL-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- f1509251-8dcd-4ddd-85b4-0c7de8c649da -->
+
+---
+
+### cycode-security[bot] on `experiments/live-bsky-validate/Cargo.lock` :L1039 — 2026-06-13T14:24:49Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `r-efi`
+**Version:** 5.3.0
+**License:** MIT,Apache-2.0,LGPL-2.1-or-later
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- eb58f3a9-ef7b-42a4-8728-4b07ac506bd9 -->
+
+---
+
+### cycode-security[bot] on `experiments/live-bsky-validate/Cargo.lock` :L1880 — 2026-06-13T14:24:51Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `webpki-root-certs`
+**Version:** 1.0.7
+**License:** CDLA-Permissive-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 049be89f-e40f-4b02-8b97-d7b77a6bd598 -->
+
+---
+
+### cycode-security[bot] on `experiments/live-bsky-validate/Cargo.lock` :L1898 — 2026-06-13T14:24:51Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `webpki-roots`
+**Version:** 1.0.7
+**License:** CDLA-Permissive-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- 2d7553cd-04e9-42a1-9e14-4ffb9381d7ac -->
+
+---
+
+### cycode-security[bot] on `experiments/live-bsky-validate/Cargo.lock` :L1889 — 2026-06-13T14:24:52Z
+
+:exclamation:**Cycode**: You are using an open source software with a non-permissive license. Please make sure this license is permitted for use under your company’s policy or whether it should be replaced with another compliant software
+
+**Dependency:** `webpki-roots`
+**Version:** 0.26.11
+**License:** CDLA-Permissive-2.0
+
+<details>
+<summary><strong>Description</strong></summary>
+
+Enable this policy to be notified when a dependency in your code has a license which isn't permissive.
+
+</details>
+<details>
+<summary><strong>Company Remediation Guideline</strong></summary>
+
+CroftC Third Party Dependency Licensing information is found on Confluence
+
+https://croftc.atlassian.net/wiki/x/WYGfIQE
+
+Non-Permissive Approved For Use Case licenses will be flagged as Informational findings.
+
+You are responsible for matching your use to approved use cases of Internal/Mobile/Cloud/Firmware for compliance.
+
+Restricted licenses not currently approved must pursue legal review.
+
+</details>
+
+
+Tell us how you wish to proceed using one of the following commands:
+
+| Tag | Short Description |
+| --- | --- |
+| **#cycode_ignore_non_permissive_license_use** \<reason\> | Applies to this manifest for this package in this request |
+
+
+*⚠️ When commenting on Github, you may need to refresh the page to see the latest updates.* <!-- ba0b378d-920a-4fb2-be04-945c6898541e -->
+
+---
+

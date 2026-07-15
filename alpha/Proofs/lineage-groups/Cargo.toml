@@ -1,0 +1,60 @@
+# Lineage Groups — validation workspace
+#
+# See README.md and the thesis for context. Versions are pinned exactly
+# (`=x.y.z`) and the Cargo.lock is committed, per the plan's determinism /
+# no-floating-ranges requirement.
+[workspace]
+resolver = "2"
+members = [
+    "crates/lineage-core",
+    "crates/lineage-mls",
+    "crates/lineage-history",
+    "crates/lineage-sim",
+    "crates/lineage-iroh",
+    "crates/reconcile-harness",
+    "crates/history-harness",
+    "crates/conformance",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.0.0"
+publish = false
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+# --- MLS / crypto (Phase 1) -------------------------------------------------
+openmls = "=0.8.1"
+openmls_rust_crypto = "=0.5.1"
+openmls_traits = "=0.5.0"
+openmls_basic_credential = "=0.5.0"
+
+# --- determinism (Phase 0) --------------------------------------------------
+# Matches the rand version openmls itself pulls in, to avoid a second copy.
+rand = "=0.8.6"
+rand_chacha = "=0.3.1"
+
+# --- governance signing (Phase 2) -------------------------------------------
+# Ed25519 signatures are deterministic (RFC 8032), so signed governance ops are
+# bit-reproducible for a fixed key+message — ideal for the determinism rules.
+# Already present transitively (via openmls_basic_credential), so no new
+# license surface.
+ed25519-dalek = "=2.2.0"
+
+# --- serialization / errors -------------------------------------------------
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = "=1.0.145"
+thiserror = "=2.0.18"
+hex = "=0.4.3"
+sha2 = "=0.10.9"
+
+# internal
+lineage-core = { path = "crates/lineage-core" }
+lineage-mls = { path = "crates/lineage-mls" }
+lineage-history = { path = "crates/lineage-history" }
+lineage-sim = { path = "crates/lineage-sim" }
+lineage-iroh = { path = "crates/lineage-iroh" }
+
+[profile.test]
+# Keep crypto tests from being painfully slow under debug.
+opt-level = 1

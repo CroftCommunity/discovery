@@ -1,0 +1,40 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §7 (reconcile/fork); conformance-suite cat 6 corpus",
+    "category": 6,
+    "note": "dissolve-vs-continue -> hard-stop (group cannot be both gone and alive) — verdict DERIVED from real conflict::detect (+ DAG fork for re-formation), never hand-set."
+  },
+  "vector": {
+    "id": "C7",
+    "label": "dissolve-vs-continue -> hard-stop (group cannot be both gone and alive)",
+    "branches": [
+      {
+        "label": "dissolved",
+        "ops": [
+          {
+            "kind": "Dissolve",
+            "subject": "",
+            "signers": [
+              "alice",
+              "bob"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "continued",
+        "ops": [
+          {
+            "kind": "Add",
+            "subject": "frank",
+            "signers": [
+              "carol"
+            ]
+          }
+        ]
+      }
+    ],
+    "verdict": "hard-stop",
+    "contested": []
+  }
+}

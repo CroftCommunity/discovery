@@ -1,0 +1,32 @@
+[package]
+name = "encrypted-sync-slice"
+version = "0.1.0"
+edition = "2021"
+# MSRV is governed by automerge 0.7 (declares 1.80.0). We build on 1.80+.
+rust-version = "1.80"
+
+[dependencies]
+# --- CRDT layer (the version gap this slice exists to close) ---
+automerge = "0.7"
+
+# --- Group key management layer (MLS / RFC 9420) ---
+# companion crates must match openmls 0.8.1's 0.5.x line (traits 0.5, rust_crypto 0.5.1)
+openmls = "0.8"
+openmls_rust_crypto = "0.5"
+openmls_traits = "0.5"
+openmls_basic_credential = "0.5"
+
+# --- Encryption layer (AEAD keyed by the MLS exporter secret) ---
+chacha20poly1305 = "0.10"
+
+# --- Randomness for AEAD nonces ---
+rand = "0.8"
+
+# --- Content addressing (BLAKE3 is the same primitive iroh's blob store uses) ---
+# Member identity (the `subspace` of the 4-tuple) is the member's MLS Ed25519
+# signature public key, so addressing identity and MLS credential identity are
+# unified without a second keypair scheme.
+blake3 = "1"
+
+# --- misc ---
+hex = "0.4"

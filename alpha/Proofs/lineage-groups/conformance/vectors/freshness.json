@@ -1,0 +1,41 @@
+{
+  "header": {
+    "spec_section": "CROFT freshness E2.16 (tier-degradation visibility)",
+    "category": 9,
+    "note": "Language-neutral snapshot of the TS model verdicts for the E2.16 freshness signal (availability with no superpeer, no-false-current, tier degrades visibly). AUTHORITATIVE runner is the TS model; the Rust suite validates only structure + manifest hash."
+  },
+  "authoritative_runner": "TS model in Proofs/lineage-group-model (authoritative; Rust suite validates structure only)",
+  "provenance": "lineage-group-model: npm run emit-conformance (experiments V/S2/E216 run())",
+  "experiments": [
+    {
+      "name": "E2.16a: forward-send works with no superpeer — availability holds",
+      "invariants": [
+        {
+          "invariant": "INV-AVAILABILITY-NO-SUPERPEER",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "E2.16b: behind-ness/staleness surfaced — no-false-current",
+      "invariants": [
+        {
+          "invariant": "INV-NO-FALSE-CURRENT",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "E2.16c: tier guarantees degrade VISIBLY, never silently",
+      "invariants": [
+        {
+          "invariant": "INV-TIER-DEGRADES-VISIBLY",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    }
+  ]
+}

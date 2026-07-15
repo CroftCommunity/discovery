@@ -1,0 +1,12 @@
+[package]
+name = "reconcile-harness"
+edition.workspace = true
+version.workspace = true
+publish = false
+license.workspace = true
+description = "THROWAWAY validation harness (TDD-exempt) — drives lineage-core's reconcile logic across genuinely separate machines via op-log exchange. Logic under test lives in (tested) lineage-core; this binary is glue only."
+
+[dependencies]
+lineage-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true

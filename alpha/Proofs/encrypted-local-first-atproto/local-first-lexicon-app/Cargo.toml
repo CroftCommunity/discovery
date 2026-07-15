@@ -1,0 +1,33 @@
+[package]
+name = "local-first-lexicon-app"
+version = "0.1.0"
+edition = "2021"
+# MSRV is governed by automerge 0.7 (declares 1.80.0). We build on 1.80+.
+rust-version = "1.80"
+
+[dependencies]
+# --- CRDT layer (carried over from the proven slice) ---
+automerge = "0.7"
+
+# --- Group key management (MLS / RFC 9420). Companion crates MUST be the 0.5.x
+#     line; stale 0.4.x causes a duplicate-openmls_traits trait mismatch. ---
+openmls = "0.8"
+openmls_rust_crypto = "0.5"
+openmls_traits = "0.5"
+openmls_basic_credential = "0.5"
+
+# --- AEAD over the per-epoch content key ---
+chacha20poly1305 = "0.10"
+
+# --- AEAD nonces ---
+rand = "0.8"
+
+# --- Content addressing (BLAKE3, same primitive iroh blobs use) ---
+blake3 = "1"
+
+# --- Lexicon records + JSON (de)serialization and targeted validation ---
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# --- misc ---
+hex = "0.4"
