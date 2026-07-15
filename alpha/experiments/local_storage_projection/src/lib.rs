@@ -5,6 +5,7 @@ pub mod fold_auth;
 pub mod fold_derived;
 pub mod governance;
 pub mod surface;
+pub mod horizon;
 
 #[cfg(test)]
 mod tests_stage7;
