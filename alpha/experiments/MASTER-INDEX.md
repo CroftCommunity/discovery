@@ -11,6 +11,11 @@ every unrun item).
 - **Register** = where a green result rests on a **stand-in** (prototype / scaffold / weakened
   assertion) rather than spec-conformant behavior, so those can be reconciled back to spec.
   (`SPEC-DIVERGENCE-REGISTER.md` — grep the code for `SPEC-DELTA`.)
+- **Published spec site** = the Drystone corpus rendered with every cross-reference as a followable
+  link, at https://croftcommunity.github.io/discovery/ . Built by `site/build.py` (RUN-10 Part 1); the
+  same build runs a **broken-reference gate** on every push and PR (`.github/workflows/pages.yml`), so a
+  §-reference in Part 1 or Part 2 that resolves to no heading fails CI — a permanent, free consistency
+  guard on the corpus. Contract in `site/README.md`.
 
 ---
 

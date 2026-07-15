@@ -206,6 +206,14 @@ status tag moves). **Retirement condition:** consumer-path `Vouch` tests that ki
 (a Vouch-payload proptest driven through `surface::LocalStore`), **or** an explicit experiment-grade
 justification recorded against the sweep for each survivor. Discovered RUN-07; filed RUN-08.
 
+### 2e. Group-principal identity seam (§5.2 / §5.10) — narrowed by RUN-10 Part 2
+
+| Seam | Status | Reference | Next-experiment shape |
+|---|---|---|---|
+| **§5.2 / §5.10 group-principal identity construction** — whether a Meadowcap communal namespace can carry the Group principal, and how it rotates under churn | **Narrowed (RUN-10 Part 2).** Construction recommended: **primary** communal namespace (the Group-principal *is* a communal namespace at all times); namespace = genesis hash `H(tag ‖ group_id)`; each persona = a self-authorizing subspace; read confidentiality = the fold-gated asset key (already resolved in `asset-keying.md`); authority = a folded, revocable Group Role. §5.10's "how does the communal-namespace key rotate under churn" question **dissolves** — a communal namespace has no shared secret to rotate (write authority is per-subspace, read is the asset key). The Meadowcap composition check (asset-keying.md's "decisive check" Open item) is answered **affirmatively**. All Drystone bindings `Design`. | `beta/impl/drystone-design/group-principal-seam.md` (RUN-10 Part 2) | **Next experiment:** exercise the client→subspace lineage fold end-to-end on the real openmls-Welcome-over-iroh harness — derive a per-persona `SubspaceId` by folding a persona's multiple MLS leaves to one lineage identity; author a Meadowcap-shaped write authorized per-subspace; a governance-fold removal voids the capability by **re-issue, not overwrite** and re-wraps the asset key. Closes the identifier-mapping `[gates-release]` (E.1) against real crypto; moves the subspace-mapping half `Design → green-real`. |
+
+**Owner-decides (I9 / not this run):** whether to freeze the primary-namespace stance now vs carry to Appendix B; whether a Group **MAY** permit owned sub-namespaces for single-author content inside its communal Group-principal.
+
 ---
 
 ## 3. croft-group (shared-core / per-shell)
@@ -216,6 +224,7 @@ L1–L6 sequenced, not built. Each gets its own plan.
 |---|---|---|
 | **L1 — Real identity** | hardcoded handle → real DID/lineage identity in `ChatMessage` + versioned wire (may fold into L2) | Sketched |
 | **L2 — MLS / encryption** | `Frame` payload becomes MLS-ciphertext; key/epoch state enters the core; `Zeroize` applies | Sketched |
+| **L2a — MLS-sealed happy-path frame** (mechanism half of L2; shaped RUN-10 Part 4) | Seal a `Frame` payload as real MLS ciphertext reusing the proven crates (`Proofs/lineage-groups/crates/lineage-mls`, `mls-welcome-over-iroh`, `mls-replant`/`replant-continuity`, the `bip39-recovery-roundtrip` Zeroize pattern); firewalled from the parked resolution-ACL (croft-group L3) and the I9 call. **RED-able assertions:** (1) seal ≠ plaintext and round-trips through real ciphertext; (2) a no-key peer ⇒ observable `FrameDropped`, model byte-identical, no panic; (3) a real Welcome yields `epoch_secret_match: true` then decrypt; (4) a governed removal re-keys the departed reader out (PCS) via the existing `Verified` k-of-n path, no new authority knob; (5) secrets are Zeroize/no-`Debug` in a sibling crate, none leak into `Effect`/`WireError`, `group-core` stays crypto-free; (6) a firewall-guard test asserting no who-may-revoke / co-sign-ordering / recovery-tier selector exists. Ref: `CROFT-GROUP-L2-READINESS.md` (RUN-10 Part 4). | **Shaped (RED-able), not built** |
 | **L3 — Fork/merge + reconvergence-per-plane** | multi-head DAG + per-plane reconvergence policy bound into the asset hash | Sketched |
 | **L4 — Governance / delegate planes** | threshold group-principal, capability-vs-authority delegates, the rights-floor | Sketched |
 | **L5 — Real-iroh Transport adapter** | second `Transport` impl over iroh-gossip; real async runtime; same scenario tests. **Goes live P2P here.** | Sketched (blocked on iroh testbed) |
