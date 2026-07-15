@@ -409,3 +409,15 @@ Scope: two riders, no new mechanism and no code change. Both are consistency-pas
 **§8.2(e), done (FND-1).** The originating-op freshness-precondition citation is widened from the point cite `(§7.4.2)` to the range cite `(§7.4–§7.4.2)`, so the living-doc reference names the whole §7.4 freshness plus §7.4.2 recovery cluster rather than the recovery subsection alone. The same one-site widening is applied to the EXPERIMENT-BACKLOG.md quote of that clause. The two §7.4.2 cites in the §7.4.2-hazards table rows are correct on their own terms and are left untouched. This refines the RUN-06 FND-1 owner call (accept §7.4.2 as shorthand) to the explicit range in the living docs; the refinement is recorded in the CONSISTENCY-FINDINGS-2026-07.md settlement addendum.
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; no code identifier or mechanism changed; cross-references (§7.2 R7, §7.3.2, §7.4, §7.4.2) resolve. Evidence: RUN-03 Phase B (`two_competing_rulechange_quorums`), CONSISTENCY-FINDINGS-2026-07.md addendum (RUN-07).
+
+## R7 content-bound-quorum count upgraded to Verified by the automated cross-package sweep (§7.2, §8.2(e))
+
+`Status: complete (RUN-07, 2026-07-15)`
+
+Scope: an evidence-tag upgrade earned by the RUN-07 X3 automated cross-package mutation sweep. No mechanism change and no code change; the sweep is a test-driver harness that patches and reverts in place.
+
+**§7.2 R7, done.** R7's evidence tag moves from `Modeled` to `Verified` for the content-bound-quorum count. The RUN-07 automated harness re-ran the current-code substrate sweep (61 survivors) and drove each survivor through the croft-chat consumer suite: all 61 resolve mechanically as 7 killed and 54 individually justified. The 7 killed are exactly the count-enforcement path on the live fold: the approval subject (`rule_change_approval_subject`), the approval-subject resolution (`act_subject`), the rule-key decode, and the membership-admin gate that carries the count, on top of the already mutation-clean `governance.rs` threshold counting. The evidence line now cites the automated sweep instead of the prior pending-X3 note. The tag is scoped to the count: the role-authorship gate stays the open residual named in the same subsection (the role model, not the count), which the sweep quantifies as unpinned by the consumer suite.
+
+**§8.2(e), done.** The R7 clause is updated to record that policy-change quorum enforcement is now cross-package mutation-Verified for the count, alongside the existing RED to GREEN note.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; no code identifier or mechanism changed; cross-references (§7.2 R7, §8.2) resolve. Evidence: `alpha/experiments/local_storage_projection/X3-AUTOMATED-SWEEP.md`, `x3-sweep-data/cross-package-run07.json`, `SPEC-DIVERGENCE-REGISTER.md` (mutation-gate note + `fold-auth-duplicate` row), `MASTER-INDEX.md` A2.
