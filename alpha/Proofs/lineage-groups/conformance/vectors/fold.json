@@ -1,0 +1,71 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §5 (multi-device fold) + §6 (lineage-counted thresholds); E2.9/E2.10",
+    "category": 3,
+    "note": "Thresholds count distinct LINEAGES, not device DIDs. A quorum manufactured from many devices of one lineage MUST be rejected. Counts derived from real gov::valid_admin_sigs / valid_admin_lineages."
+  },
+  "vectors": [
+    {
+      "label": "E2.10 one-lineage 3-device quorum (MUST reject)",
+      "signers": [
+        {
+          "did": "p-phone",
+          "lineage": "person-p"
+        },
+        {
+          "did": "p-laptop",
+          "lineage": "person-p"
+        },
+        {
+          "did": "p-tablet",
+          "lineage": "person-p"
+        }
+      ],
+      "op_kind": "Remove",
+      "threshold": 2,
+      "expected_by_did": 3,
+      "expected_by_lineage": 1,
+      "expect": "reject:under-threshold-by-lineage"
+    },
+    {
+      "label": "two distinct lineages meet a 2-of threshold",
+      "signers": [
+        {
+          "did": "p-phone",
+          "lineage": "person-p"
+        },
+        {
+          "did": "q-phone",
+          "lineage": "person-q"
+        }
+      ],
+      "op_kind": "Remove",
+      "threshold": 2,
+      "expected_by_did": 2,
+      "expected_by_lineage": 2,
+      "expect": "accept"
+    },
+    {
+      "label": "fold 3 devices -> 2 actors (device-count != actor-count)",
+      "signers": [
+        {
+          "did": "p-phone",
+          "lineage": "person-p"
+        },
+        {
+          "did": "p-laptop",
+          "lineage": "person-p"
+        },
+        {
+          "did": "q-phone",
+          "lineage": "person-q"
+        }
+      ],
+      "op_kind": "Remove",
+      "threshold": 2,
+      "expected_by_did": 3,
+      "expected_by_lineage": 2,
+      "expect": "accept"
+    }
+  ]
+}

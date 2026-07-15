@@ -1,6 +1,8 @@
 //! V4′ — the reconcile hard-stop fires on under-determination, not only
 //! contradiction (Battery 6, Rung B).
 //!
+//! Earns/bounds: Part 2 §7.6.1 — the reconcile hard-stop fires on the Under-determination escalation shape.
+//!
 //! §7.6.1's escalation set has two members. P20 built the first — contradiction,
 //! "too many valid claims" (two genesis → `ForkStatus::ForkedFrom` → banner). This
 //! builds the second — under-determination, "too few": a required role vacant with

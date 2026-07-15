@@ -1,0 +1,28 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §7 (reconcile/fork); conformance-suite cat 6 corpus",
+    "category": 6,
+    "note": "re-formation fork after eject (erin re-forms off shared root) — verdict DERIVED from real conflict::detect (+ DAG fork for re-formation), never hand-set."
+  },
+  "vector": {
+    "id": "C3",
+    "label": "re-formation fork after eject (erin re-forms off shared root)",
+    "branches": [
+      {
+        "label": "eject-erin",
+        "ops": [
+          {
+            "kind": "Remove",
+            "subject": "erin",
+            "signers": [
+              "alice",
+              "bob"
+            ]
+          }
+        ]
+      }
+    ],
+    "verdict": "re-formation",
+    "contested": []
+  }
+}

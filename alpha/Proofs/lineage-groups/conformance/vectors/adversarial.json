@@ -1,0 +1,185 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §6/§7 (adversarial); conformance-suite cat 7; AR-1/AR-2/AR-3/AR-6",
+    "category": 7,
+    "note": "Adversarial must-reject / must-converge / must-bound vectors, each DERIVED by running the real lineage-core/lineage-history API (never hand-set). AR-1 Sybil (fresh non-admin identities confer no standing), AR-2 malicious sequencer (blind broker can reorder/duplicate/drop/inject but never forge: converged state is unchanged, a dropped op is visibly behind, an injected non-admin op is rejected), AR-6 replay/double-count (DID-keyed sigs prevent double counting; a replayed op does not chain). AR-3 backfill-DoS bounds the rejection cost (foreign branch rejected with 0 crypto; forged branch rejected at the first defect with 1 verify call). AR-4 (metadata-leak bound) and AR-5 (MLS tree scaling) are characterizations with no deterministic accept/reject crypto verdict derivable from this crate's deps — see `not_emitted`."
+  },
+  "vectors": [
+    {
+      "ar": "AR-1",
+      "label": "Sybil fresh-lineage: 10 minted non-admin identities sign a Remove → no standing, 0 admin lineages",
+      "kind": "sybil_no_standing",
+      "admins": [
+        "alice",
+        "bob"
+      ],
+      "founders": [
+        "alice",
+        "bob",
+        "carol"
+      ],
+      "op_kind": "Remove",
+      "subject": "carol",
+      "signers": [
+        "sybil0",
+        "sybil1",
+        "sybil2",
+        "sybil3",
+        "sybil4",
+        "sybil5",
+        "sybil6",
+        "sybil7",
+        "sybil8",
+        "sybil9"
+      ],
+      "threshold": 2,
+      "chain_len": 0,
+      "drop_seq": 0,
+      "donor_msgs": 0,
+      "expect": "reject:signer-lacks-standing"
+    },
+    {
+      "ar": "AR-2",
+      "label": "malicious sequencer reorder+replay: shuffled+duplicated op stream converges to the in-order head/members",
+      "kind": "sequencer_reorder_converges",
+      "admins": [
+        "alice"
+      ],
+      "founders": [
+        "alice"
+      ],
+      "op_kind": "Add",
+      "subject": "",
+      "signers": [],
+      "threshold": 1,
+      "chain_len": 8,
+      "drop_seq": 0,
+      "donor_msgs": 0,
+      "expect": "converge"
+    },
+    {
+      "ar": "AR-2",
+      "label": "malicious sequencer drop: withholding seq 3 leaves the peer at a real earlier head, visibly behind (no false current)",
+      "kind": "sequencer_drop_visibly_behind",
+      "admins": [
+        "alice"
+      ],
+      "founders": [
+        "alice"
+      ],
+      "op_kind": "Add",
+      "subject": "",
+      "signers": [],
+      "threshold": 1,
+      "chain_len": 6,
+      "drop_seq": 3,
+      "donor_msgs": 0,
+      "expect": "visibly-behind"
+    },
+    {
+      "ar": "AR-2",
+      "label": "malicious sequencer inject: an op signed by a non-admin the broker controls is rejected (cannot manufacture membership)",
+      "kind": "sequencer_inject_rejected",
+      "admins": [
+        "alice"
+      ],
+      "founders": [
+        "alice"
+      ],
+      "op_kind": "Add",
+      "subject": "mallory",
+      "signers": [
+        "mallory"
+      ],
+      "threshold": 1,
+      "chain_len": 0,
+      "drop_seq": 0,
+      "donor_msgs": 0,
+      "expect": "reject:signer-lacks-standing"
+    },
+    {
+      "ar": "AR-6",
+      "label": "double-count: one admin signing twice still counts once (sigs keyed by DID) → below threshold 2",
+      "kind": "replay_double_count_prevented",
+      "admins": [
+        "alice",
+        "bob"
+      ],
+      "founders": [
+        "alice",
+        "bob",
+        "carol"
+      ],
+      "op_kind": "Remove",
+      "subject": "carol",
+      "signers": [
+        "alice",
+        "alice"
+      ],
+      "threshold": 2,
+      "chain_len": 0,
+      "drop_seq": 0,
+      "donor_msgs": 0,
+      "expect": "reject:under-threshold"
+    },
+    {
+      "ar": "AR-6",
+      "label": "replay: an applied Remove replayed against the advanced head does not chain → BrokenChain, not re-enacted",
+      "kind": "replay_does_not_reenact",
+      "admins": [
+        "alice",
+        "bob"
+      ],
+      "founders": [
+        "alice",
+        "bob",
+        "carol"
+      ],
+      "op_kind": "Remove",
+      "subject": "carol",
+      "signers": [
+        "alice",
+        "bob"
+      ],
+      "threshold": 2,
+      "chain_len": 0,
+      "drop_seq": 0,
+      "donor_msgs": 0,
+      "expect": "reject:broken-chain"
+    },
+    {
+      "ar": "AR-3",
+      "label": "backfill DoS: a 2000-message foreign-lineage branch is rejected on the genesis boundary with ZERO signature verifications",
+      "kind": "backfill_foreign_zero_crypto",
+      "admins": [],
+      "founders": [],
+      "op_kind": "",
+      "subject": "",
+      "signers": [],
+      "threshold": 0,
+      "chain_len": 0,
+      "drop_seq": 0,
+      "donor_msgs": 2000,
+      "expect": "reject:foreign-genesis (bound: 0 crypto)"
+    },
+    {
+      "ar": "AR-3",
+      "label": "backfill DoS: a 5000-message forged branch on a shared lineage is rejected at the FIRST bad message (1 verify call, bounded cost)",
+      "kind": "backfill_first_defect_bounded",
+      "admins": [],
+      "founders": [],
+      "op_kind": "",
+      "subject": "",
+      "signers": [],
+      "threshold": 0,
+      "chain_len": 0,
+      "drop_seq": 0,
+      "donor_msgs": 5000,
+      "expect": "reject:bad-signature (bound: 1 crypto)"
+    }
+  ],
+  "not_emitted": [
+    "AR-4 metadata-leak bound: a privacy characterization (a relay routing by topic learns nothing about membership); no accept/reject crypto verdict and no lineage-core/lineage-history test to derive a deterministic vector from",
+    "AR-5 MLS tree scaling: a scaling characterization (not accept/reject), green-real in lineage-mls (tests/ar5_tree_scaling.rs); the conformance crate does not depend on lineage-mls and this is not a crypto interop vector"
+  ]
+}

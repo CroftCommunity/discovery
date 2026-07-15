@@ -1,0 +1,34 @@
+# conformance — Croft conformance vector emitter + runner (Workstream D).
+#
+# The vector *values* are never hand-written: the emitter calls the real
+# lineage-core / lineage-history public API and serializes the results. The
+# runner re-feeds each vector's input through the same public API and diffs
+# against the recorded expected output. Re-proving the freshly emitted vectors
+# is the green check.
+[package]
+name = "conformance"
+edition.workspace = true
+version.workspace = true
+publish = false
+license.workspace = true
+description = "Croft conformance vectors (language-neutral JSON, hex-encoded bytes) + a runner that re-proves them against the real lineage-core/lineage-history API."
+
+[lib]
+name = "conformance"
+path = "src/lib.rs"
+
+[[bin]]
+name = "emit-vectors"
+path = "src/bin/emit_vectors.rs"
+
+[[bin]]
+name = "run-vectors"
+path = "src/bin/run_vectors.rs"
+
+[dependencies]
+lineage-core.workspace = true
+lineage-history.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+hex.workspace = true

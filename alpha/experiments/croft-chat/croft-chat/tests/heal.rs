@@ -1,6 +1,8 @@
 //! G2 — a held-back fact heals monotonically when its predecessor arrives
 //! (Battery 5, Rung B).
 //!
+//! Earns/bounds: Part 2 §7.3.2 — a held-back fact heals monotonically when its referenced predecessor arrives.
+//!
 //! The companion to G1's guard. G1 shows a fact whose cross-device antecedent is
 //! missing is held back (not admitted); G2 shows that when the missing predecessor
 //! finally arrives, the held fact is admitted and the node advances to the complete

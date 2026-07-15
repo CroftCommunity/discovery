@@ -79,6 +79,18 @@ identical open-contradiction landscape — never a trusted summary of one member
 co-signing a horizon checkpoint have agreed on *the shape of their disagreement* (which contradictions
 are open at this frontier) without either revealing how it intends to resolve any of them.
 
+> **Frontier-head pinning note (EXP-H1, RUN-07 → the §7.6.9 pinning pass).** "The frontier head is a
+> hash" understates one choice the release encoding must make. EXP-H1 (RUN-07) found that the *naive*
+> last-ingested head is **arrival-order-dependent** — the raw `computed_at_gov_head` is whichever hash
+> the member most recently folded, so two members converging on the same state can carry different
+> last-ingested heads. So the experiment's manifest instead leads with an **order-independent digest of
+> the converged state** (gov_seq + rules + sorted members), which is byte-identical across arrival
+> orders by construction. When `[gates-release]` pins the §7.6.9 manifest encoding, it must decide
+> between that converged-state digest and the **sorted set of DAG tip hashes** (closer to §7.3.3's
+> governance-head commitment, at the cost of being a set rather than a single digest). Both are
+> order-independent; they differ in what they commit to. Decision deferred to the pinning pass — this
+> note only records that the naive single last-ingested head is not a valid choice.
+
 ## 4. The projection checkpoint
 
 Distinct from the horizon checkpoint (objective, shared) is the **projection checkpoint**: a member's

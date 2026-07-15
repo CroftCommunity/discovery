@@ -1,0 +1,48 @@
+{
+  "lexicon": 1,
+  "id": "org.croftc.experiment.feed.reaction",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "EXPERIMENTAL. An emoji reaction to a post in a private group feed.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["subject", "emoji", "createdAt"],
+        "properties": {
+          "subject": {
+            "type": "ref",
+            "ref": "#strongRef",
+            "description": "The post being reacted to. A strongRef-style (uri + cid) pointer; in a published deployment this would ref com.atproto.repo.strongRef."
+          },
+          "emoji": {
+            "type": "string",
+            "maxLength": 32,
+            "maxGraphemes": 4,
+            "description": "The reaction emoji, as a short grapheme cluster."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    },
+    "strongRef": {
+      "type": "object",
+      "description": "A reference to a specific record by repo path and content hash. Local analogue of com.atproto.repo.strongRef.",
+      "required": ["uri", "cid"],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "at-uri",
+          "description": "at:// URI of the referenced record: at://<authority>/<collection>/<rkey>."
+        },
+        "cid": {
+          "type": "string",
+          "description": "Content identifier of the referenced record. In this experiment a BLAKE3 digest stands in for a real CIDv1; see record.rs."
+        }
+      }
+    }
+  }
+}

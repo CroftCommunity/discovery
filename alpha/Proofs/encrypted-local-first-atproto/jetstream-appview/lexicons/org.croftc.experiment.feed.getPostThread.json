@@ -1,0 +1,54 @@
+{
+  "lexicon": 1,
+  "id": "org.croftc.experiment.feed.getPostThread",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "EXPERIMENTAL. Get a single post hydrated with all of its reactions.",
+      "parameters": {
+        "type": "params",
+        "required": ["uri"],
+        "properties": {
+          "uri": {
+            "type": "string",
+            "format": "at-uri",
+            "description": "AT-URI of the post to fetch."
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["thread"],
+          "properties": {
+            "thread": { "type": "ref", "ref": "#postView" }
+          }
+        }
+      }
+    },
+    "postView": {
+      "type": "object",
+      "description": "A post hydrated with author and reactions.",
+      "required": ["uri", "author", "text", "createdAt", "reactions"],
+      "properties": {
+        "uri": { "type": "string", "format": "at-uri" },
+        "author": { "type": "string", "description": "DID of the post author." },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "datetime" },
+        "reactions": {
+          "type": "array",
+          "items": { "type": "ref", "ref": "#reactionView" }
+        }
+      }
+    },
+    "reactionView": {
+      "type": "object",
+      "required": ["emoji", "reactor"],
+      "properties": {
+        "emoji": { "type": "string" },
+        "reactor": { "type": "string", "description": "DID of the reactor." }
+      }
+    }
+  }
+}

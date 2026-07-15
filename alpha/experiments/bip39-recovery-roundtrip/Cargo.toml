@@ -1,0 +1,18 @@
+# Standalone experiment crate (own lockfile = own pin). Declared as its own workspace so it is
+# never accidentally pulled into a parent Cargo workspace if one is added at the repo root.
+# Part 1C of RUN-08 — the Tier-1 paper-recovery lock spike: a BIP39 recoveryKey round-trip
+# (KAT-verified, incl. checksum-failure negatives) plus a secretbox-wrap of the masterKey.
+# Vetted crates only, versions pinned exact (own-lockfile pin). Experiment-grade — the crate
+# choices here are NOT a [gates-release] decision (see README).
+[workspace]
+
+[package]
+name = "bip39-recovery-roundtrip"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+bip39 = "=2.2.2"
+dryoc = "=0.8.0"
+zeroize = { version = "=1.9.0", features = ["zeroize_derive"] }

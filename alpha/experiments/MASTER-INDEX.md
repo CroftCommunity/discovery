@@ -31,6 +31,7 @@ every unrun item).
 | `iroh/docs/roadmap.md`, `DESIGN.md` (§14), `RESUME-NEXT-SESSION.md`, `NEXT-SESSION-2026-06-16.md` | Roadmap, open questions, handoffs | Reference |
 | `croft-app-phase0/BUILD-SPEC.md` | App layer M1–M6 | **Closed** (M1–M6 done) |
 | `automerge-partial-reconstruction/REPORT.md` | Partial-reconstruction invariant | **Closed** (0.6.1; 0.7 open) |
+| `../../beta/drystone-spec/EVIDENCE-MAP.md` | Spec ↔ experiment traceability index (one row per Part 2 tag ≥ `Modeled`) | **Living index** (built RUN-08; an index, never a status source) |
 
 > Note: the `meer` superpeer and `geer` gating-peer **design** docs referenced by the iroh handoffs
 > live in the sibling `discovery`/`Proofs` repos, not in this workspace. In-repo, meer is realized
@@ -75,15 +76,15 @@ Notation: **needs** = an in-repo prerequisite stage; **blocked** = an external r
 ### Track I — iroh substrate
 | ID | Stage | Needs | Blocked on |
 |---|---|---|---|
-| **I1** | MLS key-distribution over the wire (**✅ realized in `mls-welcome-over-iroh` spike, RUN-01 EXP-5** — not yet in conformance emission) + threshold-revoke as real k-of-n (**⛔ DESIGN-GATED, RUN-01 EXP-5**) | F4 | threshold-revoke = the **revocation-authority decision** (I9); backlog §6d-i |
-| **I2** | Conformance vectors cats 7/8/9 (AR / visibility / freshness) + revoke-authority vector — **no cats moved RUN-01** (gated on I1's revoke half) | I1 | the I1 revoke design decision |
+| **I1** | MLS key-distribution over the wire (**✅ green-real, reproduced RUN-08** — `mls-welcome-over-iroh` runs here after the Proofs fold-in; `relay-lab-runs/C-mls-welcome-2026-07-15-run08`; not yet in the conformance *emitter*) + threshold-revoke as real k-of-n (**⛔ DESIGN-GATED, firewall**) | F4 | threshold-revoke = the **revocation-authority decision** (I9); backlog §6d-i |
+| **I2** | Conformance vectors cats 7/8/9 (AR / visibility / freshness) — **✅ emitted, 66/0 re-proven RUN-08** (folded conformance-core; cat 7 real Rust, cats 8/9 TS-authoritative, cat-5b revoke-authority *mechanism*). Residual: the over-the-wire *authority distribution* (b) | I1 | the I1 revoke design decision (firewall, I9) |
 | **I3** | meer **P2** bridge mode → runs lab **E8** (superpeer crossover) | F4 | — |
 | **I4** | meer **P3** Tier-1 + no-mirror curve → runs lab **E9** rest | I3 | — |
 | **I5** | meer **P4/P5** (RoQ SFU / MoQ relay) → E12-transport / E11-full form | F4 | — |
 | **I6** | meer **P6** Tier-2 (policy-gated) | I4 | — |
 | **I7** | Relay lab: **E2** (pkarr/DNS-origin), **E0** reconnect-storm (runnable); **E4** (LVS), **E0-NAT** (blocked) | F4 | `ipvsadm` (E4); NAT + public UDP ingress (E0-NAT) |
 | **I8** | Phase-0 spikes: **1** (10K manifest), **4** (ticket pairing) runnable; **5** (ADR, needs 1), **6** (retro); **3** (macFUSE), **7** (iOS) hw-gated | F4 | macOS/iOS hardware (3, 7) |
-| **I9** | Identity & key-recovery model (quorum social recovery vs VC issuer) → **BIP39 round-trip spike** | F4 | **design decision** (largest open problem) |
+| **I9** | Identity & key-recovery model (quorum social recovery vs VC issuer) → **BIP39 round-trip spike ✅ landed RUN-08** (`bip39-recovery-roundtrip` — the Tier-1 *lock* mechanism; the trust tier stays the open call) | F4 | **design decision** (largest open problem) — the Tier-2 trust predicate |
 | **I10** | HashSeq single-file striping; Automerge-over-iroh interactive-artifact; DESIGN §14 spikes | F4 | — |
 
 ### Track C — cross-cutting

@@ -1,0 +1,125 @@
+{
+  "header": {
+    "spec_section": "CROFT visibility V1..V9 + S2 (scoped visibility)",
+    "category": 8,
+    "note": "Language-neutral snapshot of the TS model verdicts for visibility/propagation geometry (V1..V9) and scoped visibility (S2a/S2b). The AUTHORITATIVE runner is the TS model in Proofs/lineage-group-model; the Rust conformance suite cannot re-prove TS logic and validates only structure + manifest hash."
+  },
+  "authoritative_runner": "TS model in Proofs/lineage-group-model (authoritative; Rust suite validates structure only)",
+  "provenance": "lineage-group-model: npm run emit-conformance (experiments V/S2/E216 run())",
+  "experiments": [
+    {
+      "name": "V1: Regime is born-in and immutable (genesis-fixed)",
+      "invariants": [
+        {
+          "invariant": "INV-REGIME-IMMUTABLE",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "V2: Content carries origin regime in signed data",
+      "invariants": [
+        {
+          "invariant": "INV-REGIME-IN-CONTENT",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "V3: No silent regime crossing — forward op is structurally absent",
+      "invariants": [
+        {
+          "invariant": "INV-NO-SILENT-CROSSING",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "V4: Republish exposes only author-chosen content; no intimate member enumeration",
+      "invariants": [
+        {
+          "invariant": "INV-REPUBLISH-DISTINCT",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "V5: Outward propagation depth enforced by verifier — hostile sender",
+      "invariants": [
+        {
+          "invariant": "INV-DEPTH-ENFORCED",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "V6: Openness class caps propagation depth — over-permissive genesis is invalid",
+      "invariants": [
+        {
+          "invariant": "INV-OPENNESS-CAPS-DEPTH",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "V7: Inward visibility and outward propagation are independently controllable",
+      "invariants": [
+        {
+          "invariant": "INV-INWARD-OUTWARD-INDEPENDENT",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "V8: Public membership leaks only affiliation — hostile enumeration fails",
+      "invariants": [
+        {
+          "invariant": "INV-PUBLIC-MEMBERSHIP-BOUNDED",
+          "passed": true
+        },
+        {
+          "invariant": "INV-DEPTH-ENFORCED",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "V9: Joining public group does not auto-mutate intimate graph",
+      "invariants": [
+        {
+          "invariant": "INV-FREEZE-BY-DEFAULT",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "S2a: Structure-only share re-identifies (topology is a fingerprint) — unrepresentable",
+      "invariants": [
+        {
+          "invariant": "INV-STRUCTURE-LEAKS-IDENTITY",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    },
+    {
+      "name": "S2b: Only consented-distance/resolution-scoped sharing is representable",
+      "invariants": [
+        {
+          "invariant": "INV-SCOPED-CONSENT",
+          "passed": true
+        }
+      ],
+      "all_passed": true
+    }
+  ]
+}

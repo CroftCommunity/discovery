@@ -1,6 +1,8 @@
 //! E12.4 — a fresh stamp resets the re-key drift accumulated through removals
 //! (Battery 7, Rung A).
 //!
+//! Earns/bounds: Part 2 §7.6.2 (and §7.9.3) — a fresh stamp resets the re-key drift accumulated through removals — byte-size proxy (register e12.4-byteproxy).
+//!
 //! An MLS tree evolved through removals accumulates blank (unmerged) leaves; the re-key cost
 //! drifts from O(log n) toward O(n) as the tree fragments, and the serialized tree carries
 //! those blanks. A fresh stamp draws a pristine tree with no blanks, so the drift is reset

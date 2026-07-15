@@ -1,5 +1,7 @@
 //! M1 — per-commit cost at hot-N (Battery 2, Rung A; built on E12.1's crate).
 //!
+//! Earns/bounds: Part 2 §11.11 measurement #1 (and §11.4/§11.5) — per-commit re-key cost measured at hot-N (the cost scales on the live set).
+//!
 //! E12.1 measured the O(N) *stamp*. M1 measures the *per-commit* cost, and the measured
 //! result refutes the naive O(log N) expectation for the single-committer case.
 //!

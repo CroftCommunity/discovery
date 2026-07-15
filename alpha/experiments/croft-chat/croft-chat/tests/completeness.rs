@@ -1,6 +1,8 @@
 //! G1 — the completeness guard, verified through the real ingest pipeline
 //! (Battery 5 / the G1 fix, Rung B).
 //!
+//! Earns/bounds: Part 2 §7.3.2 — R3 no-fold-time-rejection with referenced-gap detection (the completeness guard).
+//!
 //! This experiment originally *refuted* the unstated completeness precondition of
 //! I5: every `AssertionEnvelope` declares its `antecedents` (the hashes of the
 //! assertions it causally follows), but the fold never read them, so a node that

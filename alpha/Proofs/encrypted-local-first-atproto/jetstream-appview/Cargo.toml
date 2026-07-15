@@ -1,0 +1,29 @@
+[package]
+name = "jetstream-appview"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+
+[dependencies]
+# --- records + JSON (shared) ---
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hex = "0.4"
+rand = "0.8"
+blake3 = "1"
+
+# --- AppView: indexer (SQLite) + server (axum XRPC) + client (reqwest) ---
+# indexer.rs / server.rs / views.rs are copied BYTE-IDENTICAL from
+# experiments/local-appview/ — the proof that swapping the ingest source needs
+# no downstream changes.
+rusqlite = { version = "0.32", features = ["bundled"] }
+axum = "0.8"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net"] }
+reqwest = { version = "0.13", default-features = false, features = ["json"] }
+
+# --- real atproto-style content IDs: CIDv1 over DAG-CBOR + SHA-256 ---
+# This closes the `cid` gap the Phase 3a README flagged: the b3- stand-in is
+# replaced with the exact CID construction atproto uses.
+cid = "0.11"
+serde_ipld_dagcbor = "0.6"
+multihash-codetable = { version = "0.2", features = ["sha2"] }

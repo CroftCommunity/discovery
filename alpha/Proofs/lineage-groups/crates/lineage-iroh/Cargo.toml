@@ -1,0 +1,29 @@
+[package]
+name = "lineage-iroh"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+description = "Phase 3 end-to-end slice: transport-agnostic node wiring + a blind broker. Real iroh binding is documented, not vendored (see PHASE_3_FINDINGS.md)."
+
+[dependencies]
+# Top of the stack: wires the real Phase 1 MLS + Phase 2 governance/history
+# through a transport. (Per plan §6.1, nothing below depends on this crate.)
+lineage-core.workspace = true
+lineage-mls.workspace = true
+lineage-history.workspace = true
+sha2.workspace = true
+hex.workspace = true
+
+[dev-dependencies]
+# Used only by the E3 tests to (de)serialize signed governance ops so they can
+# travel as opaque payloads over the broker, exercising the same blind seam.
+serde_json.workspace = true
+
+# NOTE: `iroh` is deliberately NOT a dependency. A feasibility probe showed it
+# locks ~395 packages including pre-release crypto crates (ed25519-dalek
+# 3.0-pre, curve25519-dalek 5.0-pre, sha2 0.11-rc) that collide with our pinned
+# stable versions, and real P2P networking is outside this environment's
+# network policy. Transport is abstracted behind a trait so the iroh binding
+# can be added in a network-enabled environment without touching the logic.
+# See PHASE_3_FINDINGS.md.

@@ -1,0 +1,95 @@
+{
+  "suite_version": "0.1.0",
+  "targets_spec": "CROFT-PROTOCOL.md (2026-06-16) / conformance-suite.md (2026-06-16)",
+  "entries": [
+    {
+      "file": "vectors/derivations.json",
+      "sha256_hex": "ce0ea0bfed4bc969efca86a01f61278e66acb7df697085d28c2f3a248fcf1d7a"
+    },
+    {
+      "file": "vectors/signing.json",
+      "sha256_hex": "fbcd84fb29499edffa77acbb159e6acea3d5cf0682f9409c0ea178061c5c03e5"
+    },
+    {
+      "file": "vectors/fold.json",
+      "sha256_hex": "0d5fad7b5c37e11cbc4a96bfb8cbb8f7a60e4ab60f03ac0d012cc718276c5cf3"
+    },
+    {
+      "file": "vectors/revocation.json",
+      "sha256_hex": "aa3b7e4e8116c88d45ec0e266386f91c86da711630fe95ce5f6ec8548a6292e4"
+    },
+    {
+      "file": "vectors/revocation-authority.json",
+      "sha256_hex": "4165d622d9405d3913d5bfdf5cf8bd30186fab0ce40b00ddb84274993ef9f8e3"
+    },
+    {
+      "file": "vectors/reconcile/C1.json",
+      "sha256_hex": "e94222ef67384a5b7dfe8b473adb1af97534bd1fb80ee9ca0c4da80e720b0306"
+    },
+    {
+      "file": "vectors/reconcile/C2.json",
+      "sha256_hex": "da9f4cb5420aa30c1929557479cb9784c09d2cc40ae94b7ad335cb851597e5ca"
+    },
+    {
+      "file": "vectors/reconcile/C3.json",
+      "sha256_hex": "64cd1452a2c6345ea055871fd57ef31299f6d81bfb50cc74b1616caf24487aab"
+    },
+    {
+      "file": "vectors/reconcile/C4.json",
+      "sha256_hex": "86c696c5ded57d54baed5c76c2fa0e58fa41ef793544c53e863b3f88d224ddd5"
+    },
+    {
+      "file": "vectors/reconcile/C5.json",
+      "sha256_hex": "bd1dbafc260598cb8df1cf6bc5369602ceffb2375ce6f7123f54b1d71ad4d7ee"
+    },
+    {
+      "file": "vectors/reconcile/C6.json",
+      "sha256_hex": "abf1b5a5690d203ffe48fc555e6e134658232f19b3d558d77376896d6b175980"
+    },
+    {
+      "file": "vectors/reconcile/C7.json",
+      "sha256_hex": "969c7a219dfe7a3649e4117659f4ab4871f30f16642e71f4050da948203bfa88"
+    },
+    {
+      "file": "vectors/reconcile/C8.json",
+      "sha256_hex": "bc775c05c72fe856d199bbe57243a8a47a231666acefbbd37d653f28fbdf0edd"
+    },
+    {
+      "file": "vectors/reconcile/C9.json",
+      "sha256_hex": "100dc8a678621b9e968c4f3701acb3543e3f6e13026bdbcfd67445c445adf0f3"
+    },
+    {
+      "file": "vectors/reconcile/C10.json",
+      "sha256_hex": "fc2227ca4d77084dc82e836fe63c791fa0ba94672e0795d4b3266b3baa242931"
+    },
+    {
+      "file": "vectors/adversarial.json",
+      "sha256_hex": "42cf84eb54153feabc4440aedaab6e34144fbb08f5ced698215b286a49c4151e"
+    },
+    {
+      "file": "vectors/visibility/visibility.json",
+      "sha256_hex": "0c3eee83a8334b32cd1a827d0fbf7c0fe88fbe56c310f7d4fc10a7d90e957c1a"
+    },
+    {
+      "file": "vectors/freshness.json",
+      "sha256_hex": "24105b6c59e519a0d4bd1ef3055505afa2edb94e6644206a2a06c9d515f7652f"
+    }
+  ],
+  "categories_present": [
+    "1 derivations (tagged wire identities + structural GenesisId)",
+    "2 signing",
+    "3 fold-by-lineage",
+    "4 thresholds-count-lineages",
+    "5 revocation (mechanics only)",
+    "5b revoke-AUTHORITY threshold (real signature + lineage-counted)",
+    "6 reconcile C1..C10",
+    "7 adversarial AR-1, AR-2, AR-3, AR-6 (derivable Rust crypto/bound vectors)",
+    "8 visibility V1..V9 + S2 (TS-authoritative snapshot; Rust validates structure)",
+    "9 freshness E2.16 (TS-authoritative snapshot; Rust validates structure)"
+  ],
+  "not_yet_emitted": [
+    "5b revoke-AUTHORITY over-the-wire authority distribution + co-sign-vs-vote ordering: Workstream C (open-edges.md §1) — the signature + lineage-counted-threshold MECHANISM is emitted in revocation-authority.json",
+    "7 AR-4 metadata-leak bound: a characterization with no accept/reject crypto verdict and no Rust test in lineage-core/lineage-history — not a deterministic vector this suite can derive",
+    "7 AR-5 MLS tree scaling: a scaling characterization (not accept/reject) living in lineage-mls (ar5_tree_scaling.rs), which the conformance crate does not depend on — not a deterministic crypto vector"
+  ]
+}

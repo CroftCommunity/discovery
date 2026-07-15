@@ -2,6 +2,8 @@
 
 `RUN-01 EXP-3. Branch claude/experiments-run-01, 2026-07-14. cargo-mutants 27.1.0, Rust 1.94.1.`
 
+> **Partially refuted (RUN-07 · rider RUN-08).** This report's central conclusion — that the 61 survivors are cross-package-covered instrument artifacts — was partially refuted by `X3-AUTOMATED-SWEEP.md` (RUN-07): 31 of the 61 were dead-duplicate `fold_auth` survivors, never linked into the consumer path, so the automated sweep could not kill them by that route. See the `fold-auth-duplicate` register row (`SPEC-DIVERGENCE-REGISTER.md`). Record preserved verbatim below.
+
 ## What this tests
 
 §7.3 / §8.2(g) — the authority/threshold trust claim: a surviving mutant in `fold_auth` /

@@ -1,0 +1,13 @@
+[package]
+name = "history-harness"
+edition.workspace = true
+version.workspace = true
+publish = false
+license.workspace = true
+description = "THROWAWAY validation harness (TDD-exempt) — demonstrates local-first per-branch message history + voluntary consensual backfill, both for one user's multiple devices and for a group, across real machines. Logic under test lives in (tested) lineage-core + lineage-history."
+
+[dependencies]
+lineage-core.workspace = true
+lineage-history.workspace = true
+serde.workspace = true
+serde_json.workspace = true

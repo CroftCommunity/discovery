@@ -1,0 +1,42 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §7 (reconcile/fork); conformance-suite cat 6 corpus",
+    "category": 6,
+    "note": "remove-then-included contradiction -> hard-stop — verdict DERIVED from real conflict::detect (+ DAG fork for re-formation), never hand-set."
+  },
+  "vector": {
+    "id": "C2",
+    "label": "remove-then-included contradiction -> hard-stop",
+    "branches": [
+      {
+        "label": "boot-erin",
+        "ops": [
+          {
+            "kind": "Remove",
+            "subject": "erin",
+            "signers": [
+              "alice",
+              "bob"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "keep-erin",
+        "ops": [
+          {
+            "kind": "Add",
+            "subject": "frank",
+            "signers": [
+              "carol"
+            ]
+          }
+        ]
+      }
+    ],
+    "verdict": "hard-stop",
+    "contested": [
+      "erin"
+    ]
+  }
+}

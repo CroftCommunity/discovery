@@ -4,6 +4,8 @@
 //! `Session` can now emit `RuleChange` and `Approval`, so a well-formed governance flow
 //! no longer needs hand-built assertions.
 //!
+//! Earns/bounds: Part 2 §7.2 R7 — a RuleChange k-of-n quorum driven end-to-end through the real Session emit API.
+//!
 //! Flow: O creates the group, adds A2 (Admin), and raises rule_change_threshold to 2.
 //! A lone amendment by O is refused. A2 approves the specific change; O submits it
 //! referencing that approval; the quorum of two distinct personae admits it, and A2

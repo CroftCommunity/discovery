@@ -1,5 +1,7 @@
 //! E12.3 — planter byte-nondeterminism is a dedup, not a fork (Battery 7, Rung A).
 //!
+//! Earns/bounds: Part 2 §7.6.2 — planter byte-nondeterminism is a dedup, not a fork (the core re-plant correctness claim).
+//!
 //! The core correctness claim of the whole fork story, and the single most important thing
 //! to try to break. Two members stamping independently from the *same* governance-chain
 //! member set may produce different MLS tree bytes (fresh secrets, different KeyPackage

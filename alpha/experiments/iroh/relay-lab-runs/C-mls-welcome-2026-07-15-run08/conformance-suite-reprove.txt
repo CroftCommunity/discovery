@@ -1,0 +1,15 @@
+
+conformance runner — per-category summary
+=========================================
+[PASS] cat1 derivations                 5 pass, 0 fail
+[PASS] cat2 signing                     2 pass, 0 fail
+[PASS] cat3+4 fold/thresholds           3 pass, 0 fail
+[PASS] cat5 revocation (mechanics)      2 pass, 0 fail
+[PASS] cat5b revoke-authority           4 pass, 0 fail
+[PASS] cat6 reconcile C1..C10           10 pass, 0 fail
+[PASS] cat7 adversarial AR-1..AR-6      8 pass, 0 fail
+[PASS] cat8 visibility (TS-authoritative) 11 pass, 0 fail
+[PASS] cat9 freshness E2.16 (TS-authoritative) 3 pass, 0 fail
+[PASS] manifest integrity               18 pass, 0 fail
+-----------------------------------------
+TOTAL: 66 pass, 0 fail

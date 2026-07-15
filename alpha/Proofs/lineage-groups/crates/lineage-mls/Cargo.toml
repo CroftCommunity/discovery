@@ -1,0 +1,15 @@
+[package]
+name = "lineage-mls"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+description = "Thin, auditable wrapper over openmls. Isolates every openmls assumption in one crate (Phase 1)."
+
+[dependencies]
+lineage-core.workspace = true
+openmls.workspace = true
+openmls_rust_crypto.workspace = true
+openmls_traits.workspace = true
+openmls_basic_credential.workspace = true
+thiserror.workspace = true

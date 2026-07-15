@@ -1,0 +1,19 @@
+{
+  "welcome_bytes_over_wire": 1466,
+  "founder_epoch": 1,
+  "joiner_epoch": 1,
+  "founder_member_count": 3,
+  "joiner_member_count": 3,
+  "epoch_secret_match": true,
+  "joiner_secret_is_nonzero": true,
+  "founder_fold": {
+    "lineage:lineage-a": 2,
+    "lineage:lineage-b": 1
+  },
+  "joiner_fold": {
+    "lineage:lineage-a": 2,
+    "lineage:lineage-b": 1
+  },
+  "fold_matches": true,
+  "verdict": "PASS — joiner derived BOTH the MLS group secret AND the lineage-folded standing from a wire-delivered Welcome"
+}

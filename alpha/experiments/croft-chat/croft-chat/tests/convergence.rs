@@ -1,5 +1,7 @@
 //! P7 — headless convergence proof (Milestone A gate).
 //!
+//! Earns/bounds: Part 2 §7.3 — order-insensitive byte-identical convergence of the fold (I5), shared-directory transport.
+//!
 //! Two principals, two redb stores, one shared-directory transport that
 //! deliberately scrambles delivery order. They create a group, exchange
 //! membership, interleave messages from both sides, and must derive

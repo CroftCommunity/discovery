@@ -1,0 +1,58 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §7 (reconcile/fork); conformance-suite cat 6 corpus",
+    "category": 6,
+    "note": "cross-contradiction: one side boots grace the other keeps -> hard-stop — verdict DERIVED from real conflict::detect (+ DAG fork for re-formation), never hand-set."
+  },
+  "vector": {
+    "id": "C9",
+    "label": "cross-contradiction: one side boots grace the other keeps -> hard-stop",
+    "branches": [
+      {
+        "label": "boot-erin-add-grace",
+        "ops": [
+          {
+            "kind": "Remove",
+            "subject": "erin",
+            "signers": [
+              "alice",
+              "bob"
+            ]
+          },
+          {
+            "kind": "Add",
+            "subject": "grace",
+            "signers": [
+              "carol"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "boot-grace-keep-erin",
+        "ops": [
+          {
+            "kind": "Add",
+            "subject": "grace",
+            "signers": [
+              "dave"
+            ]
+          },
+          {
+            "kind": "Remove",
+            "subject": "grace",
+            "signers": [
+              "alice",
+              "carol"
+            ]
+          }
+        ]
+      }
+    ],
+    "verdict": "hard-stop",
+    "contested": [
+      "erin",
+      "grace"
+    ]
+  }
+}
