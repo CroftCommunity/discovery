@@ -13,5 +13,8 @@ local_storage_projection = { path = "../local_storage_projection" }
 mls-replant = { path = "../mls-replant" }
 redb = "2.4"
 tempfile = "3"
+# BLAKE3 — the committed hash suite (Part 2 §10.4). Used for the B1 dataplane
+# record content-address and history digest (experiment-grade, test-only serialization).
+blake3 = "1"
 
 [dev-dependencies]

@@ -53,8 +53,8 @@ are **done and green**. What remains:
 
 | Item | For (claim under test) | Maturity | Blocked on |
 |---|---|---|---|
-| **E12.2** — atomic-swap *message* continuity | An in-flight conversation survives the §7.6.2 re-plant repoint without message loss/dup | Specified | Drystone dataplane hash structures (Rung B) |
-| **E12.7 message facet** | The message-continuity half of the bridge (membership half is done) | Specified | pairs with E12.2 |
+| **E12.2** — atomic-swap *message* continuity | ✅ **DONE (RUN-09 Part 3).** In-flight conversation survives the §7.6.2 re-plant repoint with no loss/dup, `Modeled` at loopback grade. B1 dataplane hash structure built (`replant-continuity/src/dataplane.rs`); `e12_2_message_continuity.rs` (5 tests) proves pre-repoint exactly-once, in-flight causal-order, cross-order digest equality, and dup/drop detection. §7.6.2 message half → `Modeled`; EVIDENCE-MAP row added. | ✅ Complete (loopback) | — (real transport / wire pinning open) |
+| **E12.7 message facet** | ✅ **DONE (RUN-09 Part 3).** The message-continuity half of the bridge (membership half already `Verified`) — landed with E12.2 in `replant-continuity`, driven over the real re-plant membership. | ✅ Complete (loopback) | — |
 | **M1 fan-out half** | ✅ **DONE (RUN-01 EXP-1, 2026-07-14).** Fan-out curve captured over real iroh-gossip at N=2/4/8/16 (`croft-chat/FANOUT-M1.md`): per-node gossip cost **linear** (`live_sent=2N+1`), aggregate O(N²), head-convergence holds at all N (fingerprints match). **Flag:** connect-time resync is super-linear on the bootstrap hub and full-settle (`pending==0`) doesn't complete past N≈8 in-window — corroborates the open RBSR/steady-state gap. Register: `fanout-single-run` (proxy-measurement, magnitude indicative). | ✅ Complete (curve + shape) | — (loopback testbed) |
 | **M2** — return-backfill vs dormancy | Cost of a returning member catching up vs staying dormant, at 1/7/30/90-day gaps | Specified (modeled lower-bound runnable now against redb history) | **Mechanism now built** — sync-on-connect resync (`iroh_bus`, `Event::NeighborUp` → re-broadcast retained log). M2 is the *sizing* study that remains (push-resync vs pull-on-connect, cost at 1/7/30/90-day gaps) + steady-state anti-entropy |
 | **X1** — live cross-host over real NAT | Convert in-process fingerprint-equality into a real-network one | Specified (`RUN.md` cross-host recipe) | secroute boxes + NAT workstation (genuinely needs real NAT) |
@@ -370,7 +370,7 @@ Remaining, in leverage order (current queue):
    emission is the remaining integration).
 6. **BIP39 paper-recovery round-trip** spike — the Tier-1 first step of the recovery model (the
    recovery direction is already confirmed; see `../../beta/drystone-spec/open-threads.md` §2).
-7. **Build B1** (dataplane hash structures) → then **A5** (E12.2 + E12.7 message continuity).
+7. ~~**Build B1** (dataplane hash structures) → then **A5** (E12.2 + E12.7 message continuity).~~ ✅ **DONE (RUN-09 Part 3):** B1 built at loopback (`replant-continuity/src/dataplane.rs`); A5 message continuity landed (`e12_2_message_continuity.rs`), §7.6.2 message half → `Modeled`. Real transport + wire pinning remain the open follow-ons.
 8. **Meer build P2→P6** — each phase turns one lab experiment (E8/E9/E11/E12) into its running form.
 9. **Hardware / boxes when available** — **X1** real-NAT (parked pending hardware); macFUSE (Spike 3);
    the iOS feasibility spike (Spike 7, the iroh→Veilid decision point); E4/E0-NAT.

@@ -30,10 +30,27 @@ membership. The two are computed independently: redb state vs. an actual openmls
   *rejected at ingest*; the derived set does not move and the stamp seats no unauthorized
   principal. The fold — not the MLS layer — is the sole authority on membership.
 
+## Message continuity (E12.2 / E12.7 message facet — RUN-09 Part 3)
+
+The other half of §7.6.2: an in-flight conversation surviving the repoint with **no loss and no
+duplication**. The membership half above says *whom* the new group seats; this says the *content*
+survives the switch. It lives in `src/dataplane.rs` — the **B1 dataplane hash structure**: a
+content-addressed, causally-linked record set whose digest is a pure function of the causally-ordered
+content set (byte-identical across arrival orders). Records carry the governance-generation stamp
+(§7.6) and their causal antecedent, so a duplicate (a repeated content id) and a drop (a referenced
+antecedent that never arrives) are *detected*, not absorbed.
+
+`tests/e12_2_message_continuity.rs` drives it over the real re-plant membership: (a) every
+pre-repoint entry is present after, exactly once; (b) in-flight entries land once, in causal order,
+on the post-repoint group; (c) both members converge byte-identically across arrival orders; (d) an
+injected dup/drop is detected. **`Modeled` at loopback grade** (§7.6.2): delivery is harness-driven,
+not real transport, and the record encoding is deliberately *not* `[gates-release]` wire-pinned
+(test-only serialization). Real over-the-wire delivery and the pinned encoding remain open.
+
 ## Scope
 
-Rung B for *membership* continuity. E12.7's remaining facet — dataplane *message* continuity
-across a boundary (the §7.6.2 atomic repoint of an in-flight conversation) — belongs with E12.2
-and Drystone's dataplane hash structures, not this crate. What is closed here: the crypto
-membership is a **function of the governance chain**, verified end-to-end against a real MLS
-library and the real fold.
+Rung B for *both* continuity halves. Membership is `Verified` end-to-end against a real MLS library
+and the real fold; message continuity is `Modeled` at loopback over the B1 hash structure. What is
+closed: the crypto membership *and* the conversation content are each a **function of the governance
+chain and the dataplane history**, not independent sources of truth — the re-plant loses neither
+across a repoint.
