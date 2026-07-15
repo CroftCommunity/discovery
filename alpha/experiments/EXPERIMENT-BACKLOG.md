@@ -354,8 +354,8 @@ governance emit API; **RUN-01** — A4/M1 fan-out (EXP-1), automerge 0.7 (EXP-2)
 contradiction predicate (the F8 impl gap, closed); **RUN-03/04** — the continuity-decoupling,
 reconciliation-horizon, and corroboration-dials design passes. Reconciled deltas: `x2-backfill`,
 `rulechange-quorum`, `handcrafted-assertions`, `automerge-0.6.1`, and `competing-quorum-autoresolve`
-(RUN-03). **Active:** `hermetic-gossip` (needs the boxes / X1) and `fanout-single-run`
-(proxy-measurement). See `SPEC-DIVERGENCE-REGISTER.md`.
+(RUN-03); `fanout-single-run` (RUN-09 Part 5 repeated-run). **Active:** `hermetic-gossip` (needs the
+boxes / X1) — the only remaining Active row. See `SPEC-DIVERGENCE-REGISTER.md`.
 
 Remaining, in leverage order (current queue):
 

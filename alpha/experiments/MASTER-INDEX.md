@@ -119,8 +119,9 @@ governance facts), — **RUN-01 (2026-07-14)** — `automerge-0.6.1` (→ 0.7 sh
 — **RUN-03 (2026-07-14)** — `competing-quorum-autoresolve` (→ the F8-decided hard-stop is now built
 and test-run: the competing-RuleChange contradiction predicate `fold_derived::detect_competing_rulechange`;
 register row moved Active → Reconciled).
-Active: `hermetic-gossip` (needs X1 / the boxes) and `fanout-single-run` (proxy-measurement, EXP-1:
-shape holds, magnitude indicative).
+Active: `hermetic-gossip` (needs X1 / the boxes) — now the **only** Active row. `fanout-single-run`
+retired (Reconciled, RUN-09 Part 5: K=5 repeated-run, `live_sent=2N+1` exact, head-convergence every
+run, super-linear hub-resync shape reproduced with a tight band; addendum in `FANOUT-M1.md`).
 
 **Recommended critical path (highest leverage first).** RUN-01 (2026-07-14) cleared items 1–3's
 runnable-now work and RUN-03 (2026-07-14) closed the competing-RuleChange gap; the frontier is now the
