@@ -207,5 +207,5 @@ nodes. See `croft-chat/RUN.md` → "Same-host recipe."
 **What this unlocked (no boxes):** A3 (multi-process convergence + X2 fault injection — `SIGKILL`
 a node then heal), A4's M1 fan-out (N local `serve` processes), `croft-chat`'s
 convergence-over-real-gossip proofs, and `croft-group` L5's adapter tests. **What still needs the
-boxes:** A6/X1 (real NAT traversal + relay holepunch) — by definition unreproducible where Internet
+boxes:** A6/X1 (real-NAT traversal + relay holepunch) — by definition unreproducible where Internet
 UDP is blocked.
