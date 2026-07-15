@@ -138,7 +138,23 @@ at which point the manifest simply grows one contradiction entry rather than cha
 `reconciliation-horizon.md` §7 (first spike), Part 2 §7.6.9 (the cadence and the manifest), Appendix B
 (`[gates-release]` horizon-checkpoint manifest encoding).
 
-### 2c. EXP-C1 — the completeness-ahead contract (loopback, runnable now, no new infra)
+### 2c. EXP-C1 — the completeness-ahead contract ✅ DONE (RUN-07)
+
+**✅ DONE (RUN-07, landing run RUN-07).** All four assertions landed and green at loopback / fold grade
+(`croft-chat/tests/completeness_ahead.rs`, 4 tests + `local_storage_projection::completeness_ahead` pure
+helpers, 3 inline unit tests). None required MLS internals or network transport, so nothing was split
+out. (1) **Stall-at-threshold**: a node denied a governance fact stalls the dependent irreversible act
+below freshness `k = ceil(n/2)` (fail-closed, no breach) while still serving reads on its best-known
+prefix state. (2) **Stamp detection**: `detect_stamp_gap(local, entry_stamp)` detects and sizes a
+data-plane entry stamped ahead of the governance frontier, and returns `None` once the node fills the gap
+before acting. (3) **Solicitation reach**: an unreferenced-tail fact absent on X is surfaced by a frontier
+ask (re-delivered into X's live pipeline) and folds to the **byte-identical fingerprint** of a node that
+received it live. (4) **Formula-valued k**: `quorum_k(n) = ceil(n/2)` over the folded member count is
+identical at the same act position across arrival orders (member count converges by construction). The
+freshness / generation-stamp values are integers the test seeds, standing in for the attested values; the
+`[gates-release]` stamp and `(G, D)` cursor encodings are untouched. Spec touch: §8.2(e) records the
+origination precondition exercised at loopback grade (real-NAT path remains X1). Experiment-grade,
+loopback only.
 
 **EXP-C1 — the completeness-ahead contract (loopback, runnable now, no new infra).** The demonstration
 side of the corroboration-dials framing (`alpha/thinking/corroboration-and-quantified-trust.md`; spec
