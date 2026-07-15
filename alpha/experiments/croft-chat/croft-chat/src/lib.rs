@@ -10,6 +10,7 @@
 //! P12 (persistence), P16 (iroh adapter), P17 (topology config).
 #![warn(missing_docs)]
 
+pub mod anti_entropy;
 pub mod app;
 pub mod config;
 pub mod fingerprint;
