@@ -1,6 +1,8 @@
 //! E12.7 (keystone) — the MLS re-plant stamps *exactly* the member set the governance fold
 //! derives, at every step of a sequence of authorized changes.
 //!
+//! Earns/bounds: Part 2 §7.6.2 — the MLS re-plant stamps exactly the member set the governance fold derives (membership-continuity keystone).
+//!
 //! This is the Rung-B claim the whole re-plant story rests on: the crypto membership is a
 //! *function of* the governance chain, never an independent source of truth. Genesis seats the
 //! founder; each authorized add extends the derived set; and at every step the fresh stamp seats

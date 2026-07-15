@@ -1,0 +1,20 @@
+[package]
+name = "identity-binding"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+
+[dependencies]
+# MLS member identity (the group-side signing key we want to bind)
+openmls = "0.8"
+openmls_rust_crypto = "0.5"
+openmls_traits = "0.5"
+openmls_basic_credential = "0.5"
+
+# account-side (did:plc) key + signature verification for both sides
+ed25519-dalek = "2"
+rand = "0.8"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hex = "0.4"

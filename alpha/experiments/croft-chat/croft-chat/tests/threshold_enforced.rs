@@ -1,6 +1,8 @@
 //! Verification — k-of-n governance thresholds are enforced over distinct personae
 //! (Battery 6 / V5′, Rung B).
 //!
+//! Earns/bounds: Part 2 §7.2 R7 (and §7.4, the k-distinct-lineages threshold) — k-of-n governance thresholds are enforced over k distinct personae by lineage.
+//!
 //! This began as a refutation: thresholds were decorative (a single Owner satisfied a
 //! 2-of-n). The fold now enforces them (V5′). A threshold-k governance act must carry
 //! approvals from k DISTINCT personae by lineage: `Approval` facts naming the act's

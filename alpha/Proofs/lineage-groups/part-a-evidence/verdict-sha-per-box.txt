@@ -1,0 +1,5 @@
+# Cross-machine verdict determinism (canonical order n1,n2,n3)
+# Each line: sha256  source-box
+5d82a5df4890c7aaa2811bf866bae6b43188d3c1323e168c7c457861e819bf37  node-one
+5d82a5df4890c7aaa2811bf866bae6b43188d3c1323e168c7c457861e819bf37  node-two
+5d82a5df4890c7aaa2811bf866bae6b43188d3c1323e168c7c457861e819bf37  node-three

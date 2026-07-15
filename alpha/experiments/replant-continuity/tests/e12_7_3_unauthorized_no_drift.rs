@@ -2,6 +2,8 @@
 //! rejects it at `ingest`, the derived set is unchanged, and the fresh stamp therefore never
 //! seats the would-be member.
 //!
+//! Earns/bounds: Part 2 §7.6.2 — an unauthorized membership change does not drift the crypto membership (rejected at ingest).
+//!
 //! This is the adversarial complement to the happy path: it proves the fold — not the MLS layer —
 //! is the sole authority on membership. A member who is not authorized to add (here: a principal
 //! that was never seated, so has no role) cannot cause a persona to be seated by the re-plant,

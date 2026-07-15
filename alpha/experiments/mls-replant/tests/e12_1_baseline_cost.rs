@@ -1,6 +1,8 @@
 //! E12.1 — baseline stamp cost is O(N), and the constant is tolerable at hot-N
 //! (Battery 7, Rung A; feeds Battery 2 / M1).
 //!
+//! Earns/bounds: Part 2 §7.6.2 (and §11.4/§11.5) — the per-boundary re-plant stamp cost is O(N) with a tolerable constant at hot-N.
+//!
 //! The per-boundary instantiation cost (Commit size, Welcome bytes, wall time to first
 //! epoch) is claimed to scale linearly in member count, and the constant sets how tight the
 //! liveness window can be pushed (§11.11). This measures the stamp against real openmls at

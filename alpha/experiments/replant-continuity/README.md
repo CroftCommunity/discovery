@@ -1,5 +1,7 @@
 # replant-continuity — E12.7 (the re-plant's Rung-B governance continuity)
 
+Serves: Part 2 §7.6.2 (the MLS re-plant stamps exactly the governance-fold-derived member set — the membership-continuity keystone, E12.7) — earns/bounds: §7.6.2 `Verified` (membership half) — register: none — landed: 2026-07-13 reconciliation (F2).
+
 The bridge that closes the re-plant loop. Batteries 5–6 characterized the **governance fold**
 (`local_storage_projection`); Battery 7 Rung-A (`mls-replant`) characterized the **MLS stamp**.
 E12.7 is the join: it proves the member set the fold *derives* is exactly the member set the

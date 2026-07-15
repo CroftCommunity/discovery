@@ -1,5 +1,7 @@
 # X3 — the automated cross-package mutation sweep (RUN-07)
 
+Serves: Part 2 §7.2 R7 (the content-bound-quorum *count* is cross-package mutation-clean) — earns/bounds: `Verified` (count only; the role-authorship gate stays R7's open residual) — register: `fold-auth-duplicate` (Reconciled) + the mutation-gate note — landed: RUN-07.
+
 `RUN-07, 2026-07-15. cargo-mutants 27.1.0, Rust 1.94.1. Closes the X3 residual left open by
 X3-CROSS-PACKAGE-SWEEP.md: the *automated* harness that mutates the substrate while running the
 croft-chat consumer suite, resolving every in-substrate survivor mechanically rather than by

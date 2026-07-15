@@ -1,0 +1,54 @@
+{
+  "header": {
+    "spec_section": "CROFT-PROTOCOL.md §7 (reconcile/fork); conformance-suite cat 6 corpus",
+    "category": 6,
+    "note": "3-way: two keep erin, one boots -> hard-stop, contested {erin} — verdict DERIVED from real conflict::detect (+ DAG fork for re-formation), never hand-set."
+  },
+  "vector": {
+    "id": "C6",
+    "label": "3-way: two keep erin, one boots -> hard-stop, contested {erin}",
+    "branches": [
+      {
+        "label": "add-frank",
+        "ops": [
+          {
+            "kind": "Add",
+            "subject": "frank",
+            "signers": [
+              "carol"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "boot-erin",
+        "ops": [
+          {
+            "kind": "Remove",
+            "subject": "erin",
+            "signers": [
+              "alice",
+              "bob"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "add-grace",
+        "ops": [
+          {
+            "kind": "Add",
+            "subject": "grace",
+            "signers": [
+              "dave"
+            ]
+          }
+        ]
+      }
+    ],
+    "verdict": "hard-stop",
+    "contested": [
+      "erin"
+    ]
+  }
+}

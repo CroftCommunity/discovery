@@ -180,6 +180,24 @@ precondition is exercised over loopback here; the relay/real-NAT path stays X1).
 `corroboration-and-quantified-trust.md` §6 (the contract), Part 2 §7.3.3 (the dials and the fail-closed
 gate), §7.4 (the k-distinct-lineages threshold), §7.4.3 (the generation stamp).
 
+### 2d. Vouch payload-validation is an uncovered residual (from RUN-07 X3 automated sweep) — open
+
+**FINDING — the fold's I5 Vouch payload gate is uncovered by both suites.** The RUN-07 automated
+cross-package sweep (`local_storage_projection/X3-AUTOMATED-SWEEP.md`) recorded **10 justified
+survivors** in the `fold_derived::check_authorization` Vouch arm — the I5 Vouch payload-length /
+non-empty-context / strength-byte checks (`fold_derived.rs:447–472`, mutants at `449` ×2, `461` ×4,
+`462`, `469` ×2, `470`). These are **genuinely uncovered**: no `croft-chat` consumer test authors a
+`Vouch` act, and the substrate suite does not exercise the payload boundaries either, so the mutants
+survive both suites. This is unrelated to the R7 threshold/count trust claim (§7.2) — it is a
+distinct, honestly-recorded coverage hole in the Vouch act's payload validation, not a weakened
+threshold. **Serves:** the fold's I5 Vouch gate (`fold_derived.rs` `AssertionType::Vouch`), the
+social-recovery / re-attestation vouch primitive (Part 2 §7.6.4 lineage-divergence vouch, Case-3
+recovery §7.3.9). **Register / spec tag:** none — recorded as a sweep residual against
+`X3-AUTOMATED-SWEEP.md` (not a divergence stand-in, so no `SPEC-DIVERGENCE-REGISTER.md` row and no
+status tag moves). **Retirement condition:** consumer-path `Vouch` tests that kill the 10 survivors
+(a Vouch-payload proptest driven through `surface::LocalStore`), **or** an explicit experiment-grade
+justification recorded against the sweep for each survivor. Discovered RUN-07; filed RUN-08.
+
 ---
 
 ## 3. croft-group (shared-core / per-shell)
@@ -256,9 +274,9 @@ The *running form* of E8/E9/E11/E12. P0/P1 (Tier-0 blind mirror) done.
 ### 6d. Faithful follow-ons + conformance gaps (production, TDD)
 | Item | For | Maturity | Blocked on |
 |---|---|---|---|
-| **MLS key-distribution over the wire** | make the modeled verifying-key registry a real over-iroh distribution (standing FAITHFUL honesty boundary) | **Realized in spike** — `iroh/crates/mls-welcome-over-iroh` distributes a REAL openmls Welcome over a real iroh connection; joiner derives the identical MLS exporter secret + identical lineage fold from the wire-delivered Welcome. Not yet wired into conformance emission | RUN-01 EXP-5 assessment: the *mechanism* exists; emitting cats 7/8/9 from it is the remaining integration (see below) |
+| **MLS key-distribution over the wire** | make the modeled verifying-key registry a real over-iroh distribution (standing FAITHFUL honesty boundary) | **Green-real, reproduced RUN-08** — `iroh/crates/mls-welcome-over-iroh` distributes a REAL openmls Welcome over a real iroh connection; joiner derives the identical MLS exporter secret + identical lineage fold from the wire-delivered Welcome. Reproduced in-environment RUN-08 (`relay-lab-runs/C-mls-welcome-2026-07-15-run08`), made buildable here by the Proofs fold-in (`alpha/Proofs/`). Still not wired into the conformance *emitter* (today in-process) | Residual is emitter-integration, not the mechanism; the real-NAT path stays X1 |
 | **Threshold revoke-authority as real k-of-n over the wire** | replace the MD-G5 sha-256 MAC stand-in with a genuine k-of-n authority signature | **DESIGN-GATED — RUN-01 EXP-5 stop (see finding row §6d-i)** | **A design decision** (the revocation-authority model: who-may-revoke, the k-of-n dial, key discovery / trust root) — `iroh/TEST-LOG.md` MD-G5 note: "the next layer up, NOT in this spike"; design lives in `alpha/thinking/revocation-authority.md`. Not improvised. |
-| **Conformance vectors cats 7/8/9** (AR / visibility / freshness) | recorded `not_yet_emitted`; revoke-authority-threshold vector is a `PLACEHOLDER` | Sketched — **no cats moved in RUN-01** (EXP-5 stopped at the design gate) | the k-of-n work above (which is design-gated) |
+| **Conformance vectors cats 7/8/9** (AR / visibility / freshness) | were recorded `not_yet_emitted` at the §10.5-footnote layer; ground truth after the Proofs fold-in | **Emitted — 66/0 re-proven in-environment (RUN-08).** The folded reference conformance-core (`alpha/Proofs/lineage-groups/crates/conformance`, `run-vectors`) re-proves cats 1–9 at 66/0: cat 7 adversarial AR-1…AR-6 (real Rust, 8/0), cat 8 visibility (TS-authoritative, 11/0), cat 9 freshness (TS-authoritative, 3/0), plus the cat-5b revoke-authority *mechanism* (4/0). The "not_yet_emitted" reading is superseded for the vectors themselves | Residual is the over-the-wire *authority distribution* (b) — gated on I9 (firewall). See the Part 2 traceability FINDING (RUN-08) on the stale footnote |
 | **Domain-tagged pre-image reconciliation** | decide whether `lineage-core` (plain sha256) + the iroh spike adopt CROFT-PROTOCOL §2 domain-tagged genesis/topic pre-images | Sketched | — |
 
 **§6d-i — FINDING / DESIGN GATE (RUN-01 EXP-5, do not decide autonomously).** EXP-5 asked to replace the
@@ -301,7 +319,7 @@ leak the bound only characterized). All **Sketched**.
 | Item | For | Maturity |
 |---|---|---|
 | **Recovery model — quorum social recovery vs minimal-central-authority VC issuer** | spec the two candidate recovery models together (proof-ledger E3.3) | Parked (kept out of autonomous work by design) |
-| **BIP39 paper-recovery round-trip spike** | recoveryKey ↔ 24-word mnemonic (KAT-verified) then secretbox-wrap the masterKey — cheapest first step for the above | Sketched |
+| **BIP39 paper-recovery round-trip spike** | recoveryKey ↔ 24-word mnemonic (KAT-verified) then secretbox-wrap the masterKey — cheapest first step for the above | **✅ done (RUN-08)** — `alpha/experiments/bip39-recovery-roundtrip` (11 tests, clippy clean): recoveryKey ⇄ 24-word BIP39 English mnemonic round-trips bit-exact; the standard English KATs pass both directions incl. checksum-failure negatives (corrupted word, transposed pair, out-of-wordlist, wrong count); masterKey secretbox-wrapped (dryoc XSalsa20-Poly1305) under the recoveryKey unwraps bit-exact, wrong-key/tamper fails cleanly. This is the Tier-1 **lock** only; the trust tier stays I9 (firewall). Crate choice experiment-grade, not `[gates-release]` |
 
 ### 6h. Standalone / after-layer spikes (NEXT-SESSION · roadmap · DESIGN §14)
 | Item | For | Maturity | Blocked on |

@@ -1,5 +1,7 @@
 //! P18 — two-node convergence over real iroh-gossip (Milestone C gate).
 //!
+//! Earns/bounds: Part 2 §6.10 / §7.3 — two-node order-insensitive convergence over real iroh-gossip — loopback grade (relay/real-NAT path is X1; register hermetic-gossip).
+//!
 //! The same property as P7 (order-insensitive convergence of two principals'
 //! interleaved messages), but carried over the **real iroh-gossip transport**
 //! instead of the shared-directory stand-in. Two endpoints run in one process

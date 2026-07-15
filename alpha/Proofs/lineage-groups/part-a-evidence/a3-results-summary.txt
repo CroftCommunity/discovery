@@ -1,0 +1,5 @@
+A3 two-mode broker — evidence summary (2026-06-15)
+A3.1 durable queue: origin/broker/mode1/mode2 sha all = 7a945964...; node-2 end-state head 241d2718, members incl erin+frank in BOTH modes -> broker = availability
+A3.2 tamper: node-2 rejected broker-altered log: 'signature ... failed verification' -> broker cannot alter held state
+A3.3 contradiction-through-broker: broker verdict sha == peer verdict sha = 5f79e0736fb2a0e53c5c52a65a9882c93740df02838dc18912c381bc171c7db7 (both HardStop RemovedThenIncluded(erin)) -> broker has no resolving power a peer lacks
+VERDICT: superpeer is a CAPABILITY, not a RIGHT. No Mode-1-only outcome. A2 conformance satisfied.
