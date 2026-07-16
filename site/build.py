@@ -70,6 +70,35 @@ SPEC_FALLBACKS = {
 # Part 1 and Part 2 are the hard-gated spec: a broken  section  ref in either fails the build.
 HARD_GATED = {"part-1", "part-2"}
 
+# ---- The companion/exploratory unresolved-ref allowlist (Part 1, RUN-12) ----
+#
+# Outside the hard-gated spec, a handful of §-references legitimately resolve to
+# no heading in the published corpus: each points at a section of a *companion*
+# document that is not itself published (COHESION.md, ROADMAP.md,
+# doc-writing-method.md, social-layer.md) or at an external spec section. These
+# used to pass as a silent soft baseline — reported, non-fatal, count untracked.
+# They are now an explicit allowlist: (doc_id, ref) -> one-line reason. The gate
+# fails the build if the actual companion-unresolved set differs from this set in
+# EITHER direction — a NEW unlisted unresolved ref (companion drift a broken
+# link introduces) OR a listed entry that no longer fires (a stale allowlist
+# whose ref was fixed or removed). Either way the count going stale is caught.
+COMPANION_ALLOWLIST = {
+    ("conventions-and-decisions", "§12"):
+        "points at doc-writing-method §12, a companion doc outside the published set",
+    ("part-2-changelog", "§8.7"):
+        "external ref to MLS epoch_authenticator §8.7, not a corpus heading",
+    ("thinking-app-README", "§23"):
+        "points at COHESION.md §23, a companion doc outside the published set",
+    ("thinking-membership-vs-access-the-public-door", "§36"):
+        "points at COHESION.md §36, a companion doc outside the published set",
+    ("thinking-open-considerations", "§13"):
+        "points at ROADMAP.md §13, a companion doc outside the published set",
+    ("thinking-open-edges", "§75"):
+        "points at social-layer.md §75–77 (design gate G5), a cross-doc companion ref",
+    ("thinking-social-layer", "§29"):
+        "points at COHESION.md §29, a companion doc outside the published set",
+}
+
 
 def thinking_output_name(relpath):
     """Flat, collision-free output name for a thinking doc (path -> dashes)."""
@@ -414,10 +443,28 @@ def run(out_dir, check_only):
     print(f"repo-path citation links   : {code_path_links}")
 
     if soft_unresolved:
-        print("\n-- companion/exploratory unresolved refs (reported, non-fatal) --")
+        print("\n-- companion/exploratory unresolved refs (allowlisted) --")
         for doc_id, offenders in sorted(soft_unresolved.items()):
             for off in offenders:
-                print(f"   [{doc_id}] {off}")
+                reason = COMPANION_ALLOWLIST.get((doc_id, off), "NOT ON ALLOWLIST")
+                print(f"   [{doc_id}] {off}  — {reason}")
+
+    # ----- The companion allowlist gate (Part 1, RUN-12) -----
+    # The actual companion-unresolved set must match the allowlist exactly, or the
+    # count has gone stale in one direction or the other.
+    actual = {(doc_id, off) for doc_id, offs in soft_unresolved.items() for off in offs}
+    allowed = set(COMPANION_ALLOWLIST)
+    unlisted = actual - allowed          # new companion drift (a ref that broke)
+    stale = allowed - actual             # allowlist entry that no longer fires
+    if unlisted or stale:
+        print("\nCOMPANION-ALLOWLIST GATE FAILED — the companion unresolved-ref set has drifted:")
+        for doc_id, off in sorted(unlisted):
+            print(f"   NEW unresolved, not on allowlist : [{doc_id}] {off}")
+        for doc_id, off in sorted(stale):
+            print(f"   allowlisted but no longer fires  : [{doc_id}] {off}"
+                  f"  ({COMPANION_ALLOWLIST[(doc_id, off)]})")
+        print("Update COMPANION_ALLOWLIST in site/build.py to match, then re-run.")
+        raise SystemExit(1)
 
     if hard_unresolved:
         print("\nBROKEN-REF GATE FAILED — Part 1 / Part 2 references that resolve to no heading:")

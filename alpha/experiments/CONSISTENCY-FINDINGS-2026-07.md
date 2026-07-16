@@ -452,3 +452,30 @@ leaves to one subspace identity, deterministically. No firewall or gate was cros
 **byte encoding** stays `[gates-release]` (Appendix B / E.1) and the revocation-authority **trust tier**
 stays **I9** — both are deliberate parked gates, not defects, and remain open. EVIDENCE-MAP carries a
 new `green-real` row for the fold; the Design-model bindings (`seam.rs`) are unchanged.
+
+---
+
+## Settlement (RUN-12, 2026-07-16)
+
+The RUN-12 Part 1 ruling settles how evidence that entered the corpus from **outside** the numbered-run
+system is stamped, and applies that ruling to the one place a re-proof stood in for it. Owner ruling
+taken 2026-07-16. Dispositions:
+
+| # | Ruling | Disposition | What changed |
+|---|--------|-------------|--------------|
+| Import-provenance ruling (A.9) | **Applied.** | A one-sentence rider on FND-T4's evidence-form note: for evidence imported from outside the numbered-run system, the standard parenthetical's `RUN-NN` slot instead carries **import provenance** — `imported: <corpus> @ <commit>` — a verifiable pointer to the exact tree where the evidence lives and passes, and a retroactive RUN number is never invented. `conventions-and-decisions.md` A.9 edited; no status tag moves. |
+| §7.6.2 membership half (the fourth FND-T4 retrofit) | **Reshaped; RUN-11 FINDING closed.** | The membership half was imported already-`Verified` from the standalone experiments corpus (`replant-continuity`'s `e12_7_*` tests, commit `d52ed6f`) and carries no discovery-RUN stamp. RUN-11 resolved the FND-T4 gap by **re-proving in-environment** and stamping `RUN-11 re-proof`; the RUN-12 ruling supersedes that with the cleaner import-provenance form. The §7.6.2 membership-half parenthetical now reads `(evidence: the e12_7_* tests, imported: replant-continuity @ d52ed6f, `Verified`)` — wording adapted to the sentence, no information added or dropped. No status tag moved (the membership half was and stays `Verified`). `part-2-changelog.md` entry added. |
+| EVIDENCE-MAP row 52 | **Applied.** | Row 52's evidence cell carries the same import provenance in place of the `RUN-11 re-proof` note: `e12_7_1/2/3_*.rs` (E12.7; **imported: replant-continuity @ `d52ed6f`**), closing the FND-T4 §7.6.2 gap. |
+| Site companion allowlist | **Applied.** | The 7 companion/exploratory unresolved references that passed as a silent soft baseline are now an explicit allowlist in `site/build.py` (`COMPANION_ALLOWLIST`, each entry: doc-id, ref, one-line reason). The gate now fails the build if the actual companion-unresolved set differs from the allowlist in **either** direction — a new unlisted unresolved ref (a broken link), or a listed entry that no longer fires (a stale allowlist) — so companion drift becomes catchable, not just Part 1 / Part 2 drift. |
+
+**Guardrail note.** Part 1 moves no experiment status tag. The Part 2 edit is the §7.6.2 membership-half
+evidence-form reshape (form-only, no tag moved, no information added or dropped). The A.9 edit is one
+rider sentence on an existing evidence-linkage note. The `site/build.py` change tightens the gate; the
+7 allowlisted refs are unchanged companion cross-references into unpublished docs (COHESION, ROADMAP,
+doc-writing-method, social-layer) and one external MLS section. The site build (gate + anchor audit)
+stays clean after the edits.
+
+**The RUN-11 §7.6.2 membership-half FINDING is now closed.** Its RUN-11 follow-on resolution (re-prove
+and stamp `RUN-11 re-proof`) is retired in favor of import provenance, which is a stronger record: it
+names the exact tree where the evidence lives and passes rather than asserting an in-environment re-run.
+No re-invention of a RUN number remains anywhere in the §7.6.2 evidence.
