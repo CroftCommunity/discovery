@@ -112,6 +112,9 @@ GRADIENTS_DOCS = [
     (f"{SOCIAL_DIR}/visual-identity-and-the-progressive-depth-website.md",
      "gradients", "gradients.html",
      "Gradients — five tiers of one truth"),
+    (f"{SOCIAL_DIR}/REVIEW-2026-07.md",
+     "review-2026-07", "REVIEW-2026-07.html",
+     "Review — 2026-07 (what is under review, how to respond)"),
 ]
 
 
@@ -608,6 +611,8 @@ def run(out_dir, check_only):
     n_soft = sum(len(v) for v in soft_unresolved.values())
     n_hard = sum(len(v) for v in hard_unresolved.values())
     print(f"documents built            : {len(pages)}  ({sum(1 for p in pages if p.tier=='spec')} spec, "
+          f"{sum(1 for p in pages if p.tier=='gradients')} gradients, "
+          f"{sum(1 for p in pages if p.tier=='classroom')} classroom, "
           f"{sum(1 for p in pages if p.tier=='exploratory')} exploratory)")
     print(f"headings anchored          : {total_headings}")
     print(f"§-references found          : {counter.get('found', 0)}")
