@@ -479,3 +479,20 @@ stays clean after the edits.
 and stamp `RUN-11 re-proof`) is retired in favor of import provenance, which is a stronger record: it
 names the exact tree where the evidence lives and passes rather than asserting an in-environment re-run.
 No re-invention of a RUN number remains anywhere in the §7.6.2 evidence.
+
+**FINDING (RUN-12 Part 5) — croft-group L2b has no discrete mechanism-half slice; dropped cleanly.**
+Part 5 was to execute the next croft-group slice "as shaped in `CROFT-GROUP-L2-READINESS.md` beyond
+L2a." The brief defines **no L2b**: L2a is stated to be "the whole of L2's *mechanism* half" (§4), and
+the entire remainder — R8-tier (recovery trust predicate), R9 (resolution-ACL / read-scope under fork,
+which the brief names croft-group **L3** per F-L2-NAME), R10 (authorized revocation over the wire) — is
+the **authority/projection half**, firewalled behind **I9** and each carrying an explicit
+**OWNER-DECISION** gate. Part 5's scope wall (mechanism-half-only; FINDING-stop anything touching the
+authority half or the resolution-ACL) leaves nothing autonomously buildable inside the wall, so — per
+Part 5's own "if the brief defines no discrete L2b slice inside the wall: FINDING with the smallest
+shapeable slice proposed, and drop the part cleanly" — the part is **dropped, no code**. The smallest
+shapeable slice proposed is **R10 (authorized revocation over the wire)** — the authority half of the
+exact re-key L2a already built the mechanism for — but it sits *outside* the mechanism-half wall and
+requires first clearing the I9 / OWNER-DECISION revocation-authority call (a human decision,
+`alpha/thinking/revocation-authority.md`), not an autonomous build. Recorded as a backlog row
+(`EXPERIMENT-BACKLOG.md` §3, croft-group L-series, the L2b FINDING row). No status tag moves; no crate,
+brief, or spec is edited. The I9 firewall holds.
