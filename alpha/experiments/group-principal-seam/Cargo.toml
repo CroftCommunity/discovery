@@ -1,0 +1,31 @@
+# group-principal-seam — the §2e seam spike (RUN-11 Part 3), executing the shaped
+# backlog row against the group-principal seam brief (RUN-10 Part 2,
+# beta/impl/drystone-design/group-principal-seam.md).
+#
+# Design-grade experiment code (scope wall): the Group principal is a Meadowcap
+# communal namespace identified by the genesis hash; personae are self-authorizing
+# subspaces; capability issuance is downstream of the folded Group Role and is
+# re-issued (never revoked-in-place) across a fold-driven authority change. No
+# trust tier is decided (I9), no wire/byte encoding is pinned (the SubspaceId /
+# genesis-id encodings stay [gates-release], test-only serialization here), and no
+# MLS internals are touched. Pure Rust + blake3 (the committed hash suite), own
+# lockfile — the standalone-spike convention.
+[package]
+name = "group-principal-seam"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# BLAKE3 — the committed hash suite (Part 2 §10.4), for the genesis/namespace and
+# subspace content-addresses. TEST-ONLY serialization; NOT the [gates-release]
+# canonical byte encoding (that stays open, Appendix B / E.1).
+blake3 = "1"
+
+[dev-dependencies]
+# The green-real subspace-fold evidence test reuses the `Verified` lineage fold
+# (lineage-mls::Device::fold_by_lineage; RUN-08 fold_matches) on real openmls
+# leaves — the E.1 client→subspace fold against real crypto. Dev-only, so the lib
+# stays a pure-blake3 Design model; the SubspaceId byte encoding stays [gates-release].
+lineage-mls = { path = "../../Proofs/lineage-groups/crates/lineage-mls" }
+lineage-core = { path = "../../Proofs/lineage-groups/crates/lineage-core" }

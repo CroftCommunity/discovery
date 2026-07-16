@@ -210,9 +210,15 @@ justification recorded against the sweep for each survivor. Discovered RUN-07; f
 
 | Seam | Status | Reference | Next-experiment shape |
 |---|---|---|---|
-| **§5.2 / §5.10 group-principal identity construction** — whether a Meadowcap communal namespace can carry the Group principal, and how it rotates under churn | **Narrowed (RUN-10 Part 2).** Construction recommended: **primary** communal namespace (the Group-principal *is* a communal namespace at all times); namespace = genesis hash `H(tag ‖ group_id)`; each persona = a self-authorizing subspace; read confidentiality = the fold-gated asset key (already resolved in `asset-keying.md`); authority = a folded, revocable Group Role. §5.10's "how does the communal-namespace key rotate under churn" question **dissolves** — a communal namespace has no shared secret to rotate (write authority is per-subspace, read is the asset key). The Meadowcap composition check (asset-keying.md's "decisive check" Open item) is answered **affirmatively**. All Drystone bindings `Design`. | `beta/impl/drystone-design/group-principal-seam.md` (RUN-10 Part 2) | **Next experiment:** exercise the client→subspace lineage fold end-to-end on the real openmls-Welcome-over-iroh harness — derive a per-persona `SubspaceId` by folding a persona's multiple MLS leaves to one lineage identity; author a Meadowcap-shaped write authorized per-subspace; a governance-fold removal voids the capability by **re-issue, not overwrite** and re-wraps the asset key. Closes the identifier-mapping `[gates-release]` (E.1) against real crypto; moves the subspace-mapping half `Design → green-real`. |
+| **§5.2 / §5.10 group-principal identity construction** — whether a Meadowcap communal namespace can carry the Group principal, and how it rotates under churn | **Narrowed (RUN-10 Part 2).** Construction recommended: **primary** communal namespace (the Group-principal *is* a communal namespace at all times); namespace = genesis hash `H(tag ‖ group_id)`; each persona = a self-authorizing subspace; read confidentiality = the fold-gated asset key (already resolved in `asset-keying.md`); authority = a folded, revocable Group Role. §5.10's "how does the communal-namespace key rotate under churn" question **dissolves** — a communal namespace has no shared secret to rotate (write authority is per-subspace, read is the asset key). The Meadowcap composition check (asset-keying.md's "decisive check" Open item) is answered **affirmatively**. All Drystone bindings `Design`. | `beta/impl/drystone-design/group-principal-seam.md` (RUN-10 Part 2) | **Next experiment:** exercise the client→subspace lineage fold end-to-end on the real openmls-Welcome-over-iroh harness — derive a per-persona `SubspaceId` by folding a persona's multiple MLS leaves to one lineage identity; author a Meadowcap-shaped write authorized per-subspace; a governance-fold removal voids the capability by **re-issue, not overwrite** and re-wraps the asset key. Closes the identifier-mapping `[gates-release]` (E.1) against real crypto; moves the subspace-mapping half `Design → green-real`. **✅ EXECUTED (RUN-11 Part 3):** built as the standalone `Design`-grade crate `alpha/experiments/group-principal-seam` (blake3, test-only serialization; RED→GREEN evidenced). Five assertions green (`tests/seam.rs`): (1) the Group principal *is* the genesis hash `H(tag ‖ group_id)`, stable across churn; (2) a persona = a self-authorizing subspace; (3) capability issuance is downstream of the folded Group Role; (4) **re-issue, never revoke-in-place** across a fold-driven authority change — the revoked persona's stale capability fails, the surviving member's pre-change capability is superseded (not overwritten), and the re-issued one succeeds; (5) deterministic on both members, order-independent. **FINDING (scope wall):** the row's aspiration to move the subspace-mapping half `Design → green-real` *against real crypto* and to close the `SubspaceId` byte encoding (E.1) exceeds Part 3's `Design`-grade / no-wire-pinning wall — FINDING-stopped in the Part 3 pass. **Partly resolved (RUN-11 follow-on):** the **subspace-derivation half is now `green-real`** — `tests/subspace_fold_green_real.rs` folds a persona's several **real openmls 0.8.1** device leaves to one subspace identity via the `Verified` `lineage-mls::Device::fold_by_lineage` primitive (RUN-08 `fold_matches`), deterministically. What remains genuinely open (parked, not a defect): the `SubspaceId` **byte encoding** stays `[gates-release]` (Appendix B / E.1), and the revocation-authority **trust tier** stays **I9**. |
 
 **Owner-decides (I9 / not this run):** whether to freeze the primary-namespace stance now vs carry to Appendix B; whether a Group **MAY** permit owned sub-namespaces for single-author content inside its communal Group-principal.
+
+### 2f. Message continuity over real transport (§7.6.2 message half) — shaped RUN-11 Part 4 (dropped at the ship-without rule)
+
+| Seam | Status | Reference | Next-experiment shape |
+|---|---|---|---|
+| **§7.6.2 message-continuity half over real transport** — the RUN-09 records were harness-delivered; re-drive the same E12.2 assertions with the B1 continuity records carried over **real iroh-gossip at loopback** (the transport `iroh_convergence.rs` already uses), the harness injecting only the duplicate/drop faults | **Shaped (RED-able), not built.** RUN-11 Part 4 was **dropped cleanly at the ship-without rule** (first-to-drop) after Parts 1–3 landed — the real-iroh async + gossip + cross-crate B1 wiring is the run's heaviest integration and the §7.6.2 message-half grade would, per the A.9 when-in-doubt rule, most likely stay `Modeled` regardless (harness-injected faults, no wire pinning). §7.6.2 message half stays `Modeled` (unchanged). | `replant-continuity/tests/e12_2_message_continuity.rs` (the RUN-09 in-memory shapes to reuse); `croft-chat/src/iroh_bus.rs` + `tests/iroh_convergence.rs` (`IrohGossipBus`, `RelayChoice::LocalDirect`, the loopback transport to carry the records) | **Next experiment (RED, transport-driven; new test file):** two `IrohGossipBus` nodes at loopback (`LocalDirect`); node A publishes the B1 `Record`s (test-only serialization riding **inside** the existing gossip `Frame` payloads, commented as such — no B1 wire pinning) and node B drains-and-folds them into a `History`. Re-assert the four continuity claims over transport delivery: (a) every pre-repoint entry present after, exactly once; (b) in-flight entries land once in causal order post-repoint; (c) both members converge byte-identically across arrival orders; (d) an injected duplicate or dropped frame is *detected*, not absorbed (harness injects only the dup/drop fault into the delivery). GREEN is the delivery plumbing only. On green, re-evaluate the §7.6.2 message-half grade per A.9: upgrade only if the `Verified` rung genuinely covers "real crypto/transport at loopback"; when in doubt keep `Modeled`, drop "delivered by the harness" from the rationale, and name what still gates (the `[gates-release]` B1 record encoding; real-NAT = X1). |
 
 ---
 
@@ -224,7 +230,7 @@ L1–L6 sequenced, not built. Each gets its own plan.
 |---|---|---|
 | **L1 — Real identity** | hardcoded handle → real DID/lineage identity in `ChatMessage` + versioned wire (may fold into L2) | Sketched |
 | **L2 — MLS / encryption** | `Frame` payload becomes MLS-ciphertext; key/epoch state enters the core; `Zeroize` applies | Sketched |
-| **L2a — MLS-sealed happy-path frame** (mechanism half of L2; shaped RUN-10 Part 4) | Seal a `Frame` payload as real MLS ciphertext reusing the proven crates (`Proofs/lineage-groups/crates/lineage-mls`, `mls-welcome-over-iroh`, `mls-replant`/`replant-continuity`, the `bip39-recovery-roundtrip` Zeroize pattern); firewalled from the parked resolution-ACL (croft-group L3) and the I9 call. **RED-able assertions:** (1) seal ≠ plaintext and round-trips through real ciphertext; (2) a no-key peer ⇒ observable `FrameDropped`, model byte-identical, no panic; (3) a real Welcome yields `epoch_secret_match: true` then decrypt; (4) a governed removal re-keys the departed reader out (PCS) via the existing `Verified` k-of-n path, no new authority knob; (5) secrets are Zeroize/no-`Debug` in a sibling crate, none leak into `Effect`/`WireError`, `group-core` stays crypto-free; (6) a firewall-guard test asserting no who-may-revoke / co-sign-ordering / recovery-tier selector exists. Ref: `CROFT-GROUP-L2-READINESS.md` (RUN-10 Part 4). | **Shaped (RED-able), not built** |
+| **L2a — MLS-sealed happy-path frame** (mechanism half of L2; shaped RUN-10 Part 4) | Seal a `Frame` payload as real MLS ciphertext reusing the proven crates (`Proofs/lineage-groups/crates/lineage-mls`, `mls-welcome-over-iroh`, `mls-replant`/`replant-continuity`, the `bip39-recovery-roundtrip` Zeroize pattern); firewalled from the parked resolution-ACL (croft-group L3) and the I9 call. **RED-able assertions:** (1) seal ≠ plaintext and round-trips through real ciphertext; (2) a no-key peer ⇒ observable `FrameDropped`, model byte-identical, no panic; (3) a real Welcome yields `epoch_secret_match: true` then decrypt; (4) a governed removal re-keys the departed reader out (PCS) via the existing `Verified` k-of-n path, no new authority knob; (5) secrets are Zeroize/no-`Debug` in a sibling crate, none leak into `Effect`/`WireError`, `group-core` stays crypto-free; (6) a firewall-guard test asserting no who-may-revoke / co-sign-ordering / recovery-tier selector exists. Ref: `CROFT-GROUP-L2-READINESS.md` (RUN-10 Part 4). **✅ DONE (RUN-11 Part 2):** built as the standalone crate `croft-group/crates/group-seal` (own lockfile, empty `[workspace]`), reusing `lineage-mls` (the openmls `Device`) and depending ON `group-core` so the pure core stays openmls-free; all six assertions green (`group-seal/tests/l2a_sealed_frame.rs`, RED→GREEN evidenced by an identity-seal stub for assertion 1), clippy-pedantic + fmt clean. `Verified` at loopback grade (real openmls 0.8.1 seal/Welcome/PCS re-key; in-process harness delivery, no wire pinning; real-NAT = X1). The authority/projection halves (R8-tier, R9, R10) stay firewalled. | ✅ **Done (RUN-11 Part 2)** |
 | **L3 — Fork/merge + reconvergence-per-plane** | multi-head DAG + per-plane reconvergence policy bound into the asset hash | Sketched |
 | **L4 — Governance / delegate planes** | threshold group-principal, capability-vs-authority delegates, the rights-floor | Sketched |
 | **L5 — Real-iroh Transport adapter** | second `Transport` impl over iroh-gossip; real async runtime; same scenario tests. **Goes live P2P here.** | Sketched (blocked on iroh testbed) |
@@ -355,31 +361,50 @@ leak the bound only characterized). All **Sketched**.
 
 ## Recommended execution order
 
-**Done since this snapshot (2026-07-13 → RUN-04, 2026-07-14):** the local iroh gossip testbed
+**Done since this snapshot (2026-07-13 → RUN-11, 2026-07-16):** the local iroh gossip testbed
 (loopback, no relay); **X2** fault injection (crash-consistency + no-reversion + catch-up via
 sync-on-connect); `cargo-mutants` installed; **RuleChange thresholds** enforced; the `Session`
-governance emit API; **RUN-01** — A4/M1 fan-out (EXP-1), automerge 0.7 (EXP-2), X3 substrate sweep
-(EXP-3), contradicted-head byte naming (EXP-4); **RUN-03 Phase B** — the competing-RuleChange
+governance emit API. **RUN-01** — A4/M1 fan-out (EXP-1), automerge 0.7 (EXP-2), X3 substrate sweep
+(EXP-3), contradicted-head byte naming (EXP-4). **RUN-03 Phase B** — the competing-RuleChange
 contradiction predicate (the F8 impl gap, closed); **RUN-03/04** — the continuity-decoupling,
-reconciliation-horizon, and corroboration-dials design passes. Reconciled deltas: `x2-backfill`,
-`rulechange-quorum`, `handcrafted-assertions`, `automerge-0.6.1`, and `competing-quorum-autoresolve`
-(RUN-03); `fanout-single-run` (RUN-09 Part 5 repeated-run). **Active:** `hermetic-gossip` (needs the
-boxes / X1) — the only remaining Active row. See `SPEC-DIVERGENCE-REGISTER.md`.
+reconciliation-horizon, and corroboration-dials design passes. **RUN-05/06** — the full consistency
+pass and the settlement of its 11 register findings. **RUN-07** — the X3 automated cross-package
+harness (R7 count now cross-package `Verified`), **EXP-H1** horizon-manifest determinism (§2b), and
+**EXP-C1** the completeness-ahead contract (§2c). **RUN-08** — MLS-welcome-over-iroh reproduced +
+conformance 66/0 re-prove; the **BIP39** paper-recovery round-trip (the Tier-1 *lock*); the spec↔experiment
+traceability pass. **RUN-09** — the **Vouch** payload-validation coverage (§2d retired); the **E12.2/E12.7
+message facet** (B1 → A5, §7.6.2 message half → `Modeled` at loopback); the **M2 steady-state slice**
+(steady-state anti-entropy, §6.8.1 → `Modeled` at loopback); the **fan-out repeated-run** (`fanout-single-run`
+retired); the **traceability settlement** (FND-T1/T4/T5/T6/T7). **RUN-10** — the published spec site +
+broken-ref gate; the three briefs (group-principal seam §2e shaped, emitter-integration decision,
+croft-group L2 readiness with L2a shaped). **RUN-11** — the Part 1 riders settled (FND-T2/T3/T4, FND-R10-1/4/5,
+the emitter decision, the Map fixes). Reconciled deltas: `x2-backfill`, `rulechange-quorum`,
+`handcrafted-assertions`, `automerge-0.6.1`, `competing-quorum-autoresolve` (RUN-03); `fanout-single-run`
+(RUN-09 Part 5 repeated-run). **Active:** `hermetic-gossip` (needs the boxes / X1) — the only remaining
+Active row. See `SPEC-DIVERGENCE-REGISTER.md`.
 
 Remaining, in leverage order (current queue):
 
-1. **X3 automated cross-package harness** — mutate the substrate while running `croft-chat`'s suite so
-   the 61 authorization-decision survivors resolve mechanically (V5′ positive coverage lives in
-   `croft-chat`; separate crates / `Cargo.lock`, budget the slow consumer suite).
-2. **EXP-H1** — horizon-manifest determinism (§2b), runnable now against the mutual-expulsion
-   contradiction.
-3. **EXP-C1** — the completeness-ahead contract (§2c), loopback-runnable now, no new infra.
-4. **Freshness / quiescence over live transport** (§7.4.2, loopback grade).
-5. **MLS-welcome-over-iroh wired into conformance emission** — cats 7/8/9 half one (the spike exists;
-   emission is the remaining integration).
-6. **BIP39 paper-recovery round-trip** spike — the Tier-1 first step of the recovery model (the
-   recovery direction is already confirmed; see `../../beta/drystone-spec/open-threads.md` §2).
-7. ~~**Build B1** (dataplane hash structures) → then **A5** (E12.2 + E12.7 message continuity).~~ ✅ **DONE (RUN-09 Part 3):** B1 built at loopback (`replant-continuity/src/dataplane.rs`); A5 message continuity landed (`e12_2_message_continuity.rs`), §7.6.2 message half → `Modeled`. Real transport + wire pinning remain the open follow-ons.
-8. **Meer build P2→P6** — each phase turns one lab experiment (E8/E9/E11/E12) into its running form.
-9. **Hardware / boxes when available** — **X1** real-NAT (parked pending hardware); macFUSE (Spike 3);
-   the iOS feasibility spike (Spike 7, the iroh→Veilid decision point); E4/E0-NAT.
+1. **L2a — the MLS-sealed happy-path frame** (§3 L2a; shaped RUN-10 Part 4, built **RUN-11 Part 2**).
+   The mechanism half of croft-group L2, seal/unseal over real MLS at loopback reusing the proven
+   crates; firewalled from the parked resolution-ACL (croft-group L3) and I9.
+2. **§2e — the group-principal seam spike** (§2e; shaped RUN-10 Part 2, built **RUN-11 Part 3**). Group
+   as a Meadowcap communal namespace, personae as subspaces, capability re-issuance across a
+   fold-driven authority change, all `Design`-grade Drystone bindings.
+3. **Message continuity over real transport** — re-drive the E12.2 assertions with the continuity
+   records carried over real iroh-gossip at loopback (the transport the other convergence tests use),
+   harness injecting only the duplicate/drop faults; re-evaluate the §7.6.2 message-half grade.
+   **Shaped RED-able (§2f); RUN-11 Part 4 dropped cleanly at the ship-without rule** (first-to-drop);
+   §7.6.2 message half stays `Modeled`.
+4. **Range-partitioned RBSR construction** (open) — the production steady-state anti-entropy form:
+   **Willow 3d-range versus Negentropy**, a read-then-build. §6.8.1's whole-set range compare is
+   `Modeled` at loopback (RUN-09 Part 4); the range-partitioned form and real-transport loss remain open.
+5. **croft-group L2b+** — the layers past L2a per `CROFT-GROUP-L2-READINESS.md`: the authority half
+   (revocation-over-the-wire, the trust tier) waits on **I9**, and read-scope-under-fork waits on the
+   parked resolution-ACL (croft-group L3).
+6. **The parked list (verbatim):** **I9** (the identity/key-recovery trust tier, the largest open
+   problem; the Tier-1 lock landed RUN-08, the Tier-2 trust predicate is the open call); **X1** (real-NAT,
+   needs the boxes); **hot-N 500+** (fan-out magnitude at scale); **`[gates-release]` + BLAKE3** (the
+   Appendix B wire/byte pinning); **emitter integration** (now formally deferred by decision — Option C,
+   defer to the `[gates-release]` pass, owner 2026-07-15; Option B fallback); and the **resolution-ACL
+   (croft-group L3)** design frontier.

@@ -129,7 +129,19 @@ membership change), which the crates already satisfy.
 
 ---
 
-## 4. The largest L2 slice buildable NOW (shaped, NOT built)
+## 4. The largest L2 slice buildable NOW (✅ BUILT — RUN-11 Part 2)
+
+> **✅ Landed (RUN-11 Part 2).** L2a is built as the standalone crate
+> `croft-group/crates/group-seal` (own lockfile; empty `[workspace]` so openmls never enters the pure
+> `group-core` + `croft-chat-cli` workspace), reusing `lineage-mls` (the openmls `Device` that
+> `mls-welcome-over-iroh` and `mls-replant`/`replant-continuity` also reuse) and depending **on**
+> `group-core` so the core stays openmls-free. All six RED-able assertions below are green
+> (`group-seal/tests/l2a_sealed_frame.rs`; RED→GREEN evidenced by an identity-seal stub for assertion
+> 1), clippy-pedantic + fmt clean. Grade: `Verified` at loopback grade (real openmls 0.8.1
+> seal/Welcome/PCS re-key; in-process harness delivery, no wire pinning; real-NAT = X1). EVIDENCE-MAP
+> row added (§10.2/10.5(a)/7.6.2 croft-group L2a). The authority/projection halves (R8-tier, R9, R10)
+> stay firewalled (I9 / the parked resolution-ACL, croft-group L3). The shaped row is retained below as
+> the record of what was built.
 
 **Slice "L2a — sealed happy-path frame over reused MLS."** Turn the plaintext `FrameV1` into an MLS
 application-message ciphertext, obtain the read key via a reused Welcome, hold epoch/key state in a sibling
