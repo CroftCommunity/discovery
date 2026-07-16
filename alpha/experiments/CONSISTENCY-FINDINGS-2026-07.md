@@ -431,4 +431,24 @@ catches. Owner rulings were taken 2026-07-15. Dispositions:
 no tag moved, no information added or dropped), and one back-Map wording line mirroring an
 already-recorded grade. The FROZEN-NOTICE change is a banner only (frozen body untouched, the
 ratified normalization exception does not even apply because the body is not touched). FND-T2/T3 are
-recorded rulings with no edit. The §7.6.2 membership-half FND-T4 FINDING stays open as recorded.
+recorded rulings with no edit.
+
+**Follow-on (RUN-11, 2026-07-16): the §7.6.2 membership-half FND-T4 FINDING is resolved.** The
+finding was that the membership half carried no discovery-RUN stamp, so the `(evidence: …, RUN-NN,
+grade)` reshape could not be applied without inventing a pointer. Rather than invent one, the E12.7
+keystone tests (`e12_7_1_stamp_tracks_derivation`, `e12_7_2_removal_propagates`,
+`e12_7_3_unauthorized_no_drift`) were **re-proven in-environment, 3/3 green on real openmls 0.8.1
+(RUN-11 re-proof)** — the same move RUN-08 used to re-prove the conformance suite 66/0. The §7.6.2
+membership-half sentence now carries the standard parenthetical `(evidence: e12_7_1/2/3_*.rs, RUN-11
+re-proof, `Verified`)`; EVIDENCE-MAP row and `part-2-changelog.md` updated. No status tag moved (the
+membership half was and stays `Verified`); the reshape adds only the now-earned pointer.
+
+**Follow-on (RUN-11, 2026-07-16): the §2e green-real scope-wall stop is partly resolved.** Part 3
+FINDING-stopped the row's `Design → green-real` aspiration because it exceeded the run's `Design`-grade
+scope wall. As a follow-on, the **subspace-derivation half** was moved to `green-real` by *reusing* the
+`Verified` lineage fold (`lineage-mls::Device::fold_by_lineage`, RUN-08 `fold_matches`) on real openmls
+0.8.1 leaves — `group-principal-seam/tests/subspace_fold_green_real.rs` folds a persona's several device
+leaves to one subspace identity, deterministically. No firewall or gate was crossed: the `SubspaceId`
+**byte encoding** stays `[gates-release]` (Appendix B / E.1) and the revocation-authority **trust tier**
+stays **I9** — both are deliberate parked gates, not defects, and remain open. EVIDENCE-MAP carries a
+new `green-real` row for the fold; the Design-model bindings (`seam.rs`) are unchanged.

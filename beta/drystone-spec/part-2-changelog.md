@@ -521,3 +521,13 @@ Scope: one wording update in Part 2's §0 back Map, an audit catch (RUN-11 rider
 **§0 Map (§7.6 entry), done.** The §7.6.2 clause in the back Map read "re-plant's membership-continuity half corroborated, message-continuity half open"; it now reads "message-continuity half `Modeled` at loopback grade (RUN-09)", matching the §7.6.2 body sentence and the EVIDENCE-MAP row (both landed RUN-09). The audit also checked for a duplicated §7.6 Map line (flagged in the rider): none is present in the current tree, a single §7.6 entry stands, so no line was removed.
 
 **Verification:** the site build (broken-ref gate plus the emitted-HTML anchor audit) stays clean; no em-dashes or double-hyphens in this changelog prose; backticked `Modeled` renders as content, never a broken reference; cross-references resolve. Evidence: RUN-11 Part 1 rider 8.
+
+## §7.6.2 membership-half evidence parenthetical completed on a RUN-11 re-proof (FND-T4 follow-on)
+
+`Status: complete (RUN-11 follow-on, 2026-07-16)`
+
+Scope: closes the one FND-T4 claim that was FINDING-stopped in the RUN-11 Part 1 pass. The §7.6.2 membership half was `Verified` but carried no discovery-RUN stamp (imported as already-`Verified` from the standalone experiments corpus), so its RUN-NN component was missing and the reshape could not be applied without inventing a pointer. Rather than invent one, the E12.7 membership-continuity tests were re-proven in-environment to earn a genuine stamp.
+
+**§7.6.2, done.** The E12.7 keystone tests re-proved 3/3 green on real openmls 0.8.1 in this environment (RUN-11 re-proof): `e12_7_1_stamp_tracks_derivation`, `e12_7_2_removal_propagates`, `e12_7_3_unauthorized_no_drift`. The membership-half sentence now carries the standard parenthetical (evidence: `e12_7_1/2/3_*.rs`, RUN-11 re-proof, `Verified`), matching the message-half form landed RUN-09. No status tag moved (the membership half was and stays `Verified`); the reshape adds only the now-earned evidence pointer. EVIDENCE-MAP row updated with the re-proof stamp.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; the re-proof is a re-run of the existing tests (no new production code, no mechanism change); cross-references resolve on the site build. Evidence: `alpha/experiments/replant-continuity/tests/e12_7_*` (RUN-11 re-proof), FND-T4.

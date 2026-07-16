@@ -205,8 +205,19 @@ EVIDENCE-MAP change this run.
 - **the resolution-ACL (croft-group L3)** design frontier — the fork-projection read-scope; croft-group
   L2 (MLS) does not depend on it.
 
-Two open FINDINGs added this run: the §7.6.2-membership-half FND-T4 RUN-NN gap (Part 1), and the §2e
-`green-real`/`SubspaceId`-encoding scope-wall stop (Part 3). FND-T2/T3 recorded, no edit.
+Two FINDINGs surfaced this run were then addressed in a **RUN-11 follow-on** (commit below), on request:
+
+- **§7.6.2-membership-half FND-T4 RUN-NN gap (Part 1) — resolved.** Rather than invent a RUN pointer,
+  the E12.7 keystone tests were **re-proven in-environment, 3/3 green on real openmls 0.8.1 (RUN-11
+  re-proof)**; the membership-half sentence now carries `(evidence: e12_7_1/2/3_*.rs, RUN-11 re-proof,
+  `Verified`)`. No status tag moved.
+- **§2e `green-real`/`SubspaceId`-encoding scope-wall stop (Part 3) — partly resolved.** The
+  subspace-derivation half was moved to `green-real` by reusing the `Verified` `fold_by_lineage`
+  primitive on real openmls leaves (`subspace_fold_green_real.rs`). The `SubspaceId` **byte encoding**
+  (`[gates-release]`, Appendix B / E.1) and the revocation-authority **trust tier** (**I9**) stay
+  parked — deliberate gates, not defects.
+
+FND-T2/T3 recorded, no edit.
 
 ---
 

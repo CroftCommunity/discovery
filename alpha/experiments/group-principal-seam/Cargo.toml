@@ -23,3 +23,9 @@ publish = false
 blake3 = "1"
 
 [dev-dependencies]
+# The green-real subspace-fold evidence test reuses the `Verified` lineage fold
+# (lineage-mls::Device::fold_by_lineage; RUN-08 fold_matches) on real openmls
+# leaves — the E.1 client→subspace fold against real crypto. Dev-only, so the lib
+# stays a pure-blake3 Design model; the SubspaceId byte encoding stays [gates-release].
+lineage-mls = { path = "../../Proofs/lineage-groups/crates/lineage-mls" }
+lineage-core = { path = "../../Proofs/lineage-groups/crates/lineage-core" }
