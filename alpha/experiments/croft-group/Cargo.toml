@@ -3,6 +3,12 @@ members = [
     "crates/croft-chat-cli",
     "crates/group-core",
 ]
+# group-seal is croft-group L2a (MLS / encryption). It is a standalone crate with
+# its own lockfile and its own [workspace] table so openmls never enters this pure
+# workspace's lock — it depends ON group-core, keeping the core openmls-free.
+exclude = [
+    "crates/group-seal",
+]
 resolver = "2"
 
 # croft-chat-cli inherits exactly these five fields via `*.workspace = true`

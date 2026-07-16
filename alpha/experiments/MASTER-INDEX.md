@@ -95,7 +95,7 @@ Notation: **needs** = an in-repo prerequisite stage; **blocked** = an external r
 ### Track C — cross-cutting
 | ID | Stage | Needs | Blocked on |
 |---|---|---|---|
-| **C1** | `croft-group` L1–L6 (identity, MLS/encryption, fork/merge, governance, real-iroh L5, shared-shell L6) | F6 | L5 needs iroh testbed; **decision:** build L2–L5 on the Drystone crates (F1/F3) rather than re-implement |
+| **C1** | `croft-group` L1–L6 (identity, MLS/encryption, fork/merge, governance, real-iroh L5, shared-shell L6). **L2a (MLS-sealed happy-path frame) ✅ DONE (RUN-11 Part 2)** — `croft-group/crates/group-seal`, `Verified` at loopback; the L2 mechanism half (R1–R7) reusing `lineage-mls`; R8-tier/R9/R10 firewalled | F6 | L5 needs iroh testbed; **decision:** build L2–L5 on the Drystone crates (F1/F3) rather than re-implement |
 | **C2** | ~~automerge **0.7** confirmation~~ ✅ **DONE RUN-01 EXP-2** (0.7.4 on Rust 1.94.1; all 4 invariants hold; `automerge-0.6.1` proxy reconciled) | — | — |
 | **C3** | Doc chores: Alt.Drive→Croft.Drive rename (TEST-LOG B5); `[HYPOTHESIS]`→`MEASURED` tag pass | — | — |
 
