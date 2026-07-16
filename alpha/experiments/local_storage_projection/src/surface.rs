@@ -1168,12 +1168,18 @@ where
         }
     }
 
+    /// Emit a `MembershipRemove` of `principal`. `approvals` are the hashes of the
+    /// `Approval` facts backing it — required (and referenced as antecedents) when the
+    /// remove-member threshold in effect is > 1, empty otherwise. The approval subject
+    /// for a membership act is the target principal (see `fold_derived::act_subject`).
+    /// Returns the removal's hash so approvers/peers can reference it.
     pub async fn remove_member(
         &self,
         group_id: &GroupId,
         principal: PrincipalId,
+        approvals: Vec<Hash>,
         signer: &impl Signer,
-    ) -> Result<CommandResult<()>, SurfaceError> {
+    ) -> Result<CommandResult<Hash>, SurfaceError> {
         use crate::types::DeviceId as TypesDeviceId;
 
         let traits_dev = signer.device_id();
@@ -1191,7 +1197,7 @@ where
             author_device: types_dev,
             author_principal: self.my_principal,
             group: *group_id,
-            antecedents: vec![],
+            antecedents: approvals,
             lamport,
             timestamp: now,
             payload,
@@ -1201,9 +1207,102 @@ where
         env.signature = signer.sign(&canonical);
 
         match self.fold.ingest(&env)? {
-            IngestResult::Applied { .. } => {
+            IngestResult::Applied { hash } => {
                 let _ = self.notifications.send(ChangeNotification::MembershipChanged(*group_id));
-                Ok(CommandResult::Applied(()))
+                Ok(CommandResult::Applied(hash))
+            }
+            IngestResult::Duplicate => Ok(CommandResult::Duplicate),
+        }
+    }
+
+    /// Emit a `RoleGrant` setting `principal`'s role to `new_role`. `approvals` are the
+    /// hashes of the `Approval` facts backing it — required (and referenced as
+    /// antecedents) when the role-change threshold in effect is > 1, empty otherwise.
+    /// The approval subject is the target principal. Returns the grant's hash.
+    pub async fn grant_role(
+        &self,
+        group_id: &GroupId,
+        principal: PrincipalId,
+        new_role: Role,
+        approvals: Vec<Hash>,
+        signer: &impl Signer,
+    ) -> Result<CommandResult<Hash>, SurfaceError> {
+        use crate::types::DeviceId as TypesDeviceId;
+
+        let types_dev = TypesDeviceId::new(signer.device_id().0);
+        let now = unix_now();
+
+        // RoleGrant payload: PrincipalId(32) || Role(1).
+        let mut payload = Vec::with_capacity(33);
+        payload.extend_from_slice(principal.as_bytes());
+        payload.push(role_to_u8(&new_role));
+
+        let lamport = self.next_lamport();
+        let mut env = AssertionEnvelope {
+            version: 0x01,
+            assertion_type: AssertionType::RoleGrant,
+            author_device: types_dev,
+            author_principal: self.my_principal,
+            group: *group_id,
+            antecedents: approvals,
+            lamport,
+            timestamp: now,
+            payload,
+            signature: vec![],
+        };
+        let canonical = env.canonical_bytes();
+        env.signature = signer.sign(&canonical);
+
+        match self.fold.ingest(&env)? {
+            IngestResult::Applied { hash } => {
+                let _ = self.notifications.send(ChangeNotification::MembershipChanged(*group_id));
+                Ok(CommandResult::Applied(hash))
+            }
+            IngestResult::Duplicate => Ok(CommandResult::Duplicate),
+        }
+    }
+
+    /// Emit a `RoleRevoke` withdrawing `principal`'s elevated role (the fold demotes
+    /// them to `Member`). `approvals` are the hashes of the `Approval` facts backing
+    /// it — required (and referenced as antecedents) when the role-change threshold in
+    /// effect is > 1, empty otherwise. The approval subject is the target principal.
+    /// Returns the revoke's hash.
+    pub async fn revoke_role(
+        &self,
+        group_id: &GroupId,
+        principal: PrincipalId,
+        approvals: Vec<Hash>,
+        signer: &impl Signer,
+    ) -> Result<CommandResult<Hash>, SurfaceError> {
+        use crate::types::DeviceId as TypesDeviceId;
+
+        let types_dev = TypesDeviceId::new(signer.device_id().0);
+        let now = unix_now();
+
+        // RoleRevoke payload: PrincipalId(32).
+        let mut payload = Vec::with_capacity(32);
+        payload.extend_from_slice(principal.as_bytes());
+
+        let lamport = self.next_lamport();
+        let mut env = AssertionEnvelope {
+            version: 0x01,
+            assertion_type: AssertionType::RoleRevoke,
+            author_device: types_dev,
+            author_principal: self.my_principal,
+            group: *group_id,
+            antecedents: approvals,
+            lamport,
+            timestamp: now,
+            payload,
+            signature: vec![],
+        };
+        let canonical = env.canonical_bytes();
+        env.signature = signer.sign(&canonical);
+
+        match self.fold.ingest(&env)? {
+            IngestResult::Applied { hash } => {
+                let _ = self.notifications.send(ChangeNotification::MembershipChanged(*group_id));
+                Ok(CommandResult::Applied(hash))
             }
             IngestResult::Duplicate => Ok(CommandResult::Duplicate),
         }
@@ -2607,14 +2706,14 @@ mod tests {
             .await
             .expect("add_member");
 
-        // Remove via surface.
+        // Remove via surface (threshold 1, so no approvals needed).
         let remove_result = store
-            .remove_member(&group_id, member_principal, &signer)
+            .remove_member(&group_id, member_principal, vec![], &signer)
             .await
             .expect("remove_member call succeeded");
 
         assert!(
-            matches!(remove_result, CommandResult::Applied(())),
+            matches!(remove_result, CommandResult::Applied(_)),
             "remove_member must return Applied"
         );
 

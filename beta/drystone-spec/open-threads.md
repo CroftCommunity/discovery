@@ -164,12 +164,17 @@ Footprints, heaviest first:
   granularity `[confirm]`.
 
 - **Range-partitioned steady-state anti-entropy (§6.8.1).** The steady-state half of §6.8.1 (recovering a
-  frame dropped between already-connected peers, with no new join) is now `Modeled` at loopback (RUN-09 Part
-  4): a whole-set range-summary compare over the `(device, lamport)` key space detects the gap (invisible to
+  frame dropped between already-connected peers, with no new join) is `Modeled` at loopback (RUN-09 Part
+  4): a range-summary compare over the `(device, lamport)` key space detects the gap (invisible to
   live gossip, which carries no per-recipient ack) and a diff-only repair re-converges the folds byte-identically
-  with no reconnect and no whole-log re-broadcast. Open is the **range-partitioned production construction** —
-  **Willow 3d-range versus Negentropy**, a read-then-build — together with real-transport loss (the loopback
-  compare is the simplest whole-set form). `Modeled` (loopback); the production construction is open.
+  with no reconnect and no whole-log re-broadcast. The **range-partitioned production construction** was
+  read-then-built (RUN-12 Parts 3a/3b): the Part 3a brief (`beta/impl/drystone-design/rbsr-construction.md`)
+  measures **Willow 3d-range versus Negentropy** over this linear key space and recommends the Negentropy-style
+  one-dimensional recursive reconciler; Part 3b landed it at loopback (`partitioned_anti_entropy.rs`) — a large
+  divergent range repaired in O(log)-ish rounds shipping only the divergence, replacing the whole-set compare.
+  `Modeled` (loopback). What stays open: the `[gates-release]` wire fingerprint (Appendix B) and real-transport
+  loss (X1); the governance-fact reconciliation surface (§6.8.5/§7.2) is a distinct Willow-shaped 3d key space,
+  a separate choice.
 
 - **Total-device-loss recovery: the lock versus the trust (the bannered recovery-anchor decision).**
   Recovery splits into two separable tiers. Tier 1, the lock, is a mechanism (threshold or Shamir shares,
