@@ -1,3 +1,4 @@
 # Generated site output — built by build.py, deployed by CI; never committed.
 _site/
 __pycache__/
+node_modules/
