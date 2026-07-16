@@ -24,6 +24,8 @@ from resolver import (
     Ctx,
     autolink_text,
     autolink_html,
+    MermaidError,
+    substitute_mermaid_blocks,
 )
 
 
@@ -231,6 +233,75 @@ class TestRepoPathCitation(unittest.TestCase):
         self.assertIn("X3-AUTOMATED-SWEEP.md", out)
         # an unpublished path is intentionally-not-a-link, NOT a broken ref
         self.assertEqual(unresolved, [])
+
+
+class TestMermaidBlocks(unittest.TestCase):
+    """The diagram gate (RUN-13 Part 4): rendered ```mermaid fences become
+    build-time SVG; a failing block fails the build NAMING the source file; a
+    mermaid block quoted inside another fenced code example is not processed."""
+
+    # What python-markdown's fenced_code emits for a ```mermaid fence.
+    MERMAID_HTML = (
+        '<p>before</p>\n'
+        '<pre><code class="language-mermaid">flowchart LR\n'
+        '    A --&gt;|"hi &amp; bye"| B\n'
+        '</code></pre>\n'
+        '<p>after</p>'
+    )
+
+    def test_valid_block_renders_to_svg(self):
+        calls = []
+
+        def renderer(src):
+            calls.append(src)
+            return "<svg><!-- rendered --></svg>"
+
+        out, n = substitute_mermaid_blocks(self.MERMAID_HTML, "alpha/classroom/01-two-people.md",
+                                           renderer)
+        self.assertEqual(n, 1)
+        self.assertIn("<svg><!-- rendered --></svg>", out)
+        # the raw mermaid code block is gone; the surrounding prose is untouched
+        self.assertNotIn('class="language-mermaid"', out)
+        self.assertIn("<p>before</p>", out)
+        self.assertIn("<p>after</p>", out)
+        # the renderer received the UNESCAPED source (entities restored)
+        self.assertEqual(len(calls), 1)
+        self.assertIn('A -->|"hi & bye"| B', calls[0])
+
+    def test_invalid_block_fails_naming_the_file(self):
+        def renderer(src):
+            raise MermaidError("Parse error on line 2")
+
+        with self.assertRaises(MermaidError) as cm:
+            substitute_mermaid_blocks(self.MERMAID_HTML, "alpha/classroom/02-the-witness.md",
+                                      renderer)
+        msg = str(cm.exception)
+        self.assertIn("alpha/classroom/02-the-witness.md", msg)
+        self.assertIn("Parse error on line 2", msg)
+
+    def test_mermaid_inside_code_example_is_not_double_processed(self):
+        # A ```mermaid fence quoted INSIDE a fenced code example renders as
+        # escaped text within the OUTER code block — python-markdown gives the
+        # outer block its own language class (or none), never language-mermaid.
+        import markdown as md_lib
+        md_text = (
+            "Example of embedding a diagram:\n\n"
+            "````markdown\n"
+            "```mermaid\n"
+            "flowchart LR\n"
+            "    A --> B\n"
+            "```\n"
+            "````\n"
+        )
+        html = md_lib.Markdown(extensions=["fenced_code"]).convert(md_text)
+        self.assertNotIn('class="language-mermaid"', html)  # precondition
+
+        def renderer(src):  # must never be called
+            raise AssertionError("renderer called for a quoted mermaid example")
+
+        out, n = substitute_mermaid_blocks(html, "beta/some-doc.md", renderer)
+        self.assertEqual(n, 0)
+        self.assertEqual(out, html)  # untouched
 
 
 if __name__ == "__main__":

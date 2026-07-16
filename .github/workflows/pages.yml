@@ -33,7 +33,7 @@ jobs:
   build:
     name: build + broken-ref gate
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -41,16 +41,29 @@ jobs:
         with:
           python-version: "3.11"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Install pinned dependency
         run: pip install -r site/requirements.txt
+
+      # The pinned Mermaid renderer (site/package.json): diagrams are pre-rendered
+      # to inline SVG at build time, so the published pages need no JavaScript and
+      # no network to display them. puppeteer downloads its headless browser here
+      # (build-time network only).
+      - name: Install pinned Mermaid renderer
+        working-directory: site
+        run: npm ci --no-fund --no-audit
 
       - name: Resolver unit tests
         working-directory: site
         run: python3 -m unittest -v test_resolver
 
-      # Builds the site AND runs the broken-reference gate; a broken Part 1 / Part 2
-      # §-reference exits non-zero and fails the job (on push and on PR alike).
-      - name: Build site (runs the broken-ref gate)
+      # Builds the site AND runs the gates; a broken Part 1 / Part 2 §-reference,
+      # a companion-allowlist drift, or a mermaid block that fails to parse exits
+      # non-zero and fails the job (on push and on PR alike).
+      - name: Build site (runs the broken-ref + diagram gates)
         run: python3 site/build.py -o site/_site
 
       - name: Upload Pages artifact
