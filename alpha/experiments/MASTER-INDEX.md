@@ -95,7 +95,7 @@ Notation: **needs** = an in-repo prerequisite stage; **blocked** = an external r
 ### Track C — cross-cutting
 | ID | Stage | Needs | Blocked on |
 |---|---|---|---|
-| **C1** | `croft-group` L1–L6 (identity, MLS/encryption, fork/merge, governance, real-iroh L5, shared-shell L6) | F6 | L5 needs iroh testbed; **decision:** build L2–L5 on the Drystone crates (F1/F3) rather than re-implement |
+| **C1** | `croft-group` L1–L6 (identity, MLS/encryption, fork/merge, governance, real-iroh L5, shared-shell L6). **L2a (MLS-sealed happy-path frame) ✅ DONE (RUN-11 Part 2)** — `croft-group/crates/group-seal`, `Verified` at loopback; the L2 mechanism half (R1–R7) reusing `lineage-mls`; R8-tier/R9/R10 firewalled | F6 | L5 needs iroh testbed; **decision:** build L2–L5 on the Drystone crates (F1/F3) rather than re-implement |
 | **C2** | ~~automerge **0.7** confirmation~~ ✅ **DONE RUN-01 EXP-2** (0.7.4 on Rust 1.94.1; all 4 invariants hold; `automerge-0.6.1` proxy reconciled) | — | — |
 | **C3** | Doc chores: Alt.Drive→Croft.Drive rename (TEST-LOG B5); `[HYPOTHESIS]`→`MEASURED` tag pass | — | — |
 
@@ -128,9 +128,17 @@ Active: `hermetic-gossip` (needs X1 / the boxes) — now the **only** Active row
 retired (Reconciled, RUN-09 Part 5: K=5 repeated-run, `live_sent=2N+1` exact, head-convergence every
 run, super-linear hub-resync shape reproduced with a tight band; addendum in `FANOUT-M1.md`).
 
-**Recommended critical path (highest leverage first).** RUN-01 (2026-07-14) cleared items 1–3's
-runnable-now work and RUN-03 (2026-07-14) closed the competing-RuleChange gap; the frontier is now the
-design decisions and the automated harness.
+**Recommended critical path (highest leverage first).** The board after RUN-10 is nearly
+consolidated. Exactly **one Active divergence** remains — `hermetic-gossip` (X1-gated, needs the
+boxes). Exactly **one open design call** — **I9**, the identity/key-recovery trust tier and the
+largest open problem (the Tier-1 *lock* landed RUN-08 via `bip39-recovery-roundtrip`; the Tier-2 trust
+predicate is the call). Beyond those sit the **parked release pass** (`[gates-release]` + BLAKE3
+wire/byte pinning, which the now-deferred emitter integration rides) and the **resolution-ACL
+(croft-group L3)** design frontier. **Everything else is `Modeled`-or-better at its stated grade, or
+shaped as a RED-able backlog row.** The immediate forward work is this run's build queue — L2a (RUN-11
+Part 2), the §2e group-principal seam spike (Part 3), and message continuity over real transport (Part
+4, first-to-drop) — then the range-partitioned RBSR construction and croft-group L2b+. The banked
+history below records how the board reached this state.
 
 0. ✅ **RUN-01 banked:** A4/M1 fan-out (EXP-1), automerge 0.7 (EXP-2, C2), X3 substrate sweep (EXP-3),
    fold byte-head naming (EXP-4). See `RUN-01-SUMMARY.md`. **RUN-03/04 banked:** the competing-RuleChange

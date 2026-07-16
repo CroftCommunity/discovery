@@ -406,3 +406,49 @@ resolution-ACL"** design (fork-projection read-scope), which maps to croft-group
 reconvergence). No EVIDENCE-MAP row or Part 2 sentence is contradicted; the load-bearing correction is
 that **croft-group L2 (MLS) does not depend on the parked resolution-ACL design**, so the L2a slice is
 buildable now. Recorded, not auto-rewritten. Source: `CROFT-GROUP-L2-READINESS.md` (RUN-10 Part 4).
+
+---
+
+## Settlement (RUN-11, 2026-07-16)
+
+The RUN-11 Part 1 riders confirm the RUN-10 findings (FND-R10-1/4/5) plus two carried RUN-08
+traceability findings (FND-T2, FND-T3) and FND-T4, and record the emitter decision and the Map audit
+catches. Owner rulings were taken 2026-07-15. Dispositions:
+
+| # | Ruling | Disposition | What changed |
+|---|--------|-------------|--------------|
+| FND-T2 | **Ratified. No spec edit.** | The RUN-08 §10.5 wording stands as reconciled; the footnote already names the over-the-wire authority distribution as the residual. The two senses of "emitted" (vectors exist and re-prove, versus emitted from real over-the-wire MLS + real k-of-n) **may be split explicitly whenever that footnote is next touched, not before.** Recorded here; no Part 2 edit. |
+| FND-T3 | **Confirmed. Doc-comments unchanged.** | The four inferred test §-mappings stand as owner-confirmed: `convergence.rs` → §7.3; `iroh_convergence.rs` → §6.10/§7.3 (loopback); `regress_free.rs` → §7.3; `dedup.rs` → §6.6.4. The 2.2b doc-comments already carry these anchors; nothing edited. |
+| FND-T4 | **Applied, narrowly. One claim FINDING-stopped.** | The standard `(evidence: …, RUN-NN[, grade])` parenthetical reshaped the existing inline prose in three of the four candidate claims — §7.2 R7 (`rulechange_threshold_enforced.rs` + `rulechange_quorum_via_api.rs` + X3, RUN-07, `Verified`), §7.3.2 competing-quorums (`two_competing_rulechange_quorums`, RUN-03, `Modeled`), §8.2(e) (R7 count tests + X3, RUN-07, `Verified`) — with no information added or dropped. The fourth, **§7.6.2 membership half, is a FINDING**: its RUN-NN component is missing (the membership half was imported as already-`Verified` from the standalone experiments corpus and carries no discovery-RUN stamp; EVIDENCE-MAP row 52 lists the test `e12_7_*` but no RUN), so per FND-T4's own rule ("a FINDING if any component turns out missing") it was **not** reshaped. `part-2-changelog.md` entry added. |
+| FND-R10-1 | **Applied.** | §5.10's "how does the communal-namespace key rotate under churn" framing is reframed per the seam brief: a communal namespace has no shared whole-namespace secret to rotate; the question decomposes into per-subspace write authority (§4.5) and the fold-gated asset key (§5.11), leaving a near-free identifier assignment and the primary-versus-secondary choice. `Design` tag; the seam brief is cited (`beta/impl/drystone-design/group-principal-seam.md`). `part-2-changelog.md` entry added. |
+| FND-R10-4 | **Bannered.** | One correction banner added atop `alpha/Proofs/FROZEN-NOTICE.md` (body untouched): the "emits categories 1–6" line understates the folded core, which emits and re-proves categories 1–9 (66/0, RUN-08). The frozen body below the banner is the original; the record itself is not edited (the deliberate correction waits for the next freeze-break). |
+| FND-R10-5 | **Applied.** | In the living docs the parked design is referred to as the "resolution-ACL (croft-group L3)"; croft-group L2 (MLS) does not depend on it. The L2-readiness brief and the backlog §3 rows already carry the correct label (the model); a one-line disambiguation note was added at the collision's origin, `alpha/thinking/the-shape-of-disagreement.md` §4 (whose own internal "Layer 2" names the resolution ACL), mapping it to croft-group L3 and citing the readiness brief as the model. No other living doc conflates the two. |
+| Emitter decision | **Recorded.** | `EMITTER-INTEGRATION-BRIEF.md` annotated: "Decided: Option C — defer to the `[gates-release]` pass (owner, 2026-07-15); Option B remains the fallback." The §10.5 residual line stays as-is; emitter integration is now formally deferred by decision and stays on the parked list. |
+| Map fixes (8) | **8a no-op (already clean); 8b applied.** | (a) The flagged duplicate §7.6 back-Map line is **not present** in the current tree — a single §7.6 entry stands at the `## 0. Map`, so nothing was removed (recorded so the audit is not left with a phantom, same as RUN-05 FND-8). (b) The surviving copy read "message-continuity half open"; it now reads "message-continuity half `Modeled` at loopback grade (RUN-09)", matching the §7.6.2 body and the EVIDENCE-MAP row. The site build (gate + anchor audit) stays clean after the edit. `part-2-changelog.md` entry added. |
+
+**Guardrail note.** Part 1 moves no experiment status tag. The Part 2 edits are: the §5.10 reframe
+(a framing change ratified by FND-R10-1, `Design`), three FND-T4 evidence-form reshapes (form-only,
+no tag moved, no information added or dropped), and one back-Map wording line mirroring an
+already-recorded grade. The FROZEN-NOTICE change is a banner only (frozen body untouched, the
+ratified normalization exception does not even apply because the body is not touched). FND-T2/T3 are
+recorded rulings with no edit.
+
+**Follow-on (RUN-11, 2026-07-16): the §7.6.2 membership-half FND-T4 FINDING is resolved.** The
+finding was that the membership half carried no discovery-RUN stamp, so the `(evidence: …, RUN-NN,
+grade)` reshape could not be applied without inventing a pointer. Rather than invent one, the E12.7
+keystone tests (`e12_7_1_stamp_tracks_derivation`, `e12_7_2_removal_propagates`,
+`e12_7_3_unauthorized_no_drift`) were **re-proven in-environment, 3/3 green on real openmls 0.8.1
+(RUN-11 re-proof)** — the same move RUN-08 used to re-prove the conformance suite 66/0. The §7.6.2
+membership-half sentence now carries the standard parenthetical `(evidence: e12_7_1/2/3_*.rs, RUN-11
+re-proof, `Verified`)`; EVIDENCE-MAP row and `part-2-changelog.md` updated. No status tag moved (the
+membership half was and stays `Verified`); the reshape adds only the now-earned pointer.
+
+**Follow-on (RUN-11, 2026-07-16): the §2e green-real scope-wall stop is partly resolved.** Part 3
+FINDING-stopped the row's `Design → green-real` aspiration because it exceeded the run's `Design`-grade
+scope wall. As a follow-on, the **subspace-derivation half** was moved to `green-real` by *reusing* the
+`Verified` lineage fold (`lineage-mls::Device::fold_by_lineage`, RUN-08 `fold_matches`) on real openmls
+0.8.1 leaves — `group-principal-seam/tests/subspace_fold_green_real.rs` folds a persona's several device
+leaves to one subspace identity, deterministically. No firewall or gate was crossed: the `SubspaceId`
+**byte encoding** stays `[gates-release]` (Appendix B / E.1) and the revocation-authority **trust tier**
+stays **I9** — both are deliberate parked gates, not defects, and remain open. EVIDENCE-MAP carries a
+new `green-real` row for the fold; the Design-model bindings (`seam.rs`) are unchanged.

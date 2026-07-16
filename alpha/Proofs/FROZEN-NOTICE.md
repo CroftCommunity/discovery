@@ -1,5 +1,13 @@
 # Proofs — folded into discovery (frozen, canonical)
 
+> **Correction banner (RUN-11, 2026-07-16; body below is the frozen original, untouched).** The
+> "conformance-core that emits categories **1–6**" line in *Contents* below **understates the folded
+> core**: the emitter's `categories_present` lists cats 1, 2, 3, 4, 5, 5b, 6, 7, 8, 9, and the suite
+> **emits and re-proves categories 1–9 (66/0, RUN-08)** — confirmed by Part 2 §10.5 (FND-R10-4). This
+> is a documentation lag inside the frozen record; the record itself is not edited (only this banner is
+> added), and the body may be corrected at the next deliberate freeze-break (e.g. the `[gates-release]`
+> pass). Everything beneath this banner is the frozen original.
+
 `Folded in 2026-07-15 (RUN-08). Source: the CroftCommunity/Proofs repo (main export). This is the
 same move already applied to the standalone experiments/ repo (see
 alpha/experiments/FROZEN-NOTICE-for-standalone-repo.md): the sibling repo's alpha-tier corpus now

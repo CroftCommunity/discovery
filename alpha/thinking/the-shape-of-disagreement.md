@@ -97,6 +97,13 @@ on it. This is the shared substrate the projections ride on.
 
 ## 4. Layer 2 — resolution as a Unix-style ACL, not a value judgment
 
+> **Label-collision note (FND-R10-5, RUN-11).** This note's own "Layer 2" — the resolution ACL /
+> per-viewer projection — is the **parked resolution-ACL** design. In croft-group's layer numbering it
+> maps to **L3** (fork/merge + reconvergence), *not* croft-group **L2** (MLS / encryption). The two
+> distinct layers share the bare label "2"; they are different frontiers, and **croft-group L2 (MLS)
+> does not depend on this parked resolution-ACL.** Refer to the parked design as the "resolution-ACL
+> (croft-group L3)" in croft-group contexts; the model usage is `alpha/experiments/CROFT-GROUP-L2-READINESS.md`.
+
 The operator's instinct about the resolution language: it is closer to file-rights than to morality.
 
 > This is probably much closer to how rights are encoded on a file in Unix than it is to any kind of

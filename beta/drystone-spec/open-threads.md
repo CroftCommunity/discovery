@@ -138,7 +138,21 @@ Footprints, heaviest first:
   resolves the read-scoped case of the communal-namespace seam, the asset key wrapped to a read-Role's folded
   set. The all-members case and the whole-Group primary namespace are not resolved there and may not use the
   same fold-gated provisioning, since the whole-Group key is not gated by a read-Role fold and likely has a
-  different shape. `Design`, open.
+  different shape. `Design`, open. **Reframed (FND-R10-1, RUN-11, per
+  `../impl/drystone-design/group-principal-seam.md`).** The group-principal seam brief dissolves the "how does
+  the communal-namespace key rotate under churn" framing: a communal namespace has **no shared whole-namespace
+  secret to rotate**, so the seam decomposes into per-subspace write authority (§4.5) and the fold-gated asset
+  key (§5.11), leaving only a near-free identifier assignment (the genesis hash) plus the primary-versus-secondary
+  choice (the brief recommends primary). What stays genuinely open here is the whole-Group primary-namespace
+  identifier assignment and the all-members case, **not** a rotating secret. The Meadowcap-composition `[confirm]`
+  (§3) is answered affirmatively by the same brief: capability issuance sits beneath asset-key wrapping and does
+  not duplicate the fold's authority. **Group-principal identifier construction (§5.2 / §5.10, seam brief E.1).**
+  The `SubspaceId` = persona-lineage and `NamespaceId` = genesis-hash `H(tag ‖ group_id)` mappings are shaped;
+  the seam's capability re-issue model is exercised `Design`-grade (`group-principal-seam/tests/seam.rs`, RUN-11
+  Part 3), and the **client→subspace lineage fold is now `green-real`** — a persona's several real openmls leaves
+  fold to one subspace identity via the `Verified` `fold_by_lineage` (`subspace_fold_green_real.rs`, RUN-11
+  follow-on). What stays open: the **`SubspaceId` byte encoding** is `[gates-release]` (E.1, Appendix B), and the
+  revocation-authority **trust tier** is **I9** (firewall). Tracked as backlog §2e and the EVIDENCE-MAP §2e rows.
 
 - **Durability-tier open items (§6.8.5, §7.7).** Three durability-layer choices are owed, none affecting the
   primitives. The dataplane checkpoint construction, a corroborated checkpoint at a content prune boundary
@@ -148,6 +162,14 @@ Footprints, heaviest first:
   reconciliation granularity, whether the store reconciles whole sealed entries or finer content-addressed
   chunks, is a durability-layer choice independent of the primitives. `Design`, open, with the chunking
   granularity `[confirm]`.
+
+- **Range-partitioned steady-state anti-entropy (§6.8.1).** The steady-state half of §6.8.1 (recovering a
+  frame dropped between already-connected peers, with no new join) is now `Modeled` at loopback (RUN-09 Part
+  4): a whole-set range-summary compare over the `(device, lamport)` key space detects the gap (invisible to
+  live gossip, which carries no per-recipient ack) and a diff-only repair re-converges the folds byte-identically
+  with no reconnect and no whole-log re-broadcast. Open is the **range-partitioned production construction** —
+  **Willow 3d-range versus Negentropy**, a read-then-build — together with real-transport loss (the loopback
+  compare is the simplest whole-set form). `Modeled` (loopback); the production construction is open.
 
 - **Total-device-loss recovery: the lock versus the trust (the bannered recovery-anchor decision).**
   Recovery splits into two separable tiers. Tier 1, the lock, is a mechanism (threshold or Shamir shares,
