@@ -146,7 +146,13 @@ Footprints, heaviest first:
   choice (the brief recommends primary). What stays genuinely open here is the whole-Group primary-namespace
   identifier assignment and the all-members case, **not** a rotating secret. The Meadowcap-composition `[confirm]`
   (§3) is answered affirmatively by the same brief: capability issuance sits beneath asset-key wrapping and does
-  not duplicate the fold's authority.
+  not duplicate the fold's authority. **Group-principal identifier construction (§5.2 / §5.10, seam brief E.1).**
+  The `SubspaceId` = persona-lineage and `NamespaceId` = genesis-hash `H(tag ‖ group_id)` mappings are shaped;
+  the seam's capability re-issue model is exercised `Design`-grade (`group-principal-seam/tests/seam.rs`, RUN-11
+  Part 3), and the **client→subspace lineage fold is now `green-real`** — a persona's several real openmls leaves
+  fold to one subspace identity via the `Verified` `fold_by_lineage` (`subspace_fold_green_real.rs`, RUN-11
+  follow-on). What stays open: the **`SubspaceId` byte encoding** is `[gates-release]` (E.1, Appendix B), and the
+  revocation-authority **trust tier** is **I9** (firewall). Tracked as backlog §2e and the EVIDENCE-MAP §2e rows.
 
 - **Durability-tier open items (§6.8.5, §7.7).** Three durability-layer choices are owed, none affecting the
   primitives. The dataplane checkpoint construction, a corroborated checkpoint at a content prune boundary
