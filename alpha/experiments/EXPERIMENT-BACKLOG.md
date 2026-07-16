@@ -214,11 +214,11 @@ justification recorded against the sweep for each survivor. Discovered RUN-07; f
 
 **Owner-decides (I9 / not this run):** whether to freeze the primary-namespace stance now vs carry to Appendix B; whether a Group **MAY** permit owned sub-namespaces for single-author content inside its communal Group-principal.
 
-### 2f. Message continuity over real transport (§7.6.2 message half) — shaped RUN-11 Part 4 (dropped at the ship-without rule)
+### 2f. Message continuity over real transport (§7.6.2 message half) — ✅ DONE (RUN-12 Part 2)
 
-| Seam | Status | Reference | Next-experiment shape |
+| Seam | Status | Reference | Shape as built |
 |---|---|---|---|
-| **§7.6.2 message-continuity half over real transport** — the RUN-09 records were harness-delivered; re-drive the same E12.2 assertions with the B1 continuity records carried over **real iroh-gossip at loopback** (the transport `iroh_convergence.rs` already uses), the harness injecting only the duplicate/drop faults | **Shaped (RED-able), not built.** RUN-11 Part 4 was **dropped cleanly at the ship-without rule** (first-to-drop) after Parts 1–3 landed — the real-iroh async + gossip + cross-crate B1 wiring is the run's heaviest integration and the §7.6.2 message-half grade would, per the A.9 when-in-doubt rule, most likely stay `Modeled` regardless (harness-injected faults, no wire pinning). §7.6.2 message half stays `Modeled` (unchanged). | `replant-continuity/tests/e12_2_message_continuity.rs` (the RUN-09 in-memory shapes to reuse); `croft-chat/src/iroh_bus.rs` + `tests/iroh_convergence.rs` (`IrohGossipBus`, `RelayChoice::LocalDirect`, the loopback transport to carry the records) | **Next experiment (RED, transport-driven; new test file):** two `IrohGossipBus` nodes at loopback (`LocalDirect`); node A publishes the B1 `Record`s (test-only serialization riding **inside** the existing gossip `Frame` payloads, commented as such — no B1 wire pinning) and node B drains-and-folds them into a `History`. Re-assert the four continuity claims over transport delivery: (a) every pre-repoint entry present after, exactly once; (b) in-flight entries land once in causal order post-repoint; (c) both members converge byte-identically across arrival orders; (d) an injected duplicate or dropped frame is *detected*, not absorbed (harness injects only the dup/drop fault into the delivery). GREEN is the delivery plumbing only. On green, re-evaluate the §7.6.2 message-half grade per A.9: upgrade only if the `Verified` rung genuinely covers "real crypto/transport at loopback"; when in doubt keep `Modeled`, drop "delivered by the harness" from the rationale, and name what still gates (the `[gates-release]` B1 record encoding; real-NAT = X1). |
+| **§7.6.2 message-continuity half over real transport** — the RUN-09 records were harness-delivered; re-drive the same E12.2 assertions with the B1 continuity records carried over **real iroh-gossip at loopback**, the harness injecting only the duplicate/drop faults | **✅ DONE (RUN-12 Part 2).** Built as `croft-chat/croft-chat/tests/iroh_message_continuity.rs` (2 tests, green; RED→GREEN evidenced by a no-bootstrap probe — with no swarm the records never traverse the transport and the convergence assertion fails). Two `IrohGossipBus` nodes at `LocalDirect` loopback; node A publishes the B1 `Record`s (test-only serialization riding inside the gossip `Frame` payloads — no B1 wire pinning) and node B drains-and-folds them into a `History`; the four continuity claims re-asserted over real gossip delivery, the harness injecting only the dup/drop fault. `replant-continuity`'s pure dataplane is reused behind the `iroh-it` feature so the default build stays openmls-free. **Grade decision:** §7.6.2 message half **stays `Modeled`** (A.9 when-in-doubt) — the records now ride real transport (rationale drops "delivered by the harness"), but the record serialization is test-only so the `[gates-release]` B1 record encoding is unpinned, and delivery is loopback (real-NAT = X1). | `replant-continuity/src/dataplane.rs` (the B1 `Record`/`History` reused); `croft-chat/src/iroh_bus.rs` (`IrohGossipBus`, `RelayChoice::LocalDirect`); `croft-chat/croft-chat/tests/iroh_message_continuity.rs` (the build) | **Landed.** (a) every pre-repoint entry present after, exactly once; (b) in-flight entries land once in causal order post-repoint; (c) both members converge byte-identically across arrival orders; (d) an injected duplicate or dropped frame is *detected*, not absorbed. §7.6.2 EVIDENCE-MAP row + body updated; `part-2-changelog.md` entry. Open: the `[gates-release]` B1 record encoding; real-NAT = X1. |
 
 ---
 
@@ -391,11 +391,11 @@ Remaining, in leverage order (current queue):
 2. **§2e — the group-principal seam spike** (§2e; shaped RUN-10 Part 2, built **RUN-11 Part 3**). Group
    as a Meadowcap communal namespace, personae as subspaces, capability re-issuance across a
    fold-driven authority change, all `Design`-grade Drystone bindings.
-3. **Message continuity over real transport** — re-drive the E12.2 assertions with the continuity
-   records carried over real iroh-gossip at loopback (the transport the other convergence tests use),
-   harness injecting only the duplicate/drop faults; re-evaluate the §7.6.2 message-half grade.
-   **Shaped RED-able (§2f); RUN-11 Part 4 dropped cleanly at the ship-without rule** (first-to-drop);
-   §7.6.2 message half stays `Modeled`.
+3. **Message continuity over real transport** — ✅ **DONE (RUN-12 Part 2, §2f):** the E12.2 assertions
+   re-driven with the B1 continuity records carried over real iroh-gossip at loopback, the harness
+   injecting only the duplicate/drop faults (`iroh_message_continuity.rs`, 2 tests green, RED→GREEN via
+   a no-bootstrap probe). §7.6.2 message half **stays `Modeled`** (records now real-transport-delivered,
+   rationale updated; the `[gates-release]` B1 record encoding unpinned and real-NAT = X1 still gate).
 4. **Range-partitioned RBSR construction** (open) — the production steady-state anti-entropy form:
    **Willow 3d-range versus Negentropy**, a read-then-build. §6.8.1's whole-set range compare is
    `Modeled` at loopback (RUN-09 Part 4); the range-partitioned form and real-transport loss remain open.
