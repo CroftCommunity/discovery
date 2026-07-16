@@ -1,0 +1,26 @@
+# group-seal — croft-group L2a: the MLS-sealed happy-path frame (mechanism half of L2).
+#
+# A standalone crate with its own lockfile (the empty [workspace] table detaches
+# it from the pure group-core + croft-chat-cli workspace). This is the ONLY place
+# in croft-group where openmls meets the domain core, so group-core stays
+# openmls-free and WASM-clean — the same "substrate stays openmls-free" discipline
+# replant-continuity uses. It REUSES the proven crates (compatibility condition,
+# RUN-02): lineage-mls (the openmls Device wrapper mls-welcome-over-iroh reuses for
+# the Welcome, and mls-replant/replant-continuity reuse for the re-plant re-key).
+[package]
+name = "group-seal"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+# The pure core, depended ON (never the reverse) — group-core gains no crypto dep.
+group-core = { path = "../group-core" }
+# The proven openmls Device wrapper (Proofs), reused, not re-implemented.
+lineage-mls = { path = "../../../../Proofs/lineage-groups/crates/lineage-mls" }
+lineage-core = { path = "../../../../Proofs/lineage-groups/crates/lineage-core" }
+# Zeroize-on-drop, no-Debug secret newtypes — the bip39-recovery-roundtrip pattern.
+zeroize = { version = "1.9", features = ["zeroize_derive"] }
+thiserror = "2"
