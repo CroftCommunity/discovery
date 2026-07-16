@@ -82,9 +82,18 @@ SPEC-DELTA[<id> | <kind>]: <what it stands in for> — <spec requirement> — Re
 > whose antecedent is withheld — which a well-behaved emit API must **refuse** to produce, so it can
 > only be hand-built; (b) the fold-level threshold tests (`rulechange_threshold_enforced` etc.) ingest
 > directly for focus, not from necessity. What is closed is the **capability gap**: well-formed
-> governance facts are now producible through `Session`. Not yet emittable via `Session` (a
-> lesser, separate gap): `MembershipRemove`, `RoleGrant`/`RoleRevoke` (surface has `remove_member`;
-> the role acts have fold logic but no surface/Session command) — add if/when a client needs them.
+> governance facts are now producible through `Session`. ~~Not yet emittable via `Session` (a
+> lesser, separate gap): `MembershipRemove`, `RoleGrant`/`RoleRevoke`~~ **CLOSED (RUN-12 Part 4):**
+> `Session` now emits all three — `propose_remove_member`/`approve_remove_member`,
+> `propose_role_grant`/`approve_role_grant`, `propose_role_revoke`/`approve_role_revoke` — over new
+> `LocalStore` `grant_role`/`revoke_role` commands and an approvals-carrying `remove_member`,
+> mirroring the proven `propose_rule_change`/`approve_rule_change` shape (same R7 content-bound
+> counting, same co-signed-op antecedents, subject = the target principal). Driven end-to-end across
+> two sessions in `croft-chat/croft-chat/tests/session_emit_governance_via_api.rs` (3 tests, green):
+> removal at a 2-of-n quorum with the removed persona's later fact rejected; a granted role
+> authorizing an act the persona could not perform as a Member; a revoked role withdrawing it. No
+> authority-model change (the existing role gate and quorum as-is), no MLS re-key linkage (that stays
+> `mls-replant`/L2b+ territory), no trust tier.
 
 > M2 is **not** closed by x2-backfill — the *mechanism* is now spec-shaped, but M2's **sizing** study
 > (return-backfill vs dormancy cost at 1/7/30/90-day gaps; push-resync vs pull-on-connect) remains.

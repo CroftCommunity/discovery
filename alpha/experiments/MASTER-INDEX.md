@@ -120,7 +120,9 @@ F6 ─> C1 (L1–L6; L5<─testbed ✅)   C2 (automerge 0.7: runnable now)
 
 Reconciled spec-deltas this line of work (see `SPEC-DIVERGENCE-REGISTER.md`): `x2-backfill` (→
 sync-on-connect), `rulechange-quorum` (→ enforced), `handcrafted-assertions` (→ `Session` emits
-governance facts), — **RUN-01 (2026-07-14)** — `automerge-0.6.1` (→ 0.7 ship target confirmed), and
+governance facts; the `MembershipRemove`/`RoleGrant`/`RoleRevoke` emit-surface residual **CLOSED
+RUN-12 Part 4** — `session_emit_governance_via_api.rs`, propose/approve/enact mirroring rule-change),
+— **RUN-01 (2026-07-14)** — `automerge-0.6.1` (→ 0.7 ship target confirmed), and
 — **RUN-03 (2026-07-14)** — `competing-quorum-autoresolve` (→ the F8-decided hard-stop is now built
 and test-run: the competing-RuleChange contradiction predicate `fold_derived::detect_competing_rulechange`;
 register row moved Active → Reconciled).

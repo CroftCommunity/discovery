@@ -256,6 +256,129 @@ impl Session {
         require_applied(result)
     }
 
+    /// Propose (enact) a `MembershipRemove` of `principal`. `approvals` are the hashes of
+    /// `Approval` facts backing it — required when the remove-member threshold in effect
+    /// is > 1, empty otherwise. Returns the removal's hash. Mirrors the rule-change shape:
+    /// the enacting act references the approvals as its co-signed-op antecedents.
+    ///
+    /// # Errors
+    /// [`SessionError`] if rejected (e.g. below quorum, or the author lacks Owner/Admin)
+    /// or the store errors.
+    pub async fn propose_remove_member(
+        &self,
+        group: &GroupId,
+        principal: PrincipalId,
+        approvals: Vec<Hash>,
+    ) -> Result<Hash, SessionError> {
+        let result = self
+            .store
+            .remove_member(group, principal, approvals, &self.signer)
+            .await
+            .map_err(surface_err)?;
+        require_applied(result)
+    }
+
+    /// Approve a proposed `MembershipRemove` of `principal`, naming the target principal
+    /// as the subject so the fold counts this approver toward the removal's quorum.
+    /// Returns the approval's hash for the proposer to reference as an antecedent.
+    ///
+    /// # Errors
+    /// [`SessionError`] if rejected (e.g. approver lacks Owner/Admin) or the store errors.
+    pub async fn approve_remove_member(
+        &self,
+        group: &GroupId,
+        principal: PrincipalId,
+    ) -> Result<Hash, SessionError> {
+        let result = self
+            .store
+            .approve(group, AssertionType::MembershipRemove, principal, &self.signer)
+            .await
+            .map_err(surface_err)?;
+        require_applied(result)
+    }
+
+    /// Propose (enact) a `RoleGrant` setting `principal`'s role to `new_role`. `approvals`
+    /// are the hashes of `Approval` facts backing it — required when the role-change
+    /// threshold in effect is > 1, empty otherwise. Returns the grant's hash.
+    ///
+    /// # Errors
+    /// [`SessionError`] if rejected (e.g. below quorum, or the author is not Owner) or the
+    /// store errors.
+    pub async fn propose_role_grant(
+        &self,
+        group: &GroupId,
+        principal: PrincipalId,
+        new_role: Role,
+        approvals: Vec<Hash>,
+    ) -> Result<Hash, SessionError> {
+        let result = self
+            .store
+            .grant_role(group, principal, new_role, approvals, &self.signer)
+            .await
+            .map_err(surface_err)?;
+        require_applied(result)
+    }
+
+    /// Approve a proposed `RoleGrant` of `principal`, naming the target principal as the
+    /// subject so the fold counts this approver toward the grant's quorum. Returns the
+    /// approval's hash for the proposer to reference as an antecedent.
+    ///
+    /// # Errors
+    /// [`SessionError`] if rejected (e.g. approver lacks Owner/Admin) or the store errors.
+    pub async fn approve_role_grant(
+        &self,
+        group: &GroupId,
+        principal: PrincipalId,
+    ) -> Result<Hash, SessionError> {
+        let result = self
+            .store
+            .approve(group, AssertionType::RoleGrant, principal, &self.signer)
+            .await
+            .map_err(surface_err)?;
+        require_applied(result)
+    }
+
+    /// Propose (enact) a `RoleRevoke` withdrawing `principal`'s elevated role (the fold
+    /// demotes them to `Member`). `approvals` are the hashes of `Approval` facts backing
+    /// it — required when the role-change threshold in effect is > 1, empty otherwise.
+    /// Returns the revoke's hash.
+    ///
+    /// # Errors
+    /// [`SessionError`] if rejected (e.g. below quorum, or the author is not Owner) or the
+    /// store errors.
+    pub async fn propose_role_revoke(
+        &self,
+        group: &GroupId,
+        principal: PrincipalId,
+        approvals: Vec<Hash>,
+    ) -> Result<Hash, SessionError> {
+        let result = self
+            .store
+            .revoke_role(group, principal, approvals, &self.signer)
+            .await
+            .map_err(surface_err)?;
+        require_applied(result)
+    }
+
+    /// Approve a proposed `RoleRevoke` of `principal`, naming the target principal as the
+    /// subject so the fold counts this approver toward the revoke's quorum. Returns the
+    /// approval's hash for the proposer to reference as an antecedent.
+    ///
+    /// # Errors
+    /// [`SessionError`] if rejected (e.g. approver lacks Owner/Admin) or the store errors.
+    pub async fn approve_role_revoke(
+        &self,
+        group: &GroupId,
+        principal: PrincipalId,
+    ) -> Result<Hash, SessionError> {
+        let result = self
+            .store
+            .approve(group, AssertionType::RoleRevoke, principal, &self.signer)
+            .await
+            .map_err(surface_err)?;
+        require_applied(result)
+    }
+
     // -- channels -----------------------------------------------------------
 
     /// Create a named channel in `group`. Returns its typed id.
