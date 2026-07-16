@@ -128,8 +128,11 @@ register. Three were **reconciled** (the real mechanism was then built); one sta
    gap. *Fix:* `Session` now emits them (`propose_rule_change` + `approve_rule_change`); a full quorum
    runs end-to-end through the real API across two replicating sessions. *Spec implication:* this is
    an **implementation/API** closure, not a spec-text change — the spec is mechanism-neutral (§7.2).
-   Worth noting the *residual*: `MembershipRemove`, `RoleGrant`/`RoleRevoke` are not yet emittable via
-   `Session` (fold logic exists; no surface command) — a client-driven, not spec-driven, gap.
+   The *residual* — `MembershipRemove`, `RoleGrant`/`RoleRevoke` not yet emittable via `Session` — is
+   **CLOSED (RUN-12 Part 4):** `Session` now emits all three via propose/approve pairs over new
+   `grant_role`/`revoke_role` commands and an approvals-carrying `remove_member`, mirroring the
+   rule-change shape end-to-end across two sessions (`session_emit_governance_via_api.rs`, 3 tests).
+   Still an implementation/API closure, not a spec-text change (the spec stays mechanism-neutral, §7.2).
 
 ### 3.2 Active — green ≠ spec path proven
 
