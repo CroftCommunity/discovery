@@ -70,7 +70,7 @@ Notation: **needs** = an in-repo prerequisite stage; **blocked** = an external r
 | **A2** | `cargo-mutants` re-sweep on `fold_auth`/`governance` (Battery 8 X3) | F1 | ✅ **DONE (RUN-07)** — automated cross-package harness (`X3-AUTOMATED-SWEEP.md`): 61 substrate survivors → **7 killed, 54 justified, 0 unjustified**; R7 count-enforcement now cross-package `Verified` (§7.2); surfaced `fold_auth` as an off-consumer-path duplicate, then **retired it** (RUN-07 follow-up: `fold_auth.rs` deleted; register `fold-auth-duplicate` Reconciled) |
 | **A3** | Local multi-process convergence + fault injection (X2) | F2 | ✅ **DONE (§5)** — X2 all-green on the loopback testbed: crash-consistency, monotonic no-reversion, **and** catch-up-after-absence — closed by **sync-on-connect resync** (the spec mechanism; the prototype spec-delta was reconciled and retired). **Steady-state anti-entropy** now demonstrated at loopback (RUN-09 Part 4: `anti_entropy` range-summary/diff + `steady_state_anti_entropy.rs`; §6.8.1 → `Modeled`). M2's *sizing* study remains; the range-partitioned production construction + real-transport loss stay open |
 | **A4** | ~~M1 fan-out~~ ✅ **DONE RUN-01 EXP-1** (`croft-chat/FANOUT-M1.md`: per-node linear `2N+1`, O(N²) aggregate, heads converge; resync super-linear on hub past N≈8); M2 (return-backfill vs dormancy) still open | F3, A3 | M2 modelable now |
-| **A5** | ~~E12.2 + E12.7 message-continuity (atomic repoint of an in-flight conversation)~~ ✅ **DONE (RUN-09 Part 3)** — B1 dataplane hash structure built (`replant-continuity/src/dataplane.rs`); `e12_2_message_continuity.rs` proves pre-repoint exactly-once, in-flight causal-order, cross-order digest equality, dup/drop detection. §7.6.2 message half → `Modeled` (loopback). Real transport + wire pinning open | F3, **B1** | ✅ B1 built at loopback |
+| **A5** | ~~E12.2 + E12.7 message-continuity (atomic repoint of an in-flight conversation)~~ ✅ **DONE (RUN-09 Part 3)** — B1 dataplane hash structure built (`replant-continuity/src/dataplane.rs`); `e12_2_message_continuity.rs` proves pre-repoint exactly-once, in-flight causal-order, cross-order digest equality, dup/drop detection. §7.6.2 message half → `Modeled` (loopback). **Real transport landed RUN-12 Part 2** (`iroh_message_continuity.rs` — the four claims over real iroh-gossip at loopback; stays `Modeled`, the `[gates-release]` B1 encoding + real-NAT = X1 still gate) | F3, **B1** | ✅ B1 built at loopback; real transport RUN-12 |
 | **A6** | X1 — live cross-host over **real NAT** | F2 | **the secroute boxes** (needs real NAT + relay holepunch — *not* localhost-satisfiable) |
 
 ### Track B — Re-plant dataplane (new build)
@@ -120,7 +120,9 @@ F6 ─> C1 (L1–L6; L5<─testbed ✅)   C2 (automerge 0.7: runnable now)
 
 Reconciled spec-deltas this line of work (see `SPEC-DIVERGENCE-REGISTER.md`): `x2-backfill` (→
 sync-on-connect), `rulechange-quorum` (→ enforced), `handcrafted-assertions` (→ `Session` emits
-governance facts), — **RUN-01 (2026-07-14)** — `automerge-0.6.1` (→ 0.7 ship target confirmed), and
+governance facts; the `MembershipRemove`/`RoleGrant`/`RoleRevoke` emit-surface residual **CLOSED
+RUN-12 Part 4** — `session_emit_governance_via_api.rs`, propose/approve/enact mirroring rule-change),
+— **RUN-01 (2026-07-14)** — `automerge-0.6.1` (→ 0.7 ship target confirmed), and
 — **RUN-03 (2026-07-14)** — `competing-quorum-autoresolve` (→ the F8-decided hard-stop is now built
 and test-run: the competing-RuleChange contradiction predicate `fold_derived::detect_competing_rulechange`;
 register row moved Active → Reconciled).
