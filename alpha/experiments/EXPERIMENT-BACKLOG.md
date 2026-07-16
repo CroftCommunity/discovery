@@ -355,31 +355,49 @@ leak the bound only characterized). All **Sketched**.
 
 ## Recommended execution order
 
-**Done since this snapshot (2026-07-13 → RUN-04, 2026-07-14):** the local iroh gossip testbed
+**Done since this snapshot (2026-07-13 → RUN-11, 2026-07-16):** the local iroh gossip testbed
 (loopback, no relay); **X2** fault injection (crash-consistency + no-reversion + catch-up via
 sync-on-connect); `cargo-mutants` installed; **RuleChange thresholds** enforced; the `Session`
-governance emit API; **RUN-01** — A4/M1 fan-out (EXP-1), automerge 0.7 (EXP-2), X3 substrate sweep
-(EXP-3), contradicted-head byte naming (EXP-4); **RUN-03 Phase B** — the competing-RuleChange
+governance emit API. **RUN-01** — A4/M1 fan-out (EXP-1), automerge 0.7 (EXP-2), X3 substrate sweep
+(EXP-3), contradicted-head byte naming (EXP-4). **RUN-03 Phase B** — the competing-RuleChange
 contradiction predicate (the F8 impl gap, closed); **RUN-03/04** — the continuity-decoupling,
-reconciliation-horizon, and corroboration-dials design passes. Reconciled deltas: `x2-backfill`,
-`rulechange-quorum`, `handcrafted-assertions`, `automerge-0.6.1`, and `competing-quorum-autoresolve`
-(RUN-03); `fanout-single-run` (RUN-09 Part 5 repeated-run). **Active:** `hermetic-gossip` (needs the
-boxes / X1) — the only remaining Active row. See `SPEC-DIVERGENCE-REGISTER.md`.
+reconciliation-horizon, and corroboration-dials design passes. **RUN-05/06** — the full consistency
+pass and the settlement of its 11 register findings. **RUN-07** — the X3 automated cross-package
+harness (R7 count now cross-package `Verified`), **EXP-H1** horizon-manifest determinism (§2b), and
+**EXP-C1** the completeness-ahead contract (§2c). **RUN-08** — MLS-welcome-over-iroh reproduced +
+conformance 66/0 re-prove; the **BIP39** paper-recovery round-trip (the Tier-1 *lock*); the spec↔experiment
+traceability pass. **RUN-09** — the **Vouch** payload-validation coverage (§2d retired); the **E12.2/E12.7
+message facet** (B1 → A5, §7.6.2 message half → `Modeled` at loopback); the **M2 steady-state slice**
+(steady-state anti-entropy, §6.8.1 → `Modeled` at loopback); the **fan-out repeated-run** (`fanout-single-run`
+retired); the **traceability settlement** (FND-T1/T4/T5/T6/T7). **RUN-10** — the published spec site +
+broken-ref gate; the three briefs (group-principal seam §2e shaped, emitter-integration decision,
+croft-group L2 readiness with L2a shaped). **RUN-11** — the Part 1 riders settled (FND-T2/T3/T4, FND-R10-1/4/5,
+the emitter decision, the Map fixes). Reconciled deltas: `x2-backfill`, `rulechange-quorum`,
+`handcrafted-assertions`, `automerge-0.6.1`, `competing-quorum-autoresolve` (RUN-03); `fanout-single-run`
+(RUN-09 Part 5 repeated-run). **Active:** `hermetic-gossip` (needs the boxes / X1) — the only remaining
+Active row. See `SPEC-DIVERGENCE-REGISTER.md`.
 
 Remaining, in leverage order (current queue):
 
-1. **X3 automated cross-package harness** — mutate the substrate while running `croft-chat`'s suite so
-   the 61 authorization-decision survivors resolve mechanically (V5′ positive coverage lives in
-   `croft-chat`; separate crates / `Cargo.lock`, budget the slow consumer suite).
-2. **EXP-H1** — horizon-manifest determinism (§2b), runnable now against the mutual-expulsion
-   contradiction.
-3. **EXP-C1** — the completeness-ahead contract (§2c), loopback-runnable now, no new infra.
-4. **Freshness / quiescence over live transport** (§7.4.2, loopback grade).
-5. **MLS-welcome-over-iroh wired into conformance emission** — cats 7/8/9 half one (the spike exists;
-   emission is the remaining integration).
-6. **BIP39 paper-recovery round-trip** spike — the Tier-1 first step of the recovery model (the
-   recovery direction is already confirmed; see `../../beta/drystone-spec/open-threads.md` §2).
-7. ~~**Build B1** (dataplane hash structures) → then **A5** (E12.2 + E12.7 message continuity).~~ ✅ **DONE (RUN-09 Part 3):** B1 built at loopback (`replant-continuity/src/dataplane.rs`); A5 message continuity landed (`e12_2_message_continuity.rs`), §7.6.2 message half → `Modeled`. Real transport + wire pinning remain the open follow-ons.
-8. **Meer build P2→P6** — each phase turns one lab experiment (E8/E9/E11/E12) into its running form.
-9. **Hardware / boxes when available** — **X1** real-NAT (parked pending hardware); macFUSE (Spike 3);
-   the iOS feasibility spike (Spike 7, the iroh→Veilid decision point); E4/E0-NAT.
+1. **L2a — the MLS-sealed happy-path frame** (§3 L2a; shaped RUN-10 Part 4, built **RUN-11 Part 2**).
+   The mechanism half of croft-group L2, seal/unseal over real MLS at loopback reusing the proven
+   crates; firewalled from the parked resolution-ACL (croft-group L3) and I9.
+2. **§2e — the group-principal seam spike** (§2e; shaped RUN-10 Part 2, built **RUN-11 Part 3**). Group
+   as a Meadowcap communal namespace, personae as subspaces, capability re-issuance across a
+   fold-driven authority change, all `Design`-grade Drystone bindings.
+3. **Message continuity over real transport** (**RUN-11 Part 4**, first-to-drop) — re-drive the E12.2
+   assertions with the continuity records carried over real iroh-gossip at loopback (the transport the
+   other convergence tests use), harness injecting only the duplicate/drop faults; re-evaluate the
+   §7.6.2 message-half grade.
+4. **Range-partitioned RBSR construction** (open) — the production steady-state anti-entropy form:
+   **Willow 3d-range versus Negentropy**, a read-then-build. §6.8.1's whole-set range compare is
+   `Modeled` at loopback (RUN-09 Part 4); the range-partitioned form and real-transport loss remain open.
+5. **croft-group L2b+** — the layers past L2a per `CROFT-GROUP-L2-READINESS.md`: the authority half
+   (revocation-over-the-wire, the trust tier) waits on **I9**, and read-scope-under-fork waits on the
+   parked resolution-ACL (croft-group L3).
+6. **The parked list (verbatim):** **I9** (the identity/key-recovery trust tier, the largest open
+   problem; the Tier-1 lock landed RUN-08, the Tier-2 trust predicate is the open call); **X1** (real-NAT,
+   needs the boxes); **hot-N 500+** (fan-out magnitude at scale); **`[gates-release]` + BLAKE3** (the
+   Appendix B wire/byte pinning); **emitter integration** (now formally deferred by decision — Option C,
+   defer to the `[gates-release]` pass, owner 2026-07-15; Option B fallback); and the **resolution-ACL
+   (croft-group L3)** design frontier.
