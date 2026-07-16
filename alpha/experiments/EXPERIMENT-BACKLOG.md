@@ -125,6 +125,28 @@ both members locate the boundary at the same fact position. Negatives pinned: a 
 contradiction is absent from the manifest, and an open one persists across horizon boundaries (decay is
 presentation, not truth). Earns the **manifest-determinism** claim only; §7.6.9 stays `Design`.
 
+### 2b′. EXP-H2 — the horizon checkpoint as a foldable fact ✅ DONE (RUN-12 Part 6)
+
+**✅ DONE (RUN-12 Part 6).** EXP-H1 proved the manifest computes identically; the checkpoint was still
+only a pure function. EXP-H2 lands the **fact form** as pure fold-side shapes in
+`local_storage_projection::horizon_checkpoint` (`CheckpointFact { signer, manifest }`,
+`corroboration_count`), exercised cross-package by `croft-chat/croft-chat/tests/horizon_checkpoint.rs`
+(3 tests, green; RED→GREEN evidenced by a probe that drops the manifest-match guard and makes a
+non-matching member falsely corroborate). A member records a horizon-checkpoint fact carrying its OWN
+folded `(frontier digest, manifest)`; a second member that independently folded the identical set
+records a co-signing fact naming the same digests. Assertions: (1) the corroboration count for a
+`(frontier, manifest)` pair folds deterministically and identically across members and arrival orders
+(and a signer's clients collapse to one lineage, §7.3.4); (2) a member whose fold does NOT match records
+nothing toward another's manifest — no false corroboration; (3) an open contradiction persists in the
+manifest across successive checkpoints (the H1 decay-is-presentation assertion, at the fact layer).
+Scope wall held: experiment-grade fact shapes, test-only serialization, no wire pinning (the manifest
+encoding stays `[gates-release]`); §7.3.3 semantics unchanged (a co-signature corroborates an independent
+identical fold, never a substitute). **Grade judgment (A.9):** the §7.6.9 worked example **stays
+`Design`** — EXP-H2 earns the fact-form corroboration-determinism claim (a `Modeled`-grade sub-result,
+carried in its own EVIDENCE-MAP row), but the §7.6.9 composition's `[gates-release]` manifest encoding is
+unpinned and the full cadence composition is not proven end-to-end, so no tag moved. EVIDENCE-MAP row
+added.
+
 **EXP-H1 — horizon-manifest determinism (runnable today).** The objective, no-policy half of the
 reconciliation-horizon design (`alpha/thinking/reconciliation-horizon.md`; spec landing: Part 2 §7.6.9
 horizon-cadence worked example). Two members, one contradiction; drive a **horizon boundary in both

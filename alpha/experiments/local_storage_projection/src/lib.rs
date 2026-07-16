@@ -5,6 +5,7 @@ pub mod fold_derived;
 pub mod governance;
 pub mod surface;
 pub mod horizon;
+pub mod horizon_checkpoint;
 pub mod completeness_ahead;
 
 #[cfg(test)]
