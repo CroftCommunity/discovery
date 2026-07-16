@@ -417,3 +417,49 @@ def autolink_html(html_text, current_doc_id, ctx, counter=None):
     p.feed(html_text)
     p.close()
     return "".join(p.out), p.unresolved
+
+
+# --------------------------------------------------------------------------- #
+#  Mermaid diagram blocks (the diagram gate, RUN-13 Part 4)                    #
+# --------------------------------------------------------------------------- #
+
+class MermaidError(Exception):
+    """A mermaid block failed to render. The build gate treats this as fatal."""
+
+
+# What python-markdown's fenced_code extension emits for a ```mermaid fence.
+# A mermaid example QUOTED inside another fenced block renders as escaped text
+# inside the OUTER <code> element (which carries the outer fence's language
+# class, never language-mermaid), so it can not match here — that is the
+# no-double-processing guarantee.
+_MERMAID_BLOCK_RE = re.compile(
+    r'<pre><code class="language-mermaid">(?P<src>.*?)</code></pre>',
+    re.DOTALL,
+)
+
+
+def substitute_mermaid_blocks(html_text, source_relpath, renderer):
+    """Replace each rendered ```mermaid fence with build-time SVG.
+
+    `renderer(source_text) -> svg_markup` receives the fence's UNESCAPED source
+    and returns SVG markup; it raises MermaidError on a parse/render failure.
+    A failure is re-raised naming the offending source file, so the build gate's
+    error identifies where the broken diagram lives.
+
+    Returns (html_out, blocks_rendered).
+    """
+    count = 0
+
+    def repl(m):
+        nonlocal count
+        count += 1
+        source = _html.unescape(m.group("src"))
+        try:
+            svg = renderer(source)
+        except MermaidError as e:
+            raise MermaidError(
+                f"{source_relpath}: mermaid block {count} failed to render: {e}"
+            ) from e
+        return f'<div class="mermaid-figure">{svg}</div>'
+
+    return _MERMAID_BLOCK_RE.sub(repl, html_text), count

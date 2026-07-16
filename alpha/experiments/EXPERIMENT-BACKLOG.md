@@ -382,6 +382,14 @@ leak the bound only characterized). All **Sketched**.
 
 ---
 
+## 7. The classroom tier (docs track — not an experiment)
+
+| Item | Status | What it is / blocked on |
+|---|---|---|
+| **Classroom chapters (tier 4 of the gradient)** | Scaffold landed **RUN-13**; bodies **drafted in conversation, not by runs** | `alpha/classroom/`: the arc (`00-arc.md`, three acts / ten chapters) + chapter skeletons `01`–`10` with headed beats, PROVE-IT boxes wired to real tests and EVIDENCE-MAP rows, and the two seed Mermaid diagrams (Ch. 1, Ch. 5). Each chapter's prose body is `DRAFT-PENDING` and is written with the owner in conversation; runs only maintain the scaffold, the pointers, and the diagrams' validity under the site gate |
+
+---
+
 ## Recommended execution order
 
 **Done since this snapshot (2026-07-13 → RUN-11, 2026-07-16):** the local iroh gossip testbed

@@ -496,3 +496,21 @@ requires first clearing the I9 / OWNER-DECISION revocation-authority call (a hum
 `alpha/thinking/revocation-authority.md`), not an autonomous build. Recorded as a backlog row
 (`EXPERIMENT-BACKLOG.md` §3, croft-group L-series, the L2b FINDING row). No status tag moves; no crate,
 brief, or spec is edited. The I9 firewall holds.
+
+## RUN-13 findings (2026-07-16) — read-derived, from the site-audit re-run
+
+**FND-R13-1 (LOW) — three thinking docs carry raw relative `.md` links that emit as dead hrefs on
+the published site.** The RUN-13 anchor-audit re-run extended RUN-10's scope (cross-file *anchor*
+links; dangling same-file anchors — both still **0 broken**, 1233 and 1866 links respectively) with
+a plain file-target check, which surfaced 5 pre-existing markdown-authored links (3 unique targets):
+`alpha/thinking/cross-platform-identity-provenance.md` ↔ `plc-identity-resilience.md` (each links
+the other by bare filename, ×3 total), and `alpha/thinking/local-first-as-design-imperative.md` →
+`../narrative/lineage-of-a-design-imperative.md` and `../crystallized/principles.md`. All five are
+`[text](path)` links in the sources — not `§`-refs and not backticked path citations, so neither the
+broken-ref gate nor the path-linkifier sees them; the markdown renderer emits them verbatim and they
+404 on Pages (the bare-filename pair would resolve if written as backticked published-path citations;
+the two `../` targets are unpublished docs). Sources are canonical and all three docs are outside
+RUN-13's sanctioned edit surface (socialization / classroom / site tooling only), so this is recorded,
+not fixed. Options for the owner: rewrite the three sites' links as backticked repo-path citations
+(the pair becomes real links, the unpublished two go intentionally-literal), or teach the build to
+rewrite/strip relative `.md` hrefs. No content is wrong; the links are simply dead on the emitted site.
