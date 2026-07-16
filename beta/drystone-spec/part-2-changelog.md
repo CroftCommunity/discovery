@@ -491,3 +491,33 @@ Scope: one caveat-clause update on §11.11 measurement #1, earned by RUN-09 Part
 **§11.11, done.** Measurement #1's fan-out caveat is updated to record the replicated evidence. RUN-09 Part 5 re-ran the FANOUT-M1 sweep K of 5 at N of 2/4/8/16 on the same loopback harness (`croft-chat/FANOUT-M1.md` addendum, `fanout-data/repeated-run09.csv`): per-node cost 2N+1 reproduced exactly with zero variance, head convergence held in every run at every N, and the super-linear connect-time hub-resync shape reproduced with a tight magnitude band (N of 16 spanned 349 to 422, median 401, refining the single-run 479 downward). The spread is narrow and supports the recorded magnitudes, so the `fanout-single-run` register row is retired (Reconciled, RUN-09). The clause now records the replicated band; the remaining boundaries are hardware hot-N of 500-plus and the star-bootstrap topology-sensitivity of the resync magnitude (a narrow note, not a divergence).
 
 **Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; the `Measured` tag and the per-commit band are unchanged and no other tag moved; cross-references (§11.11, §11.4, §11.5, §6.8.1) resolve. Evidence: `croft-chat/FANOUT-M1.md` repeated-run addendum + `fanout-data/repeated-run09.csv` + `scripts/fanout-repeated.sh`, RUN-09 Part 5.
+
+## §5.10 group-principal key-rotation seam reframed per the seam brief (FND-R10-1)
+
+`Status: complete (RUN-11, 2026-07-16)`
+
+Scope: one framing correction to §5.10, applying FND-R10-1 (RUN-10). The seam previously framed an unworked "key rotation scheme" for a communal-namespace key; the group-principal seam brief established that a communal namespace has no shared whole-namespace secret to rotate. A Design-grade reframe; no experiment tag moved (the construction stays `Design`).
+
+**§5.10, done.** The "what is unworked is the key rotation scheme, how the key rotates under churn" sentence is reframed: a communal Meadowcap namespace has no shared whole-namespace secret to rotate (authority derives from per-subspace key pairs, and the namespace-keypair secret is exercised only in an owned namespace), so the question decomposes into per-subspace write authority (each persona rotates only its own lineage key, §4.5) and the fold-gated asset key (§5.11, re-wrapped to the current Role-holders by the governance fold under churn), leaving only a near-free identifier assignment plus the primary-versus-secondary choice (the brief recommends primary). The seam brief is cited (`beta/impl/drystone-design/group-principal-seam.md`) and the sentence carries a `Design` tag. The open primary-versus-secondary question is preserved, not dropped.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 insert uses house em-dash style; cross-references (§4.5, §5.11, and the seam-brief path) resolve on the site build; no status tag at or above `Modeled` moved. Evidence: `beta/impl/drystone-design/group-principal-seam.md` (RUN-10 Part 2), FND-R10-1, RUN-11 Part 1 rider 4.
+
+## Evidence parentheticals standardized in three governance claims (FND-T4)
+
+`Status: complete (RUN-11, 2026-07-16)`
+
+Scope: the FND-T4 reshape, applied narrowly. The standardized `(evidence: test-or-report, RUN-NN, grade)` parenthetical is fitted onto existing inline evidence prose in exactly the claims where every component already exists, with no information added or dropped. Three of the four candidate claims qualified; the fourth is recorded as a FINDING.
+
+**§7.2 R7, §7.3.2, §8.2(e), done.** The content-bound-quorum count claim (§7.2 R7), the competing-quorums hard-stop (§7.3.2), and the policy-change enforcement clause (§8.2(e)) each already named their test, RUN, and grade in loose prose; that prose is reshaped into the standard parenthetical form (§7.2 R7: `rulechange_threshold_enforced.rs`, `rulechange_quorum_via_api.rs`, and the X3 sweep, RUN-07, `Verified`; §7.3.2: `two_competing_rulechange_quorums`, RUN-03, `Modeled`; §8.2(e): the R7 count tests plus the X3 sweep, RUN-07, `Verified`). No pointer, grade, or descriptive detail was added or removed. The fourth candidate, the §7.6.2 membership half, is NOT reshaped: its RUN-NN component is missing (the membership half was imported as already-`Verified` from the standalone experiments corpus and carries no discovery-RUN stamp; EVIDENCE-MAP row 52 lists the test but no RUN), so per FND-T4's own rule it is a FINDING rather than a reshape.
+
+**Verification:** no em-dashes or double-hyphens in this changelog prose; the Part 2 inserts use house em-dash style; every named test resolves on grep; no status tag moved (the reshape is form-only). Evidence: FND-T4 (RUN-08), owner-confirmed for narrow application RUN-11; RUN-11 Part 1 rider 3.
+
+## §7.6 back-Map entry updated to the landed message-continuity grade (§0 Map)
+
+`Status: complete (RUN-11, 2026-07-16)`
+
+Scope: one wording update in Part 2's §0 back Map, an audit catch (RUN-11 rider 8). RUN-09 landed the re-plant message-continuity half at `Modeled`/loopback, but the back-Map §7.6.2 clause still read "message-continuity half open". No mechanism change; no tag moved (the Map mirrors the already-recorded §7.6.2 body grade).
+
+**§0 Map (§7.6 entry), done.** The §7.6.2 clause in the back Map read "re-plant's membership-continuity half corroborated, message-continuity half open"; it now reads "message-continuity half `Modeled` at loopback grade (RUN-09)", matching the §7.6.2 body sentence and the EVIDENCE-MAP row (both landed RUN-09). The audit also checked for a duplicated §7.6 Map line (flagged in the rider): none is present in the current tree, a single §7.6 entry stands, so no line was removed.
+
+**Verification:** the site build (broken-ref gate plus the emitted-HTML anchor audit) stays clean; no em-dashes or double-hyphens in this changelog prose; backticked `Modeled` renders as content, never a broken reference; cross-references resolve. Evidence: RUN-11 Part 1 rider 8.

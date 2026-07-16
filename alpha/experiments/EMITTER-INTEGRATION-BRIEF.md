@@ -15,6 +15,13 @@ alpha/experiments/iroh/relay-lab-runs/C-mls-welcome-2026-07-15-run08/{manifest,v
 beta/drystone-spec/part-2-certifiable-design.md §9 + §10.5; beta/drystone-spec/EVIDENCE-MAP.md rows
 9/10.5/(a)/(b); alpha/experiments/EXPERIMENT-BACKLOG.md §6d + §6d-i.`
 
+> **Decided (owner, 2026-07-15; annotation added RUN-11): Option C — defer to the `[gates-release]`
+> pass.** Option B (the thin adapter crate outside Proofs) remains the fallback if early closure is
+> wanted; Option A is not adopted. The §10.5 residual line stays as-is (the emitter-integration remains
+> the named residual, mechanism `Verified` at loopback, vectors 66/0). The emitter integration is thus
+> **formally deferred by decision** and stays on the parked list. The recommendation reasoning in §4
+> below is unchanged; this banner records the owner's ruling.
+
 ---
 
 ## 1. The gap, precisely
