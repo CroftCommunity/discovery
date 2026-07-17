@@ -25,6 +25,7 @@ import json
 import os
 import sqlite3
 import sys
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -71,6 +72,17 @@ def init_data_profile(data_dir: str, canonical, disposable, blobs) -> None:
             conn.close()
     for rel in blobs:
         os.makedirs(os.path.join(data_dir, rel), exist_ok=True)
+    # Own-data schema lives in the first canonical db (observation/grant-born).
+    if canonical:
+        conn = sqlite3.connect(os.path.join(data_dir, canonical[0]))
+        try:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS my_rows("
+                "id INTEGER PRIMARY KEY, subject_did TEXT NOT NULL, "
+                "payload TEXT, ts INTEGER)")
+            conn.commit()
+        finally:
+            conn.close()
 
 
 # --------------------------------------------------------------------------
@@ -99,9 +111,14 @@ class App:
 
     def register_service(self):
         self.route("GET", "/xrpc/app.stub.echo", self._echo, authed=True)
+        # own-data WRITE path (the service, not the api, writes canonical state)
+        self.route("POST", "/xrpc/app.stub.recordMyRow", self._record, authed=True)
 
-    def register_api(self):  # extended in D10
-        pass
+    def register_api(self):
+        # own-data READ path (§1.3): self-scoping, paginated export, timeout.
+        self.route("GET", "/xrpc/app.stub.getMyRows", self._get_my_rows, authed=True)
+        self.route("GET", "/xrpc/app.stub.export", self._export, authed=True)
+        self.route("GET", "/xrpc/app.stub.slowQuery", self._slow, authed=True)
 
     # -- core route handlers -------------------------------------------------
     def _healthz(self, req, qs, caller):
@@ -110,6 +127,94 @@ class App:
     def _echo(self, req, qs, caller):
         msg = (qs.get("msg") or [""])[0]
         self.json(req, 200, {"caller": caller, "msg": msg})
+
+    # -- own-data write (service) --------------------------------------------
+    def _canonical_db(self):
+        return os.path.join(self.cfg.data_dir, self.cfg.canonical[0])
+
+    def _record(self, req, qs, caller):
+        payload = (qs.get("payload") or [""])[0]
+        conn = sqlite3.connect(self._canonical_db())
+        try:
+            cur = conn.execute(
+                "INSERT INTO my_rows(subject_did, payload, ts) "
+                "VALUES(?, ?, ?)", (caller, payload, int(time.time())))
+            conn.commit()
+            rowid = cur.lastrowid
+        finally:
+            conn.close()
+        self.json(req, 200, {"id": rowid, "subject_did": caller})
+
+    # -- own-data read (api, read-only) --------------------------------------
+    def _ro_db_path(self):
+        if self.cfg.api_mode == "snapshot":
+            return os.path.join(self.cfg.data_dir, "serve", "state.db")
+        return self._canonical_db()
+
+    def _ro_conn(self):
+        # OS-incapable of writing is provided by the unit (ReadOnlyPaths); here
+        # the connection itself is opened read-only (mode=ro) too.
+        uri = f"file:{self._ro_db_path()}?mode=ro"
+        return sqlite3.connect(uri, uri=True, timeout=1.0)
+
+    def _query(self, conn, sql, params=()):
+        """Run a read with a per-statement wall-clock timeout (progress handler
+        aborts a query that outlives the budget, so a slow read cannot pin the
+        WAL). Raises sqlite3.OperationalError on timeout."""
+        budget = self.cfg.stmt_timeout_ms / 1000.0
+        start = time.monotonic()
+        conn.set_progress_handler(
+            lambda: 1 if (time.monotonic() - start) > budget else 0, 2000)
+        try:
+            return conn.execute(sql, params).fetchall()
+        finally:
+            conn.set_progress_handler(None, 0)
+
+    def _get_my_rows(self, req, qs, caller):
+        conn = self._ro_conn()
+        try:
+            rows = self._query(
+                conn,
+                "SELECT id, payload, ts FROM my_rows WHERE subject_did = ? "
+                "ORDER BY id", (caller,))
+        finally:
+            conn.close()
+        self.json(req, 200, {"subject_did": caller,
+                             "rows": [{"id": r[0], "payload": r[1], "ts": r[2]}
+                                      for r in rows]})
+
+    def _export(self, req, qs, caller):
+        try:
+            cursor = int((qs.get("cursor") or ["0"])[0])
+        except ValueError:
+            cursor = 0
+        limit = self.cfg.page_size
+        conn = self._ro_conn()
+        try:
+            rows = self._query(
+                conn,
+                "SELECT id, payload FROM my_rows WHERE subject_did = ? "
+                "AND id > ? ORDER BY id LIMIT ?", (caller, cursor, limit))
+        finally:
+            conn.close()
+        next_cursor = rows[-1][0] if len(rows) == limit else None
+        self.json(req, 200, {
+            "subject_did": caller,
+            "rows": [{"id": r[0], "payload": r[1]} for r in rows],
+            "next_cursor": next_cursor,
+        })
+
+    def _slow(self, req, qs, caller):
+        conn = self._ro_conn()
+        try:
+            self._query(conn,
+                        "WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL "
+                        "SELECT x + 1 FROM c) SELECT count(*) FROM c")
+            self.json(req, 200, {"ok": True})  # should never reach
+        except sqlite3.OperationalError:
+            self.text(req, 503, "statement timeout")
+        finally:
+            conn.close()
 
     # -- response helpers ----------------------------------------------------
     @staticmethod
