@@ -1,0 +1,16 @@
+# Guardrail 4: no secrets, no state, ever.
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.env
+!versions.env
+!config-templates/*.env.tmpl
+
+# local rehearsal (D13) scratch
+.local/
+drill/.work/
+
+# python
+__pycache__/
+*.pyc
