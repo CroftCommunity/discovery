@@ -89,6 +89,30 @@ stop_minio() {
   rm -f "$MINIO_PIDFILE"
 }
 
+# P15-3 (local): estimate the S3 write (Class-A) op profile a drill produces and
+# surface the free-tier signal. The count is illustrative; the load-bearing
+# message is the RATE model, which is what actually decides free-tier fit.
+report_op_counts() {
+  [[ "$DRILL_TARGET" == s3 ]] || return 0
+  local ls_puts blob_puts
+  # each litestream WAL segment / snapshot write is ~one S3 PUT
+  ls_puts="$(grep -cE 'wal segment written|snapshot written' \
+    "$LOGDIR/litestream.log" 2>/dev/null || echo 0)"
+  # each blob file synced is ~one S3 PUT (first upload)
+  blob_puts="$(find "$STATE" -path '*/blobs/*' -type f 2>/dev/null | wc -l | tr -d ' ')"
+  echo
+  echo "[drill] --- S3 op estimate (MinIO stand-in; R2 Class-A = writes) ---"
+  echo "  litestream WAL/snapshot PUTs (observed): $ls_puts"
+  echo "  rclone blob PUTs (observed):             $blob_puts"
+  echo "  RATE MODEL (the real free-tier determinant): litestream syncs at"
+  echo "  sync-interval=1s, so a CONTINUOUSLY-writing canonical db emits up to"
+  echo "  ~1 PUT/s = ~2.6M PUT/mo per db — OVER R2's 1M/mo free Class-A tier."
+  echo "  => Free-tier fit depends on WRITE FREQUENCY, not tenant count. Levers:"
+  echo "  raise sync-interval, or use a paid tier, for high-write tenants. Idle /"
+  echo "  rarely-writing dbs stay well inside 1M/mo. Confirm exact counts against"
+  echo "  real R2 in P15-3."
+}
+
 log()  { echo "[drill] $*"; }
 ok()   { echo "  PASS: $*"; }
 bad()  { echo "  FAIL: $*" >&2; DRILL_FAILED=1; }

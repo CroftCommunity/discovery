@@ -129,8 +129,16 @@ that Phase 1.5 will point at real R2.
   MinIO child it must keep alive (fixed to reap only the killed PIDs); (2) the sandbox's
   `AWS_ACCESS_KEY_ID=proxy-injected` + `AWS_CA_BUNDLE` had to be overridden for litestream/rclone to
   reach the plain-HTTP localhost endpoint. `SPEC-DELTA[run15-s3-local]`.
-- **What remains for real R2 (P15-1/-2/-3):** R2-specific quirks (endpoint form, any R2 S3 API
-  deltas) and the free-tier op-count measurement. The code path itself is now proven.
+- **Op-count / free-tier signal (P15-3, local).** The s3 drill now reports an S3 write-op estimate
+  (observed ≈ 4 litestream WAL/snapshot PUTs + 2 rclone blob PUTs per cycle here) and, more
+  importantly, the **rate model**: litestream at `sync-interval=1s` emits up to **~1 PUT/s per
+  continuously-writing canonical db ≈ 2.6M PUT/mo**, which **exceeds R2's 1M/mo free Class-A tier**.
+  So free-tier fit is governed by **write frequency, not tenant count** — the lever is the
+  sync-interval (raise it for high-write tenants) or a paid tier; idle/rarely-writing dbs stay well
+  inside the free tier. `SPEC-DELTA[run15-s3-local]`.
+- **What still needs real R2 (P15-1/-2/-3):** R2-specific endpoint form + any R2 S3 API deltas, and
+  the exact op counts against R2's own accounting. The code path and the rate model are proven; the
+  absolute numbers get confirmed against R2.
 
 ## Exact Phase 1.5 sequence (owner supplies an R2 bucket + scoped token; FREE, no purchase)
 
