@@ -126,17 +126,49 @@ fn forbidden() -> (StatusCode, Json<Value>) {
     (StatusCode::FORBIDDEN, Json(json!({ "error": "NotOffered" })))
 }
 
-#[allow(dead_code)]
 async fn get_sealed_records(
     State(st): State<SealedState>,
     headers: HeaderMap,
     Query(p): Query<SealedParam>,
 ) -> (StatusCode, Json<Value>) {
-    // STEP-1 RED STUB — implemented in the green commit. (verify_bearer,
-    // is_member, forbidden are exercised by the green implementation.)
-    let _ = (&st, &headers, &p);
-    let _ = (verify_bearer(&headers, &st), is_member, forbidden);
-    (StatusCode::NOT_IMPLEMENTED, Json(json!({ "stub": true })))
+    // Identify the caller. A present-but-invalid token, an anonymous caller, and
+    // a verified non-member all collapse to the SAME flat 403 below — the gate
+    // reveals nothing about the group, only that this caller is not offered it.
+    let viewer = match verify_bearer(&headers, &st) {
+        Ok(Some(did)) => did,
+        _ => return forbidden(),
+    };
+
+    let conn = st.db.lock().unwrap();
+    if !is_member(&conn, &p.group_id, &viewer) {
+        return forbidden();
+    }
+
+    // Offer the opaque records. The server base64-encodes bytes it never read.
+    use base64::{engine::general_purpose::STANDARD, Engine};
+    let since = p.since.unwrap_or(-1);
+    let mut stmt = conn
+        .prepare(
+            "SELECT seq, nonce, ciphertext FROM sealed_records
+             WHERE group_id = ?1 AND seq > ?2 ORDER BY seq",
+        )
+        .unwrap();
+    let records: Vec<Value> = stmt
+        .query_map(rusqlite::params![p.group_id, since - 1], |r| {
+            let seq: i64 = r.get(0)?;
+            let nonce: Vec<u8> = r.get(1)?;
+            let ct: Vec<u8> = r.get(2)?;
+            Ok(json!({
+                "seq": seq,
+                "nonce": STANDARD.encode(nonce),
+                "ciphertext": STANDARD.encode(ct),
+            }))
+        })
+        .unwrap()
+        .filter_map(Result::ok)
+        .collect();
+
+    (StatusCode::OK, Json(json!({ "records": records })))
 }
 
 /// Verify a bearer service-auth token bound to this route's method.
