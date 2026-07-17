@@ -83,6 +83,8 @@ while IFS=$'\t' read -r name _u _au port api_port _art _am; do
   assert_tenant "$name" "$port" "$api_port"
 done < <(tenants)
 
+report_op_counts   # P15-3 (local): S3 write-op estimate + free-tier signal (s3 only)
+
 cleanup
 trap - EXIT
 

@@ -11,7 +11,7 @@ SHELL := /bin/bash
 BATS  ?= bats
 
 # Every check sub-target is aggregated here. Each deliverable adds its own.
-CHECKS := no-secrets stub render terraform backup-audit bootstrap deploy docs own-data group-serving local-drill runbook
+CHECKS := no-secrets stub render terraform backup-audit bootstrap deploy docs own-data group-serving local-drill s3-drill runbook
 
 .PHONY: check $(addprefix check-,$(CHECKS)) generate clean help
 
@@ -88,8 +88,9 @@ extract:
 	@scripts/extract-to-repo.sh
 
 # --- P15-local: s3 fire drill (MinIO stands in for R2) -----------------------
-# NOT in CHECKS: needs an ambient minio + a working rclone; the bats file skips
-# when they are absent. Run explicitly to exercise the real s3:// backup plane.
+# In CHECKS but SKIP-GUARDED: the bats file skips cleanly where minio/rclone are
+# absent (fresh checkout / CI), and exercises the real s3:// backup plane where
+# they are present. Run alone with `make local-drill-s3`.
 check-s3-drill:
 	@$(BATS) tests/s3_drill.bats
 
