@@ -1,0 +1,212 @@
+#!/usr/bin/env python3
+"""stub.py — the shared contract stub for the appview-infra kit.
+
+A stand-in for the real per-tenant service binary (and its own-data API
+sidecar). It satisfies CONTRACT.md so the kit, the local rehearsal (D13), and
+the fire-drill run with zero real binaries and zero credentials.
+
+Stdlib only (http.server + sqlite3 + argparse): no build step, no network, runs
+anywhere Python 3.11 does.
+
+Roles:
+  service mode (default):  serves /healthz and the tenant routes; owns and
+                           writes the data dir per the passed data profile.
+  api mode (--api):        read-only own-data sidecar (D10); opens SQLite ro.
+
+The identity verifier is a STAND-IN for the atproto service-auth JWT verifier
+proven in RUN-14 EXP-A. Same interface (token -> caller DID or None); swapped at
+the seam when the real binary lands.
+SPEC-DELTA[run15-stub-verifier | stand-in]
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sqlite3
+import sys
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlparse, parse_qs
+
+
+# --------------------------------------------------------------------------
+# Verifier interface (the seam). Stub accepts "test:<did>" bearer tokens.
+# --------------------------------------------------------------------------
+class Verifier:
+    """token -> caller DID, or None if unverifiable."""
+
+    def verify(self, authorization: str | None) -> str | None:
+        raise NotImplementedError
+
+
+class StubVerifier(Verifier):
+    """SPEC-DELTA[run15-stub-verifier | stand-in] for atproto service-auth."""
+
+    def verify(self, authorization: str | None) -> str | None:
+        if not authorization or not authorization.startswith("Bearer "):
+            return None
+        tok = authorization[len("Bearer "):].strip()
+        # stand-in token shape: "test:<did>"
+        if not tok.startswith("test:"):
+            return None
+        did = tok[len("test:"):]
+        if not did.startswith("did:"):
+            return None
+        return did
+
+
+# --------------------------------------------------------------------------
+# Data profile: create/own the declared files under the data dir (§1.2).
+# --------------------------------------------------------------------------
+def init_data_profile(data_dir: str, canonical, disposable, blobs) -> None:
+    os.makedirs(data_dir, exist_ok=True)
+    for rel in list(canonical) + list(disposable):
+        path = os.path.join(data_dir, rel)
+        os.makedirs(os.path.dirname(path) or data_dir, exist_ok=True)
+        conn = sqlite3.connect(path)
+        try:
+            conn.execute("PRAGMA journal_mode=WAL;")  # WAL: readers + one writer
+            conn.commit()
+        finally:
+            conn.close()
+    for rel in blobs:
+        os.makedirs(os.path.join(data_dir, rel), exist_ok=True)
+
+
+# --------------------------------------------------------------------------
+# HTTP handler with a small route table. Routes are registered by role.
+# --------------------------------------------------------------------------
+class App:
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.verifier = StubVerifier()
+        self.routes = {}  # (method, path) -> handler(app, req, qs, caller)
+        self.authed = set()  # paths requiring a verified caller
+        self.register_core()
+        if cfg.api:
+            self.register_api()
+        else:
+            self.register_service()
+
+    # -- route registration --------------------------------------------------
+    def route(self, method, path, fn, authed=False):
+        self.routes[(method, path)] = fn
+        if authed:
+            self.authed.add((method, path))
+
+    def register_core(self):
+        self.route("GET", "/healthz", self._healthz)
+
+    def register_service(self):
+        self.route("GET", "/xrpc/app.stub.echo", self._echo, authed=True)
+
+    def register_api(self):  # extended in D10
+        pass
+
+    # -- core route handlers -------------------------------------------------
+    def _healthz(self, req, qs, caller):
+        self.text(req, 200, "ok")
+
+    def _echo(self, req, qs, caller):
+        msg = (qs.get("msg") or [""])[0]
+        self.json(req, 200, {"caller": caller, "msg": msg})
+
+    # -- response helpers ----------------------------------------------------
+    @staticmethod
+    def text(req, code, body):
+        data = body.encode()
+        req.send_response(code)
+        req.send_header("Content-Type", "text/plain")
+        req.send_header("Content-Length", str(len(data)))
+        req.end_headers()
+        req.wfile.write(data)
+
+    @staticmethod
+    def json(req, code, obj):
+        data = json.dumps(obj).encode()
+        req.send_response(code)
+        req.send_header("Content-Type", "application/json")
+        req.send_header("Content-Length", str(len(data)))
+        req.end_headers()
+        req.wfile.write(data)
+
+
+class Handler(BaseHTTPRequestHandler):
+    app: App = None  # set on the server class
+
+    def log_message(self, *a):  # quiet
+        pass
+
+    def _dispatch(self, method):
+        parsed = urlparse(self.path)
+        qs = parse_qs(parsed.query)
+        key = (method, parsed.path)
+        fn = self.app.routes.get(key)
+        if fn is None:
+            App.text(self, 404, "not found")
+            return
+        caller = None
+        if key in self.app.authed:
+            caller = self.app.verifier.verify(self.headers.get("Authorization"))
+            if caller is None:
+                App.text(self, 401, "unauthorized")
+                return
+        try:
+            fn(self, qs, caller)
+        except BrokenPipeError:
+            pass
+        except Exception as e:  # noqa: BLE001 — stub: surface as 500
+            App.text(self, 500, f"error: {e}")
+
+    def do_GET(self):
+        self._dispatch("GET")
+
+    def do_POST(self):
+        self._dispatch("POST")
+
+
+def serve(cfg):
+    if not cfg.api:
+        init_data_profile(cfg.data_dir, cfg.canonical, cfg.disposable, cfg.blobs)
+    app = App(cfg)
+    host, _, port = cfg.listen.rpartition(":")
+    server = ThreadingHTTPServer((host, int(port)), Handler)
+    server.RequestHandlerClass.app = app
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+
+
+def parse_args(argv):
+    p = argparse.ArgumentParser(description="appview-infra contract stub")
+    p.add_argument("--data-dir", required=True)
+    p.add_argument("--listen", required=True, help="host:port, port >= 1024")
+    p.add_argument("--canonical", action="append", default=[])
+    p.add_argument("--disposable", action="append", default=[])
+    p.add_argument("--blobs", action="append", default=[])
+    p.add_argument("--api", action="store_true", help="own-data API sidecar mode")
+    p.add_argument("--api-mode", choices=["shared-wal", "snapshot"],
+                   default="shared-wal")
+    p.add_argument("--stmt-timeout-ms", type=int, default=250)
+    p.add_argument("--page-size", type=int, default=100)
+    p.add_argument("--group-fixture", default=None)
+    cfg = p.parse_args(argv)
+    _, _, port = cfg.listen.rpartition(":")
+    if int(port) < 1024:
+        p.error("--listen port must be >= 1024 (contract §5)")
+    if os.geteuid() == 0 and os.environ.get("STUB_ALLOW_ROOT") != "1":
+        # contract §4: no root. Allow override only for constrained test harness.
+        sys.stderr.write("refusing to run as root (contract §4); "
+                         "set STUB_ALLOW_ROOT=1 only in a sandboxed test\n")
+        sys.exit(3)
+    return cfg
+
+
+def main(argv=None):
+    cfg = parse_args(sys.argv[1:] if argv is None else argv)
+    serve(cfg)
+
+
+if __name__ == "__main__":
+    main()
