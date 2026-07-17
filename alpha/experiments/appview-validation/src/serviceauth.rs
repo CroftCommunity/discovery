@@ -1,0 +1,535 @@
+//! atproto **inter-service auth** ("service auth") JWT verification — the
+//! mechanism by which a real AppView learns *who its caller is* without a browser
+//! or OAuth. RUN-14 EXP-A, the one unproven capability behind every Stellin
+//! differentiator: the AppView has never known its caller.
+//!
+//! The flow (client side, proven live in `bin/authserve.rs`): the client
+//! authenticates to its OWN PDS, calls `com.atproto.server.getServiceAuth` with
+//! `aud` = the target service DID (and optionally `lxm` = the lexicon method it
+//! intends to call), and presents the returned compact JWT as a bearer token.
+//! The service (this module) verifies the signature against the issuer's
+//! `#atproto` verification method, resolved from the issuer's DID document.
+//!
+//! ─────────────────────────────────────────────────────────────────────────────
+//!  PREDICTIONS (write them down before the first live call — house style)
+//! ─────────────────────────────────────────────────────────────────────────────
+//!   P-A1: `getServiceAuth` returns `{ "token": <compact JWT> }`.
+//!   P-A2: JWT claims include `iss` (user DID), `aud` (requested DID), `exp`
+//!         (short, ~a minute out), and `lxm` when a lexicon method was requested.
+//!   P-A3: the signature verifies against the `#atproto` verification method in
+//!         the issuer's DID document (secp256k1 **or** p256), resolved via the
+//!         PLC directory over HTTPS.
+//! Reported CONFIRMED/DIVERGED in `bin/authserve.rs` and RUN-14-SUMMARY.md.
+
+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
+use serde::Deserialize;
+
+/// The signing curve carried by an atproto `#atproto` verification method.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Curve {
+    /// secp256k1 (`ES256K`) — most `did:plc` accounts.
+    Secp256k1,
+    /// NIST p256 (`ES256`) — some accounts.
+    P256,
+}
+
+/// Distinct rejection reasons. Distinctness is a step-1 acceptance criterion: a
+/// caller (and the gated route) must be able to tell *why* a token was refused.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum VerifyError {
+    /// Not three base64url segments, or a segment/JSON that will not decode.
+    Malformed(String),
+    /// Signature did not verify against the issuer's resolved key.
+    BadSignature,
+    /// `exp` is at or before `now`.
+    Expired,
+    /// `aud` is not the audience this service expected.
+    WrongAudience,
+    /// `lxm` is absent or does not match the lexicon method this route requires.
+    WrongLxm,
+    /// The issuer DID could not be resolved to an `#atproto` key.
+    UnresolvableIssuer,
+}
+
+impl std::fmt::Display for VerifyError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            VerifyError::Malformed(w) => write!(f, "malformed token: {w}"),
+            VerifyError::BadSignature => write!(f, "bad signature"),
+            VerifyError::Expired => write!(f, "token expired"),
+            VerifyError::WrongAudience => write!(f, "wrong audience"),
+            VerifyError::WrongLxm => write!(f, "wrong lxm for this route"),
+            VerifyError::UnresolvableIssuer => write!(f, "unresolvable issuer DID"),
+        }
+    }
+}
+impl std::error::Error for VerifyError {}
+
+/// The verified claims we care about.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ServiceAuthClaims {
+    /// The caller's DID (`iss`) — the identity the AppView now *knows*.
+    pub iss: String,
+    /// The audience DID this token was minted for (`aud`).
+    pub aud: String,
+    /// Expiry, unix seconds.
+    pub exp: i64,
+    /// The lexicon method the token is scoped to, if any (`lxm`).
+    pub lxm: Option<String>,
+}
+
+/// Resolves an issuer DID to its `#atproto` public key, as `publicKeyMultibase`.
+///
+/// Synchronous on purpose: the live path (`bin/authserve.rs`) does the async
+/// PLC fetch first and hands a resolved `(did -> multibase)` map in, so
+/// verification stays a pure, unit-testable function with a stub resolver.
+pub trait KeyResolver {
+    /// The `publicKeyMultibase` string for the issuer's `#atproto` method, or
+    /// `None` if the DID / method cannot be resolved.
+    fn atproto_key(&self, did: &str) -> Option<String>;
+}
+
+#[derive(Deserialize)]
+struct JwtHeader {
+    alg: String,
+}
+
+#[derive(Deserialize)]
+struct JwtPayload {
+    iss: String,
+    aud: String,
+    exp: i64,
+    #[serde(default)]
+    lxm: Option<String>,
+}
+
+/// A [`KeyResolver`] backed by an in-memory map — the live bin pre-resolves DID
+/// documents (async PLC fetch) and drops the `(did -> publicKeyMultibase)`
+/// entries in here so verification stays synchronous.
+#[derive(Default)]
+pub struct MapResolver {
+    keys: std::collections::HashMap<String, String>,
+}
+impl MapResolver {
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn insert(&mut self, did: &str, multibase: &str) {
+        self.keys.insert(did.to_string(), multibase.to_string());
+    }
+}
+impl KeyResolver for MapResolver {
+    fn atproto_key(&self, did: &str) -> Option<String> {
+        self.keys.get(did).cloned()
+    }
+}
+
+/// Pull the `#atproto` verification method's `publicKeyMultibase` out of a
+/// resolved atproto DID document. The method `id` ends in `#atproto`.
+pub fn atproto_key_from_did_doc(doc: &serde_json::Value) -> Option<String> {
+    doc.get("verificationMethod")?
+        .as_array()?
+        .iter()
+        .find(|vm| {
+            vm.get("id")
+                .and_then(serde_json::Value::as_str)
+                .map(|id| id.ends_with("#atproto"))
+                .unwrap_or(false)
+        })
+        .and_then(|vm| vm.get("publicKeyMultibase"))
+        .and_then(serde_json::Value::as_str)
+        .map(str::to_string)
+}
+
+/// Decode a `publicKeyMultibase` (`z…` base58btc multicodec) into its curve and
+/// the raw compressed SEC1 point bytes.
+pub fn decode_multikey(multibase: &str) -> Option<(Curve, Vec<u8>)> {
+    let b58 = multibase.strip_prefix('z')?; // multibase 'z' == base58btc
+    let bytes = bs58::decode(b58).into_vec().ok()?;
+    // multicodec varint prefixes: secp256k1-pub = 0xe7 0x01, p256-pub = 0x80 0x24.
+    if let Some(rest) = bytes.strip_prefix(&[0xe7, 0x01]) {
+        Some((Curve::Secp256k1, rest.to_vec()))
+    } else {
+        bytes
+            .strip_prefix(&[0x80, 0x24])
+            .map(|rest| (Curve::P256, rest.to_vec()))
+    }
+}
+
+/// Verify a service-auth JWT end to end.
+///
+/// Check order gives each failure a distinct variant (each fixture breaks exactly
+/// one thing): parse → resolve issuer → signature → exp → aud → lxm.
+pub fn verify_service_jwt<R: KeyResolver + ?Sized>(
+    token: &str,
+    expected_aud: &str,
+    required_lxm: Option<&str>,
+    now_unix: i64,
+    resolver: &R,
+) -> Result<ServiceAuthClaims, VerifyError> {
+    // ── parse: exactly three base64url segments ─────────────────────────────
+    let mut parts = token.split('.');
+    let (h_b64, p_b64, s_b64) = match (parts.next(), parts.next(), parts.next(), parts.next()) {
+        (Some(h), Some(p), Some(s), None) if !h.is_empty() && !p.is_empty() && !s.is_empty() => {
+            (h, p, s)
+        }
+        _ => return Err(VerifyError::Malformed("not three non-empty segments".into())),
+    };
+    let dec = |seg: &str, what: &str| {
+        URL_SAFE_NO_PAD
+            .decode(seg)
+            .map_err(|e| VerifyError::Malformed(format!("{what}: {e}")))
+    };
+    let header: JwtHeader = serde_json::from_slice(&dec(h_b64, "header")?)
+        .map_err(|e| VerifyError::Malformed(format!("header json: {e}")))?;
+    let payload: JwtPayload = serde_json::from_slice(&dec(p_b64, "payload")?)
+        .map_err(|e| VerifyError::Malformed(format!("payload json: {e}")))?;
+    let sig_bytes = dec(s_b64, "signature")?;
+
+    // header alg must be one of the two atproto curves.
+    let alg_curve = match header.alg.as_str() {
+        "ES256K" => Curve::Secp256k1,
+        "ES256" => Curve::P256,
+        other => return Err(VerifyError::Malformed(format!("unsupported alg {other}"))),
+    };
+
+    // ── resolve the issuer key ──────────────────────────────────────────────
+    let multibase = resolver
+        .atproto_key(&payload.iss)
+        .ok_or(VerifyError::UnresolvableIssuer)?;
+    let (key_curve, pubkey) =
+        decode_multikey(&multibase).ok_or(VerifyError::UnresolvableIssuer)?;
+    // The header's declared curve must match the resolved key's curve.
+    if key_curve != alg_curve {
+        return Err(VerifyError::BadSignature);
+    }
+
+    // ── verify the signature over the `header.payload` signing input ─────────
+    let signing_input = format!("{h_b64}.{p_b64}");
+    if !verify_sig(key_curve, &pubkey, signing_input.as_bytes(), &sig_bytes) {
+        return Err(VerifyError::BadSignature);
+    }
+
+    // ── temporal, audience, and method binding (distinct variants) ──────────
+    if now_unix >= payload.exp {
+        return Err(VerifyError::Expired);
+    }
+    if payload.aud != expected_aud {
+        return Err(VerifyError::WrongAudience);
+    }
+    if let Some(want) = required_lxm
+        && payload.lxm.as_deref() != Some(want)
+    {
+        return Err(VerifyError::WrongLxm);
+    }
+
+    Ok(ServiceAuthClaims {
+        iss: payload.iss,
+        aud: payload.aud,
+        exp: payload.exp,
+        lxm: payload.lxm,
+    })
+}
+
+/// Verify a raw `r‖s` ECDSA signature over `signing_input` (the verifier hashes
+/// with SHA-256 internally) against a compressed SEC1 public key.
+fn verify_sig(curve: Curve, pubkey: &[u8], signing_input: &[u8], sig: &[u8]) -> bool {
+    match curve {
+        Curve::Secp256k1 => {
+            use k256::ecdsa::{signature::Verifier, Signature, VerifyingKey};
+            let Ok(vk) = VerifyingKey::from_sec1_bytes(pubkey) else {
+                return false;
+            };
+            let Ok(sig) = Signature::from_slice(sig) else {
+                return false;
+            };
+            vk.verify(signing_input, &sig).is_ok()
+        }
+        Curve::P256 => {
+            use p256::ecdsa::{signature::Verifier, Signature, VerifyingKey};
+            let Ok(vk) = VerifyingKey::from_sec1_bytes(pubkey) else {
+                return false;
+            };
+            let Ok(sig) = Signature::from_slice(sig) else {
+                return false;
+            };
+            vk.verify(signing_input, &sig).is_ok()
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Test support: in-test key generation + JWT minting (fixtures before features).
+//  This is scaffolding, not the mechanism under test; the mechanism is the
+//  verifier above. Deterministic keys (fixed scalars) — no RNG in this env.
+// ─────────────────────────────────────────────────────────────────────────────
+#[cfg(test)]
+pub(crate) mod fixtures {
+    use super::*;
+    use serde_json::json;
+
+    /// A resolver backed by an in-memory map, for tests.
+    pub struct StubResolver {
+        pub keys: std::collections::HashMap<String, String>,
+    }
+    impl KeyResolver for StubResolver {
+        fn atproto_key(&self, did: &str) -> Option<String> {
+            self.keys.get(did).cloned()
+        }
+    }
+
+    fn b64(bytes: &[u8]) -> String {
+        URL_SAFE_NO_PAD.encode(bytes)
+    }
+
+    /// Encode a compressed SEC1 point as an atproto `publicKeyMultibase`.
+    fn multikey(curve: Curve, compressed: &[u8]) -> String {
+        let mut buf = match curve {
+            Curve::Secp256k1 => vec![0xe7, 0x01],
+            Curve::P256 => vec![0x80, 0x24],
+        };
+        buf.extend_from_slice(compressed);
+        format!("z{}", bs58::encode(buf).into_string())
+    }
+
+    /// A test identity: a curve, its multibase pubkey, and a signer over the
+    /// signing input (returns the base64url r‖s signature).
+    pub struct TestIdent {
+        pub did: String,
+        pub curve: Curve,
+        pub multibase: String,
+        sign: Box<dyn Fn(&[u8]) -> String>,
+    }
+
+    /// secp256k1 identity from a fixed 32-byte scalar.
+    pub fn secp256k1_ident(did: &str, scalar: [u8; 32]) -> TestIdent {
+        use k256::ecdsa::{signature::Signer, Signature, SigningKey, VerifyingKey};
+        let sk = SigningKey::from_slice(&scalar).expect("valid secp256k1 scalar");
+        let vk: VerifyingKey = *sk.verifying_key();
+        let compressed = vk.to_encoded_point(true).as_bytes().to_vec();
+        let multibase = multikey(Curve::Secp256k1, &compressed);
+        let signer = move |input: &[u8]| {
+            let sig: Signature = sk.sign(input);
+            let sig = sig.normalize_s().unwrap_or(sig); // atproto low-S
+            b64(&sig.to_bytes())
+        };
+        TestIdent {
+            did: did.to_string(),
+            curve: Curve::Secp256k1,
+            multibase,
+            sign: Box::new(signer),
+        }
+    }
+
+    /// p256 identity from a fixed 32-byte scalar.
+    pub fn p256_ident(did: &str, scalar: [u8; 32]) -> TestIdent {
+        use p256::ecdsa::{signature::Signer, Signature, SigningKey, VerifyingKey};
+        let sk = SigningKey::from_slice(&scalar).expect("valid p256 scalar");
+        let vk: VerifyingKey = *sk.verifying_key();
+        let compressed = vk.to_encoded_point(true).as_bytes().to_vec();
+        let multibase = multikey(Curve::P256, &compressed);
+        let signer = move |input: &[u8]| {
+            let sig: Signature = sk.sign(input);
+            let sig = sig.normalize_s().unwrap_or(sig);
+            b64(&sig.to_bytes())
+        };
+        TestIdent {
+            did: did.to_string(),
+            curve: Curve::P256,
+            multibase,
+            sign: Box::new(signer),
+        }
+    }
+
+    impl TestIdent {
+        /// Mint a well-formed service-auth JWT with these claims.
+        pub fn mint(&self, aud: &str, exp: i64, lxm: Option<&str>) -> String {
+            let alg = match self.curve {
+                Curve::Secp256k1 => "ES256K",
+                Curve::P256 => "ES256",
+            };
+            let header = b64(json!({ "typ": "JWT", "alg": alg }).to_string().as_bytes());
+            let mut claims = json!({ "iss": self.did, "aud": aud, "exp": exp });
+            if let Some(l) = lxm {
+                claims["lxm"] = json!(l);
+            }
+            let payload = b64(claims.to_string().as_bytes());
+            let signing_input = format!("{header}.{payload}");
+            let sig = (self.sign)(signing_input.as_bytes());
+            format!("{signing_input}.{sig}")
+        }
+
+        /// Mint a token, then corrupt the signature (flip its last byte) — a
+        /// well-formed token whose signature must fail to verify.
+        pub fn mint_badsig(&self, aud: &str, exp: i64, lxm: Option<&str>) -> String {
+            let good = self.mint(aud, exp, lxm);
+            let (rest, sig) = good.rsplit_once('.').unwrap();
+            let mut raw = URL_SAFE_NO_PAD.decode(sig).unwrap();
+            let n = raw.len() - 1;
+            raw[n] ^= 0x01;
+            format!("{rest}.{}", b64(&raw))
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::fixtures::*;
+    use super::*;
+    use std::collections::HashMap;
+
+    const AUD: &str = "did:web:appview.stellin.test";
+    const LXM: &str = "app.stellin.getProfileView";
+    const NOW: i64 = 1_800_000_000; // fixed clock
+
+    fn resolver_for(idents: &[&TestIdent]) -> StubResolver {
+        let mut keys = HashMap::new();
+        for id in idents {
+            keys.insert(id.did.clone(), id.multibase.clone());
+        }
+        StubResolver { keys }
+    }
+
+    // P-A3: a well-formed secp256k1 token verifies against the resolved key.
+    #[test]
+    fn accepts_valid_secp256k1() {
+        let alice = secp256k1_ident("did:plc:alice", [7u8; 32]);
+        let r = resolver_for(&[&alice]);
+        let tok = alice.mint(AUD, NOW + 60, Some(LXM));
+        let claims = verify_service_jwt(&tok, AUD, Some(LXM), NOW, &r).expect("valid token");
+        assert_eq!(claims.iss, "did:plc:alice");
+        assert_eq!(claims.aud, AUD);
+        assert_eq!(claims.lxm.as_deref(), Some(LXM));
+    }
+
+    // p256 accounts (ES256) verify on the other curve.
+    #[test]
+    fn accepts_valid_p256() {
+        let carol = p256_ident("did:plc:carol", [9u8; 32]);
+        let r = resolver_for(&[&carol]);
+        let tok = carol.mint(AUD, NOW + 60, None);
+        let claims = verify_service_jwt(&tok, AUD, None, NOW, &r).expect("valid p256 token");
+        assert_eq!(claims.iss, "did:plc:carol");
+    }
+
+    // (a) bad signature → BadSignature.
+    #[test]
+    fn rejects_bad_signature() {
+        let alice = secp256k1_ident("did:plc:alice", [7u8; 32]);
+        let r = resolver_for(&[&alice]);
+        let tok = alice.mint_badsig(AUD, NOW + 60, Some(LXM));
+        assert_eq!(
+            verify_service_jwt(&tok, AUD, Some(LXM), NOW, &r),
+            Err(VerifyError::BadSignature)
+        );
+    }
+
+    // (b) expired → Expired.
+    #[test]
+    fn rejects_expired() {
+        let alice = secp256k1_ident("did:plc:alice", [7u8; 32]);
+        let r = resolver_for(&[&alice]);
+        let tok = alice.mint(AUD, NOW - 1, Some(LXM));
+        assert_eq!(
+            verify_service_jwt(&tok, AUD, Some(LXM), NOW, &r),
+            Err(VerifyError::Expired)
+        );
+    }
+
+    // (c) wrong aud → WrongAudience.
+    #[test]
+    fn rejects_wrong_aud() {
+        let alice = secp256k1_ident("did:plc:alice", [7u8; 32]);
+        let r = resolver_for(&[&alice]);
+        let tok = alice.mint("did:web:someone.else", NOW + 60, Some(LXM));
+        assert_eq!(
+            verify_service_jwt(&tok, AUD, Some(LXM), NOW, &r),
+            Err(VerifyError::WrongAudience)
+        );
+    }
+
+    // (d) wrong lxm for the route → WrongLxm.
+    #[test]
+    fn rejects_wrong_lxm() {
+        let alice = secp256k1_ident("did:plc:alice", [7u8; 32]);
+        let r = resolver_for(&[&alice]);
+        let tok = alice.mint(AUD, NOW + 60, Some("app.stellin.somethingElse"));
+        assert_eq!(
+            verify_service_jwt(&tok, AUD, Some(LXM), NOW, &r),
+            Err(VerifyError::WrongLxm)
+        );
+    }
+
+    // (e) unresolvable issuer → UnresolvableIssuer.
+    #[test]
+    fn rejects_unresolvable_issuer() {
+        let alice = secp256k1_ident("did:plc:alice", [7u8; 32]);
+        let empty = StubResolver { keys: HashMap::new() };
+        let tok = alice.mint(AUD, NOW + 60, Some(LXM));
+        assert_eq!(
+            verify_service_jwt(&tok, AUD, Some(LXM), NOW, &empty),
+            Err(VerifyError::UnresolvableIssuer)
+        );
+    }
+
+    // A token with no lxm claim is fine on a route that requires none…
+    #[test]
+    fn no_lxm_required_accepts_no_lxm() {
+        let alice = secp256k1_ident("did:plc:alice", [7u8; 32]);
+        let r = resolver_for(&[&alice]);
+        let tok = alice.mint(AUD, NOW + 60, None);
+        assert!(verify_service_jwt(&tok, AUD, None, NOW, &r).is_ok());
+    }
+
+    // …but a route that requires an lxm rejects a token that carries none.
+    #[test]
+    fn lxm_required_rejects_missing_lxm() {
+        let alice = secp256k1_ident("did:plc:alice", [7u8; 32]);
+        let r = resolver_for(&[&alice]);
+        let tok = alice.mint(AUD, NOW + 60, None);
+        assert_eq!(
+            verify_service_jwt(&tok, AUD, Some(LXM), NOW, &r),
+            Err(VerifyError::WrongLxm)
+        );
+    }
+
+    // The live-resolution helper: pull #atproto's multibase key out of a real-
+    // shaped DID document, and round-trip it through decode_multikey.
+    #[test]
+    fn extracts_and_decodes_atproto_key_from_did_doc() {
+        let alice = secp256k1_ident("did:plc:alice", [7u8; 32]);
+        let doc = serde_json::json!({
+            "id": "did:plc:alice",
+            "verificationMethod": [{
+                "id": "did:plc:alice#atproto",
+                "type": "Multikey",
+                "controller": "did:plc:alice",
+                "publicKeyMultibase": alice.multibase,
+            }],
+        });
+        let mb = atproto_key_from_did_doc(&doc).expect("finds #atproto method");
+        assert_eq!(mb, alice.multibase);
+        let (curve, _bytes) = decode_multikey(&mb).expect("decodes multikey");
+        assert_eq!(curve, Curve::Secp256k1);
+
+        // And a token from that account verifies through a MapResolver built from
+        // the DID doc — the exact live path (async fetch → MapResolver → verify).
+        let mut r = MapResolver::new();
+        r.insert("did:plc:alice", &mb);
+        let tok = alice.mint(AUD, NOW + 60, Some(LXM));
+        assert!(verify_service_jwt(&tok, AUD, Some(LXM), NOW, &r).is_ok());
+    }
+
+    // Garbage input is Malformed, never a panic.
+    #[test]
+    fn rejects_malformed() {
+        let alice = secp256k1_ident("did:plc:alice", [7u8; 32]);
+        let r = resolver_for(&[&alice]);
+        for junk in ["", "a.b", "not-a-jwt", "a.b.c.d"] {
+            match verify_service_jwt(junk, AUD, Some(LXM), NOW, &r) {
+                Err(VerifyError::Malformed(_)) => {}
+                other => panic!("expected Malformed for {junk:?}, got {other:?}"),
+            }
+        }
+    }
+}

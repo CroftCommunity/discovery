@@ -399,3 +399,80 @@ a named blocker (the revocation-authority decision) rather than an open "TBD".
 ("Pass: 2026-07 real-substrate experiment reconciliation") with the edits applied to Part 2. The
 `needs-call` items (F1, F7) were answered by the owner (see each item's call), F8 was added as a new
 decision this run, and all items landed together.
+
+---
+
+## RUN-14 — Stellin AppView caller-identity (social-mapping §H serve half + helper delegation)
+
+`Status: PROPOSED, not applied — staged 2026-07-17. Target here is the design text
+beta/impl/drystone-design/social-mapping.md (§H and the helper-delegation bullet, §L), NOT Part 2.
+The AppView-provisioned scope key (social-mapping Open items) is deliberately untouched — RUN-14 stop
+rule 5b. Each item cites the RUN-14 experiment that earns it (RUN-14-SUMMARY.md, branch
+claude/experiments-run-14).`
+
+### H-A — §H serve half: offer-gating demonstrated against a real verified identity  ·  `status-move`  ·  ready
+
+**Target:** social-mapping §H, the "AppView gates *offering*, never *reading*" invariant (currently
+`Synthesis`), and its recommended hybrid default (MLS seal, AppView serve).
+
+**Why + evidence.** EXP-B built the §H hybrid **serve half** executably: a content-blind store offers
+opaque ciphertext only to a **verified** roster member (service-auth identity from EXP-A), and refuses
+non-member/anonymous/nonexistent-group with one flat 403 (no length/existence leak). The content-blind
+property is a **compilation boundary**, not a convention — the seal/open AEAD crate is absent from the
+`sealed` server binary's dependency graph (`cargo tree` shows it only under `--features client-seal`),
+so the store cannot read what it offers. Roster removal stops future offering while already-fetched
+ciphertext + a retained key still decrypts — the "offering-vs-reading" sentence made a passing test.
+EXP-A separately earns the "verified caller" half: real atproto service-auth JWTs verified against
+real DID-document keys (secp256k1/p256), live P-A3 confirmed against `@bsky.app`.
+
+**Proposed move:** the §H serve-half invariant → **experiment-earned** (was `Synthesis`) for the
+*serving/offer-gating* mechanism specifically. The confidentiality guarantee still rests on encryption
+(unchanged); what is newly earned is that an AppView can gate *offering* by verified identity without
+holding the key.
+
+**Decision:** `ready` (mechanism demonstrated at experiment grade; loopback/in-memory, no wire pinning).
+
+### H-B — helper delegation: content helper indexes by grant, forward-blind on revocation  ·  `status-move`  ·  ready
+
+**Target:** social-mapping §L helper-delegation bullet ("a *content* helper … may hold clear text …
+and it is revocable … In neither case does the helper gain authority"), currently `Design`.
+
+**Why + evidence.** EXP-C (`helper-seam`) closed the grant→index→serve loop on the **real MLS mechanism**
+(`group-seal`, croft-group L2a): a helper admitted by a real Welcome decrypts group messages as any
+member does, normalizes them through the source-agnostic `NormalizedEvent` boundary (copied from
+public-roundtrip), and feeds the **same** index/serve path a public source feeds — one search returns
+both a public-source and a helper-fed hit. Revocation (`remove_member` + epoch roll) makes the helper
+**forward-blind**: frames sealed after the roll do not decrypt (MLS forward secrecy) and produce no
+rows, while pre-revocation rows remain — the honest asymmetry ("what the helper was shown, it was
+shown") stated in the test. The helper exposes **no authority surface** (join + ingest only).
+
+**Proposed move:** the helper-delegation claim → **experiment-earned** (was `Design`) for the content-
+helper mechanism (admit-by-grant, index-by-grant, revoke-to-forward-blind, no-authority).
+
+**Decision:** `ready` (loopback grade; real openmls 0.8.1 seal/Welcome/PCS-removal; in-process harness,
+no wire pinning — same grade wall as croft-group L2a).
+
+### H-C — the standing gap stays named: interactive OAuth/DPoP is unproven  ·  `caveat`  ·  ready
+
+**Why + evidence.** The service-auth path (EXP-A) is NOT the PWA client-login leg. Interactive atproto
+**OAuth + DPoP** requires a browser hop this environment lacks; it was explicitly not attempted (RUN-14
+named non-goal). Note EXP-A's own token leg is now **fully confirmed live** (P-A1/P-A2/P-A3, owner-
+supplied creds — a real getServiceAuth token verified end-to-end against a real DID-doc key); the
+remaining gap is *only* the interactive OAuth/DPoP client login, a distinct mechanism.
+
+**Proposed caveat:** wherever the AppView caller-identity mechanism is recorded as earned, annotate that
+it covers **service auth (server-to-server), not the interactive client-login leg** — OAuth/DPoP remains
+attended-run territory (backlog). Keeps the gap register honest.
+
+**Decision:** `ready` (a boundary annotation, no mechanism claim).
+
+### RUN-14 summary addendum
+
+| # | Target | Class | Decision | One-line |
+|---|---|---|---|---|
+| **H-A** | social-mapping §H serve half | status-move | ready | Offer-gating demonstrated against a verified identity; content-blindness is a compilation boundary |
+| **H-B** | social-mapping §L helper delegation | status-move | ready | Content helper indexes by grant over real MLS; forward-blind on revocation; no authority |
+| **H-C** | (caveat, wherever earned) | caveat | ready | Service auth ≠ interactive OAuth/DPoP (the PWA login leg stays unproven) |
+
+**Untouched (RUN-14 stop rule 5b):** the AppView-provisioned scope key (social-mapping Open items) —
+how the audience scope key is provisioned, granted, and rotated — is a design decision, not earned here.

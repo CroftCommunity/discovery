@@ -1,0 +1,27 @@
+# helper-seam — RUN-14 EXP-C: the content-helper seam.
+#
+# A content helper (social-mapping helper delegation) is a croft-group MEMBER
+# admitted to the scope by grant. It decrypts sealed group messages as any member
+# would, normalizes them through the source-agnostic boundary, and feeds the same
+# AppView index a public source feeds — revocably. Own lockfile / empty [workspace]
+# so the openmls stack (via group-seal) never enters a pure workspace's lock.
+[package]
+name = "helper-seam"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+# The proven MLS seal/unseal + membership re-key (croft-group L2a), reused whole
+# rather than re-implemented — the same discipline group-seal itself follows.
+group-seal = { path = "../croft-group/crates/group-seal" }
+group-core = { path = "../croft-group/crates/group-core" }
+# The openmls Device wrapper — only to NAME the KeyPackage type group-seal's
+# invite/key_package surface passes (group-seal does not re-export it).
+lineage-mls = { path = "../../Proofs/lineage-groups/crates/lineage-mls" }
+rusqlite = { version = "0.32.1", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
