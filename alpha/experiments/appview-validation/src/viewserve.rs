@@ -136,7 +136,6 @@ fn verify_bearer(
 
 /// A verified viewer's role against a subject, derived from the roster stand-in.
 struct ViewerRole {
-    did: String,
     is_recruiter: bool,
     affiliation: Option<String>,
 }
@@ -150,7 +149,6 @@ fn viewer_role(conn: &Connection, viewer_did: &str) -> ViewerRole {
         )
         .ok();
     ViewerRole {
-        did: viewer_did.to_string(),
         is_recruiter: affiliation.is_some(),
         affiliation,
     }
@@ -204,8 +202,13 @@ async fn get_profile_view(
         if may_see_open_to_work(&role, &employer) {
             view["openToWork"] = json!(open_to_work);
         }
-        // STEP-3 telemetry write lands here in the next green commit.
-        let _ = &role;
+        // Telemetry: a verified read is observed state. Anonymous reads (no
+        // claims) fall through and record nothing.
+        conn.execute(
+            "INSERT INTO profile_views (viewer_did, subject_did, ts) VALUES (?1,?2,?3)",
+            rusqlite::params![c.iss, p.actor, st.now],
+        )
+        .ok();
     }
 
     (StatusCode::OK, Json(view))
@@ -215,9 +218,34 @@ async fn get_profile_views(
     State(st): State<ProfileState>,
     headers: HeaderMap,
 ) -> (StatusCode, Json<Value>) {
-    // STEP-3 RED STUB — implemented in the step-3 green commit.
-    let _ = (&st, &headers);
-    (StatusCode::NOT_IMPLEMENTED, Json(json!({ "stub": true })))
+    // Telemetry is private to the subject: the caller must be verified, and sees
+    // only the views of their OWN profile (subject_did == the caller's iss).
+    let claims = match verify_bearer(&headers, &st, GET_PROFILE_VIEWS) {
+        Ok(Some(c)) => c,
+        _ => return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "AuthRequired" }))),
+    };
+    let conn = st.db.lock().unwrap();
+    let count: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM profile_views WHERE subject_did = ?1",
+            [&claims.iss],
+            |r| r.get(0),
+        )
+        .unwrap_or(0);
+    let mut stmt = conn
+        .prepare("SELECT viewer_did, ts FROM profile_views WHERE subject_did = ?1 ORDER BY ts")
+        .unwrap();
+    let viewers: Vec<Value> = stmt
+        .query_map([&claims.iss], |r| {
+            Ok(json!({ "viewer": r.get::<_, String>(0)?, "ts": r.get::<_, i64>(1)? }))
+        })
+        .unwrap()
+        .filter_map(Result::ok)
+        .collect();
+    (
+        StatusCode::OK,
+        Json(json!({ "subject": claims.iss, "viewCount": count, "viewers": viewers })),
+    )
 }
 
 async fn get_record(
