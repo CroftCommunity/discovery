@@ -8,6 +8,7 @@ pub mod jetstream;
 pub mod lexicon;
 pub mod record_source;
 pub mod report;
+pub mod sealed;
 pub mod server;
 pub mod serviceauth;
 pub mod viewserve;
