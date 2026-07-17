@@ -11,7 +11,7 @@ SHELL := /bin/bash
 BATS  ?= bats
 
 # Every check sub-target is aggregated here. Each deliverable adds its own.
-CHECKS := no-secrets stub render
+CHECKS := no-secrets stub render terraform
 
 .PHONY: check $(addprefix check-,$(CHECKS)) generate clean help
 
@@ -33,6 +33,10 @@ check-stub:
 # --- D3: manifests + generator ----------------------------------------------
 check-render:
 	@$(BATS) tests/render.bats
+
+# --- D4: terraform ----------------------------------------------------------
+check-terraform:
+	@$(BATS) tests/terraform.bats
 
 # --- generation -------------------------------------------------------------
 generate:
