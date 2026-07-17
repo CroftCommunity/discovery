@@ -11,7 +11,7 @@ SHELL := /bin/bash
 BATS  ?= bats
 
 # Every check sub-target is aggregated here. Each deliverable adds its own.
-CHECKS := no-secrets
+CHECKS := no-secrets stub
 
 .PHONY: check $(addprefix check-,$(CHECKS)) generate clean help
 
@@ -25,6 +25,10 @@ check: $(addprefix check-,$(CHECKS))
 # --- D1: hygiene ------------------------------------------------------------
 check-no-secrets:
 	@scripts/no-secrets-check.sh
+
+# --- D2: contract stub ------------------------------------------------------
+check-stub:
+	@$(BATS) tests/stub_contract.bats
 
 # --- generation -------------------------------------------------------------
 generate:
