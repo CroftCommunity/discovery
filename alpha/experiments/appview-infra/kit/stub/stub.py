@@ -86,6 +86,77 @@ def init_data_profile(data_dir: str, canonical, disposable, blobs) -> None:
 
 
 # --------------------------------------------------------------------------
+# GroupStore (§1.4) — the fork-agnostic seam. Both write-path variants (D11)
+# implement roster()/content(); the stub backs it with canonical tables in
+# state.db seeded from a fixture. Roster + content are canonical (§1.2).
+# --------------------------------------------------------------------------
+class GroupStore:
+    def roster(self, group):        # -> list[str] of member DIDs
+        raise NotImplementedError
+
+    def content(self, group, cursor):   # -> list[(seq, body)] with seq > cursor
+        raise NotImplementedError
+
+
+class SqliteGroupStore(GroupStore):
+    def __init__(self, db_path):
+        self.db_path = db_path
+
+    def _conn(self):
+        return sqlite3.connect(self.db_path)
+
+    def roster(self, group):
+        conn = self._conn()
+        try:
+            return [r[0] for r in conn.execute(
+                "SELECT member_did FROM roster WHERE group_id=?", (group,))]
+        finally:
+            conn.close()
+
+    def content(self, group, cursor):
+        conn = self._conn()
+        try:
+            return conn.execute(
+                "SELECT seq, body FROM group_content WHERE group_id=? AND seq>? "
+                "ORDER BY seq", (group, cursor)).fetchall()
+        finally:
+            conn.close()
+
+    def remove_member(self, group, did):
+        conn = self._conn()
+        try:
+            conn.execute("DELETE FROM roster WHERE group_id=? AND member_did=?",
+                         (group, did))
+            conn.commit()
+        finally:
+            conn.close()
+
+
+def seed_groups(db_path: str, fixture_path: str) -> None:
+    """Create the canonical roster/group_content tables and seed from a fixture
+    (stub/rehearsal input; in production these are grant-born)."""
+    with open(fixture_path, encoding="utf-8") as f:
+        data = json.load(f)
+    conn = sqlite3.connect(db_path)
+    try:
+        conn.execute("CREATE TABLE IF NOT EXISTS roster("
+                     "group_id TEXT, member_did TEXT, "
+                     "PRIMARY KEY(group_id, member_did))")
+        conn.execute("CREATE TABLE IF NOT EXISTS group_content("
+                     "group_id TEXT, seq INTEGER, body TEXT, "
+                     "PRIMARY KEY(group_id, seq))")
+        for gid, g in data.get("groups", {}).items():
+            for did in g.get("roster", []):
+                conn.execute("INSERT OR IGNORE INTO roster VALUES(?,?)", (gid, did))
+            for row in g.get("content", []):
+                conn.execute("INSERT OR IGNORE INTO group_content VALUES(?,?,?)",
+                             (gid, row["seq"], row["body"]))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+# --------------------------------------------------------------------------
 # HTTP handler with a small route table. Routes are registered by role.
 # --------------------------------------------------------------------------
 class App:
@@ -94,6 +165,10 @@ class App:
         self.verifier = StubVerifier()
         self.routes = {}  # (method, path) -> handler(app, req, qs, caller)
         self.authed = set()  # paths requiring a verified caller
+        self.group_store = None
+        if not cfg.api and cfg.gated_groups:
+            self.group_store = SqliteGroupStore(
+                os.path.join(cfg.data_dir, cfg.canonical[0]))
         self.register_core()
         if cfg.api:
             self.register_api()
@@ -113,6 +188,14 @@ class App:
         self.route("GET", "/xrpc/app.stub.echo", self._echo, authed=True)
         # own-data WRITE path (the service, not the api, writes canonical state)
         self.route("POST", "/xrpc/app.stub.recordMyRow", self._record, authed=True)
+        if self.group_store is not None:
+            # gated large-group serving (§1.4). Verifier is stubbed here; real
+            # atproto service-auth verification is RUN-14 EXP-A, swapped in with
+            # the real binary.
+            self.route("GET", "/xrpc/app.stub.getGroupContent",
+                       self._group_content, authed=True)
+            self.route("POST", "/xrpc/app.stub.removeRosterMember",
+                       self._remove_member, authed=True)
 
     def register_api(self):
         # own-data READ path (§1.3): self-scoping, paginated export, timeout.
@@ -144,6 +227,31 @@ class App:
         finally:
             conn.close()
         self.json(req, 200, {"id": rowid, "subject_did": caller})
+
+    # -- gated large-group serving (§1.4) ------------------------------------
+    def _group_content(self, req, qs, caller):
+        group = (qs.get("group") or [""])[0]
+        try:
+            cursor = int((qs.get("cursor") or ["0"])[0])
+        except ValueError:
+            cursor = 0
+        # roster gate: verified caller must be a current member. Non-member and
+        # nonexistent-group are one indistinguishable 403 (no existence leak).
+        if caller not in self.group_store.roster(group):
+            self.text(req, 403, "forbidden")
+            return
+        rows = self.group_store.content(group, cursor)
+        # The server READS by design in this tier — the honest posture is the
+        # feature; the offering-vs-reading distinction (EXP-B) does not apply.
+        self.json(req, 200, {"group": group,
+                             "content": [{"seq": r[0], "body": r[1]} for r in rows]})
+
+    def _remove_member(self, req, qs, caller):
+        # A test/admin affordance; real admission is governed (RUN-14 A2 seam).
+        group = (qs.get("group") or [""])[0]
+        did = (qs.get("did") or [""])[0]
+        self.group_store.remove_member(group, did)
+        self.json(req, 200, {"removed": did, "group": group})
 
     # -- own-data read (api, read-only) --------------------------------------
     def _ro_db_path(self):
@@ -273,6 +381,9 @@ class Handler(BaseHTTPRequestHandler):
 def serve(cfg):
     if not cfg.api:
         init_data_profile(cfg.data_dir, cfg.canonical, cfg.disposable, cfg.blobs)
+        if cfg.gated_groups and cfg.group_fixture:
+            seed_groups(os.path.join(cfg.data_dir, cfg.canonical[0]),
+                        cfg.group_fixture)
     app = App(cfg)
     host, _, port = cfg.listen.rpartition(":")
     server = ThreadingHTTPServer((host, int(port)), Handler)
@@ -295,7 +406,10 @@ def parse_args(argv):
                    default="shared-wal")
     p.add_argument("--stmt-timeout-ms", type=int, default=250)
     p.add_argument("--page-size", type=int, default=100)
-    p.add_argument("--group-fixture", default=None)
+    p.add_argument("--gated-groups", action="store_true",
+                   help="enable roster-gated large-group serving (§1.4)")
+    p.add_argument("--group-fixture", default=None,
+                   help="stub/rehearsal roster+content fixture (JSON)")
     cfg = p.parse_args(argv)
     _, _, port = cfg.listen.rpartition(":")
     if int(port) < 1024:

@@ -113,6 +113,8 @@ def exec_start(m: dict, data_dir: str, api: bool) -> str:
                 parts.append(f"--disposable {d}")
             for b in dp["blobs"]:
                 parts.append(f"--blobs {b}")
+            if m["gated_groups"]:
+                parts.append("--gated-groups")
         return " ".join(parts)
     # real binary: manages its own layout; just point it at data-dir + listen
     binname = m["name"] if not api else f"{m['name']}-api"
