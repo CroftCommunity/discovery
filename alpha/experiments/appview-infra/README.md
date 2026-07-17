@@ -26,7 +26,7 @@ localhost from the generated config, canonical + blob markers planted, all local
 state destroyed, restored from a file:// litestream replica + a local rclone
 dir, restarted, and the full per-tenant assertion loop (healthz, canonical
 marker, blob marker, api self-scoping, gated-group member/non-member) green. The
-extracted tree passes `make check` standalone. Six honest stand-ins are
+extracted tree passes `make check` standalone. Seven honest stand-ins are
 registered. The group write-path fork, the scale boundary, and the OVH ordering
 are surfaced as owner decisions; nothing was purchased.
 

@@ -87,6 +87,15 @@ check-extraction:
 extract:
 	@scripts/extract-to-repo.sh
 
+# --- P15-local: s3 fire drill (MinIO stands in for R2) -----------------------
+# NOT in CHECKS: needs an ambient minio + a working rclone; the bats file skips
+# when they are absent. Run explicitly to exercise the real s3:// backup plane.
+check-s3-drill:
+	@$(BATS) tests/s3_drill.bats
+
+local-drill-s3:
+	@drill/fire-drill.sh --variant s3-local
+
 # --- generation -------------------------------------------------------------
 generate:
 	@scripts/render.sh
