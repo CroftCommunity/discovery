@@ -1,0 +1,7 @@
+name = "bad2"
+fqdn = "bad2.example.test"
+port = 9311
+[data_profile]
+canonical = ["state.db"]
+disposable = ["index.db"]
+blobs = ["blobs/"]

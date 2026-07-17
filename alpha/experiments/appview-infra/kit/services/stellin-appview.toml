@@ -1,0 +1,20 @@
+# stellin-appview — marquee first tenant.
+# Filtered Jetstream ingest + XRPC serving (RUN-14 spike line). Own-data API in
+# shared-wal mode; roster-gated large-group serving. artifact "stub" until the
+# real binary graduates from the RUN-14 line.
+
+name         = "stellin-appview"
+fqdn         = "stellin-staging.croft.ing"
+port         = 8101
+api_port     = 8102
+artifact     = "stub"                       # later: github:CroftCommunity/stellin/releases
+
+serve_api    = true
+api_mode     = "shared-wal"                 # WAL: read-only sidecar, replica is free
+gated_groups = true
+
+[data_profile]
+canonical      = ["state.db"]               # cursors, telemetry, grants, rosters, keys
+disposable     = ["index.db"]               # rebuilt from firehose; NEVER backed up
+blobs          = ["blobs/"]                 # entitled sealed blobs
+blobs_immutable = ["blobs/"]                # content-addressed → rclone --immutable

@@ -1,0 +1,33 @@
+[Unit]
+Description=croft-groups-api — own-data API sidecar (snapshot)
+Documentation=https://github.com/CroftCommunity/appview-infra
+After=network-online.target croft-groups.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=croft-groups-api
+Group=croft-groups-api
+SupplementaryGroups=croft-groups
+WorkingDirectory=/var/lib/croft-groups
+ExecStart=/usr/bin/env python3 /opt/croft-groups/current/stub.py --data-dir /var/lib/croft-groups --listen 127.0.0.1:8112 --api --api-mode snapshot --canonical state.db
+Restart=always
+RestartSec=2
+# containment (§1.3): OS-incapable of writing the data dir, and rate-limited so
+# an export cannot starve the writer's cursor.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ReadOnlyPaths=/var/lib/croft-groups
+CPUQuota=40%
+IOSchedulingClass=idle
+IOSchedulingPriority=7
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+AmbientCapabilities=
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target

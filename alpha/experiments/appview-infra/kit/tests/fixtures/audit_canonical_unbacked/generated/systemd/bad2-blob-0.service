@@ -1,0 +1,2 @@
+[Service]
+ExecStart=/usr/bin/rclone sync /var/lib/bad2/blobs/ r2:b/blobs

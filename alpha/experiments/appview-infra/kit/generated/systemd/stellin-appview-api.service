@@ -1,0 +1,33 @@
+[Unit]
+Description=stellin-appview-api — own-data API sidecar (shared-wal)
+Documentation=https://github.com/CroftCommunity/appview-infra
+After=network-online.target stellin-appview.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=stellin-appview-api
+Group=stellin-appview-api
+SupplementaryGroups=stellin-appview
+WorkingDirectory=/var/lib/stellin-appview
+ExecStart=/usr/bin/env python3 /opt/stellin-appview/current/stub.py --data-dir /var/lib/stellin-appview --listen 127.0.0.1:8102 --api --api-mode shared-wal --canonical state.db
+Restart=always
+RestartSec=2
+# containment (§1.3): OS-incapable of writing the data dir, and rate-limited so
+# an export cannot starve the writer's cursor.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ReadOnlyPaths=/var/lib/stellin-appview
+CPUQuota=40%
+IOSchedulingClass=idle
+IOSchedulingPriority=7
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+AmbientCapabilities=
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target

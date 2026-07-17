@@ -1,0 +1,7 @@
+name = "svc-c"
+fqdn = "c.example.test"
+port = 9002
+serve_api = false
+[data_profile]
+canonical = ["state.db"]
+disposable = ["index.db"]

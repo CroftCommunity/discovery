@@ -485,3 +485,36 @@ attended-run territory (backlog). Keeps the gap register honest.
 
 **Untouched (RUN-14 stop rule 5b):** the AppView-provisioned scope key (social-mapping Open items) —
 how the audience scope key is provisioned, granted, and rotated — is a design decision, not earned here.
+
+---
+
+## RUN-15 — the access-gated large-group tier takes the trusted-gatekeeper arm (this tier only)  ·  `caveat`/`needs-call`
+
+`Source: RUN-15 hosting-kit design brief, alpha/experiments/appview-infra/GROUPS.md (D11). This is a
+design-stance reconciliation, not an experiment-earned status move — no code proves a stance. Staged
+for review; the reviewed spec is untouched.`
+
+**Target:** social-mapping Open items — the **AppView-provisioned scope key** (left `Design; open` by
+RUN-14, stop rule 5b): "how the audience scope key is provisioned, granted, and rotated."
+
+**The stance (needs-call).** For groups **past `group_scale_boundary`** (a policy parameter, working
+number 5000, deferred to the owner), the design accepts that cryptographic group confidentiality is a
+mirage at scale (the member-leak equivalence: in a group of thousands, no-outside-leak is unattainable
+because any member can re-publish). Such groups therefore serve **private but not E2EE** — the AppView
+reads content and gates *offering* it by verified roster membership, as a stated **trusted gatekeeper**.
+This deliberately takes the **trusted-gatekeeper arm** of the open scope-key item, **for the large tier
+only**. Below the boundary the content-blind §H stance (RUN-14 EXP-B, `green-real`) is unchanged.
+
+**The write-path fork stays an owner decision** (GROUPS.md §2): Variant A (repo-canonical ciphertext,
+AppView decrypts to serve — scope key + roster are the only server-canonical state) vs Variant B
+(server-canonical content — heaviest backup, weakest portability). D12 builds only the fork-agnostic
+roster-gated serving behind a `GroupStore` trait; neither variant is chosen here.
+
+**Proposed caveat, if accepted:** annotate the scope-key open item to record that the large-group tier
+(≥ `group_scale_boundary`) serves under an explicit trusted-gatekeeper posture — private, roster-gated,
+not cryptographically confidential — and that the scope-key provisioning question is scoped by the A/B
+write-path decision. The small-group content-blind mechanism is untouched.
+
+**Decision:** `needs-call` — this is a values/posture decision (portability & custody vs immediacy &
+simplicity, and the honesty of the trusted-gatekeeper stance for large groups), not a mechanical move.
+The three owner questions are in GROUPS.md §5 (variant, boundary number, croft-groups launch order).

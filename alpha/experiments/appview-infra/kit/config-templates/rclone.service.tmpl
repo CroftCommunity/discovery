@@ -1,0 +1,17 @@
+[Unit]
+Description=${name} blob mirror ${blobdir} -> R2 (${cas_desc})
+Documentation=https://github.com/CroftCommunity/appview-infra
+${flagged_comment}
+[Service]
+Type=oneshot
+User=${user}
+Group=${user}
+WorkingDirectory=${data_dir}
+# rclone credentials come from the environment (RCLONE_CONFIG_R2_* / AWS_*),
+# never from a file in the repo (guardrail 4).
+ExecStart=/usr/bin/rclone sync ${data_dir}/${blobdir} r2:${blob_remote_path} ${immutable_flag}
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadOnlyPaths=${data_dir}

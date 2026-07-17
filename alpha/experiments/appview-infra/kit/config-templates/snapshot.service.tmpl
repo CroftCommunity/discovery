@@ -1,0 +1,17 @@
+[Unit]
+Description=${name} api snapshot — VACUUM INTO serve/ (snapshot api_mode)
+Documentation=https://github.com/CroftCommunity/appview-infra
+
+[Service]
+Type=oneshot
+User=${user}
+Group=${user}
+WorkingDirectory=${data_dir}
+# Atomically refresh the read-only serve snapshot the api sidecar serves.
+# serve/ is DERIVED state, classed disposable (§1.3) — never backed up.
+ExecStart=/usr/bin/env bash -c 'set -euo pipefail; mkdir -p ${data_dir}/serve; rm -f ${data_dir}/serve/state.db.tmp; sqlite3 ${data_dir}/${canonical0} "VACUUM INTO \'${data_dir}/serve/state.db.tmp\'"; mv -f ${data_dir}/serve/state.db.tmp ${data_dir}/serve/state.db'
+ReadWritePaths=${data_dir}/serve
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes

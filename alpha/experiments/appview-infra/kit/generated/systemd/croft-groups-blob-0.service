@@ -1,0 +1,19 @@
+[Unit]
+Description=croft-groups blob mirror blobs/ -> R2 (mutable)
+Documentation=https://github.com/CroftCommunity/appview-infra
+# FLAGGED: mutable blob dir (not content-addressed); rclone runs in
+# plain sync mode. Overwrites/deletes propagate to R2.
+
+[Service]
+Type=oneshot
+User=croft-groups
+Group=croft-groups
+WorkingDirectory=/var/lib/croft-groups
+# rclone credentials come from the environment (RCLONE_CONFIG_R2_* / AWS_*),
+# never from a file in the repo (guardrail 4).
+ExecStart=/usr/bin/rclone sync /var/lib/croft-groups/blobs/ r2:croft-appview-staging/croft-groups/blobs 
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadOnlyPaths=/var/lib/croft-groups

@@ -1,0 +1,10 @@
+[Unit]
+Description=${name} api snapshot timer (VACUUM INTO serve/)
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=${snapshot_interval}
+Persistent=true
+
+[Install]
+WantedBy=timers.target
