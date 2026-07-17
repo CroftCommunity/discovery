@@ -21,7 +21,12 @@ PY
 # /healthz to answer 200 (up to ~5s).
 start_stub() {
   local datadir="$1" port="$2"; shift 2
-  python3 "$KIT_ROOT/stub/stub.py" --data-dir "$datadir" --listen "127.0.0.1:$port" "$@" \
+  # SPEC-DELTA[run15-local-root | stand-in]: the deployed service runs as a
+  # dedicated non-root user (systemd User=); the contract stub refuses root.
+  # This CI/rehearsal container is root-only, so we set the documented override.
+  # On the box, User= (not this flag) provides the non-root guarantee.
+  STUB_ALLOW_ROOT=1 python3 "$KIT_ROOT/stub/stub.py" \
+    --data-dir "$datadir" --listen "127.0.0.1:$port" "$@" \
     >"$datadir/.stub.log" 2>&1 &
   STUB_PID=$!
   export STUB_PID STUB_PORT="$port"
