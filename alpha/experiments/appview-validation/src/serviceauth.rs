@@ -122,7 +122,7 @@ pub fn decode_multikey(multibase: &str) -> Option<(Curve, Vec<u8>)> {
 ///
 /// Check order gives each failure a distinct variant (each fixture breaks exactly
 /// one thing): parse → resolve issuer → signature → exp → aud → lxm.
-pub fn verify_service_jwt<R: KeyResolver>(
+pub fn verify_service_jwt<R: KeyResolver + ?Sized>(
     token: &str,
     expected_aud: &str,
     required_lxm: Option<&str>,
