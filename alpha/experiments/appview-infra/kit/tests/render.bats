@@ -100,6 +100,24 @@ EOF
   [ "$status" -ne 0 ]   # disposable never appears in a backup config
 }
 
+@test "D6: litestream replica path is per-service prefixed (<service>/<db>)" {
+  render "$FIX/render_good" "$OUT"
+  grep -q 'path: svc-a/state' "$OUT/litestream.yml"
+  grep -q 'path: svc-b/state' "$OUT/litestream.yml"
+}
+
+@test "D6: rclone mirror path is per-service prefixed (<service>/<blobdir>)" {
+  render "$FIX/render_good" "$OUT"
+  grep -q 'svc-a/blobs' "$OUT/systemd/svc-a-blob-0.service"
+  grep -q 'svc-b/media' "$OUT/systemd/svc-b-blob-0.service"
+}
+
+@test "D6: backup-map replicas are per-service prefixed" {
+  render "$FIX/render_good" "$OUT"
+  grep -q '"replica": "[^"]*svc-a/state"' "$OUT/backup-map.json"
+  grep -q '"replica": "[^"]*svc-a/blobs"' "$OUT/backup-map.json"
+}
+
 @test "immutable blob dir gets --immutable; mutable blob dir is flagged" {
   render "$FIX/render_good" "$OUT"
   # svc-a blobs/ is content-addressed => --immutable
