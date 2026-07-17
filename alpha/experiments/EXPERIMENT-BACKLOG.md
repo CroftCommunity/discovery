@@ -394,7 +394,22 @@ claims that depend on it. Remaining rows are the named non-goals and the untouch
 | **Sealed offer-gating — §H hybrid serve half (EXP-B)** | ✅ **Done (RUN-14)** | `appview-validation` phase 9 `sealed`: content-blind store, verified-member offer-gating, compilation-boundary blindness, offering-vs-reading. |
 | **The helper seam — content helper indexes by grant (EXP-C)** | ✅ **Done (RUN-14)** | New crate `helper-seam` on real openmls (`group-seal`): admit-by-grant → index → serve; forward-blind on revocation; no authority. |
 | **Interactive OAuth/DPoP — the PWA client-login leg** | **Parked (attended-run territory)** | atproto interactive OAuth + DPoP needs a browser hop the unattended env lacks (RUN-14 named non-goal). Distinct from service auth (server-to-server, proven EXP-A). Needs an attended session with a browser; also the live service-auth token leg (EXP-A P-A1/A2) needs `ATP_TEST_HANDLE`/`PASSWORD`. |
-| **The AppView-provisioned scope key** | **Parked (design decision — untouched by RUN-14 per stop rule 5b)** | social-mapping Open items: what the audience scope key protecting an AppView-served audience *is*, and how it is granted and rotated among authorized readers. Determines whether the AppView path matches MLS-group confidentiality or approximates it. Not improvised in a run; needs the owner's design call. |
+| **The AppView-provisioned scope key** | **Parked (design decision — untouched by RUN-14 per stop rule 5b; RUN-15 D11 stages the trusted-gatekeeper arm for the large tier only, `needs-call`)** | social-mapping Open items: what the audience scope key protecting an AppView-served audience *is*, and how it is granted and rotated among authorized readers. Determines whether the AppView path matches MLS-group confidentiality or approximates it. Not improvised in a run; needs the owner's design call. |
+
+---
+
+## 6c. AppView hosting kit (RUN-15)
+
+Phase 1 built and validated entirely in `appview-infra/` (`RUN-15-SUMMARY.md`). Phases 1.5 and 2 are staged and owner-gated.
+
+| Item | Status | What it is / blocked on |
+|---|---|---|
+| **The hosting kit (D1–D16)** | ✅ **Done (RUN-15)** | Manifests+generator (systemd/Caddy/litestream/rclone), backup-audit invariant, own-data API sidecar (self-scoping/export/timeout/OS containment), roster-gated large-group tier behind a `GroupStore` trait, terraform+bootstrap+deploy, and a local destroy→restore fire drill (local-rehearsal grade). `make check` green; extracted tree passes standalone. |
+| **Phase 1.5 — backup plane against real R2** | **Ready — code path PROVEN locally; only endpoint+creds remain (owner supplies an R2 bucket + scoped token; FREE)** | The `s3://` code path (litestream `type: s3` + rclone s3 remote) is proven end-to-end by `make local-drill-s3` against a local **MinIO** standing in for R2 — full destroy→restore→assert green (`SPEC-DELTA[run15-s3-local]`). **Next action:** create the R2 token (R2 → Manage R2 API Tokens → Object Read & Write on `croft-appview-staging`), export endpoint + keys, point the same configs at real R2, restore to temp paths, re-run the drill with real-R2 replicas, and record exact op counts vs the free tier. No OVH account, no purchase. |
+| **R2 free-tier fit (write-rate lever)** | **Finding (RUN-15 P15-3-local) — owner call at go-live** | The drill's op report + rate model: litestream at `sync-interval=1s` emits ~1 PUT/s per continuously-writing canonical db ≈ **2.6M PUT/mo**, OVER R2's 1M/mo free Class-A tier. Free-tier fit is governed by **write frequency, not tenant count**; the lever is the sync-interval (raise it for high-write tenants) or a paid tier. Confirm exact counts against real R2 in Phase 1.5. |
+| **Phase 2 — provision + go-live** | **Owner-gated purchase, from the extracted repo** | Extract (P2-0) → `catalog-vps.sh` pick (P2-1) → `terraform plan`/`apply` (P2-2, also unblocks `terraform validate`) → `bootstrap --apply` twice (P2-3) → Porkbun records + ACME (P2-4) → backup plane on box (P2-5) → fire drill, owner variant (P2-6) → summary (P2-7). |
+| **Group write-path fork + scale boundary + launch order** | **Owner decision (RUN-15 D11 asks; GROUPS.md §5)** | Variant A (repo-canonical) vs B (server-canonical); confirm `group_scale_boundary` (working 5000); croft-groups before/with stellin. D12 built the fork-agnostic serving; the kit does not decide. |
+| **`terraform validate` (BLOCKED)** | **BLOCKED (egress) — reported, not skipped** | ovh provider download → github 403 via the egress proxy. Unblocks in Phase 2 where the registry is reachable. `SPEC-DELTA[run15-tf-validate]`. |
 
 ---
 

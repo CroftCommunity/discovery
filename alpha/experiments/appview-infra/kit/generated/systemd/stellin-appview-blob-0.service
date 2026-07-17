@@ -1,0 +1,17 @@
+[Unit]
+Description=stellin-appview blob mirror blobs/ -> R2 (content-addressed)
+Documentation=https://github.com/CroftCommunity/appview-infra
+
+[Service]
+Type=oneshot
+User=stellin-appview
+Group=stellin-appview
+WorkingDirectory=/var/lib/stellin-appview
+# rclone credentials come from the environment (RCLONE_CONFIG_R2_* / AWS_*),
+# never from a file in the repo (guardrail 4).
+ExecStart=/usr/bin/rclone sync /var/lib/stellin-appview/blobs/ r2:croft-appview-staging/stellin-appview/blobs --immutable
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadOnlyPaths=/var/lib/stellin-appview

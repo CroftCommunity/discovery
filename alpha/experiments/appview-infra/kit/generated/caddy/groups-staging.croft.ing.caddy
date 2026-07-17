@@ -1,0 +1,7 @@
+# GENERATED — groups-staging.croft.ing -> 127.0.0.1:8111
+# ACME is HTTP-01 (Caddy default); Porkbun holds only A/AAAA for groups-staging.croft.ing.
+groups-staging.croft.ing {
+	reverse_proxy 127.0.0.1:8111
+	encode gzip
+	header -Server
+}

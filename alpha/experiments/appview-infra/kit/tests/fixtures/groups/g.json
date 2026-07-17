@@ -1,0 +1,11 @@
+{
+  "groups": {
+    "g1": {
+      "roster": ["did:example:alice", "did:example:bob"],
+      "content": [
+        {"seq": 1, "body": "hello-group"},
+        {"seq": 2, "body": "second-post"}
+      ]
+    }
+  }
+}

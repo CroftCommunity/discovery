@@ -1,0 +1,7 @@
+# GENERATED — api.stellin-staging.croft.ing -> 127.0.0.1:8102
+# ACME is HTTP-01 (Caddy default); Porkbun holds only A/AAAA for api.stellin-staging.croft.ing.
+api.stellin-staging.croft.ing {
+	reverse_proxy 127.0.0.1:8102
+	encode gzip
+	header -Server
+}

@@ -1,0 +1,77 @@
+name: deploy-service
+
+# Reusable deploy. A per-service caller passes its manifest name + artifact ref;
+# this stages the artifact to the box over a forced-command rsync (deploy user)
+# and activates only that one unit. Secrets are provided by the caller.
+on:
+  workflow_call:
+    inputs:
+      service:
+        description: "Manifest service name (e.g. stellin-appview)"
+        required: true
+        type: string
+      artifact:
+        description: "stub | github:CroftCommunity/<repo>/releases[/<tag>]"
+        required: true
+        type: string
+    secrets:
+      deploy_ssh_key:
+        description: "Private key for the deploy@host forced-command account"
+        required: true
+      deploy_host:
+        description: "VPS host (IP or fqdn)"
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare artifact
+        env:
+          ARTIFACT: ${{ inputs.artifact }}
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          case "$ARTIFACT" in
+            stub)
+              cp stub/stub.py out/ ;;
+            github:*)
+              # Phase 2 wires a real release download (gh release download) with
+              # a scoped token; the stub line does not need it.
+              echo "release artifact '$ARTIFACT' — release download wired in Phase 2" >&2
+              exit 1 ;;
+            *)
+              echo "unknown artifact: $ARTIFACT" >&2
+              exit 1 ;;
+          esac
+
+      - name: Configure SSH
+        env:
+          DEPLOY_KEY: ${{ secrets.deploy_ssh_key }}
+          DEPLOY_HOST: ${{ secrets.deploy_host }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Stage via forced-command rsync
+        env:
+          DEPLOY_HOST: ${{ secrets.deploy_host }}
+          SERVICE: ${{ inputs.service }}
+        run: |
+          set -euo pipefail
+          rsync -az --delete -e "ssh -i ~/.ssh/id_ed25519" \
+            out/ "deploy@${DEPLOY_HOST}:/opt/${SERVICE}/incoming/"
+
+      - name: Activate (atomic swap + restart that unit only)
+        env:
+          DEPLOY_HOST: ${{ secrets.deploy_host }}
+          SERVICE: ${{ inputs.service }}
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/id_ed25519 "deploy@${DEPLOY_HOST}" "activate ${SERVICE}"
