@@ -414,6 +414,91 @@ mod tests {
         assert_eq!(code, 401);
     }
 
+    fn views_tok(id: &TestIdent) -> String {
+        id.mint(AUD, NOW + 60, Some(GET_PROFILE_VIEWS))
+    }
+
+    // Step 3: verified reads record telemetry; the subject sees the count;
+    // anonymous reads record nothing.
+    #[tokio::test]
+    async fn verified_reads_are_counted_subject_sees_them() {
+        let (w, st) = world();
+        let base = serve(st).await;
+        let path = "/xrpc/app.stellin.getProfileView?actor=did:plc:subject";
+
+        // Two verified reads (a recruiter and a plain viewer) …
+        let (c1, _) = get(&base, path, Some(&tok(&w.recruiter_other))).await;
+        let (c2, _) = get(&base, path, Some(&tok(&w.plain))).await;
+        assert_eq!((c1, c2), (200, 200));
+        // … and one anonymous read, which must NOT be counted.
+        let (c3, _) = get(&base, path, None).await;
+        assert_eq!(c3, 200);
+
+        // The subject, as themselves, reads their own view count.
+        let (code, body) = get(
+            &base,
+            "/xrpc/app.stellin.getProfileViews",
+            Some(&views_tok(&w.subject)),
+        )
+        .await;
+        assert_eq!(code, 200);
+        assert_eq!(body["viewCount"], 2, "two verified reads, anonymous uncounted: {body}");
+    }
+
+    // A subject with only anonymous readers sees a zero count.
+    #[tokio::test]
+    async fn anonymous_reads_record_no_telemetry() {
+        let (w, st) = world();
+        let base = serve(st).await;
+        let path = "/xrpc/app.stellin.getProfileView?actor=did:plc:subject";
+        for _ in 0..3 {
+            let (c, _) = get(&base, path, None).await;
+            assert_eq!(c, 200);
+        }
+        let (code, body) = get(
+            &base,
+            "/xrpc/app.stellin.getProfileViews",
+            Some(&views_tok(&w.subject)),
+        )
+        .await;
+        assert_eq!(code, 200);
+        assert_eq!(body["viewCount"], 0);
+    }
+
+    // getProfileViews requires the caller to be authenticated as themselves.
+    #[tokio::test]
+    async fn getprofileviews_requires_auth() {
+        let (_w, st) = world();
+        let base = serve(st).await;
+        let (code, _) = get(&base, "/xrpc/app.stellin.getProfileViews", None).await;
+        assert_eq!(code, 401);
+    }
+
+    // Telemetry is part of the disposable index: a rebuild starts empty, it is
+    // NOT recovered (canonical-state discipline — telemetry is observed state).
+    #[test]
+    fn telemetry_is_disposable_not_recovered() {
+        let path = "/tmp/claude-0/-home-user/3c9396b3-f5ba-510f-9b94-11ec61395da8/scratchpad/telemetry-disposable.sqlite";
+        {
+            let conn = open_profile_db(path).unwrap();
+            conn.execute(
+                "INSERT INTO profile_views (viewer_did, subject_did, ts) VALUES ('v','s',1)",
+                [],
+            )
+            .unwrap();
+            let n: i64 = conn
+                .query_row("SELECT COUNT(*) FROM profile_views", [], |r| r.get(0))
+                .unwrap();
+            assert_eq!(n, 1);
+        }
+        // Reopening the disposable projection wipes and rebuilds it empty.
+        let conn = open_profile_db(path).unwrap();
+        let n: i64 = conn
+            .query_row("SELECT COUNT(*) FROM profile_views", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(n, 0, "telemetry must be rebuilt empty, never recovered");
+    }
+
     // FALSIFY guard: the gated field must not leak through the generic getRecord
     // route for ANY viewer (it is a computed projection, not a stored field).
     #[tokio::test]
