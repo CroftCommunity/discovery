@@ -103,6 +103,44 @@ struct JwtPayload {
     lxm: Option<String>,
 }
 
+/// A [`KeyResolver`] backed by an in-memory map — the live bin pre-resolves DID
+/// documents (async PLC fetch) and drops the `(did -> publicKeyMultibase)`
+/// entries in here so verification stays synchronous.
+#[derive(Default)]
+pub struct MapResolver {
+    keys: std::collections::HashMap<String, String>,
+}
+impl MapResolver {
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn insert(&mut self, did: &str, multibase: &str) {
+        self.keys.insert(did.to_string(), multibase.to_string());
+    }
+}
+impl KeyResolver for MapResolver {
+    fn atproto_key(&self, did: &str) -> Option<String> {
+        self.keys.get(did).cloned()
+    }
+}
+
+/// Pull the `#atproto` verification method's `publicKeyMultibase` out of a
+/// resolved atproto DID document. The method `id` ends in `#atproto`.
+pub fn atproto_key_from_did_doc(doc: &serde_json::Value) -> Option<String> {
+    doc.get("verificationMethod")?
+        .as_array()?
+        .iter()
+        .find(|vm| {
+            vm.get("id")
+                .and_then(serde_json::Value::as_str)
+                .map(|id| id.ends_with("#atproto"))
+                .unwrap_or(false)
+        })
+        .and_then(|vm| vm.get("publicKeyMultibase"))
+        .and_then(serde_json::Value::as_str)
+        .map(str::to_string)
+}
+
 /// Decode a `publicKeyMultibase` (`z…` base58btc multicodec) into its curve and
 /// the raw compressed SEC1 point bytes.
 pub fn decode_multikey(multibase: &str) -> Option<(Curve, Vec<u8>)> {
@@ -453,6 +491,33 @@ mod tests {
             verify_service_jwt(&tok, AUD, Some(LXM), NOW, &r),
             Err(VerifyError::WrongLxm)
         );
+    }
+
+    // The live-resolution helper: pull #atproto's multibase key out of a real-
+    // shaped DID document, and round-trip it through decode_multikey.
+    #[test]
+    fn extracts_and_decodes_atproto_key_from_did_doc() {
+        let alice = secp256k1_ident("did:plc:alice", [7u8; 32]);
+        let doc = serde_json::json!({
+            "id": "did:plc:alice",
+            "verificationMethod": [{
+                "id": "did:plc:alice#atproto",
+                "type": "Multikey",
+                "controller": "did:plc:alice",
+                "publicKeyMultibase": alice.multibase,
+            }],
+        });
+        let mb = atproto_key_from_did_doc(&doc).expect("finds #atproto method");
+        assert_eq!(mb, alice.multibase);
+        let (curve, _bytes) = decode_multikey(&mb).expect("decodes multikey");
+        assert_eq!(curve, Curve::Secp256k1);
+
+        // And a token from that account verifies through a MapResolver built from
+        // the DID doc — the exact live path (async fetch → MapResolver → verify).
+        let mut r = MapResolver::new();
+        r.insert("did:plc:alice", &mb);
+        let tok = alice.mint(AUD, NOW + 60, Some(LXM));
+        assert!(verify_service_jwt(&tok, AUD, Some(LXM), NOW, &r).is_ok());
     }
 
     // Garbage input is Malformed, never a panic.
