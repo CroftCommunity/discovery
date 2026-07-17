@@ -53,6 +53,8 @@ contradicted reasonable assumptions — which is the point.
 | 5 | trending feed (`feed`) | live | M | real trending from the like firehose, hydrated DID→handle + post text |
 | 6 | labeler (`labeler`) | live | M | labeler stream is **binary DAG-CBOR**, signed labels, `seq` cursor — *not* JSON like Jetstream |
 | 7 | scale (`firehose`) | live | M | full firehose ~357 ev/s; single node has **~64× headroom** → distribution premature |
+| 8 | viewer-aware serving (`authserve`) | live (P-A3) + creds (P-A1/2) | M | **the AppView learns who its caller is** — atproto service-auth JWTs verified against real DID-doc keys (secp256k1/p256); `getProfileView` gates `openToWork` by verified recruiter identity; verified reads emit telemetry. Live P-A3 confirmed; P-A1/A2 blocked on creds. (RUN-14 EXP-A) |
+| 9 | sealed offer-gating (`sealed`) | none | M | **§H hybrid serve half**: content-blind store offers ciphertext only to verified roster members (flat 403 otherwise, no length/existence leak); blindness is a **compilation boundary** (the AEAD crate is absent from the server's dep graph); roster gates offering, encryption alone gates reading. (RUN-14 EXP-B) |
 
 **The through-line learning:** designing against atproto docs/tutorials diverges from
 reality in small, expensive ways (field placement, event kinds, CBOR vs JSON, cursor
@@ -61,15 +63,21 @@ gating) are **premature** — the network is more tractable and more permissive 
 What's genuinely hard is the operational discipline (never lose your cursor; backfill+tail
 handoff; CBOR + signatures for moderation), not raw throughput.
 
-**What's NOT proven** (so this can be compared honestly): OAuth/DPoP, label signature
+**What's NOT proven** (so this can be compared honestly): interactive OAuth/DPoP (the PWA
+client-login leg — a browser hop this env lacks; named non-goal, RUN-14), label signature
 *verification*, the raw repo firehose (CAR/MST), a genuinely distributed ingester, and
-production-grade ranking/pagination/durability. See *What this validates* at the bottom.
+production-grade ranking/pagination/durability. **Now proven (RUN-14):** the AppView learns
+its caller via service-auth JWTs (phase 8), and offers sealed records without holding the
+key (phase 9). See *What this validates* at the bottom.
 
 ---
 
 ## Run it
 
-Seven independently runnable binaries (see the phase sections for what each proves):
+Nine independently runnable binaries (phases 8–9 added RUN-14: `authserve`, `sealed`;
+run `cargo run --bin authserve` and `cargo run --bin sealed`, and the unit suites
+`cargo test --lib serviceauth viewserve` and `cargo test --lib --features client-seal sealed`).
+See the phase sections for what each proves:
 
 ```bash
 cd experiments/appview-validation

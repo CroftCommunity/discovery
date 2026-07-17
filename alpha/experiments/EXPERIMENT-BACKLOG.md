@@ -382,6 +382,22 @@ leak the bound only characterized). All **Sketched**.
 
 ---
 
+## 6b. Stellin AppView — caller-identity (RUN-14)
+
+The private-AppView pipeline is proven (`appview-validation`: ingest/index/serve/backfill/scale). RUN-14
+earned the one missing capability — **the AppView learning who its caller is** — and the two design
+claims that depend on it. Remaining rows are the named non-goals and the untouched design decision.
+
+| Item | Status | What it is / blocked on |
+|---|---|---|
+| **Viewer-aware serving via atproto service auth (EXP-A)** | ✅ **Done (RUN-14)** | `appview-validation` phase 8 `authserve` + `serviceauth`/`viewserve`: real service-auth JWT verify against DID-doc keys (secp256k1/p256), viewer-gated `getProfileView`, verified-read telemetry. Live P-A3 confirmed; P-A1/A2 blocked on creds. Declared stand-ins `run14-A2` (recruiter roster), `run14-A4` (service-DID `aud`, dormant). |
+| **Sealed offer-gating — §H hybrid serve half (EXP-B)** | ✅ **Done (RUN-14)** | `appview-validation` phase 9 `sealed`: content-blind store, verified-member offer-gating, compilation-boundary blindness, offering-vs-reading. |
+| **The helper seam — content helper indexes by grant (EXP-C)** | ✅ **Done (RUN-14)** | New crate `helper-seam` on real openmls (`group-seal`): admit-by-grant → index → serve; forward-blind on revocation; no authority. |
+| **Interactive OAuth/DPoP — the PWA client-login leg** | **Parked (attended-run territory)** | atproto interactive OAuth + DPoP needs a browser hop the unattended env lacks (RUN-14 named non-goal). Distinct from service auth (server-to-server, proven EXP-A). Needs an attended session with a browser; also the live service-auth token leg (EXP-A P-A1/A2) needs `ATP_TEST_HANDLE`/`PASSWORD`. |
+| **The AppView-provisioned scope key** | **Parked (design decision — untouched by RUN-14 per stop rule 5b)** | social-mapping Open items: what the audience scope key protecting an AppView-served audience *is*, and how it is granted and rotated among authorized readers. Determines whether the AppView path matches MLS-group confidentiality or approximates it. Not improvised in a run; needs the owner's design call. |
+
+---
+
 ## 7. The classroom tier (docs track — not an experiment)
 
 | Item | Status | What it is / blocked on |
