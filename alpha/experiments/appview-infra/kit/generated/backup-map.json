@@ -4,7 +4,7 @@
       {
         "path": "state.db",
         "backup": "litestream",
-        "replica": "croft-appview-staging/state.db"
+        "replica": "croft-appview-staging/croft-groups/state"
       }
     ],
     "disposable": [
@@ -22,7 +22,7 @@
         "dir": "blobs/",
         "immutable": false,
         "backup": "rclone",
-        "replica": "croft-appview-staging/blobs"
+        "replica": "croft-appview-staging/croft-groups/blobs"
       }
     ]
   },
@@ -31,7 +31,7 @@
       {
         "path": "state.db",
         "backup": "litestream",
-        "replica": "croft-appview-staging/state.db"
+        "replica": "croft-appview-staging/stellin-appview/state"
       }
     ],
     "disposable": [
@@ -45,7 +45,7 @@
         "dir": "blobs/",
         "immutable": true,
         "backup": "rclone",
-        "replica": "croft-appview-staging/blobs"
+        "replica": "croft-appview-staging/stellin-appview/blobs"
       }
     ]
   }

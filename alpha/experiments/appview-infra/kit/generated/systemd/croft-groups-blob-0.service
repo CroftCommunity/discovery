@@ -11,7 +11,7 @@ Group=croft-groups
 WorkingDirectory=/var/lib/croft-groups
 # rclone credentials come from the environment (RCLONE_CONFIG_R2_* / AWS_*),
 # never from a file in the repo (guardrail 4).
-ExecStart=/usr/bin/rclone sync /var/lib/croft-groups/blobs/ r2:croft-appview-staging/blobs 
+ExecStart=/usr/bin/rclone sync /var/lib/croft-groups/blobs/ r2:croft-appview-staging/croft-groups/blobs 
 NoNewPrivileges=yes
 ProtectSystem=strict
 ProtectHome=yes

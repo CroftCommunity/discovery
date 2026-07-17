@@ -108,8 +108,9 @@ EOF
 
 @test "D6: rclone mirror path is per-service prefixed (<service>/<blobdir>)" {
   render "$FIX/render_good" "$OUT"
-  grep -q 'svc-a/blobs' "$OUT/systemd/svc-a-blob-0.service"
-  grep -q 'svc-b/media' "$OUT/systemd/svc-b-blob-0.service"
+  # assert the R2 REMOTE path (r2:...), not the local source dir
+  grep -qE 'r2:[^ ]*svc-a/blobs' "$OUT/systemd/svc-a-blob-0.service"
+  grep -qE 'r2:[^ ]*svc-b/media' "$OUT/systemd/svc-b-blob-0.service"
 }
 
 @test "D6: backup-map replicas are per-service prefixed" {
