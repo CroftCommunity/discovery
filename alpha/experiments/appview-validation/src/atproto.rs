@@ -44,6 +44,36 @@ pub async fn create_session(
     })
 }
 
+/// `com.atproto.server.getServiceAuth` — mint a short-lived inter-service auth
+/// JWT for a target service `aud`, optionally scoped to a lexicon method `lxm`.
+/// Returns the compact JWT string (prediction P-A1: `{ "token": <jwt> }`).
+pub async fn get_service_auth(
+    http: &reqwest::Client,
+    pds: &str,
+    jwt: &str,
+    aud: &str,
+    lxm: Option<&str>,
+) -> Result<String> {
+    let mut q: Vec<(&str, &str)> = vec![("aud", aud)];
+    if let Some(l) = lxm {
+        q.push(("lxm", l));
+    }
+    let v: Value = http
+        .get(format!("{pds}/xrpc/com.atproto.server.getServiceAuth"))
+        .bearer_auth(jwt)
+        .query(&q)
+        .send()
+        .await?
+        .error_for_status()
+        .context("getServiceAuth failed")?
+        .json()
+        .await?;
+    v["token"]
+        .as_str()
+        .map(str::to_string)
+        .ok_or_else(|| anyhow!("getServiceAuth: no token field in {v}"))
+}
+
 /// `com.atproto.repo.createRecord` → returns the new record's at:// URI.
 pub async fn create_record(
     http: &reqwest::Client,
