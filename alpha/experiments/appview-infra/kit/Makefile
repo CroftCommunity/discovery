@@ -11,7 +11,7 @@ SHELL := /bin/bash
 BATS  ?= bats
 
 # Every check sub-target is aggregated here. Each deliverable adds its own.
-CHECKS := no-secrets stub render terraform backup-audit bootstrap deploy docs own-data group-serving local-drill
+CHECKS := no-secrets stub render terraform backup-audit bootstrap deploy docs own-data group-serving local-drill runbook
 
 .PHONY: check $(addprefix check-,$(CHECKS)) generate clean help
 
@@ -74,6 +74,10 @@ local-down:
 
 local-drill:
 	@drill/fire-drill.sh --variant local
+
+# --- D14: runbook -----------------------------------------------------------
+check-runbook:
+	@$(BATS) tests/runbook.bats
 
 # --- generation -------------------------------------------------------------
 generate:
