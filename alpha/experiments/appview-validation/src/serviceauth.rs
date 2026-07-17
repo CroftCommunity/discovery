@@ -149,10 +149,10 @@ pub fn decode_multikey(multibase: &str) -> Option<(Curve, Vec<u8>)> {
     // multicodec varint prefixes: secp256k1-pub = 0xe7 0x01, p256-pub = 0x80 0x24.
     if let Some(rest) = bytes.strip_prefix(&[0xe7, 0x01]) {
         Some((Curve::Secp256k1, rest.to_vec()))
-    } else if let Some(rest) = bytes.strip_prefix(&[0x80, 0x24]) {
-        Some((Curve::P256, rest.to_vec()))
     } else {
-        None
+        bytes
+            .strip_prefix(&[0x80, 0x24])
+            .map(|rest| (Curve::P256, rest.to_vec()))
     }
 }
 
@@ -217,10 +217,10 @@ pub fn verify_service_jwt<R: KeyResolver + ?Sized>(
     if payload.aud != expected_aud {
         return Err(VerifyError::WrongAudience);
     }
-    if let Some(want) = required_lxm {
-        if payload.lxm.as_deref() != Some(want) {
-            return Err(VerifyError::WrongLxm);
-        }
+    if let Some(want) = required_lxm
+        && payload.lxm.as_deref() != Some(want)
+    {
+        return Err(VerifyError::WrongLxm);
     }
 
     Ok(ServiceAuthClaims {
