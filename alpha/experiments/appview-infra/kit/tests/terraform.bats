@@ -13,12 +13,21 @@ load helpers
 @test "required variables have NO guessed defaults (owner decisions)" {
   # plan_code, ovh_endpoint, datacenter, ssh_public_key are owner calls: they
   # must be declared without a default so terraform refuses to run unset.
+  # Extract each variable's block (from its header to the closing brace at
+  # column 0) and assert it has no 'default =' assignment.
+  local f="$KIT_ROOT/terraform/variables.tf"
   for v in plan_code ovh_endpoint datacenter ssh_public_key; do
-    run grep -A4 "variable \"$v\"" "$KIT_ROOT/terraform/variables.tf"
+    run awk -v name="$v" '
+      $0 ~ "^variable \"" name "\" \\{" {f=1}
+      f {print}
+      f && /^}/ {exit}
+    ' "$f"
     [ "$status" -eq 0 ]
-    # no 'default' line in the variable block
-    run bash -c "grep -A6 'variable \"$v\"' '$KIT_ROOT/terraform/variables.tf' | grep -q 'default'"
-    [ "$status" -ne 0 ]
+    [ -n "$output" ]
+    # no default assignment inside the block
+    if echo "$output" | grep -qE '^[[:space:]]*default[[:space:]]*='; then
+      fail "owner-decision variable '$v' must not have a default"
+    fi
   done
 }
 
