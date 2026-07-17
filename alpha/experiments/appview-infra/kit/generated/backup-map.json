@@ -1,0 +1,52 @@
+{
+  "croft-groups": {
+    "canonical": [
+      {
+        "path": "state.db",
+        "backup": "litestream",
+        "replica": "croft-appview-staging/state.db"
+      }
+    ],
+    "disposable": [
+      {
+        "path": "index.db",
+        "backup": null
+      },
+      {
+        "path": "serve/state.db",
+        "backup": null
+      }
+    ],
+    "blobs": [
+      {
+        "dir": "blobs/",
+        "immutable": false,
+        "backup": "rclone",
+        "replica": "croft-appview-staging/blobs"
+      }
+    ]
+  },
+  "stellin-appview": {
+    "canonical": [
+      {
+        "path": "state.db",
+        "backup": "litestream",
+        "replica": "croft-appview-staging/state.db"
+      }
+    ],
+    "disposable": [
+      {
+        "path": "index.db",
+        "backup": null
+      }
+    ],
+    "blobs": [
+      {
+        "dir": "blobs/",
+        "immutable": true,
+        "backup": "rclone",
+        "replica": "croft-appview-staging/blobs"
+      }
+    ]
+  }
+}

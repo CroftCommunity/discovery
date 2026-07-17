@@ -1,0 +1,17 @@
+[Unit]
+Description=croft-groups api snapshot — VACUUM INTO serve/ (snapshot api_mode)
+Documentation=https://github.com/CroftCommunity/appview-infra
+
+[Service]
+Type=oneshot
+User=croft-groups
+Group=croft-groups
+WorkingDirectory=/var/lib/croft-groups
+# Atomically refresh the read-only serve snapshot the api sidecar serves.
+# serve/ is DERIVED state, classed disposable (§1.3) — never backed up.
+ExecStart=/usr/bin/env bash -c 'set -euo pipefail; mkdir -p /var/lib/croft-groups/serve; rm -f /var/lib/croft-groups/serve/state.db.tmp; sqlite3 /var/lib/croft-groups/state.db "VACUUM INTO \'/var/lib/croft-groups/serve/state.db.tmp\'"; mv -f /var/lib/croft-groups/serve/state.db.tmp /var/lib/croft-groups/serve/state.db'
+ReadWritePaths=/var/lib/croft-groups/serve
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes

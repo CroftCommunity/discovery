@@ -1,0 +1,10 @@
+[Unit]
+Description=croft-groups api snapshot timer (VACUUM INTO serve/)
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
