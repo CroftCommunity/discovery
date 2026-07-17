@@ -22,6 +22,18 @@ FIXTURE="$KIT/tests/fixtures/groups/g.json"
 LS_CONFIG="$LOCAL/litestream.yml"
 CADDYFILE="$LOCAL/Caddyfile"
 
+# Backup target: "file" (default — file:// litestream + local rclone dir) or
+# "s3" (a local MinIO standing in for R2, exercising the real s3:// code path).
+# SPEC-DELTA[run15-s3-local | stand-in]: local MinIO stands in for Cloudflare R2
+# (same S3 API); the sandbox's proxy-injected AWS creds are overridden and the
+# CA bundle cleared for the plain-HTTP localhost endpoint. Phase 1.5 points the
+# same s3:// configs at real R2 by swapping endpoint + credentials only.
+DRILL_TARGET="${DRILL_TARGET:-file}"
+BUCKET="croft-appview-staging"       # matches the generator's RENDER_BUCKET default
+MINIO_ADDR="127.0.0.1:9000"
+MINIO_DATA="$LOCAL/minio"            # the "R2" store — survives the box destroy
+MINIO_PIDFILE="$LOCAL/minio.pid"     # kept OUT of PIDDIR so stop_stack won't kill it
+
 # DRILL_FAILED is set here (bad()) and read by the calling script (fire-drill /
 # local-up). Initialise so shellcheck sees a use and re-runs are clean.
 : "${DRILL_FAILED:=0}"
@@ -34,6 +46,48 @@ CADDY_OFFSET=10000                   # caddy listens on port+offset (plain http)
 tenants() { python3 "$KIT/scripts/list-services.py" "$KIT/services"; }
 
 auth() { echo "Authorization: Bearer test:$1"; }
+
+# --- s3 target (MinIO stands in for R2) ------------------------------------
+# Ephemeral, generated-at-runtime creds — NO static secret lives in the repo.
+s3_setup_env() {
+  local key="drill" secret
+  secret="$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n')"  # 32 hex chars
+  export MINIO_ROOT_USER="$key" MINIO_ROOT_PASSWORD="$secret"
+  # Override the sandbox's proxy-injected AWS creds and clear the CA bundle so
+  # litestream/rclone reach the plain-HTTP localhost MinIO with the right keys.
+  export AWS_ACCESS_KEY_ID="$key" AWS_SECRET_ACCESS_KEY="$secret"
+  export LITESTREAM_ACCESS_KEY_ID="$key" LITESTREAM_SECRET_ACCESS_KEY="$secret"
+  export AWS_CA_BUNDLE=""
+  export NO_PROXY="127.0.0.1,localhost,::1${NO_PROXY:+,$NO_PROXY}"
+  export no_proxy="$NO_PROXY"
+  # the rclone remote name matches the generated units' r2: remote
+  export RCLONE_CONFIG_R2_TYPE=s3 RCLONE_CONFIG_R2_PROVIDER=Minio
+  export RCLONE_CONFIG_R2_ENDPOINT="http://$MINIO_ADDR"
+  export RCLONE_CONFIG_R2_ACCESS_KEY_ID="$key"
+  export RCLONE_CONFIG_R2_SECRET_ACCESS_KEY="$secret"
+}
+
+start_minio() {
+  command -v minio >/dev/null 2>&1 || { bad "minio not installed (s3 target)"; return 1; }
+  mkdir -p "$MINIO_DATA"
+  minio server "$MINIO_DATA" --address "$MINIO_ADDR" \
+    --console-address 127.0.0.1:9001 >"$LOGDIR/minio.log" 2>&1 &
+  echo $! > "$MINIO_PIDFILE"
+  local _
+  for _ in $(seq 1 80); do
+    curl -fsS "http://$MINIO_ADDR/minio/health/live" >/dev/null 2>&1 && break
+    sleep 0.25
+  done
+  curl -fsS "http://$MINIO_ADDR/minio/health/live" >/dev/null 2>&1 \
+    || { bad "minio did not become healthy"; return 1; }
+  rclone mkdir "r2:$BUCKET" >>"$LOGDIR/rclone.log" 2>&1 || true
+}
+
+stop_minio() {
+  [[ -f "$MINIO_PIDFILE" ]] || return 0
+  kill "$(cat "$MINIO_PIDFILE")" 2>/dev/null || true
+  rm -f "$MINIO_PIDFILE"
+}
 
 log()  { echo "[drill] $*"; }
 ok()   { echo "  PASS: $*"; }
@@ -52,8 +106,13 @@ render_litestream_local() {
     while IFS=$'\t' read -r name _u _au _p _ap _art _am; do
       [[ -z "$name" ]] && continue
       printf '  - path: %s/%s/state.db\n' "$STATE" "$name"
-      printf '    replicas:\n      - type: file\n        path: %s/%s-state\n' \
-        "$REPLICAS" "$name"
+      printf '    replicas:\n'
+      if [[ "$DRILL_TARGET" == s3 ]]; then
+        printf '      - type: s3\n        endpoint: http://%s\n        bucket: %s\n        path: %s/state\n        force-path-style: true\n        region: us-east-1\n' \
+          "$MINIO_ADDR" "$BUCKET" "$name"
+      else
+        printf '      - type: file\n        path: %s/%s-state\n' "$REPLICAS" "$name"
+      fi
     done < <(tenants)
   } > "$LS_CONFIG"
 }
@@ -132,12 +191,18 @@ start_stack() {
 }
 
 stop_stack() {
-  local f
+  # Kill only the stack processes (stubs/api/litestream/caddy) and reap ONLY
+  # those PIDs — never a bare `wait`, which would block on the MinIO "R2" child
+  # that we deliberately keep alive across the destroy/restore (s3 target).
+  local f p pids=()
   for f in "$PIDDIR"/*.pid; do
     [[ -e "$f" ]] || continue
-    kill "$(cat "$f")" 2>/dev/null || true
+    p="$(cat "$f")"
+    kill "$p" 2>/dev/null || true
+    pids+=("$p")
+    rm -f "$f"
   done
-  wait 2>/dev/null || true
+  for p in "${pids[@]}"; do wait "$p" 2>/dev/null || true; done
 }
 
 # --- markers ----------------------------------------------------------------
@@ -150,9 +215,15 @@ plant_markers() {
   echo "BLOB-$name" > "$STATE/$name/blobs/DRILL-BLOB"
 }
 
+blob_remote() {  # where blobs are mirrored, per target
+  local name="$1"
+  if [[ "$DRILL_TARGET" == s3 ]]; then echo "r2:$BUCKET/$name/blobs"
+  else echo "$R2_STANDIN/$name/blobs"; fi
+}
+
 backup_blobs() {
   local name="$1"
-  rclone sync "$STATE/$name/blobs" "$R2_STANDIN/$name/blobs" \
+  rclone sync "$STATE/$name/blobs" "$(blob_remote "$name")" \
     >>"$LOGDIR/rclone.log" 2>&1
 }
 
@@ -168,7 +239,7 @@ restore() {
   litestream restore -config "$LS_CONFIG" -o "$STATE/$name/state.db" \
     "$STATE/$name/state.db" >>"$LOGDIR/restore.log" 2>&1
   mkdir -p "$STATE/$name/blobs"
-  rclone copy "$R2_STANDIN/$name/blobs" "$STATE/$name/blobs" \
+  rclone copy "$(blob_remote "$name")" "$STATE/$name/blobs" \
     >>"$LOGDIR/rclone.log" 2>&1
 }
 

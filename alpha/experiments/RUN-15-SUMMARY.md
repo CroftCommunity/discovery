@@ -81,9 +81,9 @@ under systemd `ReadOnlyPaths` are in tension — **snapshot mode is containment-
 shared-wal-under-ReadOnlyPaths behaviour on-box in Phase 2 before defaulting a high-read tenant to
 shared-wal. (RUNBOOK escalation ladder + own_data.bats record this.)
 
-## SPEC-DELTA register (six declared stand-ins — none weakens a proven mechanism)
+## SPEC-DELTA register (seven declared stand-ins — none weakens a proven mechanism)
 
-All six are rows in `SPEC-DIVERGENCE-REGISTER.md` (Active table), tagged at the site.
+All seven are rows in `SPEC-DIVERGENCE-REGISTER.md` (Active table), tagged at the site.
 
 | ID | Stands in for | Path back |
 |---|---|---|
@@ -93,6 +93,7 @@ All six are rows in `SPEC-DIVERGENCE-REGISTER.md` (Active table), tagged at the 
 | `run15-bootstrap-dryrun` | real bootstrap apply / double-apply on a fresh Debian box | Phase 2 P2-3 runs `--apply` twice on the box |
 | `run15-sandbox-unshare` | systemd `ReadOnlyPaths` (no PID-1 systemd here) | the box's api unit carries `ReadOnlyPaths`; asserted in generated units |
 | `run15-usermode` | systemd-supervised units + R2 endpoints (drill uses user-mode processes + file/local replicas) | Phase 1.5 swaps to real R2; Phase 2 swaps to systemd on the box |
+| `run15-s3-local` | Cloudflare R2 (the s3-local drill uses local MinIO — same S3 API) | Phase 1.5 points the same `s3://` configs at real R2 by swapping endpoint + creds |
 
 ## Owner decisions surfaced (never made)
 
@@ -108,6 +109,28 @@ All six are rows in `SPEC-DIVERGENCE-REGISTER.md` (Active table), tagged at the 
 1. Which write-path variant for the large-group tier — **A** or **B**?
 2. The `group_scale_boundary` number — confirm **5000** or set another?
 3. Does **croft-groups** launch **before** or **with** stellin-appview?
+
+## P15-local — the s3 backup plane proven against a real S3 API (no cloud account)
+
+A follow-on to D13 that de-risks Phase 1.5 with **zero credentials and no Cloudflare
+account**: `fire-drill --variant s3-local` runs the same destroy→restore→assert cycle but the
+backup plane is a **real S3 API** — a **local MinIO** standing in for R2 — instead of `file://`.
+This exercises the actual `s3://` code paths (litestream `type: s3` replica + rclone s3 remote)
+that Phase 1.5 will point at real R2.
+
+- **Tooling** (installed via the Go module proxy — `dl.min.io` and the apt rclone were blocked/
+  broken): `minio` (go-built), `rclone` 1.74 (go-built; the apt 1.60-DEV build fails on the CA
+  bundle). Run: `make local-drill-s3` (or `make check-s3-drill`; skips where minio/rclone absent —
+  not in the aggregate `make check`).
+- **Result: DRILL PASS** — both tenants green end to end, canonical marker restored via
+  litestream-over-S3 and blob marker via rclone-over-S3, with MinIO (the "R2") deliberately
+  surviving the state destroy exactly like a real off-box backup.
+- **Two real bugs found and fixed by building it:** (1) `stop_stack`'s bare `wait` blocked on the
+  MinIO child it must keep alive (fixed to reap only the killed PIDs); (2) the sandbox's
+  `AWS_ACCESS_KEY_ID=proxy-injected` + `AWS_CA_BUNDLE` had to be overridden for litestream/rclone to
+  reach the plain-HTTP localhost endpoint. `SPEC-DELTA[run15-s3-local]`.
+- **What remains for real R2 (P15-1/-2/-3):** R2-specific quirks (endpoint form, any R2 S3 API
+  deltas) and the free-tier op-count measurement. The code path itself is now proven.
 
 ## Exact Phase 1.5 sequence (owner supplies an R2 bucket + scoped token; FREE, no purchase)
 
