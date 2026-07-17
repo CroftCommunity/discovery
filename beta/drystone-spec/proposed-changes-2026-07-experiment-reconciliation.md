@@ -454,10 +454,11 @@ no wire pinning — same grade wall as croft-group L2a).
 
 ### H-C — the standing gap stays named: interactive OAuth/DPoP is unproven  ·  `caveat`  ·  ready
 
-**Why + evidence.** The unattended-runnable service-auth path (EXP-A) is NOT the PWA client-login leg.
-Interactive atproto **OAuth + DPoP** requires a browser hop this environment lacks; it was explicitly
-not attempted (RUN-14 named non-goal). EXP-A's live token-issuance leg (P-A1/P-A2) is additionally
-BLOCKED on test-account creds this run.
+**Why + evidence.** The service-auth path (EXP-A) is NOT the PWA client-login leg. Interactive atproto
+**OAuth + DPoP** requires a browser hop this environment lacks; it was explicitly not attempted (RUN-14
+named non-goal). Note EXP-A's own token leg is now **fully confirmed live** (P-A1/P-A2/P-A3, owner-
+supplied creds — a real getServiceAuth token verified end-to-end against a real DID-doc key); the
+remaining gap is *only* the interactive OAuth/DPoP client login, a distinct mechanism.
 
 **Proposed caveat:** wherever the AppView caller-identity mechanism is recorded as earned, annotate that
 it covers **service auth (server-to-server), not the interactive client-login leg** — OAuth/DPoP remains

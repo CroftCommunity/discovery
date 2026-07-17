@@ -15,7 +15,7 @@ AppView-provisioned scope key was left untouched (stop rule 5b).`
 | `wss://jetstream2.us-east.bsky.network` via proxy | reachable (HTTP 200 on the base) |
 | `https://bsky.social` via proxy | reachable (`describeServer` 200) |
 | `https://plc.directory` via proxy | reachable (302 base; DID docs resolve — P-A3 confirmed live) |
-| `ATP_TEST_HANDLE` / `ATP_TEST_PASSWORD` | **UNSET** → EXP-A live token-issuance leg (P-A1/P-A2) BLOCKED; DID-doc resolution (P-A3) still confirmed live |
+| `ATP_TEST_HANDLE` / `ATP_TEST_PASSWORD` | initially unset (P-A1/P-A2 BLOCKED); **credentials later supplied by the owner → the live token leg ran and P-A1/P-A2 CONFIRMED** (see the predicted-vs-actual table). Creds never entered code/fixtures/logs/commits — passed as env vars for one run only |
 | Credentials in code/fixtures/logs/commits | none (fixture keys are deterministic in-test scalars) |
 
 ## Per-part status (red → green evidence table)
@@ -25,7 +25,7 @@ AppView-provisioned scope key was left untouched (stop rule 5b).`
 | EXP-A step 1 | `verify_service_jwt` — real ECDSA verify vs DID-doc key, distinct error variants | `dad1a25` | `3d1175f` | ✅ PASS (10 tests) | — |
 | EXP-A step 2 | `app.stellin.getProfileView` viewer-gate (openToWork by verified recruiter) | `9ad42b7` | `58939be` | ✅ PASS (7 tests) | `run14-A2` |
 | EXP-A step 3 | verified-read telemetry in the disposable index | `ad2805e` | `4b3845e` | ✅ PASS (11 tests total) | — |
-| EXP-A step 4 | live confirmation (`authserve`) | — (live driver) | `18998cf` | ⚠ P-A3 CONFIRMED live; P-A1/A2 BLOCKED (creds) | `run14-A4` |
+| EXP-A step 4 | live confirmation (`authserve`) | — (live driver) | `18998cf` | ✅ PASS — P-A1/A2/A3 all CONFIRMED live (real token verified end-to-end) | `run14-A4` |
 | EXP-B | sealed offer-gating (§H hybrid serve half), `sealed` bin | `73897af` | `61ee86a` | ✅ PASS (4 tests, `--features client-seal`) | — |
 | EXP-C | the helper seam, crate `helper-seam` (real openmls) | `22dede0` | `9749e71` | ✅ PASS (3 tests) | — |
 
@@ -35,11 +35,11 @@ Clippy cleanup for EXP-A: `4e549d1`. Order discipline: every part's `test(run-14
 
 | # | Prediction | Verdict | Observed |
 |---|---|---|---|
-| **P-A1** | `getServiceAuth` returns `{ "token": <compact JWT> }` | **BLOCKED (creds)** | code path implemented (`atproto::get_service_auth` reads `token`); needs an authenticated session to exercise |
-| **P-A2** | JWT claims include `iss`, `aud`, `exp`, and `lxm` when a method is requested | **BLOCKED (creds)** | decoder + verifier implemented and unit-green on minted fixtures; live claim shape needs a real token |
+| **P-A1** | `getServiceAuth` returns `{ "token": <compact JWT> }` | **CONFIRMED (live)** | a real 3-segment compact JWT returned under the `token` field |
+| **P-A2** | JWT claims include `iss`, `aud`, `exp`, and `lxm` when a method is requested | **CONFIRMED, with a divergence** | all four predicted claims present; `exp − iat = 60s` confirms "short, ~a minute". **DIVERGED (present-but-unmodeled):** the real token *also* carries `iat` (issued-at) and `jti` (a per-token nonce / JWT-id) that the prediction did not model — a real AppView should tolerate (and may want to check `jti` for replay) |
 | **P-A3** | signature verifies against the `#atproto` method in the issuer's DID doc (secp256k1/p256), resolved via PLC over HTTPS | **CONFIRMED (live)** | `@bsky.app` → `did:plc:z72i7hdynmk6r22z27h6tvur`; `#atproto` = secp256k1, 33-byte compressed SEC1; real `zQ3sh…` multibase decoded by `decode_multikey` and round-tripped through the verifier |
 
-"Fixtures alone do not earn the live claim": the verifier is proven green against **minted** fixture tokens (both curves) AND against a **real** DID-document key (P-A3). Issuing and verifying a **real** service-auth token end-to-end (P-A1/P-A2) is the one leg that remains BLOCKED on creds — say so plainly.
+**End-to-end, fully live.** With owner-supplied creds, a real bsky.social account created a session, called `getServiceAuth` (self-issued, `aud` = own DID per stand-in `run14-A4`, `lxm` = `app.stellin.getProfileView`), and the resulting **real** token was verified by `verify_service_jwt` against the issuer's **real** DID-document key — `LIVE VERIFY OK`. The verifier is now proven green against minted fixtures (both curves) AND a real issued token. The one remaining unproven leg is interactive OAuth/DPoP (the PWA client-login flow), which is a different mechanism (named non-goal).
 
 ## The two declared stand-ins (registered, not hidden)
 
@@ -57,7 +57,7 @@ Both are rows in `SPEC-DIVERGENCE-REGISTER.md` (Active table). Neither weakens a
 
 ## What each experiment demonstrated
 
-- **EXP-A** — the AppView learns its caller. A compact atproto service-auth JWT is verified with real ECDSA (k256/p256) against the issuer's `#atproto` DID-document key; `getProfileView` serves the recruiter-gated `openToWork` field only to a *verified* recruiter at a different employer; anonymous callers get the public view, malformed/wrong-`lxm` tokens get 401 (never a degraded view), and the generic `getRecord` route cannot leak the computed field; verified reads emit telemetry into the disposable index. Live P-A3 confirmed; the token-issuance leg blocked on creds.
+- **EXP-A** — the AppView learns its caller. A compact atproto service-auth JWT is verified with real ECDSA (k256/p256) against the issuer's `#atproto` DID-document key; `getProfileView` serves the recruiter-gated `openToWork` field only to a *verified* recruiter at a different employer; anonymous callers get the public view, malformed/wrong-`lxm` tokens get 401 (never a degraded view), and the generic `getRecord` route cannot leak the computed field; verified reads emit telemetry into the disposable index. **All three live predictions confirmed** (creds supplied): a real `getServiceAuth` token verified end-to-end against a real DID-doc key, with `iat`/`jti` observed beyond the predicted claim set.
 - **EXP-B** — the §H hybrid **serve half**. A content-blind store offers ciphertext only to a *verified roster member*; non-member/anonymous/nonexistent-group are one indistinguishable 403. Blindness is a **compilation boundary**: `cargo tree` shows the seal/open AEAD crate absent from the `sealed` binary's default dependency graph, present only under `--features client-seal`; `SealedState` holds no key. Roster removal stops future offering while already-fetched ciphertext + a retained key still reads — §H's offering-vs-reading distinction made executable.
 - **EXP-C** — the content-helper seam over **real MLS**. A helper admitted by a real Welcome (`group-seal`, croft-group L2a) decrypts group messages as any member does, normalizes them through the provenance-copied `NormalizedEvent` boundary, and feeds the *same* index/serve path a public source feeds (one search returns both). Revocation (`remove_member` + epoch roll) makes the helper forward-blind (MLS forward secrecy → no post-roll rows; pre-revocation rows remain). The helper holds no authority surface.
 
@@ -81,8 +81,8 @@ cd ../helper-seam
 cargo test                                             # EXP-C: 3 tests on real openmls
 ```
 
-## BLOCKED items and what unblocks them (one line each)
+## Remaining items and what unblocks them (one line each)
 
-- **EXP-A P-A1/P-A2 + live-token gate matrix** — unblocks with `ATP_TEST_HANDLE`/`ATP_TEST_PASSWORD` in env (then `authserve` self-issues with `aud`=own-DID, SPEC-DELTA `run14-A4`).
-- **Interactive OAuth/DPoP** — unblocks in an attended session with a browser.
+- **EXP-A P-A1/P-A2** — ✅ **now confirmed** (owner supplied creds; `authserve` self-issued with `aud`=own-DID, SPEC-DELTA `run14-A4`, and the real token verified end-to-end).
+- **Interactive OAuth/DPoP** — still open; unblocks in an attended session with a browser (a different mechanism from service auth).
 - **The AppView-provisioned scope key** — unblocks with an owner design decision (not a run).

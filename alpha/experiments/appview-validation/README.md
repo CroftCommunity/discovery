@@ -53,7 +53,7 @@ contradicted reasonable assumptions — which is the point.
 | 5 | trending feed (`feed`) | live | M | real trending from the like firehose, hydrated DID→handle + post text |
 | 6 | labeler (`labeler`) | live | M | labeler stream is **binary DAG-CBOR**, signed labels, `seq` cursor — *not* JSON like Jetstream |
 | 7 | scale (`firehose`) | live | M | full firehose ~357 ev/s; single node has **~64× headroom** → distribution premature |
-| 8 | viewer-aware serving (`authserve`) | live (P-A3) + creds (P-A1/2) | M | **the AppView learns who its caller is** — atproto service-auth JWTs verified against real DID-doc keys (secp256k1/p256); `getProfileView` gates `openToWork` by verified recruiter identity; verified reads emit telemetry. Live P-A3 confirmed; P-A1/A2 blocked on creds. (RUN-14 EXP-A) |
+| 8 | viewer-aware serving (`authserve`) | live + creds | M | **the AppView learns who its caller is** — atproto service-auth JWTs verified against real DID-doc keys (secp256k1/p256); `getProfileView` gates `openToWork` by verified recruiter identity; verified reads emit telemetry. **P-A1/A2/A3 all CONFIRMED live** — a real getServiceAuth token verified end-to-end against the issuer's DID-doc key (real token carries unmodeled `iat`/`jti` beyond the predicted `iss`/`aud`/`exp`/`lxm`). (RUN-14 EXP-A) |
 | 9 | sealed offer-gating (`sealed`) | none | M | **§H hybrid serve half**: content-blind store offers ciphertext only to verified roster members (flat 403 otherwise, no length/existence leak); blindness is a **compilation boundary** (the AEAD crate is absent from the server's dep graph); roster gates offering, encryption alone gates reading. (RUN-14 EXP-B) |
 
 **The through-line learning:** designing against atproto docs/tutorials diverges from
