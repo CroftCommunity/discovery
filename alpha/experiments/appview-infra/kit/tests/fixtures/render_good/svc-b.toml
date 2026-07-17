@@ -1,0 +1,8 @@
+name = "svc-b"
+fqdn = "b.example.test"
+port = 9011
+serve_api = false
+[data_profile]
+canonical = ["state.db"]
+disposable = ["index.db"]
+blobs = ["media/"]
