@@ -49,6 +49,13 @@ pub struct ProfileState {
 pub fn open_profile_db(path: &str) -> anyhow::Result<Connection> {
     let _ = std::fs::remove_file(path); // disposable projection
     let conn = Connection::open(path)?;
+    init_profile_schema(&conn)?;
+    Ok(conn)
+}
+
+/// Create the profile/roster/telemetry tables on an already-open connection
+/// (used for in-memory test databases).
+pub fn init_profile_schema(conn: &Connection) -> anyhow::Result<()> {
     conn.execute_batch(
         r#"
         CREATE TABLE profiles (
@@ -70,7 +77,7 @@ pub fn open_profile_db(path: &str) -> anyhow::Result<Connection> {
         );
         "#,
     )?;
-    Ok(conn)
+    Ok(())
 }
 
 /// Seed a subject profile (test/live setup helper).
@@ -127,32 +134,117 @@ fn verify_bearer(
     verify_service_jwt(token, &st.aud, Some(lxm), st.now, st.resolver.as_ref()).map(Some)
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  STEP-2/3 RED STUBS — implemented in the green commits.
-// ─────────────────────────────────────────────────────────────────────────────
+/// A verified viewer's role against a subject, derived from the roster stand-in.
+struct ViewerRole {
+    did: String,
+    is_recruiter: bool,
+    affiliation: Option<String>,
+}
+
+fn viewer_role(conn: &Connection, viewer_did: &str) -> ViewerRole {
+    let affiliation: Option<String> = conn
+        .query_row(
+            "SELECT affiliation FROM recruiters WHERE did = ?1",
+            [viewer_did],
+            |r| r.get(0),
+        )
+        .ok();
+    ViewerRole {
+        did: viewer_did.to_string(),
+        is_recruiter: affiliation.is_some(),
+        affiliation,
+    }
+}
+
+/// The gate: openToWork is offered only to a recruiter at a *different* employer.
+fn may_see_open_to_work(viewer: &ViewerRole, subject_employer: &Option<String>) -> bool {
+    viewer.is_recruiter && viewer.affiliation.as_ref() != subject_employer.as_ref()
+}
+
 async fn get_profile_view(
     State(st): State<ProfileState>,
     headers: HeaderMap,
     Query(p): Query<ActorParam>,
 ) -> (StatusCode, Json<Value>) {
-    let _ = (&st, &headers, &p, verify_bearer);
-    (StatusCode::NOT_IMPLEMENTED, Json(json!({"stub": true})))
+    // A present-but-invalid token is refused; absent header = anonymous.
+    let claims = match verify_bearer(&headers, &st, GET_PROFILE_VIEW) {
+        Ok(c) => c,
+        Err(_) => return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "AuthRequired" }))),
+    };
+
+    let conn = st.db.lock().unwrap();
+    let row = conn
+        .query_row(
+            "SELECT display_name, employer, open_to_work FROM profiles WHERE did = ?1",
+            [&p.actor],
+            |r| {
+                Ok((
+                    r.get::<_, Option<String>>(0)?,
+                    r.get::<_, Option<String>>(1)?,
+                    r.get::<_, i64>(2)? != 0,
+                ))
+            },
+        )
+        .ok();
+    let (display, employer, open_to_work) = match row {
+        Some(x) => x,
+        None => return (StatusCode::NOT_FOUND, Json(json!({ "error": "ProfileNotFound" }))),
+    };
+
+    // Public view — the fields everyone gets.
+    let mut view = json!({
+        "did": p.actor,
+        "displayName": display,
+        "employer": employer,
+    });
+
+    // The viewer-gated field. Only a verified recruiter at a different employer.
+    if let Some(c) = &claims {
+        let role = viewer_role(&conn, &c.iss);
+        if may_see_open_to_work(&role, &employer) {
+            view["openToWork"] = json!(open_to_work);
+        }
+        // STEP-3 telemetry write lands here in the next green commit.
+        let _ = &role;
+    }
+
+    (StatusCode::OK, Json(view))
 }
 
 async fn get_profile_views(
     State(st): State<ProfileState>,
     headers: HeaderMap,
 ) -> (StatusCode, Json<Value>) {
+    // STEP-3 RED STUB — implemented in the step-3 green commit.
     let _ = (&st, &headers);
-    (StatusCode::NOT_IMPLEMENTED, Json(json!({"stub": true})))
+    (StatusCode::NOT_IMPLEMENTED, Json(json!({ "stub": true })))
 }
 
 async fn get_record(
     State(st): State<ProfileState>,
     Query(p): Query<GetRecordParam>,
 ) -> (StatusCode, Json<Value>) {
-    let _ = (&st, &p);
-    (StatusCode::NOT_IMPLEMENTED, Json(json!({"stub": true})))
+    // The generic record echo. It serves ONLY the stored public record fields —
+    // openToWork is a viewer-dependent computed projection and is stored in a
+    // separate column that this route never reads, so it cannot leak here.
+    let conn = st.db.lock().unwrap();
+    let row = conn
+        .query_row(
+            "SELECT display_name, employer FROM profiles WHERE did = ?1",
+            [&p.rkey],
+            |r| Ok((r.get::<_, Option<String>>(0)?, r.get::<_, Option<String>>(1)?)),
+        )
+        .ok();
+    match row {
+        Some((display, employer)) => (
+            StatusCode::OK,
+            Json(json!({
+                "uri": format!("at://{}/app.bsky.actor.profile/self", p.rkey),
+                "value": { "displayName": display, "employer": employer }
+            })),
+        ),
+        None => (StatusCode::NOT_FOUND, Json(json!({ "error": "RecordNotFound" }))),
+    }
 }
 
 #[derive(Deserialize)]
@@ -190,10 +282,9 @@ mod tests {
             keys.insert(id.did.clone(), id.multibase.clone());
         }
 
-        let db = open_profile_db(&format!(
-            "/tmp/claude-0/-home-user/3c9396b3-f5ba-510f-9b94-11ec61395da8/scratchpad/viewserve-{NOW}.sqlite"
-        ))
-        .unwrap();
+        // In-memory, per-test, so parallel tests never share a disposable file.
+        let db = Connection::open_in_memory().unwrap();
+        init_profile_schema(&db).unwrap();
         seed_profile(&db, "did:plc:subject", "Subject", "Acme", true);
         seed_recruiter(&db, "did:plc:recruiter-other", "Globex");
         seed_recruiter(&db, "did:plc:recruiter-same", "Acme");
