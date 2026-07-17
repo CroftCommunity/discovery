@@ -49,5 +49,29 @@ stop_stub() {
   STUB_PID=""
 }
 
+# Generic spawner used when a test needs BOTH a service and an api process on
+# the same data dir. Sets <PREFIX>_PID and <PREFIX>_PORT.
+spawn_proc() {
+  local prefix="$1" datadir="$2" port="$3"; shift 3
+  STUB_ALLOW_ROOT=1 python3 "$KIT_ROOT/stub/stub.py" \
+    --data-dir "$datadir" --listen "127.0.0.1:$port" "$@" \
+    >>"$datadir/.$prefix.log" 2>&1 &
+  local pid=$!
+  eval "${prefix}_PID=$pid ${prefix}_PORT=$port"
+  local i
+  for i in $(seq 1 50); do
+    if curl -fsS "http://127.0.0.1:$port/healthz" >/dev/null 2>&1; then return 0; fi
+    if ! kill -0 "$pid" 2>/dev/null; then
+      echo "$prefix died on startup; log:" >&2; cat "$datadir/.$prefix.log" >&2; return 1
+    fi
+    sleep 0.1
+  done
+  echo "$prefix did not become healthy on :$port" >&2
+  cat "$datadir/.$prefix.log" >&2
+  return 1
+}
+
+kill_pid() { [[ -n "${1:-}" ]] && kill "$1" 2>/dev/null; [[ -n "${1:-}" ]] && wait "$1" 2>/dev/null || true; }
+
 # A stub auth token for caller DID $1 (stand-in for a real service-auth JWT).
 auth_hdr() { echo "Authorization: Bearer test:$1"; }
