@@ -10,3 +10,4 @@ pub mod record_source;
 pub mod report;
 pub mod server;
 pub mod serviceauth;
+pub mod viewserve;
