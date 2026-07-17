@@ -55,9 +55,15 @@ impl ContentHelper {
     /// if the helper cannot decrypt (e.g. it was revoked and the frame is from a
     /// later epoch — MLS forward secrecy), so a revoked helper produces no rows.
     pub fn ingest(&mut self, group_id: &str, seq: i64, sealed: &[u8]) -> Result<NormalizedEvent> {
-        // STEP-1 RED STUB — implemented in the green commit.
-        let _ = (group_id, seq, sealed);
-        unimplemented!("ContentHelper::ingest — implemented in the green commit")
+        // Open as the member it is — decryption is by the SAME grant any member
+        // holds. If the helper has been revoked, this frame is from an epoch it
+        // no longer holds a key for and `open` fails (MLS forward secrecy),
+        // so a revoked helper yields no event and therefore no index row.
+        let msg = self
+            .sealer
+            .open(sealed)
+            .map_err(|e| anyhow!("helper cannot decrypt (revoked / no key): {e}"))?;
+        Ok(NormalizedEvent::from_group_message(group_id, seq, &msg.sender, &msg))
     }
 
     /// The helper's own DID.
