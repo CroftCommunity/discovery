@@ -1,0 +1,10 @@
+{
+  "croft-groups": {
+    "port": 8111,
+    "api_port": 8112
+  },
+  "stellin-appview": {
+    "port": 8101,
+    "api_port": 8102
+  }
+}

@@ -1,0 +1,33 @@
+[Unit]
+Description=${name}-api — own-data API sidecar (${api_mode})
+Documentation=https://github.com/CroftCommunity/appview-infra
+After=network-online.target ${name}.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=${api_user}
+Group=${api_user}
+SupplementaryGroups=${user}
+WorkingDirectory=${data_dir}
+ExecStart=${api_exec_start}
+Restart=always
+RestartSec=2
+# containment (§1.3): OS-incapable of writing the data dir, and rate-limited so
+# an export cannot starve the writer's cursor.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ReadOnlyPaths=${data_dir}
+CPUQuota=${cpu_quota}
+IOSchedulingClass=${io_class}
+IOSchedulingPriority=7
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+AmbientCapabilities=
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target
