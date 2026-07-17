@@ -1,0 +1,11 @@
+name = "svc-a"
+fqdn = "a.example.test"
+port = 9001
+api_port = 9002
+serve_api = true
+api_mode = "shared-wal"
+[data_profile]
+canonical = ["state.db"]
+disposable = ["index.db"]
+blobs = ["blobs/"]
+blobs_immutable = ["blobs/"]

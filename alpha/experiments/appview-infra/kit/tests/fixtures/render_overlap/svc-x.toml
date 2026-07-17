@@ -1,0 +1,7 @@
+name = "svc-x"
+fqdn = "x.example.test"
+port = 9021
+serve_api = false
+[data_profile]
+canonical = ["state.db"]
+disposable = ["state.db"]

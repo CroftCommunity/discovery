@@ -1,0 +1,29 @@
+# _example.toml — a documented, non-rendered template for a new tenant.
+# Copy to services/<name>.toml and edit. Files beginning with "_" are skipped by
+# the generator. Add a tenant in ~5 steps (see docs/RUNBOOK.md ADD-A-TENANT).
+#
+# Everything downstream (systemd units, Caddy vhosts, litestream.yml, rclone
+# timers, drill assertions) is GENERATED from this file. Hand-editing generated/
+# is forbidden; the manifest is the source of truth.
+
+# --- identity ---------------------------------------------------------------
+name     = "my-service"            # REQUIRED. dedicated unix user + StateDirectory
+fqdn     = "my-service.croft.ing"  # REQUIRED. Caddy vhost; Porkbun holds A/AAAA only
+port     = 8201                    # REQUIRED. unique across ALL services & api_ports; >= 1024
+artifact = "stub"                  # "stub" | "github:CroftCommunity/<repo>/releases"
+
+# --- own-data API (§1.3) — optional ----------------------------------------
+serve_api = false                  # true => generate the <name>-api sidecar + api.<fqdn> vhost
+api_port  = 8202                    # REQUIRED iff serve_api; unique across ALL ports
+api_mode  = "shared-wal"           # "shared-wal" (live ro reads) | "snapshot" (VACUUM INTO)
+
+# --- gated large-group serving (§1.4) — optional ---------------------------
+gated_groups = false               # true => roster-gated content serving; roster classed canonical
+
+# --- state taxonomy (§1.2) — REQUIRED --------------------------------------
+[data_profile]
+canonical       = ["state.db"]     # observation/grant-born; SQLite only; Litestream-backed
+disposable      = ["index.db"]     # rebuildable projections; NEVER backed up (D5 enforces)
+blobs           = ["blobs/"]       # opaque bytes; rclone-mirrored
+blobs_immutable = []               # subset of blobs that are content-addressed => rclone --immutable
+#   A canonical path may NOT also be disposable (generator rejects the overlap).

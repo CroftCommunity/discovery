@@ -1,0 +1,25 @@
+# croft-groups — the access-gated large-group tier (§1.4).
+# Serves large groups private-but-not-E2EE: roster-gated to verified member DIDs,
+# trusted-gatekeeper posture stated honestly. Shares the gated mechanism with
+# Stellin groups. Own-data API in snapshot mode (heavier group reads served off a
+# VACUUM INTO snapshot, minutes of staleness, zero writer interaction).
+#
+# The group write-path fork (Variant A vs B, D11/GROUPS.md) is an OWNER decision;
+# this manifest is fork-agnostic — canonical = keys + roster (+ content under
+# Variant B); the generator and D5 do not depend on the choice.
+
+name         = "croft-groups"
+fqdn         = "groups-staging.croft.ing"
+port         = 8111
+api_port     = 8112
+artifact     = "stub"                       # later: github:CroftCommunity/croft-groups/releases
+
+serve_api    = true
+api_mode     = "snapshot"                    # VACUUM INTO serve/ snapshot; api reads it
+gated_groups = true
+
+[data_profile]
+canonical  = ["state.db"]                    # roster + grants + group scope keys
+disposable = ["index.db"]                    # search/moderation projections; NEVER backed up
+blobs      = ["blobs/"]                       # group media; mutable (not content-addressed)
+# blobs_immutable omitted → rclone runs WITHOUT --immutable and the unit is FLAGGED.
