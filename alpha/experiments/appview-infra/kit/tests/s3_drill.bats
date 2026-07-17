@@ -27,4 +27,8 @@ load helpers
   [[ "$output" == *"croft-groups"* ]]
   [[ "$output" == *"canonical marker"* ]]
   [[ "$output" == *"blob marker"* ]]
+  # P15-3 (local): the drill reports an S3 op estimate + free-tier signal
+  [[ "$output" == *"S3 op estimate"* ]]
+  [[ "$output" == *"PUT"* ]]
+  [[ "$output" == *"1M"* ]]        # the R2 free-tier Class-A ceiling
 }
