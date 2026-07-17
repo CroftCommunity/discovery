@@ -404,7 +404,16 @@ decision this run, and all items landed together.
 
 ## RUN-14 — Stellin AppView caller-identity (social-mapping §H serve half + helper delegation)
 
-`Status: PROPOSED, not applied — staged 2026-07-17. Target here is the design text
+> **Historical record — LANDED 2026-07-17 (owner-approved).** H-A, H-B, and H-C were applied to
+> `social-mapping.md`: the §H serve-half gained a "serve half is now demonstrated" paragraph tagged
+> `green-real` (offer-gating against a verified identity, compilation-boundary content-blindness), the
+> §L helper-delegation bullet gained the content-helper demonstration (index-by-grant + revocation
+> forward-blindness) tagged `green-real`, and the H-C caveat (service auth ≠ interactive OAuth/DPoP)
+> was folded into the §H paragraph. No grade was moved to `Verified` — the evidence is loopback /
+> in-process. The AppView-provisioned scope key was left `Design; open.` (untouched). The authoritative
+> text is now `social-mapping.md`; this section is the reviewable diff of record.
+
+`Status: LANDED 2026-07-17 (was PROPOSED, staged same day). Target here is the design text
 beta/impl/drystone-design/social-mapping.md (§H and the helper-delegation bullet, §L), NOT Part 2.
 The AppView-provisioned scope key (social-mapping Open items) is deliberately untouched — RUN-14 stop
 rule 5b. Each item cites the RUN-14 experiment that earns it (RUN-14-SUMMARY.md, branch
@@ -470,9 +479,9 @@ attended-run territory (backlog). Keeps the gap register honest.
 
 | # | Target | Class | Decision | One-line |
 |---|---|---|---|---|
-| **H-A** | social-mapping §H serve half | status-move | ready | Offer-gating demonstrated against a verified identity; content-blindness is a compilation boundary |
-| **H-B** | social-mapping §L helper delegation | status-move | ready | Content helper indexes by grant over real MLS; forward-blind on revocation; no authority |
-| **H-C** | (caveat, wherever earned) | caveat | ready | Service auth ≠ interactive OAuth/DPoP (the PWA login leg stays unproven) |
+| **H-A** | social-mapping §H serve half | status-move | ✅ landed | Offer-gating demonstrated against a verified identity; content-blindness is a compilation boundary (`Synthesis` → `green-real`, loopback) |
+| **H-B** | social-mapping §L helper delegation | status-move | ✅ landed | Content helper indexes by grant over real MLS; forward-blind on revocation; no authority (`Design` → `green-real`, loopback) |
+| **H-C** | social-mapping §H (caveat) | caveat | ✅ landed | Service auth ≠ interactive OAuth/DPoP (the PWA login leg stays unproven) |
 
 **Untouched (RUN-14 stop rule 5b):** the AppView-provisioned scope key (social-mapping Open items) —
 how the audience scope key is provisioned, granted, and rotated — is a design decision, not earned here.
