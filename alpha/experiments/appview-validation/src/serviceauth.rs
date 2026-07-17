@@ -129,10 +129,95 @@ pub fn verify_service_jwt<R: KeyResolver>(
     now_unix: i64,
     resolver: &R,
 ) -> Result<ServiceAuthClaims, VerifyError> {
-    // STEP-1 RED STUB — implemented in the green commit.
-    let _ = (token, expected_aud, required_lxm, now_unix, resolver);
-    let _ = (URL_SAFE_NO_PAD, decode_multikey);
-    unimplemented!("verify_service_jwt — implemented in the green commit")
+    // ── parse: exactly three base64url segments ─────────────────────────────
+    let mut parts = token.split('.');
+    let (h_b64, p_b64, s_b64) = match (parts.next(), parts.next(), parts.next(), parts.next()) {
+        (Some(h), Some(p), Some(s), None) if !h.is_empty() && !p.is_empty() && !s.is_empty() => {
+            (h, p, s)
+        }
+        _ => return Err(VerifyError::Malformed("not three non-empty segments".into())),
+    };
+    let dec = |seg: &str, what: &str| {
+        URL_SAFE_NO_PAD
+            .decode(seg)
+            .map_err(|e| VerifyError::Malformed(format!("{what}: {e}")))
+    };
+    let header: JwtHeader = serde_json::from_slice(&dec(h_b64, "header")?)
+        .map_err(|e| VerifyError::Malformed(format!("header json: {e}")))?;
+    let payload: JwtPayload = serde_json::from_slice(&dec(p_b64, "payload")?)
+        .map_err(|e| VerifyError::Malformed(format!("payload json: {e}")))?;
+    let sig_bytes = dec(s_b64, "signature")?;
+
+    // header alg must be one of the two atproto curves.
+    let alg_curve = match header.alg.as_str() {
+        "ES256K" => Curve::Secp256k1,
+        "ES256" => Curve::P256,
+        other => return Err(VerifyError::Malformed(format!("unsupported alg {other}"))),
+    };
+
+    // ── resolve the issuer key ──────────────────────────────────────────────
+    let multibase = resolver
+        .atproto_key(&payload.iss)
+        .ok_or(VerifyError::UnresolvableIssuer)?;
+    let (key_curve, pubkey) =
+        decode_multikey(&multibase).ok_or(VerifyError::UnresolvableIssuer)?;
+    // The header's declared curve must match the resolved key's curve.
+    if key_curve != alg_curve {
+        return Err(VerifyError::BadSignature);
+    }
+
+    // ── verify the signature over the `header.payload` signing input ─────────
+    let signing_input = format!("{h_b64}.{p_b64}");
+    if !verify_sig(key_curve, &pubkey, signing_input.as_bytes(), &sig_bytes) {
+        return Err(VerifyError::BadSignature);
+    }
+
+    // ── temporal, audience, and method binding (distinct variants) ──────────
+    if now_unix >= payload.exp {
+        return Err(VerifyError::Expired);
+    }
+    if payload.aud != expected_aud {
+        return Err(VerifyError::WrongAudience);
+    }
+    if let Some(want) = required_lxm {
+        if payload.lxm.as_deref() != Some(want) {
+            return Err(VerifyError::WrongLxm);
+        }
+    }
+
+    Ok(ServiceAuthClaims {
+        iss: payload.iss,
+        aud: payload.aud,
+        exp: payload.exp,
+        lxm: payload.lxm,
+    })
+}
+
+/// Verify a raw `r‖s` ECDSA signature over `signing_input` (the verifier hashes
+/// with SHA-256 internally) against a compressed SEC1 public key.
+fn verify_sig(curve: Curve, pubkey: &[u8], signing_input: &[u8], sig: &[u8]) -> bool {
+    match curve {
+        Curve::Secp256k1 => {
+            use k256::ecdsa::{signature::Verifier, Signature, VerifyingKey};
+            let Ok(vk) = VerifyingKey::from_sec1_bytes(pubkey) else {
+                return false;
+            };
+            let Ok(sig) = Signature::from_slice(sig) else {
+                return false;
+            };
+            vk.verify(signing_input, &sig).is_ok()
+        }
+        Curve::P256 => {
+            use p256::ecdsa::{signature::Verifier, Signature, VerifyingKey};
+            let Ok(vk) = VerifyingKey::from_sec1_bytes(pubkey) else {
+                return false;
+            };
+            let Ok(sig) = Signature::from_slice(sig) else {
+                return false;
+            };
+            vk.verify(signing_input, &sig).is_ok()
+        }
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
