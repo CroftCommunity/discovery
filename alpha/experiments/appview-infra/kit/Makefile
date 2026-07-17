@@ -11,7 +11,7 @@ SHELL := /bin/bash
 BATS  ?= bats
 
 # Every check sub-target is aggregated here. Each deliverable adds its own.
-CHECKS := no-secrets stub render terraform backup-audit bootstrap deploy docs
+CHECKS := no-secrets stub render terraform backup-audit bootstrap deploy docs own-data
 
 .PHONY: check $(addprefix check-,$(CHECKS)) generate clean help
 
@@ -53,6 +53,10 @@ check-deploy:
 # --- D9: DNS doc + link check -----------------------------------------------
 check-docs:
 	@$(BATS) tests/docs.bats
+
+# --- D10: own-data API ------------------------------------------------------
+check-own-data:
+	@$(BATS) tests/own_data.bats
 
 # --- generation -------------------------------------------------------------
 generate:
