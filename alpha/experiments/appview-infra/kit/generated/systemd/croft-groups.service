@@ -11,7 +11,7 @@ Group=croft-groups
 StateDirectory=croft-groups
 StateDirectoryMode=0750
 WorkingDirectory=/var/lib/croft-groups
-ExecStart=/usr/bin/env python3 /opt/croft-groups/current/stub.py --data-dir /var/lib/croft-groups --listen 127.0.0.1:8111 --canonical state.db --disposable index.db --blobs blobs/
+ExecStart=/usr/bin/env python3 /opt/croft-groups/current/stub.py --data-dir /var/lib/croft-groups --listen 127.0.0.1:8111 --canonical state.db --disposable index.db --blobs blobs/ --gated-groups
 Restart=always
 RestartSec=2
 # hardening (contract §4/§5)

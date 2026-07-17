@@ -11,7 +11,7 @@ Group=stellin-appview
 StateDirectory=stellin-appview
 StateDirectoryMode=0750
 WorkingDirectory=/var/lib/stellin-appview
-ExecStart=/usr/bin/env python3 /opt/stellin-appview/current/stub.py --data-dir /var/lib/stellin-appview --listen 127.0.0.1:8101 --canonical state.db --disposable index.db --blobs blobs/
+ExecStart=/usr/bin/env python3 /opt/stellin-appview/current/stub.py --data-dir /var/lib/stellin-appview --listen 127.0.0.1:8101 --canonical state.db --disposable index.db --blobs blobs/ --gated-groups
 Restart=always
 RestartSec=2
 # hardening (contract §4/§5)
