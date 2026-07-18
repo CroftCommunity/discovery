@@ -18,7 +18,7 @@ use tier_proof::fold::Fold;
 use tier_proof::identity::Signer;
 use tier_proof::records::{self, Genesis, MembershipPolicy, Record, WritePolicy};
 use tier_proof::relay::{self, RelayReject};
-use tier_proof::source::MemSource;
+use tier_proof::source::{MemSource, RecordSource};
 
 const NEWSLETTER: &str = "scope:dispatch";
 const FORUM: &str = "scope:commons";
@@ -56,13 +56,30 @@ fn two_policy_source() -> MemSource {
             threshold: 0,
         }),
     );
-    src.put_record(&a, Record::SelfRegistration { scope: NEWSLETTER.to_string() });
-    src.put_record(&a, Record::SelfRegistration { scope: FORUM.to_string() });
+    src.put_record(
+        &a,
+        Record::SelfRegistration {
+            scope: NEWSLETTER.to_string(),
+        },
+    );
+    src.put_record(
+        &a,
+        Record::SelfRegistration {
+            scope: FORUM.to_string(),
+        },
+    );
     src
 }
 
 fn msg(signer: &Signer, scope: &str, text: &str) -> Envelope {
-    records::seal(signer, vec![], &Record::Message { scope: scope.to_string(), text: text.to_string() })
+    records::seal(
+        signer,
+        vec![],
+        &Record::Message {
+            scope: scope.to_string(),
+            text: text.to_string(),
+        },
+    )
 }
 
 #[test]
@@ -85,7 +102,7 @@ fn non_author_post_into_newsletter_is_rejected_and_absent_from_serve() {
         Err(RelayReject::WritePolicy),
         "a member who is not the single writer is rejected"
     );
-    let served = relay::relay(&state, &[intruder.clone()]);
+    let served = relay::relay(&state, std::slice::from_ref(&intruder));
     assert!(served.is_empty(), "the rejected post is absent from serve");
 }
 
@@ -94,7 +111,7 @@ fn author_post_into_newsletter_is_served() {
     let state = Fold::run(&two_policy_source().all()).expect("fold");
     let broadcast = msg(&owner(), NEWSLETTER, "this week");
     assert!(relay::accepts(&state, &broadcast).is_ok());
-    let served = relay::relay(&state, &[broadcast.clone()]);
+    let served = relay::relay(&state, std::slice::from_ref(&broadcast));
     assert_eq!(served.len(), 1, "the owner's newsletter post is served");
 }
 
@@ -102,7 +119,10 @@ fn author_post_into_newsletter_is_served() {
 fn member_post_into_forum_is_served() {
     let state = Fold::run(&two_policy_source().all()).expect("fold");
     let post = msg(&alice(), FORUM, "hello commons");
-    assert!(relay::accepts(&state, &post).is_ok(), "any roster member may post to an open forum");
+    assert!(
+        relay::accepts(&state, &post).is_ok(),
+        "any roster member may post to an open forum"
+    );
     assert_eq!(relay::relay(&state, &[post]).len(), 1);
 }
 
@@ -130,5 +150,8 @@ fn validate_before_relay_drops_invalid_and_never_reemits() {
         !out.iter().any(|e| e.identity() == forged.identity()),
         "the invalid envelope is never re-emitted"
     );
-    assert_eq!(relay::accepts(&state, &forged), Err(RelayReject::BadSignature));
+    assert_eq!(
+        relay::accepts(&state, &forged),
+        Err(RelayReject::BadSignature)
+    );
 }

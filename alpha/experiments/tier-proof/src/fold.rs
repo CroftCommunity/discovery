@@ -34,6 +34,8 @@ type ScopeRoles = BTreeMap<String, BTreeMap<String, Vec<String>>>;
 pub struct CatalogueEntry {
     /// The scope id.
     pub scope: String,
+    /// The genesis author DID — the "single writer" under `WritePolicy::Single`.
+    pub owner: String,
     /// Human title.
     pub title: String,
     /// Who may post.
@@ -110,6 +112,7 @@ impl FoldState {
                     g.scope.clone(),
                     CatalogueEntry {
                         scope: g.scope.clone(),
+                        owner: author.to_string(),
                         title: g.title.clone(),
                         write_policy: g.write_policy,
                         membership_policy: g.membership_policy,
