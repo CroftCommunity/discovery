@@ -23,7 +23,14 @@ use tier_proof::roles::{self, EnvelopeStore, OfferReject};
 const SCOPE: &str = "scope:backplane";
 
 fn stored(signer: &Signer, pos: u64, text: &str) -> (tier_proof::envelope::Envelope, u64) {
-    let e = records::seal(signer, vec![], &Record::Message { scope: SCOPE.into(), text: text.into() });
+    let e = records::seal(
+        signer,
+        vec![],
+        &Record::Message {
+            scope: SCOPE.into(),
+            text: text.into(),
+        },
+    );
     (e, pos)
 }
 
@@ -48,7 +55,11 @@ fn converged_set_dedups_by_envelope_hash_across_transports() {
     let ids: Vec<String> = converged.iter().map(|e| e.identity_hex()).collect();
     assert_eq!(converged.len(), 3, "exactly three distinct envelopes");
     for e in [&only_swarm, &only_ds, &both] {
-        assert_eq!(ids.iter().filter(|id| **id == e.identity_hex()).count(), 1, "each appears exactly once");
+        assert_eq!(
+            ids.iter().filter(|id| **id == e.identity_hex()).count(),
+            1,
+            "each appears exactly once"
+        );
     }
 }
 
@@ -71,7 +82,11 @@ fn interval_backfill_offers_exactly_the_proven_window() {
 
     let offered = roles::offer_interval(&store, &member_intervals, (2, 5)).expect("offer");
     let positions: Vec<u64> = offered.iter().map(|(_, p)| *p).collect();
-    assert_eq!(positions, vec![2, 3, 4], "exactly the [J,R) window, no pre-J, no post-cut");
+    assert_eq!(
+        positions,
+        vec![2, 3, 4],
+        "exactly the [J,R) window, no pre-J, no post-cut"
+    );
 }
 
 #[test]
@@ -125,15 +140,26 @@ fn sealed_scope_store_is_ciphertext_only_offered_vs_decryptable() {
     let member_intervals = vec![(1u64, Some(4u64))];
     let offered = roles::offer_sealed_interval(&sealed, &member_intervals, (1, 4)).expect("offer");
     let positions: Vec<u64> = offered.iter().map(|(_, p)| *p).collect();
-    assert_eq!(positions, vec![1, 2, 3], "offered = the proven window (metadata only)");
+    assert_eq!(
+        positions,
+        vec![1, 2, 3],
+        "offered = the proven window (metadata only)"
+    );
 
     // Offered ciphertext is decryptable ONLY with the harness key.
     let (cipher, _pos) = &offered[0];
     let opened = roles::open(key, cipher);
-    let reencoded: tier_proof::envelope::Envelope = ciborium::from_reader(opened.as_slice()).expect("decode");
-    assert!(reencoded.verify().is_ok(), "harness key opens the offered ciphertext");
+    let reencoded: tier_proof::envelope::Envelope =
+        ciborium::from_reader(opened.as_slice()).expect("decode");
+    assert!(
+        reencoded.verify().is_ok(),
+        "harness key opens the offered ciphertext"
+    );
 
     // A wrong key does not recover the plaintext (the node, keyless, cannot read).
     let wrong = roles::open(b"the-wrong-key-aaaaaaaaaaaaaaaaaaa", cipher);
-    assert_ne!(wrong, opened, "without the key the store's bytes are opaque");
+    assert_ne!(
+        wrong, opened,
+        "without the key the store's bytes are opaque"
+    );
 }
