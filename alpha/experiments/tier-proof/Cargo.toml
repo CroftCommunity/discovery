@@ -18,6 +18,11 @@ license = "MIT OR Apache-2.0"
 authors = ["Chase Pettet <chase@owasp.org>"]
 
 [workspace]
+# steward-seal is the P6 real-MLS half: it path-deps the croft-group group-seal
+# crate (openmls) and so carries its own lockfile + [workspace] table, exactly
+# as croft-group excludes group-seal from its pure workspace. This keeps openmls
+# out of the light component crate's lock — the whole P1–P9 suite builds fast.
+exclude = ["steward-seal"]
 
 [dependencies]
 # Only deps driven by a passing test belong here (house convention).
