@@ -172,7 +172,9 @@ PUB_MD="$DIR/PUBLICATIONS.md"
 
 @test "run18: the degeneration principle is stated as binding" {
   grep -qi 'degeneration principle' "$PUB_MD"
-  grep -qi 'bare .*records' "$PUB_MD"
+  # open/single scopes ride the substrate's own records plus chaining only
+  grep -qi 'atproto records' "$PUB_MD"
+  grep -qi 'chaining' "$PUB_MD"
   grep -qi 'binding' "$PUB_MD"
 }
 
@@ -181,7 +183,7 @@ PUB_MD="$DIR/PUBLICATIONS.md"
   grep -qi 'curator' "$PUB_MD"
   grep -qi 'consent' "$PUB_MD"
   # the provable multi-party fact is the one added atom
-  grep -qi 'multi-party fact' "$PUB_MD"
+  grep -qi 'provable multi-party' "$PUB_MD"
 }
 
 @test "run18: the delta table distinguishes tamper-evident history from tamper-free current state" {

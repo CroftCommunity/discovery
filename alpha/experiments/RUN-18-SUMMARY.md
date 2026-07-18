@@ -9,8 +9,11 @@ TDD red-first throughout (docs-TDD for Part A, code-TDD for Part B). Rust 1.94.1
 ATP_TEST_* credentials are unset, so B5's live deletion is BLOCKED and the harness delete event
 stands in, tagged (guardrail 4: never silently downgraded). One provenance note, recorded not
 glossed: the brief's PUBLICATIONS-DESIGN.md payload did not accompany the dispatched brief, so
-PUBLICATIONS.md was authored directly from the brief's §0.2 specification (its content
-requirements are the corpus-test assertions 26–33, all green).`
+PUBLICATIONS.md was first authored directly from the brief's §0.2 specification (commit
+265f875); the payload then arrived in a follow-up dispatch and REPLACED that interim text,
+landed largely verbatim per A3 — only the preamble and the §6 pointers adjusted (house links,
+real anchors) — with two corpus-check greps re-pinned to the payload's canonical phrasing
+(same invariants; checks 26–27). Corpus-test assertions 26–33 green against the payload.`
 
 ## Environment preflight
 
@@ -71,7 +74,7 @@ fold.
 | "the two-axes section" | GROUPS.md **A.2** (paragraph appended after the coordinates paragraph) |
 | "the transports section's swarm paragraph" | GROUPS.md **A.8**, the swarm-delivery paragraph (one sentence appended) |
 | "the tier table's history-access row" | GROUPS.md **A.9**, `History access` row (pointer added in the open + gated cells — warranted, both carry the guarantee) |
-| "PUBLICATIONS-DESIGN.md → alpha/experiments/appview-infra/PUBLICATIONS.md" | landed there; **payload absent from the dispatch**, authored from brief §0.2 (see preamble; its §6 anchors verified by corpus check 33) |
+| "PUBLICATIONS-DESIGN.md → alpha/experiments/appview-infra/PUBLICATIONS.md" | landed there. Payload absent from the first dispatch (interim text authored from brief §0.2, commit 265f875); delivered in a follow-up dispatch and landed **largely verbatim** in its place — preamble + §6 adjusted only (house links, real anchors; verified by corpus check 33) |
 | "the RUN-16 section of the proposed-changes doc" | `beta/drystone-spec/proposed-changes-2026-07-experiment-reconciliation.md`, **RUN-18 addendum** appended after the RUN-16 update (same section, house pattern of appended updates) |
 | branch `claude/publications-run-18` | `claude/publications-run-18-eh07xx` (dispatch harness's designated name) |
 | RelayReject for the chaining check | `RelayReject::Unchained`; the chain-link convention is FIRST antecedent = author chain link (documented in `src/chain.rs` and enforced in `src/relay.rs`) |
@@ -86,10 +89,11 @@ withheld-tail limit and its multimodal mitigation — the claim scoped to the ne
 envelope, advancing when the swarm path delivers (B3, which is also the A.8 silent-to-detected
 sentence, executable); and open enrollment composing with the interval rule — detection may see
 history's shape, offering respects the interval (B4, also A.7/A.9's interval-backfill cells).
-B5 proves the PUBLICATIONS.md **§4 history row** (tamper-evident vs tamper-free, the three-way
-distinction) and its §6 anchor; B6 proves the **§4 reach row** and the §5 auditable-reach and
-structural-consent bullets (the unsubscribe is an authenticated deletion). The corpus-tests
-(A1) hold the documents to saying exactly what B proves.
+B5 proves the PUBLICATIONS.md **§3 "Publication history" delta** (tamper-evident vs
+tamper-free, the three-way distinction); B2–B4 prove its §3 "Reader completeness" and
+"History access" rows; B6 proves the **§4 auditable-reach and structural-consent bullets**
+(the unsubscribe is an authenticated deletion). The corpus-tests (A1) hold the documents to
+saying exactly what B proves.
 
 ## Registers
 

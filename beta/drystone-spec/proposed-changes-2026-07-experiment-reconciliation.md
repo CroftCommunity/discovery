@@ -587,7 +587,7 @@ closes the limit. (Proven executable: RUN-18 B1–B4.)
 substrate does not already prove, the machinery MUST degenerate to bare atproto records plus chaining,
 and nothing else — the open/single (newsletter) and open/open shapes ride bare records; authorship,
 integrity, and current-state completeness are the substrate's native proofs and are not rebuilt
-(PUBLICATIONS.md §1–2). Machinery switches on only where the policy pair asks for proofs vanilla
+(PUBLICATIONS.md §1). Machinery switches on only where the policy pair asks for proofs vanilla
 cannot give.
 
 **The tamper-evident-history delta, the publication-facing consequence of chaining.** Vanilla atproto

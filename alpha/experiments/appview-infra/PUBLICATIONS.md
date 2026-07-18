@@ -1,153 +1,114 @@
-# The publications positioning — what the substrate proves, what the model adds
+# Publications on the group substrate: what vanilla atproto gives, and where our machinery pays rent
 
-`Corpus deliverable. Design material, stays in discovery; excluded from the
-appview-infra extraction (D15), same class as GROUPS.md. Landed 2026-07-18
-(RUN-18) as the standalone positioning doc the RUN-18 v2 brief specified
-(§0.2); the brief's PUBLICATIONS-DESIGN.md payload did not accompany the
-dispatched brief, so this text is authored from that specification directly —
-recorded, not glossed, in RUN-18-SUMMARY.md. It records the vanilla-atproto
-comparison for the publications (newsletter) shape: what the substrate proves
-natively, the degeneration principle that binds our open/single scopes to it,
-the single-agent limit and the one atom the model adds, the delta table, and
-the subscriber reframe. §6 anchors every claim into the landed
-[GROUPS.md](GROUPS.md) model text and the RUN-17/18 tier-proof evidence.`
+`Corpus deliverable. Design material, stays in discovery; excluded from the appview-infra
+extraction (D15), same class as GROUPS.md. This is the RUN-18 brief's payload
+(PUBLICATIONS-DESIGN.md, 2026-07-17), delivered in a follow-up dispatch and landed 2026-07-18
+largely verbatim — only this preamble and the §6 pointers were adjusted (house links, real
+anchors); it replaces the interim text authored from the brief's §0.2 specification (preserved
+in history, commit 265f875; RUN-18-SUMMARY.md records the swap). It records the derivation
+that began with a simple question — "could you do a newsletter with atproto on its own?" — and
+ended with the system's thesis. Companion to the group tier model (GROUPS.md / RUN-16 §A);
+evidence pointers cite the tier-proof lineage (RUN-17, RUN-18).`
 
-## 1. What vanilla atproto proves natively
+## 0. One sentence
 
-Three proofs come free with the substrate, and the design leans on all three
-rather than rebuilding them:
+Vanilla atproto validates authors perfectly and always did; what it cannot do is hold a
+group, on either side of the page — and the group, not the author, turned out to be the
+product.
 
-- **Authorship.** Every record lives in its author's repo, under the author's
-  repo signature chain; the signing key chains to the DID document. A record is
-  a speech act of its account, provably — nobody else can produce it.
+## 1. What vanilla atproto gives, stated generously and precisely
 
-- **Integrity.** Records are content-addressed; the commit signs the MST root,
-  so a record's bytes cannot be altered in place without breaking the chain a
-  verifier walks. What you fetched is what was signed.
+Every record is content-addressed and lives under a signed Merkle commitment in its author's
+repo. From that alone, with no machinery of ours:
 
-- **Current-state completeness.** A repo commit commits to the *entire current
-  state* of the repo through the MST root. A full checkout at commit C is
-  verifiably complete *as of C*: no record present in C can be hidden from a
-  reader holding C. This is a completeness proof over the PRESENT — and only
-  the present (see §4).
+- **Authorship and integrity are free.** "Is this post authentic, unmodified, from this DID"
+  is a signature-chain check anyone can run.
 
-## 2. The degeneration principle
+- **Current-state completeness is free.** A full repo sync commits to the entire record set;
+  nothing presently in the repo can be hidden from a verifier.
 
-Stated as binding, not aspiration: **where a scope's policy pair asks nothing
-the substrate does not already prove, the machinery MUST degenerate to
-bare atproto records plus chaining, and nothing else.** Our `open`-membership
-scopes — the open forum (open/open) and the newsletter (open/single) — ride
-bare records: the genesis, the self-registration, and every issue are ordinary
-signed records in their authors' repos; the only addition is the envelope's
-antecedents field, i.e. chaining (GROUPS.md A.5), which the substrate does not
-supply and reception completeness (GROUPS.md A.2) requires. No parallel
-delivery authority, no server-side membership store, no second identity system:
-if vanilla proves it, vanilla carries it. The gated and sealed tiers switch
-machinery ON precisely where their policy pairs ask for proofs vanilla cannot
-give (two-sided membership, sealed deliberation); the open/single publication
-is the degenerate case, and the degeneration is the design.
+- **A single-author newsletter is fully expressible.** One account, one collection, readers
+  following it: authorship and integrity guaranteed end to end.
 
-## 3. The single-agent limit, and the one added atom
+**The degeneration principle (binding on our designs).** Because the above is true, our
+open-membership, single-writer scopes SHOULD ride ordinary atproto records with exactly one
+addition — the per-author chaining rule — and nothing else. We do not rebuild what the
+substrate already proves. Every delta below must earn its place by expressing something a
+single signed repo structurally cannot.
 
-The substrate's grain is the single account: every record is a speech act of
-one author. There is no collective noun in vanilla atproto — no record whose
-author is "us", no institution that can speak as itself. The closest native
-shape, the list, is a **curator record**: it lives in the curator's repo and
-names other accounts, who sign nothing — a consent-free enumeration. That is
-exactly right for curation (mutes, feeds, starter packs) and exactly wrong for
-membership: a roster nobody consented onto proves nothing about its members.
+## 2. The single-agent limit
 
-The model therefore adds ONE atom on top of the substrate: the **provable
-multi-party fact** — the two-sided membership fact of GROUPS.md A.3, a claim
-record in the joiner's repo answered by co-signed grant records in the
-stewards' repos, folded by causal position. Everything institutional in the
-model (rosters, stewardship, revocation, the catalogue) is built from that
-single atom plus the fold; nothing else multi-party is ever asserted without
-it. Where the scope is open, even that atom degenerates (§2): the
-self-registration is claim, consent, and roster entry in one record, and the
-consent contrast with curator lists still holds — nobody appears on a roster
-without a record they authored (structural consent, GROUPS.md A.4).
+Every primitive in atproto is single-agent. A repo is one agent's speech acts. Follows and
+blocks are unilateral directed edges. Bluesky lists — the closest native thing to a group —
+are one curator's record ABOUT other people: conscription-capable (you can be placed on one
+without consent), held or released solely by the curator, expressing no joint authority. The
+protocol gives you vertices and one-way arrows. There is no native object for a set of people
+with agreed boundaries; no collective noun.
 
-## 4. The delta table
+**The missing atom, and the only thing our machinery truly adds:** the provable multi-party
+fact — co-signed, causally ordered, two-sided where consent matters. Author sets, subscriber
+rosters, and steward councils are all this one atom under different policy values (the two
+axes: membership policy, write policy).
 
-| Dimension | Vanilla atproto proves | The model adds | Where |
-|---|---|---|---|
-| Who may speak | **authorship** — this account signed this record | **authorization-at-position** — the author was on the roster and admitted by the write policy *at the record's causal position* | [GROUPS.md A.2](GROUPS.md#a2-two-policy-axes-not-one), [A.8](GROUPS.md#a8-transports-the-split-the-swarm-and-one-planned-crossing); evidence B1 (RUN-18), P3/P4 (RUN-17) |
-| History | **tamper-free current state** — the present is complete and unforgeable, but a deleted record is simply absent, indistinguishable from one that never existed | **tamper-evident history** — chaining makes absence classifiable three ways: **never-existed** (no chain references it), **retracted** (referenced, deletion verifiable at source), **withheld** (referenced, no source offers it, deletion not shown) | [GROUPS.md A.2](GROUPS.md#a2-two-policy-axes-not-one) (reception paragraph); evidence B2/B3/B5 (RUN-18) |
-| The collective | **account** — a single agent's repo; lists are consent-free curator records | **institution** — a lineage with governed roster, stewards, and policy axes, built from the multi-party fact | [GROUPS.md A.1](GROUPS.md#a1-principals-and-names), [A.3](GROUPS.md#a3-membership-facts-gated-tier-the-open-and-sealed-tiers-are-its-degenerate-and-augmented-forms), [A.6](GROUPS.md#a6-governance-the-small-real-mls-group-and-the-true-ceiling) |
-| Reach | a count the server asserts | an **auditable** count — any second fold over the same records re-derives it | [GROUPS.md A.4](GROUPS.md#a4-the-open-tier-one-signature-zero-canonical-bytes); evidence B6 (RUN-18) |
+## 3. The deltas: what a publication gains over a repo
 
-The history row is the publication-facing consequence of chaining, and the
-three-way distinction is its load-bearing cell: vanilla's current-state proof
-is **tamper-free** but memoryless (retraction and never-existence collapse into
-the same absence), while the chained stream is **tamper-evident** — history's
-shape survives even where its content is gone, and a reader can say *which*
-kind of gone. Retraction remains possible and honest (the author deletes the
-content record; the substrate proves the deletion); what retraction can no
-longer be is silent.
+| Delta | Vanilla atproto | On the group substrate |
+|---|---|---|
+| Authorization vs authorship | proves who WROTE a record; the author set is one account, forever | proves who was AUTHORIZED to write, at which causal position, granted and revoked by governed ops; "valid author" is an electable, removable role; a removed author's earlier issues stay valid, later ones do not |
+| Publication history | tamper-FREE current state: the Merkle proof attests what is present now; a silently deleted post is indistinguishable from never-published; retraction is invisible | tamper-EVIDENT history: chaining makes an issue's existence permanent public structure once anything later circulates; a reader distinguishes never-existed, retracted, and being-withheld-from-me (the three-way distinction) |
+| Identity | the publication IS an account; succession means surrendering the owner's whole identity | the publication is an institution: a genesis-hash principal under which stewards change, authors rotate, tiers are crossed, and the lineage persists independent of any person |
+| Ordering | per-repo revs only; no order across authors' repos | causal antecedents order the stream across any number of repos |
+| Reader completeness | depends on an unbroken firehose cursor or a full sync of each author | detection-grade completeness from the chain, identical over DS, backfill, or swarm; gaps are named and repairable |
+| History access | all or nothing | membership-interval scoped offering, per the fold |
 
-## 5. The subscriber reframe
+## 4. The subscriber reframe: two rosters under one lineage
 
-- **Two rosters, one lineage.** A publication is one lineage (one genesis, one
-  catalogue entry) carrying two roster facts: the *writer* roster fixed by the
-  write policy (`single`, or `named-set` for a masthead) and the *reader*
-  roster grown by open enrollment. Vanilla conflates these into "follows"; the
-  model keeps them as two policy values on one scope (GROUPS.md A.2).
+A newsletter is not "an author plus an audience"; it is two rosters hanging off one lineage —
+a tiny gated WRITER roster and a large open READER roster — the two-axes model named from the
+subscriber side. Managing the reader side as a provable roster is what upgrades the product:
 
-- **The subscriber is the guarantee beneficiary.** Reception completeness
-  (GROUPS.md A.2) is a subscriber-side guarantee: any reader can verify their
-  held stream complete up to the newest held issue, detect any gap as a known
-  omission, and repair it from any role or peer. The guarantee runs on public
-  data; open enrollment never weakens it.
+- **The reception guarantee gains a beneficiary.** "Complete up to newest held" is owed to a
+  defined set; that is what makes it a guarantee rather than a property.
 
-- **Auditable reach and churn.** The subscriber count is not the operator's
-  assertion: anyone folding the same records re-derives the roster, so reach is
-  auditable and churn is visible as interval opens and closes (GROUPS.md A.3).
-  A count with no folded records behind it is detectable as unsupported
-  (evidence B6, RUN-18).
+- **Reach becomes auditable.** Platform subscriber and follower counts are asserted numbers
+  taken on faith; a roster folded from public self-registrations is a count anyone
+  re-derives, and churn (unsubscribes as authenticated deletions) is equally provable.
+  Metrics that cannot be inflated is a claim no incumbent platform can make.
 
-- **Structural consent.** Every subscriber holds their own self-registration
-  record; every unsubscribe is an authenticated deletion. Nobody can be
-  enrolled, or kept, by someone else's record — the exact consent contrast
-  with the curator list (§3).
+- **Consent is structural.** Against the list model: nobody appears on a roster without a
+  record they authored, and nobody is held on it after deleting that record.
 
-- **The paid tier is a policy value.** A paid publication is the same lineage
-  with a `gated` reader roster (grant-on-payment as an admission rule,
-  GROUPS.md A.6) — a policy value on the scope, not new machinery. Named here
-  as positioning only; nothing is built and no pricing posture is taken.
+- **The paid tier is pre-designed.** A gated reader roster under the same lineage is a
+  paywalled publication with zero new machinery; the tier ladder applies to readers exactly
+  as to members, because they were never different objects.
 
-- **The honest scope of "managing".** What an operator of a publication
-  actually manages: they run replaceable delivery roles over public facts —
-  serving, indexing, search. They do not own the roster (it re-derives from
-  records subscribers author), cannot invent or expel subscribers in a way that
-  survives audit, cannot reorder or silently truncate history (chaining), and
-  hold no canonical bytes for the open/single shape (degeneration, §2).
-  "Managing a publication" is operating conveniences, never custody of the
-  publication's facts — that is the honest scope, and saying so is the
-  positioning.
+**Honest scope of the word "managing."** In open enrollment there is no authority: we fold,
+serve, and owe completeness; nobody is admitted or expelled. Management in the strong sense
+begins only where a roster goes gated — and then it is governance, with everything that word
+means in this corpus (sealed deliberation, public verdicts, silence never a verdict).
 
-## 6. Where this lives in the model, and what proves it
+## 5. Where the rent begins
 
-- The two policy axes and the reception-completeness paragraph:
-  [GROUPS.md A.2](GROUPS.md#a2-two-policy-axes-not-one) — proven by B1–B4
-  (chaining validation, gap detection and repair, the honest tail, interval
-  interaction), RUN-18.
-- The membership fact and intervals:
-  [GROUPS.md A.3](GROUPS.md#a3-membership-facts-gated-tier-the-open-and-sealed-tiers-are-its-degenerate-and-augmented-forms)
-  — proven by P4 (RUN-17); churn visibility rides the same intervals.
-- The open tier's one-signature enrollment and audit-surviving roster:
-  [GROUPS.md A.4](GROUPS.md#a4-the-open-tier-one-signature-zero-canonical-bytes)
-  — proven by P2 (RUN-17) and B6 (RUN-18, auditable reach).
-- Envelope identity and chaining's carrier (antecedents):
-  [GROUPS.md A.5](GROUPS.md#a5-the-assertion-layer-what-survives-of-mls-at-each-tier)
-  — proven by P1 (RUN-17).
-- The delivery plane the operator actually runs (the "managing" scope):
-  [GROUPS.md A.7](GROUPS.md#a7-the-delivery-plane-roles-realized-as-separate-processes-none-of-them-authorities)
-  — proven by P8 (RUN-17).
-- The transport split and the swarm path that turns a withheld tail from
-  silent to detected:
-  [GROUPS.md A.8](GROUPS.md#a8-transports-the-split-the-swarm-and-one-planned-crossing)
-  — proven by B3 (RUN-18).
-- The tier table, history-access row:
-  [GROUPS.md A.9](GROUPS.md#a9-the-tier-table) — the three-way retraction
-  distinction proven by B5 (RUN-18).
+The boundary is exact. The moment a publication has an editor who is not the owner, a second
+author, a succession plan, or a retraction policy readers can audit, it has left what one
+signed repo can express. Below that line, use the substrate bare (§1). Above it, the group
+machinery is not an alternative to atproto verification; it is the collective layer atproto
+never had, built from atproto's own parts — records, repos, DIDs, the relay — plus the one
+atom it lacks.
+
+## 6. Pointers
+
+The mechanics live in the group tier model ([GROUPS.md](GROUPS.md); RUN-16 §A): principals
+and blinding ([A.1](GROUPS.md#a1-principals-and-names)), the two axes and reception
+completeness ([A.2](GROUPS.md#a2-two-policy-axes-not-one)), membership facts and intervals
+([A.3](GROUPS.md#a3-membership-facts-gated-tier-the-open-and-sealed-tiers-are-its-degenerate-and-augmented-forms)),
+the open tier ([A.4](GROUPS.md#a4-the-open-tier-one-signature-zero-canonical-bytes)),
+assertion and identity ([A.5](GROUPS.md#a5-the-assertion-layer-what-survives-of-mls-at-each-tier)),
+governance ([A.6](GROUPS.md#a6-governance-the-small-real-mls-group-and-the-true-ceiling)),
+delivery roles
+([A.7](GROUPS.md#a7-the-delivery-plane-roles-realized-as-separate-processes-none-of-them-authorities)),
+transports ([A.8](GROUPS.md#a8-transports-the-split-the-swarm-and-one-planned-crossing)).
+Executable evidence: the tier proof ([RUN-17](../RUN-17-SUMMARY.md)) and the
+reception/publications amendment ([RUN-18](../RUN-18-SUMMARY.md)): chaining validation, gap
+detection and repair, tail honesty, the retraction three-way distinction, and the
+auditable-count assertion.
