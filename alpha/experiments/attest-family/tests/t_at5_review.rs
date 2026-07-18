@@ -122,6 +122,14 @@ fn no_suppression_path_exists() {
         // RUN-ATTEST-02 (reviewed): read-only credential accessors — return
         // fold views only; cannot remove, hide, or demote anything.
         "credentials", "credential",
+        // RUN-ATTEST-03 (reviewed): the V1 antecedent-register surface.
+        // `fold_with_register` mirrors the R7-governed qualifying-kind
+        // register into a fold; it can change STANDING (qualification), never
+        // remove, hide, or demote a stored object — lineage and views remain,
+        // and the register moves only by content-bound quorum, not by any
+        // subject's unilateral act. `full`/`from_mask`/`allows` are pure
+        // constructors/readers on the mirror type.
+        "fold_with_register", "full", "from_mask", "allows",
         // views
         "participants", "side", "as_str",
         // query

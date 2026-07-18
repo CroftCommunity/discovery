@@ -26,13 +26,16 @@ fn edge_fixture() -> (World, Vec<Envelope>, [u8; 32]) {
 }
 
 // ---------------------------------------------------------------------------
-// T-AT2.1 — a vouch without a resolvable base edge folds to pending
+// T-AT2.1 — a vouch without a qualifying antecedent folds to pending
 // ---------------------------------------------------------------------------
 
-// OWNER-CALL: OC-2 pending — edge-antecedent-required is the narrowest option;
-// whether a vouch may stand alone (e.g. transaction-only) is the owner's call.
+// OWNER-CALL: OC-2 DECIDED (V1, 2026-07-18, owner-confirmed in chat) — option
+// B: the qualifying antecedent comes from the closed class (co-signed edge,
+// transaction, ceremony), not an edge specifically; the transaction-backed
+// edge-free case is proven end-to-end in T-A3.1. This test keeps T-AT2.1's
+// discipline: zero qualifying antecedents → pending, never standing.
 #[test]
-fn vouch_cites_edge_antecedent() {
+fn vouch_requires_qualifying_antecedent() {
     let (w, corpus, core_hash) = edge_fixture();
 
     // A vouch citing a base edge that resolves: stands.
@@ -132,8 +135,12 @@ fn vouch_supersede_independent() {
 // T-AT2.3 — edge supersede marks dependent vouches; never auto-withdraws
 // ---------------------------------------------------------------------------
 
-// OWNER-CALL: OC-3 pending — persist-with-marker is implemented; a
-// re-affirmation window is the alternative the owner may choose later.
+// OWNER-CALL: OC-3 DECIDED (V2, 2026-07-18, owner-confirmed in chat) —
+// persist-with-marker RATIFIED, with the marker made kind-specific
+// (`edge_superseded`, T-A3.5) and the tier boundary clarified: Drystone-tier
+// withdrawal is supersede + absence (T-A3.6); authoritative-layer claw-back
+// is the ATProto tier's mechanism (the Part B brief). No wall-clock anywhere;
+// the private review/remediation mechanism is parked separately.
 #[test]
 fn edge_supersede_marks_vouches() {
     let (w, corpus, core_hash) = edge_fixture();
@@ -168,7 +175,7 @@ fn edge_supersede_marks_vouches() {
         "a vouch is never auto-withdrawn by its edge's supersession"
     );
     // The fold gains presentation metadata instead.
-    assert_eq!(view.markers, vec![Marker::AntecedentSuperseded]);
+    assert_eq!(view.markers, vec![Marker::EdgeSuperseded]);
 }
 
 // ---------------------------------------------------------------------------
