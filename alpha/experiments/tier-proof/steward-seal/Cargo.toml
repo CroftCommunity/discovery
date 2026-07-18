@@ -1,0 +1,21 @@
+# tier-proof/steward-seal — RUN-17 P6 (sealed steward group half), loopback grade.
+#
+# The real MLS steward group: sealed deliberation → public verdict, over the
+# actual croft-group crates (guardrail 1 permits path-deps on croft-group for
+# P6). It path-deps group-seal (openmls via the proven lineage-mls Device
+# wrapper) and depends on the parent tier-proof crate for the envelope/record/
+# fold machinery, so the emitted VERDICT is a Grant matching P4's exact shape.
+#
+# Own [workspace] + lockfile: openmls stays out of the light tier-proof lock.
+[package]
+name = "tier-proof-steward-seal"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+group-seal = { path = "../../croft-group/crates/group-seal" }
+group-core = { path = "../../croft-group/crates/group-core" }
+tier-proof = { path = ".." }
