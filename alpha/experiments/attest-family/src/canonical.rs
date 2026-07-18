@@ -188,6 +188,10 @@ fn payload_ipld(p: &Payload) -> Ipld {
             }
             map(pairs)
         }
+        // RUN-ATTEST-02 kinds — encoding pending (RED stage).
+        Payload::VettingFact(_) | Payload::Credential(_) | Payload::CredentialSupersede(_) => {
+            unimplemented!("RUN-ATTEST-02: canonical encoding of anchor-persona kinds pending")
+        }
         Payload::ResolvabilityPolicy(rp) => {
             let rule = match &rp.rule {
                 PolicyRule::AllowAll => map(vec![("k", s("allow_all"))]),
