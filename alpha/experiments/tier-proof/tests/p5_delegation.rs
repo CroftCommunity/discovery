@@ -41,9 +41,16 @@ fn device() -> Signer {
 fn did_doc_key_encoding_prediction_holds() {
     // P5-1 + P5-2 at component grade.
     let dev = device();
-    assert!(dev.did().starts_with("did:key:z6Mk"), "ed25519 did:key begins z6Mk (P5-1)");
+    assert!(
+        dev.did().starts_with("did:key:z6Mk"),
+        "ed25519 did:key begins z6Mk (P5-1)"
+    );
     let vk = verifying_from_did_key(&dev.did()).expect("decode");
-    assert_eq!(did_key_from_verifying(&vk), dev.did(), "encoding round-trips (P5-2)");
+    assert_eq!(
+        did_key_from_verifying(&vk),
+        dev.did(),
+        "encoding round-trips (P5-2)"
+    );
 }
 
 /// Build a firehose with an account delegating a device key via an attestation.
@@ -61,7 +68,14 @@ fn source_with_attestation() -> (MemSource, String) {
 
 /// An envelope signed by the DEVICE key (the account is not in the loop per-msg).
 fn device_envelope(text: &str) -> tier_proof::envelope::Envelope {
-    records::seal(&device(), vec![], &Record::Message { scope: SCOPE.to_string(), text: text.to_string() })
+    records::seal(
+        &device(),
+        vec![],
+        &Record::Message {
+            scope: SCOPE.to_string(),
+            text: text.to_string(),
+        },
+    )
 }
 
 #[test]
@@ -71,7 +85,9 @@ fn verifier_accepts_device_envelope_under_a_live_attestation() {
 
     let env = device_envelope("from my phone");
     assert!(
-        verifier.accepts_device_envelope(&env, &account().did()).is_ok(),
+        verifier
+            .accepts_device_envelope(&env, &account().did())
+            .is_ok(),
         "device envelope accepted while the attestation is live"
     );
 }
@@ -83,7 +99,14 @@ fn envelope_from_undelegated_key_is_rejected() {
 
     // A different, undelegated device.
     let rogue = Signer::from_seed([77u8; 32]);
-    let env = records::seal(&rogue, vec![], &Record::Message { scope: SCOPE.to_string(), text: "rogue".into() });
+    let env = records::seal(
+        &rogue,
+        vec![],
+        &Record::Message {
+            scope: SCOPE.to_string(),
+            text: "rogue".into(),
+        },
+    );
     assert_eq!(
         verifier.accepts_device_envelope(&env, &account().did()),
         Err(DelegReject::NoActiveAttestation),
@@ -98,8 +121,15 @@ fn deleting_the_attestation_rejects_the_next_device_envelope() {
     // Before the delete: accepted, and repeated calls are stable (no time input).
     let before = DelegationVerifier::from_events(DidKeyResolver, &src.all());
     let env = device_envelope("still me");
-    assert!(before.accepts_device_envelope(&env, &account().did()).is_ok());
-    assert!(before.accepts_device_envelope(&env, &account().did()).is_ok(), "stable: not TTL-driven");
+    assert!(before
+        .accepts_device_envelope(&env, &account().did())
+        .is_ok());
+    assert!(
+        before
+            .accepts_device_envelope(&env, &account().did())
+            .is_ok(),
+        "stable: not TTL-driven"
+    );
 
     // Delete the attestation on the firehose.
     src.delete(&account(), &att);
@@ -121,7 +151,9 @@ fn cache_invalidation_is_event_driven_not_ttl() {
         verifier.apply_event(&ev);
     }
     let env = device_envelope("hello");
-    assert!(verifier.accepts_device_envelope(&env, &account().did()).is_ok());
+    assert!(verifier
+        .accepts_device_envelope(&env, &account().did())
+        .is_ok());
 
     // Feed only a delete event — the sole cause of invalidation.
     verifier.apply_event(&tier_proof::source::SourceEvent::Delete {
@@ -141,5 +173,8 @@ fn account_that_does_not_resolve_is_rejected() {
     // rejects a malformed DID).
     let (src, _att) = source_with_attestation();
     let verifier = DelegationVerifier::from_events(DidKeyResolver, &src.all());
-    assert!(verifier.resolver().resolve_key("did:key:not-a-key").is_none());
+    assert!(verifier
+        .resolver()
+        .resolve_key("did:key:not-a-key")
+        .is_none());
 }
