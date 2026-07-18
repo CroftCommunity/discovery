@@ -563,3 +563,41 @@ This is a delivery-layer design stance; it touches no Part 2 mechanism and moves
 (write-path variant; the `group_scale_boundary` number, reframed as measurable via churn simulation;
 launch order; and the new relay-hosting question — self-host an iroh relay vs public relays initially).
 Nothing here is an experiment-earned move; the stance awaits the owner's call.
+
+### RUN-18 addendum — reception completeness for write-restricted scopes; the degeneration principle  ·  `caveat`/`needs-call`
+
+`Source: RUN-18 (alpha/experiments/RUN-18-SUMMARY.md) — the reception-completeness paragraph landed in
+GROUPS.md A.2 and the publications positioning landed as
+alpha/experiments/appview-infra/PUBLICATIONS.md, with the mechanism proven executable in tier-proof/
+(B1–B6). This extends the RUN-16 update above; still staged, the reviewed spec (part-*, conventions)
+untouched.`
+
+**The chaining requirement, and completeness as detection.** In write-restricted scopes (`single`,
+`named-set`) authors MUST chain their envelopes — each envelope carries the author's previous envelope
+in its antecedents, the first anchoring to scope genesis. Reception completeness is thereby a
+subscriber-side guarantee framed as **DETECTION, never delivery**: any reader holding envelope N can
+verify the stream N-1..1 exists, detect any gap as a known omission, and repair it via
+membership-interval backfill; the guarantee runs on public data alone and open enrollment never
+weakens it. The honest limit is named per the completeness-ahead doctrine: a withheld TAIL is
+undetectable until anything newer arrives by any path; multimodal delivery (DS plus optional swarm) is
+the mitigation, and freshness/solicitation posture stays a governed dial, never a mechanism that
+closes the limit. (Proven executable: RUN-18 B1–B4.)
+
+**The degeneration principle as a design constraint.** Where a scope's policy pair asks nothing the
+substrate does not already prove, the machinery MUST degenerate to bare atproto records plus chaining,
+and nothing else — the open/single (newsletter) and open/open shapes ride bare records; authorship,
+integrity, and current-state completeness are the substrate's native proofs and are not rebuilt
+(PUBLICATIONS.md §1). Machinery switches on only where the policy pair asks for proofs vanilla
+cannot give.
+
+**The tamper-evident-history delta, the publication-facing consequence of chaining.** Vanilla atproto
+proves a **tamper-free current state** (a deleted record is simply absent — retraction and
+never-existence collapse into the same absence); chaining upgrades the stream to **tamper-evident
+history**, where absence is classifiable three ways — **never-existed** (no chain references it),
+**retracted** (referenced; deletion verifiable at source), **withheld** (referenced; no source offers
+it and deletion cannot be shown). Retraction stays possible and honest; it can no longer be silent.
+(Proven executable: RUN-18 B5; the auditable-reach corollary — a roster count any second fold
+re-derives, and an unsupported asserted count detectable — B6.)
+
+**Decision:** `needs-call`, unchanged — a design-stance extension riding the RUN-16 note; no status
+tag moves; the reviewed spec is untouched.

@@ -109,7 +109,17 @@ fn non_author_post_into_newsletter_is_rejected_and_absent_from_serve() {
 #[test]
 fn author_post_into_newsletter_is_served() {
     let state = Fold::run(&two_policy_source().all()).expect("fold");
-    let broadcast = msg(&owner(), NEWSLETTER, "this week");
+    // RUN-18 (B1): write-restricted scopes now demand chaining — the author's
+    // first envelope anchors to the scope genesis (GROUPS.md A.2).
+    let anchor = state.genesis_id(NEWSLETTER).expect("genesis id");
+    let broadcast = records::seal(
+        &owner(),
+        vec![anchor],
+        &Record::Message {
+            scope: NEWSLETTER.to_string(),
+            text: "this week".to_string(),
+        },
+    );
     assert!(relay::accepts(&state, &broadcast).is_ok());
     let served = relay::relay(&state, std::slice::from_ref(&broadcast));
     assert_eq!(served.len(), 1, "the owner's newsletter post is served");

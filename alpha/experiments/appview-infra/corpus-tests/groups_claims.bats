@@ -125,3 +125,108 @@ KIT="$DIR/kit"
   grep -q 'RUN-16' "$DIR/../../../beta/drystone-spec/proposed-changes-2026-07-experiment-reconciliation.md"
   grep -q 'RUN-16' "$DIR/../../../beta/impl/experiments/drystone-reviews-and-experiments-log.md"
 }
+
+# ---------------------------------------------------------------------------
+# RUN-18 — reception completeness (the subscriber-side guarantee) and the
+# publications positioning. Extended RED first: the reception checks assert the
+# canonical paragraph GROUPS.md does not yet carry; the publications checks
+# assert a PUBLICATIONS.md that does not yet exist. Same claims-grep discipline
+# as above — the docs SAY the invariants; Part B (tier-proof) proves them.
+# ---------------------------------------------------------------------------
+
+PUB_MD="$DIR/PUBLICATIONS.md"
+
+@test "run18: per-author chaining is REQUIRED in write-restricted scopes" {
+  grep -qi 'MUST chain their envelopes' "$GROUPS_MD"
+  # each envelope carries the author's previous envelope in its antecedents
+  grep -qi "author's previous envelope" "$GROUPS_MD"
+}
+
+@test "run18: reception completeness is DETECTION up to newest held, never delivery" {
+  grep -qi 'DETECTION of incompleteness' "$GROUPS_MD"
+  grep -qi 'newest held' "$GROUPS_MD"
+  grep -qi 'best-effort' "$GROUPS_MD"
+}
+
+@test "run18: the withheld-tail limit is tied to the completeness-ahead doctrine" {
+  grep -qi 'withheld TAIL' "$GROUPS_MD"
+  grep -qi 'completeness-ahead' "$GROUPS_MD"
+  # multimodal delivery is the mitigation, not a closure of the limit
+  grep -qi 'multimodal delivery' "$GROUPS_MD"
+}
+
+@test "run18: open enrollment never weakens verification" {
+  grep -qi 'open enrollment never weakens' "$GROUPS_MD"
+  # verification requires no standing, only the envelopes
+  grep -qi 'no standing' "$GROUPS_MD"
+}
+
+@test "run18: the swarm paragraph notes the second path turns a withheld tail from silent to detected" {
+  grep -qi 'silent to detected' "$GROUPS_MD"
+}
+
+@test "run18: GROUPS.md and PUBLICATIONS.md point at each other" {
+  grep -q 'PUBLICATIONS\.md' "$GROUPS_MD"
+  grep -q 'GROUPS\.md' "$PUB_MD"
+}
+
+@test "run18: the degeneration principle is stated as binding" {
+  grep -qi 'degeneration principle' "$PUB_MD"
+  # open/single scopes ride the substrate's own records plus chaining only
+  grep -qi 'atproto records' "$PUB_MD"
+  grep -qi 'chaining' "$PUB_MD"
+  grep -qi 'binding' "$PUB_MD"
+}
+
+@test "run18: the single-agent limit and the consent contrast with curator lists" {
+  grep -qi 'collective noun' "$PUB_MD"
+  grep -qi 'curator' "$PUB_MD"
+  grep -qi 'consent' "$PUB_MD"
+  # the provable multi-party fact is the one added atom
+  grep -qi 'provable multi-party' "$PUB_MD"
+}
+
+@test "run18: the delta table distinguishes tamper-evident history from tamper-free current state" {
+  grep -qi 'tamper-evident' "$PUB_MD"
+  grep -qi 'tamper-free' "$PUB_MD"
+  grep -qi 'authorization' "$PUB_MD"
+}
+
+@test "run18: the three-way retraction distinction is named" {
+  grep -qi 'never-existed' "$PUB_MD"
+  grep -qi 'retracted' "$PUB_MD"
+  grep -qi 'withheld' "$PUB_MD"
+}
+
+@test "run18: the auditable-count claim is present (reach and churn re-derivable)" {
+  grep -qi 'auditable' "$PUB_MD"
+  grep -qiE 're-deriv|re-fold|refold' "$PUB_MD"
+}
+
+@test "run18: the honest scope of 'managing' is stated" {
+  grep -qi 'honest scope' "$PUB_MD"
+  grep -qi 'manag' "$PUB_MD"
+}
+
+@test "run18: PUBLICATIONS.md link-check passes (joins the broken-ref audit)" {
+  [ -f "$PUB_MD" ]
+  run "$KIT/scripts/link-check.sh" "$PUB_MD"
+  if [ "$status" -ne 0 ]; then echo "$output"; fi
+  [ "$status" -eq 0 ]
+}
+
+@test "run18: PUBLICATIONS.md anchors into GROUPS.md resolve to real headings" {
+  anchors=$(grep -o 'GROUPS\.md#[a-z0-9-]*' "$PUB_MD" | sed 's/.*#//' | sort -u)
+  [ -n "$anchors" ]
+  headings=$(grep -E '^#{1,6} ' "$GROUPS_MD" \
+    | sed -E 's/^#+ +//' | tr '[:upper:]' '[:lower:]' \
+    | sed -E 's/[^a-z0-9 -]//g; s/ /-/g')
+  for a in $anchors; do
+    echo "$headings" | grep -qx "$a"
+  done
+}
+
+@test "run18: the RUN-18 addendum is staged in proposed-changes and reviews-log" {
+  grep -q 'RUN-18' "$DIR/../../../beta/drystone-spec/proposed-changes-2026-07-experiment-reconciliation.md"
+  grep -q 'RUN-18' "$DIR/../../../beta/impl/experiments/drystone-reviews-and-experiments-log.md"
+}
