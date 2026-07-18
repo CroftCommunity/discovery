@@ -13,6 +13,9 @@ beta/drystone-spec/proposed-changes-2026-07-experiment-reconciliation.md
 (RUN-16 update) with a reviews-log row — the reviewed spec (part-*, conventions)
 is untouched.`
 
+Companion: [PUBLICATIONS.md](PUBLICATIONS.md) — the publications positioning (what vanilla
+atproto proves natively, the degeneration principle, the subscriber reframe; RUN-18).
+
 ---
 
 # SECTION A — THE MODEL (canonical text)
