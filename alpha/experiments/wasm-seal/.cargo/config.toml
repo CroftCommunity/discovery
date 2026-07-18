@@ -1,0 +1,11 @@
+# RUN-19: run wasm32 test binaries under the wasm-bindgen test runner.
+# The runner executes the module in Node by default (no
+# `wasm_bindgen_test_configure!(run_in_browser)` in the tests).
+#
+# SPEC-DELTA[run19-node-runner | declared-stand-in]: the wasm module is
+# exercised under the Node host, not a real browser page — same module,
+# different JS host; the one guardrail-4 headless-chrome attempt failed
+# environmentally (chromedriver, os error 97, IPv6 absent) —
+# Register: alpha/experiments/SPEC-DIVERGENCE-REGISTER.md
+[target.wasm32-unknown-unknown]
+runner = "wasm-bindgen-test-runner"

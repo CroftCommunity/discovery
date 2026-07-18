@@ -1,0 +1,17 @@
+# ds-proto — RUN-19 P4: the DS wire protocol, shared by server and client.
+#
+# Deliberately CRYPTO-FREE: this is the only crate `blind-ds` shares with the
+# seal side, so the server's dependency graph provably contains no unseal
+# capability (the compilation-boundary blindness claim, EXP-B pattern —
+# asserted by `cargo tree -p blind-ds -e normal` + the source-scan guard).
+[package]
+name = "ds-proto"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror.workspace = true
+tokio = { version = "1", features = ["io-util"] }

@@ -1,0 +1,47 @@
+# seal-wasm — RUN-19 P1: the croft-group seal stack compiled to
+# wasm32-unknown-unknown and RUN there (the missing-test-evidence part).
+#
+# RED state: the crate exposes only the seal *interface* as a stub, so the
+# wasm harness (target + runner + Node host) is proven to execute and FAIL
+# before any MLS code lands. GREEN swaps the stub for the real croft-group
+# `group-seal` path-dep with openmls's `js` feature unioned in.
+[package]
+name = "seal-wasm"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[lib]
+# cdylib for the wasm module a JS host loads (P5); rlib so native builds can
+# reuse the same interface for the P2 cross-build goldens.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+thiserror.workspace = true
+seal-wire = { path = "../seal-wire" }
+seal-persist = { path = "../seal-persist" }
+hex = "0.4"
+# The real croft-group L2a seal stack, reused not re-implemented (path-deps;
+# guardrail 2's preferred arm — run19-bare-openmls stays unfired if this
+# compiles to the wasm target).
+group-seal.workspace = true
+group-core.workspace = true
+lineage-mls.workspace = true
+
+# PRED-RNG compile probe (recorded in the summary): withOUT the next section's
+# `js` feature union, `cargo build --target wasm32-unknown-unknown` must FAIL
+# at getrandom ("target is not supported"). The probe is run by removing the
+# target-gated openmls line below.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+openmls = { workspace = true, features = ["js"] }
+# PRED-RNG finding (predicted-vs-actual nuance, recorded in the summary):
+# openmls's `js` feature covers only its OWN getrandom (0.3, `wasm_js`); our
+# stack also carries getrandom 0.2 via the lineage pin rand =0.8.6, which
+# needs its `js` feature enabled separately (the standard feature-union
+# idiom). getrandom 0.3 additionally needs the backend cfg — see
+# ../../.cargo/config.toml rustflags.
+getrandom02 = { package = "getrandom", version = "=0.2.17", features = ["js"] }
+wasm-bindgen.workspace = true
+
+[dev-dependencies]
+wasm-bindgen-test.workspace = true

@@ -1,0 +1,21 @@
+# seal-wire — RUN-19 P2: the process-boundary wire helpers.
+#
+# The only piece the P2 cross-build goldens need that group-seal does not
+# expose: a KeyPackage serialized to/from bytes so it can cross a process
+# (and build) boundary. Commit/Welcome/application messages are already bytes
+# in the group-seal API. Compiles to both native and wasm32.
+[package]
+name = "seal-wire"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[dependencies]
+lineage-mls.workspace = true
+openmls.workspace = true
+openmls_rust_crypto.workspace = true
+openmls_traits.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+group-seal.workspace = true

@@ -1,0 +1,23 @@
+# ds-client — RUN-19 P4: the NATIVE WebTransport client, speaking the
+# identical protocol a browser page would (`new WebTransport(url,
+# {serverCertificateHashes})` ≙ `with_server_certificate_hashes`): real QUIC,
+# HTTP/3 CONNECT session establishment, one bidi stream per request, cert-hash
+# dev trust. The literal browser page is a named non-goal in this environment
+# (guardrail 4); same pinned wtransport revision as the server (guardrail 5).
+[package]
+name = "ds-client"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "ds-cli"
+path = "src/bin/ds_cli.rs"
+
+[dependencies]
+ds-proto = { path = "../ds-proto" }
+tokio.workspace = true
+wtransport.workspace = true
+hex = "0.4"
+thiserror.workspace = true
+serde_json = "1"
