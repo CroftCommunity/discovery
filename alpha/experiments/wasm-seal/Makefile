@@ -16,7 +16,12 @@ native-peer:
 p2-interop: wasm-pkg native-peer
 	node node/interop.mjs
 
+# The claim is UNSEAL-blindness: no MLS/seal crate in the server's normal
+# (shipped) graph. TLS-layer crypto (quinn/rustls inside wtransport) is
+# transport encryption and is expected — it cannot open MLS application
+# ciphertext.
 p4-blindness:
-	@echo "== blind-ds NORMAL dependency graph (must contain no seal/unseal capability) =="
+	@echo "== blind-ds NORMAL dependency graph (must contain no unseal capability) =="
 	cargo tree -p blind-ds -e normal | tee /tmp/blind-ds-tree.txt
-	@! grep -Ei "openmls|group-seal|seal-wire|seal-persist|chacha|aes|crypto" /tmp/blind-ds-tree.txt && echo "BLINDNESS: no crypto/seal crate in the normal graph"
+	@! grep -Ei "openmls|group-seal|group-core|seal-wire|seal-persist|seal-wasm|seal-native|lineage" /tmp/blind-ds-tree.txt \
+		&& echo "BLINDNESS: no MLS/seal crate in the normal graph"

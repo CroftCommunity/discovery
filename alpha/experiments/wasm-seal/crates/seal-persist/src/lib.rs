@@ -23,7 +23,6 @@ use openmls_rust_crypto::OpenMlsRustCrypto;
 use openmls_traits::crypto::OpenMlsCrypto;
 use openmls_traits::random::OpenMlsRand;
 use openmls_traits::types::AeadType;
-use openmls_traits::OpenMlsProvider as _;
 use serde::{Deserialize, Serialize};
 
 /// The MTI ciphersuite (the lineage-groups/croft-group pin).
@@ -197,12 +196,6 @@ impl PersistSealer {
             )
             .map_err(mls_err)?;
         seal_wire::key_package_to_bytes(bundle.key_package()).map_err(mls_err)
-    }
-
-    fn group_mut(&mut self) -> Result<&mut MlsGroup, PersistError> {
-        self.group
-            .as_mut()
-            .ok_or_else(|| PersistError::Mls("no active group".into()))
     }
 
     fn group_ref(&self) -> Result<&MlsGroup, PersistError> {
