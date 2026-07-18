@@ -55,6 +55,10 @@ fn fix() -> Fix {
     let core = edge_core(w.p1a.id, w.p3.id, [0x51; 16], vec![]);
     base.push(w.p1a.emit(vec![], edge_half(core.clone(), "met at the co-op")));
     base.push(w.p3.emit(vec![], edge_half(core, "co-op member")));
+    // V4 churn (RUN-ATTEST-04, named): under the graded resolvability default
+    // the attester P3 opts OPEN (a deliberate policy act) so the third-party
+    // viewer P4 still traverses P3's vouches/reviews about P1a.
+    base.push(w.p3.emit(vec![], policy(w.p3.id, PolicyRule::AllowAll, None)));
     Fix { w, state, outs, base }
 }
 
@@ -198,7 +202,8 @@ fn record_stays_with_persona() {
 // ---------------------------------------------------------------------------
 
 /// One sibling's full public surface: fold-side sweep + published envelopes +
-/// the issuer's read side for its credentials.
+/// what a verifier is shown from the V5 staple flow (the holder bindings —
+/// the status-check read side is deleted, RUN-ATTEST-04 Part B).
 fn surface_of(
     state: &attest_family::fold::AttestState,
     sid: &PersonaId,
@@ -210,8 +215,8 @@ fn surface_of(
     let mut published: Vec<Envelope> = vec![out.vetting.clone()];
     published.extend(out.credentials.iter().cloned());
     let mut bytes = persona_surface_bytes(state, sid, viewer, scopes, &published);
-    for env in &out.credentials {
-        bytes.extend(f.state.status_check(&f.w.coop, env.object_id().0).to_canonical_bytes());
+    for binding in &out.bindings {
+        bytes.extend(binding.to_canonical_bytes());
     }
     bytes
 }
@@ -252,25 +257,35 @@ fn siblings_unaffected() {
 // T-PA5.3 — an anchor is NOT uniqueness; the holder question is unaskable
 // ---------------------------------------------------------------------------
 
-// OWNER-CALL: OC-3 pending — whether `sole_anchor(context)` ever ships, and
-// for which contexts, is an owner call. It is defined in vocabulary
-// (PRIMITIVES-ATTEST.md) and deliberately NOT built here.
+// OWNER-CALL: PA OC-3 DECIDED (V7, 2026-07-18, owner-confirmed in chat):
+// `sole_anchor(context)` is REJECTED, not deferred — uniqueness is
+// group-local membership vetting under local authority (governance counts
+// member handles; personas sign), never a portable credential; portable
+// proof-of-personhood is the escalation the design refuses. The unaskable
+// pin below now stands UNQUALIFIED — no carve-out for a future sole_anchor
+// exists anywhere.
 #[test]
 fn anchor_is_not_uniqueness() {
-    // (a) Vocabulary: PRIMITIVES-ATTEST.md carries the explicit sentences.
+    // (a) Vocabulary: PRIMITIVES-ATTEST.md carries the explicit sentences —
+    // including the recorded REJECTION with its reasoning (the rejected pole
+    // stays findable, the full-issuance-facts treatment).
     let prim = crate_source("PRIMITIVES-ATTEST.md");
     for needle in [
         "NOT proof of unique personhood",
         "one human may hold several",
         "sole_anchor(context)",
-        "NOT built",
+        "REJECTED (V7",
+        "group-local membership vetting",
+        "eating the spider",
+        "member handles",
+        "personas sign",
         "vetted_holder",
         "reality anchor",
     ] {
         assert!(
             prim.contains(needle),
             "PRIMITIVES-ATTEST.md must state `{needle}` (anchor ≠ uniqueness; \
-             sole_anchor is vocabulary only)"
+             sole_anchor is a recorded rejection)"
         );
     }
 

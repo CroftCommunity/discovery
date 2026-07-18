@@ -13,6 +13,12 @@
 //! Envelope-building scaffolding is copied from
 //! `croft-chat/tests/common/mod.rs` via `t_at6_covenant.rs` (scaffolding
 //! copied, machinery imported — nothing shadowed).
+//!
+//! Quorum note (V7, RUN-ATTEST-04): **governance counts member handles (one
+//! per vetted ID at the group's own chosen vetting level); personas sign.**
+//! Uniqueness is group-local membership vetting under local authority, never
+//! a portable credential — `sole_anchor(context)` is a recorded REJECTION
+//! (see PRIMITIVES-ATTEST.md).
 
 use std::sync::Arc;
 
@@ -201,8 +207,14 @@ fn run_fold(
 // T-PA3.2 — the anchor count is a governed dial (reused R7 machinery)
 // ---------------------------------------------------------------------------
 
-// OWNER-CALL: OC-4 pending — fee semantics (flat per-anchor vs vetting-tier
-// pricing) are pure policy on top of this dial; nothing here decides them.
+// OWNER-CALL: PA OC-4 DECIDED (V8, 2026-07-18, owner-confirmed in chat):
+// fee semantics have NO protocol surface — co-op policy. The fee attaches to
+// the vetting event and the mint act (this dial's seam); era-reissues are
+// FREE, pinned structurally by T-A4.14 (a reissue has no new vetting
+// antecedent and never reaches this dial). Guidance of record: publish the
+// fee schedule in the co-op's own governance lineage; bootstrap with a
+// simple generous offering (light-tier vetting is honest because process
+// provenance names the mechanism; re-vet + reissue upgrades later).
 #[test]
 fn anchor_count_is_a_governed_dial() {
     let dir = tempfile::tempdir().expect("tempdir");
@@ -380,6 +392,177 @@ fn dial_inherits_contradiction_hard_stop() {
             "{name}: neither contested value applies; the dial keeps its pre-conflict value"
         );
     }
+}
+
+// ---------------------------------------------------------------------------
+// T-A4.9 — the head cadence is governed (RUN-ATTEST-04 Part B, V6): the
+// seed-rule shape — epoch roll OR N facts — with N a rule on the REUSED R7
+// content-bound-quorum machinery, and issuer operational time anchored to
+// governance time (the era-anchoring move: the co-op is literally a Drystone
+// group; the quorum-met governance fact's hash IS the era anchor).
+//
+// Register stand-in (declared): the co-op's ISSUER-OPERATIONS group (its own
+// GroupId, distinct from the anchor-dial fixture group) reuses rule_key 0 as
+// **head-cadence N facts**. As everywhere: the machinery is what is under
+// test and reused unchanged; the register name is a declared
+// reinterpretation. The contradiction hard-stop is INHERITED unchanged —
+// same rule key, same machinery, same §7.6.1 predicate that
+// `dial_inherits_contradiction_hard_stop` pins above; a competing pair is
+// re-asserted here so the inheritance is behavior, not citation.
+// ---------------------------------------------------------------------------
+
+const CADENCE_KEY: u8 = 0;
+
+#[test]
+fn head_cadence_is_governed() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let c = Cast {
+        o1: Identity::from_seed([0xF0; 32]),
+        o2: Identity::from_seed([0xF1; 32]),
+        a: Identity::from_seed([0xF2; 32]),
+        b: Identity::from_seed([0xF3; 32]),
+        // The issuer-operations group — the co-op's own governance lineage,
+        // acting as the era spine.
+        group: GroupId::new([0xAE; 32]),
+    };
+    let (setup, raise_h) = dial_setup(&c);
+    let authors = [&c.o1, &c.o2, &c.a, &c.b];
+
+    let to_three = rule_change_payload(CADENCE_KEY, 3);
+
+    // Under-quorum: a lone owner cannot move the cadence — refused whole.
+    let lone = sign(
+        &c.o1,
+        base(&c.o1, c.group, AssertionType::RuleChange, 6, vec![raise_h], to_three.clone()),
+    );
+
+    // Quorum met on the canonical payload: Admin A approves THIS content, O1
+    // enacts citing the approval (the R7 shape).
+    let appr = sign(
+        &c.a,
+        base(
+            &c.a,
+            c.group,
+            AssertionType::Approval,
+            1,
+            vec![raise_h],
+            approval_payload(AssertionType::RuleChange, rc_subject(&to_three)),
+        ),
+    );
+    let change = sign(
+        &c.o1,
+        base(
+            &c.o1,
+            c.group,
+            AssertionType::RuleChange,
+            6,
+            vec![raise_h, envelope_hash(&appr)],
+            to_three.clone(),
+        ),
+    );
+
+    let path = dir.path().join("cadence.redb");
+    let outcomes = run_fold(&path, &authors, &setup, &[&lone, &appr, &change]);
+    assert!(outcomes[0].is_err(), "under-quorum cadence change must be refused whole");
+    assert!(outcomes[1].is_ok());
+    assert!(outcomes[2].is_ok(), "quorum-met cadence change applies: {:?}", outcomes[2]);
+
+    let session = Session::open(&path, &c.o1).expect("open session");
+    let summary = session.get_group_summary(&c.group).expect("summary");
+    assert_eq!(summary.rules.add_member_threshold, 3, "the cadence register moved 1 → 3");
+
+    // The ERA-ANCHORING move: the quorum-met governance fact IS the era
+    // anchor — issuer operational time is governance time. The issuer
+    // mirrors both the cadence and the era from its own governance lineage.
+    let era_anchor: [u8; 32] = *envelope_hash(&change).as_bytes();
+    let w = AnchorWorld::new();
+    let mut state = IssuerState::new(u32::MAX);
+    state.set_cadence(summary.rules.add_member_threshold);
+    assert_eq!(state.cadence(), 3);
+    state.roll_era(&w.coop, era_anchor);
+    assert_eq!(state.era(), era_anchor, "the era spine is the governance lineage");
+
+    // "N facts": three mints publish a head WITHOUT any explicit roll — and
+    // the head is era'd under the governance fact. No wall-clock input
+    // exists anywhere in this path (the crate-wide scan is
+    // `no_wall_clock_in_issuer_pipeline`).
+    let heads_before = attest_family::issuer::audit_heads(&state.lineage_bytes(), &w.coop.id)
+        .expect("clean lineage")
+        .heads_audited;
+    for (k, subject) in [&w.p1a, &w.p2a, &w.p3].iter().enumerate() {
+        mint(
+            &mut state,
+            &w.coop,
+            member_ref(&Holder("HC")),
+            subject,
+            &[PredicateKind::VettedHolder],
+            DateClaim::new(2026, 7, 18),
+            MintEntropy::from_seed(derived_seed("t-a4-9", 0, k as u64)),
+        )
+        .expect("fixture mint succeeds");
+    }
+    let report = attest_family::issuer::audit_heads(&state.lineage_bytes(), &w.coop.id)
+        .expect("cadence-published lineage audits clean");
+    assert_eq!(
+        report.heads_audited,
+        heads_before + 1,
+        "the Nth fact published the head — cadence, not clock"
+    );
+    let lineage = state.lineage_bytes();
+    assert!(
+        contains_subslice_bytes(&lineage, &era_anchor),
+        "the published head carries the governance-era anchor"
+    );
+
+    // Hard-stop inherited (behavior, not citation): two quorum-met cadence
+    // changes with no causal order contradiction-hard-stop exactly as the
+    // dial does; neither contested value applies.
+    let p2 = rule_change_payload(CADENCE_KEY, 2);
+    let p5 = rule_change_payload(CADENCE_KEY, 5);
+    let appr_a = sign(
+        &c.a,
+        base(
+            &c.a,
+            c.group,
+            AssertionType::Approval,
+            2,
+            vec![raise_h],
+            approval_payload(AssertionType::RuleChange, rc_subject(&p2)),
+        ),
+    );
+    let appr_b = sign(
+        &c.b,
+        base(
+            &c.b,
+            c.group,
+            AssertionType::Approval,
+            1,
+            vec![raise_h],
+            approval_payload(AssertionType::RuleChange, rc_subject(&p5)),
+        ),
+    );
+    let change2 = sign(
+        &c.o1,
+        base(&c.o1, c.group, AssertionType::RuleChange, 7, vec![raise_h, envelope_hash(&appr_a)], p2),
+    );
+    let change5 = sign(
+        &c.o2,
+        base(&c.o2, c.group, AssertionType::RuleChange, 1, vec![raise_h, envelope_hash(&appr_b)], p5),
+    );
+    let expected_head = min_hash(envelope_hash(&change2), envelope_hash(&change5));
+    let path2 = dir.path().join("cadence-conflict.redb");
+    let _ = run_fold(&path2, &authors, &setup, &[&appr_a, &appr_b, &change2, &change5]);
+    let session2 = Session::open(&path2, &c.o1).expect("open session");
+    let summary2 = session2.get_group_summary(&c.group).expect("summary");
+    assert_eq!(
+        summary2.fork_status,
+        format!("contradiction:{expected_head}"),
+        "the cadence INHERITS the substrate contradiction hard-stop unchanged"
+    );
+    assert_eq!(
+        summary2.rules.add_member_threshold, 1,
+        "neither contested value applies; the register keeps its pre-conflict value"
+    );
 }
 
 // ---------------------------------------------------------------------------

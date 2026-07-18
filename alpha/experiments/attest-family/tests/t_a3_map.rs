@@ -88,36 +88,49 @@ fn lexicon_roundtrip_lossless() {
         }
     }
 
-    // The commitmentEpoch mapping: lossless over the signed content; the
-    // detached signature is deliberately unmapped (repo commit signature
-    // replaces it — a documented no-home surface).
+    // The treeHead mapping (V5 — supersedes the commitmentEpoch mapping, the
+    // T-A3.7 family extended per RUN-ATTEST-04 B.4): lossless over the
+    // signed content + published superseded set; the detached signature is
+    // deliberately unmapped (repo commit signature replaces it — a
+    // documented no-home surface).
     let aw = AnchorWorld::new();
     let mut state = IssuerState::new(u32::MAX);
+    let mut outs = Vec::new();
     for (k, subject) in [&aw.p1a, &aw.p2a, &aw.p3].iter().enumerate() {
-        mint(
-            &mut state,
-            &aw.coop,
-            member_ref(&aw.h1),
-            subject,
-            &[PredicateKind::VettedHolder],
-            d(2026, 7, 17),
-            MintEntropy::from_seed(derived_seed("t-a3-map", 0, k as u64)),
-        )
-        .expect("fixture mint succeeds");
+        outs.push(
+            mint(
+                &mut state,
+                &aw.coop,
+                member_ref(&aw.h1),
+                subject,
+                &[PredicateKind::VettedHolder],
+                d(2026, 7, 17),
+                MintEntropy::from_seed(derived_seed("t-a3-map", 0, k as u64)),
+            )
+            .expect("fixture mint succeeds"),
+        );
     }
-    let epoch = state.close_epoch(&aw.coop);
-    let record = epoch_to_record(&epoch);
-    let back = epoch_from_record(&record).expect("epoch record decodes");
-    assert_eq!(back.epoch_no, epoch.epoch_no);
-    assert_eq!(back.commitments, epoch.commitments, "the unordered set survives exactly");
-    assert_eq!(back.declared_total, epoch.declared_total);
+    // A supersession, so the superseded set round-trips non-trivially.
+    state.supersede(&aw.coop, &outs[0].credentials[0]);
+    let head = state.close_epoch(&aw.coop);
+    let record = head_to_record(&head);
+    let back = head_from_record(&record).expect("treeHead record decodes");
+    assert_eq!(back.epoch_no, head.epoch_no);
+    assert_eq!(back.era_anchor, head.era_anchor);
+    assert_eq!(back.leaf_count, head.leaf_count);
+    assert_eq!(back.root, head.root);
+    assert_eq!(back.superseded_root, head.superseded_root);
+    assert_eq!(back.superseded, head.superseded, "the superseded set survives exactly");
     assert!(back.signature.is_empty(), "the detached signature has no lexicon home");
-    // Epoch numerics are the audited totals-only pair (T-PA3.3's rule).
+    // Head numerics are epoch number + leaf count only (T-A4.6's rule).
     let mut numerics = Vec::new();
     ipld_numeric_leaves(&record, "", &mut numerics);
     for (path, _) in &numerics {
         let leaf_key = path.rsplit('.').next().unwrap_or(path.as_str());
-        assert!(matches!(leaf_key, "epochNo" | "declaredTotal"), "epoch numeric outside e/t: {path}");
+        assert!(
+            matches!(leaf_key, "epochNo" | "leafCount"),
+            "head numeric outside epoch/count: {path}"
+        );
     }
 }
 
@@ -172,8 +185,9 @@ fn fields_without_lexicon_home_documented() {
         vetting_fact(w.p1a.id, [0xCD; 16], d(2026, 7, 7)),
         credential(PredicateKind::Over18, w.p1a.id, coop_process(MethodKind::DocumentSighted, d(2026, 7, 8)), [0xCE; 16], None),
         credential_supersede(ObjectId([0xCF; 32])),
+        reissue_request(ObjectId([0xD1; 32]), [0xD2; 32]),
     ];
-    assert_eq!(all_kinds.len(), 14, "one payload of every kind");
+    assert_eq!(all_kinds.len(), 15, "one payload of every kind");
 
     let mapped: &[&str] = &["edge_half", "vouch", "review", "reply", "credential"];
     for p in &all_kinds {
