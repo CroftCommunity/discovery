@@ -231,6 +231,38 @@ pub struct PredicateView {
     pub lineage: Vec<ObjectId>,
 }
 
+/// RUN-ATTEST-02: the standing of a folded credential.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum CredentialStatus {
+    Standing,
+    /// No resolvable vetting-event antecedent from the same issuer naming the
+    /// same subject (T-PA3.1) — pending, never partially standing.
+    Pending,
+    Superseded { by: ObjectId },
+}
+
+/// RUN-ATTEST-02: a folded single-predicate credential. Like
+/// [`PredicateView`], the issuer IS the envelope author and the process block
+/// is inseparable. Deliberate absences (T-PA1.1): no field designates a mint
+/// position among a holder's personas — not here, not anywhere public.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CredentialView {
+    pub object: ObjectId,
+    pub issuer: PersonaId,
+    pub subject: PersonaId,
+    pub predicate: PredicateKind,
+    pub process: ProcessProvenance,
+    pub status: CredentialStatus,
+    pub lineage: Vec<ObjectId>,
+}
+
+impl CredentialView {
+    /// Serialized public form (the T-PA2.1 leakage surface).
+    pub fn to_ipld(&self) -> ipld_core::ipld::Ipld {
+        unimplemented!("RUN-ATTEST-02: credential view serialization pending")
+    }
+}
+
 /// The deterministic notice fact a folded review emits (T-AT5.2). Delivery is
 /// out of scope; existence and determinism are in scope.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -278,6 +310,7 @@ pub struct AttestState {
     pub(crate) vouches: Vec<VouchView>,
     pub(crate) reviews: Vec<ReviewView>,
     pub(crate) predicates: Vec<PredicateView>,
+    pub(crate) credentials: Vec<CredentialView>,
     pub(crate) notices: Vec<NoticeFact>,
     pub(crate) policies: BTreeMap<PersonaId, (PolicyView, Vec<ObjectId>)>,
 }
@@ -319,6 +352,16 @@ impl AttestState {
 
     pub fn predicates(&self) -> &[PredicateView] {
         &self.predicates
+    }
+
+    /// RUN-ATTEST-02: folded credentials, in fold order. Read-only, like every
+    /// accessor here — reviewed against the T-AT5.4 suppression invariant.
+    pub fn credentials(&self) -> &[CredentialView] {
+        &self.credentials
+    }
+
+    pub fn credential(&self, id: &ObjectId) -> Option<&CredentialView> {
+        self.credentials.iter().find(|c| &c.object == id)
     }
 
     pub fn notices(&self) -> &[NoticeFact] {
@@ -753,6 +796,10 @@ impl<'a> Folder<'a> {
             );
         }
 
+        // RUN-ATTEST-02 credential pass — pending (RED stage): no credential
+        // ever folds, so every credential test fails against the empty view.
+        let credentials: Vec<CredentialView> = Vec::new();
+
         AttestState {
             fold_order,
             edges,
@@ -760,6 +807,7 @@ impl<'a> Folder<'a> {
             vouches,
             reviews,
             predicates,
+            credentials,
             notices,
             policies,
         }

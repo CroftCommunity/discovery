@@ -22,8 +22,10 @@
 // vocabulary and fallible by Option, not Err).
 #![allow(clippy::should_implement_trait)]
 
+pub mod anonymity;
 pub mod canonical;
 pub mod fixtures;
 pub mod fold;
+pub mod issuer;
 pub mod query;
 pub mod types;
