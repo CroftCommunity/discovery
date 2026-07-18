@@ -9,9 +9,8 @@
 //! wasm module under the wasm-bindgen Node runner
 //! (`SPEC-DELTA[run19-node-runner]`).
 //!
-//! RED state: [`seal`] is an interface stub whose every operation reports
-//! [`seal::SealError::Unbuilt`], so the harness demonstrably executes wasm and
-//! fails before the MLS stack lands.
+//! GREEN: [`seal`] re-exports the real croft-group stack (no
+//! re-implementation); the RED state proved the harness fails without it.
 
 #![warn(missing_docs)]
 
