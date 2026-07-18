@@ -27,6 +27,7 @@ pub mod envelope;
 pub mod identity;
 pub mod records;
 
+pub mod audit;
 pub mod blind;
 pub mod chain;
 pub mod delegation;
