@@ -42,6 +42,10 @@ pub struct CorroborationEntry {
     pub attester: PersonaId,
     pub kind: EntryKind,
     pub grade: Grade,
+    /// Kind-derived grade set (V1, T-A3.3) — for a vouch, one grade per
+    /// qualifying antecedent kind; for a review, the single review grade.
+    /// Metadata only, exactly like `grade`.
+    pub grades: Vec<Grade>,
     pub statement: String,
     pub made_on: DateClaim,
     pub markers: Vec<Marker>,
@@ -123,6 +127,11 @@ impl CorroborationEntry {
                 // Grade reaches serialization as a STRING — this is the one
                 // sanctioned consumer of grade (T-AT1.7).
                 Ipld::String(self.grade.as_str().into()),
+            ),
+            (
+                "j",
+                // The kind-derived grade set (V1), strings like "g".
+                Ipld::List(self.grades.iter().map(|g| Ipld::String(g.as_str().into())).collect()),
             ),
             ("k", Ipld::String(self.kind.as_str().into())),
             (
@@ -216,6 +225,8 @@ impl AttestState {
 
         for v in self.vouches() {
             let subject_matches = matches!(subject, SubjectRef::Persona(p) if *p == v.subject);
+            // A withdrawn (author-superseded) vouch is ABSENT — no tombstone
+            // field, no count, no residue of any kind (T-A3.6, V2).
             let standing = v.status == crate::fold::VouchStatus::Standing;
             let traverses = subject_matches
                 && standing
@@ -229,6 +240,7 @@ impl AttestState {
                     attester: v.author,
                     kind: EntryKind::Vouch,
                     grade: v.grade,
+                    grades: v.grades.clone(),
                     statement: v.statement.clone(),
                     made_on: v.made_on,
                     markers,
@@ -250,6 +262,7 @@ impl AttestState {
                     attester: r.author,
                     kind: EntryKind::Review,
                     grade: r.grade,
+                    grades: vec![r.grade],
                     statement: r.statement.clone(),
                     made_on: r.made_on,
                     markers,

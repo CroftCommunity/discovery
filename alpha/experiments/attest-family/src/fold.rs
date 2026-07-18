@@ -80,9 +80,68 @@ impl AttestLog {
     }
 
     /// Fold the object set to derived state. Deterministic: same set, same
-    /// state, regardless of append order.
+    /// state, regardless of append order. Uses the full V1 antecedent class
+    /// (`AntecedentRegister::full()`).
     pub fn fold(&self) -> AttestState {
-        Folder::new(self).run()
+        self.fold_with_register(&AntecedentRegister::full())
+    }
+
+    /// Fold under an explicit antecedent register (V1/T-A3.4): the caller
+    /// mirrors the folded R7 register value here, exactly as `IssuerState::
+    /// set_dial` mirrors the anchor-count dial. The register only narrows
+    /// which of the closed kinds QUALIFY; it cannot add a kind (the enum is
+    /// the compile boundary).
+    pub fn fold_with_register(&self, register: &AntecedentRegister) -> AttestState {
+        Folder::new(self, register).run()
+    }
+}
+
+/// The governed qualifying-kind register (V1): which members of the closed
+/// [`AntecedentKind`] class currently stand a vouch up. The register itself
+/// is governed on the REUSED R7 content-bound-quorum machinery (substrate
+/// rule_key 2, `role_change_threshold`, reinterpreted as this register's
+/// bitmask — the T-AT6.4 / T-PA3.2 pattern); this type only MIRRORS the
+/// folded value, it never governs it. Widening the class later is a quorum
+/// act with lineage, not a code edit (T-A3.4).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AntecedentRegister {
+    allowed: BTreeSet<AntecedentKind>,
+}
+
+impl AntecedentRegister {
+    /// The full V1 class: co-signed edge, transaction, ceremony.
+    pub fn full() -> Self {
+        AntecedentRegister {
+            allowed: [
+                AntecedentKind::CoSignedEdge,
+                AntecedentKind::Transaction,
+                AntecedentKind::Ceremony,
+            ]
+            .into_iter()
+            .collect(),
+        }
+    }
+
+    /// Mirror a folded register value: bit 0 = co_signed_edge, bit 1 =
+    /// transaction, bit 2 = ceremony. (The substrate genesis default of 1 is
+    /// exactly the pre-V1 edge-only posture.)
+    pub fn from_mask(mask: u32) -> Self {
+        let mut allowed = BTreeSet::new();
+        if mask & 0b001 != 0 {
+            allowed.insert(AntecedentKind::CoSignedEdge);
+        }
+        if mask & 0b010 != 0 {
+            allowed.insert(AntecedentKind::Transaction);
+        }
+        if mask & 0b100 != 0 {
+            allowed.insert(AntecedentKind::Ceremony);
+        }
+        AntecedentRegister { allowed }
+    }
+
+    /// Does this kind currently qualify?
+    pub fn allows(&self, kind: &AntecedentKind) -> bool {
+        self.allowed.contains(kind)
     }
 }
 
@@ -103,8 +162,12 @@ pub(crate) fn verify_signature(env: &Envelope) -> Result<(), AppendError> {
 /// remove, hide, or reorder (no verdict by side effect).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Marker {
-    /// The attestation's base edge has been superseded (T-AT2.3).
-    AntecedentSuperseded,
+    /// The vouch's base EDGE has been superseded (T-AT2.3, marker renamed
+    /// kind-specific by V2/RUN-ATTEST-03): only a co-signed edge has an
+    /// "ended" state, so only edge-backed vouches can ever carry this —
+    /// transaction and ceremony antecedents are completed historical events
+    /// with no supersede path (T-A3.5).
+    EdgeSuperseded,
     /// Older than the governed freshness dial (T-AT5.5). Presentation only.
     Stale,
 }
@@ -112,7 +175,7 @@ pub enum Marker {
 impl Marker {
     pub fn as_str(&self) -> &'static str {
         match self {
-            Marker::AntecedentSuperseded => "antecedent_superseded",
+            Marker::EdgeSuperseded => "edge_superseded",
             Marker::Stale => "stale",
         }
     }
@@ -166,8 +229,10 @@ pub struct PendingHalf {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum VouchStatus {
     Standing,
-    /// Base edge not resolvable as an established edge (OWNER-CALL: OC-2
-    /// pending — narrowest option: edge-antecedent required).
+    /// No resolvable qualifying antecedent from the closed class (OWNER-CALL:
+    /// OC-2 DECIDED (V1, 2026-07-18, owner-confirmed in chat) — option B:
+    /// co-signed edge, transaction attestation, or ceremony fact all qualify;
+    /// zero qualifying antecedents folds to pending, never standing).
     Pending,
     Withdrawn { by: ObjectId },
     Superseded { by: ObjectId },
@@ -181,7 +246,15 @@ pub struct VouchView {
     pub scope: Scope,
     pub statement: String,
     pub made_on: DateClaim,
-    pub base_edge: [u8; 32],
+    /// The base edge core hash, when the vouch is layered on an edge (V1:
+    /// optional — an edge-free vouch stands on tx/ceremony antecedents).
+    pub base_edge: Option<[u8; 32]>,
+    /// The qualifying antecedent kinds present (V1), in the closed enum's
+    /// declaration order — the vouch's standing basis, exactly.
+    pub antecedent_kinds: Vec<AntecedentKind>,
+    /// Kind-derived grade set (T-A3.3: kind set ↔ grade set, exact), in the
+    /// same order. Metadata only, like `grade`.
+    pub grades: Vec<Grade>,
     pub grade: Grade,
     pub status: VouchStatus,
     /// Presentation metadata (T-AT2.3): annotates, never withdraws.
@@ -450,10 +523,12 @@ struct Folder<'a> {
     /// Envelopes in fold order: (lamport, author bytes, object id) ASC —
     /// logical + cryptographic inputs only; no wall-clock exists here.
     ordered: Vec<(ObjectId, &'a Envelope)>,
+    /// The mirrored qualifying-kind register (V1/T-A3.4).
+    register: &'a AntecedentRegister,
 }
 
 impl<'a> Folder<'a> {
-    fn new(log: &'a AttestLog) -> Self {
+    fn new(log: &'a AttestLog, register: &'a AntecedentRegister) -> Self {
         let mut ordered: Vec<(ObjectId, &Envelope)> =
             log.objects.iter().map(|(id, (env, _))| (*id, env)).collect();
         ordered.sort_by(|(ia, a), (ib, b)| {
@@ -462,7 +537,7 @@ impl<'a> Folder<'a> {
                 .then_with(|| a.author.0.cmp(&b.author.0))
                 .then_with(|| ia.0.cmp(&ib.0))
         });
-        Folder { ordered }
+        Folder { ordered, register }
     }
 
     fn run(self) -> AttestState {
@@ -470,7 +545,7 @@ impl<'a> Folder<'a> {
 
         // --- pass 1: index the primitive facts -----------------------------
         let mut ceremony: BTreeMap<ObjectId, (PersonaId, &CeremonyFact)> = BTreeMap::new();
-        let mut transactions: BTreeSet<ObjectId> = BTreeSet::new();
+        let mut transactions: BTreeMap<ObjectId, &TransactionFact> = BTreeMap::new();
         let mut things: BTreeMap<ThingId, PersonaId> = BTreeMap::new();
         for (id, env) in &self.ordered {
             match &env.payload {
@@ -480,8 +555,8 @@ impl<'a> Folder<'a> {
                         ceremony.insert(*id, (env.author, c));
                     }
                 }
-                Payload::TransactionFact(_) => {
-                    transactions.insert(*id);
+                Payload::TransactionFact(t) => {
+                    transactions.insert(*id, t);
                 }
                 Payload::ThingDecl(t) => {
                     if env.author == t.controller {
@@ -596,30 +671,81 @@ impl<'a> Folder<'a> {
         let mut vouches: Vec<VouchView> = Vec::new();
         for (id, env) in &self.ordered {
             let Payload::Vouch(v) = &env.payload else { continue };
-            // Standing requires: the base edge folded (both halves), the
+            // V1 standing rule: at least one resolvable antecedent of a
+            // qualifying kind from the closed class, as mirrored by the
+            // governed register (T-A3.2, T-A3.4). Never a self-vouch.
+            let not_self = env.author != v.subject;
+
+            // Kind co_signed_edge: the base edge folded (both halves), the
             // author is one of its participants, and the subject is the other.
-            let base = edges.iter().find(|e| e.core_hash == v.base_edge);
-            let standing = base
-                .map(|e| {
-                    let parts = e.participants();
-                    parts.contains(&env.author)
-                        && parts.contains(&v.subject)
-                        && env.author != v.subject
-                })
-                .unwrap_or(false);
+            let base = v.base_edge.and_then(|h| edges.iter().find(|e| e.core_hash == h));
+            let edge_qualifies = not_self
+                && base
+                    .map(|e| {
+                        let parts = e.participants();
+                        parts.contains(&env.author) && parts.contains(&v.subject)
+                    })
+                    .unwrap_or(false);
+
+            // Kind transaction: a cited transaction attestation whose payer
+            // is the vouch author and whose payee is the vouch subject (the
+            // verified-purchase analog — a fixture fact, declared stand-in).
+            let tx_qualifies = not_self
+                && env.antecedents.iter().any(|a| {
+                    transactions
+                        .get(a)
+                        .map(|t| {
+                            t.payer == env.author && t.payee == SubjectRef::Persona(v.subject)
+                        })
+                        .unwrap_or(false)
+                });
+
+            // Kind ceremony: a cited co-presence fact naming exactly
+            // {author, subject} (pass 1 already required the fact's own
+            // author to be a participant).
+            let cer_qualifies = not_self
+                && env.antecedents.iter().any(|a| {
+                    ceremony
+                        .get(a)
+                        .map(|(_, c)| {
+                            c.participants.contains(&env.author)
+                                && c.participants.contains(&v.subject)
+                        })
+                        .unwrap_or(false)
+                });
+
+            // The qualifying kind set, in the closed enum's declaration
+            // order, filtered by the mirrored register.
+            let mut kinds: Vec<AntecedentKind> = Vec::new();
+            if edge_qualifies && self.register.allows(&AntecedentKind::CoSignedEdge) {
+                kinds.push(AntecedentKind::CoSignedEdge);
+            }
+            if tx_qualifies && self.register.allows(&AntecedentKind::Transaction) {
+                kinds.push(AntecedentKind::Transaction);
+            }
+            if cer_qualifies && self.register.allows(&AntecedentKind::Ceremony) {
+                kinds.push(AntecedentKind::Ceremony);
+            }
+            let standing = !kinds.is_empty();
+
             let status = match (standing, vouch_successor.get(id)) {
                 (false, _) => VouchStatus::Pending,
                 (true, None) => VouchStatus::Standing,
                 (true, Some((by, true))) => VouchStatus::Withdrawn { by: *by },
                 (true, Some((by, false))) => VouchStatus::Superseded { by: *by },
             };
+            // V2 (T-A3.5): the ONLY marker source is the base EDGE's
+            // supersession — transactions and ceremonies have no ended state.
             let mut markers = Vec::new();
             let base_superseded =
                 base.map(|e| matches!(e.status, EdgeStatus::Superseded { .. })).unwrap_or(false);
             if base_superseded {
-                markers.push(Marker::AntecedentSuperseded);
+                markers.push(Marker::EdgeSuperseded);
             }
-            let has_tx = env.antecedents.iter().any(|a| transactions.contains(a));
+            // The kind-derived grade set (T-A3.3): the kind set's exact image.
+            let grades: Vec<Grade> = kinds.iter().map(|k| k.grade()).collect();
+            // The legacy single grade (T-AT2.4 semantics, unchanged).
+            let has_tx = env.antecedents.iter().any(|a| transactions.contains_key(a));
             let base_prov = base.map(|e| e.grade).unwrap_or(Grade::Remote);
             let prov = if has_tx {
                 Grade::TransactionBacked
@@ -635,6 +761,8 @@ impl<'a> Folder<'a> {
                 statement: v.statement.clone(),
                 made_on: v.made_on,
                 base_edge: v.base_edge,
+                antecedent_kinds: kinds,
+                grades,
                 grade: prov,
                 status,
                 markers,
@@ -690,7 +818,7 @@ impl<'a> Folder<'a> {
                 None => ReviewStatus::Standing,
                 Some((by, _)) => ReviewStatus::Superseded { by: *by },
             };
-            let has_tx = env.antecedents.iter().any(|a| transactions.contains(a));
+            let has_tx = env.antecedents.iter().any(|a| transactions.contains_key(a));
             let prov = if has_tx {
                 Grade::TransactionBacked
             } else {

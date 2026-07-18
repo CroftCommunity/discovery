@@ -1,4 +1,4 @@
-# FINDINGS — attest-family (RUN-ATTEST-01 §F-AT-*, RUN-ATTEST-02 §F-PA-*)
+# FINDINGS — attest-family (RUN-ATTEST-01/03 §F-AT-*, RUN-ATTEST-02 §F-PA-*)
 
 Findings ledger for the attestation-family experiments. FINDING = something
 learned that the design must carry; FIX = a defect corrected during the run.
@@ -84,6 +84,11 @@ the **allowlist pin**: any future public operation fails the test until it is
 reviewed against the suppression invariant. (evidence:
 `tests/t_at5_review.rs` `no_suppression_path_exists`, RUN-ATTEST-01, Modeled)
 
+RUN-ATTEST-03 exercised this flow again: the V1 antecedent-register surface
+(`fold_with_register`, `full`, `from_mask`, `allows`) failed the pin at red and
+was reviewed and allowlisted with a note (quorum-governed standing input; no
+removal/hide/demote capability; no subject-unilateral path).
+
 ## F-PA-1 — Residual sibling correlators outside the model's control (T-PA2.4; FINDING, Modeled by design)
 
 T-PA2.1 proves the in-protocol floor: sibling personas' credentials share no
@@ -163,3 +168,37 @@ not an amendment.** Not a defect — the machinery refusing a verdict on an
 ambiguous history is the designed behavior. (evidence:
 `tests/t_at6_covenant.rs`, RUN-ATTEST-01; machinery grade per the substrate's
 existing §7.2/§7.6.1 status, this modeling Modeled)
+
+## F-AT-6 — Residual correlators, ATProto edition (RUN-ATTEST-03 Part B; FINDING, recorded not solved)
+
+Sibling of F-AT-1 (behavioral/metadata correlation behind the identifier floor)
+and F-PA-1 (residual sibling correlators outside the model's control). When
+personas realize as ATProto accounts, the identity layer itself introduces
+correlators the fixture-keypair model never had — all in infrastructure the
+design does not control:
+
+- **PLC operation-log timing.** `did:plc` creation and rotation operations are
+  publicly logged with server timestamps, permanently ("the full history of DID
+  operations and updates, including timestamps, is permanently publicly
+  accessible" — PLC spec, fetched 2026-07-18). Sibling personas created the
+  same day cluster in the log; correlated rotation events cluster the same way.
+- **PDS hosting choice.** The PLC log also carries "the full history of handle
+  updates and PDS locations (URLs) over time." Siblings homed on the same
+  small PDS share an infrastructure fingerprint; the smaller the host, the
+  sharper the fingerprint.
+- **Enumerability.** "The set of all identifiers is enumerable" — an adversary
+  can sweep the whole directory and run the joins above at population scale;
+  no crawl of attestation repos is even needed.
+
+The T-PA2.1 floor survives untouched: published *attestation* objects still
+share no serial, batch id, key material, salt, or derivable value. What this
+entry records is that the floor sits on an identity layer that leaks metadata
+sideways. Mitigations (named, not solved): **distinct PDS hosts per sibling
+persona** (kills the hosting fingerprint at the cost of operational spread);
+**staggered creation and rotation** (blunts log-timing joins — the same
+practice family as F-PA-3's epoch-coarseness rule: any monotonic, published,
+infrastructure-side ordering is a correlator); and issuer-side, the existing
+**epoch-coarse commitment folds** (T-PA1.4) so mint traces cannot be joined
+against PLC timestamps any more precisely than an epoch. Grade: **Modeled by
+design** — this entry is the deliverable. (evidence:
+ATTEST-ATPROTO-MATCHUP.md row 9 + §4-5 anchor, RUN-ATTEST-03)

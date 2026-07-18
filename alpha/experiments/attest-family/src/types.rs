@@ -51,8 +51,11 @@ pub enum SubjectRef {
 
 /// The consent axis. `Mutual` = co-signed edge (the friend case);
 /// `UnilateralNotice` = subject notified, signed reply allowed, no countersign
-/// required (the review case); `UnilateralPrivate` = note to self (defined in
-/// vocabulary, deliberately zero experiments in this run — OC-4).
+/// required (the review case); `UnilateralPrivate` = note to self —
+/// OWNER-CALL: OC-4 DECIDED (V3, 2026-07-18, owner-confirmed in chat):
+/// deferred from v1; when it ships, it ships as a private-substrate artifact
+/// (an MLS-group-of-one) under the private tier's own logic, never as a
+/// fourth public consent mode. Zero tests remains the deliberate statement.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ConsentMode {
     Mutual,
@@ -91,6 +94,75 @@ impl Scope {
 }
 
 // ---------------------------------------------------------------------------
+// Antecedent kinds — the closed qualifying class (V1, RUN-ATTEST-03)
+// ---------------------------------------------------------------------------
+
+/// The **closed class** of antecedents that can stand a vouch up (OWNER-CALL
+/// OC-2 DECIDED (V1, 2026-07-18, owner-confirmed in chat): a vouch requires a
+/// qualifying antecedent from this class — not an edge specifically). These
+/// are shapes of one provenance mechanism; what varies is the kind of trust
+/// bound — bidirectional (`co_signed_edge`) or unidirectional (`transaction`,
+/// `ceremony`) — and both are valid.
+///
+/// The class is closed at the compile boundary (the T-AT6.1 style): there is
+/// no string escape hatch, so an antecedent kind outside the enum is
+/// unrepresentable — adding a kind is a source change. Which kinds *qualify*
+/// at fold time is additionally a governed register on the reused R7
+/// machinery ([`crate::fold::AntecedentRegister`]): widening the class later
+/// is a quorum act with lineage, not a code edit.
+///
+/// ```compile_fail
+/// use attest_family::types::AntecedentKind;
+/// // No string escape hatch exists — a kind outside the enum is a type
+/// // error, not a data value.
+/// let k: AntecedentKind = "notarized_selfie".into();
+/// ```
+///
+/// ```compile_fail
+/// use attest_family::types::AntecedentKind;
+/// // The enum is closed: no such variant exists.
+/// let k = AntecedentKind::Hearsay;
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum AntecedentKind {
+    /// A co-signed edge (both halves folded) — the bidirectional bind.
+    CoSignedEdge,
+    /// A transaction attestation naming author as payer, subject as payee.
+    Transaction,
+    /// A co-presence ceremony fact naming exactly {author, subject}.
+    Ceremony,
+}
+
+impl AntecedentKind {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            AntecedentKind::CoSignedEdge => "co_signed_edge",
+            AntecedentKind::Transaction => "transaction",
+            AntecedentKind::Ceremony => "ceremony",
+        }
+    }
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "co_signed_edge" => Some(AntecedentKind::CoSignedEdge),
+            "transaction" => Some(AntecedentKind::Transaction),
+            "ceremony" => Some(AntecedentKind::Ceremony),
+            _ => None,
+        }
+    }
+
+    /// The grade a qualifying antecedent of this kind contributes (T-A3.3:
+    /// kind set ↔ grade set, exact). Grade remains metadata-only; this
+    /// mapping lives here so the fold's grade lines stay assignment-only.
+    pub fn grade(&self) -> Grade {
+        match self {
+            AntecedentKind::CoSignedEdge => Grade::EdgeBacked,
+            AntecedentKind::Transaction => Grade::TransactionBacked,
+            AntecedentKind::Ceremony => Grade::CeremonyBacked,
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Provenance grade — metadata, never an input
 // ---------------------------------------------------------------------------
 
@@ -119,6 +191,12 @@ pub enum Grade {
     Remote,
     /// The attestation cites a transaction attestation as antecedent.
     TransactionBacked,
+    /// V1 (RUN-ATTEST-03): the vouch is backed by a qualifying co-signed
+    /// edge antecedent.
+    EdgeBacked,
+    /// V1 (RUN-ATTEST-03): the vouch is backed by a qualifying ceremony-fact
+    /// antecedent.
+    CeremonyBacked,
 }
 
 impl Grade {
@@ -127,6 +205,8 @@ impl Grade {
             Grade::InPerson => "in_person",
             Grade::Remote => "remote",
             Grade::TransactionBacked => "transaction_backed",
+            Grade::EdgeBacked => "edge_backed",
+            Grade::CeremonyBacked => "ceremony_backed",
         }
     }
 }
@@ -211,6 +291,21 @@ pub struct EdgeDissolve {
 /// A co-presence session fact: one participant's signed statement of a shared
 /// session. Grade `in_person` requires one such fact from EACH participant
 /// naming the same session (T-AT1.7).
+///
+/// A ceremony fact is a completed historical event: it has no "ended" state,
+/// no supersede pointer, and no payload kind targets it — so a
+/// superseded-antecedent marker is **unrepresentable** for ceremony-backed
+/// vouches (T-A3.5, V2), not merely unset:
+///
+/// ```compile_fail
+/// use attest_family::types::*;
+/// let c = CeremonyFact {
+///     session: [0; 16],
+///     participants: [PersonaId([0; 32]), PersonaId([1; 32])],
+///     sighted_on: DateClaim::new(2026, 7, 17),
+///     supersedes: None, // no such field exists — a session happened or it didn't
+/// };
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CeremonyFact {
     pub session: [u8; 16],
@@ -222,6 +317,21 @@ pub struct CeremonyFact {
 /// The verified-purchase analog — a fixture fact standing in for a payment
 /// rail (declared stand-in, §3). Citing one as antecedent yields grade
 /// `transaction_backed` (T-AT2.4).
+///
+/// A completed transaction has no "ended" state (T-A3.5, V2): no supersede
+/// pointer, no dissolve analog, no payload kind that targets it — so a
+/// superseded-antecedent marker is **unrepresentable** for transaction-backed
+/// vouches, not merely unset:
+///
+/// ```compile_fail
+/// use attest_family::types::*;
+/// let t = TransactionFact {
+///     payer: PersonaId([0; 32]),
+///     payee: SubjectRef::Persona(PersonaId([1; 32])),
+///     occurred_on: DateClaim::new(2026, 6, 20),
+///     supersedes: None, // no such field exists — a purchase happened or it didn't
+/// };
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TransactionFact {
     pub payer: PersonaId,
@@ -264,13 +374,17 @@ impl ThingKind {
     }
 }
 
-/// A scoped vouch: a separate, later, unilateral claim by one edge participant
-/// about the other, in a named scope, citing the base edge as antecedent.
-/// Vouches supersede independently of the edge (T-AT2.2).
+/// A scoped vouch: a separate, later, unilateral claim by one persona about
+/// another, in a named scope, standing on at least one resolvable qualifying
+/// antecedent from the closed [`AntecedentKind`] class — a co-signed edge, a
+/// transaction attestation, or a ceremony fact. Vouches supersede
+/// independently of their antecedents (T-AT2.2).
 ///
-/// OWNER-CALL: OC-2 pending — this run implements edge-antecedent-required
-/// (the narrowest option); a vouch with no resolvable base edge folds to
-/// pending, never to a standing vouch (T-AT2.1).
+/// OWNER-CALL: OC-2 DECIDED (V1, 2026-07-18, owner-confirmed in chat) —
+/// option B: the qualifying antecedent comes from the closed class, not an
+/// edge specifically. A vouch with zero qualifying antecedents folds to
+/// pending, never to a standing vouch (T-A3.2, restating T-AT2.1's
+/// discipline).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Vouch {
     pub subject: PersonaId,
@@ -278,9 +392,11 @@ pub struct Vouch {
     /// Asserted claim text — the protocol never evaluates it (utility is
     /// computed by humans at the edges, never by the protocol).
     pub statement: String,
-    /// The base edge, by core hash. The envelope's antecedents must resolve
-    /// this edge's halves for the vouch to stand.
-    pub base_edge: [u8; 32],
+    /// The base edge, by core hash, when the vouch is layered on a co-signed
+    /// edge. `None` for an edge-free vouch standing on a transaction or
+    /// ceremony antecedent (V1). When present, the envelope's antecedents
+    /// must resolve this edge's halves for the edge kind to qualify.
+    pub base_edge: Option<[u8; 32]>,
     /// Asserted claim, not an ordering input.
     pub made_on: DateClaim,
     /// Narrowing/replacement lineage pointer.

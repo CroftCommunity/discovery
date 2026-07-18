@@ -4,7 +4,9 @@
 //! - **subject type**: persona, or thing (business, product, work);
 //! - **consent mode**: `mutual` (co-signed edge), `unilateral_notice`
 //!   (subject notified, signed reply allowed, no countersign required),
-//!   `unilateral_private` (note to self — vocabulary only in this run, OC-4).
+//!   `unilateral_private` (note to self — deferred from v1 per OC-4 DECIDED
+//!   (V3, 2026-07-18): ships as a private-substrate artifact, never as a
+//!   fourth public consent mode).
 //!
 //! Shared machinery: scope labels, supersede-never-revoke, per-viewer
 //! resolvability, corroboration structure, provenance grades. **No trust
@@ -23,6 +25,7 @@
 #![allow(clippy::should_implement_trait)]
 
 pub mod anonymity;
+pub mod atproto_map;
 pub mod canonical;
 pub mod fixtures;
 pub mod fold;

@@ -131,12 +131,16 @@ fn payload_ipld(p: &Payload) -> Ipld {
         Payload::Vouch(v) => {
             let mut pairs = vec![
                 ("d", date(&v.made_on)),
-                ("e", bytes(&v.base_edge)),
                 ("k", s("vouch")),
                 ("o", s(&v.scope.0)),
                 ("s", bytes(&v.subject.0)),
                 ("t", s(&v.statement)),
             ];
+            // "e" is present only for an edge-based vouch (V1: base_edge is
+            // optional; an edge-free vouch stands on tx/ceremony antecedents).
+            if let Some(e) = &v.base_edge {
+                pairs.push(("e", bytes(e)));
+            }
             if let Some(u) = &v.supersedes {
                 pairs.push(("u", bytes(&u.0)));
             }
@@ -430,14 +434,20 @@ fn decode_payload(v: &Ipld) -> R<Payload> {
                 .ok_or_else(|| CanonicalError("unknown thing kind".into()))?,
             controller: PersonaId(get_b32(m, "c")?),
         })),
-        "vouch" => Ok(Payload::Vouch(Vouch {
-            subject: PersonaId(get_b32(m, "s")?),
-            scope: Scope(get_str(m, "o")?.to_string()),
-            statement: get_str(m, "t")?.to_string(),
-            base_edge: get_b32(m, "e")?,
-            made_on: decode_date(get(m, "d")?)?,
-            supersedes: opt_supersedes(m)?,
-        })),
+        "vouch" => {
+            let base_edge = match m.get("e") {
+                None => None,
+                Some(_) => Some(get_b32(m, "e")?),
+            };
+            Ok(Payload::Vouch(Vouch {
+                subject: PersonaId(get_b32(m, "s")?),
+                scope: Scope(get_str(m, "o")?.to_string()),
+                statement: get_str(m, "t")?.to_string(),
+                base_edge,
+                made_on: decode_date(get(m, "d")?)?,
+                supersedes: opt_supersedes(m)?,
+            }))
+        }
         "vouch_withdraw" => Ok(Payload::VouchWithdraw(VouchWithdraw {
             supersedes: opt_supersedes(m)?
                 .ok_or_else(|| CanonicalError("vouch_withdraw: supersedes required".into()))?,
