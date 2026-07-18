@@ -47,8 +47,12 @@ pub struct CatalogueEntry {
     pub steward_set: Vec<String>,
     /// Co-sign threshold (gated tier).
     pub threshold: u32,
-    /// If superseded (P7), the successor genesis identity.
+    /// If superseded (P7), the successor (supersession record) identity.
     pub superseded_by: Option<String>,
+    /// If superseded (P7), the predecessor genesis identity (the lineage link).
+    pub predecessor: Option<String>,
+    /// If superseded (P7), the causal position of the policy change.
+    pub transition_at: Option<u64>,
 }
 
 /// Why folding failed (structural; invalid envelopes are dropped, not errors).
@@ -155,6 +159,8 @@ impl FoldState {
                         steward_set: g.steward_set.clone(),
                         threshold: g.threshold,
                         superseded_by: None,
+                        predecessor: None,
+                        transition_at: None,
                     },
                 );
             }
@@ -231,15 +237,27 @@ impl FoldState {
             }
             Record::Supersession {
                 scope,
-                predecessor: _,
+                predecessor,
                 write_policy,
                 membership_policy,
             } => {
                 // Tier transition as re-plant (P7): the catalogue keeps one
                 // continuous identity; the policy fields change at this position.
+                // A supersession is governed — only the scope owner may re-plant,
+                // and its lineage must name the predecessor genesis.
                 if let Some(entry) = self.catalogue.get_mut(scope) {
-                    entry.write_policy = *write_policy;
-                    entry.membership_policy = *membership_policy;
+                    let governed = entry.owner == author;
+                    // The lineage must name the predecessor genesis: it is a
+                    // known folded record and cited among the antecedents.
+                    let lineage_ok = self.positions.contains_key(predecessor)
+                        && env.body.antecedents.iter().any(|a| a == predecessor);
+                    if governed && lineage_ok {
+                        entry.write_policy = *write_policy;
+                        entry.membership_policy = *membership_policy;
+                        entry.superseded_by = Some(env.identity_hex());
+                        entry.predecessor = Some(predecessor.clone());
+                        entry.transition_at = Some(pos);
+                    }
                 }
             }
             // Device attestations are handled by the delegation verifier (P5);
@@ -435,6 +453,24 @@ impl FoldState {
 
 /// Convenience alias so tests read `Fold::run`.
 pub type Fold = FoldState;
+
+/// The plain-language, DR-style transition banner for a scope, if it has been
+/// superseded (P7). Returns `None` for a scope that has not re-planted. The
+/// wording is a default template — owner-editable — but its PRESENCE at a
+/// transition is the asserted invariant.
+#[must_use]
+pub fn transition_banner(entry: &CatalogueEntry) -> Option<String> {
+    entry.superseded_by.as_ref().map(|_| {
+        format!(
+            "“{}” has adopted a new membership process. Everything posted before \
+             the change stays exactly as it was, and nobody's past membership is \
+             affected. From here on, joining works differently — see the scope's \
+             notes for what changed. (This message is editable by the scope's \
+             stewards.)",
+            entry.title
+        )
+    })
+}
 
 /// Write folded ops to an archive (the "state table"): the canonical bytes of
 /// the ordered event stream. Persisting the events — not a derived index — is

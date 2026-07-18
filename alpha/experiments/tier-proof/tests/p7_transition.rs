@@ -38,7 +38,12 @@ fn transitioned() -> (MemSource, String) {
             threshold: 0,
         }),
     );
-    src.put_record(&early(), Record::SelfRegistration { scope: SCOPE.to_string() });
+    src.put_record(
+        &early(),
+        Record::SelfRegistration {
+            scope: SCOPE.to_string(),
+        },
+    );
     // The supersession names the open genesis in its lineage (antecedents) and
     // its predecessor field, authored by the owner (governed).
     src.put_record_with_antecedents(
@@ -62,10 +67,21 @@ fn catalogue_is_one_continuous_identity_with_a_policy_change() {
     // Exactly one catalogue entry for the scope — one continuous identity.
     assert_eq!(state.catalogue.len(), 1, "no second scope is created");
     let entry = state.catalogue.get(SCOPE).expect("continuous scope");
-    assert_eq!(entry.membership_policy, MembershipPolicy::Gated, "policy changed in place");
-    assert_eq!(entry.superseded_by.as_deref().is_some(), true, "records the successor");
-    assert_eq!(entry.predecessor.as_deref(), Some(genesis.as_str()), "lineage names the open genesis");
-    assert!(entry.transition_at.is_some(), "the policy change has a causal position");
+    assert_eq!(
+        entry.membership_policy,
+        MembershipPolicy::Gated,
+        "policy changed in place"
+    );
+    assert!(entry.superseded_by.is_some(), "records the successor");
+    assert_eq!(
+        entry.predecessor.as_deref(),
+        Some(genesis.as_str()),
+        "lineage names the open genesis"
+    );
+    assert!(
+        entry.transition_at.is_some(),
+        "the policy change has a causal position"
+    );
 }
 
 #[test]
@@ -74,7 +90,10 @@ fn pre_transition_registration_stays_valid_and_is_not_a_gated_grant() {
     let state = Fold::run(&src.all()).expect("fold");
 
     // The early member is still on the roster after the transition.
-    assert!(state.roster_members(SCOPE).contains(&early().did()), "pre-transition member persists");
+    assert!(
+        state.roster_members(SCOPE).contains(&early().did()),
+        "pre-transition member persists"
+    );
 
     // Their membership is a self-registration interval, NOT a gated grant: no
     // request from them ever existed, so no grant could have admitted them.
@@ -88,7 +107,10 @@ fn pre_transition_registration_stays_valid_and_is_not_a_gated_grant() {
     assert_eq!(intervals.len(), 1);
     assert!(intervals[0].1.is_none(), "still an active member");
     let transition_at = state.catalogue.get(SCOPE).unwrap().transition_at.unwrap();
-    assert!(intervals[0].0 < transition_at, "the interval predates the transition");
+    assert!(
+        intervals[0].0 < transition_at,
+        "the interval predates the transition"
+    );
 }
 
 #[test]
@@ -100,7 +122,10 @@ fn transition_emits_a_plain_language_banner() {
     let banner = transition_banner(entry);
     assert!(banner.is_some(), "a superseded scope has a banner artifact");
     let text = banner.unwrap();
-    assert!(text.contains("The Garden"), "the banner names the scope in plain language");
+    assert!(
+        text.contains("The Garden"),
+        "the banner names the scope in plain language"
+    );
     // A non-superseded scope has no banner.
     let mut plain = MemSource::new();
     plain.put_record(
