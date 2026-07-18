@@ -231,6 +231,62 @@ pub struct PredicateView {
     pub lineage: Vec<ObjectId>,
 }
 
+/// RUN-ATTEST-02: the standing of a folded credential.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum CredentialStatus {
+    Standing,
+    /// No resolvable vetting-event antecedent from the same issuer naming the
+    /// same subject (T-PA3.1) — pending, never partially standing.
+    Pending,
+    Superseded { by: ObjectId },
+}
+
+/// RUN-ATTEST-02: a folded single-predicate credential. Like
+/// [`PredicateView`], the issuer IS the envelope author and the process block
+/// is inseparable. Deliberate absences (T-PA1.1): no field designates a mint
+/// position among a holder's personas — not here, not anywhere public.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CredentialView {
+    pub object: ObjectId,
+    pub issuer: PersonaId,
+    pub subject: PersonaId,
+    pub predicate: PredicateKind,
+    pub process: ProcessProvenance,
+    pub status: CredentialStatus,
+    pub lineage: Vec<ObjectId>,
+}
+
+impl CredentialView {
+    /// Serialized public form (the T-PA2.1 leakage surface). Single-character
+    /// keys, canonical map order, ids as bytes, everything else as strings —
+    /// no numeric leaf exists here at all.
+    pub fn to_ipld(&self) -> ipld_core::ipld::Ipld {
+        use ipld_core::ipld::Ipld;
+        let mut m = std::collections::BTreeMap::new();
+        m.insert("a".to_string(), Ipld::Bytes(self.object.0.to_vec()));
+        m.insert("i".to_string(), Ipld::Bytes(self.issuer.0.to_vec()));
+        m.insert(
+            "l".to_string(),
+            Ipld::List(self.lineage.iter().map(|o| Ipld::Bytes(o.0.to_vec())).collect()),
+        );
+        m.insert("m".to_string(), Ipld::String(self.process.method.as_str().to_string()));
+        m.insert("p".to_string(), Ipld::String(self.predicate.as_str().to_string()));
+        m.insert("s".to_string(), Ipld::Bytes(self.subject.0.to_vec()));
+        m.insert(
+            "u".to_string(),
+            Ipld::String(
+                match &self.status {
+                    CredentialStatus::Standing => "standing",
+                    CredentialStatus::Pending => "pending",
+                    CredentialStatus::Superseded { .. } => "superseded",
+                }
+                .to_string(),
+            ),
+        );
+        Ipld::Map(m)
+    }
+}
+
 /// The deterministic notice fact a folded review emits (T-AT5.2). Delivery is
 /// out of scope; existence and determinism are in scope.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -278,6 +334,7 @@ pub struct AttestState {
     pub(crate) vouches: Vec<VouchView>,
     pub(crate) reviews: Vec<ReviewView>,
     pub(crate) predicates: Vec<PredicateView>,
+    pub(crate) credentials: Vec<CredentialView>,
     pub(crate) notices: Vec<NoticeFact>,
     pub(crate) policies: BTreeMap<PersonaId, (PolicyView, Vec<ObjectId>)>,
 }
@@ -319,6 +376,16 @@ impl AttestState {
 
     pub fn predicates(&self) -> &[PredicateView] {
         &self.predicates
+    }
+
+    /// RUN-ATTEST-02: folded credentials, in fold order. Read-only, like every
+    /// accessor here — reviewed against the T-AT5.4 suppression invariant.
+    pub fn credentials(&self) -> &[CredentialView] {
+        &self.credentials
+    }
+
+    pub fn credential(&self, id: &ObjectId) -> Option<&CredentialView> {
+        self.credentials.iter().find(|c| &c.object == id)
     }
 
     pub fn notices(&self) -> &[NoticeFact] {
@@ -753,6 +820,81 @@ impl<'a> Folder<'a> {
             );
         }
 
+        // --- RUN-ATTEST-02 pass: credentials -------------------------------
+        // Standing requires a vetting-event antecedent (T-PA3.1): the
+        // envelope must cite a VettingFact object that is present in the log,
+        // authored by the SAME issuer (this envelope's author), and naming
+        // the SAME subject. There is no other path to standing.
+        let mut vettings: BTreeMap<ObjectId, (PersonaId, PersonaId)> = BTreeMap::new();
+        for (id, env) in &self.ordered {
+            if let Payload::VettingFact(v) = &env.payload {
+                vettings.insert(*id, (env.author, v.subject));
+            }
+        }
+        let mut cred_envs: BTreeMap<ObjectId, (&Envelope, &Credential)> = BTreeMap::new();
+        for (id, env) in &self.ordered {
+            if let Payload::Credential(c) = &env.payload {
+                cred_envs.insert(*id, (env, c));
+            }
+        }
+        // Successor of a credential = the first (fold order) same-author
+        // superseding object: a replacement credential or a supersede marker.
+        let mut cred_successor: BTreeMap<ObjectId, (ObjectId, bool)> = BTreeMap::new();
+        for (id, env) in &self.ordered {
+            match &env.payload {
+                Payload::Credential(c) => {
+                    if let Some(target) = c.supersedes {
+                        let valid = cred_envs
+                            .get(&target)
+                            .map(|(tenv, _)| tenv.author == env.author)
+                            .unwrap_or(false);
+                        if valid {
+                            cred_successor.entry(target).or_insert((*id, false));
+                        }
+                    }
+                }
+                Payload::CredentialSupersede(cs) => {
+                    let valid = cred_envs
+                        .get(&cs.supersedes)
+                        .map(|(tenv, _)| tenv.author == env.author)
+                        .unwrap_or(false);
+                    if valid {
+                        cred_successor.entry(cs.supersedes).or_insert((*id, true));
+                    }
+                }
+                _ => {}
+            }
+        }
+        let mut credentials: Vec<CredentialView> = Vec::new();
+        for (id, env) in &self.ordered {
+            let Payload::Credential(c) = &env.payload else { continue };
+            let vetted = env.antecedents.iter().any(|a| {
+                vettings
+                    .get(a)
+                    .map(|(issuer, subject)| *issuer == env.author && *subject == c.subject)
+                    .unwrap_or(false)
+            });
+            let status = match (vetted, cred_successor.get(id)) {
+                (false, _) => CredentialStatus::Pending,
+                (true, None) => CredentialStatus::Standing,
+                (true, Some((by, _))) => CredentialStatus::Superseded { by: *by },
+            };
+            let cred_chain = cred_envs
+                .iter()
+                .map(|(k, (e, c))| (*k, (*e, RSup(c.supersedes))))
+                .collect::<BTreeMap<_, _>>();
+            let lineage = chain_of_generic(*id, &cred_chain, &cred_successor);
+            credentials.push(CredentialView {
+                object: *id,
+                issuer: env.author,
+                subject: c.subject,
+                predicate: c.predicate,
+                process: c.process,
+                status,
+                lineage,
+            });
+        }
+
         AttestState {
             fold_order,
             edges,
@@ -760,6 +902,7 @@ impl<'a> Folder<'a> {
             vouches,
             reviews,
             predicates,
+            credentials,
             notices,
             policies,
         }

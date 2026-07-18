@@ -1,9 +1,10 @@
-# FINDINGS — attest-family (RUN-ATTEST-01)
+# FINDINGS — attest-family (RUN-ATTEST-01 §F-AT-*, RUN-ATTEST-02 §F-PA-*)
 
 Findings ledger for the attestation-family experiments. FINDING = something
 learned that the design must carry; FIX = a defect corrected during the run.
 Everything here is grade **Modeled** (fixture keypairs, in-memory fold) unless
-stated otherwise.
+stated otherwise. Anonymity-set measurements live in their own deliverable,
+`FINDINGS-ANONYMITY-SETS.md`.
 
 ## F-AT-1 — Persona correlation residue (T-AT4.3; FINDING, expected, recorded not solved)
 
@@ -82,6 +83,71 @@ remove the review from any third viewer's structure. The load-bearing part is
 the **allowlist pin**: any future public operation fails the test until it is
 reviewed against the suppression invariant. (evidence:
 `tests/t_at5_review.rs` `no_suppression_path_exists`, RUN-ATTEST-01, Modeled)
+
+## F-PA-1 — Residual sibling correlators outside the model's control (T-PA2.4; FINDING, Modeled by design)
+
+T-PA2.1 proves the in-protocol floor: sibling personas' credentials share no
+serial, batch id, key material, salt, or derivable value beyond what every
+same-(issuer, predicate) holder shares. What remains correlatable sits OUTSIDE
+the protocol's objects, and is recorded here so the floor is never mistaken
+for full unlinkability:
+
+- **Shared counterpart personas across sibling graphs.** Already recorded in
+  RUN-ATTEST-01 (F-AT-1, T-AT4.3): anyone resolving a common counterpart's
+  edge list sees both siblings connect to it; more shared counterparts
+  sharpen the intersection fingerprint. Out of protocol scope; the
+  mitigation is social-graph hygiene per persona — a client-side discipline
+  (client hygiene), not a payload change.
+- **Behavioral / stylometric linkage.** Writing style, scope vocabulary,
+  activity rhythm. No payload field carries it — the CONTENT does. Out of
+  protocol scope; mitigated (partially at best) by client hygiene: distinct
+  client profiles per persona, drafting-style separation.
+- **Network-layer metadata.** IP addresses, connection timing, transport
+  fingerprints observed by relays or peers — network-layer metadata never
+  appears in any object, so no object rule can fix it. Out of protocol
+  scope; the mitigation lives in the transport layer (per-persona transport
+  isolation, onion routing where warranted) — a deployment posture, not an
+  object format.
+- **Epoch membership** (new in this run, the honest cost of T-PA1.4). Within
+  an epoch, commitment folds are unordered and mint lamports equal the epoch
+  number, so mint ORDER is unrepresentable — but WHICH epoch a credential was
+  minted in stays public: epoch membership is the residual quantization.
+  Siblings minted in one ceremony session share an epoch; their cover is
+  everyone minted in that epoch. Mitigations are operational: fewer, larger
+  epochs, and/or the OC-2 ceremony-spacing policy.
+
+Grade: **Modeled by design** — this entry is the deliverable; each correlator
+is out of protocol scope by construction. (evidence:
+`tests/t_pa2_unlinkability.rs`, RUN-ATTEST-02)
+
+## F-PA-2 — Publication-unlinkability is NOT presentation-unlinkability (§9 distinction; FINDING)
+
+Two claims must never be conflated. What RUN-ATTEST-02 proves (T-PA2.x) is
+**publication unlinkability**: the objects v1 PUBLISHES for sibling personas
+share no correlator. What it deliberately does NOT provide is
+**presentation-unlinkability across repeated shows**: a credential is one
+signed byte string, so the same credential shown twice is trivially linkable
+— two verifiers (or one verifier twice) can match the bytes, and a verifier
+colluding with the issuer's lineage learns nothing more only because
+commitments are salted. Unlinkable presentations (BBS-style anonymous
+credentials, where each showing is a fresh zero-knowledge proof) are the
+deferred cryptographic layer named in F-AT-2; deferring them is a §9 non-goal
+of this run, not an oversight. (evidence: RUN-ATTEST-02 §9,
+`tests/t_pa2_unlinkability.rs` scope note)
+
+## F-PA-3 — Mint lamports must be epoch-coarse (T-PA1.2/T-PA1.4; FINDING, design-shaping)
+
+First design pass had the issuer's envelope lamport as a per-mint monotonic
+counter — which would have published a total mint ORDER over every credential
+(the envelope is persona-published), letting an adversary look for
+consecutively-minted clusters: exactly the batching correlator T-PA1.4 exists
+to kill, resurfaced through a side field. The shipped rule: **the issuer's
+lamport is the open epoch number** for every envelope minted in that epoch;
+fold determinism survives because (lamport, author, object-id) ordering
+tiebreaks on the content address. Carried forward as design practice: any
+monotonic issuer-side counter that reaches a published object is an ordering
+leak. (evidence: `src/issuer.rs` `mint`, `tests/t_pa1_no_default.rs`,
+RUN-ATTEST-02)
 
 ## F-AT-5 — Covenant amendments must be causally chained (T-AT6.4; FINDING)
 

@@ -359,11 +359,19 @@ pub struct Predicate {
 
 /// Closed set of predicates the co-op issuer asserts. Adding a predicate is a
 /// vocabulary change (a governed act), not a data change.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+///
+/// `VettedHolder` (RUN-ATTEST-02) is the reality anchor: "a vetted human
+/// stands behind this persona." It is NOT proof of unique personhood — one
+/// human may hold several anchor personas, and no operation answers whether
+/// two personas share a holder (T-PA5.3). Contexts that require
+/// one-persona-per-human need a different, scope-bound predicate
+/// (`sole_anchor(context)`, defined in vocabulary only — OC-3, NOT built).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PredicateKind {
     Over18,
     PhoneVerified,
     PaymentVerified,
+    VettedHolder,
 }
 
 impl PredicateKind {
@@ -372,6 +380,7 @@ impl PredicateKind {
             PredicateKind::Over18 => "over_18",
             PredicateKind::PhoneVerified => "phone_verified",
             PredicateKind::PaymentVerified => "payment_verified",
+            PredicateKind::VettedHolder => "vetted_holder",
         }
     }
     pub fn from_str(s: &str) -> Option<Self> {
@@ -379,6 +388,7 @@ impl PredicateKind {
             "over_18" => Some(PredicateKind::Over18),
             "phone_verified" => Some(PredicateKind::PhoneVerified),
             "payment_verified" => Some(PredicateKind::PaymentVerified),
+            "vetted_holder" => Some(PredicateKind::VettedHolder),
             _ => None,
         }
     }
@@ -441,6 +451,61 @@ impl IssuerRole {
     }
 }
 
+// ---------------------------------------------------------------------------
+// RUN-ATTEST-02 — anchor-persona payloads
+// ---------------------------------------------------------------------------
+
+/// The vetting-event stand-in (RUN-ATTEST-02 §3): the issuer's signed
+/// statement that a vetting ceremony stood behind THIS persona. Emitted once
+/// per mint call, per persona, with a fresh nonce — never shared across
+/// sibling personas (independent derivation, T-PA2.2). A credential without a
+/// resolvable vetting antecedent folds to pending, never standing (T-PA3.1).
+///
+/// The organizational fact that one human's vetting backed several personas
+/// lives ONLY in issuer retained state at the named `SeamBoundary` — it is not
+/// representable here.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VettingFact {
+    pub subject: PersonaId,
+    /// Fresh per mint call (derived from single-use mint entropy).
+    pub vetting_nonce: [u8; 16],
+    /// Asserted claim, not an ordering input.
+    pub performed_on: DateClaim,
+    pub role: IssuerRole,
+}
+
+/// A single-predicate credential (RUN-ATTEST-02 §3): the anchor-persona mint
+/// unit. Exactly one predicate per credential — bundles exist only as
+/// presentation-side composition (T-PA4.4). Like [`Predicate`], the substrate
+/// is unrepresentable (closed enums and fixed-shape claims only) and the
+/// issuer IS the envelope author. Unlike [`Predicate`], a credential:
+/// - requires a vetting-event antecedent to stand (T-PA3.1);
+/// - carries a fresh per-mint nonce so no two credentials share derivation
+///   state (T-PA2.1, T-PA2.2).
+///
+/// Deliberate absences (T-PA1.1): no ordinal, no `primary`, no rank, no
+/// sequence field — nothing in any public object designates one of a
+/// holder's personas as first or preferred. An observer's total knowledge is
+/// "this persona carries the predicate; that one does not."
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Credential {
+    pub predicate: PredicateKind,
+    pub subject: PersonaId,
+    pub process: ProcessProvenance,
+    /// Fresh per mint (single-use entropy; reuse is refused — T-PA2.2).
+    pub mint_nonce: [u8; 16],
+    /// Refresh lineage — supersede, never expiry (T-AT6.3 discipline).
+    pub supersedes: Option<ObjectId>,
+}
+
+/// The issuer's supersede marker for a credential (revocation-equivalent,
+/// without replacement). The superseded credential's bytes persist in lineage
+/// unchanged (T-AT0.3); a status check answers `superseded` (T-PA6.4).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CredentialSupersede {
+    pub supersedes: ObjectId,
+}
+
 /// A persona's resolvability policy: who may resolve this persona in query
 /// traversal. Governed by the NAMED party — the envelope author must be the
 /// persona itself (T-AT4.1); an edge holder's disclosure choices can never
@@ -476,6 +541,9 @@ pub enum Payload {
     Reply(Reply),
     Predicate(Predicate),
     ResolvabilityPolicy(ResolvabilityPolicy),
+    VettingFact(VettingFact),
+    Credential(Credential),
+    CredentialSupersede(CredentialSupersede),
 }
 
 impl Payload {
@@ -492,6 +560,9 @@ impl Payload {
             Payload::Reply(_) => "reply",
             Payload::Predicate(_) => "predicate",
             Payload::ResolvabilityPolicy(_) => "resolvability_policy",
+            Payload::VettingFact(_) => "vetting_fact",
+            Payload::Credential(_) => "credential",
+            Payload::CredentialSupersede(_) => "credential_supersede",
         }
     }
 }
