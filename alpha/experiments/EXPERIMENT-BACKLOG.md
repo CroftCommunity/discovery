@@ -457,6 +457,24 @@ paragraph (GROUPS.md A.2) and the standalone publications positioning (`appview-
 
 ---
 
+## 6g. Sealed tier in the browser's shape (RUN-19)
+
+The browser-shaped sealed tier proven end to end in `wasm-seal/` (`RUN-19-SUMMARY.md`): the
+croft-group MLS seal stack running (not just compiling) in wasm32, cross-build interop with zero
+asymmetry, encrypted state-at-rest surviving a host kill, and the full loop over real QUIC
+(WebTransport) through a content-blind DS. Rows below carry the residuals and the two croft-group
+gaps the run surfaced.
+
+| Item | Status | What it is / blocked on |
+|---|---|---|
+| **The browser-shaped sealed tier (P1–P5)** | ✅ **Done (RUN-19)** | MLS in wasm (8/8 in-module tests, Node runner); wasm↔native goldens (no asymmetry); AES-GCM state-at-rest + SIGKILL resume + eviction drill; offer-gated blind DS over wtransport QUIC (cert-hash dev trust, 14-day cert = browser cap); two wasm members end to end incl. removal (offered-but-cannot-read across the wire). `make p2-interop p3-resume p5-loop` + `cargo test`. |
+| **Browser-manual verification (the real page)** | **Parked (attended/product-side)** | The literal browser page loading the same module: this environment has no display and chromedriver dies on absent IPv6 (os error 97) — the one guardrail-4 headless attempt is recorded. Product work loads `seal-wasm/pkg` in a WebTransport-Baseline browser, IndexedDB/OPFS + WebCrypto key wrapping behind `BlobStore`, Web Locks tab-leader. Upgrades `run19-node-runner` + `run19-storage-shim`. |
+| **FND-R19-1 — Welcome-joined `group-seal` member cannot invite** | **croft-group gap (pinned, not fought)** | `lineage-mls::Device::join_from_welcome` uses `MlsGroupJoinConfig::default()`, which lacks `use_ratchet_tree_extension` — a member admitted by Welcome produces MissingRatchetTree-unjoinable Welcomes. Pinned native in `wasm-seal/crates/seal-native/tests/finding_ratchet_tree.rs` (the pin flips when fixed). Fix belongs in lineage-mls/group-seal (join config parity with `create_group`). |
+| **FND-R19-2 — no state-at-rest surface in the seal stack** | **croft-group gap (worked around, filed)** | `group-seal`/`lineage-mls` hide the openmls provider, so MLS state cannot be serialized through them; RUN-19's `seal-persist` is a provenance-headed copy extended with snapshot/restore (AES-GCM via the provider). The upstream fix is a storage/persistence seam on `Device`/`Sealer` (openmls supports it: pub storage map + `MlsGroup::load` + `SignatureKeyPair::read`), after which `seal-persist` collapses to a wrapper. |
+| **Custody-posture ratification** | **Owner call (`needs-call`, staged RUN-19 P6)** | The revised A.8 sentence + custody paragraph (XSS threat model, device-key blast radius, revocation by attestation deletion, eviction = rejoin-via-Welcome, tab-leader, draft pinning) await review in the proposed-changes RUN-19 section. |
+
+---
+
 ## 7. The classroom tier (docs track — not an experiment)
 
 | Item | Status | What it is / blocked on |
