@@ -1,0 +1,47 @@
+# attest-family — RUN-ATTEST-01: the attestation family, proved in code.
+#
+# One attestation family, two axes: subject type (persona | thing) × consent mode
+# (mutual | unilateral_notice | unilateral_private). Everything else — scope labels,
+# supersede-never-revoke, per-viewer resolvability, corroboration structure,
+# provenance grades — is shared machinery. No trust score exists anywhere (a tested
+# impossibility, T-AT0.2 / T-AT3.1, not a non-goal).
+#
+# Experiment-grade standalone spike (the group-principal-seam convention): pure
+# workspace, own lockfile, no network deps, no crypto beyond what the workspace
+# already provides (ed25519-dalek — social-graph-core's pin; blake3 — the committed
+# hash suite). Canonical encoding reuses the proven §4.6 dag-cbor path
+# (serde_ipld_dagcbor + ipld-core, the public-roundtrip crates) — canonicalization
+# is NOT re-implemented here.
+#
+# Declared stand-ins (RUN-ATTEST-01 §3): personas are fixture keypairs (no
+# DID/atproto); the resolvability policy surface is the in-memory folded table;
+# the co-op issuer is a fixture persona with an `issuer` role marker; the
+# transaction attestation is a fixture fact, no payment rail.
+[package]
+name = "attest-family"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# The proven canonical dag-cbor path (§4.6 machinery; public-roundtrip's crates).
+# All payload/envelope bytes go through these; no hand-rolled canonicalization.
+serde_ipld_dagcbor = "0.6"
+ipld-core = "0.4"
+# BLAKE3 — the committed hash suite (Part 2 §10.4): object ids and core hashes.
+blake3 = "1"
+# Ed25519 — the workspace's signature suite (social-graph-core's pin). Fixture
+# personas are deterministic-seed keypairs; every envelope is signed and verified.
+ed25519-dalek = "2"
+
+[dev-dependencies]
+# Tests link only the crate + dev-deps, so the leakage/serialization tests
+# name these directly (same pins as above).
+ipld-core = "0.4"
+serde_ipld_dagcbor = "0.6"
+blake3 = "1"
+# T-AT6.4 reuses the existing R7 content-bound quorum machinery UNCHANGED — the
+# covenant is folded by the Verified substrate fold, not by this crate.
+local_storage_projection = { path = "../local_storage_projection" }
+social-graph-core = { path = "../croft-chat/social-graph-core" }
+tempfile = "3"
