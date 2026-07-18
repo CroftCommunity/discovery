@@ -35,11 +35,23 @@ Each term: one sentence of definition, one sentence of what it is NOT.
   side-local label. It is NOT an edge, and a lone half is never partially one —
   it folds to pending. (evidence: T-AT1.1, T-AT1.4, RUN-ATTEST-01, Modeled)
 
-- **vouch** — A separate, later, unilateral claim by one edge participant about the
-  other, in a named scope, citing the base edge as antecedent and superseding
-  independently of it. It is NOT part of the edge, and (this run's narrow option,
-  OC-2) NOT valid standing alone without a base edge. (evidence: T-AT2.1–T-AT2.3,
-  RUN-ATTEST-01, Modeled)
+- **vouch** — A separate, later, unilateral claim by one persona about another, in a
+  named scope, standing on at least one resolvable qualifying antecedent from the
+  closed antecedent class (co-signed edge, transaction attestation, or ceremony
+  fact — OC-2 DECIDED (V1, 2026-07-18): option B) and superseding independently of
+  its antecedents. It is NOT part of any edge, and NOT valid with zero qualifying
+  antecedents — it folds to pending. (evidence: T-AT2.1–T-AT2.3, T-A3.1–T-A3.4,
+  RUN-ATTEST-01/03, Modeled)
+
+- **antecedent kind** — The closed class of provenance mechanisms that can stand a
+  vouch up: `co_signed_edge` (bidirectional trust bound), `transaction`, and
+  `ceremony` (unidirectional bounds), closed at the compile boundary and governed
+  as a quorum register on the reused R7 machinery. It is NOT an open vocabulary
+  (no string escape hatch — adding a kind is a source change; widening the
+  qualifying list is a quorum act with lineage, not a code edit), and it is NOT a
+  grade — each kind merely maps to one (`edge_backed`, `transaction_backed`,
+  `ceremony_backed`). (evidence: `src/types.rs` `AntecedentKind`, T-A3.2, T-A3.3,
+  T-A3.4, RUN-ATTEST-03, Modeled)
 
 - **review** — A `unilateral_notice` attestation about a subject that stands with only
   the author's signature, deterministically emits a notice fact to the subject, and
@@ -61,9 +73,11 @@ Each term: one sentence of definition, one sentence of what it is NOT.
 - **consent mode** — The family's second axis: `mutual`, `unilateral_notice`, or
   `unilateral_private`, fixed inside the signed payload. It is NOT a moderation
   state and NOT changeable in place (a different mode is a different, superseding
-  object). Whether `unilateral_private` ships in v1 is OC-4 — it is defined here and
-  deliberately has zero experiments in this run. (evidence: `src/types.rs`
-  `ConsentMode`, T-AT1.3, RUN-ATTEST-01, Modeled)
+  object). `unilateral_private` is deferred from v1 (OC-4 DECIDED (V3,
+  2026-07-18)): when it ships, it ships as a private-substrate artifact (an
+  MLS-group-of-one) under the private tier's own logic, never as a fourth public
+  consent mode — zero tests remains the deliberate statement. (evidence:
+  `src/types.rs` `ConsentMode`, T-AT1.3, RUN-ATTEST-01/03, Modeled)
 
 - **ceremony fact** — A participant's signed statement of a shared co-presence
   session, referenced from an edge core; one from each participant over the same
@@ -146,8 +160,17 @@ Supporting vocabulary (machinery, not new axes): **supersede** — the only way 
 attestation is retired: a later object cites and replaces it while the prior object's
 bytes remain retrievable unchanged; never revoke-in-place (T-AT0.3). **notice fact** —
 the deterministic, fold-derived fact addressed to a review's subject; delivery is out
-of scope (T-AT5.2). **marker** — presentation metadata (`antecedent_superseded`,
-`stale`) that annotates and never removes, hides, or reorders (T-AT2.3, T-AT5.5).
+of scope (T-AT5.2). **marker** — presentation metadata (`edge_superseded`, `stale`)
+that annotates and never removes, hides, or reorders (T-AT2.3, T-AT5.5); the
+superseded-antecedent marker is kind-specific per V2 — only a co-signed edge has an
+ended state, so the marker is unrepresentable for transaction- and ceremony-backed
+vouches (T-A3.5). **withdrawal (Drystone tier)** — an author-superseded (withdrawn)
+vouch or review is ABSENT from every corroboration structure — no tombstone field,
+no count — while lineage retains the object's bytes (T-AT0.3, T-A3.6); the
+authoritative-layer claw-back (the author removing the canonical record from their
+own PDS) is the public/ATProto tier's mechanism (V2; see
+ATTEST-ATPROTO-MATCHUP.md), never proactive network pull-back, and amend =
+whole-record replace, with no wall-clock anywhere.
 **transaction attestation** — the verified-purchase analog cited as antecedent for the
 `transaction_backed` grade; a fixture fact in this run, no payment rail (§3 stand-in).
 
@@ -162,19 +185,34 @@ posture. RUN-ATTEST-02 adds: the vetting event is a fixture fact (no real vettin
 the payment bookkeeping is the `SeamBoundary` stand-in (no payment rail); the
 holder↔persona linkage lives only in fixture bookkeeping; the anchor-count dial
 register reuses the substrate's rule_key 0 (`add_member_threshold`) as a declared
-reinterpretation, alongside T-AT6.4's rule_key 1 covenant register.
+reinterpretation, alongside T-AT6.4's rule_key 1 covenant register. RUN-ATTEST-03
+adds: the qualifying-antecedent-kind register reuses rule_key 2
+(`role_change_threshold`) as a declared reinterpretation (bitmask; 7 = the full V1
+class), and the crate's fold only mirrors the folded value
+(`AntecedentRegister`), never governs it.
 
-## Owner calls surfaced (not decided here)
+## Owner calls (RUN-ATTEST-01 series)
 
 - **OC-1** — where this document graduates (alpha living doc vs beta spec section).
-- **OC-2** — whether a vouch may stand alone without a base edge; this run implements
-  edge-antecedent-required (narrowest option; `// OWNER-CALL: OC-2 pending` at
-  T-AT2.1); the transaction-antecedent grade path (T-AT2.4) hints at the alternative.
-- **OC-3** — long-term semantics of vouches whose base edge is superseded:
-  persist-with-marker (implemented; `// OWNER-CALL: OC-3 pending` at T-AT2.3) vs a
-  re-affirmation window.
-- **OC-4** — whether `unilateral_private` ships in v1; defined in vocabulary, zero
-  experiments here — a deliberate statement, not an oversight.
+  STILL OPEN — the 2026-07-18 walk is paused before this item; it resumes in
+  conversation, not in a run.
+- **OC-2** — DECIDED (V1, 2026-07-18, owner-confirmed in chat): option B — a vouch
+  requires a qualifying antecedent from a **closed class** (co-signed edge,
+  transaction attestation, or ceremony fact), not an edge specifically. Rationale
+  of record: these are shapes of one provenance mechanism; what varies is the kind
+  of trust bound — bidirectional (edge) or unidirectional (transaction, ceremony) —
+  and both are valid. Settled by RUN-ATTEST-03 (T-A3.1–T-A3.4).
+- **OC-3** — DECIDED (V2, 2026-07-18, owner-confirmed in chat): persist-with-marker
+  RATIFIED for vouches whose base edge is superseded, with the marker made
+  kind-specific (`edge_superseded`) and the tier boundary clarified: claw-back
+  means the author removing the record from their own PDS (the canonical copy) on
+  the public/ATProto tier — never proactive network pull-back; amend =
+  whole-record replace; no wall-clock anywhere. Private review/remediation is a
+  different mechanism, parked. Settled by RUN-ATTEST-03 (T-A3.5, T-A3.6).
+- **OC-4** — DECIDED (V3, 2026-07-18, owner-confirmed in chat): `unilateral_private`
+  is deferred from v1. When it ships, it ships as a private-substrate artifact (an
+  MLS-group-of-one), never as a fourth public consent mode. Zero tests remains the
+  deliberate statement.
 
 RUN-ATTEST-02 owner calls (its §8 numbering; tagged at their test sites):
 

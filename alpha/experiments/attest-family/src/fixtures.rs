@@ -326,7 +326,26 @@ pub fn vouch(
         subject,
         scope: Scope::new(scope),
         statement: statement.to_string(),
-        base_edge,
+        base_edge: Some(base_edge),
+        made_on,
+        supersedes,
+    })
+}
+
+/// An edge-free vouch (V1, RUN-ATTEST-03): no base edge; standing comes from
+/// a qualifying transaction or ceremony antecedent cited in the envelope.
+pub fn vouch_edge_free(
+    subject: PersonaId,
+    scope: &str,
+    statement: &str,
+    made_on: DateClaim,
+    supersedes: Option<ObjectId>,
+) -> Payload {
+    Payload::Vouch(Vouch {
+        subject,
+        scope: Scope::new(scope),
+        statement: statement.to_string(),
+        base_edge: None,
         made_on,
         supersedes,
     })
