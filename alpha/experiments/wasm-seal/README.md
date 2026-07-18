@@ -43,6 +43,29 @@ lands.)
 | PRED-API | the `group-seal` API surface is unchanged under wasm (no cfg-gated signatures) | the P1 test source is byte-identical to what a native consumer writes |
 | PRED-WT (P4) | wtransport self-signed + `server_certificate_hashes` trust, one bidi stream per request, CONNECT-established session on localhost QUIC | `blind-ds`/`ds-client` predictions module (P4) |
 
+## P3 — the browser mapping and the hazards, documented (not built)
+
+The in-environment storage backing is a file / the Node host's filesystem
+(`SPEC-DELTA[run19-storage-shim]`). The **product (browser) mapping** the
+drill stands in for: the member's MLS state rests in **IndexedDB or OPFS**
+only ever as the AES-GCM blob (`nonce || ciphertext`, AAD-domain-separated —
+the same bytes this drill produces); the at-rest key is held as a
+**WebCrypto non-extractable key** (wrapped, never serialized into page
+memory as raw bytes), so a storage dump without the key is ciphertext.
+Restore = fetch blob → unwrap key → `restore()` inside the module.
+
+**Multi-writer hazard, named:** MLS state is strictly **single-writer** —
+two tabs advancing the same ratchet from one blob fork the hash chain and
+brick the member. The product must elect one writer (Web Locks API /
+tab-leader election, a SharedWorker, or a service-worker owner); this run
+demonstrates the single-writer discipline (one host process owns the blob)
+and does **not** build the election.
+
+**Eviction honesty:** destroying the blob is destroying the member — there
+is no self-restore path (forward secrecy is not overridden by any recovery
+mechanism here); re-entry is a fresh add via Welcome, provably blind to the
+gap. Key recovery/escrow is I9 territory and firewalled out (non-goal).
+
 ## Layout
 
 | Path | Part | What |
