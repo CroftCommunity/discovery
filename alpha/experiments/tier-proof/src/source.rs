@@ -7,12 +7,14 @@
 //! (`SPEC-DELTA[run17-live-source | declared-stand-in]`). Causal order is the
 //! vector order; a real firehose supplies the same ordering via commit `seq`.
 
+use serde::{Deserialize, Serialize};
+
 use crate::envelope::Envelope;
 use crate::identity::Signer;
 use crate::records::{self, Record};
 
 /// One firehose event: a record `create` or a record `delete`.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SourceEvent {
     /// A `create`/`update` commit carrying a signed envelope.
     Put(Envelope),
