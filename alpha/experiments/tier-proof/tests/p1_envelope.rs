@@ -64,7 +64,7 @@ fn canonical_key_ordering_is_deterministic_golden() {
     // envelope — and its digest — is reproducible.
     assert_eq!(
         env.identity_hex(),
-        "PINNED_AT_GREEN",
+        "2707a13a9de09334a43c7668fbcea3d44b172dcbfc7aff7465b9c88861993d37",
         "identity digest must match the pinned golden"
     );
     assert!(!bytes.is_empty());
