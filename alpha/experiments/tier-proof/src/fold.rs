@@ -14,11 +14,12 @@
 //! the indexed fold ([`FoldState::canonical_digest`]). That equality is the
 //! reconstructability proof (§A.5, P2) and the archive-rebuild proof (P4).
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 
+use crate::envelope::Envelope;
 use crate::records::{self, MembershipPolicy, Record, WritePolicy};
 use crate::source::SourceEvent;
 
@@ -71,8 +72,40 @@ pub struct FoldState {
     roles: BTreeMap<(String, String), Vec<String>>,
     /// envelope identity → (author, record), to resolve deletes.
     by_id: BTreeMap<String, (String, Record)>,
+    /// envelope identity → causal position (stream index).
+    positions: BTreeMap<String, u64>,
+    /// request identity → (scope, subject) — the pending-request ledger.
+    requests: BTreeMap<String, (String, String)>,
+    /// request identity → set of distinct steward DIDs who have co-signed a
+    /// grant answering it.
+    cosigns: BTreeMap<String, BTreeSet<String>>,
+    /// request identities that reached the co-sign threshold.
+    granted: BTreeSet<String>,
     /// dropped (failed-verification) envelope count — observability.
     dropped: u64,
+}
+
+/// The status of a membership request under the fold.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RequestStatus {
+    /// No such request is known in this scope.
+    Unknown,
+    /// Recorded but not yet granted to threshold — and silence is not a verdict.
+    Pending,
+    /// Granted (reached the co-sign threshold).
+    Granted,
+}
+
+/// Why a message was not admitted (the causal membership check).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AdmitReject {
+    /// The signature did not verify.
+    BadSignature,
+    /// The payload was not a decodable message record.
+    NotAMessage,
+    /// The author held no membership interval covering the message's causal
+    /// position (never a member, or the position is at/after the revocation cut).
+    OutsideMembership,
 }
 
 impl FoldState {
@@ -93,9 +126,11 @@ impl FoldState {
                         continue;
                     }
                     let rec = records::decode(env).map_err(|e| FoldError::Undecodable(pos, e))?;
+                    let id = env.identity_hex();
                     st.by_id
-                        .insert(env.identity_hex(), (env.body.author.clone(), rec.clone()));
-                    st.apply(&env.body.author, &rec, pos);
+                        .insert(id.clone(), (env.body.author.clone(), rec.clone()));
+                    st.positions.insert(id, pos);
+                    st.apply(env, &rec, pos);
                 }
                 SourceEvent::Delete { author, target } => {
                     st.apply_delete(author, target, pos);
@@ -105,7 +140,8 @@ impl FoldState {
         Ok(st)
     }
 
-    fn apply(&mut self, author: &str, rec: &Record, pos: u64) {
+    fn apply(&mut self, env: &Envelope, rec: &Record, pos: u64) {
+        let author = env.body.author.as_str();
         match rec {
             Record::Genesis(g) => {
                 self.catalogue.insert(
@@ -131,11 +167,38 @@ impl FoldState {
                     self.open(scope, author, pos);
                 }
             }
+            Record::Request { scope } => {
+                // The member's half of the two-sided fact. Record it pending;
+                // silence never turns it into a verdict.
+                self.requests
+                    .insert(env.identity_hex(), (scope.clone(), author.to_string()));
+            }
             Record::Grant { scope, subject } => {
-                // Gated tier: authority + the request antecedent are checked by
-                // the caller-side grant validator (P4); the roster fold opens
-                // the interval from the grant's causal position.
-                self.open(scope, subject, pos);
+                // The steward's half. A grant counts only if (a) its author is a
+                // steward of the scope and (b) it cites, among its antecedents, a
+                // recorded request from `subject` for this scope. Membership opens
+                // when distinct steward co-signs reach the scope threshold — at
+                // the causal position of the threshold-reaching grant.
+                let Some(cat) = self.catalogue.get(scope) else {
+                    return;
+                };
+                if !cat.steward_set.iter().any(|s| s == author) {
+                    return; // not a steward — a self-grant does not admit.
+                }
+                let threshold = cat.threshold.max(1);
+                // Find the answered request among the antecedents.
+                let request_id = env.body.antecedents.iter().find(|a| {
+                    matches!(self.requests.get(*a), Some((rs, rq)) if rs == scope && rq == subject)
+                });
+                let Some(request_id) = request_id.cloned() else {
+                    return; // grant without a matching request antecedent — inert.
+                };
+                let signers = self.cosigns.entry(request_id.clone()).or_default();
+                signers.insert(author.to_string());
+                if signers.len() as u32 >= threshold && !self.granted.contains(&request_id) {
+                    self.granted.insert(request_id);
+                    self.open(scope, subject, pos);
+                }
             }
             Record::Leave { scope } => {
                 self.close(scope, author, pos);
@@ -179,10 +242,10 @@ impl FoldState {
                     entry.membership_policy = *membership_policy;
                 }
             }
-            // Requests are tracked by the caller-side gated-tier logic (P4);
-            // device attestations by the delegation verifier (P5); messages by
-            // the write-policy relay/serve (P3). None mutate the roster fold.
-            Record::Request { .. } | Record::DeviceAttestation { .. } | Record::Message { .. } => {}
+            // Device attestations are handled by the delegation verifier (P5);
+            // messages by the write-policy relay/serve (P3). Neither mutates the
+            // roster fold.
+            Record::DeviceAttestation { .. } | Record::Message { .. } => {}
         }
     }
 
@@ -258,6 +321,64 @@ impl FoldState {
             .copied()
     }
 
+    /// The causal (stream) position at which an envelope identity was folded.
+    #[must_use]
+    pub fn position_of(&self, id: &str) -> Option<u64> {
+        self.positions.get(id).copied()
+    }
+
+    /// The status of a request by its identity (§A.3: silence is not a verdict —
+    /// an unanswered request stays [`RequestStatus::Pending`] at every fold
+    /// point; no timeout path can turn it into a verdict).
+    #[must_use]
+    pub fn request_status(&self, _scope: &str, request_id: &str) -> RequestStatus {
+        if self.granted.contains(request_id) {
+            RequestStatus::Granted
+        } else if self.requests.contains_key(request_id) {
+            RequestStatus::Pending
+        } else {
+            RequestStatus::Unknown
+        }
+    }
+
+    /// Decide whether a message envelope is admitted: signature valid, and the
+    /// author held membership at the message's causal position — where causal
+    /// position is the greatest stream position among the message's antecedents
+    /// (a message with no resolvable antecedent is treated as "at the current
+    /// tip", so a revoked author cannot smuggle one in after the cut).
+    ///
+    /// This is "roster-at-position": a message from a revoked member with
+    /// antecedents before the cut is admitted; one at/after the cut is not.
+    ///
+    /// # Errors
+    /// Returns the specific [`AdmitReject`] on refusal.
+    pub fn admit_message(&self, env: &Envelope) -> Result<(), AdmitReject> {
+        if env.verify().is_err() {
+            return Err(AdmitReject::BadSignature);
+        }
+        let rec = records::decode(env).map_err(|_| AdmitReject::NotAMessage)?;
+        let scope = match &rec {
+            Record::Message { scope, .. } => scope.clone(),
+            _ => return Err(AdmitReject::NotAMessage),
+        };
+        let causal_pos = env
+            .body
+            .antecedents
+            .iter()
+            .filter_map(|a| self.positions.get(a).copied())
+            .max()
+            .unwrap_or(u64::MAX);
+        let intervals = self.member_intervals(&scope, &env.body.author);
+        let held = intervals
+            .iter()
+            .any(|(start, end)| causal_pos >= *start && end.is_none_or(|e| causal_pos < e));
+        if held {
+            Ok(())
+        } else {
+            Err(AdmitReject::OutsideMembership)
+        }
+    }
+
     /// Roles currently held by a (scope, member).
     #[must_use]
     pub fn roles_of(&self, scope: &str, did: &str) -> Vec<String> {
@@ -314,3 +435,47 @@ impl FoldState {
 
 /// Convenience alias so tests read `Fold::run`.
 pub type Fold = FoldState;
+
+/// Write folded ops to an archive (the "state table"): the canonical bytes of
+/// the ordered event stream. Persisting the events — not a derived index — is
+/// what lets a second folder re-verify every signature on rebuild.
+///
+/// # Panics
+/// Never in practice: `SourceEvent`s of owned data always encode.
+#[must_use]
+pub fn archive(events: &[SourceEvent]) -> Vec<u8> {
+    crate::canonical::to_canonical(&events.to_vec()).expect("events of owned data always encode")
+}
+
+/// Rebuild a [`FoldState`] from an archive alone. Signatures are re-verified by
+/// [`FoldState::run`] — the archive is verifiable, not trusted.
+///
+/// # Errors
+/// Returns a string on undecodable archive bytes or a structurally invalid
+/// record.
+pub fn rebuild_from_archive(bytes: &[u8]) -> Result<FoldState, String> {
+    let events: Vec<SourceEvent> =
+        ciborium::from_reader(bytes).map_err(|e| format!("decode archive: {e}"))?;
+    FoldState::run(&events).map_err(|e| e.to_string())
+}
+
+/// Test helper: flip a byte in the payload of the first `Put` envelope in an
+/// archive, so its signature no longer verifies. Used to prove a rebuild drops
+/// a tampered archive entry rather than trusting it.
+///
+/// # Panics
+/// Panics if the archive does not decode or has no `Put` with a payload — it is
+/// a test-only helper fed well-formed archives.
+#[must_use]
+pub fn tamper_first_put_for_test(bytes: &[u8]) -> Vec<u8> {
+    let mut events: Vec<SourceEvent> = ciborium::from_reader(bytes).expect("test archive decodes");
+    for ev in &mut events {
+        if let SourceEvent::Put(env) = ev {
+            if let Some(b) = env.body.payload.first_mut() {
+                *b ^= 0xff;
+                break;
+            }
+        }
+    }
+    crate::canonical::to_canonical(&events).expect("events re-encode")
+}
