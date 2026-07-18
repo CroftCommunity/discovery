@@ -212,6 +212,8 @@ fn payload_ipld(p: &Payload) -> Ipld {
                         ("r", s(c.process.role.as_str())),
                     ]),
                 ),
+                // V5/V6: the era anchor is signed content — an era fact.
+                ("e", bytes(&c.era)),
                 ("k", s("credential")),
                 ("n", bytes(&c.mint_nonce)),
                 ("p", s(c.predicate.as_str())),
@@ -225,6 +227,11 @@ fn payload_ipld(p: &Payload) -> Ipld {
         Payload::CredentialSupersede(cs) => map(vec![
             ("k", s("credential_supersede")),
             ("u", bytes(&cs.supersedes.0)),
+        ]),
+        Payload::ReissueRequest(rr) => map(vec![
+            ("a", bytes(&rr.era_anchor)),
+            ("k", s("reissue_request")),
+            ("r", bytes(&rr.credential.0)),
         ]),
         Payload::ResolvabilityPolicy(rp) => {
             let rule = match &rp.rule {
@@ -529,12 +536,17 @@ fn decode_payload(v: &Ipld) -> R<Payload> {
                         .ok_or_else(|| CanonicalError("unknown role".into()))?,
                 },
                 mint_nonce: get_b16(m, "n")?,
+                era: get_b32(m, "e")?,
                 supersedes: opt_supersedes(m)?,
             }))
         }
         "credential_supersede" => Ok(Payload::CredentialSupersede(CredentialSupersede {
             supersedes: opt_supersedes(m)?
                 .ok_or_else(|| CanonicalError("credential_supersede: supersedes required".into()))?,
+        })),
+        "reissue_request" => Ok(Payload::ReissueRequest(ReissueRequest {
+            credential: ObjectId(get_b32(m, "r")?),
+            era_anchor: get_b32(m, "a")?,
         })),
         other => Err(CanonicalError(format!("unknown payload kind {other}"))),
     }

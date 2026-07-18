@@ -479,9 +479,11 @@ pub struct Predicate {
 /// `VettedHolder` (RUN-ATTEST-02) is the reality anchor: "a vetted human
 /// stands behind this persona." It is NOT proof of unique personhood — one
 /// human may hold several anchor personas, and no operation answers whether
-/// two personas share a holder (T-PA5.3). Contexts that require
-/// one-persona-per-human need a different, scope-bound predicate
-/// (`sole_anchor(context)`, defined in vocabulary only — OC-3, NOT built).
+/// two personas share a holder (T-PA5.3, the pin now unqualified).
+/// `sole_anchor(context)` is REJECTED (V7, 2026-07-18): uniqueness is
+/// group-local membership vetting under local authority — governance counts
+/// member handles; personas sign — never a portable credential. Portable
+/// proof-of-personhood is the escalation the design refuses.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PredicateKind {
     Over18,
@@ -610,8 +612,29 @@ pub struct Credential {
     pub process: ProcessProvenance,
     /// Fresh per mint (single-use entropy; reuse is refused — T-PA2.2).
     pub mint_nonce: [u8; 16],
+    /// V5/V6 (RUN-ATTEST-04): the governance-era anchor this credential was
+    /// minted or reissued under — issuer operational time IS governance time,
+    /// so membership is era-graded, "meaningful but factual". An era fact,
+    /// never a status: old-era credentials never expire, and silence carries
+    /// no penalty (T-A4.16).
+    pub era: [u8; 32],
     /// Refresh lineage — supersede, never expiry (T-AT6.3 discipline).
     pub supersedes: Option<ObjectId>,
+}
+
+/// V5/V6 era-reissue (RUN-ATTEST-04): a HOLDER-signed request to reissue an
+/// existing credential under a new governance era. Unilateral — only the
+/// holder's signature exists on it (the issuer refuses a request whose author
+/// is not the credential's subject); it cites the existing credential and the
+/// new era anchor. The issuer's reissue chains the ORIGINAL vetting event —
+/// no new vetting antecedent exists, which is also V8's free-reissue
+/// structural pin (T-A4.14). Voluntary: not requesting one changes nothing.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReissueRequest {
+    /// The holder's existing credential, by content address.
+    pub credential: ObjectId,
+    /// The governance-lineage fact opening the era being reissued into.
+    pub era_anchor: [u8; 32],
 }
 
 /// The issuer's supersede marker for a credential (revocation-equivalent,
@@ -660,6 +683,7 @@ pub enum Payload {
     VettingFact(VettingFact),
     Credential(Credential),
     CredentialSupersede(CredentialSupersede),
+    ReissueRequest(ReissueRequest),
 }
 
 impl Payload {
@@ -679,6 +703,7 @@ impl Payload {
             Payload::VettingFact(_) => "vetting_fact",
             Payload::Credential(_) => "credential",
             Payload::CredentialSupersede(_) => "credential_supersede",
+            Payload::ReissueRequest(_) => "reissue_request",
         }
     }
 }

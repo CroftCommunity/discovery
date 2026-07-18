@@ -404,6 +404,7 @@ pub fn vetting_fact(subject: PersonaId, vetting_nonce: [u8; 16], performed_on: D
     })
 }
 
+/// A credential in the genesis era (the pre-era-roll fixture default).
 pub fn credential(
     kind: PredicateKind,
     subject: PersonaId,
@@ -411,11 +412,28 @@ pub fn credential(
     mint_nonce: [u8; 16],
     supersedes: Option<ObjectId>,
 ) -> Payload {
-    Payload::Credential(Credential { predicate: kind, subject, process, mint_nonce, supersedes })
+    credential_in_era(kind, subject, process, mint_nonce, crate::issuer::genesis_era(), supersedes)
+}
+
+/// RUN-ATTEST-04 (V5/V6): a credential carrying an explicit era anchor.
+pub fn credential_in_era(
+    kind: PredicateKind,
+    subject: PersonaId,
+    process: ProcessProvenance,
+    mint_nonce: [u8; 16],
+    era: [u8; 32],
+    supersedes: Option<ObjectId>,
+) -> Payload {
+    Payload::Credential(Credential { predicate: kind, subject, process, mint_nonce, era, supersedes })
 }
 
 pub fn credential_supersede(supersedes: ObjectId) -> Payload {
     Payload::CredentialSupersede(CredentialSupersede { supersedes })
+}
+
+/// RUN-ATTEST-04 (era-reissue): the holder-signed reissue request payload.
+pub fn reissue_request(credential: ObjectId, era_anchor: [u8; 32]) -> Payload {
+    Payload::ReissueRequest(ReissueRequest { credential, era_anchor })
 }
 
 // ---------------------------------------------------------------------------

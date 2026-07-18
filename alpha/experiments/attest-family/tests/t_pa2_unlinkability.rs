@@ -3,6 +3,17 @@
 //! Claim: credentials issued to sibling personas share no correlator in
 //! public data. (T-PA2.4 — the residue OUTSIDE the model's control — is a
 //! FINDINGS entry, pinned here by a doc test.)
+//!
+//! V5 rework (RUN-ATTEST-04 Part B), named: the per-persona surface swept by
+//! T-PA2.1 is now published envelopes + holder BINDINGS (what a verifier is
+//! shown). Merkle proof paths are deliberately excluded from the pairwise
+//! intersection: interior proof nodes are tree GEOMETRY, shared by
+//! value-adjacent leaves of ANY holders — adjacency is keyed-commitment
+//! order, holder-independent, so shared interior nodes correlate tree
+//! position, not holders. T-PA2.3 (`status_check_no_cross_leak`) is DELETED
+//! with the status-check machinery; its successor is T-A4.11
+//! `verifier_never_contacts_issuer` — no verifier query surface exists at
+//! all.
 
 mod common;
 
@@ -33,10 +44,11 @@ fn byte_leaves_of(bytes: &[u8]) -> Vec<Vec<u8>> {
 fn sibling_credentials_unlinkable() {
     // Property over seeded variations (the T-AT3.5 pattern): H1's three
     // siblings and ten single-anchor strangers are minted the same predicate
-    // set. The pairwise intersection of two SIBLINGS' public surfaces must be
-    // no larger than what any two STRANGERS share — i.e. exactly the values
-    // every same-(issuer, predicate) credential carries (the issuer's key),
-    // and nothing else: no serial, no batch id, no shared nonce or salt, no
+    // set. The pairwise intersection of two SIBLINGS' surfaces must be no
+    // larger than what any two STRANGERS share — i.e. exactly the values
+    // every same-(issuer, predicate) credential carries: the issuer's key
+    // and (V6, deliberate) the public era anchor — and nothing else: no
+    // serial, no batch id, no shared nonce, no shared commitment, no
     // derivable value that partitions the siblings from the population.
     for case in 0u64..12 {
         let w = AnchorWorld::new();
@@ -72,16 +84,17 @@ fn sibling_credentials_unlinkable() {
         }
         state.close_epoch(&w.coop);
 
-        // Each persona's public surface: published envelopes + its status
-        // responses (the full byte set a third-party viewer can obtain from
-        // the issuer's read side for that persona's credentials).
+        // Each persona's surface: published envelopes + the holder bindings
+        // a verifier is shown (the V5 successor of the status-response
+        // sweep; proof paths excluded — see the module header).
         let surface = |id: &PersonaId| -> BTreeSet<Vec<u8>> {
             let (_, out) = outputs.iter().find(|(pid, _)| pid == id).unwrap();
             let mut leaves: BTreeSet<Vec<u8>> = BTreeSet::new();
             for env in std::iter::once(&out.vetting).chain(out.credentials.iter()) {
                 leaves.extend(byte_leaves_of(&env.canonical_bytes_with_sig()));
-                let resp = state.status_check(&w.coop, env.object_id().0);
-                leaves.extend(byte_leaves_of(&resp.to_canonical_bytes()));
+            }
+            for binding in &out.bindings {
+                leaves.extend(byte_leaves_of(&binding.to_canonical_bytes()));
             }
             leaves.into_iter().filter(|l| l.len() >= 16).collect()
         };
@@ -94,11 +107,16 @@ fn sibling_credentials_unlinkable() {
         for s in &all[1..] {
             floor = floor.intersection(s).cloned().collect();
         }
-        // The floor is exactly the issuer's public key (the envelope author).
+        // The floor is exactly the issuer's public key plus the era anchor —
+        // the anchor is a deliberate population-wide ERA FACT (V6): every
+        // same-era credential carries it, exactly like the issuer key.
         assert_eq!(
             floor,
-            BTreeSet::from([w.coop.id.0.to_vec()]),
-            "case {case}: the only population-wide shared value is the issuer key"
+            BTreeSet::from([
+                w.coop.id.0.to_vec(),
+                attest_family::issuer::genesis_era().to_vec()
+            ]),
+            "case {case}: the only population-wide shared values are the issuer key and era anchor"
         );
 
         // Sibling pairwise intersections must not exceed the floor.
@@ -126,7 +144,9 @@ fn sibling_credentials_unlinkable() {
 // The compile-boundary half is the compile_fail doc-test on
 // `issuer::MintEntropy` (entropy is consumed by value; a second mint cannot
 // reuse it). This test is the runtime half: RE-DERIVING from the same seed is
-// rejected deterministically at the salt boundary, with state unchanged.
+// rejected deterministically at the nonce boundary (V5 rename: the salt pile
+// went with the receipt pile; the mint nonce is the derivation-state
+// boundary now), with state unchanged.
 #[test]
 fn independent_derivation_enforced() {
     let w = AnchorWorld::new();
@@ -157,11 +177,11 @@ fn independent_derivation_enforced() {
     );
     assert_eq!(
         reused.expect_err("shared derivation state must be refused"),
-        MintRefusal::SaltReused
+        MintRefusal::NonceReused
     );
 
-    // The refusal left no partial state: the epoch closes with exactly the
-    // first mint's commitment, and a fresh-seed mint still succeeds.
+    // The refusal left no partial state: the head publishes with exactly the
+    // first mint's leaf, and a fresh-seed mint still succeeds.
     let ok2 = mint(
         &mut state,
         &w.coop,
@@ -172,86 +192,8 @@ fn independent_derivation_enforced() {
         MintEntropy::from_seed(derived_seed("t-pa2-2", 2, 2)),
     );
     assert!(ok2.is_ok(), "fresh entropy after a refusal mints");
-    let record = state.close_epoch(&w.coop);
-    assert_eq!(record.declared_total, 2, "the refused mint left nothing behind");
-    assert_eq!(record.commitments.len(), 2);
-}
-
-// ---------------------------------------------------------------------------
-// T-PA2.3 — the status check leaks nothing across personas
-// ---------------------------------------------------------------------------
-
-#[test]
-fn status_check_no_cross_leak() {
-    let w = AnchorWorld::new();
-    let mut state = IssuerState::new(u32::MAX);
-    let kinds = [PredicateKind::VettedHolder, PredicateKind::PhoneVerified];
-    let mut outs: Vec<(PersonaId, MintOutput)> = Vec::new();
-    for (k, (subject, holder)) in [
-        (&w.p1a, &w.h1),
-        (&w.p1b, &w.h1),
-        (&w.p1c, &w.h1),
-        (&w.p2a, &w.h2),
-        (&w.p3, &w.h3),
-    ]
-    .iter()
-    .enumerate()
-    {
-        let out = mint(
-            &mut state,
-            &w.coop,
-            member_ref(holder),
-            subject,
-            &kinds,
-            d(2026, 7, 17),
-            MintEntropy::from_seed(derived_seed("t-pa2-3", 0, k as u64)),
-        )
-        .expect("fixture mint succeeds");
-        outs.push((subject.id, out));
-    }
-    state.close_epoch(&w.coop);
-
-    let queried = outs[0].1.credentials[0].object_id();
-    let resp = state.status_check(&w.coop, queried.0);
-    let bytes = resp.to_canonical_bytes();
-
-    // The response's field set is EXACT: queried hash echo, standing string,
-    // issuer signature — nothing else exists to leak through.
-    let v: Ipld = serde_ipld_dagcbor::from_slice(&bytes).unwrap();
-    let Ipld::Map(m) = &v else { panic!("status response must be a map") };
-    let keys: Vec<&str> = m.keys().map(|k| k.as_str()).collect();
-    assert_eq!(keys, vec!["g", "h", "s"], "response fields are exactly {{hash, standing, sig}}");
-
-    // No numeric leaf at all — no counts, no positions, no timestamps.
-    let mut numerics = Vec::new();
-    ipld_numeric_leaves(&v, "", &mut numerics);
-    assert!(numerics.is_empty(), "a status response carries no numbers: {numerics:?}");
-
-    // Nothing about ANY other object or persona: not the siblings'
-    // credentials, not the same persona's other credential, not any persona
-    // id, not any commitment.
-    for (pid, out) in &outs {
-        assert!(!contains_subslice(&bytes, &pid.0), "persona id in status response");
-        for env in std::iter::once(&out.vetting).chain(out.credentials.iter()) {
-            if env.object_id() != queried {
-                assert!(
-                    !contains_subslice(&bytes, &env.object_id().0),
-                    "another object's id in status response"
-                );
-            }
-        }
-    }
-    // The response and the lineage share no 32-byte value (the echoed
-    // credential hash is salted before it ever enters the lineage).
-    let lineage = state.lineage_bytes();
-    let resp_leaves: BTreeSet<Vec<u8>> =
-        byte_leaves_of(&bytes).into_iter().filter(|l| l.len() == 32).collect();
-    let lineage_leaves: BTreeSet<Vec<u8>> =
-        byte_leaves_of(&lineage).into_iter().filter(|l| l.len() == 32).collect();
-    assert!(
-        resp_leaves.is_disjoint(&lineage_leaves),
-        "a status response must not locate anything in the public lineage"
-    );
+    let head = state.close_epoch(&w.coop);
+    assert_eq!(head.leaf_count, 2, "the refused mint left nothing behind");
 }
 
 // ---------------------------------------------------------------------------

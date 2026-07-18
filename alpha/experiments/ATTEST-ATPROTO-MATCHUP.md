@@ -76,6 +76,12 @@ cannot exist, and anything that half-implements it (only B cites A) silently mak
 the edge asymmetric. The crate's fold never traverses a CID to establish the edge;
 it compares core hashes. An ATProto realization must keep that rule.
 
+*(Cross-reference, RUN-ATTEST-04: the owed cross-encoder sentence is stated in
+PRIMITIVES-ATTEST.md — the crate's canonical dag-cbor form is the source of
+truth for core hashes; lexicon records embed core content rather than
+crate-computed hashes, so no cross-encoder hash equality is ever required;
+atproto CIDs are locators, never joins.)*
+
 ### Row 3 — Closed vocabularies → **Native**
 
 **Need.** Closed enums everywhere a value could smuggle substrate or open the
@@ -158,20 +164,31 @@ derives notice facts from folded reviews — which is precisely the crate's shap
 named, not blocking: the design never required the substrate to deliver notice,
 only to make notice derivable, which the firehose does.
 
-### Row 7 — Issuer predicates + commitment lineage → **Native-shaped**
+### Row 7 — Issuer predicates + tree-head transparency → **Native-shaped** *(revised 2026-07-18, V5 — the stapling model)*
 
-**Need.** RUN-ATTEST-02's issuer model: credential and per-epoch commitment
-records are public-safe by design (blinded commitments, no persona identifiers);
-the status check is a read-side solicitation, not a registry.
+**Need.** The V5 issuer model (RUN-ATTEST-04, superseding this row's original
+RUN-ATTEST-02 text — briefs are living docs; the prior text stays visible in
+git history): credential records are public-safe by design, and the issuer's
+per-epoch publication is ONE signed **tree head** over keyed commitments
+(CT/RFC-9162 shape) — Merkle root, leaf count, superseded-set root, era
+anchor. Confirmation is **holder-stapled inclusion proofs** checked by a pure
+verify function; revocation is the per-epoch superseded set. The verifier
+never contacts the issuer.
 
 **ATProto.** The issuer is an account like any other: it publishes credential
-records and per-epoch `commitmentEpoch` records in its own repo (rows 1–3
-machinery). The status check maps to an **XRPC endpoint, not records** — a
-query ("query (GET, cacheable)" — xrpc spec, §4-8) on the issuer's service
-answering current/superseded/unknown from its own assertion lineage, signed,
-exactly the OCSP shape T-PA6.3 proves. Publishing status as records would
-invert the design (a registry); the XRPC mapping preserves "solicited read"
-semantics. Gap: none structural — this row is native-shaped end to end.
+records and per-epoch `treeHead` records in its own repo (rows 1–3 machinery).
+The staple travels WITH the presentation: the holder hands the verifier its
+credential record, its commitment + issuer binding, and the inclusion proof
+against a published head — all verifiable from bytes plus the issuer's DID-doc
+key, no XRPC round-trip to the issuer at all. This is a strict improvement
+over the original OCSP-shaped mapping: the status-check endpoint (and with it
+the (verifier, subject) capture leak — the issuer learning who checks whom) is
+deleted rather than mapped. Publishing heads as records is exactly the
+transparency-log posture the repo machinery natively provides; freshness
+("staple against a head no older than X") remains verifier app policy,
+fail-closed, never a protocol timeout. Gap: none structural — this row is
+native-shaped end to end, and more so than before: nothing service-side
+remains beyond publication itself.
 
 ### Row 8 — Persona resolvability / scoped disclosure → **NOT native; the two-tier boundary as a table cell**
 
@@ -249,7 +266,7 @@ format* can carry one — the same boundary the crate proves, relocated.
 | 4 | Author-sovereign delete/amend | Native — no-residue holds at authoritative layer + compliant views; NOT network amnesia |
 | 5 | Corroboration queries | Native pattern (authed AppView; RUN-14 precedent) |
 | 6 | Subject notice | Gap named; product-layer close (fold-derived from firehose) |
-| 7 | Issuer predicates + commitment lineage; status via XRPC | Native-shaped |
+| 7 | Issuer predicates + tree-head transparency; holder-stapled proofs (V5 revision, 2026-07-18) | Native-shaped |
 | 8 | Resolvability / scoped disclosure | NOT native; Drystone tier holds it; permissioned-data direction on roadmap + WG |
 | 9 | Persona anchors / sybil floor | Credential supplies the floor; PLC correlators filed as F-AT-6 |
 | 10 | No-scalar survival | Discipline: schema absence + AppView behavior; substrate permits, does not enforce |
@@ -274,7 +291,8 @@ service-auth viewer-gate; appview-infra kit).
 
 `attest-family/lexicons/` holds DRAFT JSON sketches for
 `ing.croft.attest.edgeHalf`, `.vouch`, `.review`, `.reviewReply`, `.credential`,
-`.commitmentEpoch` — schema-mirrors of the crate's canonical payloads, including
+`.treeHead` (V5, superseding `.commitmentEpoch`, which stays visible marked
+superseded) — schema-mirrors of the crate's canonical payloads, including
 the closed `AntecedentKind` from V1 (as lexicon `enum`) and **no numeric score
 field anywhere** (the T-AT0.2 invariant as schema absence). Marked DRAFT,
 non-normative; the crate's canonical dag-cbor remains the source of truth. The

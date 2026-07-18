@@ -23,7 +23,7 @@ use std::collections::BTreeMap;
 
 use ipld_core::ipld::Ipld;
 
-use crate::issuer::EpochRecord;
+use crate::issuer::TreeHead;
 use crate::types::*;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -86,6 +86,14 @@ pub fn fields_without_lexicon_home() -> &'static [NoLexiconHome] {
                   (named residual)",
         },
         NoLexiconHome {
+            surface: "reissue_request (payload kind)",
+            tier: "deferred (holder-signed request)",
+            why: "V5/V6 era-reissue: the holder's unilateral request reaches the \
+                  issuer over the holder channel; a record draft is deferred beyond \
+                  this run's lexicon deliverable (the treeHead draft) — named \
+                  residual",
+        },
+        NoLexiconHome {
             surface: "predicate (RUN-ATTEST-01 payload kind)",
             tier: "frozen record",
             why: "the credential is the anchor-persona unit that graduated to a \
@@ -100,10 +108,11 @@ pub fn fields_without_lexicon_home() -> &'static [NoLexiconHome] {
                   Drystone fold inputs, not record fields",
         },
         NoLexiconHome {
-            surface: "epoch_record.signature (detached issuer signature)",
+            surface: "tree_head.signature (detached issuer signature)",
             tier: "atproto commit signature",
-            why: "the commitmentEpoch record is covered by the repo commit signature; \
-                  the detached signature exists only in the crate's standalone form",
+            why: "the treeHead record is covered by the repo commit signature; the \
+                  detached signature exists only in the crate's standalone form \
+                  (V5 revision of the commitmentEpoch row)",
         },
     ]
 }
@@ -300,6 +309,7 @@ pub fn to_record(p: &Payload) -> Option<Ipld> {
             ]);
             let mut pairs = vec![
                 ("$type", Ipld::String("ing.croft.attest.credential".into())),
+                ("era", Ipld::Bytes(c.era.to_vec())),
                 ("mintNonce", Ipld::Bytes(c.mint_nonce.to_vec())),
                 ("predicate", Ipld::String(c.predicate.as_str().to_string())),
                 ("process", process),
@@ -319,7 +329,8 @@ pub fn to_record(p: &Payload) -> Option<Ipld> {
         | Payload::Predicate(_)
         | Payload::ResolvabilityPolicy(_)
         | Payload::VettingFact(_)
-        | Payload::CredentialSupersede(_) => None,
+        | Payload::CredentialSupersede(_)
+        | Payload::ReissueRequest(_) => None,
     }
 }
 
@@ -414,6 +425,9 @@ pub fn from_record(v: &Ipld) -> Result<Payload, MapError> {
                 mint_nonce: get_bytes(m, "mintNonce")?
                     .try_into()
                     .map_err(|_| MapError("mintNonce: expected 16 bytes".into()))?,
+                era: get_bytes(m, "era")?
+                    .try_into()
+                    .map_err(|_| MapError("era: expected 32 bytes".into()))?,
                 supersedes,
             }))
         }
@@ -422,48 +436,58 @@ pub fn from_record(v: &Ipld) -> Result<Payload, MapError> {
 }
 
 // ---------------------------------------------------------------------------
-// EpochRecord ↔ ing.croft.attest.commitmentEpoch
+// TreeHead ↔ ing.croft.attest.treeHead (V5 — supersedes the commitmentEpoch
+// mapping; the old draft file stays visible, marked superseded)
 // ---------------------------------------------------------------------------
 
-/// The commitmentEpoch record shape for an issuer epoch. The detached epoch
+/// The treeHead record shape for an issuer epoch head (V5). The detached head
 /// signature is deliberately NOT mapped (repo commit signature replaces it —
 /// a `fields_without_lexicon_home` row); the round-trip is lossless over the
-/// signed content (epoch number, commitment set, declared total).
-pub fn epoch_to_record(r: &EpochRecord) -> Ipld {
+/// signed content plus the published superseded set.
+pub fn head_to_record(h: &TreeHead) -> Ipld {
     map(vec![
-        ("$type", Ipld::String("ing.croft.attest.commitmentEpoch".into())),
+        ("$type", Ipld::String("ing.croft.attest.treeHead".into())),
+        ("epochNo", Ipld::Integer(h.epoch_no as i128)),
+        ("eraAnchor", Ipld::Bytes(h.era_anchor.to_vec())),
+        ("leafCount", Ipld::Integer(h.leaf_count as i128)),
+        ("root", Ipld::Bytes(h.root.to_vec())),
         (
-            "commitments",
-            Ipld::List(r.commitments.iter().map(|c| Ipld::Bytes(c.to_vec())).collect()),
+            "superseded",
+            Ipld::List(h.superseded.iter().map(|c| Ipld::Bytes(c.to_vec())).collect()),
         ),
-        ("declaredTotal", Ipld::Integer(r.declared_total as i128)),
-        ("epochNo", Ipld::Integer(r.epoch_no as i128)),
+        ("supersededRoot", Ipld::Bytes(h.superseded_root.to_vec())),
     ])
 }
 
-/// Record shape → epoch content. The returned record carries an EMPTY
-/// signature (the unmapped surface); compare signed content, not signatures.
-pub fn epoch_from_record(v: &Ipld) -> Result<EpochRecord, MapError> {
+/// Record shape → head content. The returned head carries an EMPTY signature
+/// (the unmapped surface); compare signed content, not signatures.
+pub fn head_from_record(v: &Ipld) -> Result<TreeHead, MapError> {
     let m = as_map(v)?;
-    if get_str(m, "$type")? != "ing.croft.attest.commitmentEpoch" {
-        return Err(MapError("expected commitmentEpoch".into()));
+    if get_str(m, "$type")? != "ing.croft.attest.treeHead" {
+        return Err(MapError("expected treeHead".into()));
     }
-    let Ipld::List(cs) = get(m, "commitments")? else {
-        return Err(MapError("commitments: expected list".into()));
+    let Ipld::List(cs) = get(m, "superseded")? else {
+        return Err(MapError("superseded: expected list".into()));
     };
-    let mut commitments = std::collections::BTreeSet::new();
+    let mut superseded = std::collections::BTreeSet::new();
     for c in cs {
         let Ipld::Bytes(b) = c else { return Err(MapError("commitment: expected bytes".into())) };
         let arr: [u8; 32] = b
             .clone()
             .try_into()
             .map_err(|_| MapError("commitment: expected 32 bytes".into()))?;
-        commitments.insert(arr);
+        superseded.insert(arr);
     }
-    Ok(EpochRecord {
+    let b32 = |k: &str| -> Result<[u8; 32], MapError> {
+        get_bytes(m, k)?.try_into().map_err(|_| MapError(format!("{k}: expected 32 bytes")))
+    };
+    Ok(TreeHead {
         epoch_no: get_int(m, "epochNo")?,
-        commitments,
-        declared_total: get_int(m, "declaredTotal")?,
+        era_anchor: b32("eraAnchor")?,
+        leaf_count: get_int(m, "leafCount")?,
+        root: b32("root")?,
+        superseded_root: b32("supersededRoot")?,
+        superseded,
         signature: Vec::new(),
     })
 }
