@@ -14,7 +14,7 @@
 #   openmls_rust_crypto =0.5.1    (pure-Rust provider — the wasm bet)
 [workspace]
 resolver = "2"
-members = ["crates/seal-wasm"]
+members = ["crates/seal-wasm", "crates/seal-wire", "crates/seal-native"]
 
 [workspace.package]
 edition = "2021"

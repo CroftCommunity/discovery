@@ -1489,6 +1489,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
+name = "seal-native"
+version = "0.0.0"
+dependencies = [
+ "group-core",
+ "group-seal",
+ "hex",
+ "seal-wire",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "seal-wasm"
 version = "0.0.0"
 dependencies = [
@@ -1499,6 +1511,18 @@ dependencies = [
  "openmls",
  "thiserror",
  "wasm-bindgen-test",
+]
+
+[[package]]
+name = "seal-wire"
+version = "0.0.0"
+dependencies = [
+ "group-seal",
+ "lineage-mls",
+ "openmls",
+ "openmls_rust_crypto",
+ "openmls_traits",
+ "thiserror",
 ]
 
 [[package]]
