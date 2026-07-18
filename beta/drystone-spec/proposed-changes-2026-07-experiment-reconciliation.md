@@ -518,3 +518,48 @@ write-path decision. The small-group content-blind mechanism is untouched.
 **Decision:** `needs-call` — this is a values/posture decision (portability & custody vs immediacy &
 simplicity, and the honesty of the trusted-gatekeeper stance for large groups), not a mechanical move.
 The three owner questions are in GROUPS.md §5 (variant, boundary number, croft-groups launch order).
+
+### RUN-16 update — the two-tier framing is superseded by the three-tier / two-axis model  ·  `caveat`/`needs-call`
+
+`Source: RUN-16 canonical model text, alpha/experiments/appview-infra/GROUPS.md (Section A, v2). This
+extends — does not rewrite — the RUN-15 stance above. Still a design-stance reconciliation, not an
+experiment-earned status move; still staged for review; the reviewed spec (part-*, conventions) is
+untouched. The RUN-15 note stays valid: the RUN-16 model is the same posture generalized, so what was
+"the large tier only" is now named precisely as the backplane tier.`
+
+**What changes in the framing.** RUN-15 posed two tiers (below/above `group_scale_boundary`). RUN-16
+supersedes that with **one lineage, one envelope, one delivery plane, one catalogue**, and makes the
+tier a pair of independent policy values on a scope (GROUPS.md A.2): a **membership policy**
+(`open` | `gated` | `sealed`) and a **write policy** (`open` | `members` | `named-set` | `single`). The
+scale boundary is no longer where a group *becomes* something else; it is where a **gated (backplane)**
+scope's serving economics justify the trusted-gatekeeper offering. The RUN-15 write-path fork and its
+owner decision are unchanged and preserved (GROUPS.md Section B; restated in A.10).
+
+**The trusted-gatekeeper acceptance now attaches to the backplane tier, with membership as universally
+verifiable public fact.** In the sealed tier, authorship and membership stay **fused** (the MLS
+key-schedule membership MAC). In the backplane (gated/open) tiers there is no key schedule, so the
+fused check **splits** into two independent, publicly-computable ones: a **signature verified against
+the author's DID-document key** proves authorship, and a **roster lookup at the message's causal
+position** proves membership (GROUPS.md A.5). Membership is therefore a universally verifiable public
+computation, not a server assertion — which is what makes the trusted-gatekeeper posture honest for
+these tiers: the gatekeeper serves readable content, but who is a member is checkable by anyone against
+the public fold, and the server holds no ordering or membership authority. This refines, and does not
+retract, the RUN-15 acceptance of `Design; open` on the AppView-provisioned scope key (§H); Variant A's
+server-held scope key is still the write-path choice that the scope-key provisioning question is scoped
+by.
+
+**The delivery plane is authority-free roles realized as separate processes, with a transport split.**
+GROUPS.md A.7/A.8 name the delivery plane as a *set of roles*, each its **own process** — the web-native
+Delivery Service, the swarm peer, the history-convergence node, and helpers — never fused into one
+primitive, none holding ordering or membership authority (any sequence numbers a role assigns are
+**delivery cursors, never order**; the covert-clock / no-arbiter rules). History access is **backfill
+scoped by membership interval**. Transports split: the **iroh overlay and relays are loaded only by
+sealed scopes and steward governance**, while backplane scopes ride the plain web stack end to end
+(browsers first-class, no overlay), with optional per-group swarm gossip whose one survival rule is
+**validate-before-relay**. Deduplication across delivery modes is the **envelope hash** in every tier.
+This is a delivery-layer design stance; it touches no Part 2 mechanism and moves no status tag.
+
+**Decision:** `needs-call`, unchanged from RUN-15 — the four owner questions are in GROUPS.md A.10
+(write-path variant; the `group_scale_boundary` number, reframed as measurable via churn simulation;
+launch order; and the new relay-hosting question — self-host an iroh relay vs public relays initially).
+Nothing here is an experiment-earned move; the stance awaits the owner's call.
