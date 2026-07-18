@@ -40,7 +40,11 @@ fn outsider_with_public_chain_cannot_link_a_known_did() {
     );
     // Even brute-forcing DIDs is futile without the salt — a different salt on
     // the real DID still does not match.
-    assert!(!blind::links_with_salt(published, "did:key:zAlice", b"wrong-salt-2"));
+    assert!(!blind::links_with_salt(
+        published,
+        "did:key:zAlice",
+        b"wrong-salt-2"
+    ));
 }
 
 #[test]
@@ -53,7 +57,11 @@ fn member_proves_their_own_membership() {
         "a member with the salt proves their own membership",
     );
     // A non-member with the salt still cannot forge membership.
-    assert!(!blind::links_with_salt(roster.commitments(), "did:key:zMallory", salt));
+    assert!(!blind::links_with_salt(
+        roster.commitments(),
+        "did:key:zMallory",
+        salt
+    ));
 }
 
 #[test]
@@ -65,12 +73,23 @@ fn salt_rotation_invalidates_old_commitments() {
 
     // The republished commitments differ entirely.
     assert!(
-        roster_v1.commitments().iter().all(|c| !roster_v2.commitments().contains(c)),
+        roster_v1
+            .commitments()
+            .iter()
+            .all(|c| !roster_v2.commitments().contains(c)),
         "rotation republishes: no old commitment survives",
     );
     // A member using the OLD salt no longer matches the NEW roster.
-    assert!(!blind::links_with_salt(roster_v2.commitments(), "did:key:zBob", old_salt));
-    assert!(blind::links_with_salt(roster_v2.commitments(), "did:key:zBob", new_salt));
+    assert!(!blind::links_with_salt(
+        roster_v2.commitments(),
+        "did:key:zBob",
+        old_salt
+    ));
+    assert!(blind::links_with_salt(
+        roster_v2.commitments(),
+        "did:key:zBob",
+        new_salt
+    ));
 }
 
 #[test]
@@ -86,7 +105,11 @@ fn removal_and_rotation_is_forward_blind() {
 
     // Carol's commitment is gone from the new roster.
     assert_eq!(roster_v2.commitments().len(), 2);
-    assert!(!blind::links_with_salt(roster_v2.commitments(), "did:key:zCarol", new_salt));
+    assert!(!blind::links_with_salt(
+        roster_v2.commitments(),
+        "did:key:zCarol",
+        new_salt
+    ));
 
     // Forward-blindness: Carol, holding only the OLD salt, cannot link ANY
     // current commitment to ANY DID — the future roster is opaque to her.
