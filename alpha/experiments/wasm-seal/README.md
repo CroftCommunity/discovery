@@ -29,10 +29,14 @@ the wire.
 **Effort.** ~1 session (RUN-19), unattended; crates via the proxy only; no
 credentials, no live network beyond localhost QUIC.
 
-**Result.** See [`../RUN-19-SUMMARY.md`](../RUN-19-SUMMARY.md) — red→green
-table with grades, predicted-vs-actual, pinned toolchain pairs, the P2 interop
-verdict, measurements, and the register rows. (In progress until the summary
-lands.)
+**Result.** P1–P5 green, red-first. Headline: **no cross-build asymmetry** —
+the crypto provider behaves identically under wasm (epoch secrets
+byte-identical across half-wasm/half-native transcripts). The full loop runs
+over real QUIC with the removed member offered-but-unable-to-read. The
+`run19-bare-openmls` fallback never fired: the real croft-group L2a stack is
+what runs in wasm. See [`../RUN-19-SUMMARY.md`](../RUN-19-SUMMARY.md) —
+red→green table with grades, predicted-vs-actual, pinned pairs, measurements,
+findings (FND-R19-1/2), and the register rows.
 
 ## Prediction pins (written RED-first, per the prediction-first directive)
 
@@ -89,15 +93,25 @@ from matching revisions (wtransport =0.7.1 both sides here).
 
 | Path | Part | What |
 |---|---|---|
-| `crates/seal-wasm` | P1 | the seal stack as a wasm module + the in-wasm test suite |
-
-(Grows per part; final table in the summary.)
+| `crates/seal-wasm` | P1/P2/P3 | the seal stack as a wasm module (re-exports of croft-group `group-seal`), the in-wasm P1 suite, and the JS APIs (`JsSealer`, `JsPersistSealer`) |
+| `crates/seal-wire` | P2 | KeyPackage across the process/build boundary (tls_codec + validate) |
+| `crates/seal-native` | P2 | the NATIVE build as an ndjson peer (`seal-peer`) + the FND-R19-1 pin |
+| `crates/seal-persist` | P3 | the persistence-capable member (provenance-headed Device copy + AES-GCM snapshot/restore + `BlobStore`) |
+| `crates/ds-proto` | P4 | the crypto-free DS wire protocol (the blindness boundary) |
+| `crates/blind-ds` | P4 | the content-blind DS over wtransport QUIC (own process) |
+| `crates/ds-client` | P4/P5 | the native browser-parity WebTransport client + `ds-cli` |
+| `node/` | P2/P3/P5 | the Node hosts and drivers: `interop.mjs`, `wasm-peer.mjs`, `resume.mjs`, `loop.mjs` |
 
 ## Run it
 
 ```bash
 cd alpha/experiments/wasm-seal
-cargo test -p seal-wasm --target wasm32-unknown-unknown   # P1 suite in wasm (Node runner)
+cargo test -p seal-wasm --target wasm32-unknown-unknown  # P1: 8 MLS tests inside wasm (Node runner)
+cargo test                                               # native suites (wire, persist, QUIC matrix)
+make p2-interop                                          # P2 cross-build goldens
+make p3-resume                                           # P3 host-kill + eviction drill
+make p5-loop                                             # P5 full loop over real QUIC
+make p4-blindness                                        # DS dependency-graph blindness evidence
 ```
 
 ## Grades (honesty contract)
