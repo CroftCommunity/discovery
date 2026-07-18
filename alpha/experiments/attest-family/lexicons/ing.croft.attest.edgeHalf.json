@@ -1,0 +1,49 @@
+{
+  "lexicon": 1,
+  "id": "ing.croft.attest.edgeHalf",
+  "description": "DRAFT, non-normative (RUN-ATTEST-03 B.2). One side's half of a mutual co-signed edge. The edge EXISTS iff two halves, authored by the two personas named in the core, carry the identical canonical core (T-AT1.2): the core-hash equality is the join; the optional counterpart ref is one-directional convenience only. The side-local label is outside the core (T-AT1.4).",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["core", "label", "createdAt"],
+        "properties": {
+          "core": { "type": "ref", "ref": "#edgeCore" },
+          "label": {
+            "type": "string",
+            "maxLength": 640,
+            "description": "Side-local free text; NOT part of the core hash and may differ per side."
+          },
+          "counterpart": {
+            "type": "ref",
+            "ref": "com.atproto.repo.strongRef",
+            "description": "Optional locator for the other half. Convenience only: a true bidirectional CID cross-reference is impossible (circularity), and the edge's identity is core equality, never this ref."
+          },
+          "createdAt": { "type": "string", "format": "datetime", "description": "Repo bookkeeping only; never an ordering input (T-AT0.4)." }
+        }
+      }
+    },
+    "edgeCore": {
+      "type": "object",
+      "description": "The canonical shared core, byte-identical across both halves (crate: EdgeCore; canonical dag-cbor keys a/b/c/m/n).",
+      "required": ["personaA", "personaB", "edgeNonce", "consent", "ceremony"],
+      "properties": {
+        "personaA": { "type": "string", "format": "did", "description": "Canonical (byte-ascending) first participant." },
+        "personaB": { "type": "string", "format": "did", "description": "Canonical second participant." },
+        "edgeNonce": { "type": "bytes", "maxLength": 16, "description": "The edge id: a nonce agreed by the pair." },
+        "consent": {
+          "type": "string",
+          "enum": ["mutual"],
+          "description": "Closed: a well-formed edge is mutual; carried explicitly so a tampered mode changes the core hash (T-AT1.3)."
+        },
+        "ceremony": {
+          "type": "array",
+          "items": { "type": "bytes", "maxLength": 32 },
+          "description": "Ceremony fact object ids (content addresses), sorted. Ceremony session privates have NO lexicon home — private tier (T-A3.8)."
+        }
+      }
+    }
+  }
+}

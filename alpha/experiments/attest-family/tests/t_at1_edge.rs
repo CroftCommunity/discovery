@@ -266,7 +266,9 @@ fn ceremony_grade_in_person() {
 
 #[test]
 fn marker_vocabulary_is_presentation_only() {
-    assert_eq!(Marker::AntecedentSuperseded.as_str(), "antecedent_superseded");
+    // V2 (RUN-ATTEST-03) renamed the marker kind-specific: only an EDGE has
+    // an ended state, so the marker names the edge, not "antecedent".
+    assert_eq!(Marker::EdgeSuperseded.as_str(), "edge_superseded");
     assert_eq!(Marker::Stale.as_str(), "stale");
     // A freshness dial exists and is a presentation parameter, not state.
     let _ = FreshnessDial { stale_after_days: 90 };

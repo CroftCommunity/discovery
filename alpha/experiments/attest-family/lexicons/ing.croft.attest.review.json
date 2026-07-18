@@ -1,0 +1,52 @@
+{
+  "lexicon": 1,
+  "id": "ing.croft.attest.review",
+  "description": "DRAFT, non-normative (RUN-ATTEST-03 B.2). A unilateral_notice review of a persona or thing: stands with only the author's signature (T-AT5.1); subject notice is DERIVED by consumers from the event stream (no native notice primitive — matchup row 6); the subject's reply is a peer record (ing.croft.attest.reviewReply), never a mutation. unilateral_private is deliberately ABSENT from the consent enum: deferred from v1 (V3 / OC-4 DECIDED), ships as a private-substrate artifact, never a fourth public consent mode. Amend = same-rkey whole-record replace (V2).",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["subject", "scope", "statement", "consent", "madeOn"],
+        "properties": {
+          "subject": { "type": "union", "refs": ["#personaSubject", "#thingSubject"] },
+          "scope": { "type": "string", "maxLength": 640, "description": "Exact-equality scope label (T-AT3.2)." },
+          "statement": { "type": "string", "maxLength": 3000 },
+          "consent": {
+            "type": "string",
+            "enum": ["unilateral_notice"],
+            "description": "Closed. The public tier's unilateral mode; requiring countersignature is the failure mode this exists to avoid."
+          },
+          "madeOn": { "type": "ref", "ref": "#dateClaim" },
+          "antecedents": {
+            "type": "array",
+            "items": { "type": "ref", "ref": "com.atproto.repo.strongRef" },
+            "description": "Optional transaction-attestation citations (grade transaction_backed, T-AT2.4)."
+          },
+          "supersedes": { "type": "ref", "ref": "com.atproto.repo.strongRef" }
+        }
+      }
+    },
+    "personaSubject": {
+      "type": "object",
+      "required": ["did"],
+      "properties": { "did": { "type": "string", "format": "did" } }
+    },
+    "thingSubject": {
+      "type": "object",
+      "required": ["id"],
+      "properties": { "id": { "type": "bytes", "maxLength": 32, "description": "Thing subject id (crate: ThingId)." } }
+    },
+    "dateClaim": {
+      "type": "object",
+      "description": "A wall-clock value as an ASSERTED CLAIM inside the payload (crate: DateClaim). Never an ordering input (T-AT0.4); feeds only the freshness presentation dial (T-AT5.5). These are the only general-purpose integers in the whole lexicon set (T-AT0.2 as schema absence).",
+      "required": ["year", "month", "day"],
+      "properties": {
+        "year": { "type": "integer", "minimum": 0, "maximum": 65535 },
+        "month": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "day": { "type": "integer", "minimum": 1, "maximum": 31 }
+      }
+    }
+  }
+}

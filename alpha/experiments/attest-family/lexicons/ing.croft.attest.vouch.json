@@ -1,0 +1,56 @@
+{
+  "lexicon": 1,
+  "id": "ing.croft.attest.vouch",
+  "description": "DRAFT, non-normative (RUN-ATTEST-03 B.2). A scoped vouch: a unilateral claim by the record author about another persona, standing on at least one resolvable qualifying antecedent from the CLOSED antecedent class (V1 / OC-2 DECIDED: co_signed_edge | transaction | ceremony). Zero qualifying antecedents folds to pending (T-A3.2). No numeric score field exists (T-AT0.2 as schema absence). Withdrawal is author-sovereign record deletion + Drystone supersede lineage (V2), not a record kind.",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["subject", "scope", "statement", "antecedents", "madeOn"],
+        "properties": {
+          "subject": { "type": "string", "format": "did" },
+          "scope": {
+            "type": "string",
+            "maxLength": 640,
+            "description": "Named scope, matched by EXACT equality in queries — never fuzzy, never a category tree (T-AT3.2)."
+          },
+          "statement": {
+            "type": "string",
+            "maxLength": 3000,
+            "description": "Asserted claim text; the protocol never evaluates it."
+          },
+          "baseEdge": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "Canonical core hash of the base edge, present only for an edge-based vouch (V1: optional; an edge-free vouch stands on transaction/ceremony antecedents)."
+          },
+          "antecedents": {
+            "type": "array",
+            "items": { "type": "ref", "ref": "#citedAntecedent" },
+            "description": "The qualifying-antecedent citations. Standing requires at least one to resolve as its claimed kind."
+          },
+          "madeOn": { "type": "ref", "ref": "ing.croft.attest.review#dateClaim" },
+          "supersedes": {
+            "type": "ref",
+            "ref": "com.atproto.repo.strongRef",
+            "description": "Narrowing/replacement lineage pointer (supersede, never revoke — T-AT0.3)."
+          }
+        }
+      }
+    },
+    "citedAntecedent": {
+      "type": "object",
+      "required": ["kind", "ref"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["co_signed_edge", "transaction", "ceremony"],
+          "description": "The CLOSED class (crate: AntecedentKind). Lexicon enum, never knownValues — the compile boundary expressed at the schema layer; which kinds QUALIFY is additionally the R7-governed register (T-A3.4)."
+        },
+        "ref": { "type": "ref", "ref": "com.atproto.repo.strongRef" }
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "lexicon": 1,
+  "id": "ing.croft.attest.commitmentEpoch",
+  "description": "DRAFT, non-normative (RUN-ATTEST-03 B.2). One closed epoch of the issuer's public lineage (crate: EpochRecord): an UNORDERED set of blinded commitments H(credential-id ∥ fresh salt) — never persona identifiers (T-PA1.3) — canonicalized byte-ascending so within an epoch mint adjacency does not exist (T-PA1.4). The epoch number and declared total are the ONLY numerics (the totals-only rule T-PA3.3 audits); nothing per-member is representable. The repo commit signature covers the record, replacing the crate's detached epoch signature.",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["epochNo", "commitments", "declaredTotal"],
+        "properties": {
+          "epochNo": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Contiguous from 1; a gap fails the lineage audit (T-PA6.2)."
+          },
+          "commitments": {
+            "type": "array",
+            "items": { "type": "bytes", "maxLength": 32 },
+            "description": "Byte-ascending canonical order of an unordered set — computed from commitment values alone, never from mint order."
+          },
+          "declaredTotal": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Must equal the commitment count (audit: TotalMismatch otherwise). A total, never a partition."
+          }
+        }
+      }
+    }
+  }
+}

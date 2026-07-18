@@ -1,0 +1,20 @@
+{
+  "lexicon": 1,
+  "id": "ing.croft.attest.reviewReply",
+  "description": "DRAFT, non-normative (RUN-ATTEST-03 B.2). The subject's signed reply to a review — a PEER record attached by reference (T-AT5.3): the review's bytes are unchanged by a reply, and the corroboration structure returns both. Only a reply authored by the review's subject (or the thing's declared controller) attaches at fold time.",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["review", "statement", "madeOn"],
+        "properties": {
+          "review": { "type": "ref", "ref": "com.atproto.repo.strongRef" },
+          "statement": { "type": "string", "maxLength": 3000 },
+          "madeOn": { "type": "ref", "ref": "ing.croft.attest.review#dateClaim" }
+        }
+      }
+    }
+  }
+}
