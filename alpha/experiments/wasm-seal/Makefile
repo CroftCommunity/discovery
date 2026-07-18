@@ -25,3 +25,7 @@ p4-blindness:
 	cargo tree -p blind-ds -e normal | tee /tmp/blind-ds-tree.txt
 	@! grep -Ei "openmls|group-seal|group-core|seal-wire|seal-persist|seal-wasm|seal-native|lineage" /tmp/blind-ds-tree.txt \
 		&& echo "BLINDNESS: no MLS/seal crate in the normal graph"
+
+p5-loop: wasm-pkg
+	cargo build --release -p blind-ds -p ds-client
+	node node/loop.mjs
