@@ -494,10 +494,6 @@ pub struct Credential {
     pub process: ProcessProvenance,
     /// Fresh per mint (single-use entropy; reuse is refused — T-PA2.2).
     pub mint_nonce: [u8; 16],
-    /// STAGED VIOLATION (RUN-ATTEST-02 RED, T-PA1.1): a mint-position field —
-    /// exactly the kind of value the no-default invariant forbids. Deleted at
-    /// green; the source-scan test must fail while it exists.
-    pub minted_ordinal: u32,
     /// Refresh lineage — supersede, never expiry (T-AT6.3 discipline).
     pub supersedes: Option<ObjectId>,
 }

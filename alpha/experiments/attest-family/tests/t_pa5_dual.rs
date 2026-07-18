@@ -325,8 +325,8 @@ fn anchor_is_not_uniqueness() {
             derived_seed(tag, 0, 1),
             false,
         );
-        let mx = if same_holder { member_ref(&Holder("HX")) } else { member_ref(&Holder("HX")) };
-        let my = if same_holder { member_ref(&Holder("HX")) } else { member_ref(&Holder("HY")) };
+        let mx = member_ref(&Holder("HX"));
+        let my = member_ref(if same_holder { &Holder("HX") } else { &Holder("HY") });
         let mut published: Vec<Vec<u8>> = Vec::new();
         for (k, (p, m)) in [(&x, mx), (&y, my)].iter().enumerate() {
             let out = mint(
