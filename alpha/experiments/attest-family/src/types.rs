@@ -1,0 +1,554 @@
+//! The attestation family's vocabulary as types.
+//!
+//! One family, two axes: **subject type** ([`SubjectRef`]: persona | thing) and
+//! **consent mode** ([`ConsentMode`]). Everything else is shared machinery.
+//!
+//! Two deliberate absences are load-bearing:
+//! - **No numeric trust/score/rating/rank field exists on any public type**
+//!   (T-AT0.2 compile-boundary invariant; see the doc-tests on
+//!   [`crate::query::CorroborationStructure`]).
+//! - **No wall-clock value participates in ordering.** Wall-clock appears only
+//!   inside payloads as asserted claims ([`DateClaim`] — an issuer's "sighted on
+//!   2026-07-17"), never in the envelope, never in fold order (T-AT0.4).
+
+use crate::canonical;
+use ipld_core::ipld::Ipld;
+
+// ---------------------------------------------------------------------------
+// Identifiers
+// ---------------------------------------------------------------------------
+
+/// A persona: one holder-controlled keypair, named by its Ed25519 verifying-key
+/// bytes. The holder↔persona linkage exists ONLY in fixture bookkeeping — no
+/// payload type in this crate has a field that could carry a holder identifier
+/// (T-AT4.3's correlation-resistance floor is a type-level fact first).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct PersonaId(pub [u8; 32]);
+
+/// A thing subject (business, product, work), named by a 32-byte identifier.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ThingId(pub [u8; 32]);
+
+/// Content address of a folded object: BLAKE3 of `canonical_bytes_with_sig`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ObjectId(pub [u8; 32]);
+
+impl std::fmt::Display for ObjectId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for b in &self.0[..8] {
+            write!(f, "{b:02x}")?;
+        }
+        Ok(())
+    }
+}
+
+/// The subject axis: an attestation is about a persona or about a thing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum SubjectRef {
+    Persona(PersonaId),
+    Thing(ThingId),
+}
+
+/// The consent axis. `Mutual` = co-signed edge (the friend case);
+/// `UnilateralNotice` = subject notified, signed reply allowed, no countersign
+/// required (the review case); `UnilateralPrivate` = note to self (defined in
+/// vocabulary, deliberately zero experiments in this run — OC-4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ConsentMode {
+    Mutual,
+    UnilateralNotice,
+    UnilateralPrivate,
+}
+
+impl ConsentMode {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            ConsentMode::Mutual => "mutual",
+            ConsentMode::UnilateralNotice => "unilateral_notice",
+            ConsentMode::UnilateralPrivate => "unilateral_private",
+        }
+    }
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "mutual" => Some(ConsentMode::Mutual),
+            "unilateral_notice" => Some(ConsentMode::UnilateralNotice),
+            "unilateral_private" => Some(ConsentMode::UnilateralPrivate),
+            _ => None,
+        }
+    }
+}
+
+/// A named scope ("would hire as contractor"). Scope match is EXACT string
+/// equality — adjacent scopes never bleed (T-AT3.2). A scope is a label on a
+/// claim, not a category tree; no protocol semantics attach to its text.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Scope(pub String);
+
+impl Scope {
+    pub fn new(s: &str) -> Self {
+        Scope(s.to_string())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Provenance grade — metadata, never an input
+// ---------------------------------------------------------------------------
+
+/// Provenance grade: how an attestation's ceremony/antecedent structure was
+/// formed. Grade is **provenance metadata only** — it is set by the fold and
+/// consumed by serialization/display, and by nothing else. It deliberately
+/// implements neither `PartialOrd` nor `Ord`, so no code path can compare,
+/// rank, or fold on it — a compile-boundary fact (T-AT1.7, T-AT2.4):
+///
+/// ```compile_fail
+/// use attest_family::types::Grade;
+/// // Grades cannot be compared — grade is metadata, never an ordering input.
+/// let _ = Grade::InPerson > Grade::Remote;
+/// ```
+///
+/// ```compile_fail
+/// use attest_family::types::Grade;
+/// let mut v = [Grade::Remote, Grade::InPerson];
+/// v.sort(); // no Ord — grade cannot participate in any ordering
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Grade {
+    /// Both edge personas co-signed a shared co-presence session fact.
+    InPerson,
+    /// No co-presence ceremony backs the attestation.
+    Remote,
+    /// The attestation cites a transaction attestation as antecedent.
+    TransactionBacked,
+}
+
+impl Grade {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Grade::InPerson => "in_person",
+            Grade::Remote => "remote",
+            Grade::TransactionBacked => "transaction_backed",
+        }
+    }
+}
+
+/// A wall-clock value **as an asserted claim inside a payload** (an issuer's
+/// "sighted on 2026-07-17"). It is signed content like any other claim; it
+/// never influences fold ordering or conflict outcomes (T-AT0.4). The only
+/// consumer outside serialization is the freshness *presentation* dial
+/// (T-AT5.5), which marks entries stale — it never drops or reorders them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DateClaim {
+    pub year: u16,
+    pub month: u8,
+    pub day: u8,
+}
+
+impl DateClaim {
+    pub fn new(year: u16, month: u8, day: u8) -> Self {
+        DateClaim { year, month, day }
+    }
+
+    /// Coarse day-count for the freshness *presentation* dial only (T-AT5.5).
+    /// Never used in fold order or conflict resolution.
+    pub fn approx_days(&self) -> i64 {
+        self.year as i64 * 365 + self.month as i64 * 30 + self.day as i64
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Payloads — the attestation kinds
+// ---------------------------------------------------------------------------
+
+/// The canonical **shared core** of a mutual edge: both persona ids, an edge
+/// nonce (the edge id), the consent mode, and the ceremony fact references.
+/// Both halves must reference the same core hash for the edge to exist
+/// (T-AT1.2/1.3). The per-side label is NOT part of the core (T-AT1.4).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EdgeCore {
+    /// The two participants, in canonical (byte-ascending) order.
+    pub persona_a: PersonaId,
+    pub persona_b: PersonaId,
+    /// The edge id: a nonce agreed by the pair (fixture-supplied here).
+    pub edge_nonce: [u8; 16],
+    /// Always `Mutual` for a well-formed edge; carried explicitly so a
+    /// tampered mode changes the core hash (T-AT1.3).
+    pub consent: ConsentMode,
+    /// Ceremony fact object ids (co-presence session facts), sorted.
+    pub ceremony: Vec<ObjectId>,
+}
+
+impl EdgeCore {
+    /// BLAKE3 of the core's canonical dag-cbor bytes — the edge's identity.
+    pub fn core_hash(&self) -> [u8; 32] {
+        *blake3::hash(&canonical::encode_edge_core(self)).as_bytes()
+    }
+
+    pub fn participants(&self) -> [PersonaId; 2] {
+        [self.persona_a, self.persona_b]
+    }
+}
+
+/// One side's half of a mutual edge. A half is not an edge (T-AT1.1): alone it
+/// folds to pending, and pending is never partial.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EdgeHalf {
+    pub core: EdgeCore,
+    /// Side-local label ("friend from school" vs "roommate's sister") — free
+    /// text, outside the core hash, may differ per side (T-AT1.4).
+    pub label: String,
+}
+
+/// Ends (supersedes) an edge. The prior halves stay in lineage, bytes
+/// unchanged (T-AT0.3, T-AT1.5). Nothing is revoked in place.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EdgeDissolve {
+    /// The edge being ended, by core hash.
+    pub core_hash: [u8; 32],
+    /// The half object ids being superseded (lineage pointers).
+    pub supersedes: Vec<ObjectId>,
+}
+
+/// A co-presence session fact: one participant's signed statement of a shared
+/// session. Grade `in_person` requires one such fact from EACH participant
+/// naming the same session (T-AT1.7).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CeremonyFact {
+    pub session: [u8; 16],
+    pub participants: [PersonaId; 2],
+    /// Asserted claim, not an ordering input.
+    pub sighted_on: DateClaim,
+}
+
+/// The verified-purchase analog — a fixture fact standing in for a payment
+/// rail (declared stand-in, §3). Citing one as antecedent yields grade
+/// `transaction_backed` (T-AT2.4).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TransactionFact {
+    pub payer: PersonaId,
+    pub payee: SubjectRef,
+    /// Asserted claim, not an ordering input.
+    pub occurred_on: DateClaim,
+}
+
+/// Declares a thing subject (business, product, work) and its controlling
+/// persona — the persona that may sign replies to reviews of the thing.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ThingDecl {
+    pub thing: ThingId,
+    pub kind: ThingKind,
+    pub controller: PersonaId,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ThingKind {
+    Business,
+    Product,
+    Work,
+}
+
+impl ThingKind {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            ThingKind::Business => "business",
+            ThingKind::Product => "product",
+            ThingKind::Work => "work",
+        }
+    }
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "business" => Some(ThingKind::Business),
+            "product" => Some(ThingKind::Product),
+            "work" => Some(ThingKind::Work),
+            _ => None,
+        }
+    }
+}
+
+/// A scoped vouch: a separate, later, unilateral claim by one edge participant
+/// about the other, in a named scope, citing the base edge as antecedent.
+/// Vouches supersede independently of the edge (T-AT2.2).
+///
+/// OWNER-CALL: OC-2 pending — this run implements edge-antecedent-required
+/// (the narrowest option); a vouch with no resolvable base edge folds to
+/// pending, never to a standing vouch (T-AT2.1).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Vouch {
+    pub subject: PersonaId,
+    pub scope: Scope,
+    /// Asserted claim text — the protocol never evaluates it (utility is
+    /// computed by humans at the edges, never by the protocol).
+    pub statement: String,
+    /// The base edge, by core hash. The envelope's antecedents must resolve
+    /// this edge's halves for the vouch to stand.
+    pub base_edge: [u8; 32],
+    /// Asserted claim, not an ordering input.
+    pub made_on: DateClaim,
+    /// Narrowing/replacement lineage pointer.
+    pub supersedes: Option<ObjectId>,
+}
+
+/// Withdraws a vouch by superseding it. The withdrawn vouch's bytes persist in
+/// lineage (T-AT0.3); nothing is deleted.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VouchWithdraw {
+    pub supersedes: ObjectId,
+}
+
+/// A review: `unilateral_notice` mode. Stands with only the author's signature
+/// (T-AT5.1) — a business would countersign only praise, so integrity comes
+/// from provenance structure, not subject consent. Folding one deterministically
+/// emits a notice fact addressed to the subject (T-AT5.2).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Review {
+    pub subject: SubjectRef,
+    pub scope: Scope,
+    pub statement: String,
+    pub consent: ConsentMode,
+    /// Asserted claim, not an ordering input; feeds only the freshness
+    /// *presentation* dial (T-AT5.5).
+    pub made_on: DateClaim,
+    pub supersedes: Option<ObjectId>,
+}
+
+/// The subject's signed reply — a peer object attached to the review. The
+/// review's bytes are unchanged by a reply (T-AT5.3); the corroboration
+/// structure returns both.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Reply {
+    pub review: ObjectId,
+    pub statement: String,
+    pub made_on: DateClaim,
+}
+
+/// An issuer predicate ("over_18") about a persona: predicate, subject,
+/// process-provenance metadata. The issuer is the envelope author. The
+/// substrate (ID number, card number) is **unrepresentable**: every field is a
+/// closed enum or fixed-shape claim — there is no field capable of carrying
+/// substrate (T-AT6.1). Attempting it does not compile:
+///
+/// ```compile_fail
+/// use attest_family::types::*;
+/// let p = Predicate {
+///     predicate: PredicateKind::Over18,
+///     subject: PersonaId([0; 32]),
+///     process: ProcessProvenance {
+///         method: MethodKind::DocumentSighted,
+///         performed_on: DateClaim::new(2026, 7, 17),
+///         role: IssuerRole::CoopIssuer,
+///     },
+///     supersedes: None,
+///     id_number: "042-68-4425".to_string(), // no such field exists
+/// };
+/// ```
+///
+/// ```compile_fail
+/// use attest_family::types::*;
+/// // The method is a closed enum — free-form process text (where substrate
+/// // could hide) is a type error, not a convention.
+/// let m: MethodKind = "saw drivers license #D1234567".into();
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Predicate {
+    pub predicate: PredicateKind,
+    pub subject: PersonaId,
+    pub process: ProcessProvenance,
+    /// Refresh lineage (e.g. re-verified phone) — supersede, never expiry
+    /// (T-AT6.3).
+    pub supersedes: Option<ObjectId>,
+}
+
+/// Closed set of predicates the co-op issuer asserts. Adding a predicate is a
+/// vocabulary change (a governed act), not a data change.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PredicateKind {
+    Over18,
+    PhoneVerified,
+    PaymentVerified,
+}
+
+impl PredicateKind {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            PredicateKind::Over18 => "over_18",
+            PredicateKind::PhoneVerified => "phone_verified",
+            PredicateKind::PaymentVerified => "payment_verified",
+        }
+    }
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "over_18" => Some(PredicateKind::Over18),
+            "phone_verified" => Some(PredicateKind::PhoneVerified),
+            "payment_verified" => Some(PredicateKind::PaymentVerified),
+            _ => None,
+        }
+    }
+}
+
+/// Process-provenance metadata: how the issuer verified, when (as a claim),
+/// in what role. Every serialization of a predicate carries this — no code
+/// path yields a bare "over_18: true" (T-AT6.2).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ProcessProvenance {
+    pub method: MethodKind,
+    pub performed_on: DateClaim,
+    pub role: IssuerRole,
+}
+
+/// Closed set of verification methods (no free-form field where substrate
+/// could hide).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MethodKind {
+    DocumentSighted,
+    SmsRoundTrip,
+    CardAuthorization,
+}
+
+impl MethodKind {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            MethodKind::DocumentSighted => "document_sighted",
+            MethodKind::SmsRoundTrip => "sms_round_trip",
+            MethodKind::CardAuthorization => "card_authorization",
+        }
+    }
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "document_sighted" => Some(MethodKind::DocumentSighted),
+            "sms_round_trip" => Some(MethodKind::SmsRoundTrip),
+            "card_authorization" => Some(MethodKind::CardAuthorization),
+            _ => None,
+        }
+    }
+}
+
+/// The issuer's role marker (the co-op issuer stand-in, §3).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IssuerRole {
+    CoopIssuer,
+}
+
+impl IssuerRole {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            IssuerRole::CoopIssuer => "coop_issuer",
+        }
+    }
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "coop_issuer" => Some(IssuerRole::CoopIssuer),
+            _ => None,
+        }
+    }
+}
+
+/// A persona's resolvability policy: who may resolve this persona in query
+/// traversal. Governed by the NAMED party — the envelope author must be the
+/// persona itself (T-AT4.1); an edge holder's disclosure choices can never
+/// grant resolution of the far end. Policy changes are superseding facts with
+/// lineage, not mutations (T-AT4.2).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ResolvabilityPolicy {
+    pub persona: PersonaId,
+    pub rule: PolicyRule,
+    pub supersedes: Option<ObjectId>,
+}
+
+/// Stand-in policy language (§3: the resolvability policy is an in-memory
+/// table): allow everyone, or allow an explicit viewer list.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PolicyRule {
+    AllowAll,
+    AllowOnly(Vec<PersonaId>),
+}
+
+/// Every attestation kind in the family. One enum, one shared envelope, one
+/// fold — the "one attestation family" claim as a type.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Payload {
+    EdgeHalf(EdgeHalf),
+    EdgeDissolve(EdgeDissolve),
+    CeremonyFact(CeremonyFact),
+    TransactionFact(TransactionFact),
+    ThingDecl(ThingDecl),
+    Vouch(Vouch),
+    VouchWithdraw(VouchWithdraw),
+    Review(Review),
+    Reply(Reply),
+    Predicate(Predicate),
+    ResolvabilityPolicy(ResolvabilityPolicy),
+}
+
+impl Payload {
+    pub fn kind_str(&self) -> &'static str {
+        match self {
+            Payload::EdgeHalf(_) => "edge_half",
+            Payload::EdgeDissolve(_) => "edge_dissolve",
+            Payload::CeremonyFact(_) => "ceremony_fact",
+            Payload::TransactionFact(_) => "transaction_fact",
+            Payload::ThingDecl(_) => "thing_decl",
+            Payload::Vouch(_) => "vouch",
+            Payload::VouchWithdraw(_) => "vouch_withdraw",
+            Payload::Review(_) => "review",
+            Payload::Reply(_) => "reply",
+            Payload::Predicate(_) => "predicate",
+            Payload::ResolvabilityPolicy(_) => "resolvability_policy",
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Envelope
+// ---------------------------------------------------------------------------
+
+/// The signed container for every attestation. Note what is ABSENT: there is
+/// no envelope timestamp. Ordering inputs are cryptographic/logical only —
+/// (lamport, author bytes, object id). Wall-clock lives inside payloads as
+/// claims (T-AT0.4).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Envelope {
+    /// Wire version; always 1 for this generation.
+    pub version: u8,
+    /// The authoring persona (Ed25519 verifying key).
+    pub author: PersonaId,
+    /// Logical clock — per-author monotonic counter, a cryptographically
+    /// committed (signed) logical value, not wall-clock.
+    pub lamport: u64,
+    /// Object ids this attestation causally cites (approvals-as-antecedents,
+    /// the R7 shape).
+    pub antecedents: Vec<ObjectId>,
+    pub payload: Payload,
+    /// Detached Ed25519 signature over `canonical_bytes()`.
+    pub signature: Vec<u8>,
+}
+
+impl Envelope {
+    /// Canonical dag-cbor bytes of everything except the signature.
+    pub fn canonical_bytes(&self) -> Vec<u8> {
+        canonical::encode_envelope(self, false)
+    }
+
+    /// Canonical dag-cbor bytes including the signature — the stored/wire form.
+    pub fn canonical_bytes_with_sig(&self) -> Vec<u8> {
+        canonical::encode_envelope(self, true)
+    }
+
+    /// BLAKE3 of `canonical_bytes_with_sig` — the object's content address.
+    pub fn object_id(&self) -> ObjectId {
+        ObjectId(*blake3::hash(&self.canonical_bytes_with_sig()).as_bytes())
+    }
+}
+
+/// Fold-order comparison: lamport ASC → author bytes ASC → object id ASC.
+/// Mirrors the substrate's `merge_cmp` (logical + cryptographic inputs only —
+/// no wall-clock anywhere in this function, T-AT0.4).
+pub fn fold_cmp(a: &Envelope, b: &Envelope) -> std::cmp::Ordering {
+    a.lamport
+        .cmp(&b.lamport)
+        .then_with(|| a.author.0.cmp(&b.author.0))
+        .then_with(|| a.object_id().0.cmp(&b.object_id().0))
+}
+
+/// Ipld leaf helpers shared by canonical + tests.
+pub fn ipld_bytes(b: &[u8]) -> Ipld {
+    Ipld::Bytes(b.to_vec())
+}
