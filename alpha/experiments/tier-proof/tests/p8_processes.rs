@@ -75,22 +75,48 @@ fn three_processes_dedup_across_transports_and_isolate_failure() {
     // seed byte and returns its identity, so the test needs no shared codec.
     let ds_id = cmd(ds_port, "SEED 1");
     let swarm_id = cmd(swarm_port, "SEED 2");
-    assert!(ds_id.starts_with("ID "), "ds SEED returns an identity: {ds_id}");
-    assert!(swarm_id.starts_with("ID "), "swarm SEED returns an identity");
+    assert!(
+        ds_id.starts_with("ID "),
+        "ds SEED returns an identity: {ds_id}"
+    );
+    assert!(
+        swarm_id.starts_with("ID "),
+        "swarm SEED returns an identity"
+    );
     let ds_id = ds_id.trim_start_matches("ID ").to_string();
     let swarm_id = swarm_id.trim_start_matches("ID ").to_string();
 
     // The convergence node pulls from BOTH and reconciles by envelope hash.
-    let converged = cmd(conv_port, &format!("CONVERGE 127.0.0.1:{ds_port} 127.0.0.1:{swarm_port}"));
-    assert!(converged.starts_with("COUNT 2"), "two distinct envelopes converged: {converged}");
-    assert!(converged.contains(&ds_id), "the DS-only envelope is present");
-    assert!(converged.contains(&swarm_id), "the swarm-only envelope is present");
+    let converged = cmd(
+        conv_port,
+        &format!("CONVERGE 127.0.0.1:{ds_port} 127.0.0.1:{swarm_port}"),
+    );
+    assert!(
+        converged.starts_with("COUNT 2"),
+        "two distinct envelopes converged: {converged}"
+    );
+    assert!(
+        converged.contains(&ds_id),
+        "the DS-only envelope is present"
+    );
+    assert!(
+        converged.contains(&swarm_id),
+        "the swarm-only envelope is present"
+    );
 
     // Failure isolation: kill the swarm process; DS and convergence keep serving.
     swarm.kill().expect("kill swarm");
     swarm.wait().ok();
-    assert_eq!(cmd(ds_port, "PING"), "PONG", "DS survives a swarm-peer death");
-    assert_eq!(cmd(conv_port, "PING"), "PONG", "convergence survives a swarm-peer death");
+    assert_eq!(
+        cmd(ds_port, "PING"),
+        "PONG",
+        "DS survives a swarm-peer death"
+    );
+    assert_eq!(
+        cmd(conv_port, "PING"),
+        "PONG",
+        "convergence survives a swarm-peer death"
+    );
 
     // Clean up.
     ds.kill().ok();
