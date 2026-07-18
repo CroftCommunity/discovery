@@ -35,11 +35,8 @@ fn body(scope: &str, author: &str, antecedents: &[&str], payload: &[u8]) -> Sign
 #[test]
 fn canonical_encoding_is_byte_stable() {
     let s = Signer::from_seed([7u8; 32]);
-    let env = Envelope::seal(
-        body("scope:alpha", &s.did(), &["aa", "bb"], b"hello"),
-        &s,
-    )
-    .expect("seal");
+    let env =
+        Envelope::seal(body("scope:alpha", &s.did(), &["aa", "bb"], b"hello"), &s).expect("seal");
 
     let a = tier_proof::canonical::to_canonical(&env).expect("encode a");
     let b = tier_proof::canonical::to_canonical(&env).expect("encode b");
@@ -57,8 +54,8 @@ fn canonical_key_ordering_is_deterministic_golden() {
     // canonical map-key ordering (RFC 8949 §4.2.1 length-then-bytewise) so a
     // silent encoder change is caught. Value pinned at first green.
     let s = Signer::from_seed([1u8; 32]);
-    let env = Envelope::seal(body("scope:golden", &s.did(), &["deadbeef"], b"g"), &s)
-        .expect("seal");
+    let env =
+        Envelope::seal(body("scope:golden", &s.did(), &["deadbeef"], b"g"), &s).expect("seal");
     let bytes = tier_proof::canonical::to_canonical(&env).expect("encode");
     // The DID and signature are deterministic from the seed, so the whole
     // envelope — and its digest — is reproducible.
@@ -79,7 +76,10 @@ fn signature_verifies_and_rejects() {
     // Tamper the payload: signature no longer covers these bytes.
     let mut tampered = env.clone();
     tampered.body.payload = b"payloax".to_vec();
-    assert!(tampered.verify().is_err(), "tampered payload must be rejected");
+    assert!(
+        tampered.verify().is_err(),
+        "tampered payload must be rejected"
+    );
 }
 
 #[test]
@@ -110,7 +110,11 @@ fn identity_is_stable_and_dedups() {
     let env = Envelope::seal(body("scope:d", &s.did(), &["x"], b"once"), &s).expect("seal");
 
     // H(envelope) identical across two independent encodes.
-    assert_eq!(env.identity(), env.identity(), "identity is a pure function");
+    assert_eq!(
+        env.identity(),
+        env.identity(),
+        "identity is a pure function"
+    );
 
     // The same envelope arriving twice (two delivery paths) dedups to one.
     let path_a = env.clone();

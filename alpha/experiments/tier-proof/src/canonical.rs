@@ -50,13 +50,14 @@ fn canonicalize(v: Value) -> Result<Value, CanonError> {
                 let k = canonicalize(k)?;
                 let val = canonicalize(val)?;
                 let mut kb = Vec::new();
-                ciborium::into_writer(&k, &mut kb)
-                    .map_err(|e| CanonError::Write(e.to_string()))?;
+                ciborium::into_writer(&k, &mut kb).map_err(|e| CanonError::Write(e.to_string()))?;
                 keyed.push((kb, k, val));
             }
             // Length first, then bytewise (the "deterministic encoding" rule).
             keyed.sort_by(|a, b| a.0.len().cmp(&b.0.len()).then_with(|| a.0.cmp(&b.0)));
-            Ok(Value::Map(keyed.into_iter().map(|(_, k, val)| (k, val)).collect()))
+            Ok(Value::Map(
+                keyed.into_iter().map(|(_, k, val)| (k, val)).collect(),
+            ))
         }
         Value::Array(items) => {
             let mut out = Vec::with_capacity(items.len());

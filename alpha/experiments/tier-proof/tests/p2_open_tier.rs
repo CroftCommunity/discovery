@@ -30,7 +30,10 @@ fn live_leg_is_blocked_not_pretended() {
     // The live probe inspects env for credentials and NEVER fabricates a result.
     match tier_proof::source::live_open_tier_leg() {
         LiveLeg::Blocked { reason } => {
-            assert!(reason.contains("ATP_TEST"), "blocked reason names the missing creds");
+            assert!(
+                reason.contains("ATP_TEST"),
+                "blocked reason names the missing creds"
+            );
         }
         LiveLeg::Ran { .. } => { /* credentials present: the live leg ran */ }
     }
@@ -76,7 +79,10 @@ fn self_registration_folds_into_catalogue_and_roster() {
 
     let members = state.roster_members(OPEN_SCOPE);
     let alice = tier_proof::identity::Signer::from_seed([11u8; 32]).did();
-    assert!(members.contains(&alice), "self-registered author is a member");
+    assert!(
+        members.contains(&alice),
+        "self-registered author is a member"
+    );
 }
 
 #[test]
@@ -92,7 +98,10 @@ fn own_signature_proves_self_registration_without_a_second_party() {
             _ => None,
         })
         .expect("registration envelope present");
-    assert!(env.verify().is_ok(), "registration verifies on the author's signature alone");
+    assert!(
+        env.verify().is_ok(),
+        "registration verifies on the author's signature alone"
+    );
 }
 
 #[test]
