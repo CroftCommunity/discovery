@@ -25,6 +25,7 @@
 #![allow(clippy::should_implement_trait)]
 
 pub mod anonymity;
+pub mod atproto_map;
 pub mod canonical;
 pub mod fixtures;
 pub mod fold;
