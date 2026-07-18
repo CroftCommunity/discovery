@@ -17,6 +17,13 @@ pub struct CommitWelcome {
     welcome: Vec<u8>,
 }
 
+impl CommitWelcome {
+    /// Assemble (shared with the persist bindings).
+    pub(crate) fn new(commit: Vec<u8>, welcome: Vec<u8>) -> Self {
+        Self { commit, welcome }
+    }
+}
+
 #[wasm_bindgen]
 impl CommitWelcome {
     /// The commit to fan out to existing members.
@@ -37,6 +44,13 @@ impl CommitWelcome {
 pub struct OpenedMessage {
     sender: String,
     text: String,
+}
+
+impl OpenedMessage {
+    /// Assemble (shared with the persist bindings).
+    pub(crate) fn new(sender: String, text: String) -> Self {
+        Self { sender, text }
+    }
 }
 
 #[wasm_bindgen]

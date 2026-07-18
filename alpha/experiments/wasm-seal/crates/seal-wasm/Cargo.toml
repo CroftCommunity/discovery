@@ -19,6 +19,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 thiserror.workspace = true
 seal-wire = { path = "../seal-wire" }
+seal-persist = { path = "../seal-persist" }
 hex = "0.4"
 # The real croft-group L2a seal stack, reused not re-implemented (path-deps;
 # guardrail 2's preferred arm — run19-bare-openmls stays unfired if this

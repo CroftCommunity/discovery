@@ -25,6 +25,7 @@ openmls.workspace = true
 openmls_rust_crypto.workspace = true
 openmls_traits.workspace = true
 openmls_basic_credential.workspace = true
+seal-wire = { path = "../seal-wire" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror.workspace = true
