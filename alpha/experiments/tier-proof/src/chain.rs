@@ -50,6 +50,25 @@ impl ChainReport {
     pub fn complete_up_to_newest(&self) -> bool {
         self.heads.len() == 1 && self.missing.is_empty() && self.anchored
     }
+
+    /// The detector's claim, rendered. Its strongest form is
+    /// `complete as of <newest held>` — scoped, by construction, to what is
+    /// held; there is no wording for full currency because the detector can
+    /// never know it (the withheld-tail limit, completeness-ahead doctrine).
+    #[must_use]
+    pub fn claim(&self) -> String {
+        if self.complete_up_to_newest() {
+            format!("complete as of {}", self.heads[0])
+        } else if self.missing.is_empty() && !self.anchored {
+            "incomplete: not anchored to genesis".to_string()
+        } else {
+            format!(
+                "incomplete: {} known omission(s): {}",
+                self.missing.len(),
+                self.missing.join(", ")
+            )
+        }
+    }
 }
 
 /// Reconstruct the chain's shape for `author`'s message envelopes in `scope`
