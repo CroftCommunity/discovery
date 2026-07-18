@@ -88,6 +88,60 @@ Each term: one sentence of definition, one sentence of what it is NOT.
   unresolvable attester's attestation is absent from responses, not redacted-but-
   counted. (evidence: T-AT4.1, T-AT4.2, T-AT3.3, RUN-ATTEST-01, Modeled)
 
+### Anchor-persona vocabulary (RUN-ATTEST-02)
+
+- **anchor persona** — A holder-controlled persona root keypair carrying a
+  co-op-minted credential, one of possibly several a member holds, with no
+  public object designating any of them as first, primary, or preferred. It is
+  NOT an account hierarchy: no default exists, and an observer's total
+  knowledge is "this persona carries the predicate; that one does not".
+  (evidence: T-PA1.1, T-PA1.2, RUN-ATTEST-02, Modeled)
+
+- **reality anchor** — The signal a `vetted_holder` credential carries: a
+  vetted human stands behind this persona, at the cost of a vetting ceremony
+  and a fee, while the personas' graphs stay hard-split. It is NOT a link
+  between the personas: accountability attaches per persona; unity of the
+  human stays private. (evidence: T-PA2.1, T-PA5.2, RUN-ATTEST-02, Modeled)
+
+- **credential** — The anchor-persona mint unit: a single-predicate,
+  issuer-signed object with a fresh per-mint nonce, standing only on a
+  vetting-event antecedent and verified from its bytes and the issuer key
+  alone. It is NOT a bundle — combining predicates happens only
+  presentation-side, as a subset the persona chooses to show. (evidence:
+  T-PA3.1, T-PA4.4, T-PA1.3, RUN-ATTEST-02, Modeled)
+
+- **`vetted_holder`** — The reality-anchor predicate: "a vetted human stands
+  behind this persona." It is NOT proof of unique personhood —
+  one human may hold several anchor personas, and no operation, query, or
+  derivable value answers whether two personas share a holder. (evidence:
+  T-PA5.3, RUN-ATTEST-02, Modeled)
+
+- **`sole_anchor(context)`** — A vocabulary-only, scope-bound predicate for
+  contexts that genuinely require one-persona-per-human (voting, one-account
+  promotions), deliberately reintroducing linkage WITHIN that context and
+  nowhere else. It is NOT built (OC-3 pending), and it is NOT `vetted_holder`
+  — conflating them would silently turn the reality anchor into a uniqueness
+  registry. (evidence: vocabulary only, RUN-ATTEST-02)
+
+- **commitment** — The issuer's only public per-issuance trace: the hash of a
+  credential id with a fresh salt, folded per epoch as an unordered set. It is
+  NOT locatable from the credential (the salt blinds it) and NOT ordered —
+  within an epoch, mint adjacency does not exist. (evidence: T-PA1.3,
+  T-PA1.4, RUN-ATTEST-02, Modeled)
+
+- **status check** — The OCSP-shaped read-side solicitation: a verifier
+  submits a credential hash and the issuer answers current/superseded/unknown,
+  signed and deterministic, from its own assertion lineage. It is NOT a
+  registry lookup and staleness of an unanswered check is NOT a verdict — an
+  app requiring a fresh answer fails closed by ITS policy, never by protocol
+  timeout. (evidence: T-PA6.3, T-PA6.4, T-PA2.3, RUN-ATTEST-02, Modeled)
+
+- **seam boundary** — The named type (`SeamBoundary`) holding the issuer's
+  payment-bookkeeping stand-in: the ONE place where member↔anchor-count
+  linkage may live, visible in the type system so it cannot silently spread.
+  It is NOT serializable, NOT queryable, and holds member handles, never
+  persona identifiers. (evidence: T-PA6.1, T-PA3.3, RUN-ATTEST-02, Modeled)
+
 Supporting vocabulary (machinery, not new axes): **supersede** — the only way any
 attestation is retired: a later object cites and replaces it while the prior object's
 bytes remain retrievable unchanged; never revoke-in-place (T-AT0.3). **notice fact** —
@@ -97,14 +151,18 @@ of scope (T-AT5.2). **marker** — presentation metadata (`antecedent_superseded
 **transaction attestation** — the verified-purchase analog cited as antecedent for the
 `transaction_backed` grade; a fixture fact in this run, no payment rail (§3 stand-in).
 
-## Declared stand-ins (RUN-ATTEST-01 §3)
+## Declared stand-ins (RUN-ATTEST-01 §3, RUN-ATTEST-02 §3)
 
 Personas are fixture Ed25519 keypairs (no DID/atproto — §9 non-goal). The
 resolvability policy surface is the in-memory folded table, with policy facts giving
 it lineage. The co-op issuer is a fixture persona with an `issuer` role marker. The
 transaction attestation is a fixture fact. Default resolvability with no policy fact
 on record is resolvable-to-all in this crate — a stand-in default, not a decided
-posture.
+posture. RUN-ATTEST-02 adds: the vetting event is a fixture fact (no real vetting);
+the payment bookkeeping is the `SeamBoundary` stand-in (no payment rail); the
+holder↔persona linkage lives only in fixture bookkeeping; the anchor-count dial
+register reuses the substrate's rule_key 0 (`add_member_threshold`) as a declared
+reinterpretation, alongside T-AT6.4's rule_key 1 covenant register.
 
 ## Owner calls surfaced (not decided here)
 
@@ -117,3 +175,17 @@ posture.
   re-affirmation window.
 - **OC-4** — whether `unilateral_private` ships in v1; defined in vocabulary, zero
   experiments here — a deliberate statement, not an oversight.
+
+RUN-ATTEST-02 owner calls (its §8 numbering; tagged at their test sites):
+
+- **OC-1 (PA)** — issuer public-lineage content: blinded commitments
+  (implemented, narrowest; tag at T-PA1.3) vs publishing nothing vs full
+  issuance facts (the recorded rejected pole).
+- **OC-2 (PA)** — sibling-batching mitigation: unordered per-epoch commitment
+  folds (implemented; tag at T-PA1.4) vs ceremony-spacing policy vs both. The
+  epoch-membership residue is F-PA-1's last bullet.
+- **OC-3 (PA)** — whether `sole_anchor(context)` ever ships, and which
+  contexts justify deliberate intra-context linkage (tag at T-PA5.3; NOT
+  built).
+- **OC-4 (PA)** — fee semantics: flat per-anchor vs vetting-tier pricing;
+  pure policy over the T-PA3.2 dial, no protocol impact (tag at T-PA3.2).

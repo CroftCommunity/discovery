@@ -188,6 +188,40 @@ fn payload_ipld(p: &Payload) -> Ipld {
             }
             map(pairs)
         }
+        Payload::VettingFact(v) => map(vec![
+            ("d", date(&v.performed_on)),
+            ("k", s("vetting_fact")),
+            ("n", bytes(&v.vetting_nonce)),
+            ("r", s(v.role.as_str())),
+            ("s", bytes(&v.subject.0)),
+        ]),
+        Payload::Credential(c) => {
+            // Like the predicate (T-AT6.2): process provenance is INSIDE the
+            // payload — no encoding of a credential without it exists, and
+            // the issuer is the signed envelope author.
+            let mut pairs = vec![
+                (
+                    "c",
+                    map(vec![
+                        ("d", date(&c.process.performed_on)),
+                        ("m", s(c.process.method.as_str())),
+                        ("r", s(c.process.role.as_str())),
+                    ]),
+                ),
+                ("k", s("credential")),
+                ("n", bytes(&c.mint_nonce)),
+                ("p", s(c.predicate.as_str())),
+                ("s", bytes(&c.subject.0)),
+            ];
+            if let Some(u) = &c.supersedes {
+                pairs.push(("u", bytes(&u.0)));
+            }
+            map(pairs)
+        }
+        Payload::CredentialSupersede(cs) => map(vec![
+            ("k", s("credential_supersede")),
+            ("u", bytes(&cs.supersedes.0)),
+        ]),
         Payload::ResolvabilityPolicy(rp) => {
             let rule = match &rp.rule {
                 PolicyRule::AllowAll => map(vec![("k", s("allow_all"))]),
@@ -464,6 +498,34 @@ fn decode_payload(v: &Ipld) -> R<Payload> {
                 supersedes: opt_supersedes(m)?,
             }))
         }
+        "vetting_fact" => Ok(Payload::VettingFact(VettingFact {
+            subject: PersonaId(get_b32(m, "s")?),
+            vetting_nonce: get_b16(m, "n")?,
+            performed_on: decode_date(get(m, "d")?)?,
+            role: IssuerRole::from_str(get_str(m, "r")?)
+                .ok_or_else(|| CanonicalError("unknown role".into()))?,
+        })),
+        "credential" => {
+            let proc_m = as_map(get(m, "c")?)?;
+            Ok(Payload::Credential(Credential {
+                predicate: PredicateKind::from_str(get_str(m, "p")?)
+                    .ok_or_else(|| CanonicalError("unknown predicate".into()))?,
+                subject: PersonaId(get_b32(m, "s")?),
+                process: ProcessProvenance {
+                    method: MethodKind::from_str(get_str(proc_m, "m")?)
+                        .ok_or_else(|| CanonicalError("unknown method".into()))?,
+                    performed_on: decode_date(get(proc_m, "d")?)?,
+                    role: IssuerRole::from_str(get_str(proc_m, "r")?)
+                        .ok_or_else(|| CanonicalError("unknown role".into()))?,
+                },
+                mint_nonce: get_b16(m, "n")?,
+                supersedes: opt_supersedes(m)?,
+            }))
+        }
+        "credential_supersede" => Ok(Payload::CredentialSupersede(CredentialSupersede {
+            supersedes: opt_supersedes(m)?
+                .ok_or_else(|| CanonicalError("credential_supersede: supersedes required".into()))?,
+        })),
         other => Err(CanonicalError(format!("unknown payload kind {other}"))),
     }
 }
