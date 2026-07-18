@@ -1,0 +1,23 @@
+# seal-wasm — RUN-19 P1: the croft-group seal stack compiled to
+# wasm32-unknown-unknown and RUN there (the missing-test-evidence part).
+#
+# RED state: the crate exposes only the seal *interface* as a stub, so the
+# wasm harness (target + runner + Node host) is proven to execute and FAIL
+# before any MLS code lands. GREEN swaps the stub for the real croft-group
+# `group-seal` path-dep with openmls's `js` feature unioned in.
+[package]
+name = "seal-wasm"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[lib]
+# cdylib for the wasm module a JS host loads (P5); rlib so native builds can
+# reuse the same interface for the P2 cross-build goldens.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+thiserror.workspace = true
+
+[dev-dependencies]
+wasm-bindgen-test.workspace = true

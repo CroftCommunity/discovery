@@ -1,0 +1,46 @@
+# wasm-seal — RUN-19: the sealed tier in the browser's shape.
+#
+# Own workspace with its own lockfile (the experiments convention: each
+# openmls-carrying experiment detaches from any parent workspace so lockfiles
+# and feature unions stay local). Members are added part-by-part as the run
+# proceeds (P1: seal-wasm; P2: seal-wire + seal-native; P4: ds-proto +
+# blind-ds + ds-client).
+#
+# Pinned toolchain pairs (guardrail 5 — record the pinned pair):
+#   wasm-bindgen        =0.2.126  <-> wasm-bindgen-cli 0.2.126 (installed)
+#   wasm-bindgen-test   =0.3.76   (the 0.2.126-matched test harness)
+#   wasm-pack           0.15.0    (npm-installed binary, headless-chrome attempt only)
+#   openmls             =0.8.1    (the lineage-groups / croft-group pin)
+#   openmls_rust_crypto =0.5.1    (pure-Rust provider — the wasm bet)
+[workspace]
+resolver = "2"
+members = ["crates/seal-wasm"]
+
+[workspace.package]
+edition = "2021"
+version = "0.0.0"
+publish = false
+
+[workspace.dependencies]
+# --- wasm harness (pinned pair, guardrail 5) --------------------------------
+wasm-bindgen = "=0.2.126"
+wasm-bindgen-test = "=0.3.76"
+
+# --- the seal stack (croft-group L2a reused, never re-implemented) ----------
+group-seal = { path = "../croft-group/crates/group-seal" }
+group-core = { path = "../croft-group/crates/group-core" }
+lineage-mls = { path = "../../Proofs/lineage-groups/crates/lineage-mls" }
+
+# --- openmls (the exact lineage-groups pins; `js` feature unioned in by
+#     seal-wasm for the wasm target) ----------------------------------------
+openmls = "=0.8.1"
+openmls_rust_crypto = "=0.5.1"
+openmls_traits = "=0.5.0"
+openmls_basic_credential = "=0.5.0"
+
+# --- errors -----------------------------------------------------------------
+thiserror = "2"
+
+[profile.test]
+# Crypto under debug is painfully slow (the lineage-groups convention).
+opt-level = 1
