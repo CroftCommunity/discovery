@@ -14,7 +14,7 @@
 #   openmls_rust_crypto =0.5.1    (pure-Rust provider — the wasm bet)
 [workspace]
 resolver = "2"
-members = ["crates/seal-wasm", "crates/seal-wire", "crates/seal-native", "crates/seal-persist"]
+members = ["crates/seal-wasm", "crates/seal-wire", "crates/seal-native", "crates/seal-persist", "crates/ds-proto", "crates/blind-ds", "crates/ds-client"]
 
 [workspace.package]
 edition = "2021"
@@ -41,6 +41,11 @@ openmls_basic_credential = "=0.5.0"
 
 # --- errors -----------------------------------------------------------------
 thiserror = "2"
+
+# --- the QUIC leg (guardrail 5: server and client from the SAME pinned crate
+#     revision, so the draft-tracking WebTransport wire matches) -------------
+wtransport = { version = "=0.7.1", features = ["self-signed"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-util", "net", "time", "sync"] }
 
 [profile.test]
 # Crypto under debug is painfully slow (the lineage-groups convention).

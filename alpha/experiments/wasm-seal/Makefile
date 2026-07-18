@@ -15,3 +15,8 @@ native-peer:
 
 p2-interop: wasm-pkg native-peer
 	node node/interop.mjs
+
+p4-blindness:
+	@echo "== blind-ds NORMAL dependency graph (must contain no seal/unseal capability) =="
+	cargo tree -p blind-ds -e normal | tee /tmp/blind-ds-tree.txt
+	@! grep -Ei "openmls|group-seal|seal-wire|seal-persist|chacha|aes|crypto" /tmp/blind-ds-tree.txt && echo "BLINDNESS: no crypto/seal crate in the normal graph"
