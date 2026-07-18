@@ -6,11 +6,11 @@
 //! from the landed DS/convergence store (P8), and ends **provably complete up
 //! to the newest envelope held**.
 
-use tier_proof::chain::{self};
+use tier_proof::chain;
 use tier_proof::envelope::Envelope;
 use tier_proof::fold::Fold;
 use tier_proof::identity::Signer;
-use tier_proof::records::{self, Genesis, MembershipPolicy, Record, WritePolicy};
+use tier_proof::records::{Genesis, MembershipPolicy, Record, WritePolicy};
 use tier_proof::roles::EnvelopeStore;
 use tier_proof::source::{MemSource, RecordSource, SourceEvent};
 
