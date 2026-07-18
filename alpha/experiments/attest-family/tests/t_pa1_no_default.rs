@@ -196,7 +196,8 @@ fn sibling_indistinguishability() {
     // The selector battery: deterministic functions from public bytes to a
     // candidate. Chance is 1/13 per case; with 16 seeded cases a selector
     // that beats 4 hits is far outside chance (P[X >= 5 | p = 1/13] < 1%).
-    let selectors: Vec<(&str, fn(&Cohort) -> usize)> = vec![
+    type Selector = fn(&Cohort) -> usize;
+    let selectors: Vec<(&str, Selector)> = vec![
         ("min-object-bytes", |c| {
             (0..c.bundles.len()).min_by_key(|i| c.bundles[*i].1.clone()).unwrap()
         }),

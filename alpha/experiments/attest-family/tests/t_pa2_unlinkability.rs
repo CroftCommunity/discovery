@@ -241,18 +241,17 @@ fn status_check_no_cross_leak() {
             }
         }
     }
-    for rec in [state.lineage_bytes()] {
-        // The response and the lineage share no 32-byte value (the echoed
-        // credential hash is salted before it ever enters the lineage).
-        let resp_leaves: BTreeSet<Vec<u8>> =
-            byte_leaves_of(&bytes).into_iter().filter(|l| l.len() == 32).collect();
-        let lineage_leaves: BTreeSet<Vec<u8>> =
-            byte_leaves_of(&rec).into_iter().filter(|l| l.len() == 32).collect();
-        assert!(
-            resp_leaves.is_disjoint(&lineage_leaves),
-            "a status response must not locate anything in the public lineage"
-        );
-    }
+    // The response and the lineage share no 32-byte value (the echoed
+    // credential hash is salted before it ever enters the lineage).
+    let lineage = state.lineage_bytes();
+    let resp_leaves: BTreeSet<Vec<u8>> =
+        byte_leaves_of(&bytes).into_iter().filter(|l| l.len() == 32).collect();
+    let lineage_leaves: BTreeSet<Vec<u8>> =
+        byte_leaves_of(&lineage).into_iter().filter(|l| l.len() == 32).collect();
+    assert!(
+        resp_leaves.is_disjoint(&lineage_leaves),
+        "a status response must not locate anything in the public lineage"
+    );
 }
 
 // ---------------------------------------------------------------------------

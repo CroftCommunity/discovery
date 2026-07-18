@@ -119,6 +119,9 @@ fn no_suppression_path_exists() {
         "fold_order", "edges", "edge_by_core", "pending_halves", "vouches", "vouch",
         "reviews", "review", "predicates", "notices", "policy_head", "policy_lineage",
         "resolvable", "edge_list",
+        // RUN-ATTEST-02 (reviewed): read-only credential accessors — return
+        // fold views only; cannot remove, hide, or demote anything.
+        "credentials", "credential",
         // views
         "participants", "side", "as_str",
         // query

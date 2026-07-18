@@ -1,8 +1,8 @@
 //! RUN-ATTEST-02, substrate-reuse half: T-PA3.2 (the anchor-count dial as a
 //! governed R7 rule) and the covenant-lineage-intact leg of T-PA6.2. Both run
-//! on the EXISTING content-bound-quorum machinery — `local_storage_projection`
-//! + `social-graph-core`, imported unchanged, exactly as T-AT6.4 drives them
-//! (the commitment-audit leg of T-PA6.2 lives in `t_pa6_issuer.rs`).
+//! on the EXISTING content-bound-quorum machinery (`local_storage_projection`
+//! and `social-graph-core`, imported unchanged, exactly as T-AT6.4 drives
+//! them). The commitment-audit leg of T-PA6.2 lives in `t_pa6_issuer.rs`.
 //!
 //! Register stand-in (declared): substrate rule_key 0 (`add_member_threshold`)
 //! reinterpreted as **max anchors per member**. rule_key 1 remains the
@@ -425,11 +425,10 @@ fn covenant_rule_lineage_intact_without_unmasking() {
     );
     let authors = [&c.o1, &c.o2, &c.a, &c.b];
     let path = dir.path().join("covenant-lineage.redb");
-    // STAGED VIOLATION (RUN-ATTEST-02 RED): the approval antecedent omitted —
-    // an under-quorum covenant establishment. The reused machinery refuses it
-    // whole, so no intact covenant lineage can exist without its quorum
-    // antecedents. Restored (appr re-included) at green.
-    let outcomes = run_fold(&path, &authors, &setup, &[&set_full]);
+    // (The RED stage omitted `appr` here — an under-quorum establishment,
+    // which the reused machinery refused whole: no intact covenant lineage
+    // can exist without its quorum antecedents.)
+    let outcomes = run_fold(&path, &authors, &setup, &[&appr, &set_full]);
     assert!(outcomes.iter().all(|o| o.is_ok()), "covenant establishment folds: {outcomes:?}");
 
     let session = Session::open(&path, &c.o1).expect("open session");

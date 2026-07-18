@@ -232,7 +232,7 @@ fn generated_coop(tag: &'static str, member_counts: &[usize]) -> CoopFixture {
 /// 2-anchor member, ten single-anchor members (15 personas).
 pub fn coop_s() -> CoopFixture {
     let mut counts = vec![3, 2];
-    counts.extend(std::iter::repeat(1).take(10));
+    counts.extend(std::iter::repeat_n(1, 10));
     generated_coop("coop-s", &counts)
 }
 
@@ -240,8 +240,8 @@ pub fn coop_s() -> CoopFixture {
 /// thirty-nine 2-anchor members, 360 single-anchor members (441 personas).
 pub fn coop_l() -> CoopFixture {
     let mut counts = vec![3];
-    counts.extend(std::iter::repeat(2).take(39));
-    counts.extend(std::iter::repeat(1).take(360));
+    counts.extend(std::iter::repeat_n(2, 39));
+    counts.extend(std::iter::repeat_n(1, 360));
     generated_coop("coop-l", &counts)
 }
 
@@ -250,7 +250,7 @@ pub fn coop_l() -> CoopFixture {
 /// fixed congruences so both co-ops use the same rule.
 pub fn generated_kinds(i: usize, j: usize) -> Vec<PredicateKind> {
     let mut kinds = vec![PredicateKind::VettedHolder];
-    if (i + j) % 20 != 0 {
+    if !(i + j).is_multiple_of(20) {
         kinds.push(PredicateKind::Over18);
     }
     if (i * 7 + j) % 5 < 3 {
@@ -392,14 +392,7 @@ pub fn credential(
     mint_nonce: [u8; 16],
     supersedes: Option<ObjectId>,
 ) -> Payload {
-    Payload::Credential(Credential {
-        predicate: kind,
-        subject,
-        process,
-        mint_nonce,
-        minted_ordinal: 0,
-        supersedes,
-    })
+    Payload::Credential(Credential { predicate: kind, subject, process, mint_nonce, supersedes })
 }
 
 pub fn credential_supersede(supersedes: ObjectId) -> Payload {
