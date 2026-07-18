@@ -2,7 +2,10 @@
 # `make p2-interop` runs the cross-build goldens: builds the wasm module for
 # a Node host, the native peer, then drives both from node/interop.mjs.
 
-.PHONY: p2-interop wasm-pkg native-peer
+.PHONY: p2-interop p3-resume wasm-pkg native-peer
+
+p3-resume: wasm-pkg native-peer
+	node node/resume.mjs
 
 wasm-pkg:
 	cd crates/seal-wasm && wasm-pack build --target nodejs --dev --no-opt

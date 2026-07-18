@@ -14,7 +14,7 @@
 #   openmls_rust_crypto =0.5.1    (pure-Rust provider — the wasm bet)
 [workspace]
 resolver = "2"
-members = ["crates/seal-wasm", "crates/seal-wire", "crates/seal-native"]
+members = ["crates/seal-wasm", "crates/seal-wire", "crates/seal-native", "crates/seal-persist"]
 
 [workspace.package]
 edition = "2021"
@@ -30,6 +30,7 @@ wasm-bindgen-test = "=0.3.76"
 group-seal = { path = "../croft-group/crates/group-seal" }
 group-core = { path = "../croft-group/crates/group-core" }
 lineage-mls = { path = "../../Proofs/lineage-groups/crates/lineage-mls" }
+lineage-core = { path = "../../Proofs/lineage-groups/crates/lineage-core" }
 
 # --- openmls (the exact lineage-groups pins; `js` feature unioned in by
 #     seal-wasm for the wasm target) ----------------------------------------
