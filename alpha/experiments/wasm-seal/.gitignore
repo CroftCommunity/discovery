@@ -1,0 +1,2 @@
+# wasm-pack output (generated JS + wasm artifact; rebuilt by make wasm-pkg)
+crates/seal-wasm/pkg/

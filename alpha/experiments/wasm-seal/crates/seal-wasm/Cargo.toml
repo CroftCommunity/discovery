@@ -18,6 +18,8 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 thiserror.workspace = true
+seal-wire = { path = "../seal-wire" }
+hex = "0.4"
 # The real croft-group L2a seal stack, reused not re-implemented (path-deps;
 # guardrail 2's preferred arm — run19-bare-openmls stays unfired if this
 # compiles to the wasm target).
@@ -38,6 +40,7 @@ openmls = { workspace = true, features = ["js"] }
 # idiom). getrandom 0.3 additionally needs the backend cfg — see
 # ../../.cargo/config.toml rustflags.
 getrandom02 = { package = "getrandom", version = "=0.2.17", features = ["js"] }
+wasm-bindgen.workspace = true
 
 [dev-dependencies]
 wasm-bindgen-test.workspace = true

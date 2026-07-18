@@ -1507,9 +1507,12 @@ dependencies = [
  "getrandom 0.2.17",
  "group-core",
  "group-seal",
+ "hex",
  "lineage-mls",
  "openmls",
+ "seal-wire",
  "thiserror",
+ "wasm-bindgen",
  "wasm-bindgen-test",
 ]
 
