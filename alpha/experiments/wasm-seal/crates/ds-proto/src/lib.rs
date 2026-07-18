@@ -4,8 +4,6 @@
 //! client would use): `u32-LE length || JSON header`, then
 //! `u32-LE length || payload bytes` — both directions. The payload is opaque
 //! to this crate and to the server: ciphertext in, ciphertext out.
-//!
-//! RED stub: the codec reports [`ProtoError::Unbuilt`].
 
 #![warn(missing_docs)]
 
@@ -75,9 +73,6 @@ pub const REFUSED: &str = "refused";
 /// Why a protocol read/write failed.
 #[derive(Debug, thiserror::Error)]
 pub enum ProtoError {
-    /// RED: not yet implemented.
-    #[error("unbuilt: P4 red")]
-    Unbuilt,
     /// I/O failure on the stream.
     #[error("io: {0}")]
     Io(String),
@@ -89,42 +84,68 @@ pub enum ProtoError {
     TooLarge(u64),
 }
 
+/// Sanity bound on a single frame (a sealed chat frame is a few hundred
+/// bytes; a Welcome a few KB — 16 MiB is generous, not open-ended).
+pub const MAX_FRAME: u32 = 16 * 1024 * 1024;
+
+fn io_err<E: std::fmt::Debug>(e: E) -> ProtoError {
+    ProtoError::Io(format!("{e:?}"))
+}
+
 /// Write one `u32-LE length || bytes` frame.
 ///
 /// # Errors
-/// [`ProtoError::Unbuilt`] in RED.
+/// [`ProtoError::Io`] on stream failure, [`ProtoError::TooLarge`] over bound.
 pub async fn write_frame<W: AsyncWrite + Unpin>(
-    _w: &mut W,
-    _bytes: &[u8],
+    w: &mut W,
+    bytes: &[u8],
 ) -> Result<(), ProtoError> {
-    Err(ProtoError::Unbuilt)
+    use tokio::io::AsyncWriteExt as _;
+    let len = u32::try_from(bytes.len()).map_err(|_| ProtoError::TooLarge(bytes.len() as u64))?;
+    if len > MAX_FRAME {
+        return Err(ProtoError::TooLarge(u64::from(len)));
+    }
+    w.write_all(&len.to_le_bytes()).await.map_err(io_err)?;
+    w.write_all(bytes).await.map_err(io_err)?;
+    w.flush().await.map_err(io_err)
 }
 
 /// Read one `u32-LE length || bytes` frame (bounded).
 ///
 /// # Errors
-/// [`ProtoError::Unbuilt`] in RED.
-pub async fn read_frame<R: AsyncRead + Unpin>(_r: &mut R) -> Result<Vec<u8>, ProtoError> {
-    Err(ProtoError::Unbuilt)
+/// [`ProtoError::Io`] on stream failure, [`ProtoError::TooLarge`] over bound.
+pub async fn read_frame<R: AsyncRead + Unpin>(r: &mut R) -> Result<Vec<u8>, ProtoError> {
+    use tokio::io::AsyncReadExt as _;
+    let mut len_bytes = [0u8; 4];
+    r.read_exact(&mut len_bytes).await.map_err(io_err)?;
+    let len = u32::from_le_bytes(len_bytes);
+    if len > MAX_FRAME {
+        return Err(ProtoError::TooLarge(u64::from(len)));
+    }
+    let mut buf = vec![0u8; len as usize];
+    r.read_exact(&mut buf).await.map_err(io_err)?;
+    Ok(buf)
 }
 
 /// Serialize + write a JSON header frame.
 ///
 /// # Errors
-/// [`ProtoError::Unbuilt`] in RED.
+/// [`ProtoError::Codec`] on serialization failure, else as [`write_frame`].
 pub async fn write_json<W: AsyncWrite + Unpin, T: Serialize>(
-    _w: &mut W,
-    _value: &T,
+    w: &mut W,
+    value: &T,
 ) -> Result<(), ProtoError> {
-    Err(ProtoError::Unbuilt)
+    let bytes = serde_json::to_vec(value).map_err(|e| ProtoError::Codec(e.to_string()))?;
+    write_frame(w, &bytes).await
 }
 
 /// Read + deserialize a JSON header frame.
 ///
 /// # Errors
-/// [`ProtoError::Unbuilt`] in RED.
+/// [`ProtoError::Codec`] on deserialization failure, else as [`read_frame`].
 pub async fn read_json<R: AsyncRead + Unpin, T: for<'de> Deserialize<'de>>(
-    _r: &mut R,
+    r: &mut R,
 ) -> Result<T, ProtoError> {
-    Err(ProtoError::Unbuilt)
+    let bytes = read_frame(r).await?;
+    serde_json::from_slice(&bytes).map_err(|e| ProtoError::Codec(e.to_string()))
 }
