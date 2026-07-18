@@ -275,13 +275,17 @@ fn sibling_indistinguishability() {
 }
 
 // ---------------------------------------------------------------------------
-// T-PA1.3 — issuer lineage carries commitments, not identities
+// T-PA1.3 — issuer lineage carries no identities (V5: signed tree heads)
 // ---------------------------------------------------------------------------
 
-// OWNER-CALL: OC-1 pending — issuer public-lineage content. This run
-// implements the narrowest option (blinded commitments); the alternatives
-// (publish nothing / publish full issuance facts) are recorded in §8 of the
-// instruction and decided by no test here.
+// OWNER-CALL: PA OC-1 DECIDED (V5, 2026-07-18, owner-confirmed in chat):
+// per-epoch SIGNED TREE HEADS over keyed commitments replace the
+// per-credential public receipt pile (CT/RFC-9162 shape). Confirmation =
+// holder-stapled inclusion proofs (T-A4.12); the verifier never contacts the
+// co-op (T-A4.11); revocation = the per-epoch superseded set (T-A4.10).
+// Publication's value claim is re-graded: consistency + holder
+// self-verifiability + epoch-grain volume — never noncoercion or process
+// truth (PRIMITIVES carries the sentence).
 #[test]
 fn issuer_lineage_carries_commitments_not_identities() {
     let w = AnchorWorld::new();
@@ -299,7 +303,7 @@ fn issuer_lineage_carries_commitments_not_identities() {
             derived_seed("t-pa1-3", 0, k as u64),
         ));
     }
-    let record = state.close_epoch(&w.coop);
+    let head = state.close_epoch(&w.coop);
     let lineage = state.lineage_bytes();
 
     // No subject persona identifier — raw or derived — appears in lineage.
@@ -310,24 +314,25 @@ fn issuer_lineage_carries_commitments_not_identities() {
             "derived persona value in issuer lineage"
         );
     }
-    // Nor any credential object id (commitments are salted — an observer who
-    // has the persona's published credential still cannot locate it in the
-    // lineage).
+    // Nor any credential object id (commitments are KEYED, V5 — an observer
+    // who has the persona's published credential still cannot locate or even
+    // confirm it against the public surface; T-A4.8 pins the dictionary
+    // resistance).
     for out in &published {
         for env in &out.credentials {
             assert!(
                 !contains_subslice(&lineage, &env.object_id().0),
-                "unblinded credential id in issuer lineage"
+                "unkeyed credential id in issuer lineage"
             );
             assert!(
                 !contains_subslice(&lineage, blake3::hash(&env.object_id().0).as_bytes()),
-                "unsalted credential hash in issuer lineage"
+                "derived credential hash in issuer lineage"
             );
         }
     }
-    // The epoch record accounts for every issuance: 4 personas × 2 predicates.
-    assert_eq!(record.declared_total, 8);
-    assert_eq!(record.commitments.len(), 8);
+    // The head accounts for every issuance at epoch grain: 4 personas × 2
+    // predicates — a leaf COUNT, never a per-credential list (T-A4.6).
+    assert_eq!(head.leaf_count, 8);
 
     // Verification needs ONLY the issuer's signature on the credential bytes
     // — the function takes no registry, no lineage, no state.
@@ -345,71 +350,14 @@ fn issuer_lineage_carries_commitments_not_identities() {
 }
 
 // ---------------------------------------------------------------------------
-// T-PA1.4 — commitment fold is unordered per epoch
+// T-PA1.4 — REPLACED (old → new): the per-epoch unordered commitment fold
+// went with the receipt pile (V5). Its successor is T-A4.7
+// `leaves_canonical_by_commitment` (`t_a4_issuer_tree.rs`): tree leaves sort
+// canonically BY COMMITMENT VALUE, so permuted mint orders produce an
+// identical published head — mint adjacency is structurally absent, the same
+// intent, now on the tree model. The PA OC-2 tag moved with it (DECIDED
+// (V6, 2026-07-18, owner-confirmed in chat) — see T-A4.7's header). The
+// honest residue stands unchanged: epoch MEMBERSHIP is still public
+// quantization (F-PA-1), which is exactly why V6 makes ceremony spacing the
+// user's informed choice.
 // ---------------------------------------------------------------------------
-
-// OWNER-CALL: OC-2 pending — sibling-batching mitigation. This run implements
-// unordered per-epoch commitment folds; ceremony-spacing policy (or both) is
-// an owner call. NOTE the honest residue: epoch MEMBERSHIP is still public
-// quantization — the anonymity set of "minted in epoch E" is everyone minted
-// in E (recorded in FINDINGS).
-#[test]
-fn commitment_fold_is_unordered_per_epoch() {
-    let w = AnchorWorld::new();
-    let sibs = [&w.p1a, &w.p1b, &w.p1c];
-    let strangers: Vec<PersonaFixture> = (0..4)
-        .map(|i| PersonaFixture::new("S", Holder("HS"), derived_seed("t-pa1-4-s", 9, i), false))
-        .collect();
-
-    // The same mint SET in two different call orders (siblings batched first
-    // vs interleaved), same per-subject entropy: the closed epoch's public
-    // lineage must be byte-identical — within an epoch there IS no order.
-    let run = |order: &[usize]| -> Vec<u8> {
-        let mut state = IssuerState::new(u32::MAX);
-        for &k in order {
-            let (subject, holder): (&PersonaFixture, &Holder) = if k < 3 {
-                (sibs[k], &w.h1)
-            } else {
-                (&strangers[k - 3], &Holder("HS"))
-            };
-            mint_anchor(
-                &mut state,
-                &w.coop,
-                holder,
-                subject,
-                &[PredicateKind::VettedHolder],
-                derived_seed("t-pa1-4-e", 0, k as u64),
-            );
-        }
-        state.close_epoch(&w.coop);
-        state.lineage_bytes()
-    };
-
-    let batched = run(&[0, 1, 2, 3, 4, 5, 6]);
-    let interleaved = run(&[3, 0, 4, 5, 1, 6, 2]);
-    assert_eq!(
-        batched, interleaved,
-        "epoch lineage must not depend on mint order — adjacency cannot exist"
-    );
-
-    // And the serialized commitment order is canonical (byte-ascending), i.e.
-    // computed from the commitment values alone, never from ceremony order.
-    let mut state = IssuerState::new(u32::MAX);
-    for k in 0..7usize {
-        let (subject, holder): (&PersonaFixture, &Holder) =
-            if k < 3 { (sibs[k], &w.h1) } else { (&strangers[k - 3], &Holder("HS")) };
-        mint_anchor(
-            &mut state,
-            &w.coop,
-            holder,
-            subject,
-            &[PredicateKind::VettedHolder],
-            derived_seed("t-pa1-4-e", 0, k as u64),
-        );
-    }
-    let record = state.close_epoch(&w.coop);
-    let listed: Vec<[u8; 32]> = record.commitments.iter().copied().collect();
-    let mut sorted = listed.clone();
-    sorted.sort();
-    assert_eq!(listed, sorted, "commitments fold as an unordered (canonically sorted) set");
-}

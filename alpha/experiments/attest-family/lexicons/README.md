@@ -1,9 +1,15 @@
 # attest-family draft lexicons — DRAFT, NON-NORMATIVE
 
-Status: **DRAFT** (RUN-ATTEST-03 Part B.2). These are sketches, not shipped
-schemas: the crate's canonical dag-cbor (`src/canonical.rs`) remains the source
-of truth, and nothing consumes these files at runtime except the `atproto_map`
-mapping spike (T-A3.7/T-A3.8), which mirrors their shapes in pure code.
+Status: **DRAFT** (RUN-ATTEST-03 Part B.2; revised RUN-ATTEST-04 B.4). These
+are sketches, not shipped schemas: the crate's canonical dag-cbor
+(`src/canonical.rs`) remains the source of truth, and nothing consumes these
+files at runtime except the `atproto_map` mapping spike (T-A3.7/T-A3.8), which
+mirrors their shapes in pure code.
+
+V5 revision (RUN-ATTEST-04): `ing.croft.attest.treeHead` supersedes
+`ing.croft.attest.commitmentEpoch` (kept visible, marked superseded — never
+deleted); `credential` gains the required `era` anchor (era-graded membership,
+V6/era-reissue).
 
 Design rules carried into the schemas:
 
