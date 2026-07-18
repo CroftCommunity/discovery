@@ -13,6 +13,9 @@ beta/drystone-spec/proposed-changes-2026-07-experiment-reconciliation.md
 (RUN-16 update) with a reviews-log row — the reviewed spec (part-*, conventions)
 is untouched.`
 
+Companion: [PUBLICATIONS.md](PUBLICATIONS.md) — the publications positioning (what vanilla
+atproto proves natively, the degeneration principle, the subscriber reframe; RUN-18).
+
 ---
 
 # SECTION A — THE MODEL (canonical text)
@@ -48,6 +51,18 @@ The familiar shapes are coordinates: open forum (open/open), newsletter (open/si
 announcement channel (gated/named-set), working group (gated/members), sealed circle
 (sealed/members). The catalogue displays both fields; the same gate enforces both, at serve
 time and at relay time (A.8).
+
+**Reception completeness for write-restricted scopes.** In `single` and `named-set`
+scopes, authors MUST chain their envelopes: each envelope carries the
+author's previous envelope in its antecedents. Any reader holding envelope N can then
+verify the complete stream N-1..1 exists, detect any gap as a known omission, and retrieve
+it via interval backfill from any role or peer — a subscriber's completeness is verifiable
+from public data alone, and open enrollment never weakens it (verification requires
+no standing, only the envelopes). The honest limit, per the completeness-ahead doctrine: a
+withheld TAIL is undetectable until anything newer arrives by any path; multimodal delivery
+(DS plus optional swarm) is the mitigation, and freshness/solicitation posture remains a
+governed dial, never a mechanism that closes the limit. Delivery is best-effort;
+DETECTION of incompleteness up to the newest held envelope is the guarantee.
 
 ## A.3 Membership facts (gated tier; the open and sealed tiers are its degenerate and augmented forms)
 
@@ -234,7 +249,9 @@ survival rule for an open topic: VALIDATE BEFORE RELAY — peers verify each env
 (signature vs DID doc; roster and write policy at the causal position) before re-gossiping
 and drop invalid envelopes unpropagated, so every peer is a filter and spam dies one hop from
 source. Dedup across DS and swarm is the A.5 envelope hash; the convergence role stitches the
-sets.
+sets. For write-restricted scopes the second path also carries the A.2 reception guarantee's
+mitigation: any envelope arriving by swarm converts a withheld tail from silent to detected
+(the reader's chain check sees the newer envelope and names everything missing behind it).
 
 **Steward governance is a ship in the night with one planned crossing.** Deliberation stays
 sealed on the overlay (small, private, IP-shielded by relays). Verdicts become public by the
@@ -258,7 +275,7 @@ bridge; native apps are the sane vessel for that tier for now).
 | Canonical server state | none | roster/op archive (+ Variant A scope key) | ciphertext store, blind |
 | Removal semantics | self only; no expulsion | 403-when-seen, causal cut | cryptographic, next epoch |
 | Transport | web-direct (QUIC/WebTransport); swarm optional for native clients | same | iroh overlay + relays; DS/convergence roles optional |
-| History access | public | membership-interval backfill | interval-scoped offering; decryption bounded by held keys |
+| History access | public (reception completeness per A.2 in write-restricted scopes) | membership-interval backfill (same A.2 guarantee where writes are restricted) | interval-scoped offering; decryption bounded by held keys |
 | Practical ceiling | delivery economics | delivery economics | low hundreds (churn + no-arbiter adjudication) |
 
 Tier transitions are re-plants under an unchanged lineage (same genesis, stewards, roster

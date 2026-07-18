@@ -41,6 +41,8 @@ the RUN-16 model sections. Measured scale numbers are in
 | `src/roles.rs` · `src/bin/{ds,swarm_peer,convergence}.rs` | P8 | reconciliation, interval backfill, three co-hosted processes (`make roles-up`) |
 | `src/scale.rs` · `src/bin/measure.rs` | P9 | 100k roster, log-N inclusion proof, verify throughput, churn curve |
 | `steward-seal/` | P6 | real MLS steward group (openmls via croft-group `group-seal`): sealed reasoning → public verdict |
+| `src/chain.rs` (+ `fold`/`relay` extensions) | B1–B5 (RUN-18) | per-author chaining in write-restricted scopes: chain heads + genesis anchors in the fold, the relay `Unchained` check, the reader-side detector (gap detection, the `complete as of` claim, three-way existence classification, the vanilla contrast) |
+| `src/audit.rs` | B6 (RUN-18) | auditable reach: independent refold of the served roster count; unsupported assertions detected |
 
 ## Run it
 
@@ -62,3 +64,15 @@ cd steward-seal && cargo test   # P6 real-MLS half (compiles openmls once)
 
 Every stand-in is a greppable `SPEC-DELTA[run17-…]` tag at its site and a row in
 [`../SPEC-DIVERGENCE-REGISTER.md`](../SPEC-DIVERGENCE-REGISTER.md).
+
+## RUN-18 extension — reception completeness + auditable reach (B1–B6)
+
+The crate now also proves the GROUPS.md A.2 reception paragraph and the
+PUBLICATIONS.md delta table (`../RUN-18-SUMMARY.md` for the red→green table):
+**B1** chaining validation (fold + relay), **B2** gap detection/repair from the
+chain alone, **B3** the honest tail claim (`complete as of <newest held>`,
+never currency; the swarm path advances it), **B4** chaining × interval
+composition, **B5** the never-existed / retracted / withheld three-way
+distinction with the vanilla current-state contrast (live deletion BLOCKED,
+`SPEC-DELTA[run18-retraction-local | stand-in]`), **B6** auditable reach.
+All component grade; `cargo test` runs them with the P-suite.

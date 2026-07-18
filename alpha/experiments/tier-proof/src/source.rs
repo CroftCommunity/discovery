@@ -73,6 +73,33 @@ pub fn live_open_tier_leg() -> LiveLeg {
     }
 }
 
+/// Probe the live retraction leg (RUN-18 B5) without pretending. With
+/// `ATP_TEST_*` credentials the middle-issue deletion runs against the real
+/// PDS (a record `delete`, upgrading B5 to live grade); absent them the
+/// harness's authenticated delete event stands in —
+/// `SPEC-DELTA[run18-retraction-local | stand-in]` — and this reports
+/// [`LiveLeg::Blocked`] (guardrail 4: BLOCKED beats pretended).
+#[must_use]
+pub fn live_retraction_leg() -> LiveLeg {
+    let handle = std::env::var("ATP_TEST_HANDLE")
+        .ok()
+        .filter(|s| !s.is_empty());
+    let pass = std::env::var("ATP_TEST_PASSWORD")
+        .ok()
+        .filter(|s| !s.is_empty());
+    match (handle, pass) {
+        (Some(_), Some(_)) => LiveLeg::Ran {
+            detail: "ATP_TEST credentials present; the live record deletion may run".to_string(),
+        },
+        _ => LiveLeg::Blocked {
+            reason: "ATP_TEST_HANDLE/ATP_TEST_PASSWORD not set: live retraction leg not run \
+                     (guardrail 4: BLOCKED beats pretended); the harness delete event stands in \
+                     (SPEC-DELTA[run18-retraction-local | stand-in])"
+                .to_string(),
+        },
+    }
+}
+
 /// An ordered in-memory event log standing in for a live firehose.
 #[derive(Debug, Default, Clone)]
 pub struct MemSource {
