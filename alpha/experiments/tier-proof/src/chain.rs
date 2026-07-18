@@ -15,6 +15,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::envelope::Envelope;
 use crate::records::{self, Record};
+use crate::source::SourceEvent;
 
 /// What the chain's shape says about a held set of envelopes.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -113,4 +114,70 @@ pub fn detect(genesis_id: &str, scope: &str, author: &str, held: &[Envelope]) ->
         missing,
         anchored,
     }
+}
+
+/// What a reader can say about an identity's existence (RUN-18 B5; the
+/// tamper-evident-history delta, PUBLICATIONS.md §4). The three-way
+/// distinction lives in the absent-content variants.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Existence {
+    /// The reader holds the envelope; nothing is absent.
+    Held,
+    /// No held chain references the identity: it never existed, as far as any
+    /// chain can attest.
+    NeverExisted,
+    /// The chain references the identity AND its deletion is verifiable at
+    /// source (an authenticated delete by the chain author). Content gone,
+    /// existence provable — retraction is possible, but never silent.
+    Retracted,
+    /// The chain references the identity, no reached source offers it, and
+    /// deletion cannot be shown. Withheld — from this reader, at this moment.
+    WithheldFromMe,
+}
+
+/// Classify an identity's existence for `author`'s chain in `scope`, from the
+/// reader's `held` set plus the `source_view` the reader checked for
+/// authenticated deletions (the author's repo event stream; at component
+/// grade the harness's delete events stand in for the signed repo tree —
+/// `SPEC-DELTA[run18-retraction-local | stand-in]`).
+#[must_use]
+pub fn classify_existence(
+    scope: &str,
+    author: &str,
+    id: &str,
+    held: &[Envelope],
+    source_view: &[SourceEvent],
+) -> Existence {
+    let report = detect("", scope, author, held);
+    if held.iter().any(|e| e.identity_hex() == id) {
+        return Existence::Held;
+    }
+    if !report.missing.iter().any(|m| m == id) {
+        return Existence::NeverExisted;
+    }
+    let deleted_at_source = source_view.iter().any(|ev| {
+        matches!(ev, SourceEvent::Delete { author: a, target } if a == author && target == id)
+    });
+    if deleted_at_source {
+        Existence::Retracted
+    } else {
+        Existence::WithheldFromMe
+    }
+}
+
+/// The vanilla current-state check: is the record identified by `id` present
+/// in the repo's CURRENT state (put and not since deleted)? This is what the
+/// bare substrate proves — tamper-FREE but memoryless: a retracted record and
+/// a never-existed one are the same absence here (the contrast B5 asserts).
+#[must_use]
+pub fn vanilla_present(events: &[SourceEvent], id: &str) -> bool {
+    let mut present = false;
+    for ev in events {
+        match ev {
+            SourceEvent::Put(env) if env.identity_hex() == id => present = true,
+            SourceEvent::Delete { target, .. } if target == id => present = false,
+            _ => {}
+        }
+    }
+    present
 }
