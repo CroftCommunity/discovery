@@ -1,0 +1,28 @@
+# blind-ds — RUN-19 P4: the content-blind Delivery Service over REAL QUIC
+# (WebTransport). Extends the DS role (GROUPS.md A.7) with the EXP-B
+# offer-gating pattern: stores OPAQUE ciphertext, gates offering by roster,
+# holds no ordering or membership authority, and — the compilation-boundary
+# blindness claim — its NORMAL dependency graph contains no seal/unseal
+# capability (`cargo tree -p blind-ds -e normal`: no openmls, no group-seal;
+# the crates below are transport + codec only). Sealed traffic appears here
+# only as bytes produced elsewhere; the dev-dependencies (tests) drive it
+# with real MLS ciphertext but are NOT part of the shipped graph.
+[package]
+name = "blind-ds"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[dependencies]
+ds-proto = { path = "../ds-proto" }
+serde_json = "1"
+tokio.workspace = true
+wtransport.workspace = true
+hex = "0.4"
+
+[dev-dependencies]
+# Test-only: the matrix drives the DS with real sealed frames + the client.
+ds-client = { path = "../ds-client" }
+group-seal.workspace = true
+group-core.workspace = true
+seal-wire = { path = "../seal-wire" }
