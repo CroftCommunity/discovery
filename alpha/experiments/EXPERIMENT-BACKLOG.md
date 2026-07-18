@@ -413,6 +413,25 @@ Phase 1 built and validated entirely in `appview-infra/` (`RUN-15-SUMMARY.md`). 
 
 ---
 
+## 6d. The group tier model (RUN-16)
+
+The canonical group tier model (`alpha/experiments/appview-infra/GROUPS.md` v2, Section A) restates the
+group design as **one lineage / one envelope / one delivery plane / one catalogue**, with the tier
+expressed as two independent policy axes (membership `open`|`gated`|`sealed`; write
+`open`|`members`|`named-set`|`single`). It is a docs-and-registers landing; the rows below carry what
+it opens as forward work or records as landed design. Spec-facing implications are staged, not landed
+(`proposed-changes` RUN-16 update, `needs-call`); the reviewed spec is untouched.
+
+| Item | Status | What it is / blocked on |
+|---|---|---|
+| **(a) Sealed-tier ceiling — churn-simulation experiment** | **Runnable candidate (RUN-16 shaped)** | Measure the sealed tier's practical ceiling (GROUPS.md A.9: "low hundreds — churn + no-arbiter adjudication") as an **evidence-graded curve** rather than ratifying a number by assertion. Method: a churn simulation over the **croft-group loopback harness** (no boxes) — concurrent-commit / detected-contradiction rate and human-adjudication load as functions of membership N and churn rate — producing the curve A.10(2) says should be measured before the sealed ceiling / `group_scale_boundary` is ratified. Runnable now on the loopback testbed. Blocked on: nothing external; a shaped experiment for a future run (RUN-17+). |
+| **(b) The write-policy axis** | **Landed design (RUN-16, GROUPS.md A.2)** | The second, independent policy axis — who may author into a scope (`open`|`members`|`named-set`|`single`) — orthogonal to the membership axis. The catalogue displays both fields; the same gate enforces both at serve time and relay time (A.8). No code: a design record. Enforcement realization reuses the backplane roster-lookup-at-causal-position check and the R7 admission machinery (§2 R7); nothing new is proven here. |
+| **(c) Sealed-scope helper-index rows are observation-born (taxonomy correction)** | **Landed correction (RUN-16, GROUPS.md A.7) — flagged for the kit's backup-audit** | State-taxonomy correction: index rows a **content helper** derives from **sealed** scopes are **observation-born, not projections** — forward secrecy ages the ciphertext out of decryptability, so they cannot be re-derived from any surviving canonical source the way a backplane projection can. They must therefore be classed **canonical** (a small sidecar in `state.db`) or **knowingly accepted as losable** in the scope's posture language — never silently classed `disposable` like the backplane index. Flagged for the AppView hosting kit's **backup-audit invariant** (RUN-15 D5): a sealed-helper index target must be declared canonical-with-backup or explicitly accepted-losable at audit time. Blocked on: the kit's owner picking canonical-sidecar vs accepted-losable per tenant. |
+| **(d) Self-host an iroh relay vs public relays (A.10 item 4)** | **Owner call (RUN-16)** | Whether to **self-host an iroh relay** — a service-manifest question for the AppView hosting kit (a relay is another always-on service the kit's manifests+generator could provision alongside the AppView/api units; see `appview-infra/kit` and RUN-15's service-manifest model) — or **use the public n0 relays initially**. Loads only for sealed scopes and steward governance (A.8: the overlay is loaded only by sealed scopes), so relay load scales with sealed-group count, not user count. Owner decision, not made here. |
+| **(e) History-convergence role — membership-interval backfill** | **Landed design (RUN-16, GROUPS.md A.7); mechanism pending RUN-17 proof** | The history-convergence node converges envelope sets across transports (set reconciliation over envelope hashes — the RBSR machinery, `Modeled` at loopback from RUN-12 Part 3b) and serves **backfill scoped by membership interval**: a requester who proves membership receives history from any causal point forward at which the proof holds (their intervals per A.3), and nothing earlier; in sealed scopes the node serves ciphertext only and decryption stays bounded by held keys (forward secrecy not overridden by delivery). Interval-forward is the default; widening it is a per-scope governance dial. Landed as design in A.7; the **interval-scoping-of-offering** mechanism is the new unproven piece — a shaped **RUN-17** proof (drive interval-scoped backfill over the loopback convergence harness, asserting a requester receives exactly their intervals and nothing earlier). |
+
+---
+
 ## 7. The classroom tier (docs track — not an experiment)
 
 | Item | Status | What it is / blocked on |
