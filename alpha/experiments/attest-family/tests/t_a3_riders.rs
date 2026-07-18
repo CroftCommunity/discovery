@@ -66,7 +66,11 @@ fn plumber_case_red() {
         vec![tx.object_id()],
         vouch_edge_free(w.p2.id, "would hire as plumber", "fixed the leak, fair price", d(2026, 7, 1), None),
     );
-    let state = log_from(&[tx.clone(), v.clone()]).fold();
+    // V4 churn (RUN-ATTEST-04, named): under the graded resolvability default
+    // the attester P1a opts OPEN (a deliberate policy act) so the one-off
+    // trade vouch reaches strangers — exactly the posture V4 designed for.
+    let open = w.p1a.emit(vec![], policy(w.p1a.id, PolicyRule::AllowAll, None));
+    let state = log_from(&[tx.clone(), v.clone(), open.clone()]).fold();
 
     let view = state.vouch(&v.object_id()).expect("vouch folds");
     assert_eq!(
@@ -243,6 +247,9 @@ fn grade_derives_from_kind() {
 
     let mut envs = corpus.clone();
     envs.extend([tx, cer, v_all.clone(), v_edge.clone(), v_tx.clone(), v_cer.clone()]);
+    // V4 churn (RUN-ATTEST-04, named): the attester opts OPEN so the stranger
+    // viewer P3 below still traverses the vouch under the graded default.
+    envs.push(w.p1a.emit(vec![], policy(w.p1a.id, PolicyRule::AllowAll, None)));
     let state = log_from(&envs).fold();
 
     // The multi-antecedent vouch carries the SET, in declaration order.
@@ -500,7 +507,10 @@ fn withdrawn_is_absent_not_tombstoned() {
         vec![r1.object_id()],
         review(SubjectRef::Thing(w.biz1), "plumbing", "amended take", d(2026, 6, 5), Some(r1.object_id())),
     );
-    let s = log_from(&[decl, r1.clone(), r2.clone()]).fold();
+    // V4 churn (RUN-ATTEST-04, named): the reviewer opts OPEN so the stranger
+    // viewer P2 below still traverses the review under the graded default.
+    let open = w.p1a.emit(vec![], policy(w.p1a.id, PolicyRule::AllowAll, None));
+    let s = log_from(&[decl, r1.clone(), r2.clone(), open]).fold();
     let resp = s.corroboration(&w.p2.id, &SubjectRef::Thing(w.biz1), &Scope::new("plumbing"), &dial(), as_of());
     let ids: Vec<ObjectId> = resp.entries.iter().map(|e| e.attestation).collect();
     assert_eq!(ids, vec![r2.object_id()], "only the amendment stands as an entry");

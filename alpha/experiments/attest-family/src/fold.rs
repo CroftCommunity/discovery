@@ -318,6 +318,15 @@ pub enum CredentialStatus {
 /// [`PredicateView`], the issuer IS the envelope author and the process block
 /// is inseparable. Deliberate absences (T-PA1.1): no field designates a mint
 /// position among a holder's personas — not here, not anywhere public.
+///
+/// V5/V6 era facts (T-A4.16): the fold exposes ERA FACTS ONLY — `era` (the
+/// governance anchor this credential was issued or reissued under) and
+/// `holder_requested` (whether it exists because its subject unilaterally
+/// requested a reissue). No type, field, or derivable value expresses
+/// active / lapsed / in-good-standing membership: old-era credentials are
+/// valid facts forever, re-affirmation is voluntary, and silence carries no
+/// penalty. (`status` is object supersede-lineage state — standing / pending
+/// / superseded, the T-PA3.1 antecedent rule — not member standing.)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CredentialView {
     pub object: ObjectId,
@@ -326,6 +335,11 @@ pub struct CredentialView {
     pub predicate: PredicateKind,
     pub process: ProcessProvenance,
     pub status: CredentialStatus,
+    /// Era fact: issued-under (or last-reissued-under, for a reissue head).
+    pub era: [u8; 32],
+    /// Era fact: this credential exists because its holder unilaterally
+    /// requested reissue under `era` (T-A4.14).
+    pub holder_requested: bool,
     pub lineage: Vec<ObjectId>,
 }
 
@@ -337,7 +351,9 @@ impl CredentialView {
         use ipld_core::ipld::Ipld;
         let mut m = std::collections::BTreeMap::new();
         m.insert("a".to_string(), Ipld::Bytes(self.object.0.to_vec()));
+        m.insert("e".to_string(), Ipld::Bytes(self.era.to_vec()));
         m.insert("i".to_string(), Ipld::Bytes(self.issuer.0.to_vec()));
+        m.insert("q".to_string(), Ipld::Bool(self.holder_requested));
         m.insert(
             "l".to_string(),
             Ipld::List(self.lineage.iter().map(|o| Ipld::Bytes(o.0.to_vec())).collect()),
@@ -476,14 +492,26 @@ impl AttestState {
     }
 
     /// Is `persona` resolvable to `viewer`? Governed by the NAMED party's own
-    /// policy head (T-AT4.1). Default with no policy: resolvable (stand-in
-    /// default, declared in PRIMITIVES-ATTEST.md). Self is always resolvable.
+    /// policy head (T-AT4.1). Default with no policy act on record — the
+    /// GRADED posture (V4, DECIDED 2026-07-18, replacing the resolvable-to-all
+    /// stand-in): the persona resolves exactly to the counterparts of its own
+    /// STANDING co-signed edges; strangers get cardinality only
+    /// (`mutual_connection_count`). Silence IS the graded posture — zero
+    /// configuration. Opting further open is a deliberate policy supersede
+    /// with lineage (T-A4.3). Only a standing co-signed edge grades
+    /// resolution: a review or vouch asserts experience, not relationship,
+    /// and grants none (T-A4.2). Self is always resolvable.
     pub fn resolvable(&self, viewer: &PersonaId, persona: &PersonaId) -> bool {
         if viewer == persona {
             return true;
         }
         match self.policy_head(persona) {
-            None => true,
+            None => self.edges.iter().any(|e| {
+                e.status == EdgeStatus::Established && {
+                    let parts = e.participants();
+                    parts.contains(viewer) && parts.contains(persona)
+                }
+            }),
             Some(head) => match &head.rule {
                 PolicyRule::AllowAll => true,
                 PolicyRule::AllowOnly(list) => list.contains(viewer),
@@ -965,6 +993,13 @@ impl<'a> Folder<'a> {
                 cred_envs.insert(*id, (env, c));
             }
         }
+        // V5/V6: holder-signed reissue requests, indexed by object id.
+        let mut reissue_requests: BTreeMap<ObjectId, (PersonaId, &ReissueRequest)> = BTreeMap::new();
+        for (id, env) in &self.ordered {
+            if let Payload::ReissueRequest(rr) = &env.payload {
+                reissue_requests.insert(*id, (env.author, rr));
+            }
+        }
         // Successor of a credential = the first (fold order) same-author
         // superseding object: a replacement credential or a supersede marker.
         let mut cred_successor: BTreeMap<ObjectId, (ObjectId, bool)> = BTreeMap::new();
@@ -1012,6 +1047,20 @@ impl<'a> Folder<'a> {
                 .map(|(k, (e, c))| (*k, (*e, RSup(c.supersedes))))
                 .collect::<BTreeMap<_, _>>();
             let lineage = chain_of_generic(*id, &cred_chain, &cred_successor);
+            // Era fact (T-A4.14/T-A4.16): this credential is holder-requested
+            // iff it supersedes a prior credential and cites a reissue
+            // request BY ITS OWN SUBJECT naming that prior credential under
+            // this credential's era.
+            let holder_requested = c.supersedes.is_some_and(|old| {
+                env.antecedents.iter().any(|a| {
+                    reissue_requests
+                        .get(a)
+                        .map(|(author, rr)| {
+                            *author == c.subject && rr.credential == old && rr.era_anchor == c.era
+                        })
+                        .unwrap_or(false)
+                })
+            });
             credentials.push(CredentialView {
                 object: *id,
                 issuer: env.author,
@@ -1019,6 +1068,8 @@ impl<'a> Folder<'a> {
                 predicate: c.predicate,
                 process: c.process,
                 status,
+                era: c.era,
+                holder_requested,
                 lineage,
             });
         }

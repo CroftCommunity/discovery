@@ -1,0 +1,47 @@
+{
+  "lexicon": 1,
+  "id": "ing.croft.attest.treeHead",
+  "description": "DRAFT, non-normative (RUN-ATTEST-04 B.4; V5 — supersedes ing.croft.attest.commitmentEpoch). ONE signed tree head per issuer epoch (CT/RFC-9162 shape): a Merkle root over KEYED commitments key_e-HMAC'd from credential ids, leaves in canonical order by commitment value (mint adjacency structurally absent, T-A4.7), the leaf count, the superseded-set root, and the governance-era anchor (issuer operational time IS governance time — the era spine, V6). Nothing per-credential is published (T-A4.6); confirmation is holder-STAPLED inclusion proofs verified by a pure function — the verifier never contacts the issuer (T-A4.11/T-A4.12); revocation is the per-epoch superseded set (T-A4.10). Publication proves consistency, holder self-verifiability, and epoch-grain volume; it cannot and does not prove noncoercion or that vetting truly happened. The epoch number and leaf count are the ONLY numerics. The repo commit signature covers the record, replacing the crate's detached head signature.",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["epochNo", "eraAnchor", "leafCount", "root", "superseded", "supersededRoot"],
+        "properties": {
+          "epochNo": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Contiguous from 1; a gap fails the head audit (T-A4.13)."
+          },
+          "eraAnchor": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "The governance-lineage fact opening this era — an era'd governance fact of the co-op's own group. Era references are contiguous: a left era never reappears (T-A4.13)."
+          },
+          "leafCount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Era-cumulative leaf count — epoch-grain volume, never regressing within an era (T-A4.13). A count, never a partition (T-PA3.3's rule carried over)."
+          },
+          "root": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "Merkle root over the era's keyed commitments in canonical (byte-ascending) order — computed from commitment values alone, never from mint order (T-A4.7)."
+          },
+          "superseded": {
+            "type": "array",
+            "items": { "type": "bytes", "maxLength": 32 },
+            "description": "The era's superseded commitments (keyed — an outsider cannot join them to credentials, T-A4.8), published beside the head; a superseded credential cannot staple a fresh-head proof (T-A4.10)."
+          },
+          "supersededRoot": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "Digest of the canonical superseded-set encoding; inside the signed portion, so the published set cannot be quietly thinned (T-A4.13)."
+          }
+        }
+      }
+    }
+  }
+}

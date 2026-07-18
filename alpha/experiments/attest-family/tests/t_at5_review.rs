@@ -17,7 +17,10 @@ fn d(y: u16, m: u8, day: u8) -> DateClaim {
     DateClaim::new(y, m, day)
 }
 
-/// BIZ1 (controller P3), one review by P1a.
+/// BIZ1 (controller P3), one review by P1a. V4 churn (RUN-ATTEST-04, named):
+/// under the graded resolvability default the reviewer P1a opts OPEN (a
+/// deliberate policy act) so third-party viewers still traverse the review —
+/// the fixture posture for a public reviewer.
 fn fixture() -> (World, Vec<Envelope>, ObjectId) {
     let w = World::new();
     let decl = w.p3.emit(vec![], thing_decl(w.biz1, ThingKind::Business, w.p3.id));
@@ -25,8 +28,9 @@ fn fixture() -> (World, Vec<Envelope>, ObjectId) {
         vec![],
         review(SubjectRef::Thing(w.biz1), "plumbing", "showed up late, fixed it well", d(2026, 6, 1), None),
     );
+    let open = w.p1a.emit(vec![], policy(w.p1a.id, PolicyRule::AllowAll, None));
     let rv_id = rv.object_id();
-    (w, vec![decl, rv], rv_id)
+    (w, vec![decl, rv, open], rv_id)
 }
 
 // ---------------------------------------------------------------------------
@@ -208,7 +212,11 @@ fn freshness_is_presentation() {
         vec![],
         review(SubjectRef::Thing(w.biz1), "plumbing", "last week: fine", d(2026, 7, 10), None),
     );
-    let state = log_from(&[decl, old.clone(), fresh.clone()]).fold();
+    // V4 churn (RUN-ATTEST-04, named): both reviewers opt OPEN so the
+    // stranger viewer P3 traverses them under the graded default.
+    let open_a = w.p1a.emit(vec![], policy(w.p1a.id, PolicyRule::AllowAll, None));
+    let open_b = w.p2.emit(vec![], policy(w.p2.id, PolicyRule::AllowAll, None));
+    let state = log_from(&[decl, old.clone(), fresh.clone(), open_a, open_b]).fold();
 
     let dial = FreshnessDial { stale_after_days: 90 };
     let resp = state.corroboration(

@@ -1,8 +1,13 @@
 # PRIMITIVES-ATTEST — the attestation family's primitive language
 
-`Status: DRAFT-PENDING (living doc, alpha side). Landed by RUN-ATTEST-01 next to the
-attest-family experiment crate. Where this graduates (beta spec section vs alpha living
-doc) is OC-1 — an owner call, not made by this run.`
+`Status: DRAFT (living doc, alpha side). Landed by RUN-ATTEST-01 next to the
+attest-family experiment crate. Home DECIDED (V10, 2026-07-18, owner-confirmed
+in chat): this document stays in alpha beside the crate. GRADUATION TRIGGER
+(named condition): it graduates to the beta spec tree at the attest lane's
+RELEASE PASS, defined as (a) the RUN-ATTEST-04 settlement rider landed, (b)
+grades re-evaluated, (c) the lexicon drafts promoted or explicitly versioned.
+No thin beta summary is ever created — one design, one document (the fold_auth
+lesson).`
 
 The model in one paragraph: there is **one attestation family** with two axes.
 **Subject type**: persona, or thing (business, product, work). **Consent mode**:
@@ -46,7 +51,9 @@ Each term: one sentence of definition, one sentence of what it is NOT.
 - **antecedent kind** — The closed class of provenance mechanisms that can stand a
   vouch up: `co_signed_edge` (bidirectional trust bound), `transaction`, and
   `ceremony` (unidirectional bounds), closed at the compile boundary and governed
-  as a quorum register on the reused R7 machinery. It is NOT an open vocabulary
+  as a quorum register on the reused R7 machinery. (Quorum note, V7:
+  **governance counts member handles — one per vetted ID at the group's own
+  chosen vetting level; personas sign.**) It is NOT an open vocabulary
   (no string escape hatch — adding a kind is a source change; widening the
   qualifying list is a quorum act with lineage, not a code edit), and it is NOT a
   grade — each kind merely maps to one (`edge_backed`, `transaction_backed`,
@@ -102,6 +109,21 @@ Each term: one sentence of definition, one sentence of what it is NOT.
   unresolvable attester's attestation is absent from responses, not redacted-but-
   counted. (evidence: T-AT4.1, T-AT4.2, T-AT3.3, RUN-ATTEST-01, Modeled)
 
+- **graded resolvability default (V4)** — With no policy act ever taken, a persona
+  resolves exactly to the counterparts of its own STANDING co-signed edges; every
+  other viewer receives cardinality only (the mutual count is the stranger-facing
+  tier), and silence IS the graded posture — zero configuration. It is NOT
+  resolvable-to-all (the retired RUN-ATTEST-01 stand-in) and NOT a publication
+  gate: OPEN is a deliberate, reversible per-persona policy supersede with lineage
+  (the motivating case: workplace personas for reading structure); reviews assert
+  experience, not relationship — a review grants no resolution, and public-tier
+  discoverability of published records is untouched by this Drystone-tier
+  traversal default. This default and the CONTACT.md contact-policy family are
+  siblings — per-scope consent dials where silence renders pending, never assent;
+  a stranger who wants more than cardinality has a lawful path, and it is the
+  knock. (evidence: T-A4.1–T-A4.5, RUN-ATTEST-04, V4 DECIDED (2026-07-18,
+  owner-confirmed in chat), Modeled)
+
 ### Anchor-persona vocabulary (RUN-ATTEST-02)
 
 - **anchor persona** — A holder-controlled persona root keypair carrying a
@@ -130,25 +152,62 @@ Each term: one sentence of definition, one sentence of what it is NOT.
   derivable value answers whether two personas share a holder. (evidence:
   T-PA5.3, RUN-ATTEST-02, Modeled)
 
-- **`sole_anchor(context)`** — A vocabulary-only, scope-bound predicate for
-  contexts that genuinely require one-persona-per-human (voting, one-account
-  promotions), deliberately reintroducing linkage WITHIN that context and
-  nowhere else. It is NOT built (OC-3 pending), and it is NOT `vetted_holder`
-  — conflating them would silently turn the reality anchor into a uniqueness
-  registry. (evidence: vocabulary only, RUN-ATTEST-02)
+- **`sole_anchor(context)`** — REJECTED (V7, 2026-07-18, owner-confirmed in
+  chat; not deferred — a recorded rejection, kept findable with its
+  reasoning, the same treatment full-issuance-facts received). The rationale
+  of record: only one-credential-per-ID yields real uniqueness and anything
+  short of that is gameable, so uniqueness is **group-local membership vetting
+  under local authority** — a co-op's quorum counts member handles,
+  one per vetted ID at its own chosen vetting level, and personas are signing
+  instruments — never a portable credential. Portable proof-of-personhood is
+  the escalation the design refuses ("eating the spider to eat the fly"); the
+  valuable, less invasive question — is one real vetted human behind this
+  persona? — is `vetted_holder`, already built. It is NOT built, will NOT be,
+  and it is NOT `vetted_holder` — conflating them would silently turn the
+  reality anchor into a uniqueness registry. (evidence: vocabulary only, RUN-ATTEST-02)
 
-- **commitment** — The issuer's only public per-issuance trace: the hash of a
-  credential id with a fresh salt, folded per epoch as an unordered set. It is
-  NOT locatable from the credential (the salt blinds it) and NOT ordered —
-  within an epoch, mint adjacency does not exist. (evidence: T-PA1.3,
-  T-PA1.4, RUN-ATTEST-02, Modeled)
+- **commitment (V5 revision)** — The keyed per-issuance value `HMAC(key_e,
+  credential_id)` under the era's confidential commitment key, existing
+  publicly only as a tree leaf behind a Merkle root (and, on supersession, in
+  a superseded set). It is NOT locatable or even confirmable from the
+  credential without the era key (dictionary-resistant, T-A4.8), and NOT
+  ordered — leaves sort canonically by commitment value, so mint adjacency
+  does not exist (T-A4.7). (evidence: T-A4.6–T-A4.8, RUN-ATTEST-04, V5
+  DECIDED (2026-07-18, owner-confirmed in chat), Modeled)
 
-- **status check** — The OCSP-shaped read-side solicitation: a verifier
-  submits a credential hash and the issuer answers current/superseded/unknown,
-  signed and deterministic, from its own assertion lineage. It is NOT a
-  registry lookup and staleness of an unanswered check is NOT a verdict — an
-  app requiring a fresh answer fails closed by ITS policy, never by protocol
-  timeout. (evidence: T-PA6.3, T-PA6.4, T-PA2.3, RUN-ATTEST-02, Modeled)
+- **tree head (V5)** — The issuer's ENTIRE per-epoch publication: ONE signed
+  head (CT/RFC-9162 shape) carrying the Merkle root over the era's keyed
+  commitments, the leaf count, the superseded-set root (set published
+  beside), and the governance-era anchor. It is NOT a receipt pile — nothing
+  per-credential is published (T-A4.6) — and its value claim is bounded:
+  publication proves consistency, holder self-verifiability, and epoch-grain
+  volume; it cannot and does not prove noncoercion or that vetting truly
+  happened — process honesty lives in governance and the covenant. Head
+  cadence is the seed-rule shape (epoch roll OR N facts, N a rule on the
+  reused R7 machinery — T-A4.9); no wall-clock input exists anywhere in the
+  pipeline. (evidence: T-A4.6, T-A4.9, T-A4.13, RUN-ATTEST-04, Modeled)
+
+- **staple (V5)** — The holder-presented confirmation replacing the status
+  check: commitment + issuer binding + inclusion proof, verified against a
+  published head by a pure function — the verifier NEVER contacts the co-op,
+  so the (verifier, subject) capture leak is structurally gone (T-A4.11,
+  T-A4.12). It is NOT a status endpoint (that machinery is deleted), and a
+  superseded credential cannot staple a fresh-head proof (T-A4.10);
+  freshness requirements remain app policy, fail-closed as always.
+  (evidence: T-A4.10–T-A4.12, RUN-ATTEST-04, Modeled)
+
+- **era-reissue (V5/V6 refinement)** — On a governance change, a holder MAY
+  request reissue under the new era with ONLY the holder signing the request;
+  the issuer's reissue supersedes the old credential, chains the ORIGINAL
+  vetting event (no new vetting antecedent — also V8's free-reissue
+  structural pin), and mints a fresh commitment under the new era key,
+  cross-era-unlinkable in the public sweep (T-A4.15). It is NOT an
+  expiry-renewal: old-era credentials are valid facts forever, re-affirmation
+  is voluntary, and silence carries no penalty. Membership is thereby
+  era-graded — "meaningful but factual": the protocol supplies the factual
+  half (issued-under, last-reissued-under, holder-requested — era facts
+  only, no standing computation, T-A4.16); meaning is human. (evidence:
+  T-A4.14–T-A4.16, RUN-ATTEST-04, Modeled)
 
 - **seam boundary** — The named type (`SeamBoundary`) holding the issuer's
   payment-bookkeeping stand-in: the ONE place where member↔anchor-count
@@ -174,6 +233,48 @@ whole-record replace, with no wall-clock anywhere.
 **transaction attestation** — the verified-purchase analog cited as antecedent for the
 `transaction_backed` grade; a fixture fact in this run, no payment rail (§3 stand-in).
 
+The era-anchoring frame (V6, RUN-ATTEST-04): **the co-op is literally a
+Drystone group — its governance lineage is the era spine; issuer epochs, key
+rotations, and register changes are era'd governance facts; its co-signed tree
+heads are horizon checkpoints of its own group.** Issuer operational time is
+governance time; no other clock exists. And the sibling-batching posture (V6):
+**ceremony spacing is the user's informed choice — the co-op informs ("minting
+sibling personas in one sitting clusters them in the PLC log and shares an
+epoch") and honors either choice without friction**; the ledger itself already
+publishes nothing finer than epoch grain (T-A4.6/T-A4.7), so spacing is
+guidance, never a mechanism. (evidence: T-A4.7, T-A4.9, RUN-ATTEST-04, V6
+DECIDED (2026-07-18, owner-confirmed in chat), Modeled)
+
+The fee posture (V8, RUN-ATTEST-04): fees have **no protocol surface** — they
+are co-op policy. The fee attaches to the **vetting event and the mint act**
+(the seam and dial, T-PA3.2); **era-reissues are free**, and the freedom is
+structural, not policy: a reissue requires no new vetting antecedent and never
+reaches the mint seam (T-A4.14). Guidance of record: publish the fee schedule
+in the co-op's own governance lineage (the same era spine); bootstrap with a
+simple generous offering — third-party or light-tier vetting is honest because
+process provenance names the mechanism, and re-vet + reissue upgrades later.
+(evidence: T-A4.14, T-PA3.2, RUN-ATTEST-04, V8 DECIDED (2026-07-18,
+owner-confirmed in chat), Modeled)
+
+The graduated ordering rule (V9, RUN-ATTEST-04, generalizing F-PA-3): **any
+monotonic, published, infrastructure-side ordering is a correlator;
+infrastructure publishes at era grain or not at all.** F-PA-3 (FINDINGS.md)
+discovered the rule's first instance — a per-mint lamport counter republishing
+mint order through a side field — and stays untouched as the finding of
+record; this is its graduation into the primitive language. Instances now
+governed by it: mint lamports are epoch-coarse (F-PA-3), tree leaves sort by
+commitment value (T-A4.7), heads publish at epoch grain under era anchors
+(T-A4.6), and the PLC-timing practice family (F-AT-6). (evidence: F-PA-3,
+F-AT-6, T-A4.6/T-A4.7, RUN-ATTEST-04, V9 DECIDED (2026-07-18, owner-confirmed
+in chat))
+
+Cross-encoder identity (the RUN-ATTEST-03 audit's owed sentence, landed here
+and cross-referenced from ATTEST-ATPROTO-MATCHUP.md row 2): **the crate's
+canonical dag-cbor form is the source of truth for core hashes; lexicon
+records embed core content rather than crate-computed hashes, so no
+cross-encoder hash equality is ever required; atproto CIDs are locators,
+never joins.**
+
 ## Declared stand-ins (RUN-ATTEST-01 §3, RUN-ATTEST-02 §3)
 
 Personas are fixture Ed25519 keypairs (no DID/atproto — §9 non-goal). The
@@ -185,17 +286,31 @@ posture. RUN-ATTEST-02 adds: the vetting event is a fixture fact (no real vettin
 the payment bookkeeping is the `SeamBoundary` stand-in (no payment rail); the
 holder↔persona linkage lives only in fixture bookkeeping; the anchor-count dial
 register reuses the substrate's rule_key 0 (`add_member_threshold`) as a declared
-reinterpretation, alongside T-AT6.4's rule_key 1 covenant register. RUN-ATTEST-03
+reinterpretation, alongside T-AT6.4's rule_key 1 covenant register. The
+resolvable-to-all default flagged as a stand-in in the RUN-ATTEST-01 deviation
+note (that note is frozen; this pointer is the live record) is RETIRED — DECIDED
+(V4, 2026-07-18, owner-confirmed in chat): the default is now the graded posture
+(see **graded resolvability default** above; T-A4.1's red was captured against
+the old default). RUN-ATTEST-03
 adds: the qualifying-antecedent-kind register reuses rule_key 2
 (`role_change_threshold`) as a declared reinterpretation (bitmask; 7 = the full V1
 class), and the crate's fold only mirrors the folded value
-(`AntecedentRegister`), never governs it.
+(`AntecedentRegister`), never governs it. RUN-ATTEST-04 adds: the issuer's
+confidential commitment secret is a fixture constant (`coop_secret`); the era
+key derivation `key_e = KDF(coop_secret, era_anchor_e)` is a MODELED choice
+flagged owner-revisitable in-code (not an OC); the genesis era anchor is a
+fixture constant standing in for the governance fact that opened the co-op's
+first era; and the head-cadence register reuses rule_key 0 within the co-op's
+own ISSUER-OPERATIONS group (a distinct fixture GroupId — the era-spine group)
+as a declared reinterpretation, mirrored via `set_cadence` (T-A4.9).
 
 ## Owner calls (RUN-ATTEST-01 series)
 
-- **OC-1** — where this document graduates (alpha living doc vs beta spec section).
-  STILL OPEN — the 2026-07-18 walk is paused before this item; it resumes in
-  conversation, not in a run.
+- **OC-1** — DECIDED (V10, 2026-07-18, owner-confirmed in chat): this document
+  stays in alpha beside the crate; the graduation trigger is the NAMED
+  condition in this document's header (the attest lane's release pass). No
+  thin beta summary is ever created — one design, one document (the fold_auth
+  lesson).
 - **OC-2** — DECIDED (V1, 2026-07-18, owner-confirmed in chat): option B — a vouch
   requires a qualifying antecedent from a **closed class** (co-signed edge,
   transaction attestation, or ceremony fact), not an edge specifically. Rationale
@@ -214,16 +329,29 @@ class), and the crate's fold only mirrors the folded value
   MLS-group-of-one), never as a fourth public consent mode. Zero tests remains the
   deliberate statement.
 
-RUN-ATTEST-02 owner calls (its §8 numbering; tagged at their test sites):
+RUN-ATTEST-02 owner calls (its §8 numbering; tagged at their test sites) —
+ALL DECIDED by the 2026-07-18 walk (RUN-ATTEST-04 settlement; zero pending
+OWNER-CALL tags remain in the attest lane):
 
-- **OC-1 (PA)** — issuer public-lineage content: blinded commitments
-  (implemented, narrowest; tag at T-PA1.3) vs publishing nothing vs full
-  issuance facts (the recorded rejected pole).
-- **OC-2 (PA)** — sibling-batching mitigation: unordered per-epoch commitment
-  folds (implemented; tag at T-PA1.4) vs ceremony-spacing policy vs both. The
-  epoch-membership residue is F-PA-1's last bullet.
-- **OC-3 (PA)** — whether `sole_anchor(context)` ever ships, and which
-  contexts justify deliberate intra-context linkage (tag at T-PA5.3; NOT
-  built).
-- **OC-4 (PA)** — fee semantics: flat per-anchor vs vetting-tier pricing;
-  pure policy over the T-PA3.2 dial, no protocol impact (tag at T-PA3.2).
+- **OC-1 (PA)** — DECIDED (V5, 2026-07-18, owner-confirmed in chat):
+  per-epoch signed tree heads over keyed commitments replace the
+  per-credential receipt pile; confirmation = holder-stapled inclusion
+  proofs (the verifier never contacts the co-op); revocation = the per-epoch
+  superseded set; the publication value claim re-graded (consistency +
+  self-verifiability + epoch-grain volume, never noncoercion or process
+  truth). Tag at T-PA1.3; settled by T-A4.6–T-A4.13.
+- **OC-2 (PA)** — DECIDED (V6, 2026-07-18, owner-confirmed in chat): ledger
+  posture inherited from V5 (canonical-order leaves, epoch grain, nothing
+  finer); ceremony spacing is USER GUIDANCE (the co-op informs and honors
+  either choice); plus the era-anchoring move — issuer operational time is
+  governance time. Tag moved with T-PA1.4's successor T-A4.7; the
+  epoch-membership residue stays F-PA-1's last bullet.
+- **OC-3 (PA)** — DECIDED (V7, 2026-07-18, owner-confirmed in chat):
+  `sole_anchor(context)` REJECTED, not deferred — see the recorded rejection
+  in the vocabulary above. Tag at T-PA5.3, whose unaskable pin now stands
+  unqualified.
+- **OC-4 (PA)** — DECIDED (V8, 2026-07-18, owner-confirmed in chat): fee
+  semantics have no protocol surface; the fee attaches to the vetting event
+  and the mint act; era-reissues are free (structural pin: T-A4.14);
+  schedule published in the co-op's own governance lineage; bootstrap with a
+  simple generous offering. Tag at T-PA3.2.

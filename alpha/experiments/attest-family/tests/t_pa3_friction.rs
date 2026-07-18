@@ -124,10 +124,29 @@ fn no_credential_without_vetting_antecedent() {
     // operation fails this test until reviewed.
     let allowlist: std::collections::BTreeSet<&str> = [
         // issuer state + protocol
-        "new", "set_dial", "dial", "close_epoch", "lineage_bytes", "status_check",
+        "new", "set_dial", "dial", "close_epoch", "lineage_bytes",
         "supersede", "mint", "from_seed", "as_str",
-        // verifier side
-        "verify_credential", "verify_status_response", "verifier_accepts", "audit_lineage",
+        // RUN-ATTEST-04 (reviewed, the F-AT-4 flow): the V5/V6 tree-head
+        // surface. `set_cadence`/`cadence` mirror the R7-governed head
+        // cadence exactly as `set_dial` mirrors the anchor dial (T-A4.9) —
+        // standing input by quorum only. `era`/`genesis_era`/`roll_era` are
+        // era-fact plumbing: an era anchor is a governance-lineage fact, and
+        // rolling can only OPEN a new era (nothing is removed, hidden, or
+        // demoted; old-era heads stay published). `holder_proof`/
+        // `holder_staple` are the HOLDER channel: keyed by the commitment
+        // only the holder and issuer know — no subject parameter, no
+        // verifier query shape (T-A4.11). `reissue` is holder-request-gated
+        // (refuses non-holder signatures), touches neither seam nor dial
+        // (T-A4.14), and cannot stand a credential up without its chained
+        // original vetting antecedent — the fold, not the issuer, judges
+        // standing.
+        "set_cadence", "cadence", "era", "genesis_era", "roll_era",
+        "holder_proof", "holder_staple", "reissue",
+        // verifier side (RUN-ATTEST-04 reviewed): all PURE functions over
+        // bytes — no state parameter exists, so no operation can suppress,
+        // and no issuer contact exists to leak (verifier, subject).
+        "verify_credential", "verify_tree_head", "verify_inclusion", "verify_staple",
+        "verifier_accepts", "audit_heads",
         // serializations
         "to_ipld", "to_canonical_bytes",
         // measurement harness
@@ -224,20 +243,21 @@ fn member_anchor_count_not_public() {
     );
 
     // And commitment counts are total-only: the lineage's only numeric leaves
-    // are epoch numbers and declared totals — nothing per-member exists.
+    // are epoch numbers and leaf counts (the V5 head shape) — nothing
+    // per-member exists.
     let v: Ipld = serde_ipld_dagcbor::from_slice(&lineage_a).unwrap();
     let mut numerics = Vec::new();
     ipld_numeric_leaves(&v, "", &mut numerics);
     for (path, _) in &numerics {
         let leaf_key = path.rsplit('.').next().unwrap_or(path.as_str());
         assert!(
-            matches!(leaf_key, "e" | "t"),
-            "lineage numeric outside epoch/total: {path}"
+            matches!(leaf_key, "e" | "n"),
+            "lineage numeric outside epoch/count: {path}"
         );
     }
     assert_eq!(
-        numerics.iter().filter(|(p, _)| p.as_str() == "t").count(),
+        numerics.iter().filter(|(p, _)| p.as_str() == "n").count(),
         1,
-        "one total per epoch — never partitioned"
+        "one leaf count per head — never partitioned"
     );
 }
