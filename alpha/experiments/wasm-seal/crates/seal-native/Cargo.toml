@@ -1,0 +1,21 @@
+# seal-native — RUN-19 P2: the NATIVE build of the same seal stack, as a
+# long-lived ndjson peer the Node orchestrator drives beside the wasm module.
+# One implementation (group-seal), two builds — the cross-build goldens
+# compare their artifacts byte-for-byte.
+[package]
+name = "seal-native"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "seal-peer"
+path = "src/main.rs"
+
+[dependencies]
+group-seal.workspace = true
+group-core.workspace = true
+seal-wire = { path = "../seal-wire" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hex = "0.4"

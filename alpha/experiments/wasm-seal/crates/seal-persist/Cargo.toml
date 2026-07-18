@@ -1,0 +1,35 @@
+# seal-persist — RUN-19 P3: the persistence-capable member (state at rest,
+# resumption, eviction honesty).
+#
+# croft-group's `group-seal`/`lineage-mls` deliberately hide the openmls
+# provider, so MLS state cannot be serialized through them (FND-R19-2, filed
+# as a croft-group backlog gap, not fought). This crate is therefore a
+# PROVENANCE-HEADED copy of the lineage-mls `Device` pattern (Proofs), behind
+# the SAME seal interface shape as `group-seal::Sealer`, extended with exactly
+# one capability: snapshot/restore of the member's MLS state as an
+# AES-128-GCM encrypted-at-rest blob (AEAD via the provider's own crypto).
+# The at-rest backing is a storage trait whose in-environment impls are a
+# file (native tests) and the Node host's filesystem (wasm drill) —
+# SPEC-DELTA[run19-storage-shim]; the browser mapping (WebCrypto-wrapped key
+# over IndexedDB/OPFS) is documented in the README, not built here.
+[package]
+name = "seal-persist"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[dependencies]
+group-core.workspace = true
+lineage-core.workspace = true
+openmls.workspace = true
+openmls_rust_crypto.workspace = true
+openmls_traits.workspace = true
+openmls_basic_credential.workspace = true
+seal-wire = { path = "../seal-wire" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror.workspace = true
+zeroize = { version = "1.9", features = ["zeroize_derive"] }
+
+[dev-dependencies]
+tempfile = "3"
