@@ -112,12 +112,16 @@ try {
   check('G2 native→wasm unseal', g2open.sender === 'bob' && g2open.text === 'sealed natively, opened in wasm', JSON.stringify(g2open));
 
   // --- G3: half-wasm half-native transcript --------------------------------
-  // add wasm carol via a NATIVE commit (native produces, wasm folds)
+  // add wasm carol via a WASM commit that the NATIVE member folds.
+  // (FND-R19-1, pinned in seal-native/tests/finding_ratchet_tree.rs: a
+  // Welcome-joined member cannot itself invite — MissingRatchetTree — so the
+  // founder produces the add; the native-produced-commit direction is
+  // exercised by G4a's removal below.)
   const kpCarol = carol.key_package();
-  const invCarol = await native({ op: 'invite', name: 'bob', kp: Buffer.from(kpCarol).toString('hex') });
-  alice.apply_control(Buffer.from(invCarol.commit, 'hex'));
-  carol.accept_welcome(Buffer.from(invCarol.welcome, 'hex'));
-  await assertStateAgreement('after native-invites-wasm commit', [['alice', alice], ['carol', carol]], ['bob']);
+  const invCarol = alice.invite(kpCarol);
+  await native({ op: 'apply_control', name: 'bob', data: Buffer.from(invCarol.commit).toString('hex') });
+  carol.accept_welcome(invCarol.welcome);
+  await assertStateAgreement('after wasm add-commit folded by native', [['alice', alice], ['carol', carol]], ['bob']);
 
   // messages in the new epoch, all directions across builds
   const m1 = carol.seal('carol', 'wasm carol to all');
@@ -131,17 +135,25 @@ try {
       && carol.open(Buffer.from(m2, 'hex')).text === 'native bob to all',
   );
 
-  // --- G4: a WASM removal commit evicts the NATIVE member ------------------
+  // --- G4a: a NATIVE removal commit evicts the WASM member carol -----------
+  const rmCarol = await native({ op: 'remove_member', name: 'bob', did: 'did:example:carol' });
+  alice.apply_control(Buffer.from(rmCarol.commit, 'hex'));
+  try { carol.apply_control(Buffer.from(rmCarol.commit, 'hex')); } catch { /* removed */ }
+  await assertStateAgreement('after native remove-commit roll', [['alice', alice]], ['bob']);
+  const post1 = alice.seal('alice', 'post-roll: carol must not read');
+  const bobReads = await native({ op: 'open', name: 'bob', data: Buffer.from(post1).toString('hex') });
+  check('G4a remaining native member reads post-roll', bobReads.text === 'post-roll: carol must not read');
+  const carolPost = (() => { try { carol.open(post1); return true; } catch { return false; } })();
+  check('G4a removed wasm member is forward-blind to wasm ciphertext', carolPost === false);
+
+  // --- G4b: a WASM removal commit evicts the NATIVE member bob -------------
   const rm = alice.remove_member('did:example:bob');
-  carol.apply_control(rm);
   // bob applies the commit that removes him (or errors) — either way blind after.
   await native({ op: 'apply_control', name: 'bob', data: Buffer.from(rm).toString('hex') }).catch(() => {});
-  await assertStateAgreement('after wasm-removes-native roll', [['alice', alice], ['carol', carol]], []);
   const post = alice.seal('alice', 'post-roll: bob must not read');
-  check('G4 remaining wasm member reads post-roll', carol.open(post).text === 'post-roll: bob must not read');
   const bobPost = await native({ op: 'open', name: 'bob', data: Buffer.from(post).toString('hex') })
     .then(() => true).catch(() => false);
-  check('G4 removed native member is forward-blind', bobPost === false);
+  check('G4b removed native member is forward-blind to wasm ciphertext', bobPost === false);
 } catch (e) {
   console.log(`FAIL (exception) ${e.message}`);
   failures.push('exception');
