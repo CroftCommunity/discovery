@@ -601,3 +601,60 @@ re-derives, and an unsupported asserted count detectable — B6.)
 
 **Decision:** `needs-call`, unchanged — a design-stance extension riding the RUN-16 note; no status
 tag moves; the reviewed spec is untouched.
+
+## RUN-19 — the sealed tier's browser story loses its deferral: no bridge, custody-shaped caveats  ·  `status-move`/`needs-call`
+
+`Source: RUN-19 (alpha/experiments/wasm-seal/ + alpha/experiments/RUN-19-SUMMARY.md). This is an
+experiment-earned revision of landed design language — GROUPS.md A.8's "Honest costs, named"
+paragraph — staged here per guardrail 3 (the landed doc is never edited by the run). The custody
+posture below is DRAFTED FOR REVIEW, not ratified (guardrail 6).`
+
+**Target:** `alpha/experiments/appview-infra/GROUPS.md` A.8, the deferred-browser sentence: *"and
+the sealed tier's BROWSER story is deliberately deferred (WASM MLS plus a relay bridge; native
+apps are the sane vessel for that tier for now)."*
+
+**What RUN-19 showed.** The deferral's premise — that a browser sealed client would need an
+overlay/relay bridge — does not hold. The croft-group L2a seal stack (`group-seal` → `lineage-mls`
+→ openmls 0.8.1 + the pure-Rust provider) compiles to `wasm32-unknown-unknown` and RUNS there:
+real group create / Welcome / seal-unseal / epoch roll / forward-blindness inside the module
+(upstream OpenMLS CI builds but does not test this target — RUN-19 P1 supplies that evidence for
+our stack). Cross-build goldens hold with **zero asymmetry** (wasm-sealed ↔ native-unsealed and
+the reverse; transcript state byte-identical). And the full loop runs over **actual QUIC**: wasm
+member → WebTransport → content-blind DS (no unseal capability in its dependency graph) →
+offer-gated fetch → wasm member, commits and removals riding the same path, the removed member
+still *offered* ciphertext it provably cannot *read*. Grades: wasm-node (the module under the
+Node host, not a browser page — one headless-chrome attempt failed environmentally) and
+quic-native (a native WebTransport client speaking the browser-identical protocol).
+
+**Proposed revised sentence, if accepted:** *"the sealed tier's BROWSER client needs NO overlay
+bridge — MLS in wasm over WebTransport to the content-blind DS is the path (RUN-19); its caveats
+are custody-shaped, not transport-shaped (see the custody posture); native apps remain
+first-class, not the only sane vessel."*
+
+**The transport leg is product-promiseable (Baseline).** WebTransport reached cross-browser
+Baseline in March 2026: Safari 26.4 (2026-03) joining Chrome 97+ (2022-01), Edge 98+ (2022-02),
+Firefox 114+ (2023-06). Dev trust for a self-hosted DS uses `serverCertificateHashes`, whose
+≤2-week certificate cap the pinned server library satisfies by construction
+(`Identity::self_signed` = 14 days, RUN-19 PRED-WT3).
+
+**Custody posture (DRAFT — FOR OWNER REVIEW, not ratified).** The browser caveats are about *key
+custody in a page*, and they are bounded, not fatal: (1) group keys live in wasm linear memory
+while the page runs — **XSS is the threat model** (a scripted page can drive the module's own API;
+wasm memory is not an enclave), so the sealed surface must carry the strictest CSP/no-third-party-
+script posture; (2) the **blast radius is bounded by device-key delegation** (RUN-17 P5): a
+browser member joins under a delegated device key, never the account root — compromise burns one
+device key; (3) **revocation is attestation deletion** (event-driven, no TTL) plus the MLS
+removal re-key, which RUN-19 P5 shows evicting a member across the wire; (4) **eviction is
+honest**: destroying the at-rest blob leaves no self-restore path (forward secrecy is not
+overridden) — re-entry is a fresh add via Welcome, blind to the gap (RUN-19 P3); (5) state at
+rest is ciphertext (AES-GCM via the provider) with the browser mapping WebCrypto-wrapped-key over
+IndexedDB/OPFS, and MLS state is **single-writer** — the product must elect a tab leader (Web
+Locks) before a second tab may touch the ratchet; (6) **draft-status pinning**: the WebTransport
+ecosystem is draft-tracking — server and client must ship from matching revisions (RUN-19 pins
+wtransport =0.7.1 for both sides; browsers track Baseline).
+
+**Decision:** `needs-call` — the revised sentence and the custody-posture paragraph are language
+for the owner to accept, amend, or reject; the evidence rows land regardless. The literal
+browser page (product-side manual verification) and the croft-group gaps RUN-19 surfaced
+(Welcome-joined member cannot invite — MissingRatchetTree; no state-at-rest surface in
+group-seal/lineage-mls) are backlog rows, not part of this call.

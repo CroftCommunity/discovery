@@ -66,6 +66,25 @@ is no self-restore path (forward secrecy is not overridden by any recovery
 mechanism here); re-entry is a fresh add via Welcome, provably blind to the
 gap. Key recovery/escrow is I9 territory and firewalled out (non-goal).
 
+## Custody posture (DRAFT — FOR OWNER REVIEW)
+
+> Drafted by RUN-19 P6 for review, NOT ratified (guardrail 6). The staged
+> spec-facing form lives in the proposed-changes doc (RUN-19 section).
+
+A browser sealed member's caveats are custody-shaped, not transport-shaped:
+group keys live in wasm linear memory while the page runs, so **XSS is the
+threat model** (a scripted page can drive the module's own API; wasm memory
+is not an enclave) and the sealed surface carries the strictest
+no-third-party-script/CSP posture. The **blast radius is bounded by
+device-key delegation** (RUN-17 P5): the browser member holds a delegated
+device key, never the account root — compromise burns one device key;
+**revocation is attestation deletion** (event-driven) plus the MLS removal
+re-key this run demonstrates across the wire. **Eviction is honest**: a
+destroyed blob has no self-restore; re-entry is a fresh Welcome, blind to
+the gap. **Single-writer**: one tab-leader owns the ratchet (Web Locks in
+product). **Draft-status pinning**: WebTransport server/client must ship
+from matching revisions (wtransport =0.7.1 both sides here).
+
 ## Layout
 
 | Path | Part | What |
