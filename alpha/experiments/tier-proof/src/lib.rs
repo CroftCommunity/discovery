@@ -28,6 +28,7 @@ pub mod identity;
 pub mod records;
 
 pub mod blind;
+pub mod chain;
 pub mod delegation;
 pub mod fold;
 pub mod relay;
