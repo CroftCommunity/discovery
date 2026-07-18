@@ -1,0 +1,43 @@
+# tier-proof — RUN-17: the tier proof, the group model demonstrated end to end.
+#
+# Self-contained experiment workspace in the house style (README with
+# goal/approach/result). Path-deps on croft-group crates are permitted for P6/P9
+# (the sealed steward group + churn ceiling); they are added ONLY when a passing
+# test forces them, per the croft-group workspace convention. The RUN-14
+# service-auth verifier shape and the RUN-15 kit stub pattern are COPIED with
+# provenance headers rather than imported (self-containment convention).
+#
+# Its own [workspace] table detaches this crate from any parent workspace so it
+# builds standalone.
+[package]
+name = "tier-proof"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "MIT OR Apache-2.0"
+authors = ["Chase Pettet <chase@owasp.org>"]
+
+[workspace]
+# steward-seal is the P6 real-MLS half: it path-deps the croft-group group-seal
+# crate (openmls) and so carries its own lockfile + [workspace] table, exactly
+# as croft-group excludes group-seal from its pure workspace. This keeps openmls
+# out of the light component crate's lock — the whole P1–P9 suite builds fast.
+exclude = ["steward-seal"]
+
+[dependencies]
+# Only deps driven by a passing test belong here (house convention).
+# P1 envelope: deterministic/canonical CBOR + sha256 identity + ed25519 signatures.
+ciborium = "0.2.2"
+sha2 = "0.10"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+serde = { version = "1", features = ["derive"] }
+serde_bytes = "0.11"
+serde_json = "1"
+hex = "0.4"
+thiserror = "2"
+# P5 stand-in did:key encoding uses multibase base58btc; bs58 matches the
+# RUN-14 encoding path (did-doc verificationMethod publicKeyMultibase).
+bs58 = "0.5"
+
+[dev-dependencies]
+# P9 measurements need a coarse wall-clock; std::time::Instant suffices, no dep.
