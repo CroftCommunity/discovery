@@ -85,6 +85,11 @@ pub struct FoldState {
     cosigns: BTreeMap<String, BTreeSet<String>>,
     /// request identities that reached the co-sign threshold.
     granted: BTreeSet<String>,
+    /// scope → genesis envelope identity (the chain anchor, RUN-18 B1).
+    genesis_ids: BTreeMap<String, String>,
+    /// (scope, author) → the author's newest chained envelope identity, for
+    /// write-restricted scopes (RUN-18 B1; GROUPS.md A.2 reception paragraph).
+    chain_heads: BTreeMap<(String, String), String>,
     /// dropped (failed-verification) envelope count — observability.
     dropped: u64,
 }
@@ -148,6 +153,8 @@ impl FoldState {
         let author = env.body.author.as_str();
         match rec {
             Record::Genesis(g) => {
+                self.genesis_ids
+                    .insert(g.scope.clone(), env.identity_hex());
                 self.catalogue.insert(
                     g.scope.clone(),
                     CatalogueEntry {
@@ -260,10 +267,28 @@ impl FoldState {
                     }
                 }
             }
-            // Device attestations are handled by the delegation verifier (P5);
-            // messages by the write-policy relay/serve (P3). Neither mutates the
-            // roster fold.
-            Record::DeviceAttestation { .. } | Record::Message { .. } => {}
+            // Message chain heads (RUN-18 B1): in a write-restricted scope a
+            // folded message advances the author's chain head IF it is chained
+            // (first antecedent = the expected link); an unchained message —
+            // which validate-before-relay would have dropped — never moves the
+            // head. Messages never mutate the roster fold.
+            Record::Message { scope, .. } => {
+                let restricted = matches!(
+                    self.catalogue.get(scope).map(|c| c.write_policy),
+                    Some(WritePolicy::Single)
+                );
+                if restricted {
+                    let expected = self
+                        .chain_head(scope, author)
+                        .or_else(|| self.genesis_id(scope));
+                    if env.body.antecedents.first() == expected.as_ref() {
+                        self.chain_heads
+                            .insert((scope.clone(), author.to_string()), env.identity_hex());
+                    }
+                }
+            }
+            // Device attestations are handled by the delegation verifier (P5).
+            Record::DeviceAttestation { .. } => {}
         }
     }
 
@@ -343,6 +368,22 @@ impl FoldState {
     #[must_use]
     pub fn position_of(&self, id: &str) -> Option<u64> {
         self.positions.get(id).copied()
+    }
+
+    /// The genesis envelope identity of a scope — the anchor the first chained
+    /// envelope of a write-restricted scope must reference (RUN-18 B1).
+    #[must_use]
+    pub fn genesis_id(&self, scope: &str) -> Option<String> {
+        self.genesis_ids.get(scope).cloned()
+    }
+
+    /// The author's current chain head in a write-restricted scope: the
+    /// identity of their newest chained envelope, if any (RUN-18 B1).
+    #[must_use]
+    pub fn chain_head(&self, scope: &str, did: &str) -> Option<String> {
+        self.chain_heads
+            .get(&(scope.to_string(), did.to_string()))
+            .cloned()
     }
 
     /// The status of a request by its identity (§A.3: silence is not a verdict —
