@@ -442,6 +442,19 @@ The RUN-16 group model built and run end to end in `tier-proof/` (`RUN-17-SUMMAR
 | **P9(b) real churn at scale** | **Optional upgrade — local epoch model** | Drive `group-seal` epoch rolls at increasing N to replace the model curve; epoch-roll cost is already a measured O(N) quantity. `SPEC-DELTA[run17-churn-model]`. |
 | **Variant A/B · boundary number · interval-widening** | **Owner decisions (not taken)** | P9 informs the boundary; the gated tier stays fork-agnostic; the interval-widening dial is asserted default. None decided here (brief §4). |
 
+## 6f. Reception completeness + the publications positioning (RUN-18)
+
+A delta run on the RUN-16/17 surfaces (`RUN-18-SUMMARY.md`): the corpus gains the reception-completeness
+paragraph (GROUPS.md A.2) and the standalone publications positioning (`appview-infra/PUBLICATIONS.md`);
+`tier-proof/` gains the executable proofs B1–B6.
+
+| Item | Status | What it is / blocked on |
+|---|---|---|
+| **Reception completeness for write-restricted scopes** | ✅ **Done (RUN-18; proven by Part B)** | Per-author envelope chaining (first anchors to genesis); completeness as DETECTION up to the newest held envelope, never delivery; withheld-tail limit per the completeness-ahead doctrine with multimodal delivery as mitigation; open enrollment never weakens verification. Canonical text GROUPS.md A.2; proven executable by B1 (chaining at the relay), B2 (gap detection + repair, no oracle), B3 (the honest tail claim + swarm closure), B4 (chaining × interval composition). |
+| **The publications positioning doc** | ✅ **Landed (RUN-18, `appview-infra/PUBLICATIONS.md`)** | The vanilla-atproto comparison: native proofs (authorship, integrity, current-state completeness), the degeneration principle as binding, the single-agent limit + the provable multi-party fact as the one added atom, the delta table (tamper-evident history vs tamper-free current state; the three-way retraction distinction), the subscriber reframe (two rosters one lineage; guarantee beneficiary; structural consent; paid tier as a policy value; the honest scope of "managing"). Joins the corpus link + anchor audit. |
+| **The auditable-count claim** | ✅ **Proven (RUN-18 B6, component vs the landed harness)** | On the landed P2 open-tier machinery: an independent second fold re-derives exactly the roster count the DS serves; an authenticated unsubscribe moves both counts identically; a count asserted without folded records behind it is detectable as unsupported. Live upgrade rides the P2 live leg (`ATP_TEST_*`). |
+| **B5 live retraction leg** | **BLOCKED (creds) — simulated, tagged** | The middle-issue deletion runs against the landed harness's delete event, `SPEC-DELTA[run18-retraction-local | stand-in]`; with `ATP_TEST_*` set it deletes a real PDS record and upgrades to live grade. |
+
 ---
 
 ## 7. The classroom tier (docs track — not an experiment)
