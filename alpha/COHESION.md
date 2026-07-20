@@ -1414,6 +1414,36 @@ shapes vs parties, the local authority): a survey + a 9-block Claude Code instru
 
 ---
 
+## 51. E2EE recovery post-mortem research ↔ the recovery/key-custody predicate (I9 / A2 / A12)
+
+The 2026-07 commissioned research (`research/e2ee-recovery-postmortem-and-trust-predicate-2026-07.md`,
+~275 sources) tests the hypothesis that account-recovery friction killed dead E2EE consumer products.
+
+- **New (filed).** No prior recovery/custody *research* doc existed (the recovery decisions did — see
+  below — but not the evidence base behind them). Verdict: **REFUTED as cause of death, CONFIRMED as the
+  survivors' recurring tax** (Signal SVR/SVR3 + the 2020 PIN revolt, WhatsApp HSM, Apple ADP recovery
+  contacts, Proton phrase-tiers, Matrix 4S); the crypto self-custody domain (~3.7M lost BTC, Argent
+  social recovery) shows the catastrophe when no operator catches you; the usable-security literature
+  ("Why Johnny Can't Encrypt" → 2025 social-vault work) says most users can't hold a bare paper key.
+- **Informs the standing recovery decisions (surfaced, not resolved).** The recommendation — opt-in
+  (never opt-out) **quorum-of-contacts** reusing k-of-n, wrapped in a mandatory **48h wall-clock delay
+  + owner-veto** (admissible because recovery is a utility-plane ceremony, not the provenance plane),
+  with a **BIP39 paper key** as the sovereign instant escape hatch, and an institutional custodian
+  only ever as *one guardian share among several* — maps onto **A2 / A12** (recovery architecture,
+  blind-relay vs revocable-delegate; ROADMAP_TODO) and **I9** + custody §2.8 in `beta/drystone-spec`
+  (open-threads). The default predicate + UX remains the **user's call**; this is evidence for that
+  call, not a resolution of it. Companion thinking: `thinking/governance-and-survivability.md`,
+  `thinking/multi-device.md`.
+- **The reframe worth carrying up.** For a center-free system, I9 shifts from "how do we avoid a court
+  of last resort" to "how do we distribute the court of last resort across enough independent parties,
+  behind enough delay, that no single one — and no one who coerces a single one — can convene it
+  alone." Also a clean corroboration of the abuse-symmetry principle (every recovery path is an attack
+  path) and the utility-vs-provenance plane split (wall-clock delay lives on the utility plane).
+- **Provenance:** pasted report (no zip), content-faithful; soft numbers + secondhand sources flagged
+  in the report's own Caveats. `RAW-ARTIFACTS-MANIFEST.md` "2026-07 intake".
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the

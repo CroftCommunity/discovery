@@ -113,6 +113,14 @@ not try to merge them into one document; cross-reference instead.
   dating a narrow trust-sidecar only after a real private layer. Point-in-time snapshot; vendor
   numbers attributed not endorsed. Feeds ROADMAP_TODO D11.
 
+- `e2ee-recovery-postmortem-and-trust-predicate-2026-07.md` — commissioned post-mortem (~275
+  sources) testing whether account-recovery friction killed dead E2EE consumer products (Keybase,
+  Skiff, Wickr, Peerio, pEp, Meta consumer E2EE). Verdict: **refuted as cause of death, confirmed
+  as the survivors' recurring tax**; a recovery-model taxonomy (Hermit / Vault-Keeper / Family-Friend
+  / Concierge / Notary / Timelock), the abuse ledger, and a staged recommendation for Drystone's
+  recovery/key-custody predicate (opt-in quorum-of-contacts + 48h delay/owner-veto + BIP39 paper key).
+  Informs I9 / A2 / A12 — surfaced, not resolved.
+
 ## Anticipated (different audiences, same underlying research)
 
 The same comparative material will likely be re-cut for different needs — e.g. a
