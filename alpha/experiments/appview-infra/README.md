@@ -30,4 +30,7 @@ extracted tree passes `make check` standalone. Seven honest stand-ins are
 registered. The group write-path fork, the scale boundary, and the OVH ordering
 are surfaced as owner decisions; nothing was purchased.
 
-Full detail: `../RUN-15-SUMMARY.md`. Design brief: `GROUPS.md`. Kit: `kit/`.
+Full detail: `../RUN-15-SUMMARY.md`. Design briefs (the corpus payloads that stay in discovery):
+`GROUPS.md` (the group tier model), `PUBLICATIONS.md` (single-writer publications on the substrate),
+`CONTACT.md` (first-contact model — postures, knocks, the door; the dating/friendship/meetup
+derivation). Kit: `kit/`.
