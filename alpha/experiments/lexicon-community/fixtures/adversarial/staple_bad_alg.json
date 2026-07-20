@@ -1,0 +1,10 @@
+{
+  "$type": "community.lexicon.attest.inclusionStaple",
+  "alg": "RS256",
+  "commitment": { "$bytes": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" },
+  "leafIndex": 0,
+  "treeSize": 1,
+  "auditPath": [],
+  "head": { "uri": "at://did:plc:coop/community.lexicon.attest.treeHead/3aaa", "cid": "bafyreickoect35fesknmmtxalx4q7fbypxp22natef3kzr6lwzf7fuzewe" },
+  "binding": { "uri": "at://did:plc:coop/community.lexicon.attest.holderBinding/3bbb", "cid": "bafyreickoect35fesknmmtxalx4q7fbypxp22natef3kzr6lwzf7fuzewe" }
+}

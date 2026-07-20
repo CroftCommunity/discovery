@@ -1,0 +1,12 @@
+{
+  "$type": "app.bsky.feed.post",
+  "text": "remote interop probe",
+  "createdAt": "2026-07-20T00:00:00.000Z",
+  "signatures": [
+    {
+      "$type": "com.atproto.repo.strongRef",
+      "uri": "at://did:plc:attestorrepo/blue.badge.attestation/3mr3cgh25nkfo",
+      "cid": "bafyreiavejdjorb6wcwtwqxqd2f5so43jifzbxtunr4vtp3glxgzv7rkwu"
+    }
+  ]
+}

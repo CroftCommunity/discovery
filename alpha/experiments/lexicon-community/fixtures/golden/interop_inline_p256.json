@@ -1,0 +1,15 @@
+{
+  "$type": "app.bsky.feed.post",
+  "text": "clean-room interop probe",
+  "createdAt": "2026-07-20T00:00:00.000Z",
+  "signatures": [
+    {
+      "$type": "blue.badge.attestation",
+      "purpose": "demo",
+      "cid": "bafyreihdsqaggs62r6qycdbp456kqu36bob62dy3gpmlrazeh5xzafhhne",
+      "signature": {
+        "$bytes": "pyHzXd16B0SbfcysQQH4+XDbw9ixv2UGjewcHwxaJmEjWzgexN7qwXQ38tvXGt9cmnZhhgPFCb02ZyGsOWnVQg=="
+      }
+    }
+  ]
+}
