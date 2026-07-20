@@ -152,6 +152,25 @@ Possible role: protocol reviewer; standards-world bridge.
 Category: kindred theorist.
 Link: [add the ap-at piece URL from the ap-bridge thread when filing]
 
+### gerakines-nick — Nick Gerakines
+Field: ATProto attestation specs; IETF participant; runs Smoke Signal
+(events/RSVP) and lexicon.garden.
+Kindred: authored the published ATProto attestation specification
+(badge.blue) — inline vs remote attestations, repository binding for
+replay prevention, CID content-addressing — the nearest independent work
+to the Croft attestation lane, arrived at with the same "sign content, not
+location" instinct. attested.network (his companion spec) formalizes a
+three-party attestation model. The one layer his spec does not cover is
+freshness/status, which is exactly the Croft lane's stapling contribution.
+Artifact engaged: the badge.blue attestation spec and its reference
+implementation (the `atproto-attestation` crate/CLI), which RUN-LEX-01's
+clean-room verifier was tested against for interop — his signed output
+verifies under our independent build.
+Possible role: spec collaborator/reviewer; the central figure in the
+shared-attestation-schema effort.
+Category: practitioner-operator.
+Link: https://badge.blue/
+
 ## Organizations
 
 ### org-filene — Filene Research Institute
@@ -192,6 +211,29 @@ Link: https://www.start.coop/
 
 ### org-lexicon-community — Lexicon Community
 ATProto schema-governance community the attestation work already engages
-with. Possible role: already-warm thread; the protocol's nearest
-neighbors.
+with. Its Discussion #8 ("Attestation Lexicon") is the standing thread
+RUN-LEX-01 engages; its Polite Goshawk (Lenses) working group is the
+record-projection effort the Croft envelope→calendar-event transform would
+seam into (no concrete lens format published yet as of RUN-LEX-01).
+Possible role: already-warm thread; the protocol's nearest neighbors.
 Link: [use the engagement-thread link from the drystone-attest lane]
+
+### org-attested-network — attested.network
+Open spec for decentralized proof-of-payments on ATProto, formalizing a
+three-party attestation model (payer/recipient/attester) learned from
+atprotofans.com; companion to the badge.blue attestation spec.
+Kindred: convergent shape with the Croft ceremony-graded co-signed edges —
+theirs payments-first, ours presence-first.
+Possible role: co-traveler on a shared minimal attestation core.
+Category: craft precedent.
+Link: https://attested.network/
+
+### org-acudo — Acudo
+Practitioner of organizer-signed RSVPs following the badge.blue
+attestation line.
+Kindred: the same organizer-signed-attendance shape Croft reaches via
+co-presence standing; a live instance of the attestation pattern in the
+events domain.
+Possible role: interop target for the attendance-attestation demo.
+Category: practitioner-operator.
+Link: [confirm Acudo URL next session before citing]
