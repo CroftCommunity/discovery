@@ -1,0 +1,53 @@
+{
+  "verdict": "GREEN",
+  "subscribed_from_cursor": null,
+  "write_order_rkeys": [
+    "2892b7c2_0000005",
+    "2892b7c2_0000003",
+    "2892b7c2_0000004"
+  ],
+  "write_order_counters": [
+    5,
+    3,
+    4
+  ],
+  "firehose_events_captured_for_our_repo": [
+    {
+      "seq": 116465370,
+      "rev": "3mr3aesfamr2g",
+      "commit_cid": "bafyreigfkxcomcnjopu6ilzzxltflkxbbkd6ltyiwhgrmnvtsxpm7iiwsy",
+      "op_paths": [
+        "create ing.croft.hist.entry/2892b7c2_0000005"
+      ]
+    },
+    {
+      "seq": 116465381,
+      "rev": "3mr3aeu36lc2d",
+      "commit_cid": "bafyreidw7r5kxfcsgm5g4kvw5s2fksmx6aplqcrvgrhvscl4qjxlaym4zy",
+      "op_paths": [
+        "create ing.croft.hist.entry/2892b7c2_0000003"
+      ]
+    },
+    {
+      "seq": 116465388,
+      "rev": "3mr3aevhz6r24",
+      "commit_cid": "bafyreidvir3dsnx4iloz7ymx22alf7kyn7h245k6i5kmbp57vrc5b4zkpa",
+      "op_paths": [
+        "create ing.croft.hist.entry/2892b7c2_0000004"
+      ]
+    }
+  ],
+  "correct_head_counter": 5,
+  "firehose_seq_order_counters": [
+    5,
+    3,
+    4
+  ],
+  "rkey_enum_order_counters": [
+    3,
+    4,
+    5
+  ],
+  "seq_diverges_from_counter_order": true,
+  "rkey_diverges_from_seq": true
+}

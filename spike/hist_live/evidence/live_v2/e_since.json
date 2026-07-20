@@ -1,0 +1,26 @@
+{
+  "verdict": "GREEN",
+  "r0_rev": "3mr3aec3d5g2e",
+  "r0_car_bytes": 3229,
+  "r0_hist_leaves": [
+    "bafyreid6hivmgjxrfciwj6hu4oby2wxo3tpoqbwrwlzl65kceo7fr7yjqy",
+    "bafyreigjjl2cywmsxkvngoylo3bcyuzzsdxqdfah4bo3g7yuu3brs2ws4i",
+    "bafyreihbvdlmvnhk6ss6c5orjod4tnobu3bvnovxgozjggn3cpivgdnosm"
+  ],
+  "r1_rev": "3mr3aelxng32x",
+  "r1_car_bytes": 3921,
+  "r1_hist_leaves": [
+    "bafyreid6hivmgjxrfciwj6hu4oby2wxo3tpoqbwrwlzl65kceo7fr7yjqy",
+    "bafyreidockyf6lt72ugb5xsfzymmu6l3da5octmo5yswsttuytvrp3pqkq",
+    "bafyreidws4nkzruwdn3vyycfues2drjvwqnlzib5edufgsorj3iisrxtie",
+    "bafyreigjjl2cywmsxkvngoylo3bcyuzzsdxqdfah4bo3g7yuu3brs2ws4i",
+    "bafyreihbvdlmvnhk6ss6c5orjod4tnobu3bvnovxgozjggn3cpivgdnosm"
+  ],
+  "delta_since_r0_bytes": 1778,
+  "delta_since_r0_hist_leaves": [
+    "bafyreidockyf6lt72ugb5xsfzymmu6l3da5octmo5yswsttuytvrp3pqkq",
+    "bafyreidws4nkzruwdn3vyycfues2drjvwqnlzib5edufgsorj3iisrxtie"
+  ],
+  "delta_leaves_equal_new_records": true,
+  "r1_leaves_equal_r0_leaves_union_new": true
+}

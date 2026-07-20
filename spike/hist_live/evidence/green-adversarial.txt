@@ -1,0 +1,14 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/e_adversarial.rs (target/debug/deps/e_adversarial-064b2c48e2edc95e)
+
+running 7 tests
+test strict_fold_accepts_well_formed_chain ... ok
+test strict_fold_rejects_duplicate_counter ... ok
+test strict_fold_rejects_missing_predecessor ... ok
+test strict_fold_rejects_first_entry_with_predecessor ... ok
+test strict_fold_rejects_predecessor_mismatch ... ok
+test strict_fold_rejects_predecessor_not_in_input ... ok
+test strict_fold_shape_matches_history_durability_backfill_admission ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

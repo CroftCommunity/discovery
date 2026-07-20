@@ -16,6 +16,7 @@ multihash = { version = "0.19", default-features = false, features = ["alloc"] }
 ureq = { version = "2", features = ["json", "tls"], default-features = false }
 rustls = { version = "0.23", features = ["ring", "std"] }
 rustls-pemfile = "2"
+tungstenite = { version = "0.24", default-features = false, features = ["handshake"] }
 ed25519-dalek = "2"
 k256 = { version = "0.13", features = ["ecdsa"] }
 p256 = { version = "0.13", features = ["ecdsa"] }

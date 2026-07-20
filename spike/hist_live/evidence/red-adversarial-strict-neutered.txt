@@ -1,0 +1,153 @@
+   Compiling hist_live v0.1.0 (/home/user/discovery/spike/hist_live)
+warning: unreachable statement
+   --> src/fold.rs:134:5
+    |
+130 |     return Ok(fold_by_antecedent_hashes(entries));
+    |     --------------------------------------------- any code following this expression is unreachable
+...
+134 |     let mut by_sub: HashMap<String, Vec<&HistEntry>> = HashMap::new();
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+    |
+    = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `hist_live` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.36s
+     Running tests/e_adversarial.rs (target/debug/deps/e_adversarial-064b2c48e2edc95e)
+
+running 7 tests
+test strict_fold_accepts_well_formed_chain ... ok
+test strict_fold_rejects_missing_predecessor ... FAILED
+test strict_fold_rejects_first_entry_with_predecessor ... FAILED
+test strict_fold_rejects_duplicate_counter ... FAILED
+test strict_fold_rejects_predecessor_mismatch ... FAILED
+test strict_fold_rejects_predecessor_not_in_input ... FAILED
+test strict_fold_shape_matches_history_durability_backfill_admission ... ok
+
+failures:
+
+---- strict_fold_rejects_missing_predecessor stdout ----
+
+thread 'strict_fold_rejects_missing_predecessor' (3559) panicked at tests/e_adversarial.rs:72:35:
+missing-pred MUST reject: FoldState { chains: {"021f236d": ChainSummary { counters: [1, 2, 3], visits: [(1, "bafyreiajxp7ivprcxofaskprel346odqqvqq6vbhgqj5nsfl3ljotavcvm"), (2, "bafyreib6zryblpppwkhkroh2sd5v5eolzyhbga2ysegqs7jq4itbigxooy"), (3, "bafyreiacpf2xqsm43l7n6uo5yxa7n4nmnwzdl62voxmqjenybksmzggsv4")], gaps: [], head: Some((3, "bafyreiacpf2xqsm43l7n6uo5yxa7n4nmnwzdl62voxmqjenybksmzggsv4")) }} }
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/result.rs:1867:5
+   3: core::result::Result<T,E>::expect_err
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/result.rs:1298:22
+   4: e_adversarial::strict_fold_rejects_missing_predecessor
+             at ./tests/e_adversarial.rs:72:35
+   5: e_adversarial::strict_fold_rejects_missing_predecessor::{{closure}}
+             at ./tests/e_adversarial.rs:67:45
+   6: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+   7: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- strict_fold_rejects_first_entry_with_predecessor stdout ----
+
+thread 'strict_fold_rejects_first_entry_with_predecessor' (3558) panicked at tests/e_adversarial.rs:59:35:
+first-has-pred MUST reject: FoldState { chains: {"8d938e33": ChainSummary { counters: [1, 2, 3], visits: [(1, "bafyreie63pos2yvbaj6gv2gr772lywvj75hhclegyhg4qqesma75ybx3gi"), (2, "bafyreihiwsayh5j6o6ze67vnii7aohsgb3teopw2to6hwydwe4ottvrb2q"), (3, "bafyreihahcezxt7wypdz5r23yxoiha5malnmb33fxijel6nhimozmwkjja")], gaps: [], head: Some((3, "bafyreihahcezxt7wypdz5r23yxoiha5malnmb33fxijel6nhimozmwkjja")) }} }
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/result.rs:1867:5
+   3: core::result::Result<T,E>::expect_err
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/result.rs:1298:22
+   4: e_adversarial::strict_fold_rejects_first_entry_with_predecessor
+             at ./tests/e_adversarial.rs:59:35
+   5: e_adversarial::strict_fold_rejects_first_entry_with_predecessor::{{closure}}
+             at ./tests/e_adversarial.rs:52:54
+   6: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+   7: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- strict_fold_rejects_duplicate_counter stdout ----
+
+thread 'strict_fold_rejects_duplicate_counter' (3557) panicked at tests/e_adversarial.rs:44:35:
+duplicate MUST reject: FoldState { chains: {"3bee3a56": ChainSummary { counters: [1, 2, 2, 3], visits: [(1, "bafyreigq4x5el4bhhz56k66xp2mcb5mj4c36k4yvf4mdrnry5y6bkkcqsy"), (2, "bafyreigy4j4nh4hagazgkwtdqc3kk7ozaxacg5bfd64wim5lf66ymvued4"), (2, "bafyreiafagtpis2ovazparor2jawuifngexk3nxggnehdlvd4qofaoijma"), (3, "bafyreif4u3sv7ofkzehevswnaf5iw3wxnolnbzu73fuj7elhd5c4dkebxe")], gaps: [], head: Some((3, "bafyreif4u3sv7ofkzehevswnaf5iw3wxnolnbzu73fuj7elhd5c4dkebxe")) }} }
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/result.rs:1867:5
+   3: core::result::Result<T,E>::expect_err
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/result.rs:1298:22
+   4: e_adversarial::strict_fold_rejects_duplicate_counter
+             at ./tests/e_adversarial.rs:44:35
+   5: e_adversarial::strict_fold_rejects_duplicate_counter::{{closure}}
+             at ./tests/e_adversarial.rs:36:43
+   6: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+   7: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- strict_fold_rejects_predecessor_mismatch stdout ----
+
+thread 'strict_fold_rejects_predecessor_mismatch' (3560) panicked at tests/e_adversarial.rs:91:35:
+pred-mismatch MUST reject: FoldState { chains: {"11ca6129": ChainSummary { counters: [1, 2, 3], visits: [(1, "bafyreiag3yiti47kajem4plpun3ofbnjw5yzh62csgheruhkm45k2f763i"), (2, "bafyreihx2ovjcqy5c7vir7dcicyt3k72noriocqgsmwokej6rbd5hdp2dy"), (3, "bafyreiejpogks4wuj3hxnwxiuqqmxrnkyn4ljkxq2gog6pxthtk7kqfuf4")], gaps: [], head: Some((3, "bafyreiejpogks4wuj3hxnwxiuqqmxrnkyn4ljkxq2gog6pxthtk7kqfuf4")) }} }
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/result.rs:1867:5
+   3: core::result::Result<T,E>::expect_err
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/result.rs:1298:22
+   4: e_adversarial::strict_fold_rejects_predecessor_mismatch
+             at ./tests/e_adversarial.rs:91:35
+   5: e_adversarial::strict_fold_rejects_predecessor_mismatch::{{closure}}
+             at ./tests/e_adversarial.rs:80:46
+   6: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+   7: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- strict_fold_rejects_predecessor_not_in_input stdout ----
+
+thread 'strict_fold_rejects_predecessor_not_in_input' (3561) panicked at tests/e_adversarial.rs:105:35:
+orphan MUST reject: FoldState { chains: {"d4126c90": ChainSummary { counters: [1, 3], visits: [(1, "bafyreidfojztzebxps3jkwuxkeehmhlqt7ubhnyisllwe3fpbktufoj274"), (3, "bafyreigsql3eyvbwbfqmqa267p5kax3kuaxssmn5kxvhq32ovv4cus64ny")], gaps: [2], head: Some((3, "bafyreigsql3eyvbwbfqmqa267p5kax3kuaxssmn5kxvhq32ovv4cus64ny")) }} }
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/result.rs:1867:5
+   3: core::result::Result<T,E>::expect_err
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/result.rs:1298:22
+   4: e_adversarial::strict_fold_rejects_predecessor_not_in_input
+             at ./tests/e_adversarial.rs:105:35
+   5: e_adversarial::strict_fold_rejects_predecessor_not_in_input::{{closure}}
+             at ./tests/e_adversarial.rs:99:50
+   6: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+   7: core::ops::function::FnOnce::call_once
+             at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd1/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    strict_fold_rejects_duplicate_counter
+    strict_fold_rejects_first_entry_with_predecessor
+    strict_fold_rejects_missing_predecessor
+    strict_fold_rejects_predecessor_mismatch
+    strict_fold_rejects_predecessor_not_in_input
+
+test result: FAILED. 2 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+error: test failed, to rerun pass `--test e_adversarial`

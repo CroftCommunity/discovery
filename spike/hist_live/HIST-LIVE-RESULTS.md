@@ -321,6 +321,163 @@ deactivation — the account is the same account it was pre-run.
   (fixture replay data), `evidence/live/archive.car` (archive of record),
   `evidence/live/*.json` (per-experiment evidence).
 
+## Addendum — round 2 (E-Adversarial, E-MST, E-Since, E-Firehose)
+
+`Executed 2026-07-20 in a second live batch against the same account; same
+gentleness contract, fresh 100-write budget.  Extends the OC-1..5 evidence
+map with four experiments picked from the "high-value next" list.  All four
+GREEN; teardown verified (0 hist.entry records remaining).`
+
+### Round 2 verdict summary
+
+| E | Question | Verdict | Evidence |
+|---|---|---|---|
+| E-Adversarial | strict fold rejects tampered input with named errors | **GREEN** | `evidence/green-adversarial.txt`, `evidence/red-adversarial-strict-neutered.txt` |
+| E-MST | MST proof: leaf CIDs reachable from signed commit's `data` root | **GREEN** | `evidence/live_v2/e_mst.json`, `evidence/live_v2/archive_e_mst.car` |
+| E-Since | `sync.getRepo?since=<rev>` delta CAR equals new-records set | **GREEN** | `evidence/live_v2/e_since.json`, `evidence/live_v2/archive_e_since_*.car` |
+| E-Firehose | `subscribeRepos` seq order is a delivery cursor, distinct from rkey order and counter order | **GREEN** | `evidence/live_v2/e_firehose.json` |
+
+Round 2 budget: **16/100 writes · 0/3 blobs · 9 reads · 0 rate-limit signals**
+across 7 write_calls (27.9 s wall clock).  Full transcript sha256
+`5aa80f8f31e1bccc1dfe27742327d59640a0c2b394295ee065764128d6f119f2`.
+
+### E-Adversarial — strict fold rejects tampered mirror input
+
+New module `src/fold.rs::strict_fold` + variant enum `StrictFoldError`.  The
+existing `fold_by_antecedent_hashes` trusts its input; `strict_fold` does
+not — every one of these tamperings is rejected with a NAMED variant, not
+a catch-all:
+
+- `DuplicateCounter` — a mirror can't create two records at the same
+  chain position without this firing.
+- `FirstEntryHasPredecessor` — a mirror can't smuggle a fake ancestor
+  before the chain's genesis.
+- `MissingPredecessor` — every non-first entry MUST claim a predecessor;
+  strip one and rejection fires with the counter.
+- `PredecessorMismatch` — a "reordered signed entries" forgery (counter=3
+  claims counter=1's CID as predecessor); caught by CID chain check.
+- `PredecessorNotInInput` — partial backfill (counter=3 delivered without
+  counter=2) is rejected, matching `history-durability.md §I`'s
+  "backfill acceptance requires standing PLUS contiguity".
+
+Red-first: neutered `strict_fold` (`return Ok(fold_by_antecedent_hashes(...))`
+early return) → 5 rejection tests fail as designed
+(`evidence/red-adversarial-strict-neutered.txt`, sha256 `0a03dcf19fea1…`).
+After restoration: 7/7 GREEN
+(`evidence/green-adversarial.txt`, sha256 `909dc74753f20…`).
+
+### E-MST — leaf CIDs reachable from the signed commit root
+
+New module `src/mst.rs`.  Walks the MST from `commit.data` (the root CID
+that the signed commit points to), collecting every leaf CID reachable via
+`v` links and every subtree via `t` / `l` links.  At every node, block-CID
+integrity is verified (`cid_v1_dag_cbor(&bytes) == declared_cid`); a
+mirror that rebadges a block fails there.
+
+Wrote 3 hist.entry records on subspace `hist-live/v2/mst`, fetched the
+full CAR, and walked:
+
+- **`data_root_cid = bafyreiftrnk66wwqhjq7tu3…`** (extracted from the
+  signed commit block, whose signature E3 already verified).
+- **7 inner blocks visited** (MST is small at this scale).
+- **7 total reachable leaves** = 3 hist.entry records + 4 pre-existing
+  app.* records — all reachable via the tree.
+- **All 3 target leaves present** in the reachable set.
+- **Forgery negative control**: the synthetic never-written CID
+  `bafyreig...` (SHA-256 of `b"hist-live/v2/mst/forged"`) was correctly
+  absent from the reachable set.
+
+**Closes the "forged leaf" gap.**  A mirror that returns valid-signed
+leaf bytes for a record NOT in the tree now fails E-MST — the leaf isn't
+reachable from the signed commit's data root, and no amount of signed
+leaf bytes can create that reachability.  Container integrity (this
+proof) composes with envelope integrity (E1's byte-head).
+
+### E-Since — incremental sync via `since` cursor
+
+Question: is `com.atproto.sync.getRepo?since=<rev>` a real incremental
+delta path, or does the server just return the full CAR anyway?
+
+Method (single-flight, no concurrency assumed):
+1. **R0**: after E-MST's writes, capture rev via `sync.getLatestCommit`
+   (`3mr3aec3d5g2e`) and full CAR (contains 3 hist.entry leaves).
+2. **Write 2 records** on subspace `hist-live/v2/since` in two separate
+   commits (multi-commit delta).
+3. **R1**: recapture rev (`3mr3aelxng32x`) and full CAR (5 hist.entry
+   leaves — R0's 3 + the 2 new).
+4. **Delta**: `sync.getRepo?since=R0` — 1,778 bytes CAR containing
+   exactly 2 hist.entry leaves (the new ones).
+
+Assertions (both GREEN):
+- `delta.leaves ⊇ new_records`: verified.
+- `r1.leaves == r0.leaves ∪ new_records`: verified.
+
+**Delta path is real, not a full-CAR-in-disguise.**  1,778 bytes vs the
+full-CAR's 3,921 bytes proves incremental is smaller than full; the leaf
+set delta proves the trim is on the right blocks.  This maps directly to
+`history-durability.md §J`'s "member reports its frontier to S, S serves
+the sealed spans S holds beyond it" — atproto's `since` IS a usable
+frontier primitive.
+
+### E-Firehose — subscribeRepos seq is a delivery cursor
+
+New module `src/firehose.rs` — a minimal WebSocket consumer of
+`com.atproto.sync.subscribeRepos`, tunneling wss:// through the same
+`HTTPS_PROXY` + rustls CA bundle the HTTP path uses.  Manual CBOR
+item-length probe (`cbor_item_len`) splits each binary frame into header
++ body since `serde_ipld_dagcbor::from_reader` rejects trailing data.
+
+Live sanity smoke: 184 commit events in 20 s from `stropharia.us-west.host.bsky.network`'s
+firehose, seq numbers monotonic, ops decoded.  Then the E-Firehose test:
+
+- Subscribe from now (no cursor), sleep 1 s so the subscription settles.
+- Write E6-shape sequence to fresh subspace `hist-live/v2/firehose`:
+  counters {5, 3, 4} in **wall-clock write order**, as three separate
+  commits (not batched).
+- Read firehose until we've captured 3 events touching our repo
+  (10 s deadline).  Filter by DID.
+
+Observed:
+
+| axis | value |
+|---|---|
+| write order (wall-clock) | `[5, 3, 4]` |
+| firehose seq order for our repo | `[5, 3, 4]` — **matches write order** (seq = commit sequence) |
+| rkey enumeration order | `[3, 4, 5]` |
+| correct fold head (highest counter) | `5` |
+| seq diverges from counter order | **YES** |
+| rkey diverges from seq | **YES** |
+| events captured for our DID | 3 |
+
+**Live proof of GROUPS v2 row 11's MUST-NOT.**  Two delivery cursors
+(firehose seq, rkey enumeration) diverge from each other AND from the
+counter-order that the fold actually uses.  Any implementer who took seq
+OR rkey as fold order would compute a different head; the crate's
+`fold_by_antecedent_hashes` (which uses the counter-anchored predecessor
+chain) is immune by construction.  E6 proved this against the CAR/rkey
+paths; E-Firehose adds the wire-delivery path.
+
+### OC-1..5 evidence map — updated
+
+- **OC-1** — unchanged (still SKIPPED(deferred-self-host); E-MST + E-Firehose
+  add signed-tree integrity and delivery-cursor invariants that any future
+  scribe-removal test inherits).
+- **OC-2 (byte-head)** — E1 unchanged; **E-MST extends it to
+  container integrity**: the byte-head CID must ALSO be reachable from the
+  signed commit's data root, not just recomputable from bytes.  A mirror
+  passing E1 but failing E-MST is serving a valid record that isn't in
+  the tree it claims — the strict OC-2 property requires BOTH.
+- **OC-3 (delivery cursors)** — E2 + E6 augmented by **E-Firehose**:
+  firehose seq is confirmed as a delivery cursor, not an order, matching
+  the MUST-NOT literally.  **E-Since** adds that the `since` cursor IS a
+  usable incremental sync primitive, so an OC-3-compliant fold receives
+  deltas efficiently without losing the "fold order ≠ delivery order"
+  invariant.
+- **OC-4 / OC-5** — unchanged; **E-Adversarial's `strict_fold` closes
+  the completeness-under-tampering gap**: a mirror can't now serve
+  correctness-intact + completeness-lying input; the strict fold names
+  the exact violation.
+
 ## Deviations from the instruction file (with reasons)
 
 1. **E4 GC-probe timings compressed from +10m/+1h to +30s/+2m.**  Each
@@ -352,3 +509,13 @@ deactivation — the account is the same account it was pre-run.
    `alpha/experiments/<name>`.  A follow-up may relocate; the crate builds
    as a standalone Cargo package either way (no workspace membership was
    assumed).
+6. **Round-2 (`live_v2`) experiments were not in the original brief.**
+   Picked from the "high-value next" survey the user requested at close
+   of round 1 (items 2, 3, 4, 5 of that survey → E-MST, E-Since,
+   E-Firehose, E-Adversarial).  Each honors the same gentleness contract,
+   in a fresh cargo test invocation (fresh Budget).  Round-1 verdicts and
+   evidence above are unaffected.
+7. **E-Firehose deadline compressed to 10 s.**  The subscription-first,
+   write-second pattern needs enough seconds for the writes to be
+   consumed by the firehose broadcaster; 10 s captured all 3 events on
+   this run.  A slower firehose or a very-quiet PDS may need longer.
