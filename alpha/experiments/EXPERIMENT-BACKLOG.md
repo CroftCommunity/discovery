@@ -491,6 +491,25 @@ The HIST-ATPROTO matchup brief (`HIST-ATPROTO-MATCHUP.md`) + the mechanical-seam
 
 ---
 
+## 6i. The ActivityPub-ambassador receipt lane (RUN-AP-01)
+
+The Croft-product-lane aligned offering `ap-ambassador/` (`RUN-AP-01-SUMMARY.md`):
+inbound AP activities (Follow / Undo / Delete) verified at the HTTP-signature layer,
+minted as evidence-complete receipts over the SAME §4.6 dag-cbor envelope path
+attest-family uses, folded into follower intervals. Delivery-plane role — no ordering
+authority, no membership authority, no governance conductivity. Structural + behavioral
+role-boundary tests permanent-red (P5, AP-V4).
+
+| Item | Status | What it is / blocked on |
+|---|---|---|
+| **The receipt lane (P1–P7)** | ✅ **Done (RUN-AP-01, red-first, 37 tests, `Modeled`)** | P1 verify_ap_http_signature (Mastodon-shaped RSA-SHA256 draft-cavage; four tamper classes → four distinct discriminants; no-collapse). P2 receipt record + canonical dag-cbor envelope + BLAKE3 identity + blinded posture (commitment = BLAKE3(salt‖body_hash); body-alone cannot deanonymize). P3 interval fold (Follow opens; UndoFollow closes the named-open; re-Follow opens second; covert-clock: shuffled arrival = byte-equal roster). P4 Delete custom rider (redact body, keep skeleton; masked never-was-world equality; distinct EvidenceRedacted variant; F-AP-1 receipt-`state`-not-in-id-encoding). P5 role boundary permanent-red pair (structural — no import from R7 crates, closed AntecedentKind admits no ambassador variant; behavioral — reject_governance_use always Err; ReceiptId is distinct newtype from ObjectId). P6 subject-initiated dual-proof binding (fresh-start default; no auto-link; grade from binding not gateway; gateway-authored/missing-leg rejections typed). P7 non-touch — attest-family/src/{fold,types}.rs untouched, beta/drystone-spec/ untouched (file-hash pins + git-diff assertion). |
+| **Live fediverse leg (BLOCKED)** | **BLOCKED (egress + disposable Mastodon instance) — predictions recorded** | The four tamper classes' expected variants are pinned by T-AP1.6 already (fixture leg); the live leg replays real Mastodon-signed activities through the same verify path. Runs when egress + a disposable test instance are provisioned (RUN-14 credential-leg pattern). |
+| **AP-OC-6 — outbound delivery mechanics** | **Next-run scope (RUN-AP-02 / delivery run)** | Queue, retry span, sharedInbox strategy — the outbound half of the ambassador (this run is inbound-only). Lean projection is landed as posture language (§3 of the charter); mechanics wait. |
+| **AP-OC-7 — lexicon drafts (`ing.croft.ap.*`)** | **Deferred until the delivery run** | `lexicons/` intentionally empty this run; the delivery run needs them (a lexicon draft describes a fact shape, and outbound facts are the delivery half). |
+| **AP-OC-8 — blinded-tier follower-count dial** | **Open** | Does a blinded roster publish cardinality? The blinded posture (P2) keeps bodies out of the record; whether the count itself leaks (or is publishable as a first-class fact) is an OC. |
+| **AP-OC-9 — inbound non-follow activities** | **Different fact family (out of scope)** | Replies, likes, boosts — a different fact family. This run is Follow/Undo/Delete only. |
+| **Sibling `xmtp-ambassador`** | **Future — RUN-FS-01 (out of scope this run)** | The same delivery-role charter (§0 governing principle) applies verbatim in the XMTP direction. Sibling standalone experiment, not this crate. |
+
 ## 7. The classroom tier (docs track — not an experiment)
 
 | Item | Status | What it is / blocked on |
