@@ -1210,6 +1210,48 @@ alpha-first staging.
 
 ---
 
+## 44. Use-case-fit / lexicon-governance / kindred-work session (2026-07) — mostly duplication, three genuinely-new artifacts
+
+A multi-thread claude.ai session (raw:
+`seeds/transcripts/raw/croft-usecase-lexicon-glossary-landing-session-2026-07.md`) that was
+**largely already filed** by the time it was reviewed. Recorded here so a future paste of the same
+material is not re-filed.
+
+- **DUPLICATION (already filed, not re-filed).** The **PUBLICATIONS** design doc → authoritative at
+  `experiments/appview-infra/PUBLICATIONS.md` (RUN-18 landed; the pasted brief-payload variant is in
+  git history, commit 265f875). The **lexicon engagement brief + five open calls (EL OC-1…OC-5)** →
+  `experiments/attest-family/ENGAGE-LEX.md` (RUN-LEX-01 EXECUTED; `experiments/lexicon-community/`).
+  The **crofting/drystone "plot tended with care / no mortar / no VC glue" philosophy** → already in
+  `NAMING.md`, `../beta/socialization/logo-drystone-stacking.md`, the `../beta/history/`
+  enclosure-inversion pair, and the naming + website-plot-tender raw dialogues. The **Lexicon
+  Lenses / Polite Goshawk** seam → `experiments/lexicon-community/LENS-SEAM-WORKED-EXAMPLE.md`.
+- **Loose-end closed: use-case fit.** The dating/friendship/meetup research
+  (`research/dating-friendship-meetup-fit-2026-07.md`) answers the use-case-fit question left open by
+  `../beta/cairn/social-lexicon-group-research-brief.md` — does this domain fit the group substrate.
+  Verdict: **meetup/community is the recommended beachhead** (roster/governance/auditable-counts map
+  ~1:1 onto documented Meetup-under-Bending-Spoons pain); dating's core loop is utility-shaped
+  (matching/anonymity/safety), a narrow trust-sidecar only after a real private layer. Surfaces
+  ROADMAP_TODO D11 (beachhead direction). Couples PUBLICATIONS/GROUPS (the substrate it maps onto).
+- **New governance-body depth (grounded-from-site).** `../beta/cairn/lexicon-community-governance.md`
+  adds the lexicon.community *organization/governance* synthesis (7-member TSC, WG chartering,
+  incident-report transparency, credible-exit, door/seam/resonance) that the existing NSID-mechanics
+  stone and the register row did not carry; the register row now points at both. Pending
+  governance-repo verification (ROADMAP_TODO C-item).
+- **New thread (OPEN): cairn orientation taxonomy.** Per the user, cairn stones split three ways —
+  **Drystone-oriented** / **Croft-oriented** / **related-ecosystem** — a distinction not previously
+  labeled. The convention + key is now in `../beta/cairn/README.md`; only the newest stone
+  (`lexicon-community-governance.md` = related-ecosystem) is tagged. Tagging the existing stones is a
+  deferred review pass (ROADMAP_TODO C-item).
+- **New standing practice: kindred-work glossary.** `../beta/socialization/kindred-work.md` (11
+  people, 7 orgs) is an influences-and-kindred-work edge list; its capture-at-session-time procedure
+  is folded into PLAYBOOK §3. Outreach status stays out of the public repo, keyed by the slugs.
+- **Provenance:** cleaned-paste §4 (dupes pointed-to, not re-embedded; UI chrome stripped);
+  `crofting.zip` frozen at `seeds/crofting.zip` + `seeds/crofting-unpacked/` (byte-verified). The
+  croft.ing landing-page build (RUN-01…03 in the zip) is a separate work stream against
+  `CroftCommunity/crofting_site`, not this repo. `RAW-ARTIFACTS-MANIFEST.md` "2026-07 intake".
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the

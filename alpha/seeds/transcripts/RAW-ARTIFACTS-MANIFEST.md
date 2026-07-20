@@ -858,3 +858,17 @@ Distilled **directly into the beta layers** (user's call — a deliberate pull-u
 ECOSYSTEM rows (spores.garden/Hypha, Cohost, Neocities, Linkat, Bio.blue, kibun.social; Standard.site
 updated), ROADMAP_TODO app items, COHESION entry (E1 realization + atmospheric-web overlap). Not committed to
 the strict alpha `thinking/` distillation (beta was the chosen home).
+
+## 2026-07 intake — use-case fit / lexicon governance / kindred-work glossary / croft.ing landing (session + crofting.zip)
+
+| Raw artifact | Where | Status |
+|---|---|---|
+| Multi-thread claude.ai session (~2026-07-17…20): dating/meetup use-case fit, lexicon.community governance synthesis, kindred-work glossary, croft.ing landing request | `seeds/transcripts/raw/croft-usecase-lexicon-glossary-landing-session-2026-07.md` | **preserved-condensed (cleaned-paste, content-faithful — §4)**. Mostly duplication of already-filed material (see COHESION §44); the raw **points to the filed artifacts rather than re-embedding** (PUBLICATIONS, ENGAGE-LEX, RUN-LEX-01). UI chrome stripped; no creds. Vendor numbers in the dating thread `[UNVERIFIED]`, carried in the filed report's Caveats. |
+| `crofting.zip` — 10-file landing-page planning package (RUN-01/02/03 build specs, page-copy drafts, terms/treatise/arecipe-share, coop-messaging-research, kindred-work) | `seeds/crofting.zip` + `seeds/crofting-unpacked/` | **preserved-verbatim** (frozen seed; `diff -rq` byte-identical to source extraction). Working copy placed: `kindred-work.md` → `../../beta/socialization/kindred-work.md`. Deferred placement: the landing-page docs (RUN-01…03, copy drafts) belong with the `CroftCommunity/crofting_site` build stream; `coop-messaging-research.md` pending a dedup check before a `research/` home. |
+
+**Genuinely new outputs from this intake:** `research/dating-friendship-meetup-fit-2026-07.md`
+(dating/meetup use-case-fit report), `../../beta/cairn/lexicon-community-governance.md`
+(governance-body stone, related-ecosystem), `../../beta/socialization/kindred-work.md` (kindred-work
+glossary + capture-at-session-time procedure, now in PLAYBOOK §3). Everything else in the paste was
+already filed. The croft.ing landing-page build itself is a **separate work stream** against
+`CroftCommunity/crofting_site`, not this repo.

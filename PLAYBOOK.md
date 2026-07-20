@@ -163,6 +163,14 @@ After placing anything, update the cross-repo connective tissue:
   pending-verification (see §5c/§5d for the pattern) — don't launder a model's claim into a
   verified-looking row.
 
+- **`beta/socialization/kindred-work.md`** — if the material names a real person or organization
+  whose public work is genuinely aligned (a potential collaborator, reviewer, or supporter), append
+  an edge entry **at capture time** (same write-before-the-session-ends discipline): field, an
+  accurate/respectful "Kindred:" shared-concern line that never implies they know of or endorse the
+  project, the artifact engaged, a possible role, and links. This repo is public, so it is an
+  influences-and-kindred-work ledger only — outreach status and contact strategy live **outside** the
+  public repo, keyed by the same slugs. Accuracy is the respect.
+
 - **`.claude/CLAUDE.md`** (top-level, and per-repo READMEs) — if the structure or the headline
   state changed (a new repo, a resolved gate, a name decision), keep the orientation current so
   a fresh agent lands correctly.

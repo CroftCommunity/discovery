@@ -106,6 +106,13 @@ not try to merge them into one document; cross-reference instead.
   patent-blocking instrument. Not legal advice; the disclosure caveat is one-directional. Pairs with
   the venues doc above.
 
+- `dating-friendship-meetup-fit-2026-07.md` — commissioned use-case-fit analysis of dating,
+  friendship, and meetup apps (2025-26 landscape) against the Drystone group substrate. Sorts each
+  need into provenance-shaped / utility-shaped / centralized-model-consequence, then verdicts the
+  three sub-domains: **meetup/community is the recommended beachhead**, friendship a moderate fit,
+  dating a narrow trust-sidecar only after a real private layer. Point-in-time snapshot; vendor
+  numbers attributed not endorsed. Feeds ROADMAP_TODO D11.
+
 ## Anticipated (different audiences, same underlying research)
 
 The same comparative material will likely be re-cut for different needs — e.g. a
