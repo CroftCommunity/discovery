@@ -871,8 +871,11 @@ the strict alpha `thinking/` distillation (beta was the chosen home).
 | Stellin name-clearance report (claude.ai research, ~442 sources, 2026-07; two passes) | `research/stellin-name-clearance-2026-07.md` | **preserved-condensed (content-faithful)**. **NOT a dupe** — no prior clearance doc existed. Verdict CONTESTED; live RDAP/USPTO/EUIPO/Bluesky checks flagged **could not verify** (must re-run). NAMING.md Stellin entry added. |
 | `pdshistory.zip` — RUN-HIST-02 + RUN-HIST-02-revB (LIVE PDS history-backend experiment briefs) | `seeds/pdshistory.zip` + `seeds/pdshistory-unpacked/` | **preserved-verbatim** (frozen seed; `diff -rq` byte-identical). These are the **briefs/plan**; the run is **EXECUTED + MERGED** (verified on main) at `spike/hist_live/HIST-LIVE-RESULTS.md` (RUN-HIST-02 rev B, branch `claude/hist-atproto-live-gentle`, PR #30). E1/OC-2 settled GREEN (CID = byte-head, zero re-hash with atproto canonicalization). Briefs frozen for provenance; not re-filed. The app-password-vs-OAuth Q&A in the same thread is general Bluesky knowledge (covered by `skylite/docs/custody.md`) — not filed. |
 
+| Mastodon-vs-ActivityPub-vs-ATProto explainer + RUN-AP-01 / RUN-HIST-01 briefs + Berjon ap-at request + live-spike log (pasted 2026-07, no zip) | `beta/cairn/activitypub-atproto-and-the-defacto-standard.md` (new bit); rest on main | **distilled-only** for the genuinely-new bit (the AP/Mastodon/de-facto-standard explainer → the cairn stone, content-faithful). RUN-AP-01 (`experiments/ap-ambassador/`), RUN-HIST-01 (`hist-atproto-spike/`), and the live spike (`spike/hist_live/`) are **already on main** (verified via `git ls-files`/`git log`) — dupe, not re-filed. Berjon ap-at walkthrough deferred → ROADMAP_TODO E41. |
+
 **Genuinely new outputs from this intake:** `research/dating-friendship-meetup-fit-2026-07.md`,
 `research/stellin-name-clearance-2026-07.md` (+ NAMING.md Stellin entry),
+`beta/cairn/activitypub-atproto-and-the-defacto-standard.md`,
 (dating/meetup use-case-fit report), `../../beta/cairn/lexicon-community-governance.md`
 (governance-body stone, related-ecosystem), `../../beta/socialization/kindred-work.md` (kindred-work
 glossary + capture-at-session-time procedure, now in PLAYBOOK §3). Everything else in the paste was
