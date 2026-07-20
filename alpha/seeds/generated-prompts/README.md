@@ -36,3 +36,9 @@ and the standing indexes. Status notes whether the prompt has been run.
   the new Drystone protocol spec** (`beta/drystone-spec/`). The transcript moved to
   `beta/thinking/raw/01_beta_review.txt`. See the banner in the prompt and
   `../../plans/2026-06-26-beta-01-review-refinements.md`. Do not run as written.
+
+- [`spec-currency-ccc-pass-prompt.md`](spec-currency-ccc-pass-prompt.md) — bring Part 1/2
+  (`beta/drystone-spec/`) current, correct, clear, and consistent: a small currency step (apply
+  any Part-1/2-affecting delta since the last spec-touching run) then a full consistency/clarity/
+  correctness pass, RUN-05 FIX-vs-FINDING discipline. CORE-ONLY scope; lane graduation (ROADMAP
+  A19) and primary-source re-verification are out of scope. Copy into a fresh session after a clear.
