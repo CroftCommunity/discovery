@@ -1384,6 +1384,36 @@ briefs, the Berjon ap-at request, and the live-spike log.
 
 ---
 
+## 50. Human-adjudication-language pass — executed on main; provenance + one publishing thread
+
+The 2026-07-20 human-adjudication-language work (fork-not-verdict, the algedonic channel, escalation
+shapes vs parties, the local authority): a survey + a 9-block Claude Code instruction file (`human.zip`).
+
+- **EXECUTED (verified on main), not re-filed.** The pass landed as
+  `beta/drystone-spec/conventions-and-decisions.md` **§A.11** (the human-adjudication vocabulary + ten
+  description rules DR-1..DR-10) and **§B.8** (its changelog), plus the Part 2 §7.6/§7.6.1 naming
+  (escalation *shapes* vs *parties*; "the local authority" for escalation's receiving side), RFC
+  8126/7282 corroboration in Part 1 §3, and the iroh LWW/timestamp cleanup. Frozen provenance:
+  `seeds/human-unpacked/`.
+- **The load-bearing correction (captured).** The operator is **not** the villain — "no operator to
+  trust" scopes to *social utility* (trust is a gradient: trust *for what*); operators are necessary
+  and good, and the real constraint is **two mutually-exclusive planes of authority** (infrastructure
+  vs social utility), which is why one word can't name both roles. This reshaped A.11 (DR-4/DR-10
+  plane-separation, "planes of authority" coined). Design-intent voice raw:
+  `seeds/transcripts/raw/drystone-human-adjudication-language-dialogue-2026-07-20.md` (Schitt's-Creek
+  audio bleed stripped + marked per the user's flag).
+- **RFC-precedent question — answered + cited.** The user's interest ("are there RFCs that require a
+  human input the machine can't supply?") is answered in-spec: RFC 8126 (designated-expert / Expert
+  Review), W3C Permissions/Geolocation (consent gates), RFC 7282 (rough consensus), and Beer's
+  algedonic channel (Cybersyn). Drystone's inversion: distribute the designated-expert role to every
+  principal. The **telephone-operator / File→Save** analogy (mechanical-deterministic vs utility
+  judgment) is the user's framing for why this belongs to a human, not the protocol.
+- **Open thread (surfaced): formally publish the human-adjudication design (RFC-style).** The user's
+  stated interest; folds toward the existing publication/defensive-disclosure work
+  (`thinking/drystone-publication-and-defensive-disclosure.md`, A14). ROADMAP_TODO E42.
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
