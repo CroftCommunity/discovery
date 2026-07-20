@@ -22,7 +22,7 @@ publish = false
 # Deterministic RSA-SHA256 signing (Mastodon's HTTP-Signature scheme).
 # `rsa` verify + sign uses the same key-generation path the specimen-anchored
 # tests want.
-rsa = { version = "0.9", default-features = false, features = ["sha2", "std"] }
+rsa = { version = "0.9", default-features = false, features = ["sha2", "std", "pem"] }
 sha2 = "0.10"
 base64 = "0.22"
 # BLAKE3 seeded RNG for deterministic key generation in fixture builders.
