@@ -1,0 +1,59 @@
+# ap-ambassador — RUN-AP-01: the AP-ambassador receipt lane, red-first.
+#
+# The ambassador is a **delivery-plane role** (A.7 sense): it holds no
+# ordering authority, no membership authority, and — pinned this run — no
+# governance conductivity. What it does: it verifies inbound ActivityPub
+# activities (Follow / Undo Follow / Delete) at the HTTP-signature layer,
+# mints an evidence-complete receipt record over the canonical dag-cbor
+# envelope path from `attest-family` (§A.5), and derives a follower-interval
+# roster by folding Follow/Undo pairs (§A.3 machinery). Every receipt is a
+# gateway-attested fact — "received-what, from-whom, verified-how" — never
+# a native two-sided edge.
+#
+# Reuse is a **condition of considered compatibility** (RUN-ATTEST-01 pattern):
+#   - canonical dag-cbor + BLAKE3 envelope path → path-dep on `attest-family`,
+#     never shadowed;
+#   - the R7 antecedent register + its `AntecedentKind` closed class → the
+#     P5 role boundary is proved by the closed enum admitting no ambassador
+#     variant AND by an ambassador-side runtime `reject_governance_use` gate,
+#     both permanent-red.
+#
+# Standalone-spike convention (group-principal-seam / attest-family precedent):
+# pure workspace, own lockfile, no network deps, no crypto beyond what
+# fixture RSA / ed25519 need. `rsa` and `rand_chacha` are dev-scope so the
+# main crate does not carry RSA key generation on its public surface — the
+# runtime `verify_ap_http_signature` uses only the public-key verify path.
+[package]
+name = "ap-ambassador"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# Canonical dag-cbor path — path-dep on the already-proven attest-family
+# encoder set (§4.6 / RUN-ATTEST-01), never re-implemented.
+serde_ipld_dagcbor = "0.6"
+ipld-core = "0.4"
+# BLAKE3 — the committed hash suite (Part 2 §10.4), for envelope identity
+# `H(envelope)` and the blinded-body commitment.
+blake3 = "1"
+# Ed25519 — subject-side of the P6 dual-proof binding (the DID repo key half).
+ed25519-dalek = "2"
+# RSA-SHA256 — the HTTP-signature scheme used by Mastodon. Runtime verify
+# + fixture sign both depend on it (fixture keys are deterministic-seed).
+rsa = { version = "0.9", default-features = false, features = ["sha2", "std"] }
+sha2 = "0.10"
+# base64 — Mastodon's Signature / Digest headers are base64.
+base64 = "0.22"
+# Deterministic RNG for fixture RSA key generation (no wall-clock entropy).
+# Kept as a main dep so `fixtures.rs` compiles without a test-only feature;
+# no runtime code paths use it — only the fixture builders in `fixtures.rs`.
+rand_chacha = "0.3"
+rand_core = "0.6"
+
+[dev-dependencies]
+# Path-dep to attest-family for the ROLE BOUNDARY: reuse the closed
+# `AntecedentKind` class UNMODIFIED to prove no ambassador variant can exist
+# by construction, and drive attest-family's AttestLog with an ambassador
+# receipt-id-as-antecedent to confirm the fold refuses it (P5 behavioral).
+attest-family = { path = "../attest-family" }
