@@ -1,13 +1,5 @@
 # Dating, Friendship, and Meetup Apps in 2025-2026: Landscape and Fit with Drystone (v2)
 
-author: Research agent (commissioned)
-
-date: 2026-07-19 (Rev 2)
-
-status: draft for review — supersedes the 2026-07-18 v1 (preserved in git history + `../seeds/friends-unpacked/`)
-
----
-
 `Revision 2, 2026-07-19. Supersedes the 2026-07-18 report. Part 1 (landscape) is updated
 in place where this session grounded new facts; Part 2 (the mapping) is rewritten against
 the actual corpus state: GROUPS.md v2 + RUN-17/18 executable evidence, the attestation

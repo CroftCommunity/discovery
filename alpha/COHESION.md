@@ -1360,6 +1360,30 @@ briefs, the Berjon ap-at request, and the live-spike log.
 
 ---
 
+## 49. friends.zip — CONTACT.md (new), dating report v2 (supersedes v1), ENGAGE-LEX (older draft)
+
+- **CONTACT.md — new, filed.** The first-contact model ("postures, knocks, the door"; silence as a
+  first-class outcome, operator holds a door not a room) — the derivation that began with "could
+  Drystone underlie a dating/friendship/meetup app." Filed to its self-declared home
+  `experiments/appview-infra/CONTACT.md`, beside GROUPS.md and PUBLICATIONS.md; referenced by
+  RUN-ATTEST-04-SUMMARY + PRIMITIVES-ATTEST. Closes the loose end the dating report v2 names as "the
+  staged CONTACT.md design." Added to the appview-infra README design-brief pointer.
+- **Dating report v2 supersedes v1 (updated in place).** `research/dating-friendship-meetup-fit-2026-07.md`
+  now holds Rev 2 (2026-07-19), which rewrites Part 2 against the actual corpus (GROUPS.md v2, RUN-17/18
+  evidence, attest V1-V10, CONTACT.md) and upgrades the verdicts: meetup beachhead "natural fit" →
+  "demonstrated mechanisms"; dating "out of scope until a private layer" → "contact layer designed,
+  sealed substrate real, only the matching loop stays out." Supersedes the §44 v1 framing (D11 in
+  ROADMAP still holds; its "dating a narrow trust-sidecar" line is softened by v2). v1 preserved in git
+  history + `seeds/friends-unpacked/`.
+- **ENGAGE-LEX (friends.zip) is an older draft — DUPLICATION, main authoritative.** The on-main
+  `attest-family/ENGAGE-LEX.md` carries the RUN-LEX-01-EXECUTED status and refined grounding; the zip
+  copy is the pre-execution draft. Not overwritten; preserved as raw only.
+- **Provenance & retention:** `seeds/friends-unpacked/` (byte-verified). All working-copy zips
+  (arecipe/crofting/eleven/graph/pdshistory/stellin/friends) extracted-and-filed and removed;
+  see §48 and `RAW-ARTIFACTS-MANIFEST.md`.
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
