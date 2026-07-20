@@ -154,8 +154,16 @@ a one-line caveat wherever the corresponding spec claim hardens.
 
 ## 4. Incorporate-back worklist — concrete spec edits
 
-Ordered by value. Each names the target section and the exact change. These are **proposals for
-discussion**, not applied edits — the spec is reviewed material.
+Ordered by value. Each names the target section and the exact change.
+
+> **STATUS (maintained forward): F1–F8 have since LANDED (RUN-02, 2026-07-13; carried forward
+> RUN-05) — see the header note above and §7.** F1 (R7) is in Part 2 §7.2 at `Modeled`/`Verified`;
+> F2–F7 landed as status moves + caveats; F8 (two-competing-quorums) was added. This section is
+> retained as the record of *what* was proposed and *why*; it is no longer a pending worklist. The
+> reviewable diff is a **historical record** at `../../beta/drystone-spec/proposed-changes-2026-07-experiment-reconciliation.md`.
+
+The items below were **proposals for discussion** when written (the spec is reviewed material); they
+are now applied.
 
 > **The reviewable diff for F1–F7 is staged at
 > `beta/drystone-spec/proposed-changes-2026-07-experiment-reconciliation.md`** — current Part 2 text →
