@@ -435,6 +435,47 @@ pub(crate) fn parse_json_object(text: &str) -> Option<BTreeMap<String, String>> 
         } else if bytes[i] == b'{' {
             let raw = parse_object_raw(bytes, &mut i)?;
             out.insert(format!("{key}_raw"), raw);
+        } else if bytes[i] == b'[' {
+            // Skip past the balanced array — its contents don't participate
+            // in the top-level fields we care about (`type`, `actor`,
+            // `object`, `id`), but the parser must not choke on it. This
+            // is required for Delete(Actor)'s `"to":[…]` field per
+            // fed-shim specimen `mastodon-delete-actor-observed-shape.md`.
+            let mut depth = 0i32;
+            let mut in_string = false;
+            while i < bytes.len() {
+                let c = bytes[i];
+                if in_string {
+                    if c == b'\\' {
+                        i += 2;
+                        continue;
+                    }
+                    if c == b'"' {
+                        in_string = false;
+                    }
+                    i += 1;
+                    continue;
+                }
+                match c {
+                    b'"' => in_string = true,
+                    b'[' => depth += 1,
+                    b']' => {
+                        depth -= 1;
+                        if depth == 0 {
+                            i += 1;
+                            break;
+                        }
+                    }
+                    _ => {}
+                }
+                i += 1;
+            }
+            if depth != 0 {
+                return None;
+            }
+            // Do NOT record the array under `key` — the caller doesn't
+            // need it, and recording under a stringly key would look
+            // like a string field to consumers of `parse_json_object`.
         } else {
             return None;
         }

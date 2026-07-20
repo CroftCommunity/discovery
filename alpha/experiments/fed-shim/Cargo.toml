@@ -1,0 +1,38 @@
+# fed-shim — the fediverse-wire conformance shim.
+#
+# See FED-SHIM.md for the charter (§0 governing principle: wire conformance
+# ≠ Mastodon replica). Standalone-spike convention (attest-family / ap-
+# ambassador precedent): pure workspace, own lockfile, no network deps.
+#
+# Path-deps:
+#   - ap-ambassador (dev-dep): the shim's own tests drive the ap-ambassador
+#     verify surface UNCHANGED to prove wire round-trip fidelity end-to-end.
+#     This is the shape ap-ambassador's own tests (shim_roundtrip.rs, landing
+#     with fed-shim) will consume; the shim's LIB does NOT depend on
+#     ap-ambassador — only its tests do. Keeps the shim usable outside the
+#     ap-ambassador world (e.g. by xmtp-ambassador later, if we settle on a
+#     shared verify surface).
+[package]
+name = "fed-shim"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# Deterministic RSA-SHA256 signing (Mastodon's HTTP-Signature scheme).
+# `rsa` verify + sign uses the same key-generation path the specimen-anchored
+# tests want.
+rsa = { version = "0.9", default-features = false, features = ["sha2", "std", "pem"] }
+sha2 = "0.10"
+base64 = "0.22"
+# BLAKE3 seeded RNG for deterministic key generation in fixture builders.
+blake3 = "1"
+rand_chacha = "0.3"
+rand_core = "0.6"
+
+[dev-dependencies]
+# Path-dep to ap-ambassador — the shim's own tests drive the full
+# ap-ambassador::verify path against the shim's outbound bytes, proving
+# wire round-trip fidelity through TWO independent implementations of the
+# same signature scheme. See FED-SHIM.md §5 (Kinship).
+ap-ambassador = { path = "../ap-ambassador" }
