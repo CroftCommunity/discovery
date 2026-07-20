@@ -1,0 +1,29 @@
+[package]
+name = "hist_live"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "RUN-HIST-02 rev B: live-leg spike for hist-atproto. LiveLeg trait with stub + real bsky-hosted PDS impl behind a gentleness contract (write budget, single-flight, ~1 rps). Produces evidence for OC-1..5."
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_ipld_dagcbor = "0.6"
+ipld-core = "0.4"
+sha2 = "0.10"
+cid = "0.11"
+multihash = { version = "0.19", default-features = false, features = ["alloc"] }
+ureq = { version = "2", features = ["json", "tls"], default-features = false }
+rustls = { version = "0.23", features = ["ring", "std"] }
+rustls-pemfile = "2"
+tungstenite = { version = "0.24", default-features = false, features = ["handshake"] }
+ed25519-dalek = "2"
+k256 = { version = "0.13", features = ["ecdsa"] }
+p256 = { version = "0.13", features = ["ecdsa"] }
+base64 = "0.22"
+hex = "0.4"
+bs58 = "0.5"
+unsigned-varint = "0.8"
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,0 +1,12 @@
+{
+  "rkey": "c3e8f0fb_0000001",
+  "local_cid": "bafyreibl4arna2tg72ty5crl2oeaspohuuqwzihun6i5mji46djtihk5xq",
+  "local_bytes_len": 260,
+  "local_bytes_sha256": "2be022d06a66fea78e8a2bd388093dc7a5216ca0f46f91d6251cf0d3341d5dbc",
+  "pds_get_record_cid": "bafyreibl4arna2tg72ty5crl2oeaspohuuqwzihun6i5mji46djtihk5xq",
+  "pds_sync_leaf_cid": "bafyreibl4arna2tg72ty5crl2oeaspohuuqwzihun6i5mji46djtihk5xq",
+  "pds_sync_leaf_bytes_len": 260,
+  "pds_sync_leaf_bytes_sha256": "2be022d06a66fea78e8a2bd388093dc7a5216ca0f46f91d6251cf0d3341d5dbc",
+  "cid_equal": true,
+  "bytes_equal": true
+}

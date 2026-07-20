@@ -1,0 +1,46 @@
+{
+  "verdict": "GREEN",
+  "total_records": 40,
+  "per_page_size": [
+    {
+      "limit": 1,
+      "pages": 41,
+      "total_records": 40,
+      "total_bytes": 13884,
+      "wall_clock_ms": 67645,
+      "avg_ms_per_page": 1649,
+      "avg_bytes_per_record": 347.1,
+      "records_per_sec": 0.5913223445930963
+    },
+    {
+      "limit": 10,
+      "pages": 5,
+      "total_records": 40,
+      "total_bytes": 13884,
+      "wall_clock_ms": 7283,
+      "avg_ms_per_page": 1456,
+      "avg_bytes_per_record": 347.1,
+      "records_per_sec": 5.492242207881367
+    },
+    {
+      "limit": 50,
+      "pages": 2,
+      "total_records": 40,
+      "total_bytes": 13884,
+      "wall_clock_ms": 3409,
+      "avg_ms_per_page": 1704,
+      "avg_bytes_per_record": 347.1,
+      "records_per_sec": 11.733646230566148
+    },
+    {
+      "limit": 100,
+      "pages": 2,
+      "total_records": 40,
+      "total_bytes": 13884,
+      "wall_clock_ms": 3095,
+      "avg_ms_per_page": 1547,
+      "avg_bytes_per_record": 347.1,
+      "records_per_sec": 12.924071082390952
+    }
+  ]
+}

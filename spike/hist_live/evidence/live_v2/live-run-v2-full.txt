@@ -1,0 +1,31 @@
+warning: unused variable: `e`
+   --> tests/live_run_v2.rs:376:13
+    |
+376 |         Err(e) => {
+    |             ^ help: if this is intentional, prefix it with an underscore: `_e`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `sha256_hex` is never used
+  --> tests/live_run_v2.rs:44:4
+   |
+44 | fn sha256_hex(bytes: &[u8]) -> String {
+   |    ^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `hist_live` (test "live_run_v2") generated 2 warnings (run `cargo fix --test "live_run_v2" -p hist_live` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/live_run_v2.rs (target/debug/deps/live_run_v2-70d2895b6e97ec90)
+
+running 1 test
+test live_v2_orchestration_e_mst_e_since_e_firehose_and_teardown ... [live_v2] session did=did:plc:xyfhcaweaeyew3zrgk6jaln7 pds=https://stropharia.us-west.host.bsky.network
+[e-firehose] connecting wss://stropharia.us-west.host.bsky.network/...subscribeRepos
+[e-firehose] connected; sleeping 1s to let subscription settle
+[e-firehose] reading firehose for our-repo events (deadline 10s)...
+[teardown] complete
+[budget] writes=16/100  blobs=0/3  reads=9  rate_limit_signals=0
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 27.91s
+
