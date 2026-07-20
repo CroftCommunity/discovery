@@ -1,0 +1,13 @@
+{
+  "blob_calls": 0,
+  "blobs": 0,
+  "caps": {
+    "blobs": 3,
+    "writes": 100
+  },
+  "rate_limit_signals": 0,
+  "read_calls": 9,
+  "reads": 9,
+  "write_calls": 7,
+  "writes": 16
+}

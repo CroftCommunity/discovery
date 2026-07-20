@@ -1,0 +1,24 @@
+   Compiling hist_live v0.1.0 (/home/user/discovery/spike/hist_live)
+error[E0502]: cannot borrow `b` as immutable because it is also borrowed as mutable
+  --> src/canonical.rs:17:99
+   |
+17 |     { let mut b = serde_ipld_dagcbor::to_vec(value).expect("dag-cbor encode"); if b.len() > 5 { b[b.len()-1] ^= 1; } b }
+   |                                                                                                 --^---------
+   |                                                                                                 |||
+   |                                                                                                 ||immutable borrow occurs here
+   |                                                                                                 |mutable borrow later used here
+   |                                                                                                 mutable borrow occurs here
+   |
+help: try adding a local storing this...
+  --> src/canonical.rs:17:99
+   |
+17 |     { let mut b = serde_ipld_dagcbor::to_vec(value).expect("dag-cbor encode"); if b.len() > 5 { b[b.len()-1] ^= 1; } b }
+   |                                                                                                   ^^^^^^^
+help: ...and then using that local here
+  --> src/canonical.rs:17:98
+   |
+17 |     { let mut b = serde_ipld_dagcbor::to_vec(value).expect("dag-cbor encode"); if b.len() > 5 { b[b.len()-1] ^= 1; } b }
+   |                                                                                                  ^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0502`.
+error: could not compile `hist_live` (lib) due to 1 previous error

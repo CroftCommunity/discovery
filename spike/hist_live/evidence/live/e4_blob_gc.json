@@ -1,0 +1,39 @@
+{
+  "verdict": "GREEN",
+  "blob_cid": "bafkreiejyitb5ekh2drx2mxw2uhv5ar6pv3nszvjqwuhhwhhhzfaexm7ai",
+  "blob_bytes_len": 4096,
+  "pre_reference_fetch": {
+    "when": "immediate",
+    "status": "error(400)",
+    "bytes_len": null,
+    "sha256": null
+  },
+  "post_reference_fetch": {
+    "when": "immediate",
+    "status": "found",
+    "bytes_len": 4096,
+    "sha256": "89c2261e9147d0e37d32f6d50f5e823e7d76d966a985a873d8e73e4a025d9f02"
+  },
+  "dereferenced_probes": [
+    {
+      "when": "t+0s (just-after-deref)",
+      "status": "error(400)",
+      "bytes_len": null,
+      "sha256": null
+    },
+    {
+      "when": "t+30s",
+      "status": "error(400)",
+      "bytes_len": null,
+      "sha256": null
+    },
+    {
+      "when": "t+2m",
+      "status": "error(400)",
+      "bytes_len": null,
+      "sha256": null
+    }
+  ],
+  "observed_at_iso": "2026-07-20T04:43:32.869Z",
+  "host": "https://bsky.social"
+}

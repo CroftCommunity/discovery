@@ -1,0 +1,41 @@
+{
+  "verdict": "GREEN",
+  "rows": [
+    {
+      "rkey": "c3e8f0fb_0000001",
+      "local_cid": "bafyreibl4arna2tg72ty5crl2oeaspohuuqwzihun6i5mji46djtihk5xq",
+      "local_bytes_len": 260,
+      "local_bytes_sha256": "2be022d06a66fea78e8a2bd388093dc7a5216ca0f46f91d6251cf0d3341d5dbc",
+      "pds_get_record_cid": "bafyreibl4arna2tg72ty5crl2oeaspohuuqwzihun6i5mji46djtihk5xq",
+      "pds_sync_leaf_cid": "bafyreibl4arna2tg72ty5crl2oeaspohuuqwzihun6i5mji46djtihk5xq",
+      "pds_sync_leaf_bytes_len": 260,
+      "pds_sync_leaf_bytes_sha256": "2be022d06a66fea78e8a2bd388093dc7a5216ca0f46f91d6251cf0d3341d5dbc",
+      "cid_equal": true,
+      "bytes_equal": true
+    },
+    {
+      "rkey": "c3e8f0fb_0000002",
+      "local_cid": "bafyreidxvvsp3yzwcryuetjpphymvng7zd4v4i6tpktkbk2x47ddtbnzvu",
+      "local_bytes_len": 300,
+      "local_bytes_sha256": "77ad64fde3361471424d2f79f0cab4dfc8f95e23d37aa6a0ab57e7c63985b9ad",
+      "pds_get_record_cid": "bafyreidxvvsp3yzwcryuetjpphymvng7zd4v4i6tpktkbk2x47ddtbnzvu",
+      "pds_sync_leaf_cid": "bafyreidxvvsp3yzwcryuetjpphymvng7zd4v4i6tpktkbk2x47ddtbnzvu",
+      "pds_sync_leaf_bytes_len": 300,
+      "pds_sync_leaf_bytes_sha256": "77ad64fde3361471424d2f79f0cab4dfc8f95e23d37aa6a0ab57e7c63985b9ad",
+      "cid_equal": true,
+      "bytes_equal": true
+    },
+    {
+      "rkey": "c3e8f0fb_0000003",
+      "local_cid": "bafyreiaghtsygdoeua6lzhsgw62iv5hznqba5o45yofjtkbsbkkdul2nva",
+      "local_bytes_len": 300,
+      "local_bytes_sha256": "063ce5830dc4a03cbc9e46b7b48af4f96c020ebb9dc38a99a8320a943a2f4da8",
+      "pds_get_record_cid": "bafyreiaghtsygdoeua6lzhsgw62iv5hznqba5o45yofjtkbsbkkdul2nva",
+      "pds_sync_leaf_cid": "bafyreiaghtsygdoeua6lzhsgw62iv5hznqba5o45yofjtkbsbkkdul2nva",
+      "pds_sync_leaf_bytes_len": 300,
+      "pds_sync_leaf_bytes_sha256": "063ce5830dc4a03cbc9e46b7b48af4f96c020ebb9dc38a99a8320a943a2f4da8",
+      "cid_equal": true,
+      "bytes_equal": true
+    }
+  ]
+}

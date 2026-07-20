@@ -1,0 +1,16 @@
+{
+  "caps": {
+    "writes": 100,
+    "blobs": 3,
+    "max_blob_bytes": 65536
+  },
+  "ledger": {
+    "writes": 87,
+    "reads": 35,
+    "blobs": 1,
+    "write_calls": 15,
+    "read_calls": 35,
+    "blob_calls": 1,
+    "rate_limit_signals": 0
+  }
+}
