@@ -43,10 +43,13 @@ status tags / ROADMAP_TODO / COHESION; (b) whether the *specific finding* (not j
 2. **MASTER-INDEX §1** — extended the HIST row to record **RUN-HIST-02 rev B** (`spike/hist_live/`, E1–E8 green, E1/OC-2 GREEN, merged PR #30).
 3. **SPEC-ALIGNMENT-AND-ACTION-PLAN §4** — added a "F1–F8 landed (RUN-02)" status note so the intro line no longer reads as a pending worklist.
 
-## Narrative/thinking gaps surfaced (NOT written — owner-gated)
+## Narrative/thinking gaps — surfaced, then WRITTEN (owner-authorized 2026-07-20)
 
-The design layer is broadly current; two specific implications from the July bursts have **not** reached
-`thinking/`, and both are genuine design stories worth a deliberate write (your pen, not mine):
+Both surfaced implications were written as thinking docs on owner authorization:
+- **`thinking/pds-as-personal-deep-history.md`** — closes gap 1.
+- **`thinking/sealed-tier-in-the-browser.md`** — closes gap 2.
+
+The two gaps, as originally surfaced:
 
 1. **[highest] PDS as the personal deep-history backend.** RUN-HIST proved a person's older history can
    live on their own PDS as cold storage, authenticated by a local **reference tail** (checkpoint
