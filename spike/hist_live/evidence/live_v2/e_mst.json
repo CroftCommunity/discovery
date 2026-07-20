@@ -1,0 +1,27 @@
+{
+  "verdict": "GREEN",
+  "proof": {
+    "commit_root_cid": "bafyreiaopjrvun43eiziuqsl4n6sw2yyuxitaijc5wtvrfmbmlouoes3iy",
+    "data_root_cid": "bafyreiftrnk66wwqhjq7tu3zfb3sjtyw54tsc3p72sgnugd2bxhg3qyucy",
+    "inner_blocks_visited": 7,
+    "total_reachable_leaves": 7,
+    "target_leaves_present": [
+      "bafyreihbvdlmvnhk6ss6c5orjod4tnobu3bvnovxgozjggn3cpivgdnosm",
+      "bafyreid6hivmgjxrfciwj6hu4oby2wxo3tpoqbwrwlzl65kceo7fr7yjqy",
+      "bafyreigjjl2cywmsxkvngoylo3bcyuzzsdxqdfah4bo3g7yuu3brs2ws4i"
+    ],
+    "target_leaves_absent": [],
+    "walk_warnings": []
+  },
+  "target_leaves_written": [
+    "bafyreihbvdlmvnhk6ss6c5orjod4tnobu3bvnovxgozjggn3cpivgdnosm",
+    "bafyreid6hivmgjxrfciwj6hu4oby2wxo3tpoqbwrwlzl65kceo7fr7yjqy",
+    "bafyreigjjl2cywmsxkvngoylo3bcyuzzsdxqdfah4bo3g7yuu3brs2ws4i"
+  ],
+  "all_targets_reachable": true,
+  "forgery_negative_control": {
+    "description": "synthetic never-written CID must be ABSENT from reachable leaves",
+    "forged_cid": "bafyreicoirklgptvci7urhtatrgps4inngfz2fvi3kyyxtv46gsybrr6ai",
+    "correctly_absent_from_reachable_set": true
+  }
+}

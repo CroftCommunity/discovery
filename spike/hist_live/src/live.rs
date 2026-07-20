@@ -447,12 +447,46 @@ impl LiveLegTrait for HttpLeg {
     }
 
     fn sync_get_repo(&self, did: &str) -> Result<Vec<u8>, XrpcError> {
+        self.sync_get_repo_since(did, None)
+    }
+
+    fn sync_get_repo_since(
+        &self,
+        did: &str,
+        since: Option<&str>,
+    ) -> Result<Vec<u8>, XrpcError> {
         let sess = self.ensure_session()?;
-        let url = format!(
+        let mut url = format!(
             "{}/xrpc/com.atproto.sync.getRepo?did={}",
             sess.pds_endpoint, did
         );
+        if let Some(s) = since {
+            url.push_str(&format!("&since={}", urlencoding_encode(s)));
+        }
         self.get_bytes_metered_read(&url, Some(&sess.access_jwt))
+    }
+
+    fn sync_get_latest_commit(
+        &self,
+        did: &str,
+    ) -> Result<(String, String), XrpcError> {
+        let sess = self.ensure_session()?;
+        let url = format!(
+            "{}/xrpc/com.atproto.sync.getLatestCommit?did={}",
+            sess.pds_endpoint, did
+        );
+        let v = self.get_json_metered_read(&url, Some(&sess.access_jwt))?;
+        let cid = v
+            .get("cid")
+            .and_then(|x| x.as_str())
+            .ok_or_else(|| XrpcError::Decode("no cid".into()))?
+            .to_string();
+        let rev = v
+            .get("rev")
+            .and_then(|x| x.as_str())
+            .ok_or_else(|| XrpcError::Decode("no rev".into()))?
+            .to_string();
+        Ok((cid, rev))
     }
 
     fn resolve_did_doc(&self, did: &str) -> Result<serde_json::Value, XrpcError> {

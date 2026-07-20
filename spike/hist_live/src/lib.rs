@@ -13,7 +13,9 @@ pub mod car;
 pub mod did;
 pub mod fold;
 pub mod leg;
+pub mod firehose;
 pub mod live;
+pub mod mst;
 pub mod record;
 pub mod stub;
 
@@ -22,7 +24,10 @@ pub use canonical::{
     canonical_dag_cbor, cid_v1_dag_cbor, dag_cbor_to_atproto_json, ipld_to_json, CidString,
 };
 pub use car::{parse_car, CarBlock};
-pub use fold::{fold_by_antecedent_hashes, fold_by_commit_order_NEGATIVE_CONTROL, FoldState};
+pub use fold::{
+    fold_by_antecedent_hashes, fold_by_commit_order_NEGATIVE_CONTROL, strict_fold, FoldState,
+    StrictFoldError,
+};
 pub use leg::{
     ApplyWritesOp, ApplyWritesResp, BlobRef, CommitMeta, GetRecordResp, LiveLegTrait,
     ListRecordsPage, RecordRef, SessionTokens, SyncRecordResp, XrpcError,

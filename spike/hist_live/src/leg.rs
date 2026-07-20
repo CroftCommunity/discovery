@@ -188,6 +188,34 @@ pub trait LiveLegTrait {
     /// `com.atproto.sync.getRepo` — full CAR.
     fn sync_get_repo(&self, did: &str) -> Result<Vec<u8>, XrpcError>;
 
+    /// `com.atproto.sync.getRepo?since=<rev>` — delta CAR from `since` to
+    /// the current commit head.  `None` for since means "full CAR" and
+    /// falls through to `sync_get_repo`.  Default impl covers the None
+    /// case; live impl overrides to plumb the `since` param.
+    fn sync_get_repo_since(
+        &self,
+        did: &str,
+        since: Option<&str>,
+    ) -> Result<Vec<u8>, XrpcError> {
+        if since.is_some() {
+            return Err(XrpcError::StubMiss(
+                "sync_get_repo_since not implemented on this leg (only live)".into(),
+            ));
+        }
+        self.sync_get_repo(did)
+    }
+
+    /// `com.atproto.sync.getLatestCommit` — current commit CID and rev.
+    fn sync_get_latest_commit(
+        &self,
+        did: &str,
+    ) -> Result<(String, String), XrpcError> {
+        let _ = did;
+        Err(XrpcError::StubMiss(
+            "sync_get_latest_commit not implemented on this leg".into(),
+        ))
+    }
+
     /// DID document lookup via the plc directory (or web).
     fn resolve_did_doc(&self, did: &str) -> Result<serde_json::Value, XrpcError>;
 
