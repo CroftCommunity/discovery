@@ -1,0 +1,8 @@
+{
+  "name": "lexicon-community-gate",
+  "version": "0.0.0",
+  "private": true,
+  "description": "EXP-LEX-01 official-tooling gate: validate vendored schemas + fixtures under @atproto/lexicon.",
+  "type": "module",
+  "dependencies": { "@atproto/lexicon": "^0.4.0" }
+}

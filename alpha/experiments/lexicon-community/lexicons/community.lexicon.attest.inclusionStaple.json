@@ -1,0 +1,44 @@
+{
+  "lexicon": 1,
+  "id": "community.lexicon.attest.inclusionStaple",
+  "description": "CANDIDATE / DRAFT, non-normative (RUN-LEX-01 EXP-LEX-04). The holder-stapled inclusion proof handed to a verifier alongside a credential: the leaf commitment, its RFC-6962 audit path and position, the strongRef to the signed tree head, and the strongRef to the holder binding. The verifier checks it with ZERO callback to the issuer. `alg` is a CLOSED enum (contrast the calendar lexicons' OPEN knownValues) — a value outside it is invalid, the T-AT6.1 / matchup Row 3 distinction expressed in a schema.",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["alg", "commitment", "leafIndex", "treeSize", "auditPath", "head", "binding"],
+        "properties": {
+          "alg": {
+            "type": "string",
+            "enum": ["ES256K", "ES256", "ES384"],
+            "description": "The issuer's CID-first signature suite. CLOSED enum — the base spec's three blessed curves."
+          },
+          "commitment": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "The credential's keyed commitment (the tree leaf)."
+          },
+          "leafIndex": { "type": "integer", "minimum": 0 },
+          "treeSize": { "type": "integer", "minimum": 1 },
+          "auditPath": {
+            "type": "array",
+            "items": { "type": "bytes", "maxLength": 32 },
+            "description": "RFC-6962 audit path, leaf → root."
+          },
+          "head": {
+            "type": "ref",
+            "ref": "com.atproto.repo.strongRef",
+            "description": "strongRef to the signed community.lexicon.attest.treeHead record."
+          },
+          "binding": {
+            "type": "ref",
+            "ref": "com.atproto.repo.strongRef",
+            "description": "strongRef to the issuer-signed community.lexicon.attest.holderBinding record."
+          }
+        }
+      }
+    }
+  }
+}

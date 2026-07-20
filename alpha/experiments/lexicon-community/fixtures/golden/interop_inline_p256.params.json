@@ -1,0 +1,12 @@
+{
+  "_note": "Produced by the REFERENCE implementation (crates.io atproto-attestation 0.14.5, atproto-attestation-sign) — NOT by us. Our clean-room verifier must accept it. This is the EXP-LEX-03 interop anchor.",
+  "repository": "did:plc:testrepo123",
+  "signing_key_curve": "P-256",
+  "public_did_key": "COMPUTED_AT_TEST_TIME_FROM_PRIVATE",
+  "empirical_findings": {
+    "signature_message": "36-byte binary CIDv1 (0x01711220 || sha256digest)",
+    "signature_digest": "SHA-256 (P-256 default), i.e. ECDSA over SHA256(cid36)",
+    "signature_encoding": "raw r||s, 64 bytes, low-S normalized",
+    "resolves_ambiguities": ["A-4", "A-5"]
+  }
+}

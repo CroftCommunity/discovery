@@ -1,0 +1,6 @@
+{
+  "$type": "blue.badge.attestation",
+  "issuer": "did:plc:attestorrepo",
+  "purpose": "demo",
+  "cid": "bafyreiddpyjgiefx6hhu2aw7l7lkptu4i6y6ztuf5xi4s7thbg6ouqswrm"
+}

@@ -1,0 +1,7 @@
+{
+  "_note": "REFERENCE-impl remote attestation (atproto-attestation-sign remote). source_repo binds the attestation CID; the proof record's own plain CID is the strongRef target.",
+  "source_repository": "did:plc:sourcerepo",
+  "attestation_repository": "did:plc:attestorrepo",
+  "proof_cid_is": "attestation_cid(source_record, proof_metadata, source_repo)",
+  "strongref_cid_is": "plain_cid(proof_record)"
+}
