@@ -1,0 +1,44 @@
+# hist-atproto-spike — RUN-HIST-01 Part B: the mechanical seam between the §G
+# reconciliation envelope and an ATProto-PDS-shaped backend, proved in code.
+#
+# Standalone experiment crate (own lockfile = own pin; explicit [workspace] so it
+# is never pulled into a parent workspace). Pure workspace: NO openmls (L2a
+# precedent), no network deps in the library — the attended-optional live legs
+# are dev-dependency only and env-gated. Proven machinery is reused via path
+# dependencies, never shadowed:
+#   - lineage-history/lineage-core — the A2.3 backfill admission machinery
+#     (standing plus contiguity; Proofs Phase 2.5), reused UNCHANGED by B6.
+#   - serde_ipld_dagcbor + ipld-core — the proven canonical dag-cbor path
+#     (§4.6 machinery; public-roundtrip/attest-family precedent). No hand-rolled
+#     canonicalization.
+# blake3 is the committed hash suite (in-house digests); sha2 feeds the
+# blessed-CID-shaped blob refs (data-model spec: raw 0x55 + sha-256) — the
+# entry_digest ≡ blob-CID question is HS OC-5's sibling HS OC-2, pending.
+#
+# Serves: beta/impl/drystone-design/history-durability.md §G/§I/§J/§L and
+# beta/impl/drystone-design/rbsr-construction.md (reqs. 3, 5), via
+# alpha/experiments/HIST-ATPROTO-MATCHUP.md (RUN-HIST-01 Part A).
+[workspace]
+
+[package]
+name = "hist-atproto-spike"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+serde_ipld_dagcbor = "0.6"
+ipld-core = "0.4"
+blake3 = "1"
+sha2 = "0.10"
+hex = "0.4"
+# The proven A2.3 admission machinery (standing + contiguity), path-reused.
+lineage-core = { path = "../../Proofs/lineage-groups/crates/lineage-core" }
+lineage-history = { path = "../../Proofs/lineage-groups/crates/lineage-history" }
+
+[dev-dependencies]
+# Live legs only (attended-optional, env-gated; skip with a named reason
+# absent creds). Never linked by the library.
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls-native-roots"] }
+serde_json = "1"
+blake3 = "1"
