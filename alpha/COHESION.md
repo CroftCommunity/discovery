@@ -1252,6 +1252,32 @@ material is not re-filed.
 
 ---
 
+## 45. Multi-persona / "knows-you" social-graph idea ↔ the built attest lane (mostly realized) + one new design sliver
+
+The 2026-07 design note on multi-persona graphs (work/home, school/home hard splits), choosing what to
+advertise, hiding the broader graph, and "someone asserting that they know you" as a verified credential
+paired with a scoped descriptor ("friend from school"). Pasted alongside the RUN-ATTEST-04 session and
+`graph.zip` (the RUN-ATTEST-01…04 briefs).
+
+- **~95% already built/filed (DUPLICATION).** The attestation half is a shipped primitive family:
+  `experiments/attest-family/PRIMITIVES-ATTEST.md` — **attestation** = the mutual co-signed edge ("the
+  friend case"), **vouch**, **scope** = the "friend from school" descriptor, **resolvability** = per-persona
+  visibility control (graded-resolvability default V4, motivated by workplace personas), **anchor persona**
+  = the hard-split multi-persona case (work/home). Ten of ten owner verdicts settled (RUN-ATTEST-04;
+  summaries at `experiments/RUN-ATTEST-0{1,2,3,4}-SUMMARY.md`). The visibility/multi-persona half is the
+  standing `thinking/social-layer.md` thesis (S3 quiet membership, S4 multi-identity, §3 label layer,
+  §7 per-connection advertise controls). The user's own session says it went "from a conversation about
+  'friend from school' to settled, tested primitive language in two days."
+- **The one genuinely-new sliver (captured).** The *utility-representative graph vs happenstance* framing
+  and the fatigue concern — attestations should surface as a **permanent, low-noise overlay** that informs
+  only on genuinely meaningful connection, never auto-inferring meaning from broad-strokes overlap (same
+  high school + volleyball league, no real overlap = fine). Filed as a new open-design question in
+  `thinking/social-layer.md` §7, cross-referencing the built attest primitives; ROADMAP_TODO E40.
+- **Provenance:** `graph.zip` frozen at `seeds/graph.zip` + `seeds/graph-unpacked/` (byte-verified);
+  brief content not re-filed (summaries already exist). See `RAW-ARTIFACTS-MANIFEST.md` "2026-07 intake".
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
