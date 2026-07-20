@@ -104,6 +104,24 @@ vocabulary is fixed as alpha-tier only (A.9). See `CONSISTENCY-FINDINGS-2026-07.
 
 ---
 
+## E. HIST lane — the PDS-backed history store (own-lane band, RUN-HIST-01)
+
+Own-lane rows serving `beta/impl/drystone-design/history-durability.md` and
+`rbsr-construction.md` (not Part 2 sections — the lane is renumberable to mainline later). Index
+only, never a status source; the five `HS OC-*` owner calls are pending
+(`HIST-ATPROTO-MATCHUP.md` §6) and nothing here decides them.
+
+| § served | claim | tag | bounds | evidence | register | gates |
+|---|---|---|---|---|---|---|
+| hist-dur §G | B1: §G envelope ↔ `ing.croft.hist.entry` record round-trip is lossless bytewise; malformed records rejected whole | `Modeled` | pure mapping; spike-local canonical form + record encoding, no wire pin | `b1_roundtrip.rs` (RUN-HIST-01) | — | `[gates-release]` canonical/record encodings; HS OC-2 (digest≡CID) pending |
+| hist-dur §J | B2: rkey lexicographic order ≡ (subspace, counter) total order, property-swept incl. every decimal padding boundary + u64 ceiling | `Modeled` | spike-local 20-digit width (the width itself `[gates-release]`-adjacent); 8-byte hash prefix | `b2_rkey_order.rs` (RUN-HIST-01) | — | padding width + prefix length are byte choices, deferred |
+| hist-dur §I; rbsr req. 3 | B3: chain gap over cursored, stateless listRecords-shaped pages is named by its two bounding digests | `Modeled` | mock responder mirroring the *fetched* lexicon surface (cursor/limit/reverse; no range bounds) | `b3_gap_pages.rs` (RUN-HIST-01) | — | — |
+| hist-dur §K; GROUPS.md A.7 | B4: delivery permutations (chain / reversed / strided) fold to identical state; delivery cursor structurally unreadable by the fold (compile-level) | `Modeled` | in-process; 2 compile_fail doc-tests pin the type boundary | `b4_fold_order.rs` + `src/delivery.rs` doc-tests (RUN-HIST-01) | — | — |
+| hist-dur §D (store replacement) | B5: CAR re-hydration rebuilds the envelope index to convergence equality; a missing root-referenced block is NAMED, never silent | `Modeled` | fixture-grade in-crate CARv1 codec (declared; not a wire pin) | `b5_car_rehydrate.rs` (RUN-HIST-01) | — | — |
+| rbsr req. 5; §I admission | B6: omission detected regardless of responder honesty (withheld-with-valid-sigs → NonContiguous; re-signed payload gap → EnvelopeGap by bounding digests; stranger → UnauthorizedAuthor; renumbered → BadSignature); admission REUSES `lineage-history::backfill_import` (A2.3) unmodified | `Modeled` | reused machinery cited at its own grade (Proofs Phase 2.5 A2.3); fixture keypairs | `b6_omission.rs` (RUN-HIST-01) | — | — |
+| hist-dur §L | B7: prune below a boundary permitted ONLY with a present, verifiable checkpoint marker covering it; ungated/under-covering/cross-subspace/tampered markers all gate closed | `Modeled` | gate only — §L's checkpoint CONSTRUCTION stays open; placeholder commitment shape declared | `b7_prune_guard.rs` (RUN-HIST-01) | — | §L checkpoint construction (open item) |
+| matchup row 1 (blob lifecycle) | live legs: uploadBlob → temporary storage; re-upload of identical bytes → identical CID before AND after referencing; referencing requires a record (created + deleted, cleanup); GC-window entry state observed | `Verified` (narrow: live observation) | real bsky.social PDS, attended, creds-supplied; GC *deletion* itself NOT observed (≥1 h grace floor > session scope — backlog §6h) | `live_legs.rs` (RUN-HIST-01 attended run) | — | full GC-window observation deferred |
+
 ## Open FINDINGs referenced by this map
 
 - **FND-T1** — the substrate `Verified`/`Verified-RFC` band carries no standardized evidence

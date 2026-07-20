@@ -475,6 +475,22 @@ gaps the run surfaced.
 
 ---
 
+## 6h. PDS-backed history store — the HIST lane (RUN-HIST-01)
+
+The HIST-ATPROTO matchup brief (`HIST-ATPROTO-MATCHUP.md`) + the mechanical-seam spike
+(`hist-atproto-spike/`), RUN-HIST-01. Rows below carry the discovered-but-deferred items; the five
+`HS OC-1..5` owner calls live in the brief's §6 and are pending, not backlog items.
+
+| Item | Status | What it is / blocked on |
+|---|---|---|
+| **Matchup brief + spike (Parts A+B)** | ✅ **Done (RUN-HIST-01)** | Eleven anchored rows (fetched 2026-07-20); B1–B7 red-first green (23 tests + 2 compile_fail); live blob-lifecycle legs attended-confirmed vs bsky.social; F-HIST-1 filed |
+| **Full GC-window observation** | **Parked (attended, ≥1 h wall-clock)** | The blob spec's grace floor is ≥1 h, so observing actual garbage *collection* of an un-referenced blob needs an attended re-check later than one session: upload, wait past the operator's window, confirm 404/absent. The entry state (temporary storage) and the last-reference cleanup path are already observed live (`live_legs.rs`) |
+| **Bounded range reads over the public rung** | **Specified (thin-layer lexicon)** | The fetched `listRecords` lexicon has cursor/limit/reverse but NO rkey-bound parameters (matchup row 3), so bounded spans on the public rung cost cursor iteration. A thin-layer XRPC lexicon of this lane's own (`rkeyStart`/`rkeyEnd`-shaped, or fingerprint-carrying for the rbsr construction) is the close; RED-able once HS OC-1 (repo ownership) is called |
+| **Store-side RBSR over the MST index** | **Sketched** | rbsr-construction §D recommends the Negentropy-style 1-d reconciler over (subspace, counter); the MST-as-index (B2) makes the repo tree that key space. Whether the thin layer serves fingerprints computed over its cached index (stateless per req. 3) is a build item on the same gate as the row above |
+| **Chunking (§L granularity)** | **Open (design)** | Unchanged from history-durability.md Open items; the hosted-PDS 50 MB blob bound (matchup row 10, `[confirm]`-graded operator value) is the concrete forcing number a chunking design must clear |
+
+---
+
 ## 7. The classroom tier (docs track — not an experiment)
 
 | Item | Status | What it is / blocked on |
