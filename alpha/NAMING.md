@@ -290,3 +290,42 @@ named surface of the umbrella?) is **not yet reconciled**. Per this repo's conve
 propagate unsettled product names into structure. The brand thinking lives in
 `thinking/app/brand-and-voice-notes.md` (explicitly a working draft); reconcile into this doc when
 it settles (ROADMAP §14).
+
+## App-layer naming (2026-07-20): **Stellin** — front-runner for the professional-networking pad, PENDING CLEARANCE (not decided)
+
+**Stellin** is the front-runner name for the **LinkedIn-alternative professional-networking app**
+(professional microblogging, groups, resume/CV profiles) — a pad in the Croft garden, on atproto +
+Bluesky identity, branded **"Stellin by Croft"**, intended primary domain **stellin.app**. It is
+already the working name in the experiments (`experiments/RUN-14-SUMMARY.md` — "Stellin AppView
+caller-identity spikes"; RUN-15 appview-infra). An earlier candidate, **"guilds"** (honoring
+pre-modern worker guilds), was set aside over connotation worry.
+
+**Why it earns the name (established; do not re-derive).** "Stellin" is the Scots verbal noun of the
+verb **"stell"** — Scottish National Dictionary: "to place in position, set up, fix, plant, prop,
+mount"; also "to brace or stay oneself by planting the feet." Middle English **"stellen"** =
+"establish, institute"; from Old English **"stellan"**, Proto-Germanic *staljanan, cognate with
+German/Dutch **"stellen"**. The noun **"stell"** is the circular drystone sheepfold of the Scottish
+Borders — so the name sits in the **drystone/Croft register** while its accidental **"stella / little
+star"** echo sits in the **atproto sky register** (Bluesky, atmosphere, Constellation, Jetstream;
+sibling Skylite). "A professional network is where you establish yourself" — the name states the
+product's job.
+
+**Clearance status: CONTESTED (not blocked) — PENDING a live primary-source re-run.** Full report:
+`research/stellin-name-clearance-2026-07.md`. No dominant software/app incumbent on "Stellin", but:
+(a) one letter from **"Stellina"** (Vaonis smart telescope), whose app was literally **"Stellinapp"**
+— a real SEO/phonetic-confusion risk (brand as "Stellin by Croft", never "Stellin app"); (b) a live
+exact-name company **Stellin** (Italian labeling machinery, unrelated class); (c) **.app is
+HSTS-preloaded** → HTTPS/TLS from day one, no override. Live RDAP (stellin.app), USPTO/EUIPO
+("STELLIN"/"STELLINA" in classes 9/35/42/45), and Bluesky handle resolution **could not be verified**
+across two research passes and must be re-run before any filing or domain purchase. Decision trigger
+to reconsider: a senior live "STELLIN" mark in class 9/42 by an active software company, or a
+"STELLINA" registration counsel judges confusingly similar in software classes. Not legal advice.
+
+**NSID strategy (open).** Two clean paths: standalone **stellin.app** → NSIDs like `app.stellin.*`;
+or nesting under the existing **stellin.croft.ing** → `ing.croft.stellin.*` (zero new domain risk,
+whole family visibly under one roof, future-proofs the pattern for later projects). Decide before
+publishing any lexicon (NSIDs are reverse-DNS-authority-bound and permanent once records circulate).
+
+**Status: front-runner, NOT finally settled** (the clearance gate is the user's, like **Noria** at the
+foundation layer). Per this repo's convention, do not propagate the name into durable structure until
+the live clearance clears. Tracked: ROADMAP_TODO; COHESION §46.

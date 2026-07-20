@@ -1278,6 +1278,67 @@ paired with a scoped descriptor ("friend from school"). Pasted alongside the RUN
 
 ---
 
+## 46. Stellin name-clearance ↔ NAMING + the built appview-infra feasibility
+
+The Stellin naming/clearance thread (2026-07): **Stellin** as the front-runner name for the
+LinkedIn-alternative professional-networking pad, branded "Stellin by Croft" on stellin.app.
+
+- **New (filed).** `research/stellin-name-clearance-2026-07.md` — the clearance/collision report
+  (no prior clearance doc existed). Verdict **CONTESTED, not blocked**: no dominant software
+  incumbent, but a one-letter SEO/phonetic adjacency to Vaonis **"Stellina" / "Stellinapp"**, a live
+  exact-name Italian machinery firm (unrelated class), and the **.app HSTS/HTTPS** hard requirement.
+  **Live RDAP / USPTO / EUIPO / Bluesky checks could not be verified across two passes** — a
+  primary-source re-run is the gate before filing/purchase (ROADMAP_TODO A18).
+- **Naming captured.** `NAMING.md` now carries the Stellin app-layer entry (Scots "stell"/"stellin"
+  etymology, the drystone-register + stella/star-register duality, NSID strategy `app.stellin.*` vs
+  `ing.croft.stellin.*`), flagged **front-runner PENDING CLEARANCE** — analogous to Noria at the
+  foundation layer; do not propagate into durable structure until the live clearance clears.
+- **DUPLICATION / already-built.** `stellin.zip` = the appview/protocol RUN briefs (14–19); their
+  summaries are all filed under `experiments/` — frozen as a seed, content not re-filed. The
+  **feasibility half** the user asked about (custom AppView vs Bluesky primitives) is answered by
+  **RUN-14 "Stellin AppView caller-identity spikes"** + RUN-15 appview-infra + `appview-infra/kit/`:
+  a thin custom AppView on Bluesky identity, not a full-network mirror; the caller-identity +
+  offer-gating seam is proven. An earlier name idea "guilds" was set aside.
+- **Provenance:** `seeds/stellin.zip` + `seeds/stellin-unpacked/` (byte-verified); report is
+  content-faithful with the "could not verify" caveats intact. `RAW-ARTIFACTS-MANIFEST.md`
+  "2026-07 intake".
+
+---
+
+## 47. PDS-as-history-backend thread ↔ RUN-HIST-01 (modeled) + RUN-HIST-02 rev B (live, merged)
+
+The 2026-07 design thread on storing the history-reconciliation dataset on an atproto PDS behind a
+thin fetch/caching layer (personal deep-history tier; group-write / permissioned-data-bucket shapes).
+
+- **Mostly already designed/built.** The mechanical seam is modeled in **RUN-HIST-01**
+  (`experiments/hist-atproto-spike/`, Part B: envelope↔record lossless, rkey order, gap detection,
+  order-independent fold) against `HIST-ATPROTO-MATCHUP.md` (Part A) and
+  `beta/impl/drystone-design/history-durability.md` (§G/§I/§J/§L). Single-writer-per-repo,
+  retention/deletion-is-the-holder's (degrades completeness, not correctness), and public-by-default
+  are the known seams; **permissioned-data** is cairned (ATTEST-ATPROTO-MATCHUP, atproto-ecosystem).
+- **The canonical-form seam — SETTLED LIVE (verified on main).** The question of whether a repo
+  record's **CID can serve directly as a Drystone reconciliation byte-head or needs a re-hash** (the
+  atproto-canonical-dag-cbor vs Drystone-canonical comparison; HS OC-2) was **tested live and
+  answered GREEN**: the CID serves directly with **zero re-hash**, provided the encoder honors two
+  atproto data-model rules (map keys sorted length-then-bytewise-lex; `$bytes`→Bytes, `$link`→CBOR
+  tag 42); a non-atproto-canonical downstream gets a divergent CID and must re-hash. Evidence:
+  `spike/hist_live/HIST-LIVE-RESULTS.md` §E1 + `evidence/live/e1_cid_identity.json` + `canonical.rs`.
+- **RUN-HIST-02 rev B — EXECUTED + MERGED (verified on main).** The LIVE proof landed at
+  **`spike/hist_live/`** (branch `claude/hist-atproto-live-gentle`, PR #30 → main), not pending. It
+  ran the gentle profile (one throwaway bsky.social account + app password, 100-record/3-blob budget,
+  1 rps, full teardown + CAR archive), settled E1/OC-2 (above), found `rkeyStart/rkeyEnd`
+  deprecated/non-filtering (`sync.getBlocks(cids)` is the "name the bounding digests" primitive, not
+  `listRecords`), and validated the **personal deep-history tier** (repo commit authenticates present
+  state; the local reference tail authenticates the offloaded archive; PDS = cold storage with
+  cryptographic receipts). Remaining OCs (repo ownership, scribe custody / PLC rotation,
+  sealed-posture backend) still owner-walked. The `pdshistory.zip` briefs are the *plan* behind this
+  merged run. Tracked ROADMAP_TODO B16 (✅ DONE).
+- **Not filed (dupe).** The app-password-vs-OAuth guidance in the same thread is general Bluesky
+  knowledge; `skylite/docs/custody.md` already covers custody/auth. Provenance:
+  `seeds/pdshistory.zip` + unpacked (byte-verified); `RAW-ARTIFACTS-MANIFEST.md` "2026-07 intake".
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
