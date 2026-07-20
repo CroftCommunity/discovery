@@ -1339,6 +1339,27 @@ thin fetch/caching layer (personal deep-history tier; group-write / permissioned
 
 ---
 
+## 48. ActivityPub-vs-ATProto / Mastodon-de-facto-standard paste — one new cairn stone, rest already on main
+
+The 2026-07 paste with the Mastodon vs ActivityPub vs ATProto explainer, the RUN-AP-01 / RUN-HIST-01
+briefs, the Berjon ap-at request, and the live-spike log.
+
+- **DUPLICATION (verified on main, not re-filed).** RUN-AP-01 → `experiments/ap-ambassador/` (crate +
+  AP-AMBASSADOR.md + FINDINGS-AP.md + summary; the five AP-V verdicts and the Berjon-triggered
+  role-boundary captured). RUN-HIST-01 → `hist-atproto-spike/` + `HIST-ATPROTO-MATCHUP.md`.
+  RUN-HIST-02 rev B → `spike/hist_live/` (merged; see §47). All confirmed present via `git ls-files` +
+  `git log` before concluding dupe.
+- **New (filed).** `beta/cairn/activitypub-atproto-and-the-defacto-standard.md` (orientation:
+  related-ecosystem) — the AP-vs-ATProto layering, Mastodon-as-de-facto-AP (WebFinger/HTTP-sigs/
+  FEP/REST-not-C2S), and the **HTML living-standard cautionary lesson** for Drystone (an underspecified
+  protocol whose reference deployment becomes normative — the steer is spec/conformance rigor before a
+  dominant impl sets the wire behavior). `grep` confirmed none of this was in `cairn/` or `thinking/`;
+  it complements `atmospheric-web-and-aggregators.md` (fee/aggregator angle), not duplicates it.
+- **Open item.** Berjon ap-at walkthrough (AP atop an ATProto PDS; indie-AP-with-custom-domains focus)
+  → ROADMAP_TODO E41; the stone carries a Berjon section as its landing spot.
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
