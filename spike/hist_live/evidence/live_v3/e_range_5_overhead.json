@@ -1,0 +1,50 @@
+{
+  "verdict": "GREEN",
+  "single_getRecord_bytes": 281,
+  "single_getRecord_ms": 1433,
+  "per_record_bytes_at_page_sizes": [
+    [
+      1,
+      347.1
+    ],
+    [
+      10,
+      347.1
+    ],
+    [
+      50,
+      347.1
+    ],
+    [
+      100,
+      347.1
+    ]
+  ],
+  "framing_overhead_bytes_at_page_sizes": [
+    [
+      1,
+      0
+    ],
+    [
+      10,
+      0
+    ],
+    [
+      50,
+      0
+    ],
+    [
+      100,
+      0
+    ]
+  ],
+  "recipe": {
+    "max_records_per_request": 100,
+    "recommended_page_size_for_bulk": 100,
+    "range_filter_supported": false,
+    "incremental_via_since_supported": true,
+    "cid_batch_via_get_blocks_supported": true,
+    "per_request_overhead_estimate_bytes": 35,
+    "per_record_estimate_bytes": 313
+  }
+}

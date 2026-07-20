@@ -1,0 +1,47 @@
+{
+  "verdict": "GREEN",
+  "batch_probes": [
+    {
+      "batch_size": 1,
+      "http_status": 200,
+      "response_bytes": 292,
+      "wall_clock_ms": 1608,
+      "blocks_returned": 1,
+      "error": null
+    },
+    {
+      "batch_size": 10,
+      "http_status": 200,
+      "response_bytes": 3118,
+      "wall_clock_ms": 1537,
+      "blocks_returned": 10,
+      "error": null
+    },
+    {
+      "batch_size": 25,
+      "http_status": 200,
+      "response_bytes": 7830,
+      "wall_clock_ms": 1606,
+      "blocks_returned": 25,
+      "error": null
+    },
+    {
+      "batch_size": 40,
+      "http_status": 200,
+      "response_bytes": 12555,
+      "wall_clock_ms": 1487,
+      "blocks_returned": 40,
+      "error": null
+    }
+  ],
+  "max_batch_that_worked": 40,
+  "comparison_to_listrecords": {
+    "records": 40,
+    "getblocks_bytes": 12555,
+    "getblocks_ms": 1609,
+    "listrecords_bytes": 13884,
+    "listrecords_ms": 3073,
+    "getblocks_per_record_bytes": 313.875,
+    "listrecords_per_record_bytes": 347.1
+  }
+}

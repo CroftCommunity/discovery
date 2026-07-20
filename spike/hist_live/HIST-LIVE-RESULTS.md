@@ -478,6 +478,241 @@ paths; E-Firehose adds the wire-delivery path.
   correctness-intact + completeness-lying input; the strict fold names
   the exact violation.
 
+## Addendum — round 3: range-query mechanics for the history reconciliation service
+
+`Executed 2026-07-20; motivated by the question "the history reconciliation
+service is meant to ask for ranges specifically — what does the PDS actually
+offer for ranges, at what scale, with what overhead?"  Same account, fresh
+gentleness budget.  Wrote 40 records to a single subspace as the baseline;
+everything else measured against that dataset.`
+
+### Round 3 headline
+
+Atproto's PDS has **no server-side rkey-range filter** on the current spec —
+the historically-documented `rkeyStart` / `rkeyEnd` params are DEPRECATED
+and silently ignored on this bsky-hosted PDS (all 40 records came back for
+a probe that asked for counters 10..20).  Range reconciliation therefore
+uses ONE of three primitives, each with different cost:
+
+1. **Cursored `listRecords`** at page-size 100 (the hard cap) — client
+   filters by rkey range after receiving each page.  Best when the range
+   is dense within a small window.
+2. **`sync.getBlocks(cids)`** — the PDS accepts a batch of CIDs and returns
+   a single CAR containing exactly those blocks.  Best when the reconciler
+   already knows the target CIDs (typical for gap-fill: "I'm missing these
+   3 CIDs on this chain, ship them").
+3. **`sync.getRepo?since=<rev>`** — delta CAR from a commit-rev cursor
+   (E-Since round 2 result).  Best for temporal incremental sync.
+
+### Round 3 verdicts
+
+| E | Question | Verdict | Evidence |
+|---|---|---|---|
+| E-Range-1 | listRecords parameter surface: max limit, rkey-range filter, reverse | **GREEN** (assertions on limit-cap + reverse-symmetry hold; rkey-range finding is the *observation*) | `evidence/live_v3/e_range_1_params.json` |
+| E-Range-2 | pagination performance at page sizes {1, 10, 50, 100} | **GREEN** | `evidence/live_v3/e_range_2_pagination.json` |
+| E-Range-3 | `sync.getBlocks` batch retrieval + comparison to `listRecords` | **GREEN** | `evidence/live_v3/e_range_3_getblocks.json` |
+| E-Range-4 | cursor stability under interleaved writes | **OBSERVATIONAL** (behavior recorded, not asserted) | `evidence/live_v3/e_range_4_cursor_stability.json` |
+| E-Range-5 | per-op overhead + practical range-request recipe | **GREEN** | `evidence/live_v3/e_range_5_overhead.json` |
+
+Round 3 budget: **82/100 writes · 0/3 blobs · 78 reads · 0 rate-limit
+signals**.  Wall clock 135 s.  Transcript sha256
+`f8ed795e28631baafee79b9369a30ef7d2c99c664c311b461fec7972ef4752fe`.
+
+### E-Range-1 — parameter surface (what the PDS accepts, what it enforces)
+
+Live measurements:
+
+| param | request | server response |
+|---|---|---|
+| `limit=100` | listRecords, no other params | HTTP 200; returns up to 100 records + cursor |
+| `limit=101` | listRecords | HTTP **400** `InvalidRequest`: `"integer too big (maximum 100, got 101)"` — hard cap enforced |
+| `rkeyStart=<r10>&rkeyEnd=<r20>` on 40-record set | expected 9 records (counters 11..19 exclusive) or 11 (10..20 inclusive) | **returned all 40** — params silently ignored (they are DEPRECATED per the current lexicon; this PDS accepts but does not filter) |
+| inverted range (`rkeyStart > rkeyEnd`) | expected error or empty | returned same full set — confirms ignore, not filter-with-inverted-clamp |
+| `reverse=false` (default) vs `reverse=true` | direction control | measured live: asc walk equals reverse(desc walk) — the `reverse` param IS honored |
+
+**Load-bearing finding for the reconciliation-service design.**  The design
+in `history-durability.md §I` speaks of "Alice requests the missing span by
+naming the two bounding digests".  On the current atproto surface,
+"bounding digests" cannot be sent as request-time filter params — the PDS
+does not filter by rkey range.  The reconciler must instead:
+
+- Assemble candidate ranges *client-side* from cursor enumeration, OR
+- Batch-fetch by CID via `sync.getBlocks`, using CIDs the fold already
+  knows are missing.
+
+The second path is closer to the design's "name the two bounding digests"
+shape than the first — the request IS a set of digests.
+
+### E-Range-2 — pagination performance across page sizes
+
+Same 40-record dataset, walked to completion at each page size (with the
+gentleness pacer holding ≥1 s between requests):
+
+| limit | pages | records | total bytes | wall clock | avg bytes/rec | records/sec |
+|---|---|---|---|---|---|---|
+| 1 | 41 | 40 | 13,884 | **67.6 s** | 347.1 | 0.6 |
+| 10 | 5 | 40 | 13,884 | 7.3 s | 347.1 | 5.5 |
+| 50 | 2 | 40 | 13,884 | 3.4 s | 347.1 | 11.7 |
+| 100 | 2 | 40 | 13,884 | **3.1 s** | 347.1 | 12.9 |
+
+The **per-record byte cost is identical across page sizes** (347.1 B/rec —
+same content is returned, framing scales linearly with record count).
+Wall-clock is dominated by request count under the pacer's minimum
+interval: 41× the requests at limit=1 → 22× the wall-clock of limit=100.
+
+For a reconciler operating outside the pacer's constraints (a production
+history store making requests as fast as the rate-limit allows), the
+bytes-per-record is the load-bearing number: **~347 B/record over JSON**.
+For a 10⁶-record repo, that's ~350 MB per full enumeration.  Beyond that
+scale the CAR path (E-Range-3) is cheaper.
+
+### E-Range-3 — `sync.getBlocks` as the CID-batch primitive
+
+Batch-size probes (all against the same 40-record set):
+
+| batch size | HTTP | response bytes | wall ms | blocks returned |
+|---|---|---|---|---|
+| 1 | 200 | 292 | 1,608 | 1 |
+| 10 | 200 | 3,118 | 1,537 | 10 |
+| 25 | 200 | 7,830 | 1,606 | 25 |
+| 40 | 200 | 12,555 | 1,487 | 40 |
+
+**40-CID batch in a single call worked.**  We didn't push past 40 (that's
+all we had in this subspace), but the request-body size for 40 base32 CIDs
+was ~2.5 KB — nowhere near typical URL-length caps.  Larger batches
+(100, 500, 1000) are almost certainly fine; a future run with more data
+should measure the actual ceiling.
+
+**Head-to-head with `listRecords`** for the exact same 40 records:
+
+| axis | `sync.getBlocks` (1 call) | `listRecords` (cursored) |
+|---|---|---|
+| wire bytes | 12,555 | 13,884 |
+| bytes/record | **313.9 B** | 347.1 B |
+| wall clock | **1,609 ms** | 3,073 ms |
+| primitive | CAR (raw dag-cbor blocks) | JSON (re-encoded values) |
+| discovery cost | requires knowing target CIDs | discovers via enumeration |
+
+`sync.getBlocks` is ~10% smaller and ~2x faster **for the same records**,
+because the CAR ships raw dag-cbor bytes (no JSON re-encoding overhead)
+and does one HTTP round-trip instead of two.  The trade-off: you need to
+already know the CIDs.  A reconciliation fold that has identified missing
+CIDs by chain traversal (E5's gap-detection pattern) uses this primitive;
+a fresh consumer discovering the repo uses `listRecords` first, then
+switches to `getBlocks` for backfill.
+
+### E-Range-4 — cursor semantics under interleaved writes
+
+Setup: walk the 40-record set at page-size 10.  Between pages 2 and 3,
+insert counter=41 in the same subspace.  Observe.
+
+| observation | value |
+|---|---|
+| default direction | **descending rkey** (counters seen: 40 → 39 → … → 1) |
+| baseline records before insert | 40 |
+| inserted rkey | `c70266ab_0000041` (counter=41) |
+| visible in the ONGOING walk (during pages 3, 4, 5) | **NO** |
+| visible in a FRESH walk started AFTER the insert | **YES** |
+| walk ordering monotonic (no reordering across pages) | YES |
+| record delivered twice / lost / corrupted | none observed |
+
+Walk transcript (from the evidence JSON):
+
+```
+page 1 cursor=None           → 10 records; next=c70266ab_0000031
+page 2 cursor=…0000031       → 10 records; next=c70266ab_0000021
+  ↳ inserted rkey c70266ab_0000041 between pages 2 and 3
+page 3 cursor=…0000021       → 10 records; next=c70266ab_0000011
+page 4 cursor=…0000011       → 10 records; next=c70266ab_0000001
+page 5 cursor=…0000001       → 0 records;  next=None
+```
+
+**Interpretation: snapshot-like cursor.**  Page 1 set the effective
+"upper bound" at counter=40 (highest rkey seen), and the cursor's `<rkey`
+constraint carried that forward.  The counter=41 insert sorted ABOVE the
+upper bound, and thus above the walker's already-visited range — it never
+came into scope for the ongoing walk.  A fresh walk after the insert sees
+it (proving no ghost-write).
+
+**Reconciliation-service implication.**  A range fold that needs to see
+mid-walk writes cannot rely on a single cursored `listRecords` sweep.
+Two safe patterns:
+
+1. **Restart on completeness-ahead signal**: after a walk completes,
+   check `sync.getLatestCommit` — if the rev has advanced past the rev
+   captured at walk-start, restart from scratch (or from the earlier rev
+   via `sync.getRepo?since=<start-rev>`, which is what E-Since exercised).
+2. **Subscribe to firehose in parallel**: E-Firehose's `subscribeRepos`
+   emits #commit events for every write in near-real-time; a fold that
+   consumes the firehose alongside a cursored backfill catches
+   mid-backfill writes as delivery-cursor events.
+
+Either pattern preserves the fold's determinism because BOTH paths feed
+the SAME fold-by-antecedent-hashes; the cursor and the firehose are just
+alternative delivery routes for the same signed records.
+
+### E-Range-5 — practical range-request recipe
+
+Composite of all Round 3 measurements:
+
+```json
+{
+  "max_records_per_request":              100,        // listRecords cap
+  "recommended_page_size_for_bulk":       100,        // ~22x faster than 1
+  "range_filter_supported":               false,      // rkeyStart/End deprecated
+  "incremental_via_since_supported":      true,       // E-Since (round 2)
+  "cid_batch_via_get_blocks_supported":   true,       // E-Range-3
+  "per_request_overhead_estimate_bytes":  35,         // CAR framing
+  "per_record_estimate_bytes":            313,        // getBlocks CAR
+  "listrecords_per_record_bytes":         347,        // JSON path
+  "getblocks_faster_than_listrecords":    "~2x",      // same-record set
+  "getblocks_smaller_than_listrecords":   "~10%"
+}
+```
+
+**Recipe for a history-reconciliation-service consumer:**
+
+```text
+Phase 1 (discovery / cold start):
+  cursored listRecords, page_size = 100, no rkey filter (deprecated)
+  → build the frontier {(subspace, counter) → cid}
+Phase 2 (gap detection):
+  local fold (fold_by_antecedent_hashes) → identify missing CIDs
+Phase 3 (backfill):
+  sync.getBlocks(missing_cids) — batch of up to 40+ (measured), likely
+    hundreds (untested-but-standard); 2x faster and 10% smaller than
+    equivalent listRecords enumeration
+Phase 4 (live catch-up while backfill runs):
+  subscribeRepos firehose (E-Firehose) — pipe #commit events into the
+    same fold; any writes that happen DURING backfill are captured by
+    the delivery cursor.  Never used as fold order (GROUPS v2 row 11).
+Phase 5 (steady-state incremental):
+  sync.getRepo?since=<last-rev>  (E-Since) — a low-cost delta CAR
+    when the fold's frontier has caught up to a specific commit rev.
+```
+
+The **only** authoritative "range" the atproto surface offers today is
+"a set of CIDs" (via `sync.getBlocks`) — NOT "an rkey range".  A design
+that assumed "give me records with rkey in [X, Y]" as a first-class
+request must adapt: name the CIDs instead, or enumerate and filter.
+
+### OC-1..5 evidence map — updated (round 3)
+
+- **OC-2** — unchanged (byte-head equivalence; container integrity added
+  in round 2 via E-MST).
+- **OC-3 (delivery cursors)** — extended by three new measurements:
+  - **No server-side rkey filter** — the historical `rkeyStart` / `rkeyEnd`
+    params exist in the lexicon but are ignored on current PDSes.  A
+    range fold cannot outsource filtering to the server.
+  - **Cursor is snapshot-like** under interleaved writes — the position
+    field carries forward from page 1 and doesn't observe writes above
+    the initial upper bound.  Compensated by the firehose (E-Firehose)
+    or by a restart-on-completeness-ahead pattern.
+  - **`sync.getBlocks` is the true CID-batch primitive** — closer in
+    shape to "name the bounding digests" than `listRecords`, and ~2x
+    faster / ~10% smaller for the same record set.
+- **OC-4 / OC-5** — unchanged.
+
 ## Deviations from the instruction file (with reasons)
 
 1. **E4 GC-probe timings compressed from +10m/+1h to +30s/+2m.**  Each
@@ -519,3 +754,7 @@ paths; E-Firehose adds the wire-delivery path.
    write-second pattern needs enough seconds for the writes to be
    consumed by the firehose broadcaster; 10 s captured all 3 events on
    this run.  A slower firehose or a very-quiet PDS may need longer.
+8. **Round 3 experiments (E-Range-1..5) added on user request.**  The
+   original brief did not cover range-query mechanics; this addendum
+   answers "what does the PDS need for range reconciliation, at what
+   scale, with what overhead."  Same gentleness contract, fresh Budget.

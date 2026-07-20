@@ -177,6 +177,32 @@ pub trait LiveLegTrait {
         reverse: bool,
     ) -> Result<ListRecordsPage, XrpcError>;
 
+    /// `com.atproto.repo.listRecords` with the `rkeyStart` / `rkeyEnd`
+    /// half-open range params.  The default impl falls through to
+    /// `list_records` and adds no filtering (stub uses this).  Live impl
+    /// plumbs the params.
+    fn list_records_range(
+        &self,
+        collection: &str,
+        limit: u32,
+        cursor: Option<&str>,
+        reverse: bool,
+        rkey_start: Option<&str>,
+        rkey_end: Option<&str>,
+    ) -> Result<ListRecordsPage, XrpcError> {
+        let _ = (rkey_start, rkey_end);
+        self.list_records(collection, limit, cursor, reverse)
+    }
+
+    /// `com.atproto.sync.getBlocks` — return a CAR containing exactly the
+    /// requested block CIDs.  Batch-CID retrieval primitive.
+    fn sync_get_blocks(&self, did: &str, cids: &[String]) -> Result<Vec<u8>, XrpcError> {
+        let _ = (did, cids);
+        Err(XrpcError::StubMiss(
+            "sync_get_blocks not implemented on this leg".into(),
+        ))
+    }
+
     /// `com.atproto.repo.uploadBlob` (returns the blob ref for embedding).
     fn upload_blob(&self, mime: &str, bytes: Vec<u8>) -> Result<BlobRef, XrpcError>;
 

@@ -1,0 +1,69 @@
+   Compiling hist_live v0.1.0 (/home/user/discovery/spike/hist_live)
+warning: unused import: `Duration`
+  --> tests/live_run_v3_ranges.rs:27:17
+   |
+27 | use std::time::{Duration, Instant};
+   |                 ^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: type `E_R1_ParamSurface` should have an upper camel case name
+  --> tests/live_run_v3_ranges.rs:58:8
+   |
+58 | struct E_R1_ParamSurface {
+   |        ^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `ER1ParamSurface`
+   |
+   = note: `#[warn(non_camel_case_types)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: type `E_R2_Pagination` should have an upper camel case name
+  --> tests/live_run_v3_ranges.rs:87:8
+   |
+87 | struct E_R2_Pagination {
+   |        ^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `ER2Pagination`
+
+warning: type `E_R3_GetBlocks` should have an upper camel case name
+   --> tests/live_run_v3_ranges.rs:106:8
+    |
+106 | struct E_R3_GetBlocks {
+    |        ^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `ER3GetBlocks`
+
+warning: type `E_R4_CursorStability` should have an upper camel case name
+   --> tests/live_run_v3_ranges.rs:135:8
+    |
+135 | struct E_R4_CursorStability {
+    |        ^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `ER4CursorStability`
+
+warning: type `E_R5_Overhead` should have an upper camel case name
+   --> tests/live_run_v3_ranges.rs:152:8
+    |
+152 | struct E_R5_Overhead {
+    |        ^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `ER5Overhead`
+
+warning: structure field `single_getRecord_bytes` should have a snake case name
+   --> tests/live_run_v3_ranges.rs:154:5
+    |
+154 |     single_getRecord_bytes: usize,
+    |     ^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `single_get_record_bytes`
+    |
+    = note: `#[warn(non_snake_case)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: structure field `single_getRecord_ms` should have a snake case name
+   --> tests/live_run_v3_ranges.rs:155:5
+    |
+155 |     single_getRecord_ms: u128,
+    |     ^^^^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `single_get_record_ms`
+
+warning: `hist_live` (test "live_run_v3_ranges") generated 8 warnings (run `cargo fix --test "live_run_v3_ranges" -p hist_live` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.44s
+     Running tests/live_run_v3_ranges.rs (target/debug/deps/live_run_v3_ranges-85970f15b31b439a)
+
+running 1 test
+test live_v3_range_experiments_and_teardown ... [live_v3] session did=did:plc:xyfhcaweaeyew3zrgk6jaln7 pds=https://stropharia.us-west.host.bsky.network
+[baseline] writing 40 records to subspace c70266ab
+[baseline] 40 records written, prefix=c70266ab
+[teardown] complete
+[budget] writes=82/100  blobs=0/3  reads=78  rate_limit_signals=0
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 134.97s
+
