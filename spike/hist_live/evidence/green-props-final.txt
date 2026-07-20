@@ -1,0 +1,26 @@
+warning: unused import: `hist_live::leg::LiveLegTrait`
+ --> tests/common/mod.rs:6:5
+  |
+6 | use hist_live::leg::LiveLegTrait;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `hist_live` (test "properties") generated 1 warning (run `cargo fix --test "properties" -p hist_live` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/properties.rs (target/debug/deps/properties-1c4d44cc9375e185)
+
+running 10 tests
+test budget_caps_deny_over_blob_cap_and_oversize ... ok
+test budget_caps_deny_over_write_cap ... ok
+test e1_canonical_dag_cbor_is_deterministic ... ok
+test e1_stub_getrecord_matches_local_cid ... ok
+test e2_chain_gap_detector_finds_missing_counter ... ok
+test e2_rkey_ordering_is_stable_across_shuffles ... ok
+test e6_negative_control_diverges_from_correct_fold_when_write_order_shuffled ... ok
+test e5_deleting_mid_chain_surfaces_gap_on_stub ... ok
+test stub_apply_writes_charges_budget_and_denies_at_cap ... ok
+test pacer_serializes_calls_and_holds_min_interval ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+

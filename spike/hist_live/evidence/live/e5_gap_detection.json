@@ -1,0 +1,19 @@
+{
+  "verdict": "GREEN",
+  "deleted_counter": 9,
+  "gap_from_list": [
+    9
+  ],
+  "gap_from_car": [
+    9
+  ],
+  "fold_state_before_delete_head": [
+    18,
+    "bafyreiddo4aalvj7psd52lbhdybxtkdckknl5bwxmjanoe2cb75i4luqhu"
+  ],
+  "fold_state_after_delete_head": [
+    18,
+    "bafyreiddo4aalvj7psd52lbhdybxtkdckknl5bwxmjanoe2cb75i4luqhu"
+  ],
+  "heads_equal": true
+}

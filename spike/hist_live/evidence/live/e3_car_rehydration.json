@@ -1,0 +1,13 @@
+{
+  "verdict": "GREEN",
+  "car_bytes_len": 17517,
+  "car_bytes_sha256": "b7b67b736d813373325f2faaa9a98f740f69034b2100a6cd0d554c9e05bfe436",
+  "car_blocks": 59,
+  "commit_signature_verify": {
+    "attempted": true,
+    "verified": true,
+    "note": "secp256k1: sig (64 bytes) verified over sha256(unsigned commit dag-cbor, 118 bytes)"
+  },
+  "rehydrated_fold_equals_writing_fold": true,
+  "per_chain_bytes_equal": true
+}
