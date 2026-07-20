@@ -1,0 +1,51 @@
+# lexicon-community — RUN-LEX-01: engaging the Lexicon Community attestation work.
+#
+# A clean-room, second-implementation spike against the published CID-First
+# Attestation Specification (badge.blue, Nick Gerakines) and the
+# lexicon.community calendar/RSVP/location lexicons. Built to supply the three
+# things a young spec needs and gets least: an independent implementation, an
+# adversarial fixture corpus, and one genuinely missing layer (freshness/status
+# via holder-stapled inclusion proofs, ported from the attest-family lane —
+# RUN-ATTEST-04 V5/V6).
+#
+# Standalone experiment-grade spike (the group-principal-seam convention): pure
+# crate, own lockfile, no path deps. The clean-room crypto is the SPEC's own
+# suite (SHA-256 / DAG-CBOR / CIDv1 / ECDSA P-256·P-384·K-256), NOT the lane's
+# BLAKE3/Ed25519 — the point is to reproduce the spec from its text, not to
+# reuse our primitives. The staple module (EXP-LEX-04) reuses the lane's
+# CT/RFC-9162 DESIGN over the spec's remote-attestation record shape, on the
+# spec's SHA-256 hash so it composes with the rest of this crate.
+[package]
+name = "lexicon-community"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# DAG-CBOR — the atproto canonical codec; same crates the public-roundtrip and
+# attest-family lanes proved. All record and head bytes go through these.
+serde_ipld_dagcbor = "0.6"
+ipld-core = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+# The spec's hash suite: SHA-256 over DAG-CBOR, wrapped as CIDv1 (codec 0x71).
+sha2 = "0.10"
+# The spec's signature suite: ECDSA over three blessed curves, low-S normalized.
+k256 = { version = "0.13", features = ["ecdsa"] }
+p256 = { version = "0.13", features = ["ecdsa"] }
+p384 = { version = "0.13", features = ["ecdsa"] }
+ecdsa = "0.16"
+signature = "2"
+# did:key parsing — base58btc (multibase 'z') + multicodec varint prefix.
+bs58 = "0.5"
+# Signature `$bytes` transport.
+base64 = "0.22"
+# HMAC-SHA256 keyed commitments for the staple module (EXP-LEX-04).
+hmac = "0.12"
+
+[dev-dependencies]
+serde_json = { version = "1", features = ["preserve_order"] }
+# The interop test derives the reference key and parses did:keys directly.
+bs58 = "0.5"
+p256 = { version = "0.13", features = ["ecdsa"] }
+serde_ipld_dagcbor = "0.6"
