@@ -123,9 +123,8 @@ fn t_ap4_3_reverify_after_redaction_distinct_variant() {
     };
     assert_eq!(result, Err(VerifyError::EvidenceRedacted));
     // Explicitly not SignatureMismatch.
-    match &result {
-        Err(VerifyError::SignatureMismatch) => panic!("must NOT masquerade as SignatureMismatch"),
-        _ => {}
+    if let Err(VerifyError::SignatureMismatch) = &result {
+        panic!("must NOT masquerade as SignatureMismatch");
     }
 }
 

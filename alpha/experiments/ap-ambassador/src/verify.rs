@@ -6,14 +6,14 @@
 //! `rsa-sha256`; digest = `SHA-256=<base64>` of the raw body.
 //!
 //! Distinct error variants (RUN-14 EXP-A style, no collapse — P1 T-AP1.5):
-//!   - `SignatureMismatch`   — key resolves, digest ok, but signature does not verify
-//!   - `KeyResolutionFailed` — no key for keyId in the resolver's map
-//!   - `DigestMismatch`      — `Digest` header value ≠ SHA-256(body)
-//!   - `MalformedActivity`   — required signature-header parse failed, or
-//!                             the AP JSON body is not a well-formed activity
-//!   - `EvidenceRedacted`    — attempted verify on a redacted record (AP-V3);
-//!                             set by `redact.rs`, never returned by first
-//!                             verify (P4 T-AP4.3 pins the distinction).
+//! - `SignatureMismatch`   — key resolves, digest ok, but signature does not verify
+//! - `KeyResolutionFailed` — no key for keyId in the resolver's map
+//! - `DigestMismatch`      — `Digest` header value ≠ SHA-256(body)
+//! - `MalformedActivity`   — required signature-header parse failed, or
+//!   the AP JSON body is not a well-formed activity
+//! - `EvidenceRedacted`    — attempted verify on a redacted record (AP-V3);
+//!   set by `redact.rs`, never returned by first verify (P4 T-AP4.3 pins
+//!   the distinction).
 //!
 //! No variant collapses into another (T-AP1.5).
 
@@ -417,7 +417,6 @@ pub(crate) fn parse_json_object(text: &str) -> Option<BTreeMap<String, String>> 
     loop {
         skip_ws(bytes, &mut i);
         if i < bytes.len() && bytes[i] == b'}' {
-            i += 1;
             return Some(out);
         }
         let key = parse_string(bytes, &mut i)?;

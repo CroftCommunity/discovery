@@ -74,13 +74,13 @@ fn t_ap6_1_no_auto_link_despite_obvious_correlation() {
     // the outbound-delivery run's downstream consumer, AP-OC-6).
     // At this run's boundary: NO code path in this crate produces an
     // UpgradedPersonaFact from the ambassador side alone.
-    // The absence assertion:
-    assert!(
-        std::any::type_name::<fn() -> UpgradedPersonaFact>().is_empty()
-            || "no autoderive path".is_empty()
-            || true,
-        "structural: no autoderive path exists — verify_binding is the only mint",
-    );
+    // The absence assertion is structural: the only mint path in
+    // `binding.rs` is `verify_binding(&BindingRecord, ...)`. A caller
+    // cannot obtain an UpgradedPersonaFact from just `(actor, did)` —
+    // there is no such function to call. This test's presence documents
+    // that; any future edit adding a linkage-derivation path would need
+    // to also expand this test's scope, making the discipline visible.
+    let _ = std::any::type_name::<UpgradedPersonaFact>();
     // The point: we cannot demonstrate an absence programmatically, but
     // we CAN demonstrate the sanctioned path REQUIRES a subject-signed
     // binding. That's T-AP6.2.
