@@ -1,0 +1,47 @@
+{
+  "lexicon": 1,
+  "id": "ing.croft.hist.entry",
+  "description": "DRAFT, non-normative (RUN-HIST-01 Part A §3). The history-durability §G reconciliation envelope as a PDS record, plus the MANDATORY blob reference (matchup row 1: a PDS-resident sealed blob requires a referencing record — this record IS that requirement, and therefore IS public repo content in the public-envelope posture; sealed-posture alternatives are HS OC-5). The record key is <hashed-subspace-prefix>-<zero-padded counter> so the repo MST is the sorted (subspace, counter) reconciliation index (matchup row 2); the padding width is a byte choice, [gates-release]-adjacent, NOT pinned by this draft. Deliberately absent, per §G's exclusions: the Willow path, wall-clock time, Meadowcap capabilities, the raw subspace id. Rkey sort, commit order, and firehose seq are delivery artifacts — convergence ordering is the in-payload predecessor chain, only ever (the ordering rider).",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["subspace", "predecessor", "entryDigest", "counter", "sizeHint", "blob"],
+        "properties": {
+          "subspace": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "Hashed device-subspace id (§G / Willow-e2e hash-not-expose guidance). Never the raw id."
+          },
+          "predecessor": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "Content digest of this entry's chain predecessor, or the genesis/checkpoint marker. The hash link that makes a gap nameable (§I) — and the ONLY convergence ordering."
+          },
+          "entryDigest": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "Content digest of this entry = the reconciliation identity and the sealed blob's address. Whether this fuses with the blob ref's CID is HS OC-2 (pending) — the draft carries both, un-fused."
+          },
+          "counter": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Per-subspace logical counter (monotonic, single-writer per device-subspace, §H). Mirrored fixed-width in the rkey; the record body stays authoritative."
+          },
+          "sizeHint": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "PADDED byte length of the sealed blob (§G: padded so true payload length does not leak)."
+          },
+          "blob": {
+            "type": "blob",
+            "accept": ["application/octet-stream"],
+            "description": "The G-sealed content blob — ciphertext to the PDS, the store, and every non-member. Reference-based retention makes this field the reason the record must exist (matchup row 1)."
+          }
+        }
+      }
+    }
+  }
+}

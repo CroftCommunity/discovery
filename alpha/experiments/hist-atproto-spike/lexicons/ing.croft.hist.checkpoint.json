@@ -1,0 +1,36 @@
+{
+  "lexicon": 1,
+  "id": "ing.croft.hist.checkpoint",
+  "description": "DRAFT, non-normative (RUN-HIST-01 Part A §3). A marker record naming a corroborated pruned-prefix commitment for one device-subspace chain — the precondition for §L pruning (deleting ing.croft.hist.entry records below the boundary). SHAPE ONLY: history-durability §L's checkpoint CONSTRUCTION stays open, and this sketch does not close, narrow, or prejudge it — the commitment field is a placeholder for whatever the §L construction pins (analogous to Part 2 §7.3.3's verifiable truncation). The spike's B7 guard tests the GATE (no prune without a present, verifiable marker), never the construction.",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["subspace", "belowCounter", "prefixHead", "commitment"],
+        "properties": {
+          "subspace": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "Hashed device-subspace id of the chain this checkpoint covers."
+          },
+          "belowCounter": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "The prune boundary: entries with counter below this are prunable once this record verifies."
+          },
+          "prefixHead": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "Digest of the last pruned entry — the anchor reverse validation terminates at instead of walking to genesis (§L)."
+          },
+          "commitment": {
+            "type": "bytes",
+            "description": "The corroborated commitment to the pruned prefix. CONSTRUCTION OPEN (§L, Open items) — this field's contents, corroboration rule, and verification are not pinned by this draft."
+          }
+        }
+      }
+    }
+  }
+}
