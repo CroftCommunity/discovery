@@ -385,6 +385,18 @@ impl LiveLegTrait for HttpLeg {
         cursor: Option<&str>,
         reverse: bool,
     ) -> Result<ListRecordsPage, XrpcError> {
+        self.list_records_range(collection, limit, cursor, reverse, None, None)
+    }
+
+    fn list_records_range(
+        &self,
+        collection: &str,
+        limit: u32,
+        cursor: Option<&str>,
+        reverse: bool,
+        rkey_start: Option<&str>,
+        rkey_end: Option<&str>,
+    ) -> Result<ListRecordsPage, XrpcError> {
         let sess = self.ensure_session()?;
         let mut url = format!(
             "{}/xrpc/com.atproto.repo.listRecords?repo={}&collection={}&limit={}",
@@ -396,8 +408,26 @@ impl LiveLegTrait for HttpLeg {
         if reverse {
             url.push_str("&reverse=true");
         }
+        if let Some(s) = rkey_start {
+            url.push_str(&format!("&rkeyStart={}", urlencoding_encode(s)));
+        }
+        if let Some(e) = rkey_end {
+            url.push_str(&format!("&rkeyEnd={}", urlencoding_encode(e)));
+        }
         let v = self.get_json_metered_read(&url, Some(&sess.access_jwt))?;
         serde_json::from_value(v).map_err(|e| XrpcError::Decode(e.to_string()))
+    }
+
+    fn sync_get_blocks(&self, did: &str, cids: &[String]) -> Result<Vec<u8>, XrpcError> {
+        let sess = self.ensure_session()?;
+        let mut url = format!(
+            "{}/xrpc/com.atproto.sync.getBlocks?did={}",
+            sess.pds_endpoint, did
+        );
+        for c in cids {
+            url.push_str(&format!("&cids={}", urlencoding_encode(c)));
+        }
+        self.get_bytes_metered_read(&url, Some(&sess.access_jwt))
     }
 
     fn upload_blob(&self, mime: &str, bytes: Vec<u8>) -> Result<BlobRef, XrpcError> {

@@ -1,0 +1,19 @@
+{
+  "verdict": "OBSERVATIONAL",
+  "baseline_before": 40,
+  "inserted_during_walk_rkey": "c70266ab_0000041",
+  "inserted_visible_in_ongoing_walk": false,
+  "total_visited_in_ongoing_walk": 40,
+  "ordering_monotonic_within_walk": true,
+  "walk_direction": "descending (atproto listRecords default)",
+  "fresh_walk_after_insert_sees_it": true,
+  "walk_transcript": [
+    "page 1 (cursor=None) → 10 records; next_cursor=Some(\"c70266ab_0000031\")",
+    "page 2 (cursor=Some(\"c70266ab_0000031\")) → 10 records; next_cursor=Some(\"c70266ab_0000021\")",
+    "  ↳ inserted rkey c70266ab_0000041 between pages 2 and 3",
+    "page 3 (cursor=Some(\"c70266ab_0000021\")) → 10 records; next_cursor=Some(\"c70266ab_0000011\")",
+    "page 4 (cursor=Some(\"c70266ab_0000011\")) → 10 records; next_cursor=Some(\"c70266ab_0000001\")",
+    "page 5 (cursor=Some(\"c70266ab_0000001\")) → 0 records; next_cursor=None"
+  ],
+  "interpretation": "SNAPSHOT-LIKE CURSOR: the ongoing walk did NOT observe the mid-walk insert; a fresh walk AFTER the insert DOES observe it. The cursor's `<rkey` position was set at page 1 (highest rkey seen = 40); the insert at counter=41 sorts ABOVE that position and thus above the walker's already-visited range. A range-fold that needs to see mid-walk writes must EITHER restart the walk on completeness-ahead signal, OR subscribe to the firehose in parallel (see E-Firehose)."
+}
