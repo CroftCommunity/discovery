@@ -16,6 +16,9 @@ and the standing indexes. Status notes whether the prompt has been run.
   full fresh adversarial sweep. **Not yet run.**
 - [`file-transcripts-prompt.md`](file-transcripts-prompt.md) — file incoming transcripts/dossiers per
   `PLAYBOOK.md` (classify → preserve raw → distill → update connective tissue). Reusable.
+- [`process-claude-code-sessions-prompt.md`](process-claude-code-sessions-prompt.md) — process pasted
+  Claude Code session logs: verify-against-main first, extract decisions/narrative, leave execution logs
+  behind (they're already in RUN summaries + git + registers). Reusable.
 - [`games-pond-research-prompt.md`](games-pond-research-prompt.md) — the ponds/pads + P2P-games research
   pass. **Run** → produced `thinking/app/ponds/*` (COHESION §19).
 - [`structural-tests-visibility-regimes-prompt.md`](structural-tests-visibility-regimes-prompt.md) — the
