@@ -1444,6 +1444,28 @@ The 2026-07 commissioned research (`research/e2ee-recovery-postmortem-and-trust-
 
 ---
 
+## 52. Capture audit → two thinking docs written (the July-burst design-integration gaps)
+
+The 2026-07-20 capture audit (`plans/2026-07-20-1-plan-capture-audit-july10-onward.md`) found status
+capture strong (two MASTER-INDEX rows added — wasm-seal/RUN-19, RUN-HIST-02 rev B) and surfaced two
+design implications that had reached the spec + registers but not `thinking/`. Both now written:
+
+- **`thinking/pds-as-personal-deep-history.md`** — the PDS as cold storage with cryptographic receipts:
+  older history rides the person's own PDS, a local **reference tail** (checkpoint byte-heads) makes it
+  self-verifiable, the record CID *is* the reconciliation byte-head (RUN-HIST-02 E1/OC-2, zero re-hash).
+  Closes the §47 HIST narrative gap. Cross-refs `multi-device.md`, `governance-and-survivability.md`,
+  `HIST-ATPROTO-MATCHUP.md`; the group-tier open calls (HS OC-1..5) stay the owner's.
+- **`thinking/sealed-tier-in-the-browser.md`** — the sealed tier reaches the browser with no overlay
+  bridge (MLS-in-WASM over WebTransport to the content-blind DS; §A.8 upgrade). The sovereignty story for
+  the PWA lineage (skylite/pdsview/arecipe); custody costs stated honestly (XSS/wasm-memory,
+  evict→rejoin-via-Welcome, multi-tab leader lock). Cross-refs `realtime-media-over-iroh.md`,
+  `local-first-as-design-imperative.md`; the §A.8 revision + custody posture stay `needs-call` (RUN-19 P6).
+
+Both are `Modeled`/component-grade and honest about it — no overclaim past loopback/hosted-PDS. The July
+bursts are now captured on both axes (status + narrative/thinking).
+
+---
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
