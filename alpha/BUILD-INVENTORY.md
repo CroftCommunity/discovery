@@ -44,6 +44,7 @@ thing none of those single indexes shows whole. Product design of record: `../be
 | croft-app-phase0 | `../../experiments/alpha/croft-app-phase0` | App functional core + CLI (from CroftC PR #10). **Built spike** (M1–M6 closed). |
 | Garden-of-ponds product | `../beta/croft/product-the-garden-of-ponds.md`, `presence-ritual-and-composed-ponds.md` | Product design of record. |
 | Games pond, aggregator ponds, fair-reveal, launch-set | `thinking/app/ponds/` | **Designed / catalogued, not built.** |
+| **pdsview** | `CroftCommunity/pdsview` (separate repo) → **live at pdsview.croft.ing** | Standalone SPA/PWA atproto PDS content browser (paste handle/DID → browse repo/collections/records + inline blobs + export .car/.ndjson/.json); zero runtime deps, croft.ing tokens, no live feed. **RUN-01 executed + merged** (phases 0–5, PR #1, built 2026-07-16). A tool-pad sibling. Brief seed: `seeds/pdsview-run-01-instructions.md`. |
 | croft.ing landing site | `CroftCommunity/crofting_site` (separate repo) → **live** | Landing + pillar pages; lists arecipe + skylite as the live crops. RUN-01/02/03 executed. |
 
 ---
