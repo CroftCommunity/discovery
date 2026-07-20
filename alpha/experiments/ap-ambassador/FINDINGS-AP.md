@@ -55,3 +55,36 @@ construction paths still matches, salt-change still changes the id).
 Filed: RUN-AP-01. Serves: AP-V2 (record composition) + AP-V3 (undo/delete
 custom rider). No status tag moves — this is a design refinement inside
 the ambassador crate's own semantics, not a spec-facing change.
+
+**F-AP-2 — the AP JSON parser refused arrays.** Surfaced by the shim-leg
+upgrade (`tests/shim_leg.rs::t_ap1s_3_shim_delete_actor_redacts_held_receipts`)
+against the Mastodon Delete(Actor) specimen shape.
+
+The hand-rolled `parse_json_object` in `src/verify.rs` handled top-level
+strings and nested objects, but refused JSON arrays — a fine tradeoff
+against the RUN-AP-01 fixture bodies (which had no arrays), but wrong
+against real Mastodon: the Delete(Actor) specimen carries
+`"to":["https://www.w3.org/ns/activitystreams#Public"]` per
+`fed-shim/tests/specimens/mastodon-delete-actor-observed-shape.md`.
+
+The parser returned `VerifyError::MalformedActivity("body is not a JSON
+object")` when it hit `[`, so a real-Mastodon Delete never verified.
+
+Corrected in `src/verify.rs::parse_json_object`: extended to skip past
+balanced `[…]` arrays (mirroring the existing balanced `{…}`-object
+skip). The array's contents are still not exposed — the ambassador only
+uses top-level `type`, `actor`, `object`, `id`. This is a fidelity fix,
+not a feature addition.
+
+RED evidence: `t_ap1s_3` failed with `MalformedActivity("body is not a
+JSON object")` before the fix. GREEN evidence: same test passes; the
+Delete redaction fires as designed and the ambassador store moves
+matching receipts to `AttestedRedacted`.
+
+Filed: RUN-AP-01 shim-leg upgrade (post-merge). Serves: AP-V3 (Delete
+custom rider) — proves the ambassador handles real-Mastodon Delete
+shapes. No status tag moves — a bug-fix on the parser, no spec-facing
+change. Rationale for the RUN-AP-01 P1 grade UPDATED: bytes now
+specimen-anchored (fed-shim). Grade tag stays `Modeled` because no
+live Mastodon has been round-tripped yet (still gated per RUN-AP-01
+§6 / FED-SHIM.md §4).
