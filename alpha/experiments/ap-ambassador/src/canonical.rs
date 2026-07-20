@@ -65,6 +65,13 @@ pub fn encode_evidence_body(body: &EvidenceBody) -> Vec<u8> {
 
 /// Encode a receipt record to canonical dag-cbor. The result is the input to
 /// `ReceiptRecord::receipt_id`.
+///
+/// The `state` field is DELIBERATELY excluded from the identity encoding
+/// (P4 T-AP4.2 masked never-was-world equality): the receipt_id names the
+/// received observation, not the current store state. Redaction moves the
+/// state marker without changing the receipt's identity — a caller
+/// pointing at an id gets the same id before and after redaction, with
+/// the state marker separately readable.
 pub fn encode_receipt(r: &ReceiptRecord) -> Vec<u8> {
     // single-char keys, sorted by BTreeMap:
     //   a = actor URL
@@ -74,8 +81,9 @@ pub fn encode_receipt(r: &ReceiptRecord) -> Vec<u8> {
     //   i = activity_id
     //   k = kind ("Follow" | "Undo" | "Delete")
     //   o = object URL
-    //   s = state ("evidence-complete" | "attested-redacted")
     //   u = undoes (32 bytes) — present only for UndoFollow
+    // NOTE: `state` intentionally NOT in the id-forming envelope; see the
+    // doc-comment above.
     let mut pairs = vec![
         ("a", s(&r.actor.0)),
         ("c", bytes(&r.commitment)),
@@ -84,7 +92,6 @@ pub fn encode_receipt(r: &ReceiptRecord) -> Vec<u8> {
         ("i", s(&r.activity_id)),
         ("k", s(r.kind.as_str())),
         ("o", s(&r.object)),
-        ("s", s(r.state.as_str())),
     ];
     if let Some(u) = &r.undoes {
         pairs.push(("u", bytes(&u.0)));
