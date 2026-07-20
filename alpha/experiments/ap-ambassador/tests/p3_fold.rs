@@ -169,7 +169,7 @@ fn t_ap3_4_covert_clock_order_independent() {
         13,
     );
 
-    let arrivals = vec![
+    let arrivals: [Vec<&ReceiptRecord>; 4] = [
         vec![&f1, &u1, &f2, &f3],
         vec![&f3, &f2, &u1, &f1],
         vec![&u1, &f2, &f3, &f1],

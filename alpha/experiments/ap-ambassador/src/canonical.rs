@@ -13,7 +13,6 @@ use std::collections::BTreeMap;
 use ipld_core::ipld::Ipld;
 
 use crate::records::*;
-use crate::types::*;
 
 fn map(pairs: Vec<(&str, Ipld)>) -> Ipld {
     let mut m = BTreeMap::new();
