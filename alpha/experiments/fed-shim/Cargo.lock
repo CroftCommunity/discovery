@@ -6,11 +6,9 @@ version = 4
 name = "ap-ambassador"
 version = "0.1.0"
 dependencies = [
- "attest-family",
  "base64",
  "blake3",
  "ed25519-dalek",
- "fed-shim",
  "ipld-core",
  "rand_chacha",
  "rand_core",
@@ -30,16 +28,6 @@ name = "arrayvec"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
-
-[[package]]
-name = "attest-family"
-version = "0.1.0"
-dependencies = [
- "blake3",
- "ed25519-dalek",
- "ipld-core",
- "serde_ipld_dagcbor",
-]
 
 [[package]]
 name = "autocfg"
@@ -291,6 +279,7 @@ dependencies = [
 name = "fed-shim"
 version = "0.1.0"
 dependencies = [
+ "ap-ambassador",
  "base64",
  "blake3",
  "rand_chacha",
@@ -607,7 +596,7 @@ checksum = "e7a5d71263a5a7d47b41f6b3f06ba276f10cc18b0931f1799f710578e2309348"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 3.0.1",
+ "syn 3.0.2",
 ]
 
 [[package]]
@@ -690,9 +679,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "3.0.1"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5edbec4ed188954a10c12c038215f8ce7606b2d5c973cd8dc43e8795065c5f2f"
+checksum = "a207d6d6a2b7fc470b80443726053f18a2481b7e1eee970597051596567987a3"
 dependencies = [
  "proc-macro2",
  "quote",
