@@ -1,0 +1,47 @@
+{
+  "lexicon": 1,
+  "id": "community.lexicon.attest.treeHead",
+  "description": "CANDIDATE / DRAFT, non-normative (RUN-LEX-01 EXP-LEX-04). An OPTIONAL freshness/status layer ON TOP OF the CID-First Attestation Specification (badge.blue) — it changes nothing in that spec. ONE signed tree head per issuer era/epoch (CT / RFC-9162 / RFC-6962 shape) over KEYED commitments (HMAC over credential CIDs), leaves in canonical byte-ascending order (mint order structurally absent), the leaf count, and the era's superseded set + its root. The head record is signed with the SAME CID-first ECDSA the base spec defines (the issuer signs plain_cid(head)); confirmation is a holder-STAPLED inclusion proof verified by a pure function with ZERO callback to the issuer. Naming is EL OC-2 (status vs freshness vs staple) — proposed for community.lexicon.* via the WG process, nothing lands there by our hand alone.",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["epochNo", "eraAnchor", "leafCount", "root", "superseded", "supersededRoot"],
+        "properties": {
+          "epochNo": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Contiguous from 1; a gap fails a head audit."
+          },
+          "eraAnchor": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "The governance fact opening this era. Era references are contiguous."
+          },
+          "leafCount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Era-cumulative leaf count — epoch-grain volume, a count never a partition."
+          },
+          "root": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "RFC-6962 Merkle root over the era's keyed commitments in byte-ascending order."
+          },
+          "superseded": {
+            "type": "array",
+            "items": { "type": "bytes", "maxLength": 32 },
+            "description": "The era's superseded (revoked) keyed commitments; a superseded credential cannot staple a fresh-head proof."
+          },
+          "supersededRoot": {
+            "type": "bytes",
+            "maxLength": 32,
+            "description": "Digest of the canonical superseded-set encoding; inside the signed head so the published set cannot be quietly thinned."
+          }
+        }
+      }
+    }
+  }
+}

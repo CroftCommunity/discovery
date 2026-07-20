@@ -1,0 +1,10 @@
+{
+  "$type": "community.lexicon.calendar.event",
+  "name": "Lexicon Community sync",
+  "description": "Attestation lexicon working session.",
+  "createdAt": "2026-07-20T12:00:00.000Z",
+  "startsAt": "2026-07-28T17:00:00.000Z",
+  "mode": "community.lexicon.calendar.event#virtual",
+  "status": "community.lexicon.calendar.event#scheduled",
+  "rsvpExpected": true
+}

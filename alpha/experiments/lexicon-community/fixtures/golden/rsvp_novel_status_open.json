@@ -1,0 +1,8 @@
+{
+  "$type": "community.lexicon.calendar.rsvp",
+  "subject": {
+    "uri": "at://did:plc:cbkjy5n7bk3ax2wplmtjofq2/community.lexicon.calendar.event/3mqhzqij7sshu",
+    "cid": "bafyreickoect35fesknmmtxalx4q7fbypxp22natef3kzr6lwzf7fuzewe"
+  },
+  "status": "community.lexicon.calendar.rsvp#maybe-later"
+}
