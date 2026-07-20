@@ -57,3 +57,11 @@ rand_core = "0.6"
 # by construction, and drive attest-family's AttestLog with an ambassador
 # receipt-id-as-antecedent to confirm the fold refuses it (P5 behavioral).
 attest-family = { path = "../attest-family" }
+# Path-dep to fed-shim (dev-only): retroactively upgrade the fixture leg to
+# a shim leg. `tests/shim_leg.rs` drives the full inbound flow through
+# fed-shim's specimen-anchored wire producer + ap-ambassador's own verify
+# path — the shim's byte-output is what real Mastodon would put on the wire,
+# so this test raises the RUN-AP-01 fixture leg's grade WITHIN the same
+# `Modeled` tag (rationale: bytes now specimen-anchored, but no live
+# federation yet — see FED-SHIM.md §7).
+fed-shim = { path = "../fed-shim" }
