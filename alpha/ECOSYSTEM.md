@@ -183,6 +183,18 @@ is the adoptable blogging lexicon (`site.standard.document`) and is not repeated
 | — | kibun.social | Status / `/now` update via a custom status lexicon | `[UNVERIFIED — dialogue-sourced 2026-07-10]` | learn↔ (the live-status widget reference) |
 | Cohost team | Cohost (defunct) | Modern ad-free cooperative social platform; beloved for in-post "CSS crimes" (interactive games/puzzles); **centralized, no ads/VC → shut down 2025-01-12 [confirm before publish]** | defunct | cautionary prior-art (the financial-gravity rug-pull the serverless/sovereign design answers; alongside GeoCities/MySpace) |
 
+## 5c-3. Croft-owned live properties (shipped 2026-07)
+
+These are not prior art — they are Croft's own shipped surfaces, cross-repo under the `CroftCommunity` org. Recorded here so the register reflects what exists rather than only what was surveyed. Verified live via their deploys in the source sessions; treat exact feature state as `[UNVERIFIED — session-sourced 2026-07]` until re-checked.
+
+| Property | Repo | Purpose | Relationship |
+|---|---|---|---|
+| arecipe.app | `CroftCommunity/arecipe` | The first working crop: recipe box + meal planner, backendless PWA on ATProto/Bluesky | the reference product surface |
+| arecipe.croft.ing | `CroftCommunity/arecipe_treatise` | One-page treatise: the ENS-resistance / four-preconditions argument for the backendless design | the "why it is built this way" long-form |
+| croft.ing | `CroftCommunity/crofting_site` | The landing/guide site (Plot/Wall/Valley pillars, five-tier depth, guide pages, ENS terms page) | the homestead surface |
+| skylite.croft.ing | `CroftCommunity/skylite` | Tended Bluesky window (sponsor-curated, no-algorithm view; kids/grandparents/quiet-sky use) | the "gate in the wall" surface |
+| pdsview.croft.ing | `CroftCommunity/pdsview` | Standalone zero-dependency SPA/PWA browser for public ATProto PDS content (browse collections/records/blobs + export); layer-honest about CORS | the public-repo inspector |
+
 ## 5d. Games & app-pond building blocks (from the ponds/games dialogue 2026-06-21)
 
 Surfaced and partly verified in the ponds/games deep-dive (`thinking/app/ponds/`); verification status
