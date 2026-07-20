@@ -1136,6 +1136,48 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
 - **Gates:** the survey carries a `[needs primary-source verification]` caveat (confirm before asserting); "design for institutional mandate" is an undone directive.
 - **Alpha provenance:** `../alpha/research/p2p-founder-motivations-adoption.md` (RQ2 synthesis); `../alpha/SOVEREIGN-COMMONS-DOSSIER.md` §7; `../alpha/narrative/long-form.md` (adoption-curve risk, named not analyzed). **Accreting home (S3, started 2026-06-26):** `../alpha/narrative/adoption-enablement.md`.
 
+#### T54 — Lexicon Community attestation engagement (artifacts built; posting + decisions gated)
+
+- **Layer:** socialization, impl, cairn, fenced (cross-cutting: couples to T7).
+- **Status:** `open · in-progress`. The engagement *artifacts* are built and green
+  (RUN-LEX-01, own-lane `../../alpha/experiments/lexicon-community/`); what stays
+  open is the **engagement itself** — whether/where to post and the owner-call
+  register EL OC-1..5. Nothing is field-deployed; nothing has been said in-thread.
+- **Type:** `needs-experimentation` (done) + `publish` (the thread post) +
+  `legal-review` (the MIT donation gate). Couples-with T7 (atproto private-data
+  watch-item) and the attest-family lane (`../../alpha/experiments/attest-family/`).
+- **What it is:** the attestation conversation Croft planned to start already exists
+  with a published spec at its center (Gerakines' CID-First Attestation Spec,
+  badge.blue; lexicon-community Discussion #8). So the engagement is not a rival
+  proposal but **(a)** an independent, clean-room second implementation proven
+  *interoperable* with the reference `atproto-attestation` crate, **(b)** an
+  adversarial fixture corpus + a ten-row grounded spec-feedback table
+  (`AMBIGUITIES.md` — two security-relevant: inline attestations authenticate a
+  *key* not an *issuer* until a DID-doc binding check is added; remote proof records
+  carry no in-record signature), and **(c)** the one missing layer — holder-stapled
+  status (freshness + revocation with *zero verifier callback*), ported from
+  RUN-ATTEST-04's design onto the spec's shape as candidate
+  `community.lexicon.attest.*` lexicons. Everything rides single-author records (the
+  thread's own scope line); `ing.croft.*` stays the Drystone home, candidates go to
+  `community.lexicon.*` via the WG process.
+- **Promotion target:** a socialization/ecosystem-engagement note (the
+  join-the-thread posture + layer-scoped comms) once posted; an `impl` /
+  attest-lane note when a candidate `community.lexicon.attest.*` lands via the WG;
+  updates T7's field positioning as the shared schema firms up.
+- **Gates (EL OC-1..5, owner calls — none decided):** OC-1 revive Discussion #8
+  (active, owner engaged) vs a fresh thread citing it; OC-2 staple naming
+  (status/freshness/staple) + head-record visibility; OC-3 demo attests our own
+  consenting test event vs a real third-party RSVP; OC-4 a TypeScript companion
+  verifier (their ecosystem's language); OC-5 who speaks (personal vs Croft org
+  persona). Plus the **MIT donation license gate** (cross-cutting, the user's call —
+  peer to the cooperative legal-review gate in `DECISIONS.md`) and the standing
+  **F-AT-6 correlator disclosure** on anything published to ATProto.
+- **Alpha provenance:** `../../alpha/experiments/lexicon-community/` (RUN-LEX-01 —
+  33 tests green red-first, official `@atproto/lexicon` gate, interop with the
+  reference impl, `AMBIGUITIES.md`, `RUN-LEX-01-SUMMARY.md`);
+  `../../alpha/experiments/attest-family/ENGAGE-LEX.md` (the brief) and
+  `ATTEST-ATPROTO-MATCHUP.md`; MASTER-INDEX row (own-lane RUN-LEX-01).
+
 ## How to use this file
 
 When a beta theme doc is tempted to assert something that is actually still in flight, park it here
