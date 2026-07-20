@@ -1,0 +1,34 @@
+{
+  "verdict": "GREEN",
+  "table": [
+    {
+      "field": "record size cap",
+      "documented": "1 MB (repository record limit, per atproto repository spec §4-1)",
+      "documented_source": "https://atproto.com/specs/repository (fetched in-session; also observed via this probe)",
+      "observed": "2 MB write attempted → rejected (observed: xrpc 413: PayloadTooLargeError — request entity too large)"
+    },
+    {
+      "field": "rate limit (global)",
+      "documented": "3000;w=300",
+      "documented_source": "response header `ratelimit-policy` (captured passively)",
+      "observed": "limit=Some(\"3000\") remaining=Some(\"2994\") reset=Some(\"1784522729\")"
+    },
+    {
+      "field": "blob size cap",
+      "documented": "5 MB per blob (bsky-host convention; unknown formal spec)",
+      "documented_source": "no primary source cited; the spike's ≤64 KB budget stays well below any host cap",
+      "observed": "not probed (would exceed spike gentleness contract)"
+    }
+  ],
+  "oversize_write_attempted": true,
+  "oversize_write_rejected": true,
+  "oversize_write_error": "xrpc 413: PayloadTooLargeError — request entity too large",
+  "post_oversize_chain_gap": [],
+  "passive_rate_limit_headers_last_seen": {
+    "limit": "3000",
+    "remaining": "2994",
+    "reset": "1784522729",
+    "policy": "3000;w=300"
+  },
+  "rate_limit_signals": 0
+}

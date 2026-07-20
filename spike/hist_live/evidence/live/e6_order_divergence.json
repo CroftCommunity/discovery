@@ -1,0 +1,28 @@
+{
+  "verdict": "GREEN",
+  "write_order_counters": [
+    5,
+    3,
+    4
+  ],
+  "rkey_enumeration_order": [
+    "436adbbb_0000003",
+    "436adbbb_0000004",
+    "436adbbb_0000005"
+  ],
+  "commit_order_from_repo": [
+    "3mr2i46uiah2c",
+    "3mr2i4a72o32n",
+    "3mr2i4bnvax2k"
+  ],
+  "correct_head": [
+    5,
+    "bafyreigh7nfgbahn62zpfdno5rgh3oexs5bdlvxzfiaqzw772kz2m4aszy"
+  ],
+  "negative_control_head": [
+    4,
+    "bafyreihezyx3z2rdc5eaw6f5pzrvjtgleuxrf4uzhvhrxaqzyddq7y5kk4"
+  ],
+  "heads_differ": true,
+  "commit_order_diverges_from_rkey_order": true
+}
