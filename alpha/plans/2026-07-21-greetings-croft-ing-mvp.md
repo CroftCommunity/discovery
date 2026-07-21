@@ -6,16 +6,16 @@ and the card-ingest proofs live); execution code lands in `greetings_site`.
 
 ## Status
 
-**Executing** — Pass 1–3 complete; Phase 0 done. Phase 1a is local-green (committed) with the live
-deploy pending user go-ahead. `greetings_site` cloned at `CroftC/greetings_site`, feature branch
-`greetings-mvp`.
+**Executing** — Pass 1–3 complete; Phase 0 done; **Phase 1a SHIPPED and live** (deploy loop green,
+byte-identical bundle serving at https://greetings.croft.ing/). `greetings_site` at
+`CroftC/greetings_site`; `greetings-mvp` merged to `main`; Pages source = `gh-pages`/root. Next: Phase 1b.
 
 ## Outcome Summary
 
 | Phase | Outcome | Ref | Note |
 |-------|---------|-----|------|
 | Phase 0 Discovery | ✅ D1–D3 resolved; D4 read-leg (write leg gated on creds) | discovery findings + `scratchpad/` spikes | getBlob-CORS gate cleared; deploy model corrected to gh-pages |
-| Phase 1a Build + deploy | 🟡 local-green, live deploy pending | greetings_site `33c0e89` | `npm test` exits 0; push + Pages-source flip await go-ahead |
+| Phase 1a Build + deploy | ✅ SHIPPED + live | greetings_site `33c0e89` (on `main`) | deploy loop green; byte-identical bundle live at greetings.croft.ing; Pages = `gh-pages`/root |
 | Phase 1b … 4 | ☐ not started | — | — |
 
 ## Problem Statement
@@ -353,7 +353,7 @@ compromised and **rotated** before any live run; do not reuse it.
 **Done when:** D1–D4 answered with firsthand evidence; Verified Assumptions updated; Open Questions
 2–3 resolved; phases adjusted if a probe invalidates an assumption (recorded in the Review Log).
 
-### Phase 1a: Build + deploy foundation (reuse arecipe's toolchain) — 🟡 LOCAL-GREEN (`33c0e89`), live deploy pending
+### Phase 1a: Build + deploy foundation (reuse arecipe's toolchain) — ✅ SHIPPED (`33c0e89`), live
 
 **Delivered (2026-07-21, commit `33c0e89` on `greetings-mvp`):** all files below created; `npm test`
 (lint + typecheck + test:unit + build) exits 0; `dist/` contains the content-hashed bundle
@@ -363,8 +363,10 @@ are Phase 1b as specified, not 1a. (2) The aggregate `npm test` **omits `test:e2
 no routes to exercise yet); playwright e2e joins `npm test` in Phase 1b. **Flag (plan write-set gap):**
 wiring e2e into CI in 1b requires editing `package.json` (`test` script) and `.github/workflows/ci.yml`
 (add `npx playwright install --with-deps chromium`) — neither is in Phase 1b's declared write-set;
-add them there. **Not done (the behavioral gate):** the live deploy loop — push to `main` → Actions →
-`gh-pages` + the one-time Pages-source flip to `gh-pages`/root — awaits user go-ahead.
+add them there. **Behavioral gate MET (2026-07-21):** `greetings-mvp` merged to `main`, pushed; Actions
+`test`+`deploy` both green; `pages-deploy.sh` created `gh-pages` with `dist/`; Pages source flipped to
+`gh-pages`/root; the live site serves a **byte-identical** hashed bundle
+(`https://greetings.croft.ing/main-LQHKV6LT.js` == local build). Deploy loop proven end-to-end.
 
 **Goal:** greetings_site has a working esbuild+TS build, a test harness, a CI/deploy path, and a
 minimal built page live on Pages. This exists because OAuth (`@atproto/oauth-client-browser`) is an
@@ -824,3 +826,12 @@ write-set — flagged).
 Pages-source flip to `gh-pages`/root. This is the outward leg; paused for user go-ahead before pushing.
 **Discovery repo:** this plan doc's Pass 3 + Phase 0 + Phase 1a updates committed separately (user
 approved).
+**Go-live (2026-07-21, user chose "go live now"):** merged `greetings-mvp`→`main` (ff), pushed; CI
+`test`+`deploy` green; `gh-pages` created (`253e43f`) with the built `dist/`; flipped Pages source to
+`gh-pages`/root; live site verified serving a byte-identical hashed bundle. **Deploy loop wiring test:
+GREEN. Phase 1a SHIPPED.** **Operational learning:** flipping the Pages source via `PUT /pages` does
+NOT auto-trigger a rebuild — the site kept serving the old `main`/root build (raw source: unbuilt
+`./main.js`, 404 bundle) until a one-time `POST /pages/builds` forced a build from `gh-pages`.
+Subsequent deploys push directly to `gh-pages`, which auto-triggers a build, so this manual step was a
+one-time source-flip artifact, not part of the steady-state loop. Benign CI annotation: the pinned
+`actions/checkout`/`setup-node` SHAs target Node 20 (deprecation warning, not a failure) — bump later.
