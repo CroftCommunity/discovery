@@ -1,0 +1,16 @@
+# Standalone experiment workspace (own lockfile = own pin). Declared as its own workspace so it is
+# never accidentally pulled into a parent Cargo workspace.
+#
+# Spike for ROADMAP_TODO E43 (virtual cards / guestbooks). Proves the two net-new mechanics from
+# the design note (alpha/thinking/app/ponds/virtual-cards-and-guestbooks.md):
+#   1. the CONTENT-BLIND INGEST  — a service appends encrypted contributions it cannot read, and
+#      the not-reading is a COMPILE BOUNDARY (card-service has no dependency on card-seal, the
+#      decrypt capability). Same pattern as RUN-14 EXP-B, applied to the write side.
+#   2. the SCHEDULED READ-GRANT   — the recipient reveal: the ciphertext is withheld (one flat
+#      error, no leak) until a logical reveal time AND the viewer is the recipient.
+#
+# The atproto PDS write is a port (WriteTarget) with an in-memory fake; the live createRecord-over-
+# DPoP-OAuth adapter is out of scope for a hermetic run (blocked on creds/network) and unbuilt here.
+[workspace]
+resolver = "2"
+members = ["card-seal", "card-service"]

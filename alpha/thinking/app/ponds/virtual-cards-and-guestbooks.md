@@ -215,9 +215,14 @@ so it is simpler.
   against a verified caller (RUN-14 EXP-B, green-real loopback); cross-repo record assembly by
   strong-ref (public-roundtrip); MLS seal/Welcome/re-key for tier 3 (croft-group L2a Verified at
   loopback; browser wasm green-real, RUN-19).
-- **New, small:** the content-blind *ingest* (write-side mirror of the proven offer); the scheduled
-  read-grant (the reveal); the card UX and the per-card session lifecycle (create, delegate, ingest,
-  reveal, auto-revoke).
+- **New, small (now spiked green):** the content-blind *ingest* (write-side mirror of the proven
+  offer) and the scheduled read-grant (the reveal) are proven in a hermetic Rust spike,
+  `../../experiments/card-ingest/` (10 tests green; content-blindness proven as a dependency fact by
+  `cargo tree`, the service's runtime graph carries no cipher). Still design, not code: the card UX
+  and the per-card OAuth session lifecycle (create, delegate scope, ingest, reveal, auto-revoke).
+- **Still a stand-in / blocked:** the live atproto `WriteTarget` adapter (`createRecord` over DPoP
+  OAuth with a per-collection scope) is unbuilt in the spike (a port with an in-memory fake); it needs
+  credentials and network (X1-class), reported not faked.
 - **Not a Croft build:** the atproto storage substrate itself (PDS, OAuth, scopes) is upstream and
   used as-is.
 
@@ -244,6 +249,24 @@ so it is simpler.
 3. **Scheduled read-grant** (the reveal): spike it small against the offer-gating harness.
 4. **Sign-in-with-Bluesky** entry mode (self-authored, portable): the authorship upgrade.
 5. **MLS-sealed** card variant: later, for high-privacy cards only.
+
+## Beyond cards: a general collaborative primitive
+
+Nothing in the spiked shape is card-specific. What it actually is: **delegated per-collection write +
+content-blind ingest + an optional scheduled grant.** That serves any "many contributors, one owner's
+repo, mediated, optionally server-blind" surface, so the card is only the first instance of a reusable
+collaborative primitive. Other instances that ride the same shim with no new mechanism:
+
+- shared lists and collaborative notes (open or named-set write into one repo);
+- polls and votes (each ballot an encrypted contribution; tally after a scheduled close, which is the
+  reveal by another name);
+- RSVP rosters and sign-up sheets (the auditable-count wedge from D11 rides this directly);
+- a group playlist, a public suggestion box, a condolence/tribute wall (the guestbook generalized).
+
+The two dials that specialize the primitive per use case are the **write policy** (open link vs
+named-set vs sign-in) and **whether there is a reveal** (a card and a poll have one; a guestbook does
+not). This is worth its own consideration when the card MVP lands: the ingest is infrastructure, not a
+single feature. Tracked loosely against E8 (ponds/pads catalog) and E43.
 
 ## References
 
