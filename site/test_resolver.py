@@ -26,6 +26,7 @@ from resolver import (
     autolink_html,
     MermaidError,
     substitute_mermaid_blocks,
+    find_doubled_words,
 )
 
 
@@ -302,6 +303,64 @@ class TestMermaidBlocks(unittest.TestCase):
         out, n = substitute_mermaid_blocks(html, "beta/some-doc.md", renderer)
         self.assertEqual(n, 0)
         self.assertEqual(out, html)  # untouched
+
+
+class TestDoubledWords(unittest.TestCase):
+    """The render-space doubled-word gate. A duplication that straddles a source
+    line break is invisible to line-oriented grep (neither physical line carries
+    the doubled pair), but markdown joins the soft newline into a space, so the
+    reader sees it. This gate runs against RENDERED html with intra-block
+    whitespace collapsed, which is the only space where the defect exists. It is
+    the fix for the class RUN-05 FND-8 missed (a real doubled "Part 2" that two
+    later passes cleared as a false positive on the strength of a source grep)."""
+
+    def test_detects_doubled_single_word(self):
+        hits = find_doubled_words("<p>this is the the cat</p>")
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0]["phrase"].lower(), "the the")
+
+    def test_detects_duplication_across_a_newline(self):
+        # The FND-8 shape: "Part 2" ends one wrapped line, "Part 2 §7.6.1" begins
+        # the next; the rendered <p> carries the literal newline, which is
+        # render-space whitespace. A source grep for "Part 2 Part 2" finds nothing.
+        html = "<p>with no valid successor is too few; Part 2\nPart 2 §7.6.1 enumerates both</p>"
+        hits = find_doubled_words(html)
+        self.assertTrue(any(h["phrase"] == "Part 2 Part 2" for h in hits), hits)
+
+    def test_includes_anchor_text_the_reader_sees(self):
+        # The real emitted shape: the second "Part 2 §7.6.1" is autolinked, so the
+        # duplication spans a tag boundary. The reader still sees "Part 2 Part 2".
+        html = '<p>too few; Part 2\n<a href="part-2.html#s7-6-1">Part 2 §7.6.1</a> both</p>'
+        hits = find_doubled_words(html)
+        self.assertTrue(any(h["phrase"] == "Part 2 Part 2" for h in hits), hits)
+
+    def test_ignores_code_and_pre(self):
+        self.assertEqual(find_doubled_words("<p>ok</p><pre><code>the the</code></pre>"), [])
+        self.assertEqual(find_doubled_words("<p>a <code>the the</code> b</p>"), [])
+
+    def test_stripped_code_span_is_a_boundary_not_a_join(self):
+        # A word on each side of an inline-code span is not a duplication: the
+        # reader sees the code between them. Dropping the code must not merge
+        # "then <code>x</code> then" into a false "then then". (Real Part 2 shapes:
+        # "power level then `origin_server_ts` then `event_id`" and
+        # "measure `a` and `b` and `c` at each".)
+        self.assertEqual(
+            find_doubled_words("<p>power level then <code>ts</code> then <code>evt</code></p>"), [])
+        self.assertEqual(
+            find_doubled_words("<p>measure <code>a</code> and <code>b</code> and <code>c</code> at each</p>"), [])
+
+    def test_does_not_cross_block_boundaries(self):
+        # A heading ending in a word followed by a paragraph starting with the same
+        # word is not a duplication (blocks are separate); also the dag-cbor case
+        # where the tokens differ ("Drystone" vs "Drystone's") must not fire.
+        self.assertEqual(find_doubled_words("<h2>Relevance to Drystone</h2>\n<p>Drystone hashes</p>"), [])
+        self.assertEqual(find_doubled_words("<h2>Relevance to Drystone</h2>\n<p>Drystone's hash</p>"), [])
+
+    def test_allowlist_suppresses_intentional_double(self):
+        html = "<p>no principal holds the act-for-the-Group Group Role by right</p>"
+        # Without the allowlist it fires; with the intentional-term allowlist it does not.
+        self.assertTrue(find_doubled_words(html))
+        self.assertEqual(find_doubled_words(html, allowlist={"group group role"}), [])
 
 
 if __name__ == "__main__":
