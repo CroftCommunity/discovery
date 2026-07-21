@@ -6,9 +6,11 @@ and the card-ingest proofs live); execution code lands in `greetings_site`.
 
 ## Status
 
-**Executing** — Pass 1–3 complete; Phase 0 done; **Phase 1a + 1b SHIPPED and live** at
-https://greetings.croft.ing/ (routed PWA shell, strict CSP + SRI, installable). `greetings_site` at
-`CroftC/greetings_site` on `main`; Pages source = `gh-pages`/root. **Next: Phase 2 (creator OAuth).**
+**Executing** — Pass 1–3 complete; Phase 0 done; **Phases 1a + 1b + 2 SHIPPED and live** at
+https://greetings.croft.ing/ (routed PWA shell, strict CSP + SRI, Croft design palette, creator OAuth
+sign-in). `greetings_site` at `CroftC/greetings_site` on `main`; Pages = `gh-pages`/root. Phase 2's
+sign-in wiring + hosted client-metadata are live; **the interactive OAuth round-trip is pending
+user browser-confirmation.** **Next: Phase 3 (public card).**
 
 ## Outcome Summary
 
@@ -17,8 +19,9 @@ https://greetings.croft.ing/ (routed PWA shell, strict CSP + SRI, installable). 
 | Phase 0 Discovery | ✅ D1–D3 resolved; D4 read-leg (write leg gated on creds) | discovery findings + `scratchpad/` spikes | getBlob-CORS gate cleared; deploy model corrected to gh-pages |
 | Phase 1a Build + deploy | ✅ SHIPPED + live | greetings_site `33c0e89` | deploy loop green; byte-identical bundle live; Pages = `gh-pages`/root |
 | Phase 1b Shell + router + PWA + docs | ✅ SHIPPED + live | greetings_site `ca67803`; discovery `8fdafb0` | hash router (TDD 6/6) + view shells + strict CSP/SRI + installable PWA; CI e2e 6/6; pwa-spa-best-practices.md + pointers |
-| Phase 2 Creator OAuth | ☐ not started | — | next |
-| Phase 3–4 Cards | ☐ not started | — | — |
+| Phase 2 Creator OAuth | 🟢 SHIPPED + live (interactive OAuth = user-confirm) | greetings `5734581` | BrowserOAuthClient + hosted client-metadata live (`client_id`===URL); sign-in form; auth-core TDD 7/7; CI e2e 9/9; Croft palette adopted |
+| Phase 3 Public card | ☐ not started | — | next |
+| Phase 4 Sealed card | ☐ not started | — | — |
 
 ## Problem Statement
 
@@ -474,7 +477,27 @@ edges (Pass 3, mutation-resistant): `#/` and empty hash → home; `#/create` →
 **malformed locator** (`#/c/` with missing/extra segments) → a defined error/fallback, not an
 exception. Manual/live + CI-playwright for the DOM flow; discovery-side site gate for the doc changes.
 
-### Phase 2: Creator sign-in (write capability)
+### Phase 2: Creator sign-in (write capability) — 🟢 SHIPPED (`5734581`), live; interactive OAuth = user-confirm
+
+**Delivered (2026-07-21):** `src/auth-core.ts` (pure `authModeFor` gate / `isLoopbackHostname` /
+`normalizeHandle` / `isOAuthCallback`, TDD 7/7) + `src/auth.ts` (`BrowserOAuthClient`: hosted
+client-metadata on the production origin, atproto loopback client on 127.0.0.1, read-only elsewhere;
+DPoP session via `init()` → `new Agent(session)`; best-effort handle via `describeRepo`, confirmed API).
+`client-metadata.json` committed + copied into `dist/`, **live and self-consistent** (`client_id` ===
+`https://greetings.croft.ing/client-metadata.json`, root redirect, `transition:generic`, DPoP).
+`views/create.ts` gates on auth (signed-out sign-in form / signed-in confirmation / read-only origin);
+`main.ts` boots auth, routes an OAuth callback (root `?code&state`) to `#/create`. **CI:** unit 13/13,
+**e2e 9/9** (sign-in form reachable, empty-submit validates, client-metadata served). **Design decision
+(user, mid-phase):** adopted the **Croft palette** from `crofting_site` (schist/granite/ruddy/moss/ink/
+canvas, Lora serif + Inter sans) across the shell + sign-in form + icon/manifest/theme-color — recorded
+in `pwa-spa-best-practices.md` scope as the shared visual system. **Deviations:** (1) single-page root
+redirect_uri (not arecipe's dedicated page) — the D2 "concrete path, not a hash route" finding is
+honored (`/` is a concrete path). (2) Lora/Inter are referenced via font stacks with Georgia/system
+fallback; self-hosting the woff2 files is a deferred polish. (3) `@atproto/api` is in the main bundle
+(178 KB gz) — code-splitting to defer it is a deferred optimization. **NOT verified (user-confirm):**
+the interactive OAuth round-trip (redirect → bsky consent → callback → authenticated call) needs a
+browser + the test account; the app-password `@live` port test (arecipe's pattern) is the automatable
+proxy for the authenticated-agent capability and can be added when the password is supplied via env.
 
 **Goal:** The creator signs in via atproto OAuth (browser + DPoP, `@atproto/oauth-client-browser`) and
 the app holds a session able to write to their PDS.
@@ -868,3 +891,23 @@ enhancement) — consistent with fail-loud for core paths, tolerant for enhancem
 **Confirmed live:** routed PWA shell at greetings.croft.ing (home / #/create / #/c/… / notfound),
 strict CSP + SRI, installable. **Next: Phase 2 (creator OAuth) — first credential-gated live leg
 (uses the test app password via env, per the user).**
+
+### Phase 2 execution — 2026-07-21 (SHIPPED; greetings `5734581`)
+**Ground truth first (no-assumed-API discipline):** read arecipe's `src/auth/{oauth-client,boot,
+session-provider}.ts` + inspected the installed `@atproto/oauth-client-browser@0.4.9` types to confirm
+`BrowserOAuthClient({clientMetadata, handleResolver})`, `init()→{session}|undefined`, `signIn(handle)`,
+`session→new Agent(session)`; verified `agent.com.atproto.repo.describeRepo` exists before using it.
+**Built** exactly to that pattern; split pure logic into `auth-core.ts` so it TDDs headless (7/7 RED→
+GREEN). **Branch-first CI** (the recorded steady-state): pushed `phase-2`, CI green (unit 13/13, e2e
+9/9), merged to `main` (ff), deployed; `gh-pages` auto-rebuilt (`d0dd3a6`); verified `client-metadata.json`
+live with `client_id`===its-own-URL and the new bundle serving.
+**User instruction mid-phase:** "keep a croftish design palette, look in crofting_site." Fetched
+`crofting_site/styles.css`, adopted its tokens (schist/granite/ruddy/moss/ink/canvas + Lora/Inter) as
+greetings' palette; recorded it as the shared Croft visual system. This is a design decision layered on
+Phase 2, not scope creep — it restyles the existing shell + the new sign-in view.
+**Verification honesty:** the interactive OAuth round-trip (redirect + bsky consent) cannot run in this
+sandbox (no browser) and is not cleanly automatable headless (consent step). Deployed the working wiring
++ live hosted client-metadata; the round-trip is **user-confirmed in a browser** (click-path handed
+over). The app-password `@live` port test (arecipe's approach — inject an app-password Agent through the
+session port to exercise the authenticated-agent capability without the consent screen) is the automatable
+proxy; deferred until the test password is supplied via env. **Next: Phase 3 (public card).**
