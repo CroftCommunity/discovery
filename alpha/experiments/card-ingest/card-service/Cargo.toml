@@ -1,0 +1,15 @@
+[package]
+name = "card-service"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# The content-blind ingest + scheduled read-grant. Runtime deps carry NO decryption capability:
+# blake3 is content-addressing (a hash), not a cipher. `cargo tree -p card-service` (normal edges)
+# must not show card-seal or any AEAD crate. card-seal is a DEV dependency only, used by the
+# integration test to play the client (the key holder).
+[dependencies]
+blake3 = "=1.8.5"
+
+[dev-dependencies]
+card-seal = { path = "../card-seal" }

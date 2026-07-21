@@ -1,0 +1,10 @@
+[package]
+name = "card-seal"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# The client-side decrypt capability. The content-blind service (card-service) MUST NOT depend on
+# this crate; `cargo tree -p card-service` proves the absence. Vetted crate, pinned exact.
+[dependencies]
+chacha20poly1305 = "=0.10.1"
