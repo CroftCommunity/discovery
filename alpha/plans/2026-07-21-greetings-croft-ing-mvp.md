@@ -4,6 +4,20 @@ Build target repo: `CroftCommunity/greetings_site` (live on GitHub Pages at
 https://greetings.croft.ing/). This plan doc lives in the discovery corpus (where the E43 reasoning
 and the card-ingest proofs live); execution code lands in `greetings_site`.
 
+## Status
+
+**Executing** — Pass 1–3 complete; Phase 0 done. Phase 1a is local-green (committed) with the live
+deploy pending user go-ahead. `greetings_site` cloned at `CroftC/greetings_site`, feature branch
+`greetings-mvp`.
+
+## Outcome Summary
+
+| Phase | Outcome | Ref | Note |
+|-------|---------|-----|------|
+| Phase 0 Discovery | ✅ D1–D3 resolved; D4 read-leg (write leg gated on creds) | discovery findings + `scratchpad/` spikes | getBlob-CORS gate cleared; deploy model corrected to gh-pages |
+| Phase 1a Build + deploy | 🟡 local-green, live deploy pending | greetings_site `33c0e89` | `npm test` exits 0; push + Pages-source flip await go-ahead |
+| Phase 1b … 4 | ☐ not started | — | — |
+
 ## Problem Statement
 
 Group/personal e-card incumbents (GroupGreeting and similar) have weak UI, are functionally basic, and
@@ -72,7 +86,10 @@ A query param would be logged everywhere and defeat the property.
 - **greetings_site hosting** — public repo, default branch `main`; GitHub **Pages is enabled and
   built**, source `main`/root, live at https://greetings.croft.ing/ (CNAME `greetings.croft.ing`).
   Confirmed via `gh api repos/CroftCommunity/greetings_site/pages` and `/contents` (root has
-  `CNAME`, `LICENSE`). Deploy loop = push static assets to `main` root, Pages rebuilds.
+  `CNAME`, `LICENSE`). Pass-1 finding: Pages source was `main`/root. **Phase 0 correction (2026-07-21):**
+  adopting arecipe's model (Q7) changes the deploy loop to **Actions build (`scripts/build.mjs` →
+  `dist/`) → push to the `gh-pages` branch root** via `scripts/pages-deploy.sh`, so greetings needs a
+  **one-time flip** of its Pages source from `main`/root to `gh-pages`/root (see Phase 1a).
 - **Card-ingest link-key tier proven** (this cycle): `card-seal` seal/open (real ChaCha20-Poly1305),
   `content_address` (blake3), and the PDS storage leg (create/read/delete of an encrypted contribution
   round-tripping as opaque bytes) validated live against a real bsky PDS
@@ -104,30 +121,74 @@ A query param would be logged everywhere and defeat the property.
   `.github/workflows/{ci,preview}.yml`. greetings reuses this wholesale (it is exactly the PWA/SPA
   best-practices baseline the user asked to start).
 
-**Unverified (Phase 0 targets):** CORS behavior of the bsky PDS/entryway for cross-origin **reads**
-(`getRecord`, `getBlob`) from the `greetings.croft.ing` static origin; **DID→PDS resolution** in the
-browser (resolve `did:plc:*` via `plc.directory` to the PDS endpoint before `getRecord`/`getBlob` — a
-custom-NSID record is NOT served by the public appview/CDN, so the view path must resolve the DID and
-hit the owning PDS directly); the exact **blob-ref object shape** a record must embed (the `uploadBlob`
-response `{$type:"blob", ref:{$link:cid}, mimeType, size}`); GitHub Pages routing for a client-side-
-routed SPA (hash routing vs 404 fallback) and the **build/deploy model** (esbuild → committed built
-assets vs an Actions build-to-Pages, per arecipe's CI). *(Creator-auth path is no longer unverified —
-DECIDED as OAuth reusing arecipe.)*
+**Phase 0 execution findings (2026-07-21, firsthand — non-browser legs):**
+- **[D1 — RESOLVED]** AES-256-GCM browser round-trip confirmed in WebCrypto (`crypto.subtle`, run under
+  Node v25 whose engine is identical to the browser's). All checks pass: `genKey` (256-bit) → raw export
+  to **43-char base64url** → reimport → seal/open **round-trips**; ciphertext ≠ plaintext; **wrong-key
+  fails** and **tampered ciphertext fails** (GCM auth tag); **fresh 96-bit IV per op**; the cover-byte
+  path (`sealBytes`/`openBytes`) round-trips with a **distinct IV** from the payload. **Fragment grammar
+  DECIDED:** `#/c/<did>/<rkey>#k=<base64url-raw-key>`; the record stores `{iv, ct}` (+ `coverIv`); the
+  key lives only in `#k=`. Evidence: `scratchpad/d1-crypto.mjs`, all 9 assertions PASS. (Browser-runtime
+  `location.hash` handling is a Phase-1b/4 wiring concern, not a crypto-mechanics one.)
+- **[D2 — reads/CORS RESOLVED; own-OAuth-hosting still Phase 2]** DID→PDS resolution works
+  (`bsky.app` → `did:plc:z72i7hdynmk6r22z27h6tvur` → PDS `puffball.us-east.host.bsky.network` via
+  `plc.directory`). Unauthenticated `getRecord` (profile/self) and `getBlob` (avatar, `image/jpeg`,
+  256 KB) both return **HTTP 200 with `Access-Control-Allow-Origin: *`**, and the CORS **OPTIONS
+  preflights return 204 with `ACAO: *`** (GET allowed). **This retires the plan's biggest risk — the
+  getBlob-CORS gate is clear** for bsky-network-hosted accounts. *Caveat: Node does not enforce CORS;
+  this is header inspection, but `ACAO: *` is a wildcard a browser honors unconditionally for a simple
+  GET. Self-hosted PDSes could differ; MVP targets bsky-hosted.* Evidence: `scratchpad/d2d4-reads.mjs`.
+  **New finding:** an OAuth `redirect_uri` cannot contain a `#` fragment, so greetings (hash-routed)
+  needs a **concrete callback path**, not a `#/callback` route (arecipe uses `signin.html`).
+- **[D3 — build/deploy + reuse boundary RESOLVED; live-routing folds into Phase 1a]** From arecipe's
+  actual files: build = `node scripts/build.mjs` (esbuild) → `dist/`; deploy = **GitHub Actions builds
+  and pushes `dist/` to the `gh-pages` branch root** via `scripts/pages-deploy.sh` (plain git, no
+  third-party action), Pages serving from `gh-pages/root`, per-PR previews at
+  `gh-pages:/pr-preview/pr-N/`. CI is hermetic (lint + typecheck + unit + build + e2e on the built
+  bundle, node 22, `npm ci`, no creds); the `@live` real-PDS tier runs **locally per phase**, not in CI.
+  Confirmed present at arecipe root: `package.json` (deps exactly as the VA claims — `@atproto/*`,
+  `@ipld/dag-cbor`, `multiformats`; devDeps esbuild/typescript/vitest/happy-dom/fake-indexeddb/
+  playwright/eslint), `tsconfig.json` + `tsconfig.tests.json` + `vitest.config.ts` + `playwright.config.ts`
+  + `eslint.config.js`, committed `client-metadata.json`, `manifest.webmanifest`, `.github/workflows/
+  {ci,preview}.yml`. **Reuse boundary:** copy toolchain + configs + CI + `pages-deploy.sh` +
+  client-metadata pattern + CSP + the `authModeFor` gate (sign-in only on production-origin/loopback,
+  else read-only); greetings diverges as a **single-page hash-routed shell** (not arecipe's multi-page
+  per-view HTML). Evidence: `scratchpad/arecipe_{package.json,client-metadata.json,ci.yml}`,
+  `gh api .../contents`.
+- **[D4 — read leg RESOLVED; write leg needs credentials]** Unauthenticated `getBlob` read + CORS
+  confirmed above (200, `ACAO: *`, `image/jpeg`, 256 KB observed). The blob-ref embed shape is the
+  atproto standard `{$type:"blob", ref:{$link:cid}, mimeType, size}`. **NOT verified here (gated):** the
+  authenticated `uploadBlob` write leg, the exact blob **size cap**, allowed image types, and the
+  sealed-ciphertext-as-blob round-trip — these need a real creator session (a **rotated bsky app
+  password**, not available in this sandbox). Folds into Phase 3/4's live gate.
+
+**Still unverified after Phase 0 (browser- or credential-gated; fold into the implementation phase that
+runs in that environment):**
+- **Live hash routing on Pages** (hash routing needs no server rewrite; confirmed as a fact, but the
+  live 404-vs-hash behavior on greetings' Pages is confirmed by Phase 1a's first real deploy).
+- **greetings' own OAuth flow** — hosting `greetings.croft.ing/client-metadata.json`, the concrete
+  callback path, and the redirect round-trip on Pages — needs a browser (Phase 2 gate).
+- **Authenticated `uploadBlob`** — the write leg, exact blob size cap, allowed image types, and the
+  sealed-ciphertext-as-blob round-trip — needs a rotated bsky app password (Phase 3/4 gate).
+*(Resolved in Phase 0: CORS reads + getBlob CORS, DID→PDS resolution, blob-ref shape, AES-GCM
+round-trip, and the build/deploy + reuse-boundary model — see "Phase 0 execution findings" above.
+Creator-auth mechanism remains DECIDED as OAuth reusing arecipe.)*
 
 ## Documentation Impact
 
-- `greetings_site/README.md` — created/expanded in Phase 1 (what the app is, the two card modes, the
+- `greetings_site/README.md` — created/expanded in Phase 1b (what the app is, the two card modes, the
   link grammar, local dev + deploy). Currently the repo has only `CNAME` + `LICENSE`.
-- `discovery/alpha/experiments/card-ingest/README.md` — add a pointer (Phase 1) that greetings_site is
-  the product consumer of the link-key tier.
+- `discovery/alpha/experiments/card-ingest/README.md` — add a pointer (Phase 1b) that greetings_site is
+  the product consumer of the link-key tier. *(Pass 3: file confirmed present.)*
 - `discovery/alpha/thinking/app/ponds/virtual-cards-and-guestbooks.md` — add a "productization"
-  pointer to greetings_site + this plan (Phase 1).
-- `discovery/alpha/ECOSYSTEM.md` (§5c Croft-owned live properties) — register greetings.croft.ing as a
-  live Croft property (Phase 1). *(Grep confirmed arecipe/skylite are registered there; greetings is
-  not yet.)*
+  pointer to greetings_site + this plan (Phase 1b). *(Pass 3: file confirmed present.)*
+- `discovery/alpha/ECOSYSTEM.md` (**§5c-3** Croft-owned live properties — Pass 3: the register is
+  §5c-3, not §5c; heading confirmed at line 186) — register greetings.croft.ing as a live Croft
+  property (Phase 1b). *(Grep confirmed arecipe/skylite are registered there at lines 192/195;
+  greetings is not yet.)*
 - `discovery/alpha/ROADMAP_TODO.md` E43 — add a "productization underway: greetings.croft.ing (plan
-  <this file>)" note (Phase 1).
-- `discovery/alpha/thinking/app/pwa-spa-best-practices.md` — **new** (Phase 1): our PWA/SPA baseline,
+  <this file>)" note (Phase 1b). *(Pass 3: E43 confirmed at line 166.)*
+- `discovery/alpha/thinking/app/pwa-spa-best-practices.md` — **new** (Phase 1b): our PWA/SPA baseline,
   seeded from arecipe's live patterns (OAuth-browser via `@atproto/oauth-client-browser` + hosted
   client-metadata.json; strict CSP with `default-src 'none'` + hashed inline scripts + scoped
   `connect-src`; SRI on every asset; content-hashed bundles from a TS+bundler build; PWA manifest;
@@ -153,19 +214,75 @@ is fine; parallelism here is optional, not required.
 Phase 0 parallel set {D1, D2, D3, D4} (optional):
 - Disjoint write-sets: each probe writes only its own scratch file under a `spike/` scratch dir
   (`spike/d1-crypto.html`, `spike/d2-cors.*`, etc.); none writes app files.
-- Shared-state contract: read-only against external services (bsky PDS, the live Pages site); no
-  git/branch/port mutation; no shared writes.
-- Re-entry verification: no app file changed by any probe; findings recorded in the plan's Verified
-  Assumptions; scratch dir removable.
+- Shared-state contract (Pass 3 — corrected, was inaccurately blanket "read-only / no shared writes"):
+  the probes are **not uniformly read-only**, so state the per-probe reality:
+  - **D1** is **fully local** (browser WebCrypto in a scratch HTML file) — no network, no external state.
+  - **D2, D4** are **read-only against external services** (bsky PDS/entryway, `plc.directory`;
+    `getRecord`/`getBlob`; D4 also does one *authenticated* `uploadBlob` to a **disposable test
+    account's** PDS — an external write, but to a throwaway repo, deletable, disjoint from any other
+    probe's target).
+  - **D3 writes to shared external state:** its probe (1) deploys a 2-route stub to the
+    **greetings_site repo / live Pages site**. This is an external write, disjoint in *target* from
+    D1/D2/D4 (none of them touch greetings_site), so the parallel set is still safe — but it is a write,
+    not a read. Because D3 mutates the same greetings_site `main`/Pages that Phase 1a will initialize,
+    **D3 must land (and its stub be reconciled) before Phase 1a starts** (already sequential: 0 → 1a).
+  - No probe mutates local git HEAD/branch, binds a port, or starts a daemon.
+- Re-entry verification: no app file changed by any probe; `git status` clean except the `spike/`
+  scratch dir; D4's test-account records/blobs deleted (or noted for GC); **D3's stub deploy either
+  removed or explicitly carried forward as the Phase 1a base (decide in D3, record in the Review Log)**;
+  findings recorded in the plan's Verified Assumptions; scratch dir removable.
 
 ## Phases
+
+### Test execution split (RED→GREEN under sandbox constraints) — Pass 3
+
+RED→GREEN wiring discipline applies to every phase, but the tests execute in two tiers because this
+sandbox cannot drive a headless browser (Chromium egress is blocked — see the memory note
+"sandbox-browser-egress-blocks-live-tests"; it is a network block, not a cert issue):
+
+- **vitest unit tier (runs here, in-sandbox):** the pure modules — `router.ts` (`hash → view`),
+  `crypto.ts` (seal/open), the link codec, the record builder, the DID resolver's URL/`did:plc`
+  parsing. These are the sandbox-runnable floor and follow RED→GREEN **in this environment**: write the
+  failing test, watch it fail, implement, watch it pass.
+- **playwright e2e/live wiring tier (runs in CI or a browser-capable env, NOT here):** every phase's
+  named wiring test (deploy loop, route render, OAuth round-trip, create→view, create→decrypt +
+  keyless-fails). These are authored RED (failing or absent) at phase start and driven GREEN in CI / a
+  local browser; here they are exercised **manually on the live site**. A phase is not "done" until its
+  wiring test is GREEN in a browser-capable env — a green vitest suite alone does not close a phase.
+
+Each phase's **Wiring test** and **Validation** fields already name which tier applies; this note is the
+cross-cutting statement of the discipline so no phase is read as "unit tests are sufficient."
+
+### Observability, error surfacing & live-testing credentials (cross-cutting) — Pass 3
+
+**Error surfacing (user-facing) and diagnostics.** Every failure path that a recipient or creator can
+hit must surface a plain, non-technical message in the UI and a diagnostic in the dev console — never a
+silent failure or a blank card (fail-loud). Specifically:
+- **Auth (Phase 2):** OAuth start/callback failures (PAR/PKCE/DPoP errors, redirect mismatch, session
+  restore failure) → a user-facing "sign-in failed, try again" state + a console diagnostic naming the
+  step. **Never** log or surface tokens, the DPoP key, or refresh material.
+- **View path (Phase 3/4):** DID→PDS resolution failure, `getRecord` not-found/error, and **`getBlob`
+  CORS/fetch failure** → distinct user-facing messages ("this card link looks broken", "couldn't load
+  the cover image") + a console diagnostic naming which leg failed (resolution vs record vs blob), so a
+  post-deploy failure is traceable to a phase.
+- **Decrypt (Phase 4):** missing key → "you need the link's key to read this"; present-but-wrong key or
+  GCM auth-tag failure (tamper) → a **distinct** "this card couldn't be decrypted" message. **Hard
+  rule:** the `#k=` fragment, the raw/imported key, and decrypted plaintext must never enter
+  `console.log`, an error report, analytics, the service worker, or any network request. The Phase 4
+  Risks item already names the fragment-never-networked audit; this makes the logging side explicit.
+
+**Live-testing credentials.** Any live leg (Phases 2/3/4 against a real bsky PDS) uses a **bsky app
+password for a disposable test account, supplied via an environment variable, never committed** and
+never pasted into the plan or a fixture. The password shared in a prior session must be treated as
+compromised and **rotated** before any live run; do not reuse it.
 
 ### Phase 0: Discovery
 
 **Goal:** Resolve the four unknowns before committing to the SPA structure. Discovery Exemption applies
 (no TDD on probe code; each task declares a disposition).
 
-- [ ] **D1: Confirm the AES-256-GCM browser round-trip + key/link format.** (Cipher DECIDED:
+- [x] **D1: Confirm the AES-256-GCM browser round-trip + key/link format.** — ✅ **RESOLVED 2026-07-21**
+    (all 9 checks pass; fragment grammar decided; see Phase 0 execution findings). (Cipher DECIDED:
     AES-256-GCM; see Open Questions. D1 confirms the mechanics, it does not choose the cipher.)
   - **Probe:** In a browser context, WebCrypto `AES-GCM` 256-bit: `genKey` (fresh random 256-bit key),
     fresh random 96-bit IV, encrypt+decrypt round-trip of a UTF-8 card payload; confirm ciphertext ≠
@@ -174,9 +291,15 @@ Phase 0 parallel set {D1, D2, D3, D4} (optional):
   - **Success criteria:** A working `seal(payload,key)->{iv,ct}` / `open({iv,ct},key)` + `genKey` in
     browser JS with AES-256-GCM, and a decided fragment grammar (expected: locator in the path/hash,
     key as `#k=<base64url>`; IV stored with the record, never the key).
-  - **Disposition:** `keep-as-fixture` — the crypto helper becomes `crypto.js` in Phase 3/4 (TDD
-    applies to the promoted module).
-- [ ] **D2: Confirm CORS reads and greetings' own OAuth client-metadata hosting.** (Auth mechanism
+  - **Disposition:** `promote` (Pass 3: was mislabeled `keep-as-fixture`; the spike is executable
+    logic, not reference data, so it is a promotion). The spike's seal/open/genKey/base64url logic is
+    promoted to production **`src/crypto.ts` in Phase 4**, where it is (re)written under TDD — the D1
+    spike is the reference, and Phase 4 is the named follow-up phase that applies RED→GREEN to the
+    promoted code. The fragment-grammar decision D1 settles is recorded in Verified Assumptions.
+- [x] **D2: Confirm CORS reads and greetings' own OAuth client-metadata hosting.** — ✅ **reads/CORS
+    RESOLVED 2026-07-21** (DID→PDS resolution + `getRecord`/`getBlob` all HTTP 200 with `ACAO: *`,
+    preflights 204; getBlob-CORS gate cleared). Residual (greetings' own client-metadata hosting +
+    redirect round-trip) is browser/Phase-2 wiring, not a discovery unknown. (Auth mechanism
     already DECIDED: OAuth browser client reusing arecipe; see Open Questions / Verified Assumptions.
     D2 no longer chooses the mechanism, it confirms greetings' own setup.)
   - **Probe:** (1) **DID→PDS resolution + reads:** resolve a `did:plc:*` via `plc.directory` to its PDS
@@ -189,8 +312,13 @@ Phase 0 parallel set {D1, D2, D3, D4} (optional):
     the static origin; a valid greetings client-metadata.json + confirmed redirect on Pages, matching
     arecipe. **Gate:** if `getBlob` CORS is blocked from the static origin, the cover-image view path is
     at risk (no server to proxy) — surface before Phase 3 (see Risks).
-  - **Disposition:** `keep-as-fixture` — the client-metadata.json and CSP are promoted into Phase 1/2.
-- [ ] **D3: Confirm routing + build/deploy on Pages; settle the arecipe reuse boundary.** (Stack
+  - **Disposition:** `keep-as-fixture` — the client-metadata.json and CSP are config/data (not
+    executable logic), so they are copied as reference into Phase 1b (CSP) / Phase 2 (client-metadata).
+- [x] **D3: Confirm routing + build/deploy on Pages; settle the arecipe reuse boundary.** — ✅
+    **RESOLVED 2026-07-21** (build = esbuild→`dist/`; deploy = Actions→`gh-pages` root via
+    `pages-deploy.sh` + one-time Pages-source flip; hermetic CI, `@live` local per phase; reuse boundary
+    listed; greetings = single-page hash-routed shell). Live 404-vs-hash confirmation folds into Phase
+    1a's first deploy. (Stack
     DECIDED: reuse arecipe's esbuild + TypeScript + vitest + playwright + eslint; see Verified
     Assumptions. D3 does not choose the stack.)
   - **Probe:** (1) confirm client-side routing on Pages for the link grammar (hash routing needs no
@@ -202,8 +330,14 @@ Phase 0 parallel set {D1, D2, D3, D4} (optional):
     `client-metadata.json` shape, CSP) vs greetings-specific.
   - **Success criteria:** routing scheme proven on live Pages; a decided build/deploy model matching
     arecipe; a listed reuse boundary (files copied vs written fresh).
-  - **Disposition:** `keep-as-fixture` — the stub + copied config become the Phase 1 build/shell.
-- [ ] **D4: Confirm the cover-image blob round-trip (schema DECIDED; see Open Questions).**
+  - **Disposition:** `keep-as-fixture` — the routing stub + copied config files (build/test/lint) are
+    reference/config, copied as the Phase 1a/1b build + shell base (not logic under TDD).
+- [ ] **D4: Confirm the cover-image blob round-trip (schema DECIDED; see Open Questions).** — 🟡
+    **read leg RESOLVED 2026-07-21** (unauthenticated `getBlob` 200 + `ACAO: *` + `image/jpeg` 256 KB;
+    blob-ref shape is standard `{$type:"blob", ref:{$link:cid}, mimeType, size}`). **Write leg NOT
+    verified — gated on credentials:** authenticated `uploadBlob`, exact size cap, allowed types, and
+    the sealed-ciphertext-as-blob round-trip need a rotated bsky app password → confirmed at Phase 3/4's
+    live gate. This box stays unchecked until the write leg runs.
   - **Probe:** Confirm the atproto blob path both directions from a static browser client: (1)
     `uploadBlob` a cover image (authenticated, creator session) and reference it in an
     `ing.croft.greeting.card` record; (2) unauthenticated `getBlob` (by DID + CID) of that cover from
@@ -219,23 +353,44 @@ Phase 0 parallel set {D1, D2, D3, D4} (optional):
 **Done when:** D1–D4 answered with firsthand evidence; Verified Assumptions updated; Open Questions
 2–3 resolved; phases adjusted if a probe invalidates an assumption (recorded in the Review Log).
 
-### Phase 1a: Build + deploy foundation (reuse arecipe's toolchain)
+### Phase 1a: Build + deploy foundation (reuse arecipe's toolchain) — 🟡 LOCAL-GREEN (`33c0e89`), live deploy pending
+
+**Delivered (2026-07-21, commit `33c0e89` on `greetings-mvp`):** all files below created; `npm test`
+(lint + typecheck + test:unit + build) exits 0; `dist/` contains the content-hashed bundle
+(`main-<hash>.js`), the rewritten `index.html`, `CNAME`, and `.nojekyll`. **Two deviations from the
+Pass 3 spec, both deliberate:** (1) the `build.mjs` is the minimal single-page core — CSP/SRI/SW/manifest
+are Phase 1b as specified, not 1a. (2) The aggregate `npm test` **omits `test:e2e`** for 1a (there are
+no routes to exercise yet); playwright e2e joins `npm test` in Phase 1b. **Flag (plan write-set gap):**
+wiring e2e into CI in 1b requires editing `package.json` (`test` script) and `.github/workflows/ci.yml`
+(add `npx playwright install --with-deps chromium`) — neither is in Phase 1b's declared write-set;
+add them there. **Not done (the behavioral gate):** the live deploy loop — push to `main` → Actions →
+`gh-pages` + the one-time Pages-source flip to `gh-pages`/root — awaits user go-ahead.
 
 **Goal:** greetings_site has a working esbuild+TS build, a test harness, a CI/deploy path, and a
 minimal built page live on Pages. This exists because OAuth (`@atproto/oauth-client-browser`) is an
 npm dependency and cannot be hand-authored static JS (Pass 2 finding).
 **Changes:**
 - [ ] `greetings_site/package.json` — deps (`@atproto/oauth-client-browser`, `@atproto/api`,
-  `@atproto/oauth-types`, `@ipld/dag-cbor`, `multiformats`) + devDeps (`esbuild`, `typescript`,
-  `vitest`, `happy-dom`, `@playwright/test`, `eslint`); scripts mirrored from arecipe.
-- [ ] build/config copied+adapted from arecipe: `scripts/build.mjs` (esbuild), `tsconfig.json`,
-  `vitest.config.ts`, `playwright.config.ts`, `eslint.config.js`.
-- [ ] `greetings_site/.github/workflows/ci.yml` — lint + typecheck + unit + build (+ deploy per the
-  D3-confirmed model).
+  `@atproto/oauth-types`, `@ipld/dag-cbor`, `multiformats`) + devDeps (matching arecipe's confirmed set:
+  `esbuild`, `typescript`, `typescript-eslint`, `@types/node`, `vitest`, `happy-dom`, `fake-indexeddb`,
+  `@playwright/test`, `eslint`); scripts mirrored from arecipe (`build`, `typecheck`, `test:unit`,
+  `test:e2e`, `test:live` = `LIVE=1 playwright test`, `lint`, `test`).
+- [ ] build/config copied+adapted from arecipe: `scripts/build.mjs` (esbuild → `dist/`), `tsconfig.json`,
+  `tsconfig.tests.json`, `vitest.config.ts`, `playwright.config.ts`, `eslint.config.js`.
+- [ ] `greetings_site/.github/workflows/ci.yml` — **D3-confirmed model:** hermetic `test` job (lint +
+  typecheck + unit + build + e2e on the built bundle, node 22, `npm ci`, no creds) → a `deploy` job
+  (on `main` push) that runs `scripts/build.mjs` and pushes `dist/` to the **`gh-pages` branch root**
+  via `scripts/pages-deploy.sh` (plain git, `contents: write`, `concurrency: gh-pages`). Copy
+  `scripts/pages-deploy.sh` and `.github/workflows/preview.yml` (PR previews at
+  `gh-pages:/pr-preview/pr-N/`) from arecipe.
+- [ ] **One-time setup (not a file):** flip greetings' Pages source from `main`/root to
+  **`gh-pages`/root** (`gh api ... /pages` or repo settings); ensure the build copies `CNAME` into
+  `dist/`. This is the D3 deploy-model correction (Pass-1 assumed `main`/root).
 - [ ] `greetings_site/src/main.ts` + a minimal `index.html` that loads the built bundle (hello-world,
-  proves the build→Pages loop).
-**Call chain:** `npm run build` (esbuild) → hashed bundle emitted → committed/deployed to the
-Pages-served path → https://greetings.croft.ing/ loads the built bundle.
+  proves the build→`gh-pages`→Pages loop).
+**Call chain:** `npm run build` (esbuild) → hashed bundle emitted to `dist/` → Actions `deploy` job
+pushes `dist/` to `gh-pages` root (`pages-deploy.sh`) → Pages serves `gh-pages`/root →
+https://greetings.croft.ing/ loads the built bundle.
 **Wiring test:** a pushed change to `src/main.ts` appears on the live site after the CI/deploy loop
 runs (build → Pages). Validated on the live site (see Validation).
 **Depends on:** Phase 0 (D3 build/deploy + reuse-boundary decision).
@@ -251,7 +406,12 @@ the 4-file-rule concern, partial feature completion, does not apply to a config 
    on the live site after deploy.
 **Validation:** Moderate. `npm run build` + `vitest` run locally/CI; confirm the live deploy loop
 manually (browser E2E via playwright runs in CI / a browser-capable env, not this sandbox — headless
-browser egress is blocked here).
+browser egress is blocked here). **TDD ordering (Pass 3):** 1a is a mechanical config/toolchain
+bootstrap copied from arecipe — it carries **no pure business logic to unit-test first**, so its gate is
+the **deploy-loop wiring test** (a `src/main.ts` change reaching the live site), not a RED→GREEN unit
+cycle. `vitest` here only proves the harness wires up (a smoke test / zero-or-one trivial test is
+acceptable). The **first genuine RED→GREEN vitest cycle is the Phase 1b router**; do not manufacture
+hollow unit tests for the bootstrap to satisfy a TDD checkbox.
 
 ### Phase 1b: App shell + router + PWA + doc pointers
 
@@ -268,7 +428,7 @@ shells, plus the discovery-side doc pointers and the PWA/SPA best-practices doc.
 - [ ] `greetings_site/styles.css` — minimal tectonic-aligned styling.
 - [ ] `greetings_site/README.md` — what it is, link grammar, dev + deploy, **pointer to the plan**
   (`discovery/alpha/plans/2026-07-21-greetings-croft-ing-mvp.md`) per Q5.
-- [ ] discovery-side (separate commit): doc pointers (ECOSYSTEM §5c, ROADMAP_TODO E43, card-ingest
+- [ ] discovery-side (separate commit): doc pointers (ECOSYSTEM §5c-3, ROADMAP_TODO E43, card-ingest
   README, design note) + **new `discovery/alpha/thinking/app/pwa-spa-best-practices.md`** codifying the
   arecipe baseline (esbuild+TS, vitest+playwright, OAuth-browser + committed client-metadata.json,
   strict CSP + SRI + hashed bundles, PWA manifest, CI).
@@ -290,8 +450,11 @@ set); SW cache staleness (version the SW; hashed bundles bust cache).
    app is installable, and the CSP is in place; the best-practices doc + pointers exist.
 2. **Verification:** load the two routes on https://greetings.croft.ing/ + PWA manifest check; the
    discovery docs reference greetings and the best-practices doc exists (site gate green).
-**Validation:** Moderate. Unit-test the router (pure `hash → view` function) in vitest; manual/live +
-CI-playwright for the DOM flow; discovery-side site gate for the doc changes.
+**Validation:** Moderate. Unit-test the router (pure `hash → view` function) in vitest, naming the
+edges (Pass 3, mutation-resistant): `#/` and empty hash → home; `#/create` → create; `#/c/<did>/<rkey>`
+→ card with the locator parsed out; an **unknown route** → the fallback (home, not a crash); a
+**malformed locator** (`#/c/` with missing/extra segments) → a defined error/fallback, not an
+exception. Manual/live + CI-playwright for the DOM flow; discovery-side site gate for the doc changes.
 
 ### Phase 2: Creator sign-in (write capability)
 
@@ -299,8 +462,14 @@ CI-playwright for the DOM flow; discovery-side site gate for the doc changes.
 the app holds a session able to write to their PDS.
 **Changes:**
 - [ ] `greetings_site/client-metadata.json` — committed at repo root (OAuth `client_id` target),
-  modeled on arecipe's: `client_id` = its own hosted URL, `redirect_uris` = the greetings callback,
-  scopes, DPoP. (OAuth precondition — the client cannot start without it.)
+  modeled on arecipe's confirmed shape (`client_id` = the hosted `https://greetings.croft.ing/client-metadata.json`,
+  `client_uri`, `logo_uri`, `scope: "atproto transition:generic"`, `grant_types:
+  ["authorization_code","refresh_token"]`, `response_types: ["code"]`, `token_endpoint_auth_method:
+  "none"`, `application_type: "web"`, `dpop_bound_access_tokens: true`). (OAuth precondition — the
+  client cannot start without it.) **Phase 0 D2 finding:** `redirect_uris` must be a **concrete path**
+  (OAuth redirect URIs cannot contain a `#` fragment) — arecipe uses `signin.html`; greetings needs a
+  dedicated callback page/path (e.g. `/callback.html` or the app entry that parses the OAuth params
+  and then routes internally), NOT a `#/callback` hash route.
 - [ ] `greetings_site/src/auth.ts` — wraps `@atproto/oauth-client-browser`: `signIn(handle)` (starts
   the OAuth/PAR/PKCE flow), the **callback handler** (the redirect route completes the flow), session
   restore, `whoami`, and a `writeRecord`/`agent` accessor for later phases.
@@ -320,13 +489,19 @@ persisted only where `@atproto/oauth-client-browser` manages it (IndexedDB, its 
 plaintext secrets to localStorage. No git/port state.
 **Risks:** client-metadata `client_id`/redirect mismatch (must equal the hosted URL exactly); CSP
 `connect-src` must allow the auth server + `plc.directory` (set in Phase 1b, validate here); OAuth
-callback route must be reachable on Pages (hash-route or a real callback page).
+callback must be a **real callback page/path reachable on Pages, NOT a `#/` hash route** (D2 finding —
+redirect URIs cannot carry a fragment).
 **Done when:**
 1. **Behavioral:** a creator signs in and the app can make an authenticated call as them.
 2. **Verification:** live sign-in shows the handle; an authenticated `getSession`/`describeRepo`
    succeeds.
-**Validation:** Broad (external auth). Unit-test token/session handling; manually verify the live auth
-round-trip against a real account (use an app password / test account, never a committed secret).
+**Validation:** Broad (external auth). Unit-test the pure, sandbox-runnable pieces (Pass 3): OAuth
+**callback-param parsing** (extract/validate `code`/`state`/error params from the redirect), session
+**restore/expiry** branching, and `whoami`/handle extraction — including the error edges (missing
+`code`, mismatched `state`, expired session). The OAuth flow itself is the live/playwright wiring test.
+Manually verify the live auth round-trip against a real account, using a **bsky app password for a
+disposable test account supplied via env, never a committed secret** — and rotate the previously-shared
+password first (see "Observability, error surfacing & live-testing credentials" above).
 
 ### Phase 3: Public card — create → link → view
 
@@ -365,8 +540,12 @@ edge cases; record-size (payload is small text, inline is fine).
 **Done when:**
 1. **Behavioral:** a public card round-trips create → link → view live, no login to view.
 2. **Verification:** on the live site, create a public card and open its link in a private window.
-**Validation:** Broad. Unit-test the record builder + link encoder/decoder (pure functions); manually
-verify the live create→view round-trip; confirm the created record on the PDS matches the schema.
+**Validation:** Broad. Unit-test the record builder + link encoder/decoder (pure functions), naming the
+edges (Pass 3, mutation-resistant): link encode→decode **round-trips** for a valid `did:plc`+rkey;
+decode **rejects** a malformed/truncated locator and a missing rkey (defined error, not an exception);
+the record builder emits the exact public shape (`mode:"public"`, `$type`, `from`/`to` present when
+given, cover blob-ref embedded verbatim when a cover exists, omitted when not). Manually verify the live
+create→view round-trip; confirm the created record on the PDS matches the schema.
 
 ### Phase 4: Private (server-blind link-key) card — create → link(#k) → view+decrypt
 
@@ -451,13 +630,15 @@ fragment.
   links back to it** (user, 2026-07-21). The *why* lives with the reasoning corpus next to the model it
   builds on; the product repo stays lean with a pointer. Pointer is captured in Documentation Impact
   (greetings_site README, Phase 1).
-- [RECOMMENDED: PHASE-GATED (Phase 1a)] **(NEW, Pass 2)** Adopt arecipe's full toolchain — esbuild +
+- [CONFIRMED: PHASE-GATED (Phase 1a)] **(NEW, Pass 2)** Adopt arecipe's full toolchain — esbuild +
   TypeScript + vitest (unit) + playwright (e2e/live) + eslint + a committed `client-metadata.json` +
-  GitHub Actions CI — as the greetings base and the codified PWA/SPA standard? *Rationale: surfaced in
-  Pass 2 — the Q1 OAuth decision uses `@atproto/oauth-client-browser`, an npm dependency, so a build
-  step is mandatory (the phases cannot be hand-authored static JS). arecipe already runs this exact
-  stack live, so reuse is the low-risk path and doubles as the best-practices baseline. Recommend
-  adopting wholesale; Phase 1a sets it up.*
+  GitHub Actions CI — as the greetings base and the codified PWA/SPA standard. **DECIDED — adopt
+  wholesale** (user, Pass 3 walk-through 2026-07-21: "1, obv unless we have a reason we need not to").
+  *Rationale: surfaced in Pass 2 — the Q1 OAuth decision uses `@atproto/oauth-client-browser`, an npm
+  dependency, so a build step is mandatory (the phases cannot be hand-authored static JS). arecipe
+  already runs this exact stack live, so reuse is the low-risk path and doubles as the best-practices
+  baseline. Severity stays PHASE-GATED (Phase 1a): nothing before 1a depends on it. Escape hatch: if a
+  concrete reason to diverge surfaces during Phase 0/1a (e.g., a stack incompatibility), revisit then.*
 - [CONFIRMED: ADVISORY (Phase 1)] PWA scope: **installable PWA with a minimal app-shell service worker;
   offline card data DEFERRED** (user, 2026-07-21). Ship manifest + a small SW caching the app shell
   (HTML/JS/CSS/fonts) for installability and fast repeat loads (matching arecipe); do not cache card
@@ -528,3 +709,118 @@ fragment.
 - The link-key model and its proofs hold; static-SPA-on-Pages hosting holds (arecipe is the live proof
   for the whole stack). MVP scope (1:1, two modes, deferred anon/guestbooks/registries/reveal) unchanged.
   Q1–Q6 decisions all survive the gap analysis unchanged.
+
+### Pass 3: Quality Gates — 2026-07-21
+**Spot-check (Step 2):** Confirmed firsthand: `ROADMAP_TODO.md` E43 at line 166; ECOSYSTEM live-
+properties register is **§5c-3** (line 186), arecipe/skylite at 192/195, greetings absent; the design
+note and card-ingest `README.md`/`CAPABILITIES.md` exist; `pwa-spa-best-practices.md` does not yet exist
+(correct — new in 1b). arecipe and greetings_site are **not checked out locally**, so the arecipe diff
+runs via `gh`/live fetch or at execution — matches the plan's approach.
+**TDD ordering:**
+- Added a cross-cutting **"Test execution split"** note: vitest units are the in-sandbox RED→GREEN
+  floor; playwright e2e/live wiring tests are authored RED and driven GREEN in CI / a browser-capable
+  env (headless-browser egress is blocked here). A phase is not done on a green vitest suite alone.
+- Clarified **Phase 1a** is a mechanical config bootstrap with no logic to unit-test first; its gate is
+  the deploy-loop wiring test, and the first genuine vitest RED→GREEN is the 1b router (guards against
+  hollow bootstrap unit tests).
+- Added **mutation-resistant edge specifications** to the Phase 1b router test (unknown route, malformed
+  locator, empty hash) and the Phase 3 link codec + record builder (round-trip, reject malformed/missing
+  rkey, exact public shape). Added Phase 2 pure-unit specifics (callback-param parsing, session
+  restore/expiry, `whoami`, with error edges).
+**Observability:**
+- Added a cross-cutting **"Observability, error surfacing & live-testing credentials"** subsection: user-
+  facing + console diagnostics for auth failures (Phase 2), DID-resolution/getRecord/**getBlob-CORS**
+  failures (Phase 3/4), and decrypt failures (Phase 4, distinct missing-key vs wrong-key/tamper
+  messages), with the **hard rule** that the `#k=` fragment, key, and plaintext never enter a log, error
+  report, analytics, the SW, or any network request. Fail-loud everywhere (no blank cards).
+**Debugging readiness:**
+- The per-leg console diagnostics make a post-deploy failure traceable to a phase/leg. The D2 getBlob
+  CORS gate remains the key early-warning checkpoint de-risking Phases 3/4 (already in Risks).
+**Validation calibration:**
+- Per-phase validation strategies confirmed calibrated to scope (1a/1b Moderate, 2/3/4 Broad — external
+  auth/PDS/crypto). No "tests are sufficient" on any external-integration phase.
+- **Live-testing credentials:** codified the bsky app-password-via-env rule and flagged the previously-
+  shared password for **rotation** before any live leg.
+- **Disposition fix:** D1 relabeled `keep-as-fixture` → **`promote`** (executable crypto logic, promoted
+  to production `src/crypto.ts` under TDD in Phase 4 — the named follow-up phase; also fixed "Phase 3/4"
+  → "Phase 4"). D2/D3 stay `keep-as-fixture` (config/data) with "promoted" softened to "copied" and
+  Phase references updated to the 1a/1b split.
+- **Phase 0 not resolvable now:** D1 (browser WebCrypto + fragment) needs a browser; D2/D3/D4 need live
+  network to bsky/plc.directory/Pages — all egress-blocked in this sandbox. Phase 0 stays execution work
+  in a browser/network-capable env.
+**Concurrency honesty:**
+- Corrected the Phase 0 parallel-set **shared-state contract**, which was inaccurately blanket "read-only
+  / no shared writes": **D1 is local-only**; **D2/D4 read-only** (D4 also does one authenticated
+  `uploadBlob` to a disposable test account); **D3 writes to shared external state** (a stub deploy to
+  greetings_site/Pages). Write targets are still disjoint, so the optional parallel set is safe, but D3's
+  write is now explicit, sequenced before Phase 1a, with a re-entry check that its stub is removed or
+  carried forward as the 1a base. No new parallelism warranted — implementation phases share `src/*`
+  write-sets and stay sequential.
+**Coherence:**
+- Plan still solves the stated problem (1:1 card, two modes, PWA on Pages); no scope creep (cover image
+  and PWA were user-approved via Q3/Q6). All open questions tagged; Q1–Q6 user-confirmed in Pass 1, Q7
+  user-confirmed in this Pass 3 walk-through.
+**Documentation impact:**
+- Every Documentation Impact entry has a Phase 1b item; corrected **§5c → §5c-3** and stale **"Phase 1"
+  → "Phase 1b"** references (Phase 1 was split in Pass 2). All doc updates are same-phase (Phase 1b), no
+  end-loaded docs phase. New `pwa-spa-best-practices.md` confirmed to have no existing references.
+- **Conventions (ADVISORY, not changed):** the plan filename `2026-07-21-greetings-croft-ing-mvp.md`
+  follows the *dominant* local `plans/` convention (`YYYY-MM-DD-<slug>.md`); only the newest sibling uses
+  the skill's `-N-plan-` form. Not renamed — a rename would break the Q5 greetings_site README pointer
+  and cascading references. Optional to align later.
+**Confirmed ready:** yes — 0 BLOCKING; 4 PHASE-GATED (Q7→1a, Q1→2, Q3→3, Q2→4); 3 ADVISORY (Q4/Q5/Q6).
+
+### Phase 0 execution — 2026-07-21 (Discovery Exemption; non-browser legs)
+**Sandbox-capability correction (mid-execution discovery):** my Pass 3 note claimed the sandbox is
+egress-blocked for D2/D3/D4. That was too broad — the block is **browser/Chromium-only**. Plain HTTPS
+via Node `fetch`/`curl` works here (`plc.directory` 302, `public.api.bsky.app` 200), and Node exposes
+WebCrypto (`crypto.subtle`). This let Phase 0 verify far more than expected without a browser.
+**Ran (firsthand, recorded in Verified Assumptions → "Phase 0 execution findings"):**
+- **D1 ✅ RESOLVED** — AES-256-GCM round-trip in WebCrypto, 9/9 assertions pass; fragment grammar
+  `#/c/<did>/<rkey>#k=<base64url>` decided; raw key = 43-char base64url; wrong-key + tamper fail;
+  fresh IV per op; cover-byte path round-trips. Spike `scratchpad/d1-crypto.mjs` (disposition `promote`
+  → `src/crypto.ts` in Phase 4 under TDD).
+- **D2 ✅ reads/CORS RESOLVED** — DID→PDS resolution + `getRecord`/`getBlob` all 200 with `ACAO: *`
+  (preflights 204). **The getBlob-CORS gate — the plan's biggest risk — is cleared** for bsky-hosted
+  accounts. New finding: OAuth `redirect_uri` cannot be a hash route → concrete callback path needed
+  (threaded into Phase 2). Spike `scratchpad/d2d4-reads.mjs` (`keep-as-fixture`).
+- **D3 ✅ RESOLVED** — read arecipe's `package.json`/`ci.yml`/`client-metadata.json`/tree. Build/deploy
+  model = esbuild→`dist/`→Actions push to **`gh-pages` root** (`pages-deploy.sh`), NOT `main`/root
+  (**corrected the Pass-1 VA**); hermetic CI, `@live` local per phase; reuse boundary decided
+  (toolchain/configs/CI/deploy/client-metadata/CSP/`authModeFor` copied, greetings = single-page
+  hash-routed shell). `keep-as-fixture` (arecipe files in `scratchpad/`).
+- **D4 🟡 read leg RESOLVED, write leg gated** — `getBlob` read + CORS confirmed; blob-ref shape known.
+  `uploadBlob` write leg + size cap + allowed types + sealed-bytes round-trip **not run** (needs a
+  rotated bsky app password) → Phase 3/4 live gate. `throwaway`.
+**Plan changes made (material — trigger a user checkpoint before Phase 1a per execute.md):**
+1. Deploy model corrected to Actions→`gh-pages` root + one-time Pages-source flip (VA + Phase 1a).
+2. OAuth callback must be a concrete path, not a hash route (VA + Phase 2 changes + Risks).
+3. VA "Unverified" split into resolved vs still-gated (browser/credential) legs.
+**Not run here (honest gaps, deferred to their implementation phase's live gate):** live hash routing on
+Pages (Phase 1a first deploy), greetings' own OAuth redirect round-trip (Phase 2), authenticated
+`uploadBlob` (Phase 3/4). **Credential note:** the live legs need a rotated bsky app password via env;
+the previously-shared password must be treated as compromised.
+**Checkpoint:** Phase 0's discovery unknowns are resolved; the two material changes are recorded. Await
+user go-ahead before Phase 1a — and Phase 1a onward requires the `greetings_site` repo checked out
+locally plus push access (it is not currently local).
+
+### Phase 1a execution — 2026-07-21 (local-green; `greetings_site` `33c0e89`)
+**Setup:** user authorized proceeding + push (chasemp); cloned `CroftCommunity/greetings_site` into
+`CroftC/greetings_site` (`github-personal` remote, `chase@owasp.org` identity), branched `greetings-mvp`
+off `main` (repo started with only `CNAME` + `LICENSE`). App-password decision: reuse the existing
+test-only password via env for the later live legs, rotate afterward (user, not a blocker).
+**Built (from arecipe's confirmed files):** `package.json` (+ lockfile for `npm ci`), `tsconfig.json`,
+`tsconfig.tests.json`, `vitest.config.ts`, `playwright.config.ts`, `eslint.config.js`, `.gitignore`,
+`scripts/build.mjs` (single-page core), `scripts/pages-deploy.sh` (verbatim), `.github/workflows/ci.yml`
+(hermetic test + gh-pages deploy) + `preview.yml` (arecipe.app→greetings.croft.ing), `src/main.ts` +
+`index.html` (hello-world shell).
+**Verified locally (the runnable floor):** `npm install` clean (180 pkgs, 0 vuln); `npm run build` →
+`dist/{main-<hash>.js, index.html (ref rewritten), CNAME, .nojekyll, build-info.json}`; `npm run lint`,
+`npm run typecheck`, `npm run test:unit` (passWithNoTests) all exit 0; aggregate `npm test` exits 0.
+**Deviations (see Phase 1a header):** `build.mjs` minimal (CSP/SRI/SW/manifest → 1b); `npm test` omits
+e2e until 1b; wiring e2e into CI in 1b needs `package.json` + `ci.yml` edits (outside 1b's declared
+write-set — flagged).
+**Not done — the behavioral wiring test (deploy loop):** push `main` → Actions → `gh-pages` + one-time
+Pages-source flip to `gh-pages`/root. This is the outward leg; paused for user go-ahead before pushing.
+**Discovery repo:** this plan doc's Pass 3 + Phase 0 + Phase 1a updates committed separately (user
+approved).
