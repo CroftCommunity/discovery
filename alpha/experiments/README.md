@@ -3,12 +3,15 @@
 Code-forward, exploratory proof-of-value work for the Sovereign Commons / lineage-groups
 effort. Experiments answer "does this work / what is actually true?" against real systems.
 
-Distinct from two sibling repos:
+This corpus now lives inside `discovery` at `discovery/alpha/experiments/` (folded in 2026-07-13; the
+standalone `experiments` repo is frozen and archived). Its two companion strands were folded into
+`discovery/alpha/` the same way:
 
-- **`Proofs`** — durable proofs that verify invariants rigorously enough to become design
-  principles. Equal but distinct from this repo.
+- **`Proofs`** (`alpha/Proofs/`) — durable proofs that verify invariants rigorously enough to become
+  design principles. Equal but distinct from this corpus.
 
-- **`discovery`** — the thinking/synthesis: thesis, research, principles, roadmap, narrative.
+- **`discovery`** (the `alpha/` root and `beta/`) — the thinking/synthesis: thesis, research,
+  principles, roadmap, narrative.
 
 ## Contents
 

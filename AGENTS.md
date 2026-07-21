@@ -4,11 +4,12 @@ This is the canonical agent-orientation doc. It lives in `discovery/` so it is
 version-controlled; the top-level `CroftC/.claude/CLAUDE.md` imports it so Claude Code
 auto-loads it when working anywhere under `CroftC/`.
 
-`CroftC/` is not itself a git repo; it holds three sibling repos that together hold the
-thinking, proofs, and experiments behind **Croft** — an open, sovereign, peer-to-peer,
-local-first social/messaging platform meant to be run as a cooperative (non-extractive
-infrastructure). "Croft" is the name center of gravity; the GitHub org is `CroftCommunity`.
-See `discovery/alpha/NAMING.md` for why.
+`CroftC/` is not itself a git repo; it holds the work behind **Croft** — an open, sovereign,
+peer-to-peer, local-first social/messaging platform meant to be run as a cooperative (non-extractive
+infrastructure). The three original strands (thinking, proofs, experiments) now live in **one repo,
+`discovery/`**: the standalone `Proofs/` and `experiments/` repos were folded into `discovery/alpha/`
+(2026-07-15 and 2026-07-13) and are now frozen and archived (read-only). "Croft" is the name center of
+gravity; the GitHub org is `CroftCommunity`. See `discovery/alpha/NAMING.md` for why.
 
 ## Maturity stages (alpha → beta → rc → publish)
 
@@ -25,8 +26,9 @@ corpus is `alpha/`**. (Beta is built next from alpha using
 `ECOSYSTEM.md`, `ROADMAP*.md`, `NAMING.md`, `ANALYSIS.md`, the dossier, the raw archive) is under the
 **current stage dir** — i.e. `discovery/alpha/<path>`. Only **`AGENTS.md`** (this file),
 **`PLAYBOOK.md`**, and a thin stage-pointer **`README.md`** live at the repo **root**: they describe
-*how we work*, not the project, so they span stages. `Proofs/` is staged identically and aligned
-stage-for-stage (`Proofs/alpha/…`).
+*how we work*, not the project, so they span stages. The folded-in proofs and experiments corpora sit
+under `discovery/alpha/Proofs/` and `discovery/alpha/experiments/` and share discovery's staging
+(everything imported is alpha-tier).
 
 **Experiments now live *inside* discovery (2026-07-13).** The code-forward experiment corpus was
 folded into **`discovery/alpha/experiments/`** so discovery and experimentation stay tight; the
@@ -44,20 +46,25 @@ stage's rollup ledger (e.g. `alpha/BETA-ROLLUP.md`); unsettled threads wait in t
 mapping moves into the rollup. The discipline tightens upward — `rc`/`publish` are clean of prior-tier
 traces entirely. Full method in `MATURITY-ROLLUP.md` (§1, §3, §3a, §3b).
 
-## The three repos
+## The repos (discovery is the single active repo)
+
+The three original strands now live in one repo. The standalone `Proofs/` and `experiments/` repos are
+frozen and archived; their corpora were folded under `discovery/alpha/`.
 
 ```
-discovery/    Thinking & synthesis. The map of everything.   root: AGENTS.md · PLAYBOOK.md · README.md
+discovery/    Thinking, synthesis, proofs, and experiments. The map of everything.   root: AGENTS.md · PLAYBOOK.md · README.md
                 alpha/  seeds/ (raw source incl. transcripts/raw verbatim archive) · research/
                   (industry comparison) · thinking/ (our design) · crystallized/ (principles +
                   proof-ledger) · narrative/ · plans/ · ECOSYSTEM.md · COHESION.md · ROADMAP.md ·
                   ROADMAP_TODO.md · NAMING.md · ANALYSIS.md · the dossier
-                beta/   (resolved synthesis — eight themes + OPEN-THREADS staging ledger)
-Proofs/       Durable proofs — verify an invariant that becomes a design principle.   root: LICENSE · README.md
-                alpha/  lineage-groups (real openmls) · lineage-group-model (TS) ·
+                  alpha/Proofs/       durable proofs (real openmls) — folded in 2026-07-15
+                  alpha/experiments/  code-forward spikes — folded in 2026-07-13
+                beta/   (resolved synthesis — eight themes + OPEN-THREADS staging ledger;
+                  the resolved spec at beta/drystone-spec/, Part 1 + Part 2)
+Proofs/       [FROZEN + archived 2026-07-15 — folded into discovery/alpha/Proofs/]
+experiments/  [FROZEN + archived 2026-07-13 — folded into discovery/alpha/experiments/]
+discovery/alpha/Proofs/        lineage-groups (real openmls) · lineage-group-model (TS) ·
                   encrypted-local-first-atproto
-experiments/  Code-forward spikes — "does this work / what's actually true?"   [FROZEN 2026-07-13,
-                folded into discovery/alpha/experiments/ — canonical location below]
 discovery/alpha/experiments/   appview-validation · public-roundtrip · android-p2p-app ·
                   encrypted-blob-share · croft-app-phase0 · croft-group · iroh ·
                   automerge-partial-reconstruction · local_storage_projection · mls-replant ·
@@ -112,9 +119,10 @@ preserve raw verbatim → distill → update connective tissue). The standing in
 
 ## Working rules
 
-- **Git identity:** chasemp account on all three repos —
-  `git@github-personal:CroftCommunity/<repo>.git`, committer `Chase Pettet <chase@owasp.org>`.
-  Reading croftc PRs uses the `cpettet_croftc` gh account (`gh auth switch`).
+- **Git identity:** chasemp account — `git@github-personal:CroftCommunity/<repo>.git`, committer
+  `Chase Pettet <chase@owasp.org>`. `discovery` is the active repo; the folded `Proofs` and
+  `experiments` repos are frozen and archived. Reading croftc PRs uses the `cpettet_croftc` gh account
+  (`gh auth switch`).
 
 - **Don't commit / push / open PRs** on these repos unless explicitly asked — material is
   reviewed first. When asked to commit, see PLAYBOOK §3b.

@@ -6,10 +6,10 @@ status: living index. A cross-cut snapshot of **what is built, proven, live, des
 across the whole Croft ecosystem, organized by the three legs — the **social-graph baseline**, **Croft
 Chat**, and the **ponds / pads** — plus the substrate and proofs beneath them. Re-anchor as the state moves.
 
-**Relationship to the other indexes.** `../../experiments/alpha/MASTER-INDEX.md` covers the *experiments
-repo only* (substrate → integration → re-plant → transport tracks). `ROADMAP_TODO.md` is the open-item
+**Relationship to the other indexes.** `experiments/MASTER-INDEX.md` covers the *experiments
+corpus only* (substrate → integration → re-plant → transport tracks; now folded into `alpha/experiments/`). `ROADMAP_TODO.md` is the open-item
 *backlog*. `ECOSYSTEM.md` is the *external* project register. This doc is the **internal build cross-cut**
-that spans repos (`arecipe`, `skylite`, `experiments`, `Proofs`, and the design docs in `discovery`) — the
+that spans the sibling apps (`arecipe`, `skylite`) and everything now inside `discovery` (the folded `alpha/experiments/` and `alpha/Proofs/` plus the design docs) — the
 thing none of those single indexes shows whole. Product design of record: `../beta/croft/`
 (`product-the-garden-of-ponds.md`, `social-graph-as-substrate.md`); build sequencing:
 `thinking/app/ponds/build-order.md`.
@@ -22,18 +22,18 @@ thing none of those single indexes shows whole. Product design of record: `../be
 
 | Piece | Where | State |
 |---|---|---|
-| `local_storage_projection` | `../../experiments/alpha/local_storage_projection` | redb storage + append-only governance fold + derived social-graph projection; mutation-vetted. **Built.** |
-| `social-graph-core` (Drystone facade) | `../../experiments/alpha/croft-chat/social-graph-core` | Tenant-agnostic session/identity + groups·members·channels·timeline; thin domain over redb. **Built.** |
-| Croft Group engine | `../../experiments/alpha/croft-group` | Lineage-group implementation (crates/). **Built** (the native pond's engine, not yet a user-facing pond). |
-| Group crypto proof | `../../Proofs/alpha/lineage-groups`, `lineage-group-model` | Phase-1 crypto gate **GO on real openmls 0.8.1**. **Proven.** |
-| Encrypted-local-first proof | `../../Proofs/alpha/encrypted-local-first-atproto` | **Proven.** |
+| `local_storage_projection` | `experiments/local_storage_projection` | redb storage + append-only governance fold + derived social-graph projection; mutation-vetted. **Built.** |
+| `social-graph-core` (Drystone facade) | `experiments/croft-chat/social-graph-core` | Tenant-agnostic session/identity + groups·members·channels·timeline; thin domain over redb. **Built.** |
+| Croft Group engine | `experiments/croft-group` | Lineage-group implementation (crates/). **Built** (the native pond's engine, not yet a user-facing pond). |
+| Group crypto proof | `Proofs/lineage-groups`, `lineage-group-model` | Phase-1 crypto gate **GO on real openmls 0.8.1**. **Proven.** |
+| Encrypted-local-first proof | `Proofs/encrypted-local-first-atproto` | **Proven.** |
 | Design of record | `../beta/croft/social-graph-as-substrate.md`; group tier model → `experiments/appview-infra/{GROUPS,PUBLICATIONS}.md`, RUN-16/17/18 | Spec / settled. |
 
 ### Croft Chat
 
 | Piece | Where | State |
 |---|---|---|
-| `croft-chat` (reference tenant) | `../../experiments/alpha/croft-chat` | ratatui two-pane CLI proving *"the social graph is the substrate; chat is one tenant attached to it."* Layered `social-graph-core` (substrate) → `group-chat-core` (chat tenant) → `croft-chat` (CLI/ports). **Built.** The pattern every pond/tenant should follow. |
+| `croft-chat` (reference tenant) | `experiments/croft-chat` | ratatui two-pane CLI proving *"the social graph is the substrate; chat is one tenant attached to it."* Layered `social-graph-core` (substrate) → `group-chat-core` (chat tenant) → `croft-chat` (CLI/ports). **Built.** The pattern every pond/tenant should follow. |
 
 ### Ponds / pads
 
@@ -41,7 +41,7 @@ thing none of those single indexes shows whole. Product design of record: `../be
 |---|---|---|
 | **arecipe** | `../../arecipe/` → **live at arecipe.app** | Recipe box + meal planner; records in the user's own PDS; shareable public views; the same records render on recipe.exchange. **The first live crop** (atproto/PDS pad, TDD). |
 | **skylite** | `../../skylite/` → **live at skylite.croft.ing** | Read-first tended Bluesky window; sponsor/explorer roles; on-device-only mode; installable PWA. **Second live crop** (atproto pad, TDD runs). |
-| croft-app-phase0 | `../../experiments/alpha/croft-app-phase0` | App functional core + CLI (from CroftC PR #10). **Built spike** (M1–M6 closed). |
+| croft-app-phase0 | `experiments/croft-app-phase0` | App functional core + CLI (from CroftC PR #10). **Built spike** (M1–M6 closed). |
 | Garden-of-ponds product | `../beta/croft/product-the-garden-of-ponds.md`, `presence-ritual-and-composed-ponds.md` | Product design of record. |
 | Games pond, aggregator ponds, fair-reveal, launch-set | `thinking/app/ponds/` | **Designed / catalogued, not built.** |
 | **pdsview** | `CroftCommunity/pdsview` (separate repo) → **live at pdsview.croft.ing** | Standalone SPA/PWA atproto PDS content browser (paste handle/DID → browse repo/collections/records + inline blobs + export .car/.ndjson/.json); zero runtime deps, croft.ing tokens, no live feed. **RUN-01 executed + merged** (phases 0–5, PR #1, built 2026-07-16). A tool-pad sibling. Brief seed: `seeds/pdsview-run-01-instructions.md`. |

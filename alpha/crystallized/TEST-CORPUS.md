@@ -2,7 +2,8 @@
 
 date: 2026-06-17
 
-purpose: **one catalog of every test/scenario across all three repos**, so the whole corpus is
+purpose: **one catalog of every test/scenario across the whole corpus** (thinking, proofs, and
+experiments, now all folded into `discovery/alpha/`), so the whole corpus is
 visible in a single place and can seed a scenario test bed (long-tail conformity + regression). This
 is the *catalog* (what exists, where the code lives, which invariant it asserts). It is **not** the
 status tracker and **not** the reasoning record:
