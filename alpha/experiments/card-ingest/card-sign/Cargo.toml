@@ -1,0 +1,10 @@
+[package]
+name = "card-sign"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Client-side authorship (ed25519 over the ciphertext). The opt-in capability the no-login/bearer
+# path lacks (CAP-4). Verification is over ciphertext, so it is content-blind-safe. Pinned exact.
+[dependencies]
+ed25519-dalek = "=2.2.0"

@@ -14,7 +14,7 @@
 //!    failed (the RUN-14 EXP-B "one flat refusal" property). Time is an INJECTED logical value, never
 //!    a wall clock (the Croft no-shared-clock discipline).
 //!
-//! The [`WriteTarget`] port stands in for the atproto PDS write (`createRecord` over DPoP OAuth with a
+//! The [`WriteTarget`] port stands in for the atproto PDS write (`createRecord` over `DPoP` OAuth with a
 //! per-collection scope). The live adapter is out of scope for a hermetic run (blocked on creds and
 //! network); only the in-memory fake runs here.
 

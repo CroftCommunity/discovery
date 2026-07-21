@@ -6,9 +6,12 @@ mechanics the design note flagged as net-new
 already-proven substrate.
 
 ```
-cargo test                                   # 10 tests green
+cargo test                                   # 17 tests green (incl. 5 capability probes)
 cargo tree -p card-service --edges normal    # the content-blind boundary, as a dependency fact
+ATP_IDENTIFIER=<h> ATP_PASSWORD=<app-pw> python3 live/pds-writetarget-probe.py  # the live PDS leg
 ```
+
+Capability reasoning is filed in `CAPABILITIES.md` (probes CAP-1..5 + the live leg).
 
 ## The two mechanics
 
@@ -26,8 +29,8 @@ cargo tree -p card-service --edges normal    # the content-blind boundary, as a 
 
 ## Result: validated
 
-- **10 tests green** (`card-seal` 3, `card-service` unit 5, end-to-end 2), clippy `pedantic`-clean, no
-  `unwrap`/`expect` in library paths (only in tests).
+- **17 tests green** (`card-seal` 3, `card-sign` 2, `card-service` unit 5, end-to-end 2, capability
+  probes 5), clippy `pedantic`-clean, no `unwrap`/`expect` in library paths (only in tests).
 - **The content-blind boundary is proven by `cargo tree`.** The service's runtime dependency graph is
   `blake3` only (content-addressing, a hash, not a cipher):
 
@@ -57,12 +60,15 @@ cargo tree -p card-service --edges normal    # the content-blind boundary, as a 
 
 ## Stand-ins and what is NOT built (blocked or out of scope)
 
-- **The live atproto write adapter.** `WriteTarget` is a port with an in-memory fake. The production
-  adapter (`createRecord` over DPoP OAuth against a PDS, with a per-collection `repo:<NSID>` scope) is
-  **unbuilt**: it needs credentials and network this environment does not carry (X1-class), so it was
-  not attempted rather than faked as "live." The atproto OAuth facts that shape it are verified in the
-  design note (DPoP-bound tokens, short-lived, single-use refresh, per-collection scopes, sessions
-  bounded by revocation not time).
+- **The live atproto write adapter (storage leg now validated).** `WriteTarget` is a port with an
+  in-memory fake for the hermetic tests; `live/pds-writetarget-probe.py` additionally validated the
+  storage leg against a **real bsky PDS** (create/read/delete of an encrypted contribution round-trips
+  as opaque bytes; the PDS holds only ciphertext; custom NSID needs no pre-registration). What that
+  live leg does NOT cover, and stays modeled: the **OAuth + DPoP per-collection scoped-delegation**
+  path (the live run used the legacy app-password Bearer flow acting AS the account, not a mediating
+  service holding a delegated `repo:<NSID>` scope), and the anonymous-contributor mediation. The
+  atproto OAuth facts that shape the delegation are verified in the design note (DPoP-bound tokens,
+  short-lived, single-use refresh, per-collection scopes, sessions bounded by revocation not time).
 - **The per-card OAuth session lifecycle** (create -> delegate scope -> ingest -> auto-revoke on
   delivery) is design, not code here.
 - **Bearer issuance/verification** is a simple equality check standing in for a real unguessable

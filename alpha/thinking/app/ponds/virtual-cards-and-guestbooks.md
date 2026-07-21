@@ -220,9 +220,18 @@ so it is simpler.
   `../../experiments/card-ingest/` (10 tests green; content-blindness proven as a dependency fact by
   `cargo tree`, the service's runtime graph carries no cipher). Still design, not code: the card UX
   and the per-card OAuth session lifecycle (create, delegate scope, ingest, reveal, auto-revoke).
-- **Still a stand-in / blocked:** the live atproto `WriteTarget` adapter (`createRecord` over DPoP
-  OAuth with a per-collection scope) is unbuilt in the spike (a port with an in-memory fake); it needs
-  credentials and network (X1-class), reported not faked.
+- **Live storage leg now validated:** the `WriteTarget` storage path ran against a real bsky PDS
+  (`../../experiments/card-ingest/live/pds-writetarget-probe.py`): an encrypted contribution
+  create/read/delete round-trips as opaque bytes, the PDS holds only ciphertext, and the custom NSID
+  needs no pre-registration. **Still modeled / spec-verified:** the OAuth + DPoP per-collection
+  scoped-delegation write (the live leg used the legacy app-password Bearer flow acting as the account,
+  not a mediating service holding a delegated `repo:<NSID>` scope) and the anonymous-contributor
+  mediation.
+- **Capability register (reasoning, filed):** `../../experiments/card-ingest/CAPABILITIES.md` probes
+  what the model learns (metadata residue), what the bearer authorizes (append-only, content-addressed),
+  what the reveal trusts (the clock source), authorship as an opt-in content-blind-verifiable signature,
+  and revocation as all-or-nothing (escalating to the sealed tier). Five hermetic probes plus the live
+  leg.
 - **Not a Croft build:** the atproto storage substrate itself (PDS, OAuth, scopes) is upstream and
   used as-is.
 

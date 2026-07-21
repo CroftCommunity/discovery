@@ -13,4 +13,4 @@
 # DPoP-OAuth adapter is out of scope for a hermetic run (blocked on creds/network) and unbuilt here.
 [workspace]
 resolver = "2"
-members = ["card-seal", "card-service"]
+members = ["card-seal", "card-sign", "card-service"]
