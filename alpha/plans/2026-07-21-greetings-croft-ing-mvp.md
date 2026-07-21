@@ -6,17 +6,19 @@ and the card-ingest proofs live); execution code lands in `greetings_site`.
 
 ## Status
 
-**Executing** — Pass 1–3 complete; Phase 0 done; **Phase 1a SHIPPED and live** (deploy loop green,
-byte-identical bundle serving at https://greetings.croft.ing/). `greetings_site` at
-`CroftC/greetings_site`; `greetings-mvp` merged to `main`; Pages source = `gh-pages`/root. Next: Phase 1b.
+**Executing** — Pass 1–3 complete; Phase 0 done; **Phase 1a + 1b SHIPPED and live** at
+https://greetings.croft.ing/ (routed PWA shell, strict CSP + SRI, installable). `greetings_site` at
+`CroftC/greetings_site` on `main`; Pages source = `gh-pages`/root. **Next: Phase 2 (creator OAuth).**
 
 ## Outcome Summary
 
 | Phase | Outcome | Ref | Note |
 |-------|---------|-----|------|
 | Phase 0 Discovery | ✅ D1–D3 resolved; D4 read-leg (write leg gated on creds) | discovery findings + `scratchpad/` spikes | getBlob-CORS gate cleared; deploy model corrected to gh-pages |
-| Phase 1a Build + deploy | ✅ SHIPPED + live | greetings_site `33c0e89` (on `main`) | deploy loop green; byte-identical bundle live at greetings.croft.ing; Pages = `gh-pages`/root |
-| Phase 1b … 4 | ☐ not started | — | — |
+| Phase 1a Build + deploy | ✅ SHIPPED + live | greetings_site `33c0e89` | deploy loop green; byte-identical bundle live; Pages = `gh-pages`/root |
+| Phase 1b Shell + router + PWA + docs | ✅ SHIPPED + live | greetings_site `ca67803`; discovery `8fdafb0` | hash router (TDD 6/6) + view shells + strict CSP/SRI + installable PWA; CI e2e 6/6; pwa-spa-best-practices.md + pointers |
+| Phase 2 Creator OAuth | ☐ not started | — | next |
+| Phase 3–4 Cards | ☐ not started | — | — |
 
 ## Problem Statement
 
@@ -415,7 +417,21 @@ cycle. `vitest` here only proves the harness wires up (a smoke test / zero-or-on
 acceptable). The **first genuine RED→GREEN vitest cycle is the Phase 1b router**; do not manufacture
 hollow unit tests for the bootstrap to satisfy a TDD checkbox.
 
-### Phase 1b: App shell + router + PWA + doc pointers
+### Phase 1b: App shell + router + PWA + doc pointers — ✅ SHIPPED (greetings `ca67803`, discovery `8fdafb0`), live
+
+**Delivered (2026-07-21):** `src/router.ts` (pure `hash → Route`, TDD 6/6 unit incl. edges + `#k=`
+strip + malformed→notfound + unknown→home) wired via `src/main.ts` to `src/views/{home,create,card}.ts`
+shells (`#app` `data-view` marker); strict CSP (`default-src 'none'`, inline-script sha256, scoped
+`connect-src`, `img-src` with `data: blob: https:`) + SRI (sha384) on the module + stylesheet, injected
+by `build.mjs`; installable PWA (`manifest.webmanifest` + `assets/icons/icon.svg` + app-shell `src/sw.ts`
+— shell-only cache, never card data, never the `#k=` fragment); `styles.css`; greetings `README.md`.
+Discovery side (separate commit `8fdafb0`): new `pwa-spa-best-practices.md` + pointers (ECOSYSTEM §5c-3,
+E43, card-ingest README, design note). **CI:** unit 6/6 + **e2e 6/6** (routing + hashchange nav +
+manifest) green in a real browser; deployed to `gh-pages`; live at greetings.croft.ing.
+**Resolved the flagged plan gap:** wired e2e into `npm test` + `ci.yml` (`package.json` + `ci.yml`
+edited, as flagged in the Phase 1a header). **Deviation:** the PWA icon is a single SVG (`sizes: "any"`,
+modern-Chrome installable) rather than PNG sizes — refine with branded PNGs later (a follow-up, not a
+stub).
 
 **Goal:** A routed, installable SPA shell on the Phase-1a build, with home / create / view-card view
 shells, plus the discovery-side doc pointers and the PWA/SPA best-practices doc.
@@ -835,3 +851,20 @@ NOT auto-trigger a rebuild — the site kept serving the old `main`/root build (
 Subsequent deploys push directly to `gh-pages`, which auto-triggers a build, so this manual step was a
 one-time source-flip artifact, not part of the steady-state loop. Benign CI annotation: the pinned
 `actions/checkout`/`setup-node` SHAs target Node 20 (deprecation warning, not a failure) — bump later.
+
+### Phase 1b execution — 2026-07-21 (SHIPPED; greetings `ca67803`, discovery `8fdafb0`)
+**Method:** router built TDD (test RED → `parseHash` GREEN, 6/6) in-sandbox; views/main/sw/build/CSP/SRI
+authored; local gate (lint + typecheck + unit + build) green. Because the sandbox can't run a browser,
+pushed the **`phase-1b` branch first** so CI ran the playwright e2e (the wiring test) with no risk of
+gating a production deploy (deploy is main-only). Branch CI green (unit 6/6, **e2e 6/6**), so merged
+`phase-1b`→`main` (ff), pushed; main CI test+deploy green; `gh-pages` auto-rebuilt (`e19163c`); live
+site verified serving the shell with CSP + hashed bundle + manifest + sw.js. This branch-first pattern
+is the right steady-state for browser-tested phases in this sandbox — adopt it for Phases 2–4.
+**Deviations (also in the Phase 1b header):** (1) closed the Phase-1a-flagged CI gap by editing
+`package.json` (`test` now runs e2e) + `ci.yml` (playwright install) — the gap the plan's 1b write-set
+missed. (2) PWA icon is a single SVG (`sizes: "any"`), installable in modern Chrome; branded PNG sizes
+are a later polish, not a stub. (3) SW registration failure is logged, not thrown (progressive
+enhancement) — consistent with fail-loud for core paths, tolerant for enhancements.
+**Confirmed live:** routed PWA shell at greetings.croft.ing (home / #/create / #/c/… / notfound),
+strict CSP + SRI, installable. **Next: Phase 2 (creator OAuth) — first credential-gated live leg
+(uses the test app password via env, per the user).**
