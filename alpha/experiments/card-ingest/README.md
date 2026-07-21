@@ -5,6 +5,13 @@ mechanics the design note flagged as net-new
 (`../../thinking/app/ponds/virtual-cards-and-guestbooks.md`); everything else in that design reuses
 already-proven substrate.
 
+**Product consumer (2026-07-21):** the link-key tier is being productized as `CroftCommunity/greetings_site`
+(greetings.croft.ing) — the 1:1 server-blind card slice, reimplemented in the browser with WebCrypto
+AES-256-GCM (a second faithful implementation of the same encrypt-client-side / store-ciphertext /
+key-in-the-fragment shape; the Rust `card-seal` proof here is the model's evidence). Plan:
+`../../plans/2026-07-21-greetings-croft-ing-mvp.md`. The anon-multi-write ingest arm this spike proves
+is NOT yet productized — greetings ships the 1:1 slice first.
+
 ```
 cargo test                                   # 17 tests green (incl. 5 capability probes)
 cargo tree -p card-service --edges normal    # the content-blind boundary, as a dependency fact
