@@ -9,8 +9,9 @@ and the card-ingest proofs live); execution code lands in `greetings_site`.
 **Executing** — Pass 1–3 complete; Phase 0 done; **Phases 1a + 1b + 2 SHIPPED and live** at
 https://greetings.croft.ing/ (routed PWA shell, strict CSP + SRI, Croft design palette, creator OAuth
 sign-in). `greetings_site` at `CroftC/greetings_site` on `main`; Pages = `gh-pages`/root. Phase 2's
-sign-in wiring + hosted client-metadata are live; **the interactive OAuth round-trip is pending
-user browser-confirmation.** **Next: Phase 3 (public card).**
+sign-in wiring + hosted client-metadata are live; **the interactive OAuth round-trip is CONFIRMED
+working** (user signed in end-to-end in a browser, 2026-07-21: "Signed in as
+ngvalidation2112.bsky.social"). **Next: Phase 3 (public card).**
 
 ## Outcome Summary
 
@@ -19,7 +20,7 @@ user browser-confirmation.** **Next: Phase 3 (public card).**
 | Phase 0 Discovery | ✅ D1–D3 resolved; D4 read-leg (write leg gated on creds) | discovery findings + `scratchpad/` spikes | getBlob-CORS gate cleared; deploy model corrected to gh-pages |
 | Phase 1a Build + deploy | ✅ SHIPPED + live | greetings_site `33c0e89` | deploy loop green; byte-identical bundle live; Pages = `gh-pages`/root |
 | Phase 1b Shell + router + PWA + docs | ✅ SHIPPED + live | greetings_site `ca67803`; discovery `8fdafb0` | hash router (TDD 6/6) + view shells + strict CSP/SRI + installable PWA; CI e2e 6/6; pwa-spa-best-practices.md + pointers |
-| Phase 2 Creator OAuth | 🟢 SHIPPED + live (interactive OAuth = user-confirm) | greetings `5734581` | BrowserOAuthClient + hosted client-metadata live (`client_id`===URL); sign-in form; auth-core TDD 7/7; CI e2e 9/9; Croft palette adopted |
+| Phase 2 Creator OAuth | ✅ SHIPPED + CONFIRMED live | greetings `5734581` (+copy fix) | OAuth round-trip user-verified ("Signed in as …"); hosted client-metadata (`client_id`===URL); auth-core TDD 7/7; CI e2e 9/9; Croft palette |
 | Phase 3 Public card | ☐ not started | — | next |
 | Phase 4 Sealed card | ☐ not started | — | — |
 
@@ -910,4 +911,9 @@ sandbox (no browser) and is not cleanly automatable headless (consent step). Dep
 + live hosted client-metadata; the round-trip is **user-confirmed in a browser** (click-path handed
 over). The app-password `@live` port test (arecipe's approach — inject an app-password Agent through the
 session port to exercise the authenticated-agent capability without the consent screen) is the automatable
-proxy; deferred until the test password is supplied via env. **Next: Phase 3 (public card).**
+proxy; deferred until the test password is supplied via env.
+**CONFIRMED 2026-07-21 (user, browser):** the full interactive OAuth round-trip works end to end —
+signed in as `ngvalidation2112.bsky.social`, the signed-in create view rendered with the resolved
+handle. Phase 2's behavioral gate is met. Follow-up UX (same day): clarified the sign-in field wants a
+**handle, not an email** (atproto resolves identity by handle/DID; email can't map to a PDS) — the user
+hit this friction; added a hint + relabel. **Next: Phase 3 (public card).**
