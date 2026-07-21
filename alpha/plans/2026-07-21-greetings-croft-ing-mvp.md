@@ -6,12 +6,12 @@ and the card-ingest proofs live); execution code lands in `greetings_site`.
 
 ## Status
 
-**Executing** — Pass 1–3 complete; Phase 0 done; **Phases 1a + 1b + 2 SHIPPED and live** at
-https://greetings.croft.ing/ (routed PWA shell, strict CSP + SRI, Croft design palette, creator OAuth
-sign-in). `greetings_site` at `CroftC/greetings_site` on `main`; Pages = `gh-pages`/root. Phase 2's
-sign-in wiring + hosted client-metadata are live; **the interactive OAuth round-trip is CONFIRMED
-working** (user signed in end-to-end in a browser, 2026-07-21: "Signed in as
-ngvalidation2112.bsky.social"). **Next: Phase 3 (public card).**
+**MVP shipped** — all phases (0 → 4) built, tested, and live at https://greetings.croft.ing/
+(2026-07-21). Routed PWA shell + strict CSP/SRI + Croft palette + creator OAuth (round-trip
+user-confirmed) + public cards + server-blind sealed cards (AES-256-GCM, key in `#k=`). `greetings_site`
+on `main`; Pages = `gh-pages`/root; unit 37/37 + e2e 9/9 green in CI. **Remaining user acceptance:** the
+live create→share→view round-trips (public + sealed, incl. cover) are browser-verified by the creator —
+the read path + all pure logic are verified here; the authenticated write leg is the user's final check.
 
 ## Outcome Summary
 
@@ -21,8 +21,8 @@ ngvalidation2112.bsky.social"). **Next: Phase 3 (public card).**
 | Phase 1a Build + deploy | ✅ SHIPPED + live | greetings_site `33c0e89` | deploy loop green; byte-identical bundle live; Pages = `gh-pages`/root |
 | Phase 1b Shell + router + PWA + docs | ✅ SHIPPED + live | greetings_site `ca67803`; discovery `8fdafb0` | hash router (TDD 6/6) + view shells + strict CSP/SRI + installable PWA; CI e2e 6/6; pwa-spa-best-practices.md + pointers |
 | Phase 2 Creator OAuth | ✅ SHIPPED + CONFIRMED live | greetings `5734581` (+copy fix) | OAuth round-trip user-verified ("Signed in as …"); hosted client-metadata (`client_id`===URL); auth-core TDD 7/7; CI e2e 9/9; Croft palette |
-| Phase 3 Public card | ☐ not started | — | next |
-| Phase 4 Sealed card | ☐ not started | — | — |
+| Phase 3 Public card | ✅ SHIPPED + live (create=user-confirm) | greetings `087ab98` | pds.ts + atproto.ts + card form + view; atproto-core TDD; read path verified vs real account |
+| Phase 4 Sealed card | ✅ SHIPPED + live (create=user-confirm) | greetings `2d44a9e` | crypto.ts (D1 promoted, TDD 9/9) + sealed record/link/decrypt; round-trip proven no-plaintext-leak + key-required |
 
 ## Problem Statement
 
@@ -545,7 +545,17 @@ Manually verify the live auth round-trip against a real account, using a **bsky 
 disposable test account supplied via env, never a committed secret** — and rotate the previously-shared
 password first (see "Observability, error surfacing & live-testing credentials" above).
 
-### Phase 3: Public card — create → link → view
+### Phase 3: Public card — create → link → view — ✅ SHIPPED (`087ab98`), live
+
+**Delivered (2026-07-21):** `src/pds.ts` (`resolveDidToPds`: did:plc via plc.directory, did:web via
+.well-known, fail loud); `src/atproto.ts` (`getRecordPublic` unauth read, `uploadBlob`, `createCard`,
+`getBlobBytes`); pure `src/atproto-core.ts` (`buildPublicCard`, `buildCardHash`, `pdsEndpointFromDidDoc`,
+`getBlobUrl`, `readPublicCard`, `coverCid` — TDD, part of the 37-test suite); create form (text + theme
++ recipient + optional cover → `onCreatePublic` → share link) + async card view (resolve → read →
+render greeting + cover + from/to; fail-loud broken-link state). **Verified here:** read-path resolver +
+CORS + error handling against the real creator account (`ngvalidation2112` → PDS `stropharia…`,
+getRecord 200 `ACAO:*`, missing record → 400 → broken-link view). **User-confirm:** the authenticated
+create→view round-trip (needs the signed-in session).
 
 **Goal:** A signed-in creator makes a public card; the app writes a public record to their PDS and
 yields a share link; opening the link (no login) renders the card.
@@ -589,7 +599,21 @@ the record builder emits the exact public shape (`mode:"public"`, `$type`, `from
 given, cover blob-ref embedded verbatim when a cover exists, omitted when not). Manually verify the live
 create→view round-trip; confirm the created record on the PDS matches the schema.
 
-### Phase 4: Private (server-blind link-key) card — create → link(#k) → view+decrypt
+### Phase 4: Private (server-blind link-key) card — create → link(#k) → view+decrypt — ✅ SHIPPED (`2d44a9e`), live
+
+**Delivered (2026-07-21):** `src/crypto.ts` — the D1 spike **promoted under TDD** (9/9): WebCrypto
+AES-256-GCM, `genKey`/`seal`/`open`, `sealCoverBytes`/`openCoverBytes`, browser-portable base64url,
+`keyFromHash`; fresh key + IV per card, key only in the `#k=` fragment. `atproto-core` gained
+`buildSealedCard` (no plaintext fields), `buildSealedCardHash`, `readCardMode`, `readSealedCard`. Create
+form has a public/server-blind toggle; `onCreateSealed` encrypts client-side, uploads the **ciphertext**
+cover bytes, stores `{iv, ciphertext, cover?, coverIv?}`, and returns the `#k=` link. Card view branches
+on mode: sealed pulls the key from the fragment, decrypts payload + cover (bytes → `openCoverBytes` →
+`blob:` URL), with **distinct** "need the key" vs "wrong key/tampered" messages; a keyless or wrong-key
+link renders no content. **Proven in unit tests** (`sealed-roundtrip.test.ts`): the full
+create→link→decrypt chain round-trips, the stored record contains no plaintext, and it is unreadable
+without the key (wrong key fails on the GCM tag). **User-confirm:** the live create→view(+decrypt)
+round-trip in a browser. **TS note:** WebCrypto calls needed `as BufferSource` casts for the TS 6
+generic-typed-array (`Uint8Array<ArrayBufferLike>`) change.
 
 **Goal:** A creator makes a private card; content is encrypted client-side, stored as ciphertext, and
 the key rides in the link fragment; opening the link decrypts and renders; the PDS holds only
@@ -917,3 +941,39 @@ signed in as `ngvalidation2112.bsky.social`, the signed-in create view rendered 
 handle. Phase 2's behavioral gate is met. Follow-up UX (same day): clarified the sign-in field wants a
 **handle, not an email** (atproto resolves identity by handle/DID; email can't map to a PDS) — the user
 hit this friction; added a hint + relabel. **Next: Phase 3 (public card).**
+
+### Phases 3 + 4 execution — 2026-07-21 (SHIPPED; greetings `087ab98`, `2d44a9e`)
+User asked for both in one pass; built as two phase-clean commits on one branch, CI once, deployed once
+(the recorded branch-first pattern). **TDD:** pure logic first every time — `atproto-core` (public +
+sealed record builders/readers, link codecs, DID-doc extractor) and `crypto` (the D1 promotion) went
+RED→GREEN in the node vitest env; the composed `sealed-roundtrip` test proves no-plaintext-leak +
+key-required. Final suite: **unit 37/37, e2e 9/9**. **Verified in-sandbox** (the honest maximum without
+a browser/creds): the read path — DID→PDS resolution, `getRecord`, getBlob CORS, and the broken-link
+error branch — against the real creator account. **User-confirm leg:** the authenticated create→view
+round-trips (public + sealed, incl. cover). **Design:** create form gained a public/server-blind toggle;
+sealed cover is uploaded as ciphertext and rendered via a decrypted `blob:` URL (CSP `img-src` already
+allowed `blob:`). **Snag:** the TS 6 generic-typed-array change forced `as BufferSource` casts at the
+WebCrypto calls (recorded for the next WebCrypto consumer).
+
+### Plan close-out — 2026-07-21
+**Shipped:** the full greetings.croft.ing MVP, live: a static hash-routed PWA on GitHub Pages
+(`gh-pages`/root deploy via Actions + `pages-deploy.sh`), strict CSP + SRI + Croft palette, installable
+(manifest + app-shell SW). Creator signs in with atproto OAuth (`@atproto/oauth-client-browser`, hosted
+`client-metadata.json`), then creates a 1:1 card in two modes — **public** (bare `ing.croft.greeting.card`
+record) and **server-blind sealed** (AES-256-GCM in-browser, ciphertext on the PDS, key in the `#k=`
+fragment), each with text + theme + recipient name + optional cover (the sealed cover encrypted too).
+Recipients open a link with no login; the view path resolves the DID→PDS and reads/decrypts client-side.
+Code: `greetings_site` on `main` (`d44832d`→`2d44a9e`); tests unit 37 + e2e 9 in CI. Discovery side: the
+plan, `pwa-spa-best-practices.md`, ECOSYSTEM/E43/card-ingest/design-note pointers.
+**Stopped or skipped:** nothing in MVP scope. Deferred by design (recorded in Problem Statement / Open
+Questions, not built): anonymous multi-write cards, guestbooks, registries, scheduled reveal (all need
+the DPoP-scoped mediating shim). Deferred polish (follow-ups, not stubs): self-host Lora/Inter woff2;
+code-split `@atproto/api` out of the main bundle (178 KB gz); branded PNG icons vs the single SVG; an
+app-password `@live` test for the authenticated write leg; bump the Node-20 CI action SHAs.
+**Discoveries:** (1) the sandbox blocks *browser* egress, not plain HTTPS — Node `fetch` + WebCrypto let
+Phase 0 and the read paths be verified here, far more than assumed. (2) The Pages deploy model was
+`gh-pages`-branch (not `main`/root as Pass 1 assumed); flipping the Pages source via API needs a one-time
+`POST /pages/builds`, but pushes to `gh-pages` auto-rebuild. (3) OAuth identity is handle/DID, never
+email; the redirect_uri must be a concrete path (the single-page root works). (4) Branch-first CI is the
+right steady-state here — it runs the browser e2e I can't, before a merge can gate a production deploy.
+**Acceptance remaining:** creator browser-verification of the two create→view round-trips.
