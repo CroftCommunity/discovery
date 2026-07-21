@@ -7,20 +7,23 @@ its encrypted group-messaging subsystem.
 This repo takes mixed "seed" material (transcripts, dossiers, research) and pulls it apart
 into clean, separable document sets so the logical flow can be refined toward a build.
 
-## Three sibling repos
+## One repo (thinking, proofs, and experiments)
+
+The three original strands now live in `discovery/`. The standalone `Proofs` and `experiments` repos
+were folded into `discovery/alpha/` (2026-07-15 and 2026-07-13) and are frozen and archived.
 
 ```
-discovery     ← you are here. Thinking/synthesis: thesis, research, principles,
-                roadmap, narrative, the cohesion map.
-Proofs        Durable proofs that verify invariants → become design principles.
-                (lineage-groups [real openmls], lineage-group-model [TS model])
-experiments   Code-forward exploration: "does this work / what's actually true?"
-                (appview-validation [live atproto/Jetstream])
+discovery/alpha/               ← you are here. Thinking/synthesis: thesis, research,
+                                 principles, roadmap, narrative, the cohesion map.
+discovery/alpha/Proofs/        Durable proofs that verify invariants → become design principles.
+                                 (lineage-groups [real openmls], lineage-group-model [TS model])
+discovery/alpha/experiments/   Code-forward exploration: "does this work / what's actually true?"
+                                 (appview-validation [live atproto/Jetstream])
 ```
 
-`discovery/crystallized/proof-ledger.md` tracks every invariant/experiment and links to its
-proof in the `Proofs`/`experiments` repos. `discovery/COHESION.md` tracks where one
-document's "loose end" is walked out by another's proof.
+`crystallized/proof-ledger.md` tracks every invariant/experiment and links to its proof under
+`Proofs/` and `experiments/` (both now inside `alpha/`). `COHESION.md` tracks where one document's
+"loose end" is walked out by another's proof.
 
 ## The two bodies of thinking
 

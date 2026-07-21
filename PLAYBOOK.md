@@ -35,11 +35,11 @@ committer `Chase Pettet <chase@owasp.org>`. Set it on any fresh clone.
 Decide what it is — this determines where it lands:
 
 - **Narrative / thinking** (dossier, design dialogue, vision, civic/philosophy) → `discovery`.
-  Raw goes to `discovery/seeds/`; distilled outputs to `thinking/`, `crystallized/`,
+  Raw goes to `discovery/alpha/seeds/`; distilled outputs to `thinking/`, `crystallized/`,
   `narrative/`.
 
 - **Industry research / comparison** (competitive analysis, field survey) →
-  `discovery/research/`. Related to but distinct from `ECOSYSTEM.md` (relational register) —
+  `discovery/alpha/research/`. Related to but distinct from `ECOSYSTEM.md` (relational register) —
   see `research/README.md`.
 
 - **Proof** (durable, hypothesis-driven, validates an invariant that becomes a principle) →
@@ -80,7 +80,7 @@ destination CroftC repos use the chasemp SSH host):
    verbatim provenance.
 
 7. **Capture the coding transcript** — if a transcript was provided: save the **verbatim raw**
-   to `discovery/seeds/transcripts/raw/pr<N>-<name>.md` (redact creds; reference, don't
+   to `discovery/alpha/seeds/transcripts/raw/pr<N>-<name>.md` (redact creds; reference, don't
    triplicate, briefs already saved verbatim elsewhere), and a readable **condensed**
    `CODING-TRANSCRIPT.md` next to the code.
 
@@ -97,7 +97,7 @@ silently.
 Not everything is a PR. Design dialogues, research write-ups, and dossiers arrive as pasted
 text. For these:
 
-1. **File the raw** to `discovery/seeds/transcripts/raw/<name>.md` (or `seeds/<name>.md` for a
+1. **File the raw** to `discovery/alpha/seeds/transcripts/raw/<name>.md` (or `seeds/<name>.md` for a
    dossier/zip). Redact in-session credentials; reference — don't triplicate — any large brief
    already saved verbatim elsewhere. Two fidelity cases:
    - **Verbatim** when you have the exact source (a file, a clean export). Status
@@ -134,10 +134,10 @@ an architecture choice → an ADR-style note or a `thinking/` doc; a settled tra
 
 After placing anything, update the cross-repo connective tissue:
 
-- **`discovery/crystallized/proof-ledger.md`** — add/adjust the I/E/V/S rows and their status
+- **`discovery/alpha/crystallized/proof-ledger.md`** — add/adjust the I/E/V/S rows and their status
   (`green-real` / `green-model` / `spec` / `blocked`), linking to the proof.
 
-- **`discovery/crystallized/test-narrative.md`** — for every test, add a narrative entry: **Why**
+- **`discovery/alpha/crystallized/test-narrative.md`** — for every test, add a narrative entry: **Why**
   we ran it · **Tells us** (the result) · **Means** (implication for the thesis/design) · **Open
   edges** (edge cases + next testing it surfaces). The ledger is status; this is the reasoning so
   we never mistake "green" for "done." A proof without a narrative entry is not fully filed.
@@ -154,7 +154,7 @@ After placing anything, update the cross-repo connective tissue:
 
 - **The relevant `README.md`** (repo-level) — add the new artifact to its contents list.
 
-- **`discovery/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`** — record what raw artifact came
+- **`discovery/alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`** — record what raw artifact came
   in and its preservation status (verbatim / condensed / distilled-only / missing).
 
 - **`ECOSYSTEM.md`** — if the material names a new org/project/tool, add or update its row
@@ -181,8 +181,9 @@ This repo set is reviewed before commit, so commit only on request. When asked:
 
 - Use the chasemp identity already set on each repo (`Chase Pettet <chase@owasp.org>`).
 
-- Commit each of the three repos separately (they are independent repos). Stage everything new
-  + modified. Confirm no secrets/large build artifacts are staged before committing.
+- Commit in `discovery` (the single active repo; the folded `Proofs`/`experiments` corpora live under
+  `alpha/` and their standalone repos are frozen and archived). Stage everything new + modified.
+  Confirm no secrets/large build artifacts are staged before committing.
 
 - End commit messages with the required co-author trailer:
   `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`.

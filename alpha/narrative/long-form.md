@@ -108,7 +108,7 @@ is hard:
 
 - Proven: peer-to-peer transport, gossip, content-addressed blobs, a self-hosted PDS, MLS via
   openmls, Lightning settlement. The encrypted-sync core was built and verified end-to-end
-  (`../../Proofs/encrypted-local-first-atproto/`).
+  (`../Proofs/encrypted-local-first-atproto/`).
 
 - Hard, and named honestly: cross-platform mobile (iOS and Android background delivery need push;
   no P2P stack has a turnkey iOS story — the pragmatic path is a thin Rust core compiled to native);
