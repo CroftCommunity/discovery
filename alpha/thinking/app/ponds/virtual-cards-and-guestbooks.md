@@ -10,6 +10,12 @@ in novel cryptography.
 
 date: 2026-07-21
 
+productization (2026-07-21): the 1:1 link-delivered slice of this design — public bare records +
+the server-blind link-key tier (rung 2 of the privacy ladder below) — is being built as a static PWA
+at `greetings.croft.ing` (`CroftCommunity/greetings_site`), plan
+`../../plans/2026-07-21-greetings-croft-ing-mvp.md`. The no-login anonymous-append arm (the
+content-blind ingest service) and MLS-sealed rung are deferred to later slices.
+
 status: design exploration (alpha). Grades below are honest: "proven" names the experiment and its
 environment bound; "new" means not yet built. atproto facts are verified against the primary spec at
 edit time (see References), not inferred.

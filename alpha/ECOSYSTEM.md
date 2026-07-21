@@ -194,6 +194,7 @@ These are not prior art — they are Croft's own shipped surfaces, cross-repo un
 | croft.ing | `CroftCommunity/crofting_site` | The landing/guide site (Plot/Wall/Valley pillars, five-tier depth, guide pages, ENS terms page) | the homestead surface |
 | skylite.croft.ing | `CroftCommunity/skylite` | Tended Bluesky window (sponsor-curated, no-algorithm view; kids/grandparents/quiet-sky use) | the "gate in the wall" surface |
 | pdsview.croft.ing | `CroftCommunity/pdsview` | Standalone zero-dependency SPA/PWA browser for public ATProto PDS content (browse collections/records/blobs + export); layer-honest about CORS | the public-repo inspector |
+| greetings.croft.ing | `CroftCommunity/greetings_site` | 1:1 greeting cards, link-delivered — public bare records or server-blind link-key (AES-256-GCM in-browser, key in the URL fragment); static PWA, no backend. Productizes the card-ingest link-key tier (E43) | the server-blind card surface (plan: `alpha/plans/2026-07-21-greetings-croft-ing-mvp.md`) |
 
 ## 5d. Games & app-pond building blocks (from the ponds/games dialogue 2026-06-21)
 
