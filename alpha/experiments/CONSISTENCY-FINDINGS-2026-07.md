@@ -514,3 +514,102 @@ RUN-13's sanctioned edit surface (socialization / classroom / site tooling only)
 not fixed. Options for the owner: rewrite the three sites' links as backticked repo-path citations
 (the pair becomes real links, the unpublished two go intentionally-literal), or teach the build to
 rewrite/strip relative `.md` hrefs. No content is wrong; the links are simply dead on the emitted site.
+
+---
+
+## RUN-SPEC-CCC (2026-07-20) — currency + consistency/clarity/correctness pass over Part 1/2
+
+`Companion to RUN-SPEC-CCC-SUMMARY.md. Scope: CORE-ONLY — bring the two spec documents (Part 1, Part 2)
+and their direct support docs current, correct, clear, consistent. Lane graduation (ROADMAP A19) and
+primary-source re-verification (the CHANGELOG publication checklist) were out of scope. Phase 0 found the
+currency delta essentially empty (the last core-touching run was RUN-12, fully recorded; RUN-13 was
+site-tooling only; RUN-14 through RUN-19 and every lane run leave beta/drystone-spec/part-* untouched by
+their own declarations). This was therefore a near-pure CCC pass. FIX = mechanical, provable,
+meaning-preserving (applied inline); FINDING = a judgment call or a claim's meaning/grade (recorded, not
+edited).`
+
+### Fixed mechanically (the full FIX list)
+
+| # | File · location | Before → after | Basis |
+|---|---|---|---|
+| CCC-1 | `part-1-reasoning-underpinnings.md` §2.5 (fork-not-verdict ¶, the two-escalation-shapes parenthetical) | `` …is *too few*; Part 2\nPart 2 §7.6.1 enumerates both… `` → `` …is *too few*;\nPart 2 §7.6.1 enumerates both… `` (the duplicate "Part 2" token removed) | A line-split doubled cross-reference: "Part 2" ended one wrapped line and "Part 2 §7.6.1" began the next, so the markdown paragraph flow joined them into a visible "Part 2 Part 2 §7.6.1" on the published site. **Confirmed by rendering Part 1 to HTML** (the reader saw "too few; Part 2 Part 2 §7.6.1 enumerates both") before the fix, and re-rendered clean after. This overturns the RUN-05 FND-8 dispositions (RUN-06 "no-op, already clean"; RUN-07 "mistaken flag / false positive"), which rested on a single-line grep that cannot see a duplication straddling a newline. The doubling entered at document-pass-6 (commit `d136868`, 2026-07-06) and had been live since. A markdown-aware doubled-word sweep over Part 1/2 and the support docs found no other line-split duplication (the Part 2 "Group Group Role" is intentional term usage). Part-1-changelog entry added; no §0-map change. |
+| CCC-2 | `proposed-changes-2026-07-experiment-reconciliation.md` (top historical-record banner, ~L8–12) | `` One follow-on remains staged, not landed: F4's fan-out re-measurement … the §11.11 wording still reads *half-earned* `` → banner now records that F4's follow-on **also landed** (RUN-06 regraded §11.11 #1 *half-earned → earned in shape*, RUN-09 sharpened it to *magnitude replicated at loopback, open at hardware scale*, `fanout-single-run` retired) | The banner was stale. Its own F4 section (this doc, F4 "Landing state" ¶) already states the follow-on **landed in Part 2 §11.11 (RUN-06, 2026-07-14)**; the Part 2 changelog records the RUN-06/RUN-09 landings; the settlement ledger above (RUN-06 FND-2 disposition) marks F4 applied; and the live §11.11 measurement #1 reads *earned in shape … magnitude replicated at loopback, open at hardware scale*. The banner (written RUN-05, M9, when the follow-on genuinely was staged) was never updated after RUN-06 landed it. Aligning the banner to its own body + the changelog + the spec is mechanical and meaning-preserving. |
+
+### Needs an owner call (FINDINGS)
+
+**FND-CCC-1 (LOW, grade coherence) — §11.11 measurement #1 carries two different grades across the
+spec and the EVIDENCE-MAP, reconcilable as two angles but arguable under strict equality.** Part 2 §11.11
+tags both measurements `` `Load-bearing, unearned` `` (the *claim*: per-commit and fan-out cost at
+hot-N = 500/1000/2000 on representative hardware), with the progress annotation deliberately in italic
+prose (*earned in shape … magnitude replicated at loopback, open at hardware scale*) rather than a
+re-tagged rung. `EVIDENCE-MAP.md` row 70 tags the same item `` `Measured` `` (bounds: "per-node linear
+`2N+1`, O(N²) aggregate; **loopback**; magnitude replicated K=5 (RUN-09), open at hardware hot-N"). The
+map's own rule is "if this map and a Part 2 sentence disagree, the sentence wins and the row is the bug."
+The two are reconcilable: the spec tags the forward-looking claim by what stays unearned (hardware-scale
+magnitude), the map tags what the existing loopback evidence reaches (`Measured`), and the map's bounds
+column already scopes it to loopback and flags hardware-scale open. But a reader doing a strict grade
+comparison sees a mismatch. *Proposed:* confirm the two-angle layering is intended (map = evidence-rung,
+spec = claim-status) and, if so, add a half-clause to EVIDENCE-MAP row 70 noting the Part 2 claim stays
+`Load-bearing, unearned` at hardware scale; or reconcile the tokens. Not edited: changing either grade
+would change a claim's meaning, which is a FINDING, not a FIX. This item was reviewed and set by RUN-08
+(map build) and RUN-09 (K=5 replication), so it is likely intended; flagged per the pass rule to record
+arguable grade values rather than pass over them silently.
+
+### Verified clean (checked, found consistent)
+
+Stated explicitly so silence is never ambiguous.
+
+**Phase 0 — currency delta.**
+- `proposed-changes` F1–F8 all confirmed landed (RUN-02/RUN-03); F4's fan-out follow-on landed RUN-06 and
+  was sharpened RUN-09 (the CCC-2 banner is now consistent with this). The RUN-14/15/16/18/19 addenda in
+  that doc target the design tree (`social-mapping.md`, `GROUPS.md`) and are out of scope; each declares
+  the reviewed spec untouched.
+- `EVIDENCE-MAP.md` is current through RUN-12; all its open FINDINGs (FND-T1/T2/T3/T4) are settled or
+  recorded; it defers to the Part 2 sentence as source of truth.
+- `CONSISTENCY-FINDINGS-2026-07.md` (this doc) and `SPEC-ALIGNMENT-AND-ACTION-PLAN.md` carry no open item
+  that lands in Part 1/2 requiring an edit; the alignment doc is correctly bannered point-in-time.
+- Post-RUN-12 runs scanned (RUN-13…RUN-19, RUN-AP-01, RUN-ATTEST-01…04, RUN-HIST-01, RUN-LEX-01,
+  RUN-FED-SHIM-01): none touches `beta/drystone-spec/part-*` (each states so in its summary). The Part 2
+  changelog's last spec-touching entry is RUN-12; nothing has accrued since.
+
+**Phase 2 — cross-reference integrity (site gate).** `site/build.py` resolver/broken-ref/anchor gate run
+with the mermaid **renderer** stubbed (a no-op SVG; the pinned mermaid-cli needs a headless browser this
+environment blocks): 87 documents, 1191 headings anchored with no anchor-alignment desync, 3195 §-references
+found → 3102 linked, 86 external RFC/BCP literal, 84 skipped in code spans, **0 hard-gated unresolved**
+(Part 1/Part 2 references all resolve), and the companion-allowlist gate matches exactly (7 allowlisted
+companion refs, no drift in either direction). The mermaid *parse* gate did not run (renderer unavailable);
+2 diagram blocks were stubbed.
+
+**Phase 2 — grade / evidence coherence.** Every load-bearing Part 2 grade tag checked against its
+EVIDENCE-MAP row and matches: §7.2 R7 `Verified` (count) with the role-authorship residual open and the
+competing-quorum `Modeled`; §7.6.2 membership `Verified` / message `Modeled` (loopback); §6.8.1
+steady-state and range-partitioned both `Modeled` (loopback), scaling shape `Verified`; §8.2(e) `Verified`
+(count) / freshness exercised at loopback. The single arguable case is FND-CCC-1 (§11.11 #1). All backticked
+grade tokens in Part 2 are on the A.9 ladder (`Verified` ×78, `Verified-RFC` ×36, `Design` ×51, `Modeled`
+×14, `Established` ×8, `Load-bearing, unearned` ×7, `Measured` ×3, `Synthesis` ×1); no off-ladder token
+(`green-real`, `green-model`, `not_yet_emitted`, `PLACEHOLDER`, `Reviewer-judgment`) appears as a live tag.
+
+**Phase 2 — terminology / DR compliance.** `real-NAT` is hyphenated as the compound qualifier throughout
+Part 1/2 (FND-T7 stays satisfied); `byte-head` is hyphenated in every occurrence; `hard-stop` is the
+canonical DR-3 spelling in all 25 Part 1/2 occurrences (no bare "hard stop"). No doubled-prefix defect
+survives (CCC-1 was the only one; a full markdown-aware sweep confirms none remains).
+
+**Phase 2 — §0-map ↔ structure.** The gate anchored all 1191 headings with no desync (the build fails loud
+on a map/structure mismatch, and did not). The Part 2 §0 back-Map §7.6 entry is current, including the R7
+quorum-collision contradiction shape and the §7.6.2 message-continuity `Modeled` (RUN-09/RUN-12) grade; §6.8
+convergence is covered. Part 1's back-Map indexes the `Upstream reference links (versioned)` back-matter
+(the RUN-06 FND-11 addition).
+
+**Phase 2 — Part 1 → Part 2 direction.** Part 1 §2.5 (fork-not-verdict) is intact and fully supports the
+Part 2 sentences that cite it: the "manufactures a utility verdict … Part 1 §2.5 forbids" clause in the
+§7.3.2 competing-quorum boundary note resolves to §2.5's "not to manufacture a consensus that was never
+available" and "provenance fully determined and utility still open" language, and the §7.6.1 two-shapes
+enumeration (too-many / too-few) that §2.5 points at is present and consistent. No Part 1 assertion
+contradicts landed Part 2 on the four refined mechanisms (policy/quorum §7.2 R7, contradiction/escalation
+§7.6, recovery §7.3.9, freshness §7.4/§8.2).
+
+**No open item closed, no grade laundered.** Part 2's load-bearing beam (`Load-bearing, unearned`), the
+`[gates-release]` byte-level encodings, the BLAKE3 §4 re-proof, and the standing firewall items (I9
+trust-tier, X1 real-NAT, the recovery trust-predicate) are all untouched and remain open. The two FIXes are
+a duplicate-word removal (no claim) and a stale-banner correction in a support doc (no grade). The one
+FINDING (FND-CCC-1) is recorded for an owner call, not resolved.
