@@ -29,7 +29,7 @@ import tempfile
 import markdown as md_lib
 
 from resolver import (Ctx, Doc, parse_headings, autolink_html,
-                      MermaidError, substitute_mermaid_blocks)
+                      MermaidError, substitute_mermaid_blocks, find_doubled_words)
 
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -103,6 +103,22 @@ COMPANION_ALLOWLIST = {
         "points at social-layer.md §75–77 (design gate G5), a cross-doc companion ref",
     ("thinking-social-layer", "§29"):
         "points at COHESION.md §29, a companion doc outside the published set",
+}
+
+
+# ---- The render-space doubled-word allowlist (RUN-SPEC-CCC, 2026-07-20) ----
+#
+# The doubled-word gate (find_doubled_words) runs on the RENDERED html of the
+# hard-gated spec, so it catches reader-visible duplications a source grep cannot
+# see because they straddle a wrapped line (the RUN-05 FND-8 class: a real
+# doubled "Part 2" that two later passes cleared as a false positive on a source
+# grep). A genuine repeated term reads as a double and belongs here, lowercased,
+# with a reason.
+DOUBLED_WORD_ALLOWLIST = {
+    # "Group Role" is the term (doc-writing-method Rule 2); "a Group's Group Role"
+    # reads as a doubled "Group" but is intentional. Allowlisted only when the
+    # following word is "Role", so a bare accidental "Group Group" still fails.
+    "group group role",
 }
 
 
@@ -653,6 +669,29 @@ def run(out_dir, check_only):
         for doc_id, offenders in sorted(hard_unresolved.items()):
             for off in offenders:
                 print(f"   [{doc_id}] {off}")
+        raise SystemExit(1)
+
+    # ----- The render-space doubled-word gate (RUN-SPEC-CCC) -----
+    # Runs on the RENDERED html of the hard-gated spec, where a duplication that
+    # straddles a wrapped source line becomes reader-visible. A source grep cannot
+    # see this class (neither physical line carries the doubled pair). See
+    # doc-writing-method Rule 11.
+    doubled = {}
+    for p in pages:
+        if p.doc_id not in HARD_GATED:
+            continue
+        found = find_doubled_words(p.body_html, allowlist=DOUBLED_WORD_ALLOWLIST)
+        if found:
+            doubled[p.doc_id] = found
+    n_doubled = sum(len(v) for v in doubled.values())
+    print(f"doubled-word gate (spec)   : {n_doubled} found (rendered, Part 1/Part 2)")
+    if doubled:
+        print("\nDOUBLED-WORD GATE FAILED — reader-visible duplication in Part 1 / Part 2:")
+        for doc_id, hits in sorted(doubled.items()):
+            for h in hits:
+                print(f'   [{doc_id}] "{h["phrase"]}"  ...{h["context"]}...')
+        print("If a double is intentional (a repeated term such as a Group Role), add its")
+        print("lowercased phrase to DOUBLED_WORD_ALLOWLIST in site/build.py with a reason.")
         raise SystemExit(1)
 
     if check_only:

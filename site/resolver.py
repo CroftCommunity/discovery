@@ -463,3 +463,106 @@ def substitute_mermaid_blocks(html_text, source_relpath, renderer):
         return f'<div class="mermaid-figure">{svg}</div>'
 
     return _MERMAID_BLOCK_RE.sub(repl, html_text), count
+
+
+# ---------------------------------------------------------------------------
+# The render-space doubled-word gate.
+#
+# A duplication that straddles a source line break (e.g. "Part 2" ending one
+# wrapped line and "Part 2 ..." beginning the next) is invisible to a
+# line-oriented grep: neither physical line carries the doubled pair. Markdown
+# joins the soft newline into a space, so the reader sees the double. This check
+# therefore runs against RENDERED html with each block's whitespace collapsed,
+# which is the only space where the defect exists. It is the fix for the class
+# RUN-05 FND-8 missed, and the concrete form of doc-writing-method Rule 11's
+# render-space discipline.
+# ---------------------------------------------------------------------------
+
+_BLOCK_TAGS = {
+    "p", "li", "ul", "ol", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote",
+    "div", "table", "thead", "tbody", "tr", "td", "th", "section", "article",
+    "header", "footer", "hr", "figure", "figcaption", "dl", "dt", "dd",
+}
+_TEXT_SKIP_TAGS = {"code", "pre", "script", "style"}
+_DOUBLED_WORD_RE = re.compile(r"\b([A-Za-z]{2,})\s+\1\b", re.IGNORECASE)
+_DOUBLED_PARTSEC_RE = re.compile(r"\bPart (\d+)\s+Part \1\b")
+_NEXT_WORD_RE = re.compile(r"\s+([A-Za-z0-9]+)")
+
+
+class _VisibleText(HTMLParser):
+    """Collect reader-visible text per block. Content inside code/pre/script/
+    style is dropped; anchor text is kept (the reader sees it). Each block-level
+    tag boundary flushes the current run, so a duplication is never falsely read
+    across two blocks (a heading ending in a word, then a paragraph opening with
+    it, is not a double)."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.blocks = []
+        self._buf = []
+        self._skip = 0
+
+    def _flush(self):
+        if self._buf:
+            self.blocks.append("".join(self._buf))
+            self._buf = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in _TEXT_SKIP_TAGS:
+            if self._skip == 0:
+                # A stripped code/pre span is a word boundary, never a join: the
+                # reader sees the code between the surrounding words, so
+                # "then <code>x</code> then" must not collapse to "then then".
+                self._buf.append("\x00")
+            self._skip += 1
+        elif tag in _BLOCK_TAGS:
+            self._flush()
+
+    def handle_startendtag(self, tag, attrs):
+        if tag in _BLOCK_TAGS:
+            self._flush()
+
+    def handle_endtag(self, tag):
+        if tag in _TEXT_SKIP_TAGS and self._skip > 0:
+            self._skip -= 1
+        elif tag in _BLOCK_TAGS:
+            self._flush()
+
+    def handle_data(self, data):
+        if self._skip == 0:
+            self._buf.append(data)
+
+    def close(self):
+        super().close()
+        self._flush()
+
+
+def find_doubled_words(html_text, allowlist=frozenset()):
+    """Return the reader-visible consecutive duplications in rendered html.
+
+    Each hit is a dict {"phrase": the doubled text, "context": a short window}.
+    Detects doubled single words ("the the") and doubled section references
+    ("Part 2 Part 2"), including duplications that straddle a source newline or a
+    tag boundary (the reader still sees them). `allowlist` is a set of lowercased
+    phrases known to be intentional (e.g. "group group role" for the Group Role
+    term); a hit whose phrase, or phrase plus its following word, is in the
+    allowlist is dropped. Content inside code/pre is ignored."""
+    allow = {a.lower() for a in allowlist}
+    parser = _VisibleText()
+    parser.feed(html_text)
+    parser.close()
+    hits = []
+    for block in parser.blocks:
+        text = re.sub(r"\s+", " ", _html.unescape(block)).strip()
+        spans = [(m.start(), m.end(), m.group(0)) for m in _DOUBLED_PARTSEC_RE.finditer(text)]
+        spans += [(m.start(), m.end(), m.group(0)) for m in _DOUBLED_WORD_RE.finditer(text)]
+        for start, end, phrase in spans:
+            nxt = _NEXT_WORD_RE.match(text, end)
+            keys = {phrase.lower()}
+            if nxt:
+                keys.add(f"{phrase} {nxt.group(1)}".lower())
+            if keys & allow:
+                continue
+            hits.append({"phrase": phrase,
+                         "context": text[max(0, start - 30):min(len(text), end + 30)]})
+    return hits

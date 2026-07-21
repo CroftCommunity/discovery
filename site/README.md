@@ -62,6 +62,13 @@ title rewording:
 - **Diagrams (RUN-13).** A ```` ```mermaid ```` block that fails to parse/render fails
   the build, naming the source file and block. A mermaid example *quoted inside another
   fenced code block* is literal content and is never processed.
+- **Doubled words (RUN-SPEC-CCC).** Part 1 and Part 2 are scanned for reader-visible
+  consecutive duplications (`the the`, a doubled section ref like `Part 2 Part 2`) on the
+  **rendered** HTML, so a duplication that straddles a wrapped source line is caught even
+  though no single source line carries the pair. A stripped code span is treated as a word
+  boundary, not a join. A genuinely repeated term is listed in `DOUBLED_WORD_ALLOWLIST` in
+  `build.py` with a reason. This closes the class that a line-oriented grep cannot see (a
+  real doubled `Part 2` lived on the site until a render caught it).
 
 ## Mermaid diagrams (build-time pre-render — the choice, documented)
 
