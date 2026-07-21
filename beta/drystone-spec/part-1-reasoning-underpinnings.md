@@ -525,7 +525,7 @@ razor's seam, made operational. This is why "intrinsically personal" is doing re
 emphasis: the resolution input must come from the people whose relationships are at stake because *they
 are the only locus where the value being adjudicated exists.* They do not have privileged access to the
 answer; they **constitute** it. (The residue has more than one shape: the mutual-expulsion case here is
-*too many* valid claims, and a required role left vacant with no valid successor is *too few*; Part 2
+*too many* valid claims, and a required role left vacant with no valid successor is *too few*;
 Part 2 §7.6.1 enumerates both, since a mechanism that watches only for contradiction would miss the second. Both
 are the same seam, provenance-settled and utility-open.)
 

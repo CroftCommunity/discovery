@@ -105,3 +105,15 @@ Part of the cross-suite adjudication-language codification (conventions A.11, Pa
 - **§2.5 gained one forward-pointer sentence** where the fork is characterized as human-adjudicated (end of the fork-not-verdict paragraph): the move has formal precedent in Internet governance's Designated Expert (§3), and the terminus differs only in distributing that role to every local authority rather than delegating it to one center. No back-map change: §2.5's map line still reads as fork-not-verdict; only an in-place cross-reference was added.
 
 **Verification:** no em-dashes, no double-hyphens in prose; quotes verbatim; cross-references resolve.
+
+---
+
+## §2.5 doubled cross-reference corrected (RUN-SPEC-CCC, 2026-07-20)
+
+`Status: complete (RUN-SPEC-CCC, 2026-07-20)`
+
+Scope: one mechanical typo fix in Part 1 §2.5 (the fork-not-verdict paragraph). No principle, claim, or grade changed; the fix removes a duplicated cross-reference token that rendered on the published site.
+
+**§2.5, done.** The parenthetical naming the two escalation shapes rendered as "Part 2 Part 2 §7.6.1 enumerates both" in the emitted HTML: the source carried "Part 2" at the end of one wrapped line and "Part 2 §7.6.1" at the start of the next, so the markdown paragraph flow joined them into a visible doubled "Part 2 Part 2". The duplicate token was removed; the sentence now reads "Part 2 §7.6.1 enumerates both". This was the RUN-05 FND-8 item, closed twice as a false positive (RUN-06 no-op, RUN-07 mistaken-flag) on the strength of a single-line grep that could not see the line-split duplication. This pass confirmed the defect by rendering Part 1 to HTML (the reader saw "too few; Part 2 Part 2 §7.6.1 enumerates both") before applying the fix. The doubling entered at document-pass-6 (commit d136868, 2026-07-06) and had been present since. No back-map change (the §2.5 map line is unaffected).
+
+**Verification:** the site build broken-ref and anchor gates stay clean (0 hard-gated unresolved, companion allowlist matches); a markdown-aware doubled-word sweep over Part 1, Part 2, and the support docs finds no other line-split duplication (the Part 2 "Group Group Role" is intentional term usage); no em-dashes or double-hyphens in this changelog prose.
