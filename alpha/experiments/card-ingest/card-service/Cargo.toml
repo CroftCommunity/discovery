@@ -13,3 +13,4 @@ blake3 = "=1.8.5"
 
 [dev-dependencies]
 card-seal = { path = "../card-seal" }
+card-sign = { path = "../card-sign" }
