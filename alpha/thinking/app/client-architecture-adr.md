@@ -6,6 +6,12 @@
 `experiments/croft-app-phase0/`) demonstrated this shape running, and the user named it the most
 mature model we have and the one prior client work should adapt to.
 
+> **Companion (2026-07-22):** this ADR is the *shared-core / per-platform-shell* axis. How the *estate of
+> apps* shares storage and session across origins in the browser — decided by the account-kernel spike
+> (K1/KC0), incl. why a cross-subdomain shared kernel fails on WebKit/iOS and the single-origin +
+> isolated-subdomains + optional-BFF topology — is its sibling doc:
+> `estate-architecture-and-browser-constraints.md`.
+
 ---
 
 ## Context

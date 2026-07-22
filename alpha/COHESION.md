@@ -1466,6 +1466,77 @@ bursts are now captured on both axes (status + narrative/thinking).
 
 ---
 
+## 53. 2026-07-22 batch — the account kernel, the ponds roadmap, ENS, client-side-search research
+
+Four pasted sessions (raw in `seeds/transcripts/raw/*-2026-07-22.md`; `RAW-ARTIFACTS-MANIFEST.md`
+"2026-07-22 intake"; plan `plans/2026-07-22-transcript-intake-ponds-kernel-ens.md`). Phase-1 filing;
+folding into beta + the roadmap is Phase 2. Seam map:
+
+- **The `account.croft.ing` kernel — NEW BODY, closes a coverage gap (OPEN → staged).** The card-maker
+  (T1) + prefs/repo-mirror (T2) dialogues converge on one shared client-side origin (session broker +
+  encrypted-prefs cache + `repo-mirror` + write outbox) that every `*.croft.ing` subdomain reaches via one
+  embedded iframe, turning subdomains into stateless skins. The corpus's *thinnest-covered* area — nearest
+  homes are `thinking/app/client-architecture-adr.md` (shared-core/per-shell, a different axis) and
+  `research/atproto-private-data-architecture.md` (content-blind PDS). Staged `beta/OPEN-THREADS.md` T55.
+  **RESOLVED by spike K1 (2026-07-22): the shared-origin form is DEAD on WebKit/iOS.** Same-site subdomain
+  storage is shared on Chromium but partitioned on WebKit/Safari (confirmed on real `croft.ing` in shipping
+  Safari + Playwright-WebKit; refuted the `.localhost`-artifact escape). Since iOS is all-WebKit, the kernel
+  pivots from a shared browser origin to **per-app storage + a postMessage sync-coordinator, PDS as the
+  cross-pad sync authority**. Durable why: `../spike/account-kernel/FINDINGS-AND-PIVOT.md`. Standing lesson
+  captured there: cross-origin/partitioning browser behavior differs per engine and must be tested on real
+  Safari before it is committed, never assumed. **KC0 then validated the fix:** same-origin storage +
+  SharedWorker coordination work on WebKit, so a *single-origin* kernel is viable everywhere. **Settled
+  record** (three-bucket origin topology — shared origin for co-located pads / isolated subdomains for
+  untrusted-input apps / off-domain sandbox for untrusted code — + IndexedDB baseline + auth options where
+  per-app login is the serverless default and a small BFF is the optional cross-browser-SSO add-on):
+  `thinking/app/estate-architecture-and-browser-constraints.md`.
+- **Untrusted card-renderer domain separation — TENTATIVE CONCLUSION.** A public "open any card" endpoint
+  runs a stranger's code and collides with a `Domain=croft.ing` shared-auth cookie. Tentatively concluded
+  (user, 2026-07-22): the renderer lives on a **separate registrable domain** (or the estate session is
+  host-only + kernel-brokered); revisitable. "One-line config now, migration once 3 apps depend on it."
+- **Push notifications — DECISION captured.** Pushover is ops-only (recipient must buy, server holds a
+  secret, third party reads cleartext); **Web Push** (W3C, encrypted to subscription keys) is the
+  recipient-facing answer; iOS residual is onboarding copy (16.4 + Home-Screen), which **stacks with the
+  existing Home-Screen-for-persistent-storage decision** (§ Safari 7-day eviction, also surfaced in the
+  Heardle thread → DUPLICATION-BY-DESIGN, same mitigation).
+- **Ponds/games roadmap — the "not ordered yet" problem the user named (OPEN → staged).** T3 (phased P1–P10
+  build, browser-P2P, follow-chain leaderboard, solitaire-first) + T4-Heardle (a concrete music-guessing
+  pond) want consolidating with the existing `thinking/app/ponds/build-order.md` + `build-shape-pass.md` +
+  PRD stubs + `beta/croft/product-the-garden-of-ponds.md`. The games pond is "candidate, not committed"
+  (already a `beta/OPEN-THREADS.md` T-thread). Browser-native P2P = WebRTC/matchbox, **already covered** in
+  `beta/cairn/iroh-app-pond-building-blocks.md` (GGRS+matchbox) → not net-new, cross-reference.
+- **Greeting cards ↔ collaborative-card ↔ Kudoboard — CONVERGENCE.** T1's three-rung output ladder and
+  collaborative-card-needs-a-host thread extend the shipped greetings MVP (`plans/2026-07-21-…`, E43) and
+  `thinking/app/ponds/virtual-cards-and-guestbooks.md`; Kudoboard (T4) is the group-card incumbent →
+  `ECOSYSTEM.md`. The collaborative (multi-writer) card is the same deferred primitive the greetings MVP
+  left out (anon multi-write / content-blind ingest) — DUPLICATION-BY-DESIGN, one primitive.
+- **ENS multi-vantage framework — CANDIDATE THINKING (not settled; staged, not in NAMING).** Extends the
+  enclosure/extraction spine (`beta/fenced/aggregation-theory-and-the-enshittification-shield.md`,
+  `beta/activism/…`, the Clare/enclosure raws); `beta/socialization/coop-messaging-research.md` already
+  flags "the acronym-re-expansion move ENS makes." Heardle's Spotify-acquisition→shutdown is a *literal*
+  ENS/ephemerality case — ties the games thread back to the ENS thread and to the 10-year survivability
+  product promise (P10 Sustainment). Staged `beta/OPEN-THREADS.md`.
+- **Client-side-search research — NEW, [UNVERIFIED] (candidate gap the corpus flagged).** The Gemini report
+  (Jetstream/CAR/atcute/search-engine matrix/OPFS-VFS/COOP-COEP) is the field survey the manifest's
+  `arecipe.zip` row explicitly said was "truncated … NOT filed — needs the full text" — now filed. No
+  dedicated research doc on client-side search existed (`research/atproto-private-data-architecture.md` is
+  adjacent). **Fact-check DONE 2026-07-22** → `research/atproto-clientside-search.md` (20 CONFIRMED / 3
+  PARTLY / 7 UNVERIFIED / 0 REFUTED; "SearchFn" flagged likely-invented, Jetstream filtered-bandwidth
+  corrected ~6–15×). Uses "Merkle Search Tree" for atproto — **FACTCHECK-confirmed correct** (only
+  iroh-docs=MST is refuted; not claimed here).
+- **The "helper" tier — cross-cutting category surfaced 2026-07-22 (ties several seams together).** A class
+  of optional server-side enhancers the baseline degrades gracefully without: custom AppView (sovereign-appview,
+  pdsview), BFF/token (kernel/T55), AP-followers restriction (RUN-16 / appview-infra GROUPS), Web-Push helper
+  (card-maker/push), content-blind ingest shim (virtual-cards / E43). One contract (optional · declared
+  degradation · isolated trust surface · replaceable/self-hostable · reads direct) keeps the serverless
+  baseline real and enumerates the trust/attack surface. Also helpers (reclassified to the honest floor):
+  iroh relay (baseline = same-network LAN direct), deep-link resolver (baseline = manual ticket/code join;
+  strategically huge but not a functional need), meer/Delivery-Service (baseline = direct delivery to online
+  peers). **Base-base floor:** 2 people, same network, direct connection, manual join code — zero helpers.
+  **Carried forward from Drystone** (protocol→product): peer-equality floor + `P-Durable-Enablement` +
+  exitability; helpers = bounded, route-around-able unequal-peer roles above the equal-peer floor. Doc:
+  `thinking/app/helpers-register.md`; backlog E51.
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
