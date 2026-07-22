@@ -136,6 +136,46 @@ layer-cake. Recorded here so the pull-up is auditable.
   (E1 realization + atmospheric-web overlap). **Not** distilled into alpha `thinking/` — beta was the chosen
   home; this is the one alpha additive artifact recording it.
 
+## In-tier promotion (2026-07-22, the ponds roadmap)
+
+The settled build-order thinking was **promoted in-tier** into a new beta/croft roadmap doc as Pass 1 of
+the 2026-07-22 batch (plan: `plans/2026-07-22-transcript-intake-ponds-kernel-ens.md`). This is a
+promotion, not a direct-to-beta intake: the source is an already-distilled alpha thinking doc, and the
+alpha copy stays as the frozen floor.
+
+- **Source (frozen alpha floor, unchanged):** `thinking/app/ponds/build-order.md` (the sequenced
+  ecosystem build plan, foundation → breadth) plus the companion `ponds/` catalog and `fair-reveal-primitive-spec.md`.
+- **Lands in:** `beta/croft/build-order-and-ponds-roadmap.md` (NEW) — the ordering logic, the Phase 0-5
+  build sequence, the two parallel gates (resolver tier-zero; sustainability before the heart), the
+  per-pond build discipline (determinism-first / verifiable-outcomes / follow-chain comparison / standing
+  sustainment drill), and the pond/pad catalog stacking committed and candidate activities onto the
+  sequence. Added to `beta/croft/README.md` contents + `beta/croft/reference-index.md` coverage note.
+- **Treatment:** tier-clean (forward narrative references only beta docs). The build sequence is settled
+  (from the already-distilled build-order thinking). The **per-pond discipline** and the **candidate ponds**
+  (music-guessing, collaborative card, account kernel) are recent (2026-07-22 batch raws) and flagged; they
+  are staged in `beta/OPEN-THREADS.md` T55-T58 (T57 now `in-progress`, roadmap Pass 1 landed) and tracked in
+  `ROADMAP_TODO.md` E44-E47. Open decisions (games-pond commit, kernel domain-separation, music licensing)
+  stay surfaced, not resolved. iroh/atproto facts cite the FACTCHECK SoT.
+
+## In-tier promotion (2026-07-22, the helper tier + baseline floor)
+
+The account-kernel spike (K1/KC0) and the "growing list of helpers" synthesis were promoted in-tier into a
+new beta/croft doc, `the-helper-tier-and-the-baseline-floor.md`. The settled product principle — an honest
+zero-server floor (two peers, same network, direct, manual join) with every server-side component an
+optional helper carrying a declared degradation back to it — is beta-worthy; the still-open mechanics
+(login-broker/BFF on WebKit, OPFS on Safari, cross-device latency) stay in `../beta/OPEN-THREADS.md` T55,
+not asserted in the beta narrative.
+
+- **Source (frozen alpha floor):** `spike/account-kernel/` (FINDINGS-AND-PIVOT, K1/KC0 results, harness),
+  `thinking/app/helpers-register.md`, `thinking/app/estate-architecture-and-browser-constraints.md`.
+- **Lands in:** `beta/croft/the-helper-tier-and-the-baseline-floor.md` (NEW); added to `beta/croft/README.md`
+  + `reference-index.md`. Tier-clean: the forward narrative references only beta docs (product-the-garden,
+  build-order-and-ponds-roadmap, drystone-spec principles); the alpha spike/thinking are in the provenance
+  footer only.
+- **Treatment:** the browser-partitioning finding is stated as settled (K1/KC0 measured it, incl. shipping
+  Safari); helper contract + floor + origin shape + Drystone carry-forward are settled; open items pointed
+  to OPEN-THREADS. Backlog E51.
+
 ## Coverage-gate widening (2026-07-08, Phase-0 transcript re-read)
 
 The gate above is **theme-scoped**: it verified that the *enumerated* theme conclusions (CM-A*, CM-P*)

@@ -272,6 +272,21 @@ attributed (Gemini was unusually accurate here).
 | bluesky-social / pdsmoover | **goat** · **PDS MOOver** | Account-migration tooling (CAR export/import + signed PLC ops); returning-user-only inbound to bsky.social | live [verified: web 2026-06-22] | build-on (migration) |
 | #IndieSky · Eurosky (Modal Foundation) · Free Our Feeds | independent-infra movements | Non-corporate Relays / private-group / localized-moderation infra for the open atproto web | active [verified: web 2026-06-22 — NB "AT Community Fund" is an imprecise name; the real funder is **Free Our Feeds**] | homage, learn↔, partner |
 
+## 5g. Card incumbents, notification transport & client-side-search building blocks (2026-07-22 — pending independent verification)
+
+From the 2026-07-22 batch (card-maker/push dialogue + the Gemini client-side-search report). **All rows
+are dialogue/Gemini-sourced and `[UNVERIFIED]`** pending the Phase-2 fact-check (ROADMAP_TODO E48);
+figures (bundle sizes, memory, limits) are Gemini's. `Jetstream` and `atcute` are **already registered at
+§5f** (ingestion + client protocol utils) — not duplicated here.
+
+| Org/Author | Project | Purpose / relevance | State | Relationship |
+|---|---|---|---|---|
+| Kudoboard, Inc. | **Kudoboard** | Group digital greeting/appreciation boards — one creator, shared link, many contributors add text/photos/GIFs/video; optional pooled gift fund; deliver as email/slideshow/printable | live `[UNVERIFIED]` | incumbent/competitor (the collaborative-card pad; cf. GroupGreeting in E43) |
+| Superblock | **Pushover** | Simple multiplatform push (per-platform ~$4.99 one-time; server holds an API token; cleartext payload; ~10k msg/mo free) | live `[UNVERIFIED]` | build-on **for own-ops only** (build/PDS/relay/cert alerts) — never recipient-facing |
+| W3C / browser vendors | **Web Push** (+ WebKit) | The one cross-platform standard for recipient-facing push; payloads encrypted to subscription keys; over APNs on iOS with no Apple-dev membership; iOS needs 16.4 + Home-Screen install (no auto-prompt) | standard `[UNVERIFIED product-level]` | build-on (recipient notifications; stacks with Home-Screen-for-storage) |
+| nextapps-de / lucaong / oramasearch / leeoniya / SQLite | **FlexSearch · MiniSearch · Orama · uFuzzy · SQLite-FTS5(WASM)** | Client-side search engines for serverless atproto SPAs — keyword/BM25/hybrid-vector/fuzzy/relational-FTS, spanning in-memory to OPFS-backed; the comparison matrix in the Gemini report | live `[UNVERIFIED — Gemini benchmarks]` | build-on (candidate; choose per ingestion model — see E48) |
+| n0-computer / community | **coi-serviceworker** (+ COOP/COEP) | Service-worker shim injecting cross-origin-isolation headers on static hosts (GitHub/Cloudflare Pages) so `SharedArrayBuffer`/threaded WASM-SQLite works | live `[UNVERIFIED]` | build-on (static-host WASM enablement) |
+
 ## 6. P2P / decentralized messengers (the field)
 
 Detailed competitive analysis lives in `research/messaging-solutions-landscape.md`. Relational summary:

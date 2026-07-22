@@ -114,6 +114,20 @@ Croft is the product layer; its tech grounding is deliberately thin on primary c
 - **impl `transport-iroh-gossip-and-quic.md`** — iroh's transport mechanics (RoQ/MoQ, relay, gossip) under the tiered-exposure model.
 - **the FACTCHECK source of truth** — all iroh / atproto version and capability facts (iroh core 1.0.0); not re-verified here.
 
+`the-helper-tier-and-the-baseline-floor.md` (added 2026-07-22) introduces **no new external references**:
+it is a product-principle synthesis grounding in the neutral-spec principles (peer equality, durable
+enablement, exitability — one-homed in `../drystone-spec/`) and in the account-kernel spike (K1/KC0,
+provenance in `../../alpha/spike/account-kernel/`). Its named helpers (AppView, login broker, relay,
+delivery service, etc.) are each catalogued at their own homes (ECOSYSTEM, cairn, the appview-infra
+experiments); it points at them rather than re-cataloguing.
+
+`build-order-and-ponds-roadmap.md` (added 2026-07-22) introduces **no new external references**: it
+sequences and catalogues activities over the blocks already credited above (iroh, webxdc + the wrappable
+catalog, the Cure53 audit, GGRS + matchbox and the other pad blocks, commit-reveal / fair-reveal, the
+event-sourced store shape, atproto custom lexicons, functional-core / imperative-shell). Its candidate
+ponds (music-guessing, collaborative card) and the account-kernel substrate are dialogue-sourced 2026-07-22
+and carry `[confirm]` / gate flags via `../OPEN-THREADS.md` T55-T58; they are not asserted as settled here.
+
 What this index captures that is croft's OWN: the pond selections (Bluesky, Mastodon-client-API fediverse, Lemmy) and the honest-seams reading of ActivityPub; the inclusion-pathway relationships (webxdc wrap, WebRTC-onto-iroh port); the architecture and design references it adopts (functional-core / imperative-shell, Crux, design tokens, super-app criteria); the social-graph prior-art it argues from (Google+ Circles as the canonical corpse, the shadow profile); the empirical social-layer visibility proof that grounds the structure-leaks-identity result; and the platform constraints it designs around (cold-install deferred-deeplink loss, the on-device-model patchwork, the browser hole-punch limit).
 
 Most-flagged items to resolve before external use: the deferred-deeplink mechanism names and dates (Instant Apps / Firebase Dynamic Links / App Clips) are NOT-YET-LOCATED and asserted only abstractly by croft; the super-app design-guidance source is unnamed (NOT-YET-LOCATED); the Chrome built-in AI locator wants confirmation; and the dialogue-sourced Presence & Ritual product calls (the thinking-of-you ping, the browser-peer relay model) carry `[confirm]` against a primary.

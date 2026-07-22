@@ -280,6 +280,49 @@ open thread. Full record in `CLOSED-THREADS.md`.
   confirmed against the FACTCHECK SoT.
 - **Alpha provenance:** `beta/03` §6; `beta/05` §3; FACTCHECK as SoT for the confirm.
 
+#### T59 — The ENS multi-vantage-point framework (a polite re-expansion of "enshittification")
+
+- **Layer:** fenced, socialization, activism
+- **Status:** `open · surfaced` — **CANDIDATE THINKING, not settled** (user decision 2026-07-22; explicitly
+  NOT written to `../alpha/NAMING.md`).
+- **Type:** `needs-content` (framing/messaging; settle before it becomes canonical vocabulary).
+- **Problem statement.** "Enshittification" (Doctorow) is precise but crass for corporate/academic/client
+  audiences. The candidate is **ENS** as a FOSS-tradition living acronym: the recursive **"ENS is Not
+  Service"** wrap over three lenses of one arc — Business = *Extractive Neglect Syndrome* (cause), Systems =
+  *Eventual Non-utility State* (mechanic), User = *Erosive Nudge Syndrome* (symptom). All meanings describe
+  the same degradation from different vantage points.
+- **What's indeterminate.** Whether the concept graduates to canonical vocabulary, and which (if any) of the
+  specific expansions lock; whether it stays a rhetorical device or becomes a named framework Croft argues
+  from. Heardle's Spotify-acquisition→shutdown (T58) is a worked *ENS case study*.
+- **Promotion target:** reasoning into `fenced/aggregation-theory-and-the-enshittification-shield.md`
+  (`socialization/coop-messaging-research.md` already flags "the acronym-re-expansion move ENS makes"); a
+  naming decision, if ever settled, would then land in `../alpha/NAMING.md`.
+- **Gates:** the user settles it as canonical vs keeps it as candidate framing; drift-check against the
+  existing enclosure/extraction spine so it doesn't fork the vocabulary.
+- **Alpha provenance:** `../alpha/seeds/transcripts/raw/ens-backronym-multivantage-framework-2026-07-22.md`.
+  ROADMAP_TODO E49; `COHESION.md` §53.
+
+#### T60 — Client-side search for serverless atproto SPAs (the ingestion + search substrate)
+
+- **Layer:** cairn, impl
+- **Status:** `open · surfaced` — **fact-check DONE 2026-07-22** → `../alpha/research/atproto-clientside-search.md` (20 CONFIRMED / 3 PARTLY / 7 UNVERIFIED / 0 REFUTED; "SearchFn" flagged likely-invented; Jetstream filtered-bandwidth corrected). The remaining (optional) step is cross-referencing the settled mechanics into a cairn doc; the research itself is resolved.
+- **Type:** `needs-research` — DONE (primary-source fact-check ran fully).
+- **Problem statement.** A serverless atproto SPA/PWA with no backend must ingest (Jetstream JSON firehose /
+  CAR archives parsed via atcute) and search (FlexSearch / MiniSearch / Orama / uFuzzy / SQLite-FTS5-WASM;
+  BM25; OPFS VFS matrix; COOP/COEP + coi-serviceworker; multi-tab locking) entirely in the browser. This is
+  the search/ingestion substrate under the T55 `repo-mirror` kernel. (Jetstream + atcute already registered
+  at ECOSYSTEM §5f; the engines at §5g.)
+- **What's indeterminate.** Everything numeric — bandwidth (claimed >200 GB/day raw / 60–150 KB/s filtered),
+  benchmarks, size limits, browser-behaviour claims, and library names (`atcute`, `Tap`, `SearchFn`,
+  `coi-serviceworker`, the VFS names, "Sync v1.1") are unverified.
+- **Promotion target:** a `research/atproto-clientside-search.md` doc (research, not a beta layer) once
+  fact-checked; then cairn cross-references for the settled mechanics.
+- **Gates:** **[needs-research] the full fact-check** (Phase-2 outcome time, user decision) — verify every
+  figure/limit/library against primary sources; atproto/iroh touchpoints cite the FACTCHECK SoT (MST usage
+  is FACTCHECK-confirmed correct).
+- **Alpha provenance:** `../alpha/seeds/transcripts/raw/gemini-atproto-clientside-search-heardle-pond-kudoboard-2026-07-22.md`
+  (Part A). ROADMAP_TODO E48; closes the manifest's flagged truncated-report gap.
+
 ### Drystone-spec / impl (Layers 4, 5)
 
 **Rights, roles, and capabilities.**
@@ -933,6 +976,114 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
 > (`../alpha/plans/2026-06-25-beta-coverage-per-file-audit.md`) — the long-tail unsettled finds a
 > grouped sweep missed: a settled-stance principle and two unbuilt design surfaces that beta correctly
 > dropped (because unsettled/unbuilt) and that had no home in T1–T17.
+
+> **T55–T60 added 2026-07-22** from the ponds-roadmap / account-kernel / ENS / client-side-search intake
+> (`../alpha/plans/2026-07-22-transcript-intake-ponds-kernel-ens.md`; raws `*-2026-07-22.md`;
+> `../alpha/ROADMAP_TODO.md` E44–E50; `../alpha/COHESION.md` §53). Phase-1 staging only — none folded into a
+> layer doc yet. T55–T58 (croft/impl); T59–T60 (fenced/cairn) are below their section.
+
+#### T55 — The `account.croft.ing` client-side kernel (the shared-origin estate substrate)
+
+- **Layer:** croft, impl
+- **Status:** `open · surfaced` (2026-07-22; largest net-new body — the thinnest-covered area in the corpus). **Direction set 2026-07-22 (user): prove it by spike before folding to beta** — it is a strong proposition on several axes, so build a spike to see whether it really suits the need rather than write it up as settled. **Spike plan → experiment series scoped 2026-07-22:** `../alpha/plans/2026-07-22-account-kernel-spike.md`, expanded after a corpus-wide fit/impact pass into an ordered series (G0 topology + G1 sealed-tier gates, then K1 H1-storage make-or-break → K2 domain-separation → K3 single-writer → K4 browser-mirror → K5 session/prefs → K6 outbox). **Key pass findings:** the data algorithm is already PROVEN in Rust (`spike/hist_live/` + `Proofs/encrypted-local-first-atproto/`) — the open risk is browser realization + shared-origin topology + concurrency + the security boundary, NOT the data logic; the clearest win is **session-broker unification** (the OAuth/DPoP pattern is built 3x across the pads); **arecipe is off-site (`arecipe.app`)** so H1 shared-storage excludes it (postMessage-only) — a topology decision (G0); the kernel is **web-only** (native shells keep platform stores) and a **utility-plane cache+outbox with a thin key-custody surface** (no MLS/sealed/social-graph — Track B, deferred). First adopters: pdsview (blank-slate mirror), greetings (write/session); skylite is the hardest conflict (on-device-only). **G0 RESOLVED (user): kernel = `*.croft.ing` same-site only; off-site pads get separate handling.** **K1 DONE — CONCLUDED 2026-07-22: the shared-origin kernel does NOT work on WebKit/iOS.** Ran on both `.localhost` and real `*.croft.ing` (live GitHub Pages `kernel-k1`/`k1-appa`/`k1-appb`.croft.ing) via Playwright + shipping Safari. **Result is an engine split that holds on real domains:** Chromium SHARES same-site subdomain storage (H1 PASS, local + real); **WebKit/Safari PARTITIONS it** (Safari FAIL on `.localhost`, user-run; WebKit 26.5 FAIL for IndexedDB on real `croft.ing`, app-a self-read OK + app-b null). The `.localhost`-artifact hypothesis is **refuted** — WebKit partitions on a true registrable site too. Since WebKit == every iOS browser, the shared-store kernel is out for iPhones. Full evidence: `../alpha/spike/account-kernel/K1-SPIKE-RESULTS.md`. **PIVOT (design decision, surfaced to user):** drop the shared blockstore; adopt the fallback the plan anticipated — **per-app storage + a postMessage sync-coordinator** (kernel = message broker / single-writer coordinator, not a shared store). K2-K6 as written assumed the shared store and are **superseded**; re-scope against the coordinator model. Optional 100% closer: shipping-Safari on the live URLs (expected FAIL). The session-broker-unification win (OAuth/DPoP built 3x) may still be worth pursuing separately from storage. **Shipping-Safari 100% closer CONFIRMED (real `croft.ing`, FAIL).** **KC0 DONE (2026-07-22) → ARCH-1 validated:** on ONE origin, WebKit shares IndexedDB + runs a SharedWorker coordinator across same-origin tabs (`../alpha/spike/account-kernel/KC0-RESULTS.md`). So the kernel works on every engine **if the first-party estate is a single origin (path-based)**, not subdomains. **Recommendation: ARCH-1** (single origin; SSO free; no BFF for auth; untrusted/third-party pads go off-origin, sandboxed) over ARCH-2 (subdomains + BFF). Storage baseline = **IndexedDB** (OPFS = Chromium optimization; OPFS-on-Playwright-WebKit errored, real-Safari OPFS = optional KC2). Remaining: KC2 (OPFS shipping-Safari, non-blocking), KC3 (PDS-coordinator latency, needs the test atproto account). **Refined (talk-through 2026-07-22):** it is a *hybrid*, not pure ARCH-1 — a single shared origin for co-located low-risk pads (SSO free), **isolated subdomains** for high-untrusted-input/defense-in-depth apps (greetings, skylite), a **separate registrable domain** for untrusted-CODE (open-any-card renderer). Auth: **per-app login is the serverless default (BFF NOT required)**; SSO across isolated subdomains needs a small **BFF** (cookie+server holding the DPoP key) because a serverless storage-based "mock" SSO is Chrome-only (dead on Safari, = the K1 result) and a cookie alone can't carry a DPoP session; BFF is a deferrable add-on. **Settled record (topology + storage + auth options + reasoning):** `../alpha/thinking/app/estate-architecture-and-browser-constraints.md`. KC1 (cookie→BFF on Safari) re-activates only if/when the BFF SSO is pursued. **Promoted to beta 2026-07-22:** the settled product principle (baseline floor + helper contract + register + origin shape + Drystone carry-forward) is now `../beta/croft/the-helper-tier-and-the-baseline-floor.md`; this thread retains the still-open mechanics (BFF-on-WebKit, OPFS-on-Safari, PDS latency).
+- **Type:** `needs-experimentation` (spike the shared-origin kernel) couples `needs-content` + a decision gate. **This thread does not fold into a beta doc until the spike validates the proposition.**
+- **Problem statement.** Every `*.croft.ing` app needs identity, a verified local data mirror, and a durable
+  write queue. Per-subdomain that means N copies / N sync loops / N quota bills / N ideas of "current."
+  The dialogue converges on **one shared origin** (`account.croft.ing`) reached by every subdomain through an
+  embedded iframe, holding **session broker + encrypted-prefs cache (`ing.croft.account.prefs`, ciphertext
+  synced via the PDS) + `repo-mirror` (local CID/sig-verified PDS mirror over `getRepo`/`getBlocks`/
+  `listRecords`; Sync-v1.1 causal log; OPFS durable / memory ephemeral) + write outbox** — one SharedWorker
+  sync loop (Web-Locks fallback), postMessage RPC, transferable-ArrayBuffer blobs, BroadcastChannel change
+  fan-out. Subdomains become **stateless skins**; a new tool joins already-signed-in and already-synced.
+- **Proposed directions (none decided).** `repo-mirror` as one bought-once primitive (`pdsview` = first home
+  + proof); the mirror is a rebuildable cache, the outbox the only precious state (`persist()` it); the kernel
+  bundle kept tiny/dependency-light/most-reviewed (highest-value compromise target).
+- **What's indeterminate.** The single-origin quota/eviction posture under Safari's rules; whether the mirror
+  should be full or partial-by-collection by default; how the encrypted-prefs key is distributed to a new
+  device (QR pass vs PRF-derived) with "just reset prefs" as the always-available floor.
+- **Promotion target:** a new `impl/` (or `croft/`) kernel doc once the domain-separation gate settles.
+- **Gates:** **(1) [TENTATIVE CONCLUSION — decision gate] untrusted-renderer domain separation** — the "open
+  any card" renderer must NOT share a registrable domain with a `Domain=croft.ing` session cookie; tentatively
+  concluded (user, 2026-07-22) it lives on a **separate registrable domain** (or the estate session is
+  host-only + kernel-brokered), revisitable — "one-line config now, migration once 3 apps depend on it."
+  **(2)** confirm the browser-storage/eviction behaviour on real devices. **(3)** the encrypted-prefs
+  key-distribution UX. Uses "Merkle Search Tree" for atproto — FACTCHECK-confirmed correct.
+- **Alpha provenance:** `../alpha/seeds/transcripts/raw/croft-encrypted-prefs-repo-mirror-and-account-kernel-2026-07-22.md`
+  + `...card-maker-webxdc-packaging-and-push-2026-07-22.md`; nearest existing homes
+  `../alpha/thinking/app/client-architecture-adr.md`, `../alpha/research/atproto-private-data-architecture.md`,
+  `../alpha/thinking/app/pwa-spa-best-practices.md`. ROADMAP_TODO E44.
+
+#### T56 — Card-maker packaging: the three-rung output ladder + the collaborative card
+
+- **Layer:** croft
+- **Status:** `open · surfaced` (2026-07-22; extends the shipped greetings MVP).
+- **Type:** `needs-content` (product/packaging design).
+- **Problem statement.** The maker is a hosted PWA (`greetings.croft.ing`); the card is the portable artifact.
+  Output ladder = **image** → **single self-contained HTML** → **`.xdc`** (only when shared state accumulates
+  across people). A **collaborative** card cannot be file-only (`.xdc` is inert without a host; worst recipient
+  profile) → a hosted URL opens the same card with the same accumulated signatures; `.xdc` is the enhancement,
+  the link is the floor; Croft Chat is the natural host but must stay optional. **Carry the static rendering
+  as a declared manifest asset** (don't derive via headless capture); collaborative snapshot needs
+  regeneration + a "taken-at" timestamp.
+- **What's indeterminate.** Whether the collaborative arm ships now or waits — it is the **same deferred
+  anon-multi-write / content-blind-ingest primitive** the greetings MVP left out (needs DPoP-scoped
+  delegation + a mediating shim).
+- **Promotion target:** `croft/product-the-garden-of-ponds.md` (packaging model + the collaborative-card
+  case); seam to the greetings work stream (`CroftCommunity/greetings_site`).
+- **Gates:** the anon-multi-write shim (shared with E43); the untrusted-renderer domain gate (T55).
+- **Alpha provenance:** `../alpha/seeds/transcripts/raw/croft-card-maker-webxdc-packaging-and-push-2026-07-22.md`;
+  `../alpha/thinking/app/ponds/virtual-cards-and-guestbooks.md`;
+  `../alpha/plans/2026-07-21-greetings-croft-ing-mvp.md`. ROADMAP_TODO E45 (couples E43); Kudoboard = the
+  incumbent (ECOSYSTEM §5g).
+
+#### T57 — The ponds/games roadmap ("what to build and how it stacks", `fun.croft.ing`)
+
+- **Layer:** croft
+- **Status:** `open · in-progress` (2026-07-22; the user's explicit "not ordered yet" ask). **Pass 1 + Pass 2 landed 2026-07-22** — `build-order.md` promoted in-tier + roadmap authored at `croft/build-order-and-ponds-roadmap.md`. **Pass 2 reconciled it with the actual build state** (`../alpha/BUILD-INVENTORY.md`): a **two-track** structure — Track A (atproto pads: arecipe/skylite/pdsview live, greetings shipped, aggregator pond = the chosen next build, no resolver) vs Track B (iroh-native spine: games/presence, all gated on the unbuilt tier-zero resolver). The account kernel bridges (unifies Track A first). Not yet promoted-and-closed: the games-pond commit, the candidate ponds, and the aggregator-vs-games near-term choice remain open.
+- **Type:** `needs-content` (consolidate scattered build plans into one ordered roadmap).
+- **Problem statement.** The games-pond material (phased **P1–P10** build: determinism-first golden-vectors/
+  rules-doc; **P10 Sustainment** as a standing drill with a compatibility matrix + annual byte-identical
+  regeneration + exit artefacts; **verifiable clean-clear** via move-list replay vs the P1 state-hash; a
+  **follow-chain-not-global leaderboard** per the user's scope cut; **solitaire-P1-first** sequencing) needs
+  consolidating with `thinking/app/ponds/build-order.md` + `build-shape-pass.md` + the PRD stubs +
+  `croft/product-the-garden-of-ponds.md` into one roadmap that lays out what to build and how it stacks.
+- **What's indeterminate.** Whether the roadmap is a new beta doc or a promotion of `build-order.md`; the
+  games pond remains "candidate, not committed" (existing gate); iroh-native ponds stay gated on the unbuilt
+  tier-zero deep-link resolver (E11).
+- **Promotion target:** `croft/` (roadmap doc / extend `product-the-garden-of-ponds.md`); browser-P2P block
+  cross-refs `cairn/iroh-app-pond-building-blocks.md`.
+- **Gates:** the games-pond commit decision; the tier-zero resolver (E11); browser-native P2P = WebRTC/matchbox
+  (**already covered** in `cairn/iroh-app-pond-building-blocks.md` — cross-reference, not net-new).
+- **Alpha provenance:** `../alpha/seeds/transcripts/raw/croft-games-pond-roadmap-browser-p2p-phased-build-2026-07-22.md`;
+  `../alpha/thinking/app/ponds/build-order.md`, `build-shape-pass.md`, `../alpha/thinking/app/prds/games-pond.md`.
+  ROADMAP_TODO E46 (couples E6/E8/E39).
+
+#### T58 — A Heardle-shaped music-guessing pond (candidate pond)
+
+- **Layer:** croft
+- **Status:** `open · surfaced` (2026-07-22; candidate pond, design well-developed in the Gemini session).
+- **Type:** `needs-content` + `legal-review` (the licensing gate) + `needs-experimentation` (audio/browser edges).
+- **Problem statement.** A local-first PWA daily music-guessing game (1s→16s clip ladder, 6 tries,
+  constrained-autocomplete, emoji-grid share) publishing `app.heardle.result` to the user's PDS (leaderboards
+  read the firehose, no DB). Unified audio-adapter layer (HTML5/CC-offline-no-login + Spotify SDK + YouTube),
+  per-backend daily-manifest channels, guest-first onboarding, Home-Screen-install for persistent storage
+  (stacks with T55's Web-Push decision). **Heardle's Spotify-acquisition→shutdown is a literal ENS/ephemerality
+  case** — the product argument *for* local-first (ties to T59 ENS + P10 Sustainment).
+- **Proposed directions (none decided).** **Crypto-monotonic / CID-chained anti-cheat** (user decision,
+  replacing clock-trust): each result carries a monotonic counter + `prevResultCid`, the PDS commit tree
+  rejects backdated insertions; optional daily-seed proof-of-existence. Hidden-issues catalog to design
+  against: autoplay-unlock gesture, Safari 7-day eviction, OAuth-vs-app-passwords, lexicon schema-drift
+  (make fields optional / wrap in extensible `metadata`), SW cache invalidation (content-addressed
+  filenames), multi-device sequence divergence (CRDT/LWW).
+- **What's indeterminate.** Whether it commits as a launch pond at all; the default private/auth model.
+- **Promotion target:** `croft/product-the-garden-of-ponds.md` (as a pond) / a per-pond PRD.
+- **Gates:** **[legal-review — BACKLOG + candidate only, NOT-LEGAL-ADVICE] music licensing** — is the
+  "sounds-like" pastiche too close, and Nintendo/SEGA/JASRAC rights (no reuse/re-arrangement of Mario 1-1 /
+  Sonic Green Hill / Mario 3 Bowser; composition copyright bites even re-arranged chiptune); the 6-channel
+  starter set (3 CC0/PD + 3 pastiche archetypes) is a candidate proposal, not a resolved gate (the user's
+  call; PLAYBOOK §5). Plus the games-pond commit decision (shared with T57).
+- **Alpha provenance:** `../alpha/seeds/transcripts/raw/gemini-atproto-clientside-search-heardle-pond-kudoboard-2026-07-22.md`
+  (Part B — **whole-doc `[UNVERIFIED]`**). ROADMAP_TODO E47 + E50 (licensing).
 
 ### Governance (Layer 7)
 
