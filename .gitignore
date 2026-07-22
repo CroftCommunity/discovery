@@ -1,0 +1,5 @@
+# Obsidian vault config — local editor state, not part of the corpus.
+.obsidian/
+
+# macOS
+.DS_Store
