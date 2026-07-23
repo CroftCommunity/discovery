@@ -15,6 +15,16 @@ repo — **FACTCHECK-confirmed correct** (the refuted MST claim is iroh-docs=MST
 arecipe-repo design thinking (`CroftCommunity/arecipe`). **Three RUN files produced, delivered as `wiki.zip`
 (NOT pasted here)** — referenced-but-not-captured; capture verbatim under `seeds/*-unpacked/` at Phase 2.
 
+**Fact-checked 2026-07-23** → `alpha/research/2026-07-23-batch-factcheck.md`. Mostly CONFIRMED; **two
+corrections:** (1) `{{Recipe summary}}` has **no `category` parameter** — categorization is automatic via
+`difficulty` (`noincludecat` suppresses); the importer maps difficulty→category. (2) The **pipe-trick is NOT
+mandated** by policy — ingredients must be in procedure order (✓) and "linked to the most appropriate
+ingredient page," but not necessarily `[[Cookbook:carrot|]]` syntax (the link-parse premise still holds).
+Counts refreshed: Category:Recipes **3,824** (Very Easy 723 / Easy 1,627 / Medium 1,327 / Difficult 102 /
+Very Difficult 2; **832** with images). CC-BY-SA (7 June 2023), Action API limits, `$wgRCMaxAge` 30d on
+Wikimedia (software default 90d), dumps→Content-File-Exports, and `getLatestCommit`/`getRepo since`→CAR all
+CONFIRMED.
+
 ---
 
 **User:** I'm thinking we can write a utility to run locally against

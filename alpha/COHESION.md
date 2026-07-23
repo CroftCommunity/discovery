@@ -1558,8 +1558,10 @@ brand canon. Doctorow/enshittification already in `beta/socialization/reference-
 2026-07-23 Gemini dialogue
 (`seeds/transcripts/raw/bluesky-atproto-autonomy-origin-story-2026-07-23.md`) supplies it: Twitter → Bluesky
 (Dorsey 2019) → Jay-Graber-autonomy → PBC-spinout → Musk/X (2022) → AT Protocol as open infra buildable at
-"~40M-user scale." **Status: OPEN (dialogue-sourced).** The origin dates + the "~40M scale" claim are
-`[UNVERIFIED]` — verify against primary sources at Phase 2 (ROADMAP_TODO). Distilled to
+"~40M-user scale." **Status: CLOSED (verified 2026-07-23, E52)** → `research/2026-07-23-batch-factcheck.md`:
+dates confirmed (Dec 2019 / Aug 2021 / PBC Feb 2022 / Oct 2022 / X July 2023); scale PARTLY — 41.41M
+**registered accounts** end-2025 (>45M mid-2026; DAU ~4.5M), so the asset says *registered accounts*, and
+"40M-accessible-scale" is flagged as the author's framing. Distilled to
 `beta/socialization/the-autonomy-origin-of-the-substrate.md`; **Jay Graber** added to `kindred-work.md`.
 
 ## 56. 2026-07-23 — account.croft.ing SSO browser-support ↔ the account-kernel (K1/KC1)
@@ -1584,9 +1586,11 @@ invariant; deterministic-JSON-LD-wins),
 `arecipe-wikibooks-corpus-import-and-static-precache-2026-07-23.md` (Wikibooks import via the Action API +
 `categorymembers` + pipe-trick ingredients + CC-BY-SA stamping; static-list precache via atproto
 `getLatestCommit`/`getRepo since rev`), and `arecipe-empty-tile-chip-mobile-2026-07-23.md` (RUN-EMPTY-TILE-
-CHIP, verbatim). **Status: OPEN (raw + backlog).** Six RUN files (`timers.zip`/`wiki.zip`) are
-referenced-but-not-captured; technical claims `[UNVERIFIED]` pending Phase-2 fact-check. Backlog: ROADMAP_TODO
-§E.
+CHIP, verbatim). **Status: OPEN (raw + backlog); fact-check DONE (E61)** →
+`research/2026-07-23-batch-factcheck.md`. Browser/PWA/DNS all CONFIRMED; two Wikibooks corrections (no
+`{{Recipe summary}}` `category` param → auto via difficulty; pipe-trick not policy-mandated) fold into the
+importer (E56). Six RUN files (`timers.zip`/`wiki.zip`) remain referenced-but-not-captured. Backlog:
+ROADMAP_TODO §E.
 
 ## 58. 2026-07-23 — a new usage-measurement helper ↔ Skylite privacy stance + the existing kit infra
 
@@ -1596,8 +1600,13 @@ referenced-but-not-captured; technical claims `[UNVERIFIED]` pending Phase-2 fac
 panel doing double duty; `expires` honored at runtime; Poplar/VDAF noted-and-skipped for want of two
 non-colluding operators). Two seams into existing corpus: it inherits **Skylite's sponsor-visible-vs-child-
 private** retention stance (the local-history-readable-by-device-holder problem) and targets **the existing
-Caddy/systemd/SQLite/Litestream/R2 kit shape** (E7). **Status: OPEN (new helper, proof-out defined).** Pilot
-= arecipe (recommended); quantitative claims `[UNVERIFIED]`. Backlog: ROADMAP_TODO §E.
+Caddy/systemd/SQLite/Litestream/R2 kit shape** (E7). **Status: OPEN (new helper, proof-out defined); fact-check DONE (E61) + one decision made.** Fact-check
+→ `research/2026-07-23-batch-factcheck.md`: the **sendBeacon reliability figures were REFUTED** (real ~82%
+unload / ~92% load, not 95.8%) and the **64 KiB cap is a Fetch-keepalive shared-quota behavior, not a
+Beacon-spec mandate** — both to be fixed in RUN-MEASURE-01 §E5 before running; CNIL-2025 / Poplar1 / R2 all
+CONFIRMED. **Decision (user, 2026-07-23):** default local-history retention = **bounded retention + visible
+clear control** (the Skylite sponsor-vs-child stance). Still open: kit name/home; rounding-vs-exact (E8).
+Pilot = arecipe. Backlog: ROADMAP_TODO §E.
 
 ## How to use this map
 

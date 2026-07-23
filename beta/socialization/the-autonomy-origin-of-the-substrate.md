@@ -1,9 +1,9 @@
 # The autonomy origin of the substrate — why Croft can build on open ground
 
 date: 2026-07-23
-status: distilled narrative asset. **Load-bearing dates + the scale figure are `[UNVERIFIED]`** (dialogue-
-sourced) — verify against primary sources before citing specifics (ROADMAP_TODO E52). Use the *shape* of the
-story with confidence; qualify the numbers until confirmed.
+status: distilled narrative asset. **Dates + scale verified 2026-07-23** (E52) →
+`../../alpha/research/2026-07-23-batch-factcheck.md`. The specifics below are confirmed; the one caveat is
+that the scale figure counts **registered accounts, not active users** (say so in any public piece).
 
 **What this is.** A short origin story for the answer to "why aren't you reinventing the wheel?" It explains
 why an open, federated social substrate exists for Croft to build on — and why that substrate is
@@ -54,13 +54,20 @@ turned out to matter — the open protocol it let walk out the door.
 - **It answers the "why not just use X?" objection honestly.** Croft is not competing to rebuild a protocol;
   it is building the human-facing garden on top of one that already carries the open properties Croft needs.
 
-## Honesty note
+## The verified particulars (use these; say "registered accounts")
 
-The particulars — the launch year, when the lead was recruited, the exact spin-out mechanics, the
-acquisition year, and especially the "~40-million-user scale" framing — are dialogue-sourced and
-`[UNVERIFIED]`. The FACTCHECK source of truth does not cover them. The *verified* fact is the substrate
-itself: `Bluesky PBC` and the AT Protocol are recorded as live and build-on in `ECOSYSTEM.md`. Confirm the
-narrative specifics (E52) before putting numbers or dates in a public-facing piece.
+Confirmed 2026-07-23 against primary sources (`../../alpha/research/2026-07-23-batch-factcheck.md`):
+
+- **Announced** Dec 11, 2019 (Dorsey, Twitter-funded team of up to five).
+- **Jay Graber** hired to lead Aug 2021.
+- **Incorporated** Oct 4, 2021; became a **Public Benefit Corporation Feb 2022** (~$13M initial Twitter
+  funding; the service/funding tie to Twitter was severed in late 2022). So "spun out as a PBC" is loosely
+  right — more precisely, independent from formation, PBC status in early 2022.
+- **Musk acquisition** completed Oct 28, 2022; **"X" rebrand** July 2023.
+- **Scale:** 41.41M **registered accounts** at end-2025 (Bluesky's own transparency report), >45M by
+  mid-2026 — but daily-active is far smaller (~4.5M, Jan 2026). Use **"registered accounts"** in any
+  public-facing piece; the "~40M-accessible-scale" phrasing is *our* framing of addressable reach, not a
+  Bluesky active-user metric. Don't imply 40M active users.
 
 ---
 

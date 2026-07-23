@@ -11,9 +11,16 @@ Bluesky in **2019**, **Jay Graber** recruited in **2021**, the autonomy demand �
 Benefit Corporation (PBC)**, the **2022** Musk acquisition → gutting → rebrand to **X**, and especially the
 user's framing of **"~40M-user-accessible scale."** `ECOSYSTEM.md` already records **Bluesky PBC / AT
 Protocol** as verified (build-on, public path); this transcript supplies the *origin/why*, not new verified
-ecosystem data. Verify the dates + scale claim against primary sources at Phase 2 (ROADMAP_TODO). Distilled
-this pass into `beta/socialization/the-autonomy-origin-of-the-substrate.md`; **Jay Graber** added to
-`kindred-work.md`.
+ecosystem data. Distilled this pass into `beta/socialization/the-autonomy-origin-of-the-substrate.md`;
+**Jay Graber** added to `kindred-work.md`.
+
+**Fact-checked 2026-07-23** (ROADMAP_TODO E52 DONE) → `alpha/research/2026-07-23-batch-factcheck.md`. Verdicts:
+Dorsey announced Dec 11 2019 ✓; Graber hired Aug 2021 ✓; **incorporated Oct 4 2021, PBC status Feb 2022**
+(~$13M initial Twitter funding; service tie severed late 2022) — "spun out as a PBC" is loosely right; Musk
+acquisition completed Oct 28 2022 ✓, "X" rebrand July 2023 ✓. **Scale: PARTLY** — 41.41M **registered
+accounts** at end-2025 (Bluesky transparency report), >45M by mid-2026, DAU ~4.5M (Jan 2026); "~40M" was
+accurate late 2025, now understated, and is *registered accounts, not active*. "40M-accessible-scale" is the
+author's framing. The beta asset must say **registered accounts**, not "users."
 
 ---
 

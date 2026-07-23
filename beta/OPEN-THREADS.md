@@ -1348,9 +1348,10 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
 - **Promotion target:** fold the fable into the brand chapter (`socialization/brand-and-voice.md`) / a
   narrative asset once T4's brand direction settles; promote the logo alongside the `logo-*` family if an
   animal/ferry mark is adopted (primacy unsettled — the current marks are drystone/croft-ing).
-- **Gates (owner calls, none decided):** does Croft adopt a named villain-archetype in the brand canon, or
-  keep the Gilded Weaver as a teaching device only? Does Croft want an animal/ferry mark at all, given the
-  drystone/croft-ing marks? Both couple to T4.
+- **Gates (owner calls):** ✅ **decided 2026-07-23** — the Gilded Weaver stays a **candidate teaching
+  device** (not promoted to named brand canon), and the white-duck mark stays a **candidate only** (no asset
+  commissioned; primary marks remain drystone/croft-ing). Both remain revisitable and couple to T4; the
+  thread stays open as the holding place for a future promote-or-retire call, not a pending decision.
 - **Alpha provenance:** the raw transcript above; `COHESION.md` §54; ROADMAP_TODO E52 (the sibling autonomy-
   origin asset is not a candidate — it is a distilled narrative, `socialization/the-autonomy-origin-of-the-
   substrate.md`).

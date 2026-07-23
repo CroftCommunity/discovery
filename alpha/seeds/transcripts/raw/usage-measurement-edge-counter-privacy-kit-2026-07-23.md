@@ -17,6 +17,20 @@ heavy-hitters); the Litestream ~2.6M PUT/month figure from the prior run; R2's 1
 Skylite's sponsor-visible-vs-child-private stance and the existing Caddy/systemd/SQLite/Litestream/R2 kit
 shape. Umami is named as the prior tool the user has used.
 
+**Fact-checked 2026-07-23** → `alpha/research/2026-07-23-batch-factcheck.md`. **One REFUTED, one PARTLY,
+rest CONFIRMED:** (REFUTED) the **sendBeacon rates are mis-sourced/inverted** — real is ~82–83% at
+unload/pagehide/visibility and ~92–93% at page *load*; 95.8% appears in no source (E5 must be fixed).
+(PARTLY) the **64 KiB cap is a Fetch-`keepalive`/browser behavior, not a Beacon-spec mandate** — Chrome
+enforces it as a *shared* quota across in-flight beacons (E5's ceiling test must account for that). CONFIRMED:
+bfcache (unload/beforeunload disqualify; pagehide/visibilitychange recommended); **CNIL July 4 2025** tool
+(max 3 event types; nearest-ten rounding); **Poplar1/VDAF** (needs ≥1 honest server / two non-colluding
+operators); **R2 free tier 1M Class-A/mo** + the ~2.6M-PUT/mo arithmetic (only if written every second).
+
+**Decision (user, 2026-07-23):** default **local-history retention = bounded retention + a visible clear
+control** (mirrors Skylite's sponsor-visible-vs-child-private stance). This resolves one of RUN-MEASURE-01
+§11's owner open items; the panel shows what is kept locally vs what leaves. (Kit **name and home** remain
+open; **rounding vs exact counts** stays gated on E8.)
+
 ---
 
 ## The dialogue

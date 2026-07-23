@@ -14,6 +14,12 @@ arecipe-repo design thinking (`CroftCommunity/arecipe`); executions live there. 
 files were produced and delivered as `timers.zip` (NOT pasted here)** — referenced-but-not-captured; capture
 verbatim under `seeds/*-unpacked/` at Phase 2 if the archive is provided (matches `arecipe-unpacked/`).
 
+**Fact-checked 2026-07-23** → `alpha/research/2026-07-23-batch-factcheck.md`. **All claims CONFIRMED.** Two
+soft spots: keyboardLock's exit-input is a spec *SHOULD* not "requires" (enum is exactly `"browser"`/`"none"`);
+`Escape` reaches an ordinary page (only UA-claimed inside fullscreen). CNAME/RFC 1035, apex-CNAME, Firefox 151
+(Bugzilla 2032302), manifest-`shortcuts`=jump-list, and Prompt-API `responseConstraint`=JSON-Schema all
+verified.
+
 ---
 
 **User:** Can a CNAME forward to a full URL with a path?

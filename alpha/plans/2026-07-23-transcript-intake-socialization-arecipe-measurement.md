@@ -105,16 +105,25 @@ does not bake in the wrong "why":
 Net: serverless storage-SSO → Chromium-only (dead on iOS); cross-browser sign-in-once → **server-set cookie
 + BFF** (KC1, sound); per-app login → works everywhere, serverless.
 
-## Phase 2 (deferred)
+## Phase 2
 
-- Fact-check the `[UNVERIFIED]` claims in D/E/G against primary sources (browser APIs, MediaWiki limits and
-  page counts, CC-BY-SA revision dates, sendBeacon landing rates, the 64 KiB cap, CNIL's 2025 tool, the
-  Litestream PUT arithmetic, Poplar/VDAF).
-- Capture the six un-pasted RUN files (`timers.zip`, `wiki.zip`) verbatim under `seeds/*-unpacked/` if the
-  user provides the archives (matches the `arecipe-unpacked/` precedent).
-- Distill D/E/F/G into `thinking/` / `research/` (and, for the measurement kit, decide its name and home)
-  once the facts are verified.
-- Verify the transcript-B Bluesky origin dates and the "~40M-user scale" claim against primary sources.
+**Done 2026-07-23:**
+- ✅ **Fact-check** of the D/E/G/B claims against primary sources → `research/2026-07-23-batch-factcheck.md`
+  (~30 claims; mostly CONFIRMED; one REFUTED — the sendBeacon rates; four PARTLY — 64 KiB cap, `{{Recipe
+  summary}}` `category` param, pipe-trick, Bluesky PBC dating). Raw headers + COHESION §55/§57/§58 + ROADMAP
+  E52/E60/E61 updated. B (Bluesky origin, E52) verified; the beta asset now says "registered accounts."
+- ✅ **Decision:** measurement-kit default local-history retention = **bounded retention + visible clear
+  control** (Skylite sponsor-vs-child stance). Gilded Weaver + white-duck logo **ratified as candidates**
+  (not promoted to canon), T61.
+
+**Still deferred:**
+- Capture the six un-pasted RUN files (`timers.zip`, `wiki.zip`) verbatim under `seeds/*-unpacked/` **if the
+  user provides the archives** (matches the `arecipe-unpacked/` precedent). Only two RUN files
+  (EMPTY-TILE-CHIP, MEASURE-01) were pasted and are preserved.
+- Distill D/E/F/G into `thinking/` / `research/` (and decide the measurement kit's **name and home**) — the
+  facts are now verified, so distillation can proceed when prioritized.
+- The measurement kit's remaining owner calls: **rounding vs exact counts** (gated on the E8 experiment),
+  and whether `edge` sits inside the CNIL three-event ceiling.
 
 ## Commit
 
