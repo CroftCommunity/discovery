@@ -12,8 +12,9 @@ CC BY-SA 4.0 "since June 2023" / older 3.0; MediaWiki Action API limits (50 page
 results/list query); `$wgRCMaxAge = 30 days`; the recentchanges 30-day horizon; the atproto sync endpoints
 (`com.atproto.sync.getLatestCommit`, `getRepo since rev`, CAR/MST). Uses "Merkle Search Tree" for atproto's
 repo — **FACTCHECK-confirmed correct** (the refuted MST claim is iroh-docs=MST, which this does not make).
-arecipe-repo design thinking (`CroftCommunity/arecipe`). **Three RUN files produced, delivered as `wiki.zip`
-(NOT pasted here)** — referenced-but-not-captured; capture verbatim under `seeds/*-unpacked/` at Phase 2.
+arecipe-repo design thinking (`CroftCommunity/arecipe`). **Three RUN files produced, delivered as `wiki.zip`**
+— **CAPTURED verbatim 2026-07-23** at `seeds/wiki-unpacked/` (RUN-WIKIBOOKS-CORPUS, RUN-RECIPE-META-STRIP,
+RUN-BUNDLE-PRECACHE; byte-verified).
 
 **Fact-checked 2026-07-23** → `alpha/research/2026-07-23-batch-factcheck.md`. Mostly CONFIRMED; **two
 corrections:** (1) `{{Recipe summary}}` has **no `category` parameter** — categorization is automatic via

@@ -31,6 +31,17 @@ control** (mirrors Skylite's sponsor-visible-vs-child-private stance). This reso
 §11's owner open items; the panel shows what is kept locally vs what leaves. (Kit **name and home** remain
 open; **rounding vs exact counts** stays gated on E8.)
 
+**Executed 2026-07-23 as arecipe PR #58** ("Add measure-proof: counter-based usage measurement
+proof-of-concept", `CroftCommunity/arecipe`, branch `claude/measurement-kit-proof-out-dqsmdc`, OPEN, 56 files,
++4481/−2). A self-contained scratch experiment (`measure-proof/`) running RUN-MEASURE-01 E0–E8: registry →
+client+panel+fixtures; seeded deterministic corpus (E0); re-linkage attacks A1–A3 + mitigations (E3);
+first-order Markov flow reconstruction (E2); Litestream/R2 PUT math (E7); rounding-impact (E8); Playwright PWA
+harness (E5). **48 unit + 4 e2e tests green**, TDD red→green documented in `RUN-MEASURE-01-SUMMARY.md`, raw
+findings pinned in `measure-proof/findings/*.json`. **Note (per the fact-check):** E5 measured beacon landing
+on *synthetic* visibility/pagehide events, so it does not settle the real-world ~82%-unload/~92%-load rate —
+the corrected expectation applies when interpreting real-device abandonment, not the harness numbers.
+Proof-of-concept, not a product build; extraction into the app is a later explicit step.
+
 ---
 
 ## The dialogue

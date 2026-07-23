@@ -116,12 +116,18 @@ Net: serverless storage-SSO → Chromium-only (dead on iOS); cross-browser sign-
   control** (Skylite sponsor-vs-child stance). Gilded Weaver + white-duck logo **ratified as candidates**
   (not promoted to canon), T61.
 
+**Also done 2026-07-23 (user provided the archives + the PR):**
+- ✅ **Six RUN files CAPTURED verbatim** — `seeds/timers-unpacked/` (RUN-TIMERS-SEASONALITY, RUN-GUIDE-HELPER,
+  EXP-IMPORT-EXTRACTION) + `seeds/wiki-unpacked/` (RUN-WIKIBOOKS-CORPUS, RUN-RECIPE-META-STRIP,
+  RUN-BUNDLE-PRECACHE), byte-verified against `timers.zip`/`wiki.zip`. The archives (CroftC root, outside any
+  repo) can be retired at the user's discretion.
+- ✅ **Measurement proof-out EXECUTED** as arecipe PR #58 (`measure-proof/`, RUN-MEASURE-01 E0–E8, 48 unit + 4
+  e2e green, OPEN) — recorded in the G raw, ROADMAP_TODO E60, COHESION §58.
+
 **Still deferred:**
-- Capture the six un-pasted RUN files (`timers.zip`, `wiki.zip`) verbatim under `seeds/*-unpacked/` **if the
-  user provides the archives** (matches the `arecipe-unpacked/` precedent). Only two RUN files
-  (EMPTY-TILE-CHIP, MEASURE-01) were pasted and are preserved.
 - Distill D/E/F/G into `thinking/` / `research/` (and decide the measurement kit's **name and home**) — the
   facts are now verified, so distillation can proceed when prioritized.
+- Review PR #58's findings (E3 residual re-linkage, E2 falsification pair, E8 rounding threshold).
 - The measurement kit's remaining owner calls: **rounding vs exact counts** (gated on the E8 experiment),
   and whether `edge` sits inside the CNIL three-event ceiling.
 

@@ -1605,8 +1605,9 @@ Caddy/systemd/SQLite/Litestream/R2 kit shape** (E7). **Status: OPEN (new helper,
 unload / ~92% load, not 95.8%) and the **64 KiB cap is a Fetch-keepalive shared-quota behavior, not a
 Beacon-spec mandate** — both to be fixed in RUN-MEASURE-01 §E5 before running; CNIL-2025 / Poplar1 / R2 all
 CONFIRMED. **Decision (user, 2026-07-23):** default local-history retention = **bounded retention + visible
-clear control** (the Skylite sponsor-vs-child stance). Still open: kit name/home; rounding-vs-exact (E8).
-Pilot = arecipe. Backlog: ROADMAP_TODO §E.
+clear control** (the Skylite sponsor-vs-child stance). **Proof-out EXECUTED as arecipe PR #58** ("measure-
+proof", 56 files, 48 unit + 4 e2e green — RUN-MEASURE-01 E0–E8). Still open: kit name/home; rounding-vs-exact
+(E8); review PR #58 findings. Pilot = arecipe. Backlog: ROADMAP_TODO §E.
 
 ## How to use this map
 

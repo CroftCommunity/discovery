@@ -11,8 +11,8 @@ precedent): CNAME/DNS RFC details; PWA keyboard-lock in the WHATWG Fullscreen Li
 date, `keyboardLock` enum, the Firefox Fx151 / Bugzilla 2032302 shipping claim, the Chromium
 `navigator.keyboard.lock`); the sendBeacon-adjacent and Prompt API `responseConstraint` claims. This is
 arecipe-repo design thinking (`CroftCommunity/arecipe`); executions live there. **Three RUN instruction
-files were produced and delivered as `timers.zip` (NOT pasted here)** — referenced-but-not-captured; capture
-verbatim under `seeds/*-unpacked/` at Phase 2 if the archive is provided (matches `arecipe-unpacked/`).
+files were produced and delivered as `timers.zip`** — **CAPTURED verbatim 2026-07-23** at
+`seeds/timers-unpacked/` (RUN-TIMERS-SEASONALITY, RUN-GUIDE-HELPER, EXP-IMPORT-EXTRACTION; byte-verified).
 
 **Fact-checked 2026-07-23** → `alpha/research/2026-07-23-batch-factcheck.md`. **All claims CONFIRMED.** Two
 soft spots: keyboardLock's exit-input is a spec *SHOULD* not "requires" (enum is exactly `"browser"`/`"none"`);
