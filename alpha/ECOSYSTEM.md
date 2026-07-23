@@ -287,6 +287,25 @@ figures (bundle sizes, memory, limits) are Gemini's. `Jetstream` and `atcute` ar
 | nextapps-de / lucaong / oramasearch / leeoniya / SQLite | **FlexSearch · MiniSearch · Orama · uFuzzy · SQLite-FTS5(WASM)** | Client-side search engines for serverless atproto SPAs — keyword/BM25/hybrid-vector/fuzzy/relational-FTS, spanning in-memory to OPFS-backed; the comparison matrix in the Gemini report | live `[UNVERIFIED — Gemini benchmarks]` | build-on (candidate; choose per ingestion model — see E48) |
 | n0-computer / community | **coi-serviceworker** (+ COOP/COEP) | Service-worker shim injecting cross-origin-isolation headers on static hosts (GitHub/Cloudflare Pages) so `SharedArrayBuffer`/threaded WASM-SQLite works | live `[UNVERIFIED]` | build-on (static-host WASM enablement) |
 
+## 5h. Recipe-corpus source, licensing & privacy-measurement building blocks (2026-07-23 — pending independent verification)
+
+From the 2026-07-23 batch (the arecipe Wikibooks-import dialogue + the usage-measurement-kit dialogue).
+**All rows are dialogue-sourced and `[UNVERIFIED]`** pending the Phase-2 fact-check (ROADMAP_TODO E56/E60);
+counts, dates, and figures are the assistant's. On the Bluesky autonomy-origin story
+(`seeds/transcripts/raw/bluesky-atproto-autonomy-origin-story-2026-07-23.md`): the `Bluesky PBC` / `AT
+Protocol` rows in §5 already record the substrate as verified; the origin narrative (Dorsey 2019 → Graber
+2021 → PBC spin-out → Musk/X 2022) and the "~40M-user scale" framing are the *new* claims, `[UNVERIFIED]`,
+dialogue-sourced — verify before citing specifics (E52). Jay Graber added to `beta/socialization/kindred-work.md`.
+
+| Org/Author | Project | Purpose / relevance | State | Relationship |
+|---|---|---|---|---|
+| Wikimedia / Wikibooks community | **Wikibooks Cookbook** (`Category:Recipes`) | ~3,600 CC-BY-SA recipes with `{{Recipe summary}}` (sparse infobox) + pipe-trick ingredient links; `categorymembers` = authoritative enumeration; the arecipe import corpus | live `[UNVERIFIED — counts/params]` | build-on (import source; stamp source-URL/revid/license per ShareAlike) |
+| Wikimedia | **MediaWiki Action API** | The right-size transport at ~3,600 pages (dumps are deprecated → Content File Exports); User-Agent + ≤3 concurrent + `Retry-After`; `$wgRCMaxAge` 30d makes recentchanges unusable for a 6-mo rerun | live `[UNVERIFIED — limits]` | build-on (importer transport; delta via last-revid, not recentchanges) |
+| Creative Commons | **CC BY-SA 4.0 / 3.0** | The Wikibooks license (4.0 since June 2023; older revisions 3.0); ShareAlike propagates → a lexicon-field decision (source-URL, revid, license stamped on imported records) before a pipeline decision | standard `[UNVERIFIED — dates]` | constraint (governs the imported-recipe records; sits alongside describe-don't-license) |
+| Umami Software | **Umami** | Privacy-focused web analytics the user has used for basic stats; the "not a total solve" prior tool that motivates the counter-based kit | live | learn↔ (prior art for the measurement helper; the kit aims lower-footprint + counters-not-logs) |
+| IETF (PPM/DAP WG) | **Poplar / Poplar1 (VDAF)** | Private heavy-hitters via secret-shared prefix counting — discovers popular paths you never declared; **requires two non-colluding aggregation operators**, so noted-and-skipped for a single-VPS deployment (declared-edge counter = its degenerate single-operator case) | draft `[UNVERIFIED]` | learn↔ (the cryptographic ceiling the declared-edge design deliberately stops short of) |
+| CNIL (FR regulator) | **CNIL consent-exempt audience-measurement self-assessment (July 2025)** | The three-event ceiling (page / feature / timing) the measurement registry mirrors; nearest-ten rounding as the recommended anonymity measure (the E8 rounding question) | published `[UNVERIFIED]` | learn↔ (the regulatory shape the kit's metric-type ceiling and rounding option track) |
+
 ## 6. P2P / decentralized messengers (the field)
 
 Detailed competitive analysis lives in `research/messaging-solutions-landscape.md`. Relational summary:

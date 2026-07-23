@@ -47,6 +47,25 @@ reframing is exactly the kind of derivative he tends to engage with.
 Category: kindred theorist.
 Link: https://pluralistic.net/2023/01/21/potemkin-ai/
 
+### graber-jay — Jay Graber
+Field: CEO, Bluesky PBC; lead of the AT Protocol.
+Kindred: leads the open, federated social substrate Croft builds on (the
+"build-on, public path" in ECOSYSTEM) — user portability, decentralized
+moderation, and an open protocol rather than a proprietary platform. The
+insistence on spinning Bluesky out as an independent Public Benefit
+Corporation is the structural-autonomy move that maps onto Croft's own
+non-extractive/cooperative thesis. [Origin dates + the "~40M scale" framing
+are `[UNVERIFIED]`, dialogue-sourced — verify before citing specifics
+(ROADMAP_TODO E52). This is a shared-concern line only; it does not imply she
+knows of or endorses Croft.]
+Artifact engaged: the AT Protocol + the Bluesky PBC structure (the substrate
+proven live in this corpus — see the sovereign-appview / atproto-architecture
+intakes and PR #4/#6).
+Possible role: none assumed — an ecosystem author whose public work Croft
+builds on; reviewer/amplifier only if organically warranted.
+Category: kindred practitioner-operator (ecosystem substrate).
+Link: https://bsky.app/profile/jay.bsky.team
+
 ### scholz-trebor — Trebor Scholz
 Field: platform cooperativism; The New School; founded the movement's
 consortium.

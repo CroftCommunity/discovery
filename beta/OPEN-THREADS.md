@@ -1329,6 +1329,32 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
   `../../alpha/experiments/attest-family/ENGAGE-LEX.md` (the brief) and
   `ATTEST-ATPROTO-MATCHUP.md`; MASTER-INDEX row (own-lane RUN-LEX-01).
 
+#### T61 — The Gilded Weaver fable + the white-duck logo (working candidates, brand tier)
+
+- **Layer:** socialization (couples to T4 brand/voice; ties to the enshittification thread, T59/ENS).
+- **Status:** `open · working candidates` (user decision, 2026-07-23: "surface both as working candidates
+  at beta tier"). Filed as beta assets, **not settled brand canon.**
+- **Type:** `needs-decision` (adopt as named canon vs keep candidate) + `design` (the logo direction).
+- **What it is:** two candidates distilled from the 2026-07-23 Hansel-&-Gretel dialogue
+  (`../alpha/seeds/transcripts/raw/hansel-gretel-enshittification-gilded-weaver-fable-2026-07-23.md`):
+  **(a) the Gilded Weaver / "The Weaver of the Golden Hall"** — a mythic-archetype teaching narrative for
+  enshittification (false hospitality → lock-in → extractive toll → the oven → the white-duck exit), with
+  the advertising-as-benign-but-crushing-in-aggregate refinement; the human-facing companion to the
+  analytical enshittification thesis (`fenced/aggregation-theory-and-the-enshittification-shield.md`, the
+  ENS thread T59). Doc: `socialization/the-gilded-weaver-fable.md`. **(b) the white-duck logo** — the
+  psychopomp / open-protocols-ferry mark, deliberately distinct from DuckDuckGo (negative-space ripple /
+  origami wing / monoline silhouette; stark white-on-dark, no cartoon mascot). Doc:
+  `socialization/logo-white-duck-psychopomp.md`.
+- **Promotion target:** fold the fable into the brand chapter (`socialization/brand-and-voice.md`) / a
+  narrative asset once T4's brand direction settles; promote the logo alongside the `logo-*` family if an
+  animal/ferry mark is adopted (primacy unsettled — the current marks are drystone/croft-ing).
+- **Gates (owner calls, none decided):** does Croft adopt a named villain-archetype in the brand canon, or
+  keep the Gilded Weaver as a teaching device only? Does Croft want an animal/ferry mark at all, given the
+  drystone/croft-ing marks? Both couple to T4.
+- **Alpha provenance:** the raw transcript above; `COHESION.md` §54; ROADMAP_TODO E52 (the sibling autonomy-
+  origin asset is not a candidate — it is a distilled narrative, `socialization/the-autonomy-origin-of-the-
+  substrate.md`).
+
 ## How to use this file
 
 When a beta theme doc is tempted to assert something that is actually still in flight, park it here

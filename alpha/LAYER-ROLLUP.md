@@ -136,6 +136,32 @@ layer-cake. Recorded here so the pull-up is auditable.
   (E1 realization + atmospheric-web overlap). **Not** distilled into alpha `thinking/` — beta was the chosen
   home; this is the one alpha additive artifact recording it.
 
+## Direct-to-beta intake (2026-07-23, socialization narrative assets)
+
+Two of the seven 2026-07-23 transcripts (the socialization pair) were distilled **directly into
+`beta/socialization/`** rather than through alpha `thinking/` — the user's call. Recorded here so the pull-up
+is auditable.
+
+- **Sources (frozen alpha floor):**
+  `seeds/transcripts/raw/hansel-gretel-enshittification-gilded-weaver-fable-2026-07-23.md` and
+  `seeds/transcripts/raw/bluesky-atproto-autonomy-origin-story-2026-07-23.md` (cleaned-paste §4; the H&G
+  paste's duplication reduced to one copy; video/image prompts preserved verbatim).
+- **Lands in:**
+  - `beta/socialization/the-gilded-weaver-fable.md` (NEW) — the Gilded Weaver mythic archetype + the fable
+    "The Weaver of the Golden Hall" + the Hansel-&-Gretel → platform-economics mapping; the story companion
+    to the analytical enshittification shield (`beta/fenced/`) and the ENS thread (T59). Working candidate.
+  - `beta/socialization/logo-white-duck-psychopomp.md` (NEW) — the white-duck ferry mark direction
+    (distinct-from-DuckDuckGo); brief only, no asset; primacy vs the drystone/croft-ing marks unsettled.
+    Working candidate.
+  - `beta/socialization/the-autonomy-origin-of-the-substrate.md` (NEW) — the Bluesky-autonomy → PBC →
+    AT-Protocol origin narrative; the story companion to the verified `Bluesky PBC` ECOSYSTEM rows.
+- **Treatment:** distilled from the raw. The Gilded Weaver + white-duck logo are registered as **working
+  candidates at beta tier** (`beta/OPEN-THREADS.md` T61), not settled brand canon. The autonomy-origin
+  dates + "~40M scale" figure are `[UNVERIFIED]`, dialogue-sourced (verify at E52). **Jay Graber** added to
+  `beta/socialization/kindred-work.md` (12 people). The other five 2026-07-23 transcripts (SSO + arecipe +
+  measurement) stayed **alpha-only** this pass (raw + connective tissue; fact-check/distill = Phase 2). Full
+  intake plan: `plans/2026-07-23-transcript-intake-socialization-arecipe-measurement.md`.
+
 ## In-tier promotion (2026-07-22, the ponds roadmap)
 
 The settled build-order thinking was **promoted in-tier** into a new beta/croft roadmap doc as Pass 1 of

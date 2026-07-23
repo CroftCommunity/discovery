@@ -1537,6 +1537,68 @@ folding into beta + the roadmap is Phase 2. Seam map:
   exitability; helpers = bounded, route-around-able unequal-peer roles above the equal-peer floor. Doc:
   `thinking/app/helpers-register.md`; backlog E51.
 
+## 54. 2026-07-23 batch — the Gilded Weaver fable (enshittification teaching narrative)
+
+**Loose end ↔ work:** the corpus argues enshittification analytically
+(`beta/fenced/aggregation-theory-and-the-enshittification-shield.md`; the ENS backronym thread, §53; the
+`beta/socialization/` voice registry) but had no *human-facing teaching narrative* for it. The 2026-07-23
+Gemini dialogue (`seeds/transcripts/raw/hansel-gretel-enshittification-gilded-weaver-fable-2026-07-23.md`)
+supplies one: Hansel & Gretel mapped to the platform lifecycle, a cross-cultural deceptive-trap survey
+(Pinocchio / Pied Piper / Rumpelstiltskin / Jorōgumo / Painted Skin / desert ghoul), and the villain-name
+iteration landing on **the Gilded Weaver / "The Weaver of the Golden Hall,"** plus a white-duck-as-open-
+protocols logo motif. **Status: CLOSED (asset filed), candidates OPEN.** Distilled to
+`beta/socialization/the-gilded-weaver-fable.md` and `logo-white-duck-psychopomp.md`; the Gilded Weaver and
+the white-duck logo are registered as **working candidates at beta tier** (OPEN-THREADS T61) — not settled
+brand canon. Doctorow/enshittification already in `beta/socialization/reference-index.md` + `kindred-work.md`.
+
+## 55. 2026-07-23 — Bluesky autonomy-origin ↔ the build-on-atproto premise
+
+**Loose end ↔ work:** the corpus's load-bearing "build-on atproto (public path)" premise (ECOSYSTEM
+`Bluesky PBC` rows; the sovereign-appview / atproto-architecture intakes) had no *origin/why* narrative. The
+2026-07-23 Gemini dialogue
+(`seeds/transcripts/raw/bluesky-atproto-autonomy-origin-story-2026-07-23.md`) supplies it: Twitter → Bluesky
+(Dorsey 2019) → Jay-Graber-autonomy → PBC-spinout → Musk/X (2022) → AT Protocol as open infra buildable at
+"~40M-user scale." **Status: OPEN (dialogue-sourced).** The origin dates + the "~40M scale" claim are
+`[UNVERIFIED]` — verify against primary sources at Phase 2 (ROADMAP_TODO). Distilled to
+`beta/socialization/the-autonomy-origin-of-the-substrate.md`; **Jay Graber** added to `kindred-work.md`.
+
+## 56. 2026-07-23 — account.croft.ing SSO browser-support ↔ the account-kernel (K1/KC1)
+
+**Loose end ↔ work:** the uncommitted 2026-07-22 `account.croft.ing` account-kernel thread carried the
+`K1` (measured) and `KC1` (untested-but-sound) browser-behavior results but no *verified mechanism* for the
+storage-vs-cookie SSO split. The 2026-07-23 transcript
+(`seeds/transcripts/raw/croft-account-sso-storage-vs-cookie-browser-support-2026-07-23.md`) closes it — and
+was **web-verified this pass** (the user asked). **Status: CLOSED (verified).** Serverless storage-SSO is
+Chromium-only (WebKit partitions storage by top-level subdomain — *same-party*, not third-party); a cookie
+can't carry the DPoP session because the atproto key is a **non-extractable** WebCrypto `CryptoKey` in
+IndexedDB; cross-browser sign-in-once ⇒ **server-set cookie + BFF** (a `document.cookie` cookie is ITP-capped
+at 7 days on Safari). Corrects the transcript's original "third-party partitioning" framing.
+
+## 57. 2026-07-23 — arecipe feature cluster ↔ the arecipe build lineage
+
+**Loose end ↔ work:** three 2026-07-23 arecipe dialogues extend the arecipe build lineage
+(`seeds/arecipe-unpacked/`; the RUN-* briefs) with new feature threads:
+`arecipe-cname-pwa-keyboard-camera-ai-import-timer-seasonality-2026-07-23.md` (timer = absolute end
+timestamps; seasonality = boost-only/toggleable; LLM import = model-selects-never-writes + verbatim-substring
+invariant; deterministic-JSON-LD-wins),
+`arecipe-wikibooks-corpus-import-and-static-precache-2026-07-23.md` (Wikibooks import via the Action API +
+`categorymembers` + pipe-trick ingredients + CC-BY-SA stamping; static-list precache via atproto
+`getLatestCommit`/`getRepo since rev`), and `arecipe-empty-tile-chip-mobile-2026-07-23.md` (RUN-EMPTY-TILE-
+CHIP, verbatim). **Status: OPEN (raw + backlog).** Six RUN files (`timers.zip`/`wiki.zip`) are
+referenced-but-not-captured; technical claims `[UNVERIFIED]` pending Phase-2 fact-check. Backlog: ROADMAP_TODO
+§E.
+
+## 58. 2026-07-23 — a new usage-measurement helper ↔ Skylite privacy stance + the existing kit infra
+
+**Loose end ↔ work:** a genuinely new cross-property helper —
+`seeds/transcripts/raw/usage-measurement-edge-counter-privacy-kit-2026-07-23.md` (RUN-MEASURE-01, verbatim):
+**an edge counter over a declared graph** (counters not logs; registry-generates-artifacts; a disclosure
+panel doing double duty; `expires` honored at runtime; Poplar/VDAF noted-and-skipped for want of two
+non-colluding operators). Two seams into existing corpus: it inherits **Skylite's sponsor-visible-vs-child-
+private** retention stance (the local-history-readable-by-device-holder problem) and targets **the existing
+Caddy/systemd/SQLite/Litestream/R2 kit shape** (E7). **Status: OPEN (new helper, proof-out defined).** Pilot
+= arecipe (recommended); quantitative claims `[UNVERIFIED]`. Backlog: ROADMAP_TODO §E.
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
