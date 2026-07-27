@@ -1,0 +1,31 @@
+# Match-3 (candy-crush-style) — P1 determinism-foundation workspace.
+#
+# Per the per-pond build discipline (beta/croft/build-order-and-ponds-roadmap.md):
+# determinism-first, red-first. Versions are pinned exactly (`=x.y.z`) and the
+# Cargo.lock is committed, matching alpha/Proofs/lineage-groups.
+[workspace]
+resolver = "2"
+members = [
+    "crates/match3-core",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.0.0"
+publish = false
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+# Determinism: seeded ChaCha20, same primitive lineage-core uses.
+rand = "=0.8.6"
+rand_chacha = "=0.3.1"
+
+# Serialization (golden vectors) + hashing (state hash).
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = "=1.0.145"
+sha2 = "=0.10.9"
+hex = "=0.4.3"
+thiserror = "=2.0.18"
+
+# internal
+match3-core = { path = "crates/match3-core" }
