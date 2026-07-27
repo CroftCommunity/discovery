@@ -239,7 +239,7 @@ point to `../OPEN-THREADS.md`.
 | Deep-link resolver + catalog manifest | B | substrate | **not built (tier-zero blocker)** | Phase 0.2 |
 | iroh integration layer | B | substrate | spike-level | Phase 0.1 |
 | Games pond (Four in a Row, fair-reveal, second game) | B | pond | designed, gated | Phase 1 (recommended first Track-B pond; commit open, T57) |
-| Match-3 (candy-crush-style) + solitaire | B | pads (games) | designed, gated | Phase 1 / 4; **the worked examples behind the per-pond discipline above** (golden-vectors-first, verifiable clean-clear by replay, follow-chain leaderboard, P10 sustainment). Solitaire ships soonest (no level generation); match-3 inherits its engine. P1-P10 narrative (tail) in the raw (T57) |
+| Match-3 (candy-crush-style) + solitaire | B | pads (games) | designed, gated · **match-3 P1 determinism foundation spiked** | Phase 1 / 4; **the worked examples behind the per-pond discipline above** (golden-vectors-first, verifiable clean-clear by replay, follow-chain leaderboard, P10 sustainment). Solitaire ships soonest (no level generation); match-3 inherits its engine. P1-P10 narrative (tail) in the raw (T57). **P1 built determinism-first + red-first (2026-07-27):** headless deterministic engine + rules/tie-break tables + golden-vector corpus with verifiable state-hash at `../../alpha/experiments/match3-p1/` (Rust→wasm; plain match-3, no specials; one layered blocker). Still gated on the resolver for shipping; native+wasm cross-build test next |
 | Split-the-check | B | pad | designed | Phase 2 |
 | Local real-time voting | B | pad | designed (also governance infra) | Phase 2 |
 | Presence & Ritual (ping, guestbook + QOTD, invites, rituals) | B | pond | designed | Phase 3 (`presence-ritual-and-composed-ponds.md`) |

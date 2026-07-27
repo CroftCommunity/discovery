@@ -104,12 +104,22 @@ alpha/
 │       rotation, last-resort availability) + the M1 per-commit cost band (O(N) floor ↔ O(log N)
 │       ceiling). The governance chain is out of scope here (that is the fold / Rung B). Suite 7/0.
 │
-└── replant-continuity/   Rust bridge crate: Battery 7 E12.7 Rung B — the ONLY place the fold and
-        openmls meet (the fold stays openmls-free; mls-replant stays fold-free; the bridge depends on
-        both by path). Proves the MLS-stamped member set is exactly the set the governance fold
-        derives — across genesis, authorized adds, real removals, and rejected unauthorized changes —
-        by driving the real DerivedFold::ingest path and comparing against a fresh stamp's crypto
-        membership. Suite 3/0.
+├── replant-continuity/   Rust bridge crate: Battery 7 E12.7 Rung B — the ONLY place the fold and
+│       openmls meet (the fold stays openmls-free; mls-replant stays fold-free; the bridge depends on
+│       both by path). Proves the MLS-stamped member set is exactly the set the governance fold
+│       derives — across genesis, authorized adds, real removals, and rejected unauthorized changes —
+│       by driving the real DerivedFold::ingest path and comparing against a fresh stamp's crypto
+│       membership. Suite 3/0.
+│
+└── match3-p1/            Rust Cargo workspace (Track B, games pond): Phase 1 of the candy-crush
+        match-3 build guide — the determinism foundation, built determinism-first + red-first per the
+        per-pond build discipline. `crates/match3-core` is a headless deterministic engine (match
+        detection, clear + layered-blocker damage, gravity with blockers as shelves, seeded-ChaCha20
+        refill, swap legality, cascade loop) whose outcomes are verifiable by move-list replay against
+        a canonical SHA-256 state hash. RULES.md (rules + tie-break tables) first; a golden-vector
+        corpus (vectors/) with hand-computed step-0 expectations + locked final-hash regression
+        anchors; 16 tie-break unit tests + 3 golden-vector tests green. P1 decisions: Rust→wasm; plain
+        match-3 (no specials); one layered blocker. Next: the native+wasm cross-build determinism test.
 ```
 
 Most of the atproto/app spikes carry `PR-CONVERSATION.md` + `CODING-TRANSCRIPT.md`
