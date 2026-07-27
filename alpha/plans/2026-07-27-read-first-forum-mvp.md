@@ -2,15 +2,36 @@
 
 date: 2026-07-27
 identity: chasemp (`chase@owasp.org`, `github-personal`)
-status: **Pass 1–3 complete + Phase 0 executed (2026-07-27).** D2 resolved (radius needs no OAuth);
-`feed-core` home decided = existing `croft-group` workspace. **Only remaining BLOCKING = repo/product name.**
-New constraint from Phase 0: hashtag boards are login-gated (`searchPosts` 403 unauth) — guest boards are
-feed/author/list. See Review Log + the board-ready Kanban breakdown below. Code home = the **shared Rust
-`feed-core`** grown in the croft-group/app workspace (the `feed-core + Bluesky port` slot E19 named) **+ a
-thin web shell** (repo/name TBD — working name "Social Tree"; the forum name is an open A-series decision);
-discovery holds only the plan. Roadmap anchor: **E62** (+ **E19/E5** client architecture, E63/E69/E70/E71);
-scope corrections per user 2026-07-27 (WASM `feed-core` is the core not deferred; Jetstream is the later
-live-updates path not "out"; E67 payments parked; private plane is Drystone's; mutuals-feed possible).
+status: **Pass 1–3 complete + Phase 0 executed; naming/layering resolved (2026-07-27).** All BLOCKING items
+cleared: D2 resolved (radius needs no OAuth), `feed-core` home = existing `croft-group` workspace, and the
+**app is `forum.croft.ing`** (see Layering below). New Phase-0 constraint: hashtag boards are login-gated
+(`searchPosts` 403 unauth) — guest boards = feed/author/list. Roadmap anchor: **E62** (+ **E19/E5** client
+architecture, E63/E69/E70/E71). Scope corrections (WASM `feed-core` is the core not deferred; Jetstream is the
+later live-updates path not "out"; E67 payments parked; private plane is Drystone's; mutuals-feed possible).
+
+## Layering: Social Tree (backbone) vs `forum.croft.ing` (app) — resolved 2026-07-27
+
+**"Social Tree" is NOT the forum — it is the default Croft app backbone**, the shared substrate most Croft
+apps sit on (per the user, 2026-07-27): the `feed-core` (normalize / time-window / sort / graph-intersection /
+radius / local-first cache) + the shared client core (E5/E19 client-architecture). It is the reasoning-and-
+logic layer, homed in the `croft-group` workspace and compiled to WASM.
+
+**`forum.croft.ing` is the app** — the first app *on* the Social Tree backbone (same `*.croft.ing` convention
+as greetings/account/arecipe): the Reddit/Discourse read-first UI (boards, thread drawer, sort/filter, PWA
+shell). It composes the backbone; it does not own the core logic.
+
+So this plan has two layers: **backbone work** (Social Tree / `feed-core`, in `croft-group`) and **app work**
+(`forum.croft.ing`, a `*.croft.ing` web-shell site). The Kanban below tags each epic BACKBONE or APP.
+
+**Why "Social Tree" is the root (user framing, 2026-07-27):** it is the **lens that roots the Croft
+thinking** — the continuum **social tree → social networking → social media** is the small→medium→big-world
+expansion (E63), with the *rooted personal graph* as the base the outer scales grow from. The backbone's job
+is to compute **scope** (your tree, and the radius r=0/1/2/∞ around it), and **many apps consume the same
+scope**: e.g. the *same* "tree folks" set can power a **private MLS group chat** (a separate app on the
+Drystone plane, E65/Drystone Part 2 §6) *and* **restrict forum content to just those folks** (this app's
+radius filter, Phase 5). The forum's r=1/r=2 filter is therefore not a forum feature — it is the forum
+*consuming* the backbone's scope, the same scope a private-chat app would consume for MLS membership. This is
+the through-line that makes `forum.croft.ing` the first proof of the backbone, not a one-off client.
 
 ## Problem statement
 
@@ -234,9 +255,8 @@ counts/timing. **Rate-limit handling** (p-queue + exponential backoff on 429 `re
 Bluesky port (Phase 1), not sprinkled in the shell.
 
 ## Open Questions
-- **[CONFIRMED: BLOCKING] Repo / product name** (A-series naming decision) — needed before the shell repo is
-  created; the `feed-core` crate can grow in the existing croft-group/app workspace first, so this blocks the
-  *shell repo*, not Phase 0/1. *User owns naming.*
+- **[RESOLVED 2026-07-27] App name / layering.** The app is **`forum.croft.ing`** (`*.croft.ing` convention);
+  **"Social Tree" is the backbone**, not the app (see Layering). No BLOCKING items remain.
 - **[RESOLVED 2026-07-27] D2 — radius needs no OAuth.** Phase-0 probe: `getFollows`/`getFollowers` are 200
   unauth on `public.api.bsky.app` → Phase 5 is a **handle input only**, no login, no write scope.
 - **[RESOLVED 2026-07-27, new] Guest board sources.** `searchPosts` is 403 unauth → hashtag/keyword boards
@@ -254,6 +274,12 @@ Bluesky port (Phase 1), not sprinkled in the shell.
 
 Epics = phases; cards are the trackable units (size S/M/L; each card's Done = its acceptance criterion).
 Dependencies are strict unless noted. This is the board-ready decomposition.
+
+**Layer tags** (Social Tree backbone in `croft-group` vs the `forum.croft.ing` app shell): **E0** cross-cutting
+probe · **E1 BACKBONE** (Social Tree `feed-core`) · **E2 APP** · **E3 APP** · **E4 APP** (uses the backbone
+port) · **E5 = BACKBONE** (graph-intersection/radius in `feed-core`) **+ APP** (toggle/mutes/tags UI) · **E6
+APP**. Suggested board = two swimlanes (Backbone / App) with these tags, or one board with a layer label per
+card.
 
 **EPIC 0 — Discovery (spike, ~0.5–1 day)**
 - `0.1` Probe AppView read shapes, save fixtures (D1). **S.** Done: 3 fixture files committed.
@@ -356,8 +382,8 @@ in Epic 1. Fixtures captured (`keep-as-fixture`) in scratch; promote into the cr
 product name only.
 
 ## Next
-Phase 0 is **done** and the `feed-core` home is decided (existing `croft-group` workspace). The only
-remaining BLOCKING item is the **repo/product name** (A-series). Once named, execute **Epic 1 (`feed-core`)**
-→ M1: create the crate in `croft-group`, promote the Phase-0 fixtures into `tests/fixtures/`, build 1.1→1.7
-test-first. The kanban breakdown above is board-ready; import epics 0–6 as columns/swimlanes and the numbered
-cards as tickets.
+**No BLOCKING items remain.** Naming/layering resolved: Social Tree = backbone (`croft-group`), app =
+`forum.croft.ing`. Execute **Epic 1 (Social Tree `feed-core`)** → M1: create the `feed-core` crate in the
+`croft-group` workspace, promote the Phase-0 fixtures into `tests/fixtures/`, build 1.1→1.7 test-first behind
+the Bluesky/AppView port; the `forum.croft.ing` shell (Epics 2–6) composes it. The Kanban above is board-
+ready (Backbone/App swimlanes tagged).
