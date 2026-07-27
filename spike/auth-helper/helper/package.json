@@ -1,0 +1,20 @@
+{
+  "name": "croft-auth-helper-spike",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Throwaway spike: confidential atproto OAuth client (Phase 6 proving ground). Not the production broker.",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "serve": "node --experimental-strip-types src/server.ts"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
+  },
+  "dependencies": {
+    "@types/node": "^22.20.1"
+  }
+}

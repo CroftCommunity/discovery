@@ -1,0 +1,10 @@
+account.croft.ing {
+	reverse_proxy 127.0.0.1:8001
+}
+
+stellin.app {
+	root * /opt/stellin-pad
+	file_server
+	# the public client metadata must be JSON with a permissive CORS so the PDS/AS can fetch it
+	header /public-client-metadata.json Content-Type application/json
+}

@@ -1,0 +1,7 @@
+# spike-local build/runtime artifacts — not source
+helper/node_modules/
+**/node_modules/
+# runtime secret material / session store is generated on the box, never in the repo
+**/data/
+*.jwk
+store-key.bin

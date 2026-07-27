@@ -65,6 +65,16 @@ SPEC-DELTA[<id> | <kind>]: <what it stands in for> — <spec requirement> — Re
 
 `fanout-single-run` was the second Active row; it is **retired (Reconciled, RUN-09)** — see below. Active divergences are now `hermetic-gossip`, RUN-14's two **declared stand-ins** (`run14-A2` recruiter roster, `run14-A4` service-DID `aud`), and RUN-15's seven hosting-kit stand-ins (`run15-stub-verifier`, `run15-local-root`, `run15-tf-validate` [BLOCKED, reported], `run15-bootstrap-dryrun`, `run15-sandbox-unshare`, `run15-usermode`, and `run15-s3-local` [MinIO stands in for R2 — real S3 protocol, drill PASS]), RUN-17's seven tier-proof stand-ins (`run17-live-source` + `run17-multiparty` + `run17-did-resolver` [live atproto legs BLOCKED on creds — MemSource / local keypairs / `did:key` resolver behind the same interfaces], `run17-swarm-local` [local TCP for the iroh overlay], `run17-rbsr` [hash-set diff for RUN-12 RBSR], `run17-mls-loopback` [real openmls over in-proc transport], `run17-churn-model` [local epoch model for the MLS churn harness]), RUN-18's one (`run18-retraction-local` [harness delete event for a live PDS record deletion — B5's live leg BLOCKED on creds]), and RUN-19's two host stand-ins (`run19-node-runner` [the wasm module under the Node host, not a browser page — the one headless-chrome attempt failed environmentally], `run19-storage-shim` [file/Node-fs at-rest backing for IndexedDB/OPFS + WebCrypto key wrapping]; the conditional `run19-bare-openmls` never fired — the real croft-group stack runs in wasm). All are sequenced by their briefs, not hidden, and none weakens a proven mechanism — each names the same guarantee's real enforcer/endpoint and the step that swaps it in.
 
+## Spike findings — spec UNDERSTATES the live server (inverse of a stand-in)
+
+These are not stand-ins that weaken a proof; they are places where a live reference server **requires
+more than the written spec states**, discovered by running the real flow. Recorded here so the corpus
+doesn't trust the spec text where the network contradicts it.
+
+| ID | Site | What the written spec says | What the live server (`bsky.social`) requires | Evidence |
+|---|---|---|---|---|
+| **spike-authhelper-tokenauthalg** | `discovery/spike/auth-helper/helper/src/server.ts` (`CLIENT_METADATA`); atproto OAuth spec "client metadata" field list | `token_endpoint_auth_signing_alg` is listed **optional** ("may evolve… recommended ES256") for confidential clients. | The `bsky.social` authorization server **rejects PAR with `400 invalid_client_metadata`** for a `private_key_jwt` confidential client whose `client-metadata.json` omits `token_endpoint_auth_signing_alg`. Adding `"token_endpoint_auth_signing_alg":"ES256"` makes PAR return `200` + a `request_uri`. | 2026-07-24 spike: PAR `400 invalid_client_metadata` → add field → PAR `200`. Confidential `private_key_jwt` assertion accepted at the **PAR** endpoint (resolves FLOW-SPEC §8-c). |
+
 ## Reconciled (the spec mechanism now exists — tag retired)
 
 | ID | Was | Reconciled to | Evidence |

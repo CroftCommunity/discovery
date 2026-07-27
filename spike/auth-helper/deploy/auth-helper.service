@@ -1,0 +1,26 @@
+[Unit]
+Description=Croft auth-helper spike (confidential atproto OAuth broker)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=authhelper
+Group=authhelper
+Environment=AUTH_HELPER_LISTEN=127.0.0.1:8001
+Environment=AUTH_HELPER_DATA_DIR=/opt/auth-helper/data
+Environment=AUTH_HELPER_ORIGIN=https://account.croft.ing
+Environment="AUTH_HELPER_SCOPE=atproto transition:generic"
+ExecStart=/usr/bin/node /opt/auth-helper/dist/server.mjs
+Restart=always
+RestartSec=2
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/opt/auth-helper/data
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target
