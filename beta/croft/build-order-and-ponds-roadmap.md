@@ -1,7 +1,7 @@
 # The ponds roadmap: build order, per-pond discipline, and the pond catalog
 
 date: 2026-07-22 (Pass 2 — reconciled with the actual build state: two tracks, the iroh-native spine
-resolver-gated, the atproto pads live. The Track-B sequence is settled; candidate ponds and the per-pond
+growth-gated on the resolver (a helper over the manual-join floor, not an existence blocker), the atproto pads live. The Track-B sequence is settled; candidate ponds and the per-pond
 discipline are recent and flagged)
 
 **What this is.** The roadmap for the garden: what to build, in what order, and how each pond earns its
@@ -26,9 +26,12 @@ Track A candidate. This is where near-term shipping happens.
 
 **Track B - iroh-native ponds (the composable local-first garden).** These are the peer-to-peer,
 no-account, no-server ponds: the games pond (including the candy-crush-style match-3 and solitaire), the
-native Croft Group pond, and the presence/ritual heart. They are the deeper thesis, and they are **all
-gated on the tier-zero deep-link resolver** (Section 0.2 below), which is **not built**; iroh transport is
-still spike-level. The **Phase 0-5 build sequence below is the plan for Track B** once the resolver exists.
+native Croft Group pond, and the presence/ritual heart. They are the deeper thesis. Their
+*growth* path runs through the deep-link resolver (Section 0.2 below), which is **not built**, and iroh
+transport is still spike-level — so Track B is designed-not-shipped. The resolver is the one-tap-join
+accelerator that lets a Track-B pond *spread*; a pond itself can run on the manual paste-a-code floor, so
+this is a growth gate, not an existence blocker. The **Phase 0-5 build sequence below is the plan for
+Track B**.
 
 **How the two tracks relate.** Track A ships value now on a proven substrate and builds the audience and
 the operating muscle; Track B is the differentiated end-state the resolver unlocks. The client-side
@@ -47,9 +50,11 @@ per-app login the serverless default, a small BFF the optional cross-browser-SSO
 
 Three rules decide the sequence.
 
-**First, the growth path and the core UX are the same component**, so it comes before content. The
-deep-link resolver is both the only navigation into a pond and the entire acquisition model (there is no
-public discovery by design), so nothing spreads without it. It is the root dependency. First-among-equals
+**First, the growth path and the core UX are the same component**, so it comes early. The
+deep-link resolver is the one-tap navigation into a Track-B pond and its acquisition path — a pond still
+works via a manually-shared join code, but without the resolver it does not *spread*. So it is the
+highest-leverage helper to build first here, not a root existence-dependency, and near-term growth does not
+wait on it (Track A carries that; see above). First-among-equals
 with it are the **substrate adapters** (the iroh integration and the webxdc-compat shim), because every
 pond and pad sits on them. Resolver and substrate are the foundation; they unlock everything else.
 
@@ -64,9 +69,10 @@ event-sourced store behind a ledger and a guestbook) get built once, early, and 
 
 ## The build sequence (Track B — gated on the resolver)
 
-This is the plan for the iroh-native spine. None of it is built; Phase 0.2 (the resolver) is the tier-zero
-blocker for everything else here. Track A (the live atproto pads and the aggregator-pond next build) does
-not wait on this sequence.
+This is the plan for the iroh-native spine. None of it is built; Phase 0.2 (the resolver) is the foundation
+the Track-B *growth* story rests on, so it sequences first here — a pond can function on the manual
+join-code floor, but it does not spread until the resolver lands. Track A (the live atproto pads and the
+aggregator-pond next build) does not wait on this sequence.
 
 ### Phase 0 — Foundation (the root dependencies)
 
@@ -76,13 +82,15 @@ Nothing user-facing ships here. This is the platform everything else assumes.
   channel (gossip), a synced key-value store (docs), blob transfer (blobs), plus a direct point-to-point
   QUIC stream per peer pair. The direct channel is what makes Croft a better host than a broadcast-only
   webxdc runtime. Decide and honestly document the relay posture (default relays now, self-host later).
-- **0.2 The deep-link resolver and the catalog manifest.** The tier-zero component (see the parallel gates
+- **0.2 The deep-link resolver and the catalog manifest.** The highest-leverage Track-B component — the
+  one-tap-join and growth accelerator over the manual-join floor (see the parallel gates
   below). Build the URL grammar `{pond identity + capability} / {app id + version} / {instance + entry
   context}`, shareable at three depths (pond, activity, instance); the single catalog manifest the resolver
   reads (and the optional assistant later reads too); and the three intake cases (in-app routing;
   join-from-link via a ticket, where the link is a credential so capability is decided per channel; and
-  cold-install via the claim-code / one-more-tap flow, since seamless deferred deep-linking is not privately
-  achievable, tracked as a constraint in `product-the-garden-of-ponds.md`).
+  cold-install via the claim-code / one-more-tap flow — install-then-one-tap, the ordinary way any app
+  opens a shared link before it is installed, an honest experience named in `product-the-garden-of-ponds.md`
+  rather than a loss to design around).
 - **0.3 The pond context boundary.** Each pond is its own security context. The Cure53 webxdc audit lesson
   (one-homed in `../cairn/iroh-app-pond-building-blocks.md`) is that CSP alone does not contain a webview,
   so establish the hard process boundary between ponds now, before apps exist, and disable WebRTC in any
@@ -177,8 +185,10 @@ Only with the foundation proven does going wide make sense.
 
 ## The two parallel gates (conditions on the project, not phases)
 
-- **The deep-link resolver (0.2) is tier-zero**, because it is both the core UX and the entire growth
-  model. If it is not excellent, nothing spreads.
+- **The deep-link resolver (0.2) is the highest-leverage Track-B helper**, because it is both the one-tap
+  UX and the growth path for the iroh-native garden. If it is not excellent, Track B does not spread — but
+  Track A grows without it, and a Track-B pond still functions on the manual join-code floor, so this
+  conditions Track B's *reach*, not the project's existence.
 - **The sustainability model must be at least sketched before Phase 3 ships**, because the guestbook
   creates a custodial obligation the moment a family trusts it with years of memory. The
   cooperative-or-foundation answer (Layer 7, `../governance/`) turns "no one makes a buck" from a
@@ -236,7 +246,7 @@ point to `../OPEN-THREADS.md`.
 | Music-guessing pond (Heardle-shaped) | A | pond | candidate | local-first PWA, outcome as custom lexicon, crypto-monotonic anti-cheat; blocked on a licensing question (`../OPEN-THREADS.md` T58) |
 | Collaborative group card (multi-writer) + card packaging ladder | A | pad | candidate | the collaborative arm needs the anon-multi-write shim; packaging model image / single-file HTML / `.xdc` (`../OPEN-THREADS.md` T56) |
 | **Account kernel** (`account.croft.ing`) | A→B bridge | substrate | **K1 done: shared-store form FAILS on WebKit/iOS → pivot to postMessage sync-coordinator** (`../OPEN-THREADS.md` T55) | one-shared-store refuted on Safari; per-app storage + coordinator is the live form |
-| Deep-link resolver + catalog manifest | B | substrate | **not built (tier-zero blocker)** | Phase 0.2 |
+| Deep-link resolver + catalog manifest | B | substrate | **not built (Track-B growth gate)** | Phase 0.2 |
 | iroh integration layer | B | substrate | spike-level | Phase 0.1 |
 | Games pond (Four in a Row, fair-reveal, second game) | B | pond | designed, gated | Phase 1 (recommended first Track-B pond; commit open, T57) |
 | Match-3 (candy-crush-style) + solitaire | B | pads (games) | designed, gated · **match-3 P1 determinism foundation spiked** | Phase 1 / 4; **the worked examples behind the per-pond discipline above** (golden-vectors-first, verifiable clean-clear by replay, follow-chain leaderboard, P10 sustainment). Solitaire ships soonest (no level generation); match-3 inherits its engine. P1-P10 narrative (tail) in the raw (T57). **P1 built determinism-first + red-first (2026-07-27):** headless deterministic engine + rules/tie-break tables + golden-vector corpus with verifiable state-hash at `../../alpha/experiments/match3-p1/` (Rust→wasm; plain match-3, no specials; one layered blocker). Still gated on the resolver for shipping; native+wasm cross-build test next |
@@ -248,9 +258,9 @@ point to `../OPEN-THREADS.md`.
 | On-device assistant | B | overlay | designed | Phase 5 (explicitly optional, explicitly last) |
 
 Reading the catalog: **Track A is where the next real build happens** (the aggregator pond), on a substrate
-that already carries four live pads. **Track B is entirely designed-not-built and blocked at Phase 0.2**
-(the resolver); the games pond, including the candy-crush match-3, lives there and cannot ship until the
-resolver does. The **account kernel** is the one piece being actively spiked, and its near-term
+that already carries four live pads. **Track B is entirely designed-not-built; its growth spine is Phase 0.2**
+(the resolver); the games pond, including the candy-crush match-3, lives there and can function on the
+manual join-code floor but does not *spread* until the resolver ships. The **account kernel** is the one piece being actively spiked, and its near-term
 justification is Track A (unify the live pads into one signed-in, one-mirror estate), which is also why it
 is worth proving now rather than deferring to the Track B spine.
 
@@ -258,14 +268,15 @@ is worth proving now rather than deferring to the Track B spine.
 
 Two tracks. **Track A (atproto pads)** is live and shipping: arecipe, skylite, and pdsview are live and the
 1:1 greeting card shipped; the **aggregator pond is the chosen next build**, and it needs no resolver.
-**Track B (iroh-native ponds)** is designed but blocked at the tier-zero deep-link resolver: foundation
+**Track B (iroh-native ponds)** is designed; its growth spine is the deep-link resolver (a helper over the
+manual-join floor, not an existence blocker): foundation
 (iroh layer, resolver + manifest, pond context boundary, shared store), then one pond end-to-end (games),
 then the killer utility (split-the-check, voting), then the heart (ping, guestbook, invites, rituals), then
 breadth (webxdc shim, classics, port-tier games, utilities, presets), then the optional assistant. Each
 Track-B game pond is built determinism-first with verifiable outcomes, compared within the follow-chain,
 and kept alive by a standing sustainment drill; the candy-crush match-3 and solitaire live here. The
 **account kernel** bridges the two (it unifies the live Track A pads first) and is being proved by spike.
-Resolver is tier-zero for Track B; sustainability is sketched before the heart ships.
+Resolver is the highest-leverage growth helper for Track B; sustainability is sketched before the heart ships.
 
 ## Provenance & status
 

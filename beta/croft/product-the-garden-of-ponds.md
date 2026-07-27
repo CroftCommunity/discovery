@@ -287,13 +287,18 @@ The decision rule: webxdc-native game then wrap, raw-WebRTC game then port, ever
 License verification on wrapped and ported code is flagged for bundle time; the load-bearing netcode
 dependencies in particular need a live license check against their repos before bundling.
 
-**The deep-link resolver is tier-zero.** It is the single most strategically important component because
-it is simultaneously the core navigation UX and the entire acquisition model (there is no public discovery
-by design). Its URL grammar composes pond identity and capability, then app id and version, then instance
-and entry context, shareable at three depths. One catalog manifest feeds it. Cold-install deep-linking is
-not privately achievable (the seamless-deferred mechanisms that would enable it are gone or require
-fingerprinting, which conflicts with the no-tracking stance), so cold arrival resolves to a claim-code
-"one-more-tap" flow, framed as a feature rather than a failure. This is design and intent.
+**The deep-link resolver is the highest-leverage helper.** It is the growth engine of the composable
+garden — simultaneously the one-tap navigation UX and the acquisition path for the iroh-native (Track B)
+ponds — but it sits *above* the baseline floor, not under it: the product still works without it (peers
+join by pasting a ticket or code), so it is a helper, not a requirement (`the-helper-tier-and-the-baseline-floor.md`).
+Nor is it the *only* growth path — near-term acquisition rides the population-inheriting aggregator pond
+and the public Croft.ing surface; there is no *algorithmic* public feed by design, which is not the same as
+no public discovery. Its URL grammar composes pond identity and capability, then app id and version, then
+instance and entry context, shareable at three depths. One catalog manifest feeds it. Cold arrival is
+install-then-one-tap — the ordinary way any app opens a shared link on a device that does not yet have it —
+resolved by a claim-code flow; the seamless-deferred deep-link into a not-yet-installed app is an
+industry-wide inevitability (the mechanisms that once offered it are gone or require fingerprinting), an
+honest experience to name rather than a Croft-specific loss to engineer around. This is design and intent.
 
 **Fair-reveal is the leverage primitive.** One reusable commit-reveal module powers governance-grade
 voting, dice fairness, and hidden-info games at once. It is built once and early because it unlocks a
@@ -386,8 +391,8 @@ emitting effects as data, with the core knowing no platform and the design syste
 green-real: one shared core plus thin per-platform shells, two callout axes, and per-pond cores unified by
 the shared shell (option C), all demonstrated in Phase 0 at 20/20 with five binding decisions proven. The
 quality bar is token-enforced ("nothing ships placed by eye"), with a role-based visual system and
-mechanical state coverage. Activities enter by three inclusion pathways (build-fresh, wrap, port) over a
-tier-zero deep-link resolver and a build-once fair-reveal primitive. The on-device assistant is strictly
+mechanical state coverage. Activities enter by three inclusion pathways (build-fresh, wrap, port) over
+the deep-link resolver (the highest-leverage helper, not a requirement) and a build-once fair-reveal primitive. The on-device assistant is strictly
 optional (detect-first, accelerate-never-gate, every path reachable without it). The pad security bar
 turns iroh-as-transport into a free WebRTC-containment win, makes honest seams a hard context boundary, and
 defaults pads to a per-match pseudonym.

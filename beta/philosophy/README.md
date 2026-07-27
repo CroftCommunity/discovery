@@ -42,7 +42,8 @@ wire-encoding layers Drystone works in as future work.
 
 ## Where the argument connects
 
-- **Governance (Layer 7)** takes the conclusion (a cooperative form is required) and works its
+- **Governance (Layer 7)** takes the conclusion (an edge-free form is required — the cooperative being its
+  cleanest instance) and works its
   *manifestation*: foundation, co-op mechanics, legal/financial actualization. The argument justifies the
   form; governance builds it.
 - **Activism (Layer 9)** carries the *empirical* register of the same indictment (the harm case, current
@@ -74,5 +75,7 @@ wire-encoding layers Drystone works in as future work.
 Establishes that an advertising-funded, publicly-traded securitized corporation **cannot constitute** a
 peer relationship of equal standing with the participants whose relationships it brokers (a determinative
 claim about what the form can represent, not a moral claim about intent), and that hosting genuine peer
-standing therefore requires a cooperative form adopted from inception. Does **not** build that form (that is
-governance), ground the cooperative legal mechanics, or resolve the capital-formation problem.
+standing therefore requires an **edge-free ownership form adopted from inception** — a form that dissolves
+rather than fences the owner/participant edge, of which the cooperative is the cleanest instance (and even
+it is necessary, not sufficient; `structural-argument-principles.md` §31). Does **not** build that form
+(that is governance), ground the cooperative legal mechanics, or resolve the capital-formation problem.

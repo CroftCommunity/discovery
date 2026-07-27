@@ -1,8 +1,9 @@
-# iOS background execution, and the BLE caution that forces the design
+# iOS background execution, and the BLE caution that shapes the default deployment
 
 `Status: impl layer (mobile-background execution model). Register: platform mechanics + a load-bearing
 negative result. Resolution: library — the concrete iOS wake-hook taxonomy mapped to iroh wake-pulses,
-plus the BLE-scavenger negative result that forces the meer-anchored delivery design. iOS platform facts
+plus the BLE-scavenger negative result that motivates the default deployment's meer-anchored delivery — a
+chosen, revocable helper above the self-hosted floor, not a structural dependency. iOS platform facts
 cite the FACTCHECK source of truth and are not re-verified here; iroh version facts likewise. Complements
 the delivery layer, which owns the push-notify node and APNs parity; this document adds the full wake-hook
 taxonomy and the negative result that sits underneath it.`
@@ -20,8 +21,11 @@ This document does two things. First, it names the concrete wake-hooks iOS actua
 to the iroh work it can carry, so the mobile transport design rests on the real platform surface rather
 than on an idealized one. Second, it carries the load-bearing negative result that shapes the whole
 delivery design: spontaneous, off-grid, device-to-device meshing over Bluetooth Low Energy is
-*aspirational*, not a foundation you can build on. That negative result is *why* the delivery layer anchors
-on an always-on rendezvous (the meer / superpeer) and treats device-to-device sync as a bonus. The
+*aspirational*, not a foundation you can build on. That negative result is *why* the default deployment
+leans on an always-on rendezvous (the meer / superpeer) and treats device-to-device sync as a bonus — the
+meer is a chosen, revocable convenience above the D-self self-hosted floor (removing it costs convenience,
+never function or standing; `delivery-layer/01-delivery-architecture.md` §2.4, `the-four-property-tension.md`),
+not an anchor the design is forced onto. The
 resolution is only trustworthy if the reason travels with it, so this document keeps the reason.
 
 ## Charter: what this document covers
@@ -158,14 +162,17 @@ What does not survive is *spontaneous* off-grid meshing: an app cannot count on 
 has never met, and cannot hold the connection long enough to be a dependable mesh member while backgrounded.
 Device-to-device BLE sync is therefore a bonus that sometimes fires, never a backbone.
 
-## 5. Why the caution forces the meer-anchored design
+## 5. Why the caution motivates the default meer-anchored deployment
 
-The negative result is not a dead end; it is the reason the delivery design has the shape it does. If two
-backgrounded phones cannot be relied on to find and wake each other, then the dependable rendezvous must be
-a node that is *not* subject to the mobile watchdog — an always-on anchor. That anchor is the meer /
+The negative result is not a dead end; it is the reason the default delivery deployment has the shape it
+does. If two
+backgrounded phones cannot be relied on to find and wake each other, then the dependable rendezvous is best
+served by a node that is *not* subject to the mobile watchdog — an always-on helper. In the default
+deployment that helper is the meer /
 superpeer: a blind store-and-forward node that holds sealed bytes for an offline recipient and is reachable
 whenever the recipient's phone next gets a wake-pulse, together with the push-notify node that fires the
-content-free wake in the first place.
+content-free wake in the first place. (A user who runs their own always-on node fills the same role, which
+is why the meer is a revocable helper, not a structural anchor.)
 
 This is the direct line from the negative result to the delivery layer's structure, and it is why that
 layer has a push-notify node at all:
@@ -174,15 +181,19 @@ layer has a push-notify node at all:
   it.** That is the push-notify node (delivery layer §4–§5): it learns only "this endpoint has mail, wake
   it," fires a content-free wake, and holds no sealed bytes. The silent-push + NSE hook of §2 is the iOS
   actuator it drives.
-- Because a sleeping phone cannot hold a message for a peer either, **durability must live on an always-on
-  node**, not on the participants' phones alone. That is the meer (delivery layer's durability plane).
+- Because a sleeping phone cannot hold a message for a peer either, **durability is best carried by an
+  always-on node** rather than the participants' phones alone. In the default deployment that is the meer
+  (delivery layer's durability plane) — a content-blind, revocable helper, not a floor the design cannot do
+  without (`delivery-layer/01-delivery-architecture.md` §2.4: D-self is the floor; every other source can be removed).
 - Because the wake channel is throttled and unreliable by nature, **the design treats it as an optimization
   over polling**, never a dependency — the phone always catches up on next foreground by polling the meer.
 
 So the platform mechanics here and the delivery layer's roles are two ends of one design: the wake-hook
 taxonomy is the set of moments an iOS device can act, and the meer-plus-push arrangement is what makes those
-brief moments sufficient. The BLE caution is what rules out the alternative — a pure device-to-device mesh
-with no anchor — and thereby forces the anchor to exist.
+brief moments sufficient in the default deployment. The BLE caution is what rules out *relying on* the
+alternative — a pure device-to-device mesh with no always-on helper — and thereby motivates the default
+anchor; it does not make the anchor structurally mandatory (a self-hosted always-on node the user runs
+serves the same role, which is why the meer is revocable).
 
 ## What this establishes (and does not)
 
@@ -193,8 +204,9 @@ bursts across an ephemeral iroh `Endpoint` via a Rust-core / Swift-shell bridge 
 iroh Swift bindings shipped with iroh 1.0. It establishes the BLE-scavenger negative result — that
 CoreBluetooth restoration does not wake on a new advertiser, that a backgrounded P2P node is killed
 within seconds, and that BLE-over-iroh is a community crate rather than core, with its one public demo
-unencrypted — and shows that this negative result is *why* the delivery design anchors on an always-on
-meer with a content-free push actuator rather than a pure device-to-device mesh.
+unencrypted — and shows that this negative result is *why* the default delivery deployment leans on an
+always-on meer (a revocable helper above the D-self floor) with a content-free push actuator rather than a
+pure device-to-device mesh.
 
 Does **not** re-specify the push-notify node, the APNs / FCM payload and throttle facts, or the
 parity-with-a-normal-app stance — those belong to the delivery layer (`delivery-layer/01-delivery-architecture.md`

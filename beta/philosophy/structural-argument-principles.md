@@ -17,8 +17,9 @@ An advertising-funded, publicly-traded securitized corporation **cannot constitu
 relationship of equal standing with the participants whose relationships it brokers. The
 incompatibility is **determinative**, a fact about what the form can represent, not a moral
 claim about any actor's intent, though it has moral consequences in effect. The form capable of
-hosting peer standing is one in which owner and participant are the same body: the cooperative,
-adopted from inception.
+hosting peer standing is one that **dissolves the owner/participant edge rather than fencing it, adopted
+from inception**; the cooperative (owner and participant the same body) is the cleanest such form, though
+not the only one and not, on its own, sufficient — the absolute "only the cooperative" overstates (§31).
 
 ---
 

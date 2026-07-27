@@ -177,6 +177,11 @@ Companion artifacts:
   that carries the full argument (the `LAYERS.md` anti-rollup rule). Read it to see, at a glance, what is
   decided (and why, via the link) versus what remains the user's call. Not a place decisions are argued or
   resolved.
+- **`RE-WEIGHTINGS.md`** (this level): the prose-weight supersession index — one row per place an early,
+  strongly-weighted narrative conclusion was overtaken (demoted, accepted as an inevitability, reframed, or
+  re-ranked by a later roadmap) but the reading prose still led with the old weight. Where `DECISIONS.md`
+  tracks *decisions*, this tracks the mismatch between how heavily a claim *reads* and how current best
+  thinking actually weights it. Records the reframe, not the argument.
 - **`LAYERS.md`** (this level): the canonical layer model, the two traversals, and the cross-layer
   discipline (quote/resolution, reasoning-travels-with-the-decision, consolidate-to-one-whole). Governs
   when a layer README disagrees.

@@ -119,7 +119,10 @@ in its 3.x line is version-volatile; confirm CRDT version facts before external 
 
 iroh (n0) is the transport substrate Croft depends on, not a prior-art option to choose among, so its
 mechanics are documented in the impl transport notes rather than here. It is credited in this register as
-the load-bearing dependency: QUIC-first peer-to-peer with EndpointId (an Ed25519 public key as the network
+the load-bearing dependency for the sealed, peer-to-peer tier — the one narrow exception being an
+open/backplane tier that can ride the plain web stack without the overlay, a tiering still being reconciled
+(`../drystone-spec/proposed-changes-2026-07-experiment-reconciliation.md`). The credited mechanics:
+QUIC-first peer-to-peer with EndpointId (an Ed25519 public key as the network
 identity), hole-punching, relays, multipath connection migration, and first-party language bindings; it is
 in production in Delta Chat, Nous Research (distributed LLM training), and Paycode (point-of-sale). Version
 facts (iroh at 1.0; companion crates still pre-1.0) cite the FACTCHECK source of truth and are not

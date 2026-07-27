@@ -87,14 +87,14 @@ to assert, as a crime, what a Scot now holds by law. The croft and the Scottish 
 victory the English tradition never managed, and the second win is the one that makes the first legible as a
 direction rather than an accident.
 
-## Dry stone is a cross-civilizational structural law
+## Dry stone recurs independently across civilizations
 
 The name *Drystone* rests on a claim about how mortarless walls hold — variation and independent movement
 beat rigid glue — and that claim is far stronger than a Scottish tradition can carry alone. The same insight
-was reached independently by civilizations with no contact between them, which is the signature of a real
-structural law rather than a local craft. Isolated cultures arriving at the identical realization — that
-when you work with massive stone and unpredictable ground, flexibility and gravity beat rigid glue every
-time — is itself the evidence the metaphor needs.
+was reached independently by civilizations with no contact between them, which is the signature of a robust
+engineering principle rather than a local craft. That independent recurrence is what gives the metaphor its
+**resonance** — a cross-cultural precedent the name can lean on — not proof that the *design* is right; the
+case for rightness is philosophy's (Layer 2). This is reinforcement, not a load-bearing premise.
 
 - **Incan ashlar (Peru).** Polyhedral stones shaped to interlock in three dimensions, with inward-sloping
   walls and no mortar. Because Peru is highly seismic, the mortarless joints let the stones shift
@@ -118,10 +118,11 @@ time — is itself the evidence the metaphor needs.
 
 The engineering principle common to all four is the one the protocol borrows: rigidity is the enemy of
 longevity, and a structure that can breathe and flex turns environmental stress — earthquakes, water,
-frost — into forces that tighten the stones further into place. That is why the metaphor is load-bearing
-rather than decorative. A network built to admit that its members differ, and to hold precisely because
-they differ, has a cross-civilizational engineering backbone behind the claim, not a single tradition's
-aesthetic.
+frost — into forces that tighten the stones further into place. That is why the metaphor is more than
+decorative: a network built to admit that its members differ, and to hold precisely because they differ,
+has a real, recurring engineering principle behind the name, not a single tradition's aesthetic. It
+*resonates* because the precedent is cross-civilizational; it does not, on its own, establish that the
+design is right — that is philosophy's register (Layer 2).
 
 ## Bernera, 1874: the first landmark legal win
 
@@ -165,7 +166,7 @@ Winstanley are the reason the feeling is right.
 The final weld is the claim that the name is not a metaphor decorating the architecture but a compressed
 statement of it. The croft has three defining features, and each maps onto a specific architectural
 commitment. This is the bridge from the history to the philosophy: read the croft correctly and you have
-read the design.
+read the *shape* of the design.
 
 ```
 THE CROFT (material history)              THE ARCHITECTURE (the commitment)
@@ -201,20 +202,23 @@ THE CROFT (material history)              THE ARCHITECTURE (the commitment)
 
 Stated as the thesis it is: to name the project after the croft is to commit to secure equal rights with a
 spine, a living commons beside every holding, and a system honest about capability that refuses to let
-capability become authority. The history is not an origin story attached to the design. It is the design,
-told in land and stone.
+capability become authority. The history is not merely an origin story bolted onto the design — read the
+croft correctly and you have read its shape, told in land and stone. It is a resonant mnemonic for the
+commitments, not the proof of them: why the form *resonates* lives here; why it is *right* is philosophy's
+(Layer 2).
 
 ## What this establishes (and does not)
 
 Establishes that the enclosure-inversion thesis is a present and global condition, not a closed chapter:
 that the fight is live in the present (Right to Roam, and a 1607→2020 loop that closes in the same
 Northamptonshire ground, with "Scotland won twice" as the clearest demonstration of the direction the croft
-points); that the dry-stone durability at the root of the *Drystone* name is a cross-civilizational
-structural law, independently discovered in Incan, Japanese, Zimbabwean, and Mediterranean building; that
+points); that the dry-stone durability at the root of the *Drystone* name is a resonant cross-civilizational
+precedent, the same mortarless principle independently reached in Incan, Japanese, Zimbabwean, and
+Mediterranean building; that
 the crofter resistance won its first landmark legal vindication at Bernera in 1874, before the more famous
 risings; that the enclosure poems rest on a documented scholarly spine (Thompson's moral economy, the
 Captain Swing reading, Raymond Williams, the Diggers); and that the croft's three features map feature for
-feature onto the architecture, so the name is the thesis rather than a pun.
+feature onto the architecture, so the name is a compressed, resonant statement of the commitments rather than a pun.
 
 Does **not** restate the Clearances, the Crofters' War at the Braes and Glendale, the Napier Commission, the
 1886 Act, John Clare's texts, or the arc to the enclosure of connection — those are the companion doc,

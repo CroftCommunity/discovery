@@ -29,9 +29,12 @@ missing piece. It carries four concrete plays, each mapped back to the abstract 
   competitive position, which is the affirmative case the strategy's "non-extractive sustaining org"
   premise rests on but does not itself argue.
 
-The load-bearing claim is that the chasm is not crossed by a better argument; it is crossed by a set
-of concrete, unglamorous moves that lower the cost of the first ten minutes and that only a
-non-extractive structure can afford to make.
+The load-bearing claim is that these moves do not *cross* the chasm on their own — crossing takes the
+strategy's three conditions present at once (product parity, a non-extractive sustaining org, and an
+exogenous inciting event; `adoption-strategy.md`). What they do is decisive *at the moment of crossing*:
+they let an inciting spike **convert into retained users rather than drain back out**, by lowering the cost
+of the first ten minutes — and they are moves only a non-extractive structure can afford to make. Necessary
+at the crossing, not sufficient for it.
 
 ## Charter: what this document covers
 
@@ -111,7 +114,7 @@ something, never at the door:
   mandate bridge: the institution's own domain is the credential. `[external pattern, dialogue-
   sourced; confirm before outward use.]`
 
-Why load-bearing: these are not polish. Each one removes a specific drop-off point on the path from
+Why it matters: these are not polish. Each one removes a specific drop-off point on the path from
 "curious" to "present with my people," and the readiness the strategy calls for is exactly the sum of
 these moves being in place *before* an inciting-event spike arrives, so the attention a spike delivers
 lands on a product a non-technical person can actually enter.
@@ -139,7 +142,7 @@ manifesto, set up a node, arrive in a ghost town," it is "need the schedule, one
 hyper-local active feed." A tactic worth pairing with it is on-site conversion — turning an event
 profile into a member-owner share at the venue, while the user is already present and active.
 
-Why load-bearing: this is the strategy's wedge premise made concrete — a case where peer-to-peer is
+Why it matters: this is the strategy's wedge premise made concrete — a case where peer-to-peer is
 not the ideological choice but the *only working* choice, giving real users a real reason to be there
 before full-surface parity with an incumbent is reached. It remains a candidate, not a validated
 entry point, and the open question the strategy names — whether a wedge both has genuine pull and
@@ -163,7 +166,7 @@ away because there is no outside owner to sell it. It is the plain-language fron
 argument the philosophy layer grounds and the governance layer formalizes — used here as the
 explainer for a non-technical audience, not as the argument itself, which is not restated in this doc.
 
-Why load-bearing: the strategy's "make the sustaining-org story legible" tactic needs a device a
+Why it matters: the strategy's "make the sustaining-org story legible" tactic needs a device a
 prospective member can hold in their head, and an abstract "member-owned non-extractive cooperative"
 is not that device. "It is a digital electric cooperative" is.
 
@@ -227,7 +230,7 @@ is to stay in that zone rather than sprawl into the ones a server wins. `[bounda
 the reasoning is the project's own, the scope limit is load-bearing and must travel with the moat
 claim.]`
 
-Why load-bearing: the strategy premises the entire crossing on "a non-extractive sustaining org," and
+Why it matters: the strategy premises the entire crossing on "a non-extractive sustaining org," and
 treats it as a standing investment. This section is the affirmative reason that investment is not just
 an ethical stance but a competitive one — the argument that turns "no one makes a buck off this, ever"
 from a funding vulnerability into a promise a competitor cannot answer.
