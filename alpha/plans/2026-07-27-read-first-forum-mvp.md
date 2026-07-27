@@ -3,10 +3,12 @@
 date: 2026-07-27
 identity: chasemp (`chase@owasp.org`, `github-personal`)
 status: **Pass 1 (plan + reasoning) — drafted this pass.** Pass 2 (gap review) and Pass 3 (TDD/diagnostic/
-validation gates) deferred; invoke the `phase-plan` skill to run them. Code home = a **new static-PWA repo**
-(name TBD — working name "Social Tree"; the forum name is an open A-series decision), not this repo; discovery
-holds only the plan. Roadmap anchor: **E62** (+ E63/E69/E70/E71); scope corrections per user 2026-07-27
-(E67 payments parked; private plane is Drystone's; mutuals-feed possible).
+validation gates) deferred; invoke the `phase-plan` skill to run them. Code home = the **shared Rust
+`feed-core`** grown in the croft-group/app workspace (the `feed-core + Bluesky port` slot E19 named) **+ a
+thin web shell** (repo/name TBD — working name "Social Tree"; the forum name is an open A-series decision);
+discovery holds only the plan. Roadmap anchor: **E62** (+ **E19/E5** client architecture, E63/E69/E70/E71);
+scope corrections per user 2026-07-27 (WASM `feed-core` is the core not deferred; Jetstream is the later
+live-updates path not "out"; E67 payments parked; private plane is Drystone's; mutuals-feed possible).
 
 ## Problem statement
 
@@ -21,14 +23,23 @@ lowest possible cost and friction.
 
 ## Approach
 
-A pure client-side static PWA that rides the **existing Bluesky AppView** (`public.api.bsky.app`,
-unauthenticated + CORS-enabled — verified) as its only read source. **No backend, no custom indexer, no
-custom lexicon for the MVP** — those belong to the fuller Social Tree, not here. Vanilla-TS static PWA to
-match the house pattern (skylite/arecipe) and to let us borrow AppView-interaction patterns from the good
-open-source PWA clients (TOKIMEKI/SkyFeed, E70). Local-first: IndexedDB cache with aggressive LRU; OPFS only
-as a speed cache, never sold as durability (E71). Build the testable engine first (pure functions over real
-response fixtures), then the UI, then boards, then the optional read-only-identity radius filter, then PWA
-polish. TDD throughout; each phase leaves a working state.
+A client whose **read engine is the shared Rust `feed-core`** — the already-decided `feed-core + Bluesky
+port` from the Croft client architecture (`thinking/app/client-architecture-adr.md`; E19/E5), symmetric to
+croft-chat-cli's `group-core + Transport port` — **compiled to WASM and driven by a thin web shell.** This is
+the WASM the whole product is built on; it is **not** a deferred optimization and it is **not** a one-off — it
+is the *same shared-core work* as croft-chat-cli / croft-group, grown into the `feed-core` slot that
+decomposition already named. The web shell (TS) owns only platform glue + rendering; all domain logic
+(normalize / time-window / sort / synthetic-title / search / graph-intersection / radius) lives in the Rust
+core behind a **Bluesky/AppView port**, so the same core later feeds native shells (Tauri/iOS/Android) with no
+logic re-fattening. **Read source for the MVP = the existing Bluesky AppView** (`public.api.bsky.app`, unauth
++ CORS — verified) over its **XRPC request/response** endpoints (`getFeed`/`searchPosts`/`getPostThread`): a
+board is a *query*, so it is a fetch, not a firehose subscription — **no custom indexer and no firehose are
+needed to read a board.** (Live updates and custom lexicons are a *different* concern — see the indexer/
+Jetstream reasoning below.) Local-first: IndexedDB cache with aggressive LRU; OPFS only as a speed cache,
+never sold as durability (E71). Borrow *interaction/UX* patterns (not the core language) from the good OSS PWA
+clients (TOKIMEKI/SkyFeed, E70). Build the `feed-core` first (pure Rust, TDD over real response fixtures),
+then the web shell UI, then boards, then the optional read-only-identity radius filter, then PWA polish. Each
+phase leaves a working state.
 
 **Verified primitives this rests on** (fact-check `research/2026-07-27-social-tree-factcheck.md` + `-2.md`):
 `public.api.bsky.app` unauth CORS reads; `app.bsky.feed.getFeed` / `searchPosts` / `getPostThread(depth)`;
@@ -42,13 +53,27 @@ is client-side; WCAG 2.5.8 (24px) / 2.5.1. `popover` is Baseline-*Newly* (progre
   value, **no backend** (rides the existing AppView), and **no moderation desk** (read-only, honoring native
   blocks/mutes + local keyword filters). It's the cheapest possible test of the thesis, and it's the part the
   fact-check scored ~9.
-- **Why no custom indexer for the MVP:** the "Jetstream chasm" (a browser can't filter the raw global
-  firehose) only bites if you run live global aggregation or custom `app.socialtree.*` lexicons. The MVP reads
-  *finished* views from Bluesky's own AppView, so the indexer is a *later* concern, not an MVP dependency.
-- **Why vanilla-TS static PWA:** consistency with skylite/arecipe (same deploy story, $0 static hosting) and
-  E70's "borrow from the PWA clients." A framework + WASM engine (the transcript's React/Svelte+Rust) is
-  **deferred** — MiniSearch-in-JS is verified fine at MVP scale (E48); WASM earns its place only if profiling
-  shows jank.
+- **Three distinct read paths — don't conflate them (this corrects the earlier draft):** (1) **board reads =
+  AppView XRPC** (`getFeed`/`searchPosts`/`getPostThread`, request/response, cursor-paginated) — a board is a
+  *query*, so no firehose is involved at all; this is the whole MVP read path. (2) **Live updates** ("N new
+  comments" pills, live thread growth) = **Jetstream** — and you are right that Jetstream (the filtered JSON
+  WebSocket, `wantedCollections=app.bsky.feed.post`) is **the only sane browser-native firehose**; the raw
+  `com.atproto.sync.subscribeRepos` CAR/CBOR firehose is not browser-appropriate. A browser can hold a
+  Jetstream WS filtered to posts and match against the boards/threads currently open — **no custom indexer
+  required.** Jetstream is therefore a *later phase, not "out"* — it was only "out of the guest MVP" because
+  request/response reads already populate a board; I overstated it. (3) A **custom indexer AppView** is needed
+  *only* for custom `app.socialtree.*` lexicons or global cross-network aggregation the public AppView doesn't
+  serve — *that* is the fuller Social Tree, genuinely out of this MVP.
+- **Why the shared Rust `feed-core` + a thin web shell (not a vanilla-TS one-off):** the forum is an instance
+  of the **Croft client architecture** (E5/E19, `client-architecture-adr.md`), which already decided a
+  `feed-core + Bluesky port` symmetric to croft-chat-cli's `group-core + Transport port`. The read engine
+  **is** that feed-core, so it should be authored as the shared Rust core (grown in the croft-group/app
+  workspace) and compiled to **WASM** for the web shell — this is continuous with the croft-chat-cli work, and
+  it is what lets the same logic later drive Tauri/iOS/Android shells without re-fattening. (skylite/arecipe
+  are simpler vanilla-TS atproto *pads*; this forum is a richer *client* and belongs in the app-client
+  architecture — E70's "borrow from the PWA clients" is about shell UX, not the core language.) Search can be
+  a Rust crate inside the core (or a thin JS MiniSearch shim in the shell for the very first spike, E48), but
+  the **default is the Rust core** — WASM is the core, not a jank-contingent optimization.
 - **Why radius/mutuals is a *logged-in-read* feature, not guest-core:** r=1/r=2 need the *viewer's* social
   graph (follows/followers), which a guest doesn't have. So the guest MVP is r=∞ (public boards); a
   **read-only** identity step unlocks the mutuals/radius lens. Mutuals-only-as-a-feed is possible
@@ -67,8 +92,11 @@ names/shapes actually returned (`post.record.text`, the four counts, `embed` var
 CDN thumb URLs, `viewer` block, `#blockedPost`/`#notFoundPost` placeholders). **Save the responses as test
 fixtures.** Gate: fixtures captured; field names confirmed against the returned bytes, not docs.
 
-### Phase 1 — the read engine (pure, TDD, no UI)
-RED→GREEN on pure functions over the Phase-0 fixtures (use the real response types, never redefined schemas):
+### Phase 1 — the `feed-core` (shared Rust core → WASM; pure, TDD, no UI)
+Grow the `feed-core` crate in the croft-group/app workspace (the `feed-core + Bluesky port` slot E19 named),
+behind a **Bluesky/AppView port** (real adapter + in-proc fake, mirroring croft-chat-cli's `Transport` port).
+RED→GREEN on pure Rust functions over the Phase-0 fixtures (use the real response types, never redefined
+schemas); compile to WASM and expose to the shell via `wasm-bindgen`:
 (1) **normalize** a feed/search response → an internal `PostCard` model; (2) **time-window filter** (rolling
 N-hours, default 4, configurable) with the secondary tie-break (replies → reposts → likes → newest); (3)
 **sort modes** — `MostDiscussed` (replyCount), `Hot` (velocity `(replies·3+quotes·2+likes)/(ageHours+2)^1.5`),
@@ -115,9 +143,11 @@ Lighthouse PWA + an axe a11y scan clean; installs and reads offline.
 
 ## Explicitly OUT of this MVP (tracked elsewhere)
 Writes (like/reply/post), the downvote lexicon, the RSS reader + CORS relay, custom `app.socialtree.*`
-lexicons + a custom indexer AppView, live Jetstream, the **tree-UI** (E63 phase two), the **private room**
-(Drystone Part 2 §6 — a separate project leverages it), **payments** (E67, parked), and the **WASM engine**
-(deferred until MiniSearch-in-JS demonstrably janks).
+lexicons **+ a custom indexer AppView**, the **tree-UI** (E63 phase two), the **private room** (Drystone
+Part 2 §6 — a separate project leverages it), and **payments** (E67, parked). **NOT out (corrected):** the
+**Rust `feed-core`/WASM engine** is the *core* of the MVP, not deferred (see Approach + Reasoning);
+**Jetstream live updates** are a *later phase*, not out-on-principle (Jetstream is the correct browser-native
+firehose and needs no indexer); only *native shells* (Tauri/iOS/Android) over the same core are later.
 
 ## Validation & risks
 - **TDD gate:** engine phases are pure functions tested against Phase-0 real-response fixtures (no redefined
