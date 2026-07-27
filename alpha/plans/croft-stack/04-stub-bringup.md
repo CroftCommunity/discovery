@@ -1,49 +1,58 @@
-# Phase 4 — `bootstrap.sh --apply` on the stub (idempotent bring-up)
+# Phase 4 — Ansible converge on a clean box (idempotent bring-up)
 
 ← [03-governance-telemetry.md](03-governance-telemetry.md) · [roadmap](README.md) · next →
 [05-dns-tls.md](05-dns-tls.md)
 
-**Status:** SCAFFOLD (fill on arrival) · **Depends-on:** Phase 3 (governance defaults in the
-generator) · **Gate-out:** a second `--apply` is a genuine all-`SKIP` no-op; all units `active` and
-governed; the contract stub serving.
+**Status:** SCAFFOLD (fill on arrival) · **Depends-on:** Phase 2 (VPS read + reinstall plan; spike
+learning persisted) + Phase 3 (governance/telemetry defaults) · **Gate-out:** a second Ansible run is a
+clean no-op (`changed=0`); all units `active` and governed; the `canary` tenant serving.
+
+**Reframed (Open decision 10):** the in-box bring-up is **Ansible**, not `bootstrap.sh` (dropped —
+bash idempotency not a fit). `bootstrap.sh --plan` is the *spec/checklist* the playbook must satisfy.
 
 ---
 
 ## Problem
 
-The whole kit rests on `bootstrap.sh` being idempotent and step-guarded, but **that has never been
-exercised against a real box.** This phase establishes it — with caution — on the validated stub, so
-first go-live proves the *infrastructure* with the binary held constant.
+Bring a **freshly reinstalled** box (Phase 2 decided a clean reinstall over reconciling the spike) to a
+serving baseline, **idempotently** — proven by a second converge changing nothing. First go-live proves
+the infrastructure with the payload held constant (the `canary` tenant).
 
 ## Approach
 
-Run `bootstrap.sh --apply` on the box (as root) to bring up base packages, hardening, firewall, Caddy,
-per-tenant users, the deploy user, and the generated units for the **stub tenant** only. Then re-run to
-prove idempotency. The stub honors `CONTRACT.md`, so it stands in for real binaries (RUN-15).
+Author an **Ansible playbook** (Python-ecosystem, idempotent modules — `apt`, `user`, `copy`/`template`,
+`systemd`, `community.general.nftables`/templated ruleset) that converges the box to the baseline the
+old `bootstrap.sh --plan` describes. The `render.py` generator produces the systemd units + Caddy
+vhosts; Ansible drops them and enables. Test idempotence (a second run reports `changed=0`) and,
+optionally, with `molecule` in a container.
 
 ## Steps (sketch — fill on arrival)
-1. `--apply`: base packages; unattended-upgrades; SSH hardening (no root login, no password auth);
-   nftables default-drop (22/80/443); Caddy from apt; per-tenant + `<name>-api` users; `deploy` user
-   (forced-command target); install generated units → `/etc/systemd/`, vhosts → `/etc/caddy/conf.d/`;
-   `daemon-reload`; `enable --now`.
-2. **Read what each step actually did** — do not assume the guards held.
-3. Re-run `--apply`; confirm every step reports `SKIP` (the idempotency claim, established for the
-   first time on real hardware).
-4. Confirm the stub unit is `active`, governed (limits/accounting present), and serving `/healthz`.
+1. Clean OS reinstall of the box (Phase 2), OpenTofu read confirms the VPS.
+2. Author the playbook from the `bootstrap.sh --plan` spec: base packages; unattended-upgrades; SSH
+   hardening (no root, no password); nftables default-drop (22/80/443 + the relay's UDP/QUIC later);
+   Caddy; per-tenant + `<name>-api` users; the `deploy` user (forced-command target); install generated
+   units + vhosts; `daemon-reload`; `enable --now`. TDD-ish: assert idempotence.
+3. Converge; **re-run and confirm `changed=0`** — the idempotency claim, now structurally guaranteed by
+   Ansible rather than hand-rolled bash guards.
+4. Confirm the `canary` tenant (`canary.croft.ing:8100`) is `active`, governed (limits/accounting), and
+   serving `/healthz`.
 
 ## TODO (decide on arrival)
-- [ ] Q4 (stub tenant name/fqdn) from Phase 0.
-- [ ] Capture the first-`--apply` output as the record of what the box now is.
+- [ ] Playbook structure (roles per concern) + where it lives in `croft-stack` (e.g. `ansible/`).
+- [ ] Idempotence test: `changed=0` assertion in CI; `molecule` container run (optional).
+- [ ] Debian 13 vs 12 (hold→2): the reinstall target OS; ensure modules/packages match.
+- [ ] Does the `deploy-receive.sh` forced-command deploy channel stay bash, or fold into Ansible?
+- [ ] Port the old `bootstrap.bats` intent into Ansible-native checks; retire `bootstrap.sh` + its bats.
 
 ## Risks & cautions
-- **Idempotency is unproven** — this is the highest-risk infra step. If a second `--apply` mutates
-  anything, stop and fix the guard before proceeding; a non-idempotent bootstrap poisons every later
-  phase.
-- Destroy→restore fire-drill is **deferred** (needs R2 / backups, which are paused) — note the gap.
-- SSH hardening can lock you out; confirm key-based access works before disabling password auth.
+- Bring up only on a **clean reinstall** — do not converge over the spike's hand-config.
+- SSH hardening can lock you out; confirm key access before disabling password auth (Ansible does this
+  in one run, so order the tasks carefully).
+- The destroy→restore fire-drill stays **deferred** (needs the backup toolchain; backups paused).
 
 ## Validation
-Second `--apply` = all-`SKIP`; `systemctl` shows the stub active+governed; `/healthz` (localhost) 200.
+Second `ansible-playbook` run: `changed=0`; `systemctl` shows `canary` active+governed; `/healthz` 200.
 
 ## References
-`kit/bootstrap/bootstrap.sh`, `kit/stub/`, `RUN-15-SUMMARY.md` (stub + fire-drill).
+`croft-stack/bootstrap/bootstrap.sh` (as the SPEC only), `scripts/render.py`, `stub/` (the canary);
+Open decision 10 (Ansible in-box); roadmap → Resource governance.
