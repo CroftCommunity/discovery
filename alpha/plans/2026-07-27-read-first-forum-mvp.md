@@ -2,8 +2,10 @@
 
 date: 2026-07-27
 identity: chasemp (`chase@owasp.org`, `github-personal`)
-status: **Pass 1–3 complete (2026-07-27).** Ready for execution pending two cheap BLOCKING items (repo/
-product name; the D2 probe). See the Review Log + Open Questions + the board-ready Kanban breakdown below. Code home = the **shared Rust
+status: **Pass 1–3 complete + Phase 0 executed (2026-07-27).** D2 resolved (radius needs no OAuth);
+`feed-core` home decided = existing `croft-group` workspace. **Only remaining BLOCKING = repo/product name.**
+New constraint from Phase 0: hashtag boards are login-gated (`searchPosts` 403 unauth) — guest boards are
+feed/author/list. See Review Log + the board-ready Kanban breakdown below. Code home = the **shared Rust
 `feed-core`** grown in the croft-group/app workspace (the `feed-core + Bluesky port` slot E19 named) **+ a
 thin web shell** (repo/name TBD — working name "Social Tree"; the forum name is an open A-series decision);
 discovery holds only the plan. Roadmap anchor: **E62** (+ **E19/E5** client architecture, E63/E69/E70/E71);
@@ -46,6 +48,23 @@ phase leaves a working state.
 post view has `replyCount`/`repostCount`/`likeCount`/`quoteCount`; `cdn.bsky.app/img/{feed_thumbnail,
 feed_fullsize,avatar_thumbnail}/…`; `<dialog>.showModal` + CSS container queries are Baseline-widely; MiniSearch
 is client-side; WCAG 2.5.8 (24px) / 2.5.1. `popover` is Baseline-*Newly* (progressive-enhance only).
+
+**Phase-0 firsthand findings (2026-07-27, live probes vs `public.api.bsky.app`) — these amend the phases:**
+- **Unauth 200:** `resolveHandle`, `getAuthorFeed`, `getFeed` (feed-generator), `getPostThread(depth)`,
+  `getFollows`, `getFollowers` — all with `cursor` pagination. Post view carries `replyCount`/`repostCount`/
+  `likeCount`/`quoteCount` (+`bookmarkCount`) — **all four counts confirmed live**; `record.{text,createdAt}`
+  present; thread = recursive `app.bsky.feed.defs#threadViewPost` with a `replies[]` list.
+- **D2 RESOLVED:** the graph endpoints are unauth → **radius (r=1/r=2) needs only the viewer's *handle*, no
+  OAuth, no write scope.** Phase 5 loses its OAuth step.
+- **CONSTRAINT — `searchPosts` returns 403 unauth** (edge/WAF block, not an XRPC error) → **hashtag/keyword-
+  search boards do NOT work for a guest.** Guest boards = **feed-URI / author / list** sources; hashtag-search
+  boards require login (or a server-side feed generator). Amends Phase 4.
+- **`viewer` block is empty unauth** → native block/mute filtering (Layer 1) is a **logged-in** feature (a
+  guest has no viewer state); **local keyword filtering is always available**. Amends Phase 1/5.
+- Avatar CDN form is `cdn.bsky.app/img/avatar/plain/<did>/<cid>` (feed image variants unverified this pass —
+  confirm the exact `feed_thumbnail`/`feed_fullsize` path from a post that has an image embed in Epic 1).
+- **Fixtures captured** (disposition `keep-as-fixture`) in the Phase-0 scratch dir; promote into the
+  `feed-core` crate's `tests/fixtures/` when Epic 1 creates the crate.
 
 ## Reasoning
 
@@ -133,9 +152,13 @@ summary pill, `[OP]` badge, "load more replies" for deep sub-threads, graceful `
 semantic `<a href>` so middle-click opens a real tab). Gate: open/close preserves scroll; deep links resolve.
 
 ### Phase 4 — boards as saved queries
-A board = a JSON query config in IndexedDB: a hashtag/keyword `searchPosts`, a feed-generator AT-URI `getFeed`,
-or a **multi-query "smart view"** (dedup by `uri`). Board switcher + a URL-shareable board config
-(`/view?q=…`). Per-board default sort/window. Gate: create/switch/share a board with no server.
+A board = a JSON query config in IndexedDB. **Per Phase-0: guest board sources = a feed-generator AT-URI
+(`getFeed`), an author (`getAuthorFeed`), or a list (`getListFeed`) — all unauth; a `searchPosts`
+hashtag/keyword board requires login** (searchPosts is 403 unauth) or a server-side feed generator, so
+hashtag boards are **gated to the logged-in path**, not the guest MVP. Multi-query **"smart view"** (dedup by
+`uri`) across the unauth sources. Board switcher + a URL-shareable board config (`/view?q=…`). Per-board
+default sort/window. Gate: create/switch/share a feed/author/list board with no server; a hashtag board
+prompts login. Wiring test: creating a board config → the correct XRPC query executes → renders.
 
 ### Phase 5 — read-only identity + the radius lens (optional within MVP)
 A **read-only** "connect your handle" step (resolve handle→DID, fetch public follows + followers) → compute
@@ -214,8 +237,11 @@ Bluesky port (Phase 1), not sprinkled in the shell.
 - **[CONFIRMED: BLOCKING] Repo / product name** (A-series naming decision) — needed before the shell repo is
   created; the `feed-core` crate can grow in the existing croft-group/app workspace first, so this blocks the
   *shell repo*, not Phase 0/1. *User owns naming.*
-- **[RECOMMENDED: BLOCKING for Phase 5] D2 — does radius need OAuth or just an unauth graph fetch?** Resolved
-  by the Phase-0 D2 probe; it fixes whether Phase 5 adds a read-only OAuth step. *Cheap to resolve now.*
+- **[RESOLVED 2026-07-27] D2 — radius needs no OAuth.** Phase-0 probe: `getFollows`/`getFollowers` are 200
+  unauth on `public.api.bsky.app` → Phase 5 is a **handle input only**, no login, no write scope.
+- **[RESOLVED 2026-07-27, new] Guest board sources.** `searchPosts` is 403 unauth → hashtag/keyword boards
+  are **login-gated**; guest boards are feed-URI/author/list. Folded into Phase 4. *(Open sub-item, ADVISORY:
+  offer a server-side feed generator later so hashtag boards work for guests too — out of MVP.)*
 - **[RECOMMENDED: PHASE-GATED (Phase 1)] `feed-core` home:** a new crate in the existing `croft-group`
   workspace (E19) vs a fresh `croft-app` workspace. *Reuses the decided decomposition either way; affects
   where the port lives.*
@@ -317,8 +343,21 @@ stale (Phase 1/2), not a trailing docs phase.
 creep (the cut layers stayed cut).
 **Confirmed ready:** yes, pending the two BLOCKING items (repo name; D2 — both cheap).
 
+### Phase 0 execution — 2026-07-27 (findings; Discovery Exemption)
+Ran D1/D2/D3 live against `public.api.bsky.app` (egress worked). **Findings (folded into Verified
+Assumptions + Phases 1/4/5):** unauth 200 for `resolveHandle`/`getAuthorFeed`/`getFeed`/`getPostThread`/
+`getFollows`/`getFollowers`; all four post-view counts + `record.{text,createdAt}` confirmed live; thread is a
+recursive `threadViewPost`. **D2 resolved** → radius needs no OAuth (handle only). **New constraint** →
+`searchPosts` is **403 unauth**, so hashtag/keyword boards are login-gated (guest boards = feed/author/list);
+folded into Phase 4. **`viewer` empty unauth** → native block/mute filtering is a logged-in feature; local
+keyword filtering is always on (Phase 1/5). Avatar CDN = `/img/avatar/plain/…`; confirm feed image variants
+in Epic 1. Fixtures captured (`keep-as-fixture`) in scratch; promote into the crate at Epic 1.1. **Decision
+(user 2026-07-27): `feed-core` home = the existing `croft-group` workspace.** Remaining BLOCKING: repo/
+product name only.
+
 ## Next
-Resolve the two BLOCKING items (repo/product name; run the D2 probe — both cheap), pick the `feed-core` home
-(existing `croft-group` workspace vs a new `croft-app` one), then execute **Phase 0 → M1 (E0+E1)**. The
-kanban breakdown above is board-ready; import epics 0–6 as columns/swimlanes and the numbered cards as
-tickets.
+Phase 0 is **done** and the `feed-core` home is decided (existing `croft-group` workspace). The only
+remaining BLOCKING item is the **repo/product name** (A-series). Once named, execute **Epic 1 (`feed-core`)**
+→ M1: create the crate in `croft-group`, promote the Phase-0 fixtures into `tests/fixtures/`, build 1.1→1.7
+test-first. The kanban breakdown above is board-ready; import epics 0–6 as columns/swimlanes and the numbered
+cards as tickets.
