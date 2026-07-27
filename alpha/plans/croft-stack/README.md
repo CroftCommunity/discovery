@@ -25,7 +25,7 @@ pre-resolved. Recommendations are marked *(rec)*.
 | 1 ✅ | [01-extract-croft-stack.md](01-extract-croft-stack.md) | extract the kit → `CroftCommunity/croft-stack` | **DONE** (pushed `fcf49a7`) — seeded + renamed; `make check` **12/13 green**; the 2 red are toolchain-gated (terraform→fold→2, local-drill→backups-paused), not the rename |
 | 2 | [02-adopt-box-declaratively.md](02-adopt-box-declaratively.md) | OpenTofu resource layer + in-box generator seam | `--plan` reviewed; VPS resource captured |
 | 3 | [03-governance-telemetry.md](03-governance-telemetry.md) | limits+accounting defaults + local telemetry client | every unit governed; telemetry reports live usage |
-| 4 | [04-stub-bringup.md](04-stub-bringup.md) | `bootstrap.sh --apply` idempotency (with caution) | 2nd `--apply` a genuine no-op; units active+governed |
+| 4 | [04-stub-bringup.md](04-stub-bringup.md) | **Ansible** converge on a clean box (idempotent) | 2nd run `changed=0`; units active+governed |
 | 5 | [05-dns-tls.md](05-dns-tls.md) | A/AAAA + Caddy auto-TLS | `https://<fqdn>/healthz` → `200 ok`, valid cert |
 | 6 | [06-iroh-relay.md](06-iroh-relay.md) | **first real service** — off-the-shelf infra shakedown | relay supervised+governed+observable |
 | 7 | [07-auth-helper.md](07-auth-helper.md) | confidential-client spike → shared broker | session past browser-only TTL; clean fallback |
@@ -393,10 +393,11 @@ Application/service logic is **Rust or Python**; the pads are **web/JS** (exempt
   server-side components. The telemetry client (Phase 3) lands on Python by this rule (utility, no
   real-time need, no shared-lib win).
 - **Web/JS** — the pads only.
-- **Bounded, accepted variances** (config + OS-orchestration substrate, not competing app languages):
-  **bash** for OS glue (`bootstrap.sh`, `deploy-receive.sh`, `extract-to-repo.sh` — they drive
-  systemctl/apt/nftables/Caddy) and **bats** for testing that glue; **HCL** for OpenTofu (resource
-  layer). Application-logic tests stay in-language (`cargo test` / `pytest`).
+- **Bounded, accepted variances** (config + orchestration substrate, not competing app languages):
+  **HCL** for OpenTofu (resource layer); **Ansible YAML** for the in-box layer (Python-ecosystem,
+  idempotent — the chosen replacement for bash bring-up, Open decision 10); **bash** only for the tiny
+  `deploy-receive.sh` forced command + `extract-to-repo.sh`, with **bats** testing it. `bootstrap.sh` is
+  **dropped**. Application-logic tests stay in-language (`cargo test` / `pytest`).
 - Note: the 2026-07-24 auth-helper **spike** was TypeScript/Node (throwaway); its **production** broker
   is Rust.
 
