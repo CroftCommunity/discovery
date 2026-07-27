@@ -103,6 +103,8 @@ COMPANION_ALLOWLIST = {
         "points at social-layer.md §75–77 (design gate G5), a cross-doc companion ref",
     ("thinking-social-layer", "§29"):
         "points at COHESION.md §29, a companion doc outside the published set",
+    ("thinking-app-helpers-register", "§0.2"):
+        "points at ponds/build-order.md §0.2 (deep-link resolver), a companion doc outside the published set",
 }
 
 
