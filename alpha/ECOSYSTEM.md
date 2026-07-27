@@ -324,6 +324,27 @@ registered — these are the *net-new* names. Verified rows are marked; others `
 | W3C Digital Credentials CG / OpenID | **Digital Credentials API** + **OpenID4VP** | `navigator.credentials.get({digital})` for wallet-held verifiable credentials (selective-disclosure/ZK viewing modes); Chrome 141 / Safari 26 (late 2025); OpenID4VP + ISO 18013-7 cross-device over QR/BLE | shipping [verified: web 2026-07-27] | build-on (attestation-based viewing modes; optional, PWA degrades without it) |
 | WICG | **Web Monetization** | `<link rel="monetization">` + Interledger micropayment streaming — the zero-take direct-to-creator tipping path. WICG Community-Group draft, **not** a W3C standard | draft [verified: web 2026-07-27] | learn↔ (creator economics; the platform abstains from the transaction) |
 
+## 5j. Croft-landscape batch — co-op hosting precedents, Bluesky clients, payment rails, identity/auth (2026-07-27)
+
+From the 2026-07-27 compound session (E63–E71; fact-check `research/2026-07-27-social-tree-factcheck-2.md`).
+coturn/LiveKit/Yjs/Transformers.js/Privacy-Pass/Digital-Credentials/Web-Monetization are already in §5i;
+Germ/MLS in §6; Standard.site in §5b. These are the net-new names. Verified rows marked.
+
+| Org/Author | Project | Purpose / relevance | State | Relationship |
+|---|---|---|---|---|
+| Disroot | **Disroot** | Ethical hoster: email, Nextcloud, XMPP, Etherpad, PrivateBin, SearXNG, Forgejo — the co-op-service-menu precedent | live [verified: web 2026-07-27] | learn↔ (the E66 menu; but note the labor-sink services) |
+| Riseup | **Riseup** | Activist hoster: email, lists, VPN, chat; ephemeral **share ~12h TTL**, **pads removed after 60 days** inactivity — the "TTL = maintenance strategy" model | live [verified: web 2026-07-27] | learn↔ (ephemeral-by-default utilities) |
+| Framasoft | **CHATONS** | French federation of ethical hosters, initiated by Framasoft **2016** — the "collective of small hosters" prior art | live [verified: web 2026-07-27] | learn↔ (co-op federation shape) |
+| XWiki / community | **CryptPad** | Browser-E2EE collaborative docs (admins can't read) — the ciphertext-only-collaboration precedent | live [verified: web 2026-07-27] | build-on / learn↔ (E66 "server can't read it") |
+| dani-garcia | **Vaultwarden** | Bitwarden-compatible server holding only client-encrypted blobs (few metadata fields plaintext) — highest trust-per-byte co-op utility | live [verified: web 2026-07-27] | build-on (E66 shortlist) |
+| Frédéric Guillot | **Miniflux** | Single static Go binary feed reader, only dep PostgreSQL — the low-maintenance feed backend | live [verified: web 2026-07-27] | build-on (E66; the Google-Reader-clone backend) |
+| louvre/community | **deck.blue** | TweetDeck-style multi-column Bluesky web client (since Aug 2023) | live [verified: web] | learn↔ (Skylite patterns, E70) |
+| spuithori | **TOKIMEKI** | Browser Bluesky client, multi-column + multi-account, **PWA-installable, MIT, self-hostable** — closest PWA comparable to Skylite | live; MIT [verified: web]; PWA/self-host corroboration-tier | **learn↔ / build-on — read for AppView patterns (E70)** |
+| — | **SkyFeed / Ouranos / DarkSky / Skeets / Graysky / Sora** | Other Bluesky clients: SkyFeed (feed builder), Ouranos (lightweight web), DarkSky (Windows OSS), Skeets (iOS, paid Pro), Graysky (status unconfirmed), Sora (multi-network Mastodon+Bluesky) | live [verified: web / directory-tier] | learn↔ (E70) |
+| IETF MIMI WG | **MIMI** (More Instant Messaging Interoperability) | IETF WG chartered on **MLS (RFC 9420)**; core `draft-ietf-mimi-protocol` (-04, July 2025) — **WG draft, not yet an RFC**; "sits directly on the stack" per the author | IETF WG draft [verified: datatracker 2026-07-27] | watch / learn↔ (messaging interop layer atop MLS) |
+| W3C WebAppSec / Google | **DBSC** (Device Bound Session Credentials) | TPM/Secure-Enclave-bound web-session credential, silent challenge-refresh; **GA Windows Chrome 146 (Apr 2026)**, macOS next; binds session↔device (user↔broker leg), not the DPoP↔PDS leg; can't stop a resident attacker | shipping (Chromium) [verified: web 2026-07-27] | learn↔ (E68 auth legs) |
+| — (Lightning/Nostr) | **NIP-57 zaps · NWC (NIP-47) · Primal/Strike · Damus · Amethyst · Wallet of Satoshi** | Community value-transfer rails: zaps = receipt-protocol on plain Lightning; NWC = client→wallet control; Primal (Strike custody, KYC-lite) vs Damus/Amethyst + separate wallet; Damus dropped post-zaps under Apple pressure (June 2023) | live [verified: web 2026-07-27] | candidate / watch (E67; custody+legal-gated, NOT-FINANCIAL-ADVICE) |
+
 ## 6. P2P / decentralized messengers (the field)
 
 Detailed competitive analysis lives in `research/messaging-solutions-landscape.md`. Relational summary:

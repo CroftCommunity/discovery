@@ -1634,6 +1634,36 @@ utility"** — a candidate for `crystallized/principles.md` (surfaced as an E62 
 Backlog: ROADMAP_TODO §E (E62); open decisions cross-linked to T7 (private-data), D5 (sustainability, for the
 ethical-relay business model).
 
+## 60. 2026-07-27 — the Croft-landscape batch (positioning · tree-UI · webvh · blob-E2EE · co-op · auth · payments · filters)
+
+**Loose end ↔ work:** a large compound session
+(`seeds/transcripts/raw/croft-landscape-small-world-tree-ui-webvh-blob-coop-2026-07-27.md`) plus a paired
+atproto-mechanics + phone-hotspot Q&A (`raw/atproto-mechanics-pds-relay-appview-hotspot-2026-07-27.md`), each
+routed into existing tracks rather than a parallel list. Threads and their seams: **small/medium/big-world
+positioning + tree-as-relational-UI** (E63) → the small world is Croft's slot and the tree is it *made
+legible*; extends E62, feeds `NAMING.md` + `thinking/social-layer.md`. **did:webvh watchers / bounded-
+staleness / "federation of availability"** (E64) → heartwood identity lineage + E30/E31 Drystone +
+`research/atproto-sovereign-appview-club.md`; the durable result is *federation unbundled into fidelity
+(in-artifact) vs availability (the network's only job)*, with a DHT axis. **Bluesky blob per-DID scoping ↔
+the client-side-E2EE storage contract** (E65) → corroborates `research/atproto-private-data-architecture.md`
+and E24/E42; the user's "differing data contracts in one contract-agnostic engine" framing relocates the
+moderation tension to the operator layer. **Co-op low-maintenance service menu** (E66) → D5/cooperative +
+the account kernel; the charter-material filter is *server-can't-read-it + members-can't-publish-to-
+strangers*. **Best Bluesky clients → Skylite** (E70, user note). **Auth: passkey/DPoP/DBSC + TOTP MFA + JWKS
+mass-invalidation** (E68) → the auth-helper spike + account kernel; the TOTP-secret-at-rest reintroduces the
+envelope-encryption need the ephemeral-session design removed (ties the E60 Litestream-cleartext finding).
+**Lightning/Nostr zaps** (E67, candidate/custody-gated) → D5. **arecipe responsive-filter playbook** (E69) →
+the arecipe cluster. **OPFS/continuous-export honest correction** (E71) → sharpens E62 (desktop-only folder-
+mirror + a separate mobile durability story). **Status: OPEN (E63–E71); fact-check DONE** →
+`research/2026-07-27-social-tree-factcheck-2.md` (unusually accurate; corrections: iOS-18 hotspot client-
+IPv4-isolation UNVERIFIED/forum-only; Riseup pads 60d; DBSC shipped; popover Baseline-Newly; Path-50 ≠
+Dunbar-150; MIMI = WG draft; "watchers reaching consensus" = author's gloss). **Cross-cutting spine:** the
+user's tenet **"machines compute provenance, never utility"** (candidate for `crystallized/principles.md`,
+surfaced in E62/E63) is the through-line uniting the webvh (provenance-not-freshness), blob-E2EE (opaque-
+bytes), and anti-extraction threads. The atproto-mechanics explainer is a **deeper superset** of the
+2026-06-22 explainer — consolidate into one reference rather than duplicating. Backlog: ROADMAP_TODO §E
+(E63–E71).
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
