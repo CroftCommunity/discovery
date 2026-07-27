@@ -16,6 +16,11 @@ thing none of those single indexes shows whole. Product design of record: `../be
 
 ---
 
+> **Organizing lens (2026-07-27):** the three legs below are named and unified by the **Social Tree
+> backbone → apps** model in `ROADMAP.md` § "The Social Tree backbone → apps" — the "social-graph baseline"
+> leg is the backbone (Social Tree: scope/radius + shared client core); Croft Chat and the ponds/pads are
+> apps on it. Read that section first for the frame.
+
 ## The three legs (+ what's beneath)
 
 ### Substrate / social-graph baseline

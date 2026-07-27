@@ -11,6 +11,9 @@ later live-updates path not "out"; E67 payments parked; private plane is Dryston
 
 ## Layering: Social Tree (backbone) vs `forum.croft.ing` (app) — resolved 2026-07-27
 
+> Canonical ecosystem framing for this: `ROADMAP.md` § "The Social Tree backbone → apps" (the integrated
+> roadmap view linking every plan). This section is the forum-app-local view of that model.
+
 **"Social Tree" is NOT the forum — it is the default Croft app backbone**, the shared substrate most Croft
 apps sit on (per the user, 2026-07-27): the `feed-core` (normalize / time-window / sort / graph-intersection /
 radius / local-first cache) + the shared client core (E5/E19 client-architecture). It is the reasoning-and-

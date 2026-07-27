@@ -13,7 +13,77 @@ Naming/branding: **"Croft" is now the name center of gravity** (see NAMING.md). 
 Recent additions folded in: the interaction-tiers model (interactive/quiet-large/broadcast,
 type-at-creation; thinking/interaction-tiers.md), durable-product principles (settings-three-
 audiences, shapeability-requires-stability/LTS-interfaces; crystallized/principles.md Tier 3),
-and the encrypted-media path proven over real iroh-blobs (PR #5).
+the encrypted-media path proven over real iroh-blobs (PR #5), and — as the new organizing lens —
+**the Social Tree backbone → apps model (2026-07-27), below.**
+
+---
+
+## The Social Tree backbone → apps (organizing lens, 2026-07-27)
+
+This section is the integrating frame the rest of the roadmap now hangs on. It also **corrects a
+misunderstanding** from the 2026-07-27 intake: earlier notes read "Social Tree" as *the forum app*. It is
+not. **"Social Tree" is the default Croft app *backbone* — the lens that roots the Croft thinking.** The
+forum is one *app on top of it*.
+
+**The continuum (why "root", pun intended):**
+
+```
+   social tree      →      social networking      →      social media
+  (rooted graph)            (medium world)                (big world)
+   r = 0/1/2                 r = follows/lists              r = ∞ (global)
+   Croft's slot              ActivityPub-shaped             Bluesky/atproto-shaped
+```
+
+The rooted personal graph is the base the outer scales grow from (this is the E63 small→medium→big-world
+positioning). Croft's novel slot is the **small world that folds up into the others** — see E63.
+
+**Three layers (this is the same structure as BUILD-INVENTORY's "three legs" + the substrate, now named):**
+
+```
+  APPS (the *.croft.ing surface — ponds & pads)
+    forum.croft.ing ......... read-first Reddit/Discourse lens   [plan: 2026-07-27-read-first-forum-mvp.md; E62/E69/E70]
+    Croft Chat ............. private MLS group chat              [E65 + Drystone Pt2 §6; experiments/croft-group group-core]
+    arecipe / skylite ...... atproto recipe / feed pads (live)   [sibling repos; E53–E59, E48]
+    greetings.croft.ing .... link-delivered cards (live)         [plan: 2026-07-21-greetings-croft-ing-mvp.md; E43/E45]
+    games / ponds .......... P2P games, utilities                [E6/E8/E46/E47; beta/croft/build-order-and-ponds-roadmap.md]
+         │  every app CONSUMES the backbone's scope; the same "tree folks" set can drive a
+         │  private MLS chat AND restrict forum content to those folks — same scope, different plane
+         ▼
+  BACKBONE = "Social Tree" (computes SCOPE: your tree + radius; the shared client core)
+    feed-core (read/normalize/window/sort/graph-intersection/radius, Rust→WASM)  [forum MVP Epic 1; E5/E19 client-architecture-adr]
+    group-core (lineage groups / MLS membership)                                 [experiments/croft-group; E19]
+    account kernel (session broker + repo-mirror + encrypted prefs)              [plan: 2026-07-22-account-kernel-spike.md; E44]
+    scope/radius + provenance-not-utility lens                                   [E62/E63; crystallized/principles.md "the razor"]
+         │  rests on
+         ▼
+  SUBSTRATE (social-graph baseline)  redb projection · social-graph-core · Drystone protocol
+    [BUILD-INVENTORY "three legs"; Drystone spec beta/drystone-spec/; E30/E31/E64 heartwood/webvh]
+         │  hosted/relayed by
+         ▼
+  INFRA (co-op-operable)  box · dns-tls · iroh-relay · auth-helper · cache · stellin-index · drystone-layer
+    [plans: alpha/plans/croft-stack/00–10; ethical-relay + co-op D5/E66/E67-parked]
+```
+
+**The key insight (records the 2026-07-27 correction):** an app's scoping is *not* an app feature — it is
+the app **consuming the backbone's scope**. The forum's r=1/r=2 radius filter and a private-chat app's MLS
+membership are the *same* "tree folks" scope, spent on different planes (public read vs Drystone/MLS
+private). That is what makes `forum.croft.ing` the **first proof of the Social Tree backbone**, not a
+one-off client — and it is why the private-comms plane is a *separate app on Drystone*, not something the
+forum builds.
+
+**How this maps onto the existing roadmap:** the BACKBONE + SUBSTRATE = the *validation track* + the
+"social-graph baseline" leg; the APPS = the *product track* milestones (M1 chat, M2 social layer) + the
+ponds/pads garden (Next-to-do item 12, which this section refines); INFRA = the sustainability/cooperative
+question (item 15, D5). **All current plans, indexed here:** the forum MVP
+(`plans/2026-07-27-read-first-forum-mvp.md`), the account kernel (`plans/2026-07-22-account-kernel-spike.md`),
+greetings (`plans/2026-07-21-greetings-croft-ing-mvp.md`), the croft-stack infra series
+(`plans/croft-stack/00–10`), the engineering/validation plan (`plans/2026-07-09-engineering-validation-plan.md`),
+the ponds build order (`beta/croft/build-order-and-ponds-roadmap.md`), and the intake coordinators
+(`plans/2026-07-{22,23,27}-transcript-intake-*.md`). Backlog cross-cut: `ROADMAP_TODO.md` E62–E71 + E5/E19/E44;
+build-state cross-cut: `BUILD-INVENTORY.md`; client-code architecture: `thinking/app/client-architecture-adr.md`.
+
+**Status:** framing settled for a roadmap discussion (user, 2026-07-27); no build started. The forum MVP plan
+is execution-ready (Pass 1–3 + Phase 0 done) but **held pending that discussion.**
 
 ---
 
