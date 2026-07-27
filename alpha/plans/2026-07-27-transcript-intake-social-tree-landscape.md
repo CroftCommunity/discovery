@@ -87,9 +87,15 @@ impossible); Privacy Pass = **RFC 9576/9577/9578** (not 9152); `PublicKeyCredent
 
 ## Open decisions (surfaced, the user's to make — PLAYBOOK §5)
 
-- **Private-comms transport** for the small-world plane (sidecar MLS vs Matrix vs "Dark PDS" vs ephemeral
-  WebRTC) — the user flagged hesitancy about bending PDS-stored encryption; ties T7 + the beta MLS work.
-- **Ethical WebRTC-relay + Lightning/Nostr value-transfer** business/custody/legal model (E67) — D5.
+- **Private-comms / "private room" — RESOLVED out-of-scope (user 2026-07-27):** the private/E2EE plane is
+  **Drystone's messaging plane** (`beta/drystone-spec/part-2-certifiable-design.md` §6 encryption stack /
+  §6.1.2 MLS plane / §6.2.2 Layer-B `PrivateMessage` / §7.6.3 / §10.2). A *separate project leverages
+  Drystone*; the forum does not build a sidecar. (Ties T7 + the beta MLS work.)
+- **Payments (E67) — RESOLVED not-a-goal (user 2026-07-27):** parked as stretch discovery only; the
+  ethical-relay business/custody/legal question is explicitly deferred.
+- **Mutuals-only (clarified, user 2026-07-27):** possible as a *feed/read-view* (follows∩followers, client
+  or feed-generator — such feeds exist in the wild); only network-enforced *reply*-gating by mutuals is not
+  native (approximate via following+follower / a `listRule`). Not a blocker.
 - **Non-pejorative framing** for "small world" (E63).
 - **Downvote lexicon** publish-vs-local (E62); **RSS-CORS relay** vs the "$0/no-backend" framing (E62).
 - **r=2 graph-resolution** strategy at scale (E62/E63).
