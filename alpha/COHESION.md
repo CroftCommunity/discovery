@@ -1629,8 +1629,10 @@ synthesis, E62); fact-check DONE** → `research/2026-07-27-social-tree-factchec
 no native atproto E2EE/private-data; no `hideReply` method; no native threadgate "mutuals" rule; Privacy Pass
 ≠ RFC 9152 (it's 9576/9577/9578); `PublicKeyCredential.supportsPrf` isn't real — plus the Chromium-only /
 iOS-Safari platform caveats that reshape the "PWA is the floor" claim). `site.standard.*` confirmed real but
-community-not-official. **Novel durable idea:** the user's tenet **"machines compute provenance, never
-utility"** — a candidate for `crystallized/principles.md` (surfaced as an E62 backport call, not yet lifted).
+community-not-official. **Not novel — already settled:** the user's tenet **"machines compute provenance, never
+utility"** is the established Drystone bedrock **"razor"** (`crystallized/principles.md` §"The deeper
+foundation (2026-06-20)"; `beta/philosophy/epistemics-provenance-and-verification.md`; `commensurability-and-
+the-two-ledgers.md`); this transcript restates it, no lift needed.
 Backlog: ROADMAP_TODO §E (E62); open decisions cross-linked to T7 (private-data), D5 (sustainability, for the
 ethical-relay business model).
 
@@ -1658,8 +1660,9 @@ mirror + a separate mobile durability story). **Status: OPEN (E63–E71); fact-c
 `research/2026-07-27-social-tree-factcheck-2.md` (unusually accurate; corrections: iOS-18 hotspot client-
 IPv4-isolation UNVERIFIED/forum-only; Riseup pads 60d; DBSC shipped; popover Baseline-Newly; Path-50 ≠
 Dunbar-150; MIMI = WG draft; "watchers reaching consensus" = author's gloss). **Cross-cutting spine:** the
-user's tenet **"machines compute provenance, never utility"** (candidate for `crystallized/principles.md`,
-surfaced in E62/E63) is the through-line uniting the webvh (provenance-not-freshness), blob-E2EE (opaque-
+user's tenet **"machines compute provenance, never utility"** — the established Drystone **"razor"**
+(`crystallized/principles.md` §deeper-foundation 2026-06-20; already carried up through the ecosystem, not a
+new candidate) — is the through-line uniting the webvh (provenance-not-freshness), blob-E2EE (opaque-
 bytes), and anti-extraction threads. The atproto-mechanics explainer is a **deeper superset** of the
 2026-06-22 explainer — consolidate into one reference rather than duplicating. Backlog: ROADMAP_TODO §E
 (E63–E71).
