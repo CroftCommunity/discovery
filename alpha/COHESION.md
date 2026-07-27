@@ -1609,6 +1609,31 @@ clear control** (the Skylite sponsor-vs-child stance). **Proof-out EXECUTED as a
 proof", 56 files, 48 unit + 4 e2e green — RUN-MEASURE-01 E0–E8). Still open: kit name/home; rounding-vs-exact
 (E8); review PR #58 findings. Pilot = arecipe. Backlog: ROADMAP_TODO §E.
 
+## 59. 2026-07-27 — the "Social Tree" forum/reader PWA ↔ E39 aggregator pond + the sovereign-AppView / S5 spine
+
+**Loose end ↔ work:** a long product/UX dialogue —
+`seeds/transcripts/raw/bsky-reddit-forum-social-tree-pwa-2026-07-27.md` (cleaned-paste) — that reads at first
+as a net-new "build a Reddit on Bluesky" idea but is in fact **E39 (the aggregator-pond / lens-inherits-a-
+population direction) walked all the way out into product and UX**. The seams are dense and already tracked:
+(a) its core "a board is a saved query, no cold-start" thesis = **E39**; (b) its client engine (WASM
+filter/sort/search over local IndexedDB) = **E48** (client-side search — cite, don't re-derive); (c) its
+radius model + quiet local mutes + mod-list mirroring + RSS/multi-source ingestion = the client face of
+**E24/E42** (sovereign AppView club); (d) its PWA sync / encrypted vault / Web-Push / Home-Screen layer =
+**E44**. **The load-bearing convergence is invariant S5** (`thinking/social-layer.md`): the dialogue proposes
+hiding private content by lexicon-namespace on a public PDS, the user catches it ("Definitely not invisible
+at all"), and the assistant self-corrects to *structural* privacy — private planes must ride a **sidecar**
+(MLS/Matrix/"Dark PDS"/ephemeral WebRTC), never plaintext on the firehose; "Graft to Global" becomes a literal
+cryptographic threshold. This directly corroborates the corpus's existing stance that E2EE on atproto is
+**third-party** (Germ/MLS, `ECOSYSTEM.md` §6) and the beta MLS side-histories work. **Status: OPEN (product
+synthesis, E62); fact-check DONE** → `research/2026-07-27-social-tree-factcheck.md` (~40 claims; **5 REFUTED**:
+no native atproto E2EE/private-data; no `hideReply` method; no native threadgate "mutuals" rule; Privacy Pass
+≠ RFC 9152 (it's 9576/9577/9578); `PublicKeyCredential.supportsPrf` isn't real — plus the Chromium-only /
+iOS-Safari platform caveats that reshape the "PWA is the floor" claim). `site.standard.*` confirmed real but
+community-not-official. **Novel durable idea:** the user's tenet **"machines compute provenance, never
+utility"** — a candidate for `crystallized/principles.md` (surfaced as an E62 backport call, not yet lifted).
+Backlog: ROADMAP_TODO §E (E62); open decisions cross-linked to T7 (private-data), D5 (sustainability, for the
+ethical-relay business model).
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the

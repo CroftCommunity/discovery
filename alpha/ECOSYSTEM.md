@@ -306,6 +306,24 @@ dialogue-sourced — verify before citing specifics (E52). Jay Graber added to `
 | IETF (PPM/DAP WG) | **Poplar / Poplar1 (VDAF)** | Private heavy-hitters via secret-shared prefix counting — discovers popular paths you never declared; **requires two non-colluding aggregation operators**, so noted-and-skipped for a single-VPS deployment (declared-edge counter = its degenerate single-operator case) | draft `[UNVERIFIED]` | learn↔ (the cryptographic ceiling the declared-edge design deliberately stops short of) |
 | CNIL (FR regulator) | **CNIL consent-exempt audience-measurement self-assessment (July 2025)** | The three-event ceiling (page / feature / timing) the measurement registry mirrors; nearest-ten rounding as the recommended anonymity measure (the E8 rounding question) | published `[UNVERIFIED]` | learn↔ (the regulatory shape the kit's metric-type ceiling and rounding option track) |
 
+## 5i. Social-Tree building blocks — feed builders, long-form adopters, relay/CRDT/local-LLM infra (2026-07-27)
+
+From the Social Tree dialogue (E62; fact-check `research/2026-07-27-social-tree-factcheck.md`). Standard.site
+(§5b), Germ/MLS (§6), Automerge/GGRS+matchbox/netplayjs (§5d), and the atproto substrate (§5) are already
+registered — these are the *net-new* names. Verified rows are marked; others `[UNVERIFIED]`.
+
+| Org/Author | Project | Purpose / relevance | State | Relationship |
+|---|---|---|---|---|
+| SkyFeed / community | **SkyFeed** + **Bluesky Feed Creator** | Third-party visual feed builders (input/filter/sort blocks; engagement/time sorting) — the "no-code" precedent for the Social Tree's saved-query boards; can't ingest an existing feed's rules, you recreate them | live `[UNVERIFIED]` | learn↔ (prior art for query-as-board; the PWA does this client-side) |
+| pckt.blog / Offprint | **pckt.blog / Offprint** | Additional `site.standard.*` long-form adopters beyond Leaflet (§5b) — corroborate that the long-form lexicon is a live community convention, not a single-app format | live `[UNVERIFIED]` | build-on / learn↔ (long-form interop targets) |
+| coturn project | **coturn** | Open-source STUN/TURN server — the self-hostable NAT-traversal relay for the ethical-helper WebRTC tier (E62); lets a power user swap out the commercial endpoint | live [verified: web 2026-07-27] | build-on (self-host escape hatch for the relay tier) |
+| LiveKit | **LiveKit** | Open-source WebRTC SFU — multi-party room routing for the helper tier; E2EE-through-SFU still needs SFrame layered on (DTLS-SRTP alone is hop-by-hop) | live [verified: web 2026-07-27] | build-on (SFU for audio rooms / live) |
+| Yjs / Kevin Jahns | **Yjs** | CRDT library (peer to Automerge, §5d) for offline-first conflict-free merge of local vault/annotations across a user's own devices | live [verified: web 2026-07-27] | build-on (split-brain offline sync) |
+| Xenova / Hugging Face | **Transformers.js** (+ **WebLLM**) | In-browser quantized-model inference over WebGPU/WASM — the "sovereign AI" local summarizer / semantic-search embeddings (MiniLM), zero external API | live [verified: web 2026-07-27] | build-on (local LLM / embeddings; WebNN still draft) |
+| IETF Privacy Pass WG | **Privacy Pass (RFC 9576/9577/9578)** | Blind-signature anonymous tokens — the un-linkable proof-of-payment for the helper tier's metering (buy tokens, spend them at the relay without linking billing↔session). NOT "RFC 9152 / W3C" as the dialogue said | RFC (June 2024) [verified: web 2026-07-27] | build-on (anonymous metering) |
+| W3C Digital Credentials CG / OpenID | **Digital Credentials API** + **OpenID4VP** | `navigator.credentials.get({digital})` for wallet-held verifiable credentials (selective-disclosure/ZK viewing modes); Chrome 141 / Safari 26 (late 2025); OpenID4VP + ISO 18013-7 cross-device over QR/BLE | shipping [verified: web 2026-07-27] | build-on (attestation-based viewing modes; optional, PWA degrades without it) |
+| WICG | **Web Monetization** | `<link rel="monetization">` + Interledger micropayment streaming — the zero-take direct-to-creator tipping path. WICG Community-Group draft, **not** a W3C standard | draft [verified: web 2026-07-27] | learn↔ (creator economics; the platform abstains from the transaction) |
+
 ## 6. P2P / decentralized messengers (the field)
 
 Detailed competitive analysis lives in `research/messaging-solutions-landscape.md`. Relational summary:
