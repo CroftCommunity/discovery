@@ -3,11 +3,26 @@
 ← [01-extract-croft-stack.md](01-extract-croft-stack.md) · [roadmap](README.md) · next →
 [03-governance-telemetry.md](03-governance-telemetry.md)
 
-**Status:** ready (reviewed against the real `terraform/` + `BOX-CHANGELOG.md`, 2026-07-27) ·
-**Depends-on:** Phase 1 (`croft-stack` repo) · **Gate-out:** `tofu plan` cleanly READS the adopted VPS
-(no order placed), the reproduce-next-box recipe (plan_code/region/image) is captured, `bootstrap.sh
---plan` is reviewed with caution, and the box's current (spike) state is inventoried. **No box
-mutation.**
+**Status:** **DONE (2026-07-27).** Session log: `croft-stack/sessions/2026-07-27-phase-2-adopt.md`. ·
+**Depends-on:** Phase 1 (`croft-stack` repo) · **Gate-out:** MET.
+
+## Outcome (2026-07-27)
+
+- **Creds/endpoint/rights verified** on `ovh-us` (token `croft-stack`, `GET /*` + `POST /order/*`; a
+  first token had a leading-space path bug → 403, recreated clean). `.env` mapping confirmed.
+- **Box read** via `data.ovh_vps` (`tofu plan`, `place_order=false`, **no infra change**):
+  `vps-e9655dff.vps.ovh.us` — running, **VPS-3 2027** (`vps-2027-model3`, 6 vCore / 12 GB / 100 GB),
+  Debian 13, Oregon `us-west-or-2`, `15.204.81.133` / `2604:2dc0:222::431`.
+- **Reproduce recipe captured:** `plan_code=vps-2027-model3`, `ovh_subsidiary=US`, `ovh_endpoint=ovh-us`,
+  region `us-west-or-2`; list price ~$13.77/mo. (Recipe held as data; the order path is stripped — see
+  below.)
+- **Box reimaged clean** by owner to Debian 13 (the reconciliation decision) — the spike's hand-config
+  is gone; learning persisted in `discovery/spike/auth-helper/`.
+- **terraform provider-drift fixed (uncommitted, review):** removed the deprecated `ovh_order_cart_item*`
+  order path; fixed the `ips` set-index in `outputs.tf`. Queued: re-author ordering only if ever needed.
+- SSH: `ssh croft-vps` (`~/.ssh/chase_ovh_vps`, user `debian`) ready for Phase 4.
+
+Original plan (for reference) follows.
 
 ---
 
@@ -51,8 +66,10 @@ the hand-made box.
 ## Steps
 
 1. **Provide OVH API credentials** (env, never in files): `OVH_APPLICATION_KEY` / `OVH_APPLICATION_SECRET`
-   / `OVH_CONSUMER_KEY`; set `ovh_endpoint` (subsidiary — `ovh-eu`/`ovh-ca`/`ovh-us`). *(Owner provisions
-   the API keys.)*
+   / `OVH_CONSUMER_KEY` from the `croft-stack` token (createToken on `auth.us.ovhcloud.com`, rights
+   `GET /*` + `POST /order/*`). **`ovh_endpoint = "ovh-us"`** — the box is `*.vps.ovh.us` (OVH US, a
+   separate subsidiary/account). SSH: `ssh croft-vps` (`~/.ssh/chase_ovh_vps`, user `debian`), pubkey
+   registered in the reinstall. *(Owner provisions the token + reimages.)*
 2. **Read the adopted VPS.** Set `vps_service_name = "vps-e9655dff"`, `place_order = false`; `tofu plan`
    → the `data.ovh_vps` read succeeds and shows the box; `tofu plan` is otherwise clean (no create).
 3. **Capture the reproduce recipe.** Resolve a live `plan_code`/region via `scripts/catalog-vps.sh`;
@@ -115,5 +132,5 @@ reinstall (or a fresh order via the money-gated terraform) is the reinstall mech
 - `croft-stack/terraform/` (`main.tf` order-or-read + money gate; `variables.tf` owner-decision vars;
   `versions.tf` `ovh` provider, local state), `scripts/catalog-vps.sh`.
 - `discovery/spike/auth-helper/BOX-CHANGELOG.md` (the box's current hand-config + teardown).
-- Roadmap → Open decision 10 (OpenTofu VPS-only; DNS manual; R2 out) and the fold→4 in-box-mechanism
-  followup.
+- Roadmap → Open decision 10 (OpenTofu VPS-only resource layer; Ansible in-box; `bootstrap.sh` dropped;
+  DNS manual; R2 out).

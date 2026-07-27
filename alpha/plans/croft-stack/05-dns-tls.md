@@ -19,11 +19,20 @@ Create A/AAAA per service fqdn pointing at the box; let Caddy's auto-HTTPS issue
 Croft-domain services live under `croft.ing`; a pad on its own domain gets its cache subdomain under
 *that* domain.
 
-## Steps (sketch — fill on arrival)
-1. A/AAAA for the stub fqdn and `account.croft.ing` (auth helper) and `relay.croft.ing` (relay) → box.
-2. For arecipe's cache: A/AAAA for `cache.arecipe.app` → box (its own domain, same-site with the pad).
-3. Confirm Caddy issues a valid cert per fqdn (`https://<fqdn>/healthz`).
-4. Leave the `croft.ing` apex and the GitHub Pages pads untouched.
+## The records (by hand; all A/AAAA → the box, currently `15.204.81.133` — confirm after reimage)
+
+| fqdn | Zone | Added at | Status |
+|---|---|---|---|
+| `account.croft.ing` | croft.ing (Porkbun) | Phase 4/7 | **exists** (spike); re-point after reimage |
+| `canary.croft.ing` | croft.ing (Porkbun) | Phase 4 | new |
+| `relay.croft.ing` | croft.ing (Porkbun) | Phase 6 | new (same A record; relay's UDP/QUIC is same host) |
+| `skylite-cache.croft.ing` | croft.ing (Porkbun) | Phase 8 | new |
+| `cache.arecipe.app` | arecipe.app | Phase 8 | new (one record on arecipe.app's zone) |
+| `index.stellin.app` | stellin.app | Phase 9 | new (`stellin.app` apex already → box from spike) |
+
+Steps: add each record by hand as its service lands (not all at once); confirm Caddy auto-issues a valid
+cert per fqdn (`https://<fqdn>/healthz`); leave the `croft.ing` apex and the GitHub Pages pads untouched.
+**No DNS automation, no Porkbun API/token changes** — records only (Open decision 10).
 
 ## TODO (decide on arrival)
 - [ ] Final fqdn list once Q4 (stub) and Q5 (Stellin index name) land.

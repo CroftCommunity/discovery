@@ -31,7 +31,8 @@ re-litigate.
 - **Auth helper is shared** — one deployment (`account.croft.ing`) for the estate.
 - **iroh relay is the first real service** — off-the-shelf, connectivity-only, infra shakedown.
 - **Governance + telemetry first-class** — limits + accounting on every unit from the first.
-- **Declarative from the start** — OpenTofu (resource boundary) + generator/bootstrap (in-box).
+- **Declarative from the start** — OpenTofu (VPS resource) + Ansible (in-box converge); the `render.py`
+  generator produces the artifacts Ansible converges. `bootstrap.sh` dropped (Open decision 10).
 
 ## Decisions locked this phase
 

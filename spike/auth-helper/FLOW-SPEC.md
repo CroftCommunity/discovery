@@ -5,7 +5,7 @@ the atproto OAuth spec, a named RFC, or the working public-client code already i
 is "likely follows this pattern": anything the spec extract did not pin exactly is listed under
 **Verify-in-run** (§8), not asserted.
 
-Plan: `../../alpha/plans/2026-07-24-optional-accelerators-stack.md` → "The auth helper" + Phase 6.
+Plan: `../../alpha/plans/croft-stack/07-auth-helper.md` (roadmap: `../../alpha/plans/croft-stack/README.md`).
 Findings (outcomes) will land in `FINDINGS.md`; this file is the grounding it is measured against.
 
 ## 0. What is proven vs. what this spike invents

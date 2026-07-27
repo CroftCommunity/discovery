@@ -23,7 +23,7 @@ pre-resolved. Recommendations are marked *(rec)*.
 |---|---|---|---|
 | 0 ✅ | [00-model-and-manifests.md](00-model-and-manifests.md) | agree the model + the concrete `services/*.toml` on paper | **MET** — manifests agreed (Q1–Q6 resolved) |
 | 1 ✅ | [01-extract-croft-stack.md](01-extract-croft-stack.md) | extract the kit → `CroftCommunity/croft-stack` | **DONE** (pushed `fcf49a7`) — seeded + renamed; `make check` **12/13 green**; the 2 red are toolchain-gated (terraform→fold→2, local-drill→backups-paused), not the rename |
-| 2 | [02-adopt-box-declaratively.md](02-adopt-box-declaratively.md) | OpenTofu resource layer + in-box generator seam | `--plan` reviewed; VPS resource captured |
+| 2 ✅ | [02-adopt-box-declaratively.md](02-adopt-box-declaratively.md) | OpenTofu VPS read + reproduce recipe; box reimaged clean | **DONE** — `tofu plan` read `vps-e9655dff.vps.ovh.us` (no order); recipe `vps-2027-model3`/US/`us-west-or-2`; box reimaged Debian 13 |
 | 3 | [03-governance-telemetry.md](03-governance-telemetry.md) | limits+accounting defaults + local telemetry client | every unit governed; telemetry reports live usage |
 | 4 | [04-stub-bringup.md](04-stub-bringup.md) | **Ansible** converge on a clean box (idempotent) | 2nd run `changed=0`; units active+governed |
 | 5 | [05-dns-tls.md](05-dns-tls.md) | A/AAAA + Caddy auto-TLS | `https://<fqdn>/healthz` → `200 ok`, valid cert |
@@ -33,9 +33,14 @@ pre-resolved. Recommendations are marked *(rec)*.
 | 9 | [09-stellin-index.md](09-stellin-index.md) | index mode; backups designed but paused | serves a query no upstream can |
 | 10 | [10-drystone-layer.md](10-drystone-layer.md) | croft-groups (factoring open) + MLS convergence (gated) | each an independent governed mini-stack |
 
-**Status:** Phase 0 **gate met**. Phase 1 **DONE** — `croft-stack` extracted + renamed, pushed
-(`fcf49a7`); `make check` 12/13 green (2 toolchain-gated, queued). Phase 7 auth-helper **spike done/GO**
-(production broker remains). Next: Phase 2. Detailed = Phases 0–2 + 07; scaffolded = Phases 3–6, 8–10.
+**Status:** Phase 0 **gate met**. Phase 1 **DONE** (`fcf49a7`; `make check` 12/13). Phase 2 **DONE** —
+box read via `tofu plan` (no order), recipe captured, reimaged clean (Debian 13). Phase 7 auth-helper
+**spike done/GO** (production broker remains). **Next: Phase 3/4** (governance + Ansible converge).
+Detailed = Phases 0–2 + 07; scaffolded = Phases 3–6, 8–10.
+
+**Execution logs (procedures, not just plans):** every working session is logged in the `croft-stack`
+repo under `sessions/` (grouped by target LOCAL / OVH-API / BOX / GIT, secrets redacted). This roadmap
+is the intent; `sessions/` is the actuals.
 
 ---
 
@@ -48,6 +53,12 @@ into phase N). Cleared items move to the owning phase's plan or are struck.
   we chose **OpenTofu** (`tofu`). Switch them to `tofu` (or a `${TF:-tofu}` hook). Content already
   verified clean under `tofu fmt -check`; `check-terraform` (and its transitive `check-extraction`) are
   the only logic-clean-but-red sub-checks. Owned by Phase 2 (IaC).
+- **[Phase 2, done — review + commit]** The kit terraform had **provider drift** vs the current
+  `ovh/ovh`: `ovh_order_cart_item*` (order path) are removed resource types, and `ovh_vps.ips` is now a
+  set. Fixed in `terraform/main.tf` (stripped the order path — we adopt + reinstall in the panel, never
+  order via terraform) and `terraform/outputs.tf` (`tolist(ips)[0]`). **Uncommitted, pending owner
+  review.** Related [fold→later]: re-author an OVH order path against the current provider only if
+  ordering-via-terraform is ever wanted. And [fold→2] still stands: point `terraform.bats` at `tofu`.
 - **[fold→3]** `check-local-drill` (the destroy→restore fire-drill) needs **litestream** (absent
   locally); rclone is present. This is the drill our plan already **defers with backups paused**, so it
   is red until the backup toolchain lands. Owned by the backups track (Phase 3+). Not a rename issue —
@@ -118,7 +129,7 @@ step-by-step-deployable estate of optional accelerators** on that box.
 
 ## End state (the target)
 
-One OVH Debian-12 box, no orchestrator — **systemd is the control plane** (containers permitted per
+One OVH Debian-13 box, no orchestrator — **systemd is the control plane** (containers permitted per
 stack; not required) — hosting an estate of optional accelerators:
 
 ```
@@ -142,10 +153,10 @@ CONSUMERS (browser pads — already live, stay fully usable with the box OFF)
 │ HOST KIT (croft-stack) — atproto-agnostic substrate                                     │
 │  systemd supervision · Caddy TLS (:443) · per-tenant users + hardening ·                │
 │  per-process cgroup limits + accounting (EVERY unit) + local telemetry client ·         │
-│  step-guarded bootstrap · forced-command deploy channel · backups (designed, PAUSED)     │
+│  Ansible converge (in-box) · forced-command deploy channel · backups (designed, PAUSED)  │
 └───────────────────────────────────────┬───────────────────────────────────────────────┘
                                          ▼
-              THE BOX — one OVH Debian 12 VPS (adopted, already up; managed declaratively — IaC track)
+        THE BOX — one OVH Debian 13 VPS (adopted; reimaged clean; managed by OpenTofu (resource) + Ansible (in-box))
 ```
 
 Plus, off the pad critical path, the **iroh relay** (first real service, connectivity-only) and the
@@ -456,7 +467,7 @@ governance stanzas baked in. The **iroh relay** slots into the same generator bu
 
 **Restart paths:** crash → `Restart=always`/`RestartSec=2`; reboot → `WantedBy=multi-user.target` /
 `timers.target`; new release → `deploy-receive.sh` atomic symlink swap + single-unit restart; config
-change → edit `services/<name>.toml` → `make generate` → `bootstrap.sh --apply`.
+change → edit `services/<name>.toml` → `make generate` → **Ansible converge** (in-box).
 
 ---
 
