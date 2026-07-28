@@ -33,11 +33,12 @@ pre-resolved. Recommendations are marked *(rec)*.
 | 9 | [09-stellin-index.md](09-stellin-index.md) | index mode; backups designed but paused | serves a query no upstream can |
 | 10 | [10-drystone-layer.md](10-drystone-layer.md) | croft-groups (factoring open) + MLS convergence (gated) | each an independent governed mini-stack |
 
-**Status:** Phases 0–3 **DONE** — box clean bare Debian 13; governance + the telemetry client shipped
-(stdlib-only, TDD, validated on real box cgroups). Phase 7 auth-helper **spike done/GO** (production
-broker remains). Phase 4 Ansible playbook **authored + locally validated** (`croft-stack/ansible/`). **Next: run the
-gated converge** (box mutation — hardens SSH, brings up the canary + telemetry; owner go required), then
-Phase 5 (DNS/TLS). Detailed = Phases 0–4 + 07 + telemetry-client-plan; scaffolded = Phases 5–6, 8–10.
+**Status:** Phases 0–4 **DONE** — box **converged and live** (Debian 13): firewall default-drop,
+SSH key-only (no lockout), Caddy up, `canary` governed + `/healthz` ok, telemetry sampling; converge is
+idempotent (`changed=0`). Governance + telemetry client shipped (TDD). Phase 7 auth-helper **spike
+done/GO** (production broker remains). **Next: Phase 5 — DNS + TLS** (point `canary.croft.ing` at the
+box so Caddy serves it over HTTPS), then Phase 6 (iroh relay). Detailed = Phases 0–4 + 07 +
+telemetry-client-plan; scaffolded = Phases 5–6, 8–10.
 
 **Execution logs (procedures, not just plans):** every working session is logged in the `croft-stack`
 repo under `sessions/` (grouped by target LOCAL / OVH-API / BOX / GIT, secrets redacted). This roadmap
