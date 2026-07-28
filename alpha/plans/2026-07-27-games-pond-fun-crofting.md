@@ -7,7 +7,7 @@
 | Phase | Outcome | Where |
 |---|---|---|
 | 1 — repo + workspace + promote match3-core | ✅ SHIPPED | `CroftCommunity/fun` `aed5817` (local); `cargo test --workspace` 19 green, `npm run build`→dist |
-| 2 — native+wasm cross-build test | ⬜ next | — |
+| 2 — native+wasm cross-build test | ⛔ BLOCKED (toolchain) | `wasm32-unknown-unknown` std missing (`E0463: can't find crate for core/std`) under **both** Homebrew cargo (active) and rustup cargo — target shows "(installed)" but core/std components are absent. Fix: `rustup target remove wasm32-unknown-unknown && rustup target add wasm32-unknown-unknown` (network), then build wasm with `~/.cargo/bin/cargo` (rustup), not Homebrew's. Also gates front-plan P3. |
 | 4 — solitaire P1 (Klondike draw-1) | ✅ SHIPPED | `fun` `2810004`: RULES + deal + `state_hash` + full T1–T5 engine (`play_move`/`legal_moves`) + 14 tie-break tests + golden vectors; 39 workspace tests green |
 | 3 — match-3 shelf-parity | ⬜ | member stubs in place |
 | 5 — P2 pond-docformat | ⬜ | stub in place |

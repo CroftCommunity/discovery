@@ -575,3 +575,12 @@ at P4); board-state schema → pinned at Phase 3 against the real core. None BLO
   `solitaire-wasm` browser binding) is now unblocked** — it wraps `new_game`/`legal_moves`/`play_move`/
   `state_hash`. Remaining before a playable solitaire in the drawer: master P2 (cross-build test),
   THIS-P0/P1 (wasm-bindgen + drawer chrome), THIS-P3 (binding), THIS-P4 (board UI).
+- **2026-07-28 — D1 findings (tooling probe).** (1) **npm registry reachable** (`npm view esbuild` →
+  0.28.1) — the esbuild/Vitest/Playwright toolchain for THIS-P1 is installable; THIS-P0/P1 (drawer
+  chrome + design system) is **doable now**, no wasm needed. (2) **wasm build BLOCKED:** the
+  `wasm32-unknown-unknown` target std is missing (`E0463: can't find crate for core/std`) under both
+  the active Homebrew cargo and the rustup cargo (target marked "(installed)" but core/std absent).
+  This gates THIS-P3 (`solitaire-wasm` via wasm-bindgen) and master-plan P2. Fix requires reinstalling
+  the target (`rustup target remove/add wasm32-unknown-unknown`, network) + building wasm with rustup's
+  cargo. **Awaiting owner go on the toolchain reinstall.** THIS-P0/P1 can proceed independently in the
+  meantime.
