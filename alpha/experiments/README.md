@@ -111,7 +111,9 @@ alpha/
 │       by driving the real DerivedFold::ingest path and comparing against a fresh stamp's crypto
 │       membership. Suite 3/0.
 │
-└── match3-p1/            Rust Cargo workspace (Track B, games pond): Phase 1 of the candy-crush
+└── match3-p1/            ⚰️ PROMOTED 2026-07-28 → live crate now at CroftCommunity/fun
+        (crates/match3-core, self-contained). This dir is kept frozen as provenance; develop in `fun`.
+        Original spike below. Rust Cargo workspace (Track B, games pond): Phase 1 of the candy-crush
         match-3 build guide — the determinism foundation, built determinism-first + red-first per the
         per-pond build discipline. `crates/match3-core` is a headless deterministic engine (match
         detection, clear + layered-blocker damage, gravity with blockers as shelves, seeded-ChaCha20

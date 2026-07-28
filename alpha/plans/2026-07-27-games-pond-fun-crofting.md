@@ -1,8 +1,19 @@
 # Games pond — stand up `fun.croft.ing` and the game shelf
 
-**Status:** Pass 1+2+3 complete; all BLOCKING open questions resolved (D2/D3/D4). Ready for execution
-pending the user's walk-through of the remaining PHASE-GATED / ADVISORY questions. Planning only — no
-code written yet.
+**Status:** Pass 1+2+3 complete; all BLOCKING open questions resolved. **EXECUTION IN PROGRESS
+(2026-07-28).**
+
+## Outcome Summary
+| Phase | Outcome | Where |
+|---|---|---|
+| 1 — repo + workspace + promote match3-core | ✅ SHIPPED | `CroftCommunity/fun` `aed5817` (local); `cargo test --workspace` 19 green, `npm run build`→dist |
+| 2 — native+wasm cross-build test | ⬜ next | — |
+| 3‖4 — match-3 hygiene ‖ solitaire P1 | ⬜ | member stubs in place |
+| 5 — P2 pond-docformat | ⬜ | stub in place |
+| 6 — P8 pond-outcome | ⬜ | stub in place |
+| 7 — shelf + solitaire live | ⬜ | expanded by the front-end plan |
+| 8 — match-3 par/levels | ⬜ | — |
+| 9 — cribbage | ⏸ gated | own plan |
 **Author cadence:** phase-plan skill. This doc is the single handoff artifact between passes and
 between context windows.
 
@@ -308,7 +319,19 @@ rules; each honors its declared Disposition; findings are recorded in this doc.
 
 ---
 
-### Phase 1: Standalone repo + Cargo/PWA workspace scaffold; promote match3-core
+### Phase 1: Standalone repo + Cargo/PWA workspace scaffold; promote match3-core — ✅ SHIPPED (`aed5817`, local)
+
+**Delivered (2026-07-28):** `CroftCommunity/fun` created (local `CroftC/fun`, remote
+`git@github-personal:CroftCommunity/fun`, chasemp identity). Cargo workspace with all six members;
+`match3-core` promoted as a **self-contained crate** — `vectors/` + `RULES.md` moved *inside* the crate
+and the golden-vector test path changed from `../../vectors` to `vectors` (cleaner multi-game layout +
+portable crate; the flagged relative-path risk, mitigated). `cargo test --workspace` → 19 passed, 1
+ignored; `fmt --check` + `clippy` clean. Five compiling empty-but-real stubs froze the `members` list.
+Minimal static web skeleton (`index.html`/`styles.css`/`build.mjs`/`package.json`, `npm run build`→
+`dist/`, zero deps) — the esbuild/Vitest/Playwright toolchain is deferred to the **front-end plan**
+Phase 1 (per its expansion of Phase 7). `.gitignore` verified: CroftC's `/*` strategy auto-ignores
+`fun/`. Discovery pointers updated (match3-p1 tombstone, experiments/README, roadmap row, E46). Local
+only — **not pushed** (awaiting owner go for the first push to `CroftCommunity/fun`).
 
 **Goal:** `CroftC/fun` exists as its own git repo (remote `CroftCommunity/fun`) with a working Cargo
 workspace (game-core crates + shared substrate crate stubs registered as members) and a PWA app

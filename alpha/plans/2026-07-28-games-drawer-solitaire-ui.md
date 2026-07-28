@@ -1,6 +1,7 @@
 # Games drawer UI/UX + solitaire (first game) — `fun.croft.ing` front-end
 
-**Status:** Pass 1+2 (combined). Pass 3 quality gates pending. Planning only — no code written yet.
+**Status:** Pass 1+2+3 complete; open questions walked through (recommended defaults adopted; none
+BLOCKING). Execution STARTED 2026-07-28. See the Review Log for progress.
 **Relationship to the master plan:** this is the **front-end / product track**. It **expands and
 replaces master-plan Phase 7** ("shelf shell + solitaire playable + deploy") in
 `2026-07-27-games-pond-fun-crofting.md`, which treated the whole UI at one compressed altitude. The
@@ -180,13 +181,17 @@ Cross-plan spine:
   Fast-follow: THIS P7 (drag-and-drop enhancement)
 ```
 
-**Cross-plan parallelism:** THIS-P1 + THIS-P2 (drawer chrome + design system) need only the repo
-(master P1) and are game-logic-free, so they run **in parallel with the Rust track** (master P2/P4).
-They converge at THIS-P3, which needs `solitaire-core` (master P4). If the front-end and Rust tracks
-are worked by separate agents/worktrees, they operate on **disjoint write-sets** — front-end under
-`fun/app/**` + `fun/src/**`, Rust under `fun/crates/**` — with the workspace `Cargo.toml` frozen by
-master P1 (see the master plan's Concurrency Map). Neither edits the other's tree; the discovery-repo
-pointer edits (master P7 annotation, E46) are done once, sequentially, in THIS-P1.
+**Cross-plan parallelism:** **Only THIS-P1 + THIS-P2** (drawer chrome + design system) run in parallel
+with the Rust track (master P2/P4) — they are game-logic-free and write only `fun/app/**`, `fun/src/**`,
+`fun/docs/**`, disjoint from the Rust track's `fun/crates/**`, with the workspace `Cargo.toml` frozen by
+master P1. **THIS-P3 onward is sequential** (P3 depends on master P4 and itself writes
+`fun/crates/solitaire-wasm/**`, so it must not overlap the Rust track). During the P1/P2‖Rust window the
+**only writer of the discovery repo is THIS-P1** (the one-time master-P7 annotation + E46 breadcrumb);
+the Rust track (master P2/P4) touches no discovery file, so there is no shared-tree collision.
+**Re-entry checks (if run as concurrent agents):** parent-repo HEAD unchanged; the front-end agent left
+`fun/crates/**` untouched and the Rust agent left `fun/app|src|docs/**` untouched; `git -C discovery
+status` clean apart from THIS-P1's single pointer commit; no orphan `node`/`esbuild`/`cargo` processes;
+no dev-server port left bound.
 
 **Within this plan:** phases are otherwise **sequential** — each builds on the prior UI layer (chrome →
 design → binding → board UI → PWA/a11y → deploy). No intra-plan parallel set. Re-entry checks apply
@@ -250,8 +255,10 @@ container, services)` → placeholder renders; full-screen toggle re-parents/re-
 `/placeholder` loaded directly (new tab) mounts the same module chrome-agnostically.
 **Wiring test:** a Playwright E2E `drawer.spec.ts` — load `/`, open the drawer (assert focus-trap +
 ESC + keyboard toggle), launch the placeholder into the play area, toggle full-screen (assert chrome
-hidden, game still mounted), and load `/placeholder` directly in a fresh page (assert it mounts with no
-drawer dependency). axe clean on the chrome. RED before the chrome exists, GREEN after.
+hidden **and the same mounted instance is preserved — not remounted/reset**, verified via an instance
+marker/counter the placeholder increments on `mount`), and load `/placeholder` directly in a fresh page
+(assert it mounts with no drawer dependency). axe clean on the chrome. RED before the chrome exists,
+GREEN after.
 **Depends on:** master-plan Phase 1 (repo + workspace + web skeleton stub); Phase 0 (D3 drawer, D1
 build path).
 **Read-set:** croft-pwa config (read for convention reuse), master-plan repo skeleton.
@@ -317,6 +324,9 @@ UI can drive the Rust core in the browser. The UI never re-implements rules.
 - [ ] Generated/curated TS types for the board + moves; a `build.mjs` step that builds the wasm and
   places it for esbuild.
 - [ ] A TS-side wrapper that loads the wasm and presents a typed API to the UI.
+- [ ] **Mismatch diagnostics:** if a golden vector's hash diverges *through the binding*, the test logs
+  the vector id + the native (core) hash + the binding hash, so a boundary regression is debuggable —
+  not a bare "hashes differ."
 
 **Call chain:** UI → `solitaireWasm.newGame(seed)` → wasm → `solitaire-core` → board JSON → typed TS
 object the UI renders.
@@ -363,10 +373,12 @@ contract, so it mounts in all three modes.
 **Call chain:** `/solitaire` (or drawer launch) → `module.mount` → `newGame(seed)` → render board →
 tap → `legal_moves`/`play_move` → re-render → win → `pond-outcome.attest` → record shown.
 **Wiring test:** `solitaire.spec.ts` (Playwright E2E) — load `/solitaire`, play a **scripted winning
-deal** entirely via taps, assert the win state **and** a verifiable outcome record; assert an illegal
-tap is rejected (core-enforced); repeat the launch in-drawer and full-screen. The single most important
-test that the whole chain — URL → chrome → module → wasm core → outcome — is live. RED before the UI,
-GREEN after.
+deal** entirely via taps, assert the win state **and** a verifiable outcome record. Name the UI-layer
+edges (not one happy path): an illegal tap is rejected (core-enforced, board unchanged); tapping a card
+glows exactly the core's legal targets; stock draw-1 cycling and the pass-limit boundary behave; the
+win celebration fires exactly when all 52 are on the foundations, not before. Repeat the launch
+in-drawer and full-screen. The single most important test that the whole chain — URL → chrome → module
+→ wasm core → outcome — is live. RED before the UI, GREEN after.
 **Depends on:** Phase 3 (binding), Phase 1 (chrome + contract), Phase 2 (design tokens), master-plan
 Phase 6 (`pond-outcome`).
 **Read-set:** the binding wrapper, `fun/src/tokens.css`, the game-module contract.
@@ -476,18 +488,17 @@ illegal target snaps back (core-enforced); the tap fallback still passes `solita
 
 ## Open Questions
 
-- **[RECOMMENDED: PHASE-GATED (Phase 3)]** Confirm the D2 board-state JSON shape once `solitaire-core`
-  (master P4) is built — the binding + UI both target it. *Rationale: pin against the real model, not
-  inference; does not block Phases 0–2.*
-- **[RECOMMENDED: PHASE-GATED (Phase 1)]** Per-game **static entry pages** vs a tiny client router with
-  a Pages 404-fallback. *Rationale: recommending static pages (simpler, clean URLs, no Pages hack);
-  confirm before building the routing layer.*
-- **[RECOMMENDED: ADVISORY]** Does solitaire offer **undo / hints**? Affects the "clean clear"
-  definition and the outcome record. *Rationale: recommend a visible "no-undo = clean" distinction
-  (undo allowed but a clean clear means none used), mirroring the assistance-used-or-not axis in the
-  corpus; decide by Phase 4.*
-- **[RECOMMENDED: ADVISORY]** Light/dark **default** + whether to follow system preference.
-  *Rationale: recommend follow-system with a manual toggle (croft-pwa `theme.ts` pattern); Phase 2.*
+- **[PHASE-GATED (Phase 3) — recommendation stands]** Confirm the D2 board-state JSON shape once
+  `solitaire-core` (master P4) is built — the binding + UI both target it. Pinned against the real model
+  in Phase 3, not now; does not block Phases 0–2.
+- **[RESOLVED 2026-07-28 — execute-time]** Routing: **per-game static entry pages** (`/<game>/index.html`),
+  not a client router. Clean shareable URLs, new-tab works, no Pages 404-hack. Locked because Phase 1
+  is executing now. Overridable if it proves awkward.
+- **[ADVISORY — recommendation adopted, revisit at Phase 4]** solitaire **undo / hints**: undo allowed,
+  but a **clean clear means none used** (the binary assistance-used axis from the corpus). Confirm the
+  exact UX when Phase 4 lands.
+- **[RESOLVED 2026-07-28]** Theme: **follow system preference with a manual toggle** (croft-pwa
+  `theme.ts` pattern). Applies at Phase 2.
 
 ---
 
@@ -516,3 +527,41 @@ illegal target snaps back (core-enforced); the tap fallback still passes `solita
     by dependency). Board-state schema is pinned against the real model in Phase 0/3, not assumed. Drag
     input is a fast-follow, not smuggled into the accessible foundation.
   - **Pending:** Pass 3 quality gates (fresh context) + annotate master-plan Phase 7 to point here.
+
+### Pass 3: Quality Gates — 2026-07-28
+**TDD ordering:** Every phase is test-first with a wiring test through the real entry point (URL/chrome/
+wasm boundary). No ordering changes.
+**Specificity / mutation resistance:** Strengthened Phase 1 (full-screen must preserve the *same* mount
+instance, checked via a counter) and Phase 4 (named UI-layer edges: illegal-tap rejected + board
+unchanged, legal-target glow matches the core, stock cycling + pass-limit boundary, win fires exactly
+at 52-on-foundations).
+**Observability:** Added Phase 3 mismatch diagnostics (vector id + core hash + binding hash on
+divergence); Phase 6 telemetry events already present.
+**Debugging readiness:** commit-per-phase + wiring tests as checkpoints; the binding-boundary hash
+diagnostics are the key instrumented failure.
+**Validation calibration:** Broad for the wasm-boundary / playable / offline / deploy phases (3–6),
+Moderate for chrome/design/drag (1, 2, 7). Holds.
+**Concurrency honesty:** Clarified that **only THIS-P1/P2** run parallel with the Rust track (disjoint
+`fun/app|src|docs` vs `fun/crates`); THIS-P3 onward is sequential (it writes `fun/crates/solitaire-wasm`
+and depends on master P4). Confirmed THIS-P1 is the sole discovery-repo writer in the parallel window;
+added a one-to-one cross-agent re-entry checklist. No new parallelism to surface.
+**Discovery (Phase 0):** spikes are concrete with dispositions (D1 throwaway, D2 keep-as-fixture, D3
+throwaway); D1 (wasm-bindgen round-trip) is the first execution probe.
+**Coherence:** solves the stated problem (drawer UX + solitaire first); scope matches; Documentation
+Impact complete; master-P7 annotation done. No end-of-plan docs phase.
+**Documentation impact:** every doc has an owning phase; discovery-repo edits are sequential (P1, P6).
+**Confirmed ready:** yes. Open-question walk-through: routing → per-game static pages (locked); theme →
+follow-system + toggle (locked); undo/hints → undo allowed, clean-clear = none used (adopted, confirm
+at P4); board-state schema → pinned at Phase 3 against the real core. None BLOCKING.
+
+### Execution log
+- **2026-07-28 — execution started.** Beginning at master-plan **Phase 1** (create `CroftCommunity/fun`,
+  Cargo workspace, promote `match3-core`), since this front-end plan's Phases 1–2 depend on the repo +
+  web skeleton.
+- **2026-07-28 — master-plan Phase 1 ✅ SHIPPED** (`CroftCommunity/fun` `aed5817`, local). Repo +
+  Cargo workspace + promoted `match3-core` (19 green) + member stubs (incl. `solitaire-core`,
+  `solitaire-wasm`) + a minimal static web skeleton. This is the substrate THIS plan builds on: THIS-P1
+  (drawer chrome) replaces the placeholder web skeleton with the esbuild/Vitest/Playwright toolchain +
+  the slide-out drawer. **Next:** THIS-P0 spikes (D1 wasm-bindgen round-trip, D3 accessible-drawer) can
+  begin now; THIS-P1 (drawer chrome) runs in parallel with master-plan P2/P4 (Rust core). THIS-P3
+  (binding) waits on master-plan P4 (`solitaire-core`).

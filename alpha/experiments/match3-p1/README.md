@@ -1,5 +1,12 @@
 # match3-p1 — the candy-crush match-3 P1 determinism foundation
 
+> **⚰️ TOMBSTONE (2026-07-28): PROMOTED.** The live `match3-core` crate now lives in the standalone
+> games-pond repo **`CroftCommunity/fun`** (local `CroftC/fun`, at `crates/match3-core/`, now
+> self-contained with its `RULES.md` + `vectors/`). This directory is kept **frozen as provenance** —
+> the original P1 spike and its history. Do not develop here; continue in `fun`. See the plans:
+> `alpha/plans/2026-07-27-games-pond-fun-crofting.md` (Phase 1 = the promotion) and
+> `alpha/plans/2026-07-28-games-drawer-solitaire-ui.md`.
+
 A code-forward spike implementing **Phase 1 (P1)** of the match-3 (candy-crush-style) build guide, built to
 the per-pond build discipline in `beta/croft/build-order-and-ponds-roadmap.md` ("Per-pond build discipline")
 and the P1 run brief in
