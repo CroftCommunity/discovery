@@ -8,7 +8,8 @@
 |---|---|---|
 | 1 — repo + workspace + promote match3-core | ✅ SHIPPED | `CroftCommunity/fun` `aed5817` (local); `cargo test --workspace` 19 green, `npm run build`→dist |
 | 2 — native+wasm cross-build test | ⬜ next | — |
-| 3‖4 — match-3 hygiene ‖ solitaire P1 | ⬜ | member stubs in place |
+| 4 — solitaire P1 (Klondike draw-1) | 🟡 part 1 done | `fun` `1663699`: RULES.md + deterministic deal + `state_hash` + deal tests green; legal-move engine (T1–T5) + golden vectors next |
+| 3 — match-3 shelf-parity | ⬜ | member stubs in place |
 | 5 — P2 pond-docformat | ⬜ | stub in place |
 | 6 — P8 pond-outcome | ⬜ | stub in place |
 | 7 — shelf + solitaire live | ⬜ | expanded by the front-end plan |

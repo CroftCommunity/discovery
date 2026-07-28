@@ -565,3 +565,8 @@ at P4); board-state schema → pinned at Phase 3 against the real core. None BLO
   the slide-out drawer. **Next:** THIS-P0 spikes (D1 wasm-bindgen round-trip, D3 accessible-drawer) can
   begin now; THIS-P1 (drawer chrome) runs in parallel with master-plan P2/P4 (Rust core). THIS-P3
   (binding) waits on master-plan P4 (`solitaire-core`).
+- **2026-07-28 — master-plan Phase 4 part 1 shipped** (`fun` `1663699`): `solitaire-core` now has its
+  RULES.md (Klondike draw-1 rules + tie-break/ordering tables + state-hash layout), the deterministic
+  seeded deal, and `state_hash`, with deal-determinism tests green (22 workspace tests). The legal-move
+  engine (T1–T5 `play_move`/`legal_moves`) + golden vectors are the next increment — THIS-P3 (binding)
+  unblocks once they land, since it wraps exactly that surface.
