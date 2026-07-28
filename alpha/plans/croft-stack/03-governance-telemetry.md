@@ -7,6 +7,9 @@
 adopted) · **Gate-out:** every generated unit carries limits + accounting by default; the Python
 telemetry client reports live per-process usage on the box.
 
+**Telemetry client: full phase-plan → [telemetry-client-plan.md](telemetry-client-plan.md)** (3-pass,
+TDD-first, hexagonal; grounded in a firsthand box cgroup probe). Summary below.
+
 ## Concrete design (2026-07-28)
 
 - **Telemetry client** (`croft-stack/telemetry/`, **Python**, pytest): poll each unit's cgroup-v2 files
