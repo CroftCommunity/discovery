@@ -167,8 +167,8 @@ Unverified — needs Phase 0 or owner input (do **not** plan hard logic on these
 - Solitaire's analogue of "par" (winnable-deal classification / minimum-move solver) — whether P3's
   bot-harness shape applies to solitaire or only to match-3.
 - ~~Hosting target~~ **RESOLVED: GitHub Pages** (owner, 2026-07-27), matching every live Croft pad
-  (arecipe / skylite / pdsview / greetings on `*.croft.ing`). Still open: whether `fun.croft.ing` is
-  registered / DNS-configured yet (confirm before the Phase 7 go-live; does not block Phases 0–6).
+  (arecipe / skylite / pdsview / greetings on `*.croft.ing`). **DNS residual RESOLVED 2026-07-28:
+  `fun.croft.ing` domain added and GitHub Pages is active.** Phase 7 go-live is unblocked.
 - The exact serialization envelope shape for P2 (owner may have a house convention).
 
 ---
@@ -330,8 +330,8 @@ skeleton, CI wired, croft-pwa conventions borrowed, and `match3-core` moved in i
   `@axe-core/playwright` a11y gate, telemetry hook, and a **GitHub Pages** PR-preview + deploy config
   (D4-confirmed; static build to `gh-pages`, matching the live `*.croft.ing` pads).
 - [ ] CI: `cargo test` + `cargo fmt --check` + `cargo clippy --all-targets` + the web lint/build +
-  a11y gate. GitHub Pages deploy job stubbed (wired live to `fun.croft.ing` in Phase 7 once DNS is
-  confirmed).
+  a11y gate. GitHub Pages deploy job stubbed (wired live to `fun.croft.ing` in Phase 7 — domain + Pages
+  are active as of 2026-07-28, so go-live is unblocked).
 - [ ] `README.md` (repo purpose, shelf concept, discipline pointer) + copy this plan into
   `fun/plans/`.
 - [ ] **All discovery-repo promotion edits, here and atomic with the move (NOT in the parallel Phase
@@ -589,6 +589,13 @@ result field.
 
 ### Phase 7: Shelf shell + solitaire playable; deploy `fun.croft.ing`
 
+> **EXPANDED/REPLACED (2026-07-28) by the front-end plan
+> `2026-07-28-games-drawer-solitaire-ui.md`.** That companion plan decomposes this compressed phase
+> into a full UI/UX build (slide-out drawer + full-screen + new-tab, per-game URLs, design system,
+> wasm-bindgen browser binding, tap-to-move solitaire, PWA/a11y, deploy). The owner chose the
+> slide-out-drawer model; the domain + Pages are live as of 2026-07-28. Use the companion plan for
+> execution; this phase entry remains as the master-plan-level summary of the same work.
+
 **Goal:** The game-agnostic **shelf** PWA is live at `fun.croft.ing`: it lists games, launches one, and
 **solitaire is fully playable** in the browser over its wasm core, producing a verifiable outcome
 record. This is the first demonstrable artifact.
@@ -714,8 +721,8 @@ Each carries a recommended severity; the owner confirms or overrides before the 
 - **[RESOLVED 2026-07-27]** D2 — solitaire variant: **Klondike draw-1.** Phase 4 pins the residual
   sub-details (stock pass/redeal limit; whether scoring is tracked) against a canonical source rather
   than assuming.
-- **[RESOLVED 2026-07-27]** D4 — host: **GitHub Pages** (estate convention). Residual: confirm
-  `fun.croft.ing` registration/DNS before Phase 7 go-live (does not block Phases 0–6).
+- **[RESOLVED 2026-07-27 / 2026-07-28]** D4 — host: **GitHub Pages** (estate convention). DNS residual
+  now closed: `fun.croft.ing` domain added and Pages active (2026-07-28). Fully unblocked.
 - **[PHASE-GATED (Phase 4) — DECISION PENDING]** Does P3's bot-harness/par concept apply to solitaire,
   or only to match-3? Owner asked for an explanation (2026-07-27) before deciding; agent recommendation
   is **match-3 only** (solitaire ships with win / clean-clear counts, no solver). Does not block Phase 4;
@@ -816,6 +823,13 @@ Phase 1. No end-of-plan "docs phase."
 **Confirmed ready:** yes for Phases 0–8, pending the user's walk-through of the remaining PHASE-GATED
 and ADVISORY open questions (below). No BLOCKING questions remain. Phase 9 (cribbage) stays gated to
 its own future plan.
+- **2026-07-28 — DNS residual closed + front-end companion plan spun out.** `fun.croft.ing` domain
+  added and GitHub Pages active (owner) — D4's DNS residual is closed and Phase 7 go-live is unblocked
+  (updated Verified Assumptions, the D4 open question, and the Phase 1 CI note). Phase 7's UI/UX work
+  was expanded into a dedicated front-end plan, `2026-07-28-games-drawer-solitaire-ui.md` (slide-out
+  drawer + full-screen + new-tab, per-game URLs, design system, wasm-bindgen binding, tap-to-move
+  solitaire, PWA/a11y, deploy). Phase 7 here now points to it; the master plan retains ownership of the
+  Rust/determinism spine (P1–P6, P8). E46 carries breadcrumbs to both plans.
 - **2026-07-27 — open-question walk-through (post-Pass-3).** Owner resolved: `pond-docformat` envelope
   designed in Phase 5 (no house convention); `experiments/match3-p1/` kept as a provenance tombstone;
   D5 feel-spike skipped. The solitaire-par question (P3-applies-to-solitaire?) was deferred — owner
