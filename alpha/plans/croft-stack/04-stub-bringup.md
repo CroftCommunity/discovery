@@ -3,7 +3,10 @@
 ← [03-governance-telemetry.md](03-governance-telemetry.md) · [roadmap](README.md) · next →
 [05-dns-tls.md](05-dns-tls.md)
 
-**Status:** planned (box verified clean 2026-07-28; ready to author) · **Depends-on:** Phase 2 (box
+**Status:** **playbook AUTHORED + locally validated** (`croft-stack/ansible/`, `d1a349f`; 7 roles,
+code/data separated; `--syntax-check` clean, `ansible ping` OK, `--check` runs through modulo the
+expected check-mode nftables-service artifact). **The converge (box mutation) is GATED on owner go** —
+not yet run. Session: `croft-stack/sessions/2026-07-28-phase-4-ansible.md`. · **Depends-on:** Phase 2 (box
 adopted + reimaged clean) + Phase 3 (governance stanzas in the generator; telemetry client built) ·
 **Gate-out:** a second `ansible-playbook` run reports `changed=0`; the `canary` tenant is `active`,
 governed, and serving `/healthz`; SSH is key-only; no lockout.

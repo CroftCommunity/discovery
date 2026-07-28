@@ -25,7 +25,7 @@ pre-resolved. Recommendations are marked *(rec)*.
 | 1 ✅ | [01-extract-croft-stack.md](01-extract-croft-stack.md) | extract the kit → `CroftCommunity/croft-stack` | **DONE** (pushed `fcf49a7`) — seeded + renamed; `make check` **12/13 green**; the 2 red are toolchain-gated (terraform→fold→2, local-drill→backups-paused), not the rename |
 | 2 ✅ | [02-adopt-box-declaratively.md](02-adopt-box-declaratively.md) | OpenTofu VPS read + reproduce recipe; box reimaged clean | **DONE** — `tofu plan` read `vps-e9655dff.vps.ovh.us` (no order); recipe `vps-2027-model3`/US/`us-west-or-2`; box reimaged Debian 13 |
 | 3 ✅ | [03-governance-telemetry.md](03-governance-telemetry.md) | limits+accounting defaults + local telemetry client | **DONE** — governance (`2f596a9`) + telemetry client (4 phases TDD, thru `73c25e5`; 32 pytest + 6 bats; validated on real box cgroups) |
-| 4 | [04-stub-bringup.md](04-stub-bringup.md) | **Ansible** converge on a clean box (idempotent) | 2nd run `changed=0`; units active+governed |
+| 4 ⏳ | [04-stub-bringup.md](04-stub-bringup.md) | **Ansible** converge on a clean box (idempotent) | **playbook authored** (`d1a349f`, 7 roles; syntax/ping/`--check` validated); **converge gated on owner go** → 2nd run `changed=0` |
 | 5 | [05-dns-tls.md](05-dns-tls.md) | A/AAAA + Caddy auto-TLS | `https://<fqdn>/healthz` → `200 ok`, valid cert |
 | 6 | [06-iroh-relay.md](06-iroh-relay.md) | **first real service** — off-the-shelf infra shakedown | relay supervised+governed+observable |
 | 7 | [07-auth-helper.md](07-auth-helper.md) | confidential-client spike → shared broker | session past browser-only TTL; clean fallback |
@@ -35,9 +35,9 @@ pre-resolved. Recommendations are marked *(rec)*.
 
 **Status:** Phases 0–3 **DONE** — box clean bare Debian 13; governance + the telemetry client shipped
 (stdlib-only, TDD, validated on real box cgroups). Phase 7 auth-helper **spike done/GO** (production
-broker remains). **Next: Phase 4 — the Ansible playbook** (converge the box to the `canary` baseline +
-install the telemetry timer; gated on owner go). Detailed = Phases 0–4 + 07 + telemetry-client-plan;
-scaffolded = Phases 5–6, 8–10.
+broker remains). Phase 4 Ansible playbook **authored + locally validated** (`croft-stack/ansible/`). **Next: run the
+gated converge** (box mutation — hardens SSH, brings up the canary + telemetry; owner go required), then
+Phase 5 (DNS/TLS). Detailed = Phases 0–4 + 07 + telemetry-client-plan; scaffolded = Phases 5–6, 8–10.
 
 **Execution logs (procedures, not just plans):** every working session is logged in the `croft-stack`
 repo under `sessions/` (grouped by target LOCAL / OVH-API / BOX / GIT, secrets redacted). This roadmap
