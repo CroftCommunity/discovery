@@ -1,58 +1,85 @@
-# Phase 4 — Ansible converge on a clean box (idempotent bring-up)
+# Phase 4 — Ansible converge on the clean box (idempotent bring-up)
 
 ← [03-governance-telemetry.md](03-governance-telemetry.md) · [roadmap](README.md) · next →
 [05-dns-tls.md](05-dns-tls.md)
 
-**Status:** SCAFFOLD (fill on arrival) · **Depends-on:** Phase 2 (VPS read + reinstall plan; spike
-learning persisted) + Phase 3 (governance/telemetry defaults) · **Gate-out:** a second Ansible run is a
-clean no-op (`changed=0`); all units `active` and governed; the `canary` tenant serving.
+**Status:** planned (box verified clean 2026-07-28; ready to author) · **Depends-on:** Phase 2 (box
+adopted + reimaged clean) + Phase 3 (governance stanzas in the generator; telemetry client built) ·
+**Gate-out:** a second `ansible-playbook` run reports `changed=0`; the `canary` tenant is `active`,
+governed, and serving `/healthz`; SSH is key-only; no lockout.
 
-**Reframed (Open decision 10):** the in-box bring-up is **Ansible**, not `bootstrap.sh` (dropped —
-bash idempotency not a fit). `bootstrap.sh --plan` is the *spec/checklist* the playbook must satisfy.
+**In-box mechanism = Ansible** (Open decision 10; `bootstrap.sh` dropped, kept only as the spec below).
 
 ---
 
 ## Problem
 
-Bring a **freshly reinstalled** box (Phase 2 decided a clean reinstall over reconciling the spike) to a
-serving baseline, **idempotently** — proven by a second converge changing nothing. First go-live proves
-the infrastructure with the payload held constant (the `canary` tenant).
+Bring the freshly-reimaged bare Debian 13 box (`ssh croft-vps`, `debian`, passwordless sudo) to a
+serving baseline **idempotently**, proving the infrastructure with the payload held constant (the
+`canary` tenant) before any real service. Do it without locking ourselves out.
 
-## Approach
+## Box baseline (verified 2026-07-28)
 
-Author an **Ansible playbook** (Python-ecosystem, idempotent modules — `apt`, `user`, `copy`/`template`,
-`systemd`, `community.general.nftables`/templated ruleset) that converges the box to the baseline the
-old `bootstrap.sh --plan` describes. The `render.py` generator produces the systemd units + Caddy
-vhosts; Ansible drops them and enables. Test idempotence (a second run reports `changed=0`) and,
-optionally, with `molecule` in a container.
+`debian@vps-e9655dff`, Debian 13 (trixie), 6 vCPU / 11 GiB / 94 GB free. Listening: only `:22` +
+systemd-resolved. `/opt` empty; `caddy`/`node` absent; `python3` + systemd present; passwordless sudo.
 
-## Steps (sketch — fill on arrival)
-1. Clean OS reinstall of the box (Phase 2), OpenTofu read confirms the VPS.
-2. Author the playbook from the `bootstrap.sh --plan` spec: base packages; unattended-upgrades; SSH
-   hardening (no root, no password); nftables default-drop (22/80/443 + the relay's UDP/QUIC later);
-   Caddy; per-tenant + `<name>-api` users; the `deploy` user (forced-command target); install generated
-   units + vhosts; `daemon-reload`; `enable --now`. TDD-ish: assert idempotence.
-3. Converge; **re-run and confirm `changed=0`** — the idempotency claim, now structurally guaranteed by
-   Ansible rather than hand-rolled bash guards.
-4. Confirm the `canary` tenant (`canary.croft.ing:8100`) is `active`, governed (limits/accounting), and
-   serving `/healthz`.
+## Approach — an Ansible playbook in `croft-stack/ansible/`
 
-## TODO (decide on arrival)
-- [ ] Playbook structure (roles per concern) + where it lives in `croft-stack` (e.g. `ansible/`).
-- [ ] Idempotence test: `changed=0` assertion in CI; `molecule` container run (optional).
-- [ ] Debian 13 vs 12 (hold→2): the reinstall target OS; ensure modules/packages match.
-- [ ] Does the `deploy-receive.sh` forced-command deploy channel stay bash, or fold into Ansible?
-- [ ] Port the old `bootstrap.bats` intent into Ansible-native checks; retire `bootstrap.sh` + its bats.
+```
+croft-stack/ansible/
+  ansible.cfg          # inventory=inventory.ini; ssh via ~/.ssh/config (Host croft-vps)
+  inventory.ini        # [croft]  croft-vps
+  site.yml             # play: hosts=croft, become=true, roles in the order below
+  roles/
+    base/              # apt cache, base packages, unattended-upgrades
+    firewall/          # nftables default-drop; ALLOW 22 first, then 80/443
+    ssh_hardening/     # PermitRootLogin no; PasswordAuthentication no (key confirmed); validate before reload
+    users/             # per-tenant + <name>-api system users (from services/*.toml)
+    deploy_user/       # the forced-command deploy target
+    caddy/             # apt caddy; base Caddyfile + generated vhosts
+    units/             # copy generated/ systemd units (governed) → daemon-reload → enable --now
+    telemetry/         # deploy the Python cgroup reader + its timer (Phase 3)
+```
+
+The **payload is the `canary` tenant** (`services/canary.toml` → `make generate` → its unit + vhost),
+not the kit's old example tenants — write `canary.toml` and regenerate before the `units` role.
+
+## Steps (sketch — fill on authoring)
+1. Precondition: install Ansible locally (`brew install ansible` / `pipx install ansible-core`) — a
+   dev-toolchain item (fold→1 doc).
+2. Write `services/canary.toml`; `make generate`; confirm the canary unit + vhost render with the
+   Phase-3 governance stanzas.
+3. Author the roles (order above). TDD-ish: each role idempotent; `--check` clean on a second pass.
+4. `ansible-playbook site.yml` (first converge) — **watch the SSH-affecting roles closely** (see
+   safety). Then re-run; **gate on `changed=0`.**
+5. Verify: `systemctl` shows `canary` active + governed (limits/accounting present); `curl localhost:8100/healthz`
+   → `ok`; the telemetry client reports `canary`'s live cgroup usage.
+
+## Safety — do not lock out (the load-bearing caution)
+- **Firewall before SSH-harden, 22 first:** the nftables ruleset must allow `22` in the same apply that
+  sets default-drop; never drop before allow. Keep the live SSH session's conntrack intact.
+- **sshd validate before reload:** change `sshd_config` via a handler that runs `sshd -t` (validate)
+  and only reloads on success; keep the current session open and confirm a NEW `ssh croft-vps` works
+  before trusting it. Password auth off is safe — key auth is already confirmed.
+- **Converge is a box mutation** — gated on explicit owner go; logged in `sessions/`.
+
+## Reasoning
+- **Ansible over bash** (Open decision 10): idempotence is structural (modules), not hand-rolled guards
+  — directly addressing the bash-idempotency risk. `changed=0` on re-run is a real, checkable gate.
+- **Canary-first**: proves bootstrap/TLS/supervision/governance/telemetry with an off-the-shelf-simple
+  payload before any real or net-new service (relay next, Phase 6).
+- **Generator still produces the units**; Ansible converges them. Two Python-friendly layers, no bash
+  bring-up.
 
 ## Risks & cautions
-- Bring up only on a **clean reinstall** — do not converge over the spike's hand-config.
-- SSH hardening can lock you out; confirm key access before disabling password auth (Ansible does this
-  in one run, so order the tasks carefully).
-- The destroy→restore fire-drill stays **deferred** (needs the backup toolchain; backups paused).
+- Lockout (above) — the top risk; mitigations baked into role ordering + validate handlers.
+- Debian 13 vs the kit's 12 assumption (hold→2): confirm packages/modules (caddy, nftables) on trixie.
+- The destroy→restore fire-drill stays **deferred** (backups paused).
 
 ## Validation
-Second `ansible-playbook` run: `changed=0`; `systemctl` shows `canary` active+governed; `/healthz` 200.
+Second `ansible-playbook` run `changed=0`; `canary` active+governed; `/healthz` 200; telemetry live;
+a fresh `ssh croft-vps` still connects (no lockout).
 
 ## References
-`croft-stack/bootstrap/bootstrap.sh` (as the SPEC only), `scripts/render.py`, `stub/` (the canary);
-Open decision 10 (Ansible in-box); roadmap → Resource governance.
+`croft-stack/bootstrap/bootstrap.sh` (SPEC only), `scripts/render.py`, `stub/` (canary), `services/`;
+Open decision 10; `03-governance-telemetry.md` (governance stanzas + telemetry client).
