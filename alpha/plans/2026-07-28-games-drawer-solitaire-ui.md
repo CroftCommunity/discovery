@@ -570,3 +570,8 @@ at P4); board-state schema → pinned at Phase 3 against the real core. None BLO
   seeded deal, and `state_hash`, with deal-determinism tests green (22 workspace tests). The legal-move
   engine (T1–T5 `play_move`/`legal_moves`) + golden vectors are the next increment — THIS-P3 (binding)
   unblocks once they land, since it wraps exactly that surface.
+- **2026-07-28 — master-plan Phase 4 ✅ COMPLETE** (`fun` `2810004`): the full `solitaire-core` engine
+  (T1–T5 `play_move`/`legal_moves`, 14 tie-break tests, golden vectors) is green. **THIS-P3 (the
+  `solitaire-wasm` browser binding) is now unblocked** — it wraps `new_game`/`legal_moves`/`play_move`/
+  `state_hash`. Remaining before a playable solitaire in the drawer: master P2 (cross-build test),
+  THIS-P0/P1 (wasm-bindgen + drawer chrome), THIS-P3 (binding), THIS-P4 (board UI).

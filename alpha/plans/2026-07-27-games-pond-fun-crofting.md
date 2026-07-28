@@ -8,7 +8,7 @@
 |---|---|---|
 | 1 — repo + workspace + promote match3-core | ✅ SHIPPED | `CroftCommunity/fun` `aed5817` (local); `cargo test --workspace` 19 green, `npm run build`→dist |
 | 2 — native+wasm cross-build test | ⬜ next | — |
-| 4 — solitaire P1 (Klondike draw-1) | 🟡 part 1 done | `fun` `1663699`: RULES.md + deterministic deal + `state_hash` + deal tests green; legal-move engine (T1–T5) + golden vectors next |
+| 4 — solitaire P1 (Klondike draw-1) | ✅ SHIPPED | `fun` `2810004`: RULES + deal + `state_hash` + full T1–T5 engine (`play_move`/`legal_moves`) + 14 tie-break tests + golden vectors; 39 workspace tests green |
 | 3 — match-3 shelf-parity | ⬜ | member stubs in place |
 | 5 — P2 pond-docformat | ⬜ | stub in place |
 | 6 — P8 pond-outcome | ⬜ | stub in place |
@@ -478,7 +478,16 @@ against the shelf loader contract sketched in Phase 7).
 
 ---
 
-### Phase 4: Solitaire P1 — the determinism foundation  *(parallel with Phase 3)*
+### Phase 4: Solitaire P1 — the determinism foundation — ✅ SHIPPED (`fun` `2810004`)
+
+**Delivered (2026-07-28):** `solitaire-core` complete per RULES.md (Klondike draw-1). Part 1 (`1663699`):
+self-contained RULES.md + card/board/rng/hash + seeded round-robin deal + `state_hash` + deal
+determinism tests. Part 2 (`2810004`): the legal-move engine — `Move`/`MoveError`, `play_move` for
+T1–T5 (draw+recycle, waste/tableau→foundation, waste→tableau, tableau→tableau run-moves, auto-flip),
+`legal_moves` in canonical order; 14 RNG-free tie-break edge tests (accept+reject per rule); golden
+vectors (deal-only + draw/recycle cycle) with locked cross-build hashes + a `print_hashes` recorder.
+39 workspace tests green, fmt+clippy clean. **Unblocks front-end Phase 3** (the `solitaire-wasm`
+binding wraps exactly this surface).
 
 **Goal:** Solitaire's determinism foundation, mirroring the match-3 P1 discipline exactly: `RULES.md`
 + tie-break/ordering tables **first**, a golden-vector corpus, then `solitaire-core` grown red-first,
