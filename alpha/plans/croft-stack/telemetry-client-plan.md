@@ -2,6 +2,9 @@
 
 date: 2026-07-28 · phase-plan (3 passes, combined) · component of
 [03-governance-telemetry.md](03-governance-telemetry.md).
+**Status: BUILT (2026-07-28).** All 4 phases executed TDD, committed per phase in `croft-stack`
+(`43d4830`→`3c589b3`→`6437a84`→`73c25e5`); 32 pytest + 6 bats green; validated on the box's real
+cgroups. Session: `croft-stack/sessions/2026-07-28-phase-3-telemetry.md`.
 
 The Python, stdlib-only, cgroup-v2 per-process resource reader + query CLI, deployed on the box as a
 systemd timer. Code lives in `croft-stack/telemetry/`; deployed by the Phase-4 Ansible converge.

@@ -3,7 +3,9 @@
 ← [02-adopt-box-declaratively.md](02-adopt-box-declaratively.md) · [roadmap](README.md) · next →
 [04-stub-bringup.md](04-stub-bringup.md)
 
-**Status:** planned (box envelope known: 6 vCPU / 11 GiB / 94 GB) · **Depends-on:** Phase 2 (box
+**Status:** **DONE** — governance shipped (`2f596a9`); telemetry client built (4 phases TDD, croft-stack
+`telemetry/`, thru `73c25e5`; 32 pytest + 6 bats; validated on real box cgroups). Sessions:
+`croft-stack/sessions/2026-07-28-phase-3-*.md`. · **Depends-on:** Phase 2 (box
 adopted) · **Gate-out:** every generated unit carries limits + accounting by default; the Python
 telemetry client reports live per-process usage on the box.
 

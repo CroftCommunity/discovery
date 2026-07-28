@@ -24,7 +24,7 @@ pre-resolved. Recommendations are marked *(rec)*.
 | 0 ✅ | [00-model-and-manifests.md](00-model-and-manifests.md) | agree the model + the concrete `services/*.toml` on paper | **MET** — manifests agreed (Q1–Q6 resolved) |
 | 1 ✅ | [01-extract-croft-stack.md](01-extract-croft-stack.md) | extract the kit → `CroftCommunity/croft-stack` | **DONE** (pushed `fcf49a7`) — seeded + renamed; `make check` **12/13 green**; the 2 red are toolchain-gated (terraform→fold→2, local-drill→backups-paused), not the rename |
 | 2 ✅ | [02-adopt-box-declaratively.md](02-adopt-box-declaratively.md) | OpenTofu VPS read + reproduce recipe; box reimaged clean | **DONE** — `tofu plan` read `vps-e9655dff.vps.ovh.us` (no order); recipe `vps-2027-model3`/US/`us-west-or-2`; box reimaged Debian 13 |
-| 3 ⏳ | [03-governance-telemetry.md](03-governance-telemetry.md) | limits+accounting defaults + local telemetry client | **governance DONE** (`2f596a9`, data-driven, tested, idempotent); telemetry client next |
+| 3 ✅ | [03-governance-telemetry.md](03-governance-telemetry.md) | limits+accounting defaults + local telemetry client | **DONE** — governance (`2f596a9`) + telemetry client (4 phases TDD, thru `73c25e5`; 32 pytest + 6 bats; validated on real box cgroups) |
 | 4 | [04-stub-bringup.md](04-stub-bringup.md) | **Ansible** converge on a clean box (idempotent) | 2nd run `changed=0`; units active+governed |
 | 5 | [05-dns-tls.md](05-dns-tls.md) | A/AAAA + Caddy auto-TLS | `https://<fqdn>/healthz` → `200 ok`, valid cert |
 | 6 | [06-iroh-relay.md](06-iroh-relay.md) | **first real service** — off-the-shelf infra shakedown | relay supervised+governed+observable |
@@ -33,11 +33,11 @@ pre-resolved. Recommendations are marked *(rec)*.
 | 9 | [09-stellin-index.md](09-stellin-index.md) | index mode; backups designed but paused | serves a query no upstream can |
 | 10 | [10-drystone-layer.md](10-drystone-layer.md) | croft-groups (factoring open) + MLS convergence (gated) | each an independent governed mini-stack |
 
-**Status:** Phases 0–2 **DONE**. Phase 3 **in progress** — cgroup governance shipped (`2f596a9`,
-data-driven, tested, idempotent); box verified clean bare Debian 13. Phase 7 auth-helper **spike
-done/GO** (production broker remains). **Next:** the Python telemetry client (finishes Phase 3), then
-the Ansible playbook (Phase 4; converge gated on owner go). Detailed = Phases 0–2 + 07; scaffolded =
-Phases 4–6, 8–10.
+**Status:** Phases 0–3 **DONE** — box clean bare Debian 13; governance + the telemetry client shipped
+(stdlib-only, TDD, validated on real box cgroups). Phase 7 auth-helper **spike done/GO** (production
+broker remains). **Next: Phase 4 — the Ansible playbook** (converge the box to the `canary` baseline +
+install the telemetry timer; gated on owner go). Detailed = Phases 0–4 + 07 + telemetry-client-plan;
+scaffolded = Phases 5–6, 8–10.
 
 **Execution logs (procedures, not just plans):** every working session is logged in the `croft-stack`
 repo under `sessions/` (grouped by target LOCAL / OVH-API / BOX / GIT, secrets redacted). This roadmap
