@@ -98,6 +98,12 @@ preserve raw verbatim → distill → update connective tissue). The standing in
   parallel list; `ROADMAP.md` carries the reasoning, this aggregates it. "Roadmap possibles" live
   here.
 
+- **`ROADMAP-BOARD.md`** (repo root) — how the backlog is worked on the GitHub Projects kanban
+  (`CroftCommunity/Croft Roadmap`): the product lanes (the `beta/LAYERS.md` layer cake plus a
+  cross-cutting `Decisions & Gates` lane), the `Backlog → Ready → Parked → WIP → Done` columns, and the
+  convention that the board is a *curated* working surface drawn from `ROADMAP_TODO.md` — not a second
+  backlog. Graduate items onto the board; do not re-list them.
+
 - **`ECOSYSTEM.md`** — the relational register of related projects/tools (homage / build-on /
   partner / rebroadcast / learn↔). Add or update a row whenever new material names an
   org/project/tool. (§5b atmospheric-web apps; §5c app-layer tooling/clients.)
