@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Croft spike reader feed</title>
+    <description>Served by origin B with NO Access-Control-Allow-Origin header.</description>
+    <item>
+      <title>CROFT-SPIKE-FEED-MARKER-42</title>
+      <description>If the PWA can read this marker, the extension bridge worked.</description>
+    </item>
+  </channel>
+</rss>

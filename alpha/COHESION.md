@@ -1676,9 +1676,11 @@ existing tracks. Three seams:
 - **PWA cross-origin content-fetch (E72)** ↔ **E62**'s "RSS-reader-as-1-tap-discussion-seed" and **E71**'s
   platform-reality correction. The open question — how a zero-backend static Croft PWA reaches arbitrary
   reader/API content the same-origin policy blocks — is **decided as the browser-extension model** (not a
-  user-run local proxy), with a **Playwright spike greenlit** (`experiments/alpha/`, to build) to settle
-  the `[UNVERIFIED]` platform edges (localhost mixed-content, Chrome PNA, Safari). Feeds the **croft-pwa**
-  standards. **Status: OPEN (spike pending).**
+  user-run local proxy). **Playwright spike DONE + GREEN** (`discovery/alpha/experiments/extension-content-fetch/`):
+  mechanism 3/3, edges 6/6 (mixed-content sidestep, consent allowlist, install-flow detection), and `@live`
+  against a real remote reader (HN RSS). Finding: the extension model sidesteps the mixed-content/PNA surface
+  the proxy model has (the page never makes the cross-origin request; the SW does). Feeds the **croft-pwa**
+  "content-fetch" standards chapter (gate now passed). **Status: spike GREEN; Firefox MV3 parked.**
 - **Forum name "Graze by Croft" (E73)** ↔ `plans/2026-07-27-read-first-forum-mvp.md`, whose last open item
   was the product name. **Closes the name gap as a working name**, path `/f/`, commons framing — **without**
   changing the resolved backbone/app decision: `forum.croft.ing` now, `graze.ing` purchase-when-available.
