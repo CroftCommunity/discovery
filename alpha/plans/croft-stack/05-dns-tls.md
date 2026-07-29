@@ -19,7 +19,7 @@ Create A/AAAA per service fqdn pointing at the box; let Caddy's auto-HTTPS issue
 Croft-domain services live under `croft.ing`; a pad on its own domain gets its cache subdomain under
 *that* domain.
 
-## The records (by hand; all A/AAAA → the box, currently `15.204.81.133` — confirm after reimage)
+## The records (by hand; the box is `A 15.204.81.133`, `AAAA 2604:2dc0:222::431` — confirmed post-reimage)
 
 | fqdn | Zone | Added at | Status |
 |---|---|---|---|
