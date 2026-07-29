@@ -139,6 +139,10 @@ preserve raw verbatim → distill → update connective tissue). The standing in
 - **Don't resolve the user's decisions** (license gates, recovery-anchor choice, etc.) —
   surface them.
 
+- **No emojis in documents.** Markdown docs, plans, READMEs, session logs, status boards — use
+  plain-text status tokens (e.g. `DONE` / `LIVE` / `PENDING` / `PARTIAL` / `n/a`), not emoji.
+  ASCII box-drawing and arrows (`┌ │ └ → ▼`) are fine — those are diagrams, not emoji.
+
 ## Headline state (keep fresh; mirrors PLAYBOOK §7)
 
 - Lineage-groups Phase 1 crypto gate is **GO** on real openmls 0.8.1 (survivor-epoch re-key

@@ -21,13 +21,13 @@ pre-resolved. Recommendations are marked *(rec)*.
 
 | Phase | Plan file | Purpose | Gate-out |
 |---|---|---|---|
-| 0 ✅ | [00-model-and-manifests.md](00-model-and-manifests.md) | agree the model + the concrete `services/*.toml` on paper | **MET** — manifests agreed (Q1–Q6 resolved) |
-| 1 ✅ | [01-extract-croft-stack.md](01-extract-croft-stack.md) | extract the kit → `CroftCommunity/croft-stack` | **DONE** (pushed `fcf49a7`) — seeded + renamed; `make check` **12/13 green**; the 2 red are toolchain-gated (terraform→fold→2, local-drill→backups-paused), not the rename |
-| 2 ✅ | [02-adopt-box-declaratively.md](02-adopt-box-declaratively.md) | OpenTofu VPS read + reproduce recipe; box reimaged clean | **DONE** — `tofu plan` read `vps-e9655dff.vps.ovh.us` (no order); recipe `vps-2027-model3`/US/`us-west-or-2`; box reimaged Debian 13 |
-| 3 ✅ | [03-governance-telemetry.md](03-governance-telemetry.md) | limits+accounting defaults + local telemetry client | **DONE** — governance (`2f596a9`) + telemetry client (4 phases TDD, thru `73c25e5`; 32 pytest + 6 bats; validated on real box cgroups) |
-| 4 ✅ | [04-stub-bringup.md](04-stub-bringup.md) | **Ansible** converge on a clean box (idempotent) | **DONE** (`0550fb7`) — box converged; run-3 `changed=0`; no lockout (key-only); canary `/healthz` ok + governed; telemetry sampling |
-| 5 ✅ | [05-dns-tls.md](05-dns-tls.md) | A/AAAA + Caddy auto-TLS | **DONE** (`58dec5a`) — `canary.croft.ing` A/AAAA→box; Caddy upgraded (Debian 2.6.2→official v2.11.4); **`https://canary.croft.ing/healthz` → `ok`, trusted prod LE cert** |
-| 6 ✅ | [06-iroh-relay.md](06-iroh-relay.md) | iroh-relay **dev/test relay** (prebuilt, behind Caddy) | **DONE** (`89b8b4b`) — iroh-relay 1.0.0 up, governed, telemetry-sampled; mode A (plain HTTP behind Caddy, no UDP); idempotent; public pending `relay.croft.ing` DNS |
+| 0 | [00-model-and-manifests.md](00-model-and-manifests.md) | agree the model + the concrete `services/*.toml` on paper | **MET** — manifests agreed (Q1–Q6 resolved) |
+| 1 | [01-extract-croft-stack.md](01-extract-croft-stack.md) | extract the kit → `CroftCommunity/croft-stack` | **DONE** (pushed `fcf49a7`) — seeded + renamed; `make check` **12/13 green**; the 2 red are toolchain-gated (terraform→fold→2, local-drill→backups-paused), not the rename |
+| 2 | [02-adopt-box-declaratively.md](02-adopt-box-declaratively.md) | OpenTofu VPS read + reproduce recipe; box reimaged clean | **DONE** — `tofu plan` read `vps-e9655dff.vps.ovh.us` (no order); recipe `vps-2027-model3`/US/`us-west-or-2`; box reimaged Debian 13 |
+| 3 | [03-governance-telemetry.md](03-governance-telemetry.md) | limits+accounting defaults + local telemetry client | **DONE** — governance (`2f596a9`) + telemetry client (4 phases TDD, thru `73c25e5`; 32 pytest + 6 bats; validated on real box cgroups) |
+| 4 | [04-stub-bringup.md](04-stub-bringup.md) | **Ansible** converge on a clean box (idempotent) | **DONE** (`0550fb7`) — box converged; run-3 `changed=0`; no lockout (key-only); canary `/healthz` ok + governed; telemetry sampling |
+| 5 | [05-dns-tls.md](05-dns-tls.md) | A/AAAA + Caddy auto-TLS | **DONE** (`58dec5a`) — `canary.croft.ing` A/AAAA→box; Caddy upgraded (Debian 2.6.2→official v2.11.4); **`https://canary.croft.ing/healthz` → `ok`, trusted prod LE cert** |
+| 6 | [06-iroh-relay.md](06-iroh-relay.md) | iroh-relay **dev/test relay** (prebuilt, behind Caddy) | **DONE** (`89b8b4b`) — iroh-relay 1.0.0 up, governed, telemetry-sampled; mode A (plain HTTP behind Caddy, no UDP); idempotent; public pending `relay.croft.ing` DNS |
 | 7 | [07-auth-helper.md](07-auth-helper.md) | confidential-client spike → shared broker | session past browser-only TTL; clean fallback |
 | 8 | [08-cache-server.md](08-cache-server.md) | `StateSource` seam; bluebird → arecipe cache | pad reads via cache; unaffected when cache off |
 | 9 | [09-stellin-index.md](09-stellin-index.md) | index mode; backups designed but paused | serves a query no upstream can |
@@ -38,11 +38,13 @@ behind Caddy, governed, telemetry-sampled; public pending `relay.croft.ing` DNS)
 live over HTTPS**: `https://canary.croft.ing/healthz`
 → `ok` (trusted prod LE cert), firewall default-drop, SSH key-only, `canary` governed, telemetry
 sampling; converge idempotent. Phase 7 auth-helper **spike done/GO**; the **production Rust broker is
-BUILD-COMPLETE** — Phases 0–6 done (`croft-stack/broker/`: full confidential-OAuth broker, TDD 70/70,
-clippy/fmt clean, deploy bats 6/6; `17ca385`), see [auth-broker-plan.md](auth-broker-plan.md). Only
-the **live converge that supersedes the spike at `account.croft.ing` is gated** (hard-to-reverse).
-**Next (serves live pads):** Phase 7 — run the gated broker converge (supersede the spike), or
-Phase 8 — the cache server for bluebird/arecipe. Detailed = Phases 0–6 + 07 + telemetry-client-plan;
+LIVE** — Phases 0–6 built + converged (`croft-stack/broker/`: full confidential-OAuth broker, TDD
+70/70, clippy/fmt clean, deploy bats 6/6) and serving at **`account.croft.ing`** over prod-LE TLS
+(governed, keys 0600), see [auth-broker-plan.md](auth-broker-plan.md). Full re-converge idempotent
+(`changed=0`).
+**Next:** the whole stack is live — hands-on review in `croft-stack/STACK-REVIEW.md` (pre-Phase-8
+discussion). Then Phase 8 — the cache server (**bluebird track first**; arecipe-cache is backlog).
+Detailed = Phases 0–6 + 07 + telemetry-client-plan;
 scaffolded = Phases 8–10. (Pad `skylite` renamed **`bluebird`**.)
 
 **Execution logs (procedures, not just plans):** every working session is logged in the `croft-stack`
@@ -83,6 +85,9 @@ into phase N). Cleared items move to the owning phase's plan or are struck.
   reframed around Ansible.** `bootstrap.sh --plan` is retained only as the *spec/checklist* for authoring
   the playbook (what the bring-up must do: packages, SSH hardening, nftables, Caddy, users, deploy user,
   unit install), never run. Authoring the playbook + its idempotence test is Phase 4 work.
+  **Bash was dropped from the idempotent *implementation* path only** — bash/bats remain as **testing
+  glue** for deployed/static artifacts (the deploy-artifact bats: render/telemetry/relay/broker).
+  Programs are Rust (operational) + Python (utility); Ansible YAML + HCL are the config substrate.
 - **[hold→2]** Box is **Debian 13 (trixie)**, not Debian 12 (`BOX-CHANGELOG` baseline). The kit
   terraform (`os_image` default "Debian 12") and bootstrap assume 12. Decide target OS for the
   reproduce-next-box recipe (accept 13 vs pin 12). Also `terraform/variables.tf` `service_display_name`
