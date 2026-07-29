@@ -2,7 +2,13 @@
 
 ← [05-dns-tls.md](05-dns-tls.md) · [roadmap](README.md) · next → [07-auth-helper.md](07-auth-helper.md)
 
-**Status:** SCAFFOLD (fill on arrival) · **Depends-on:** Phases 3–5 (governance defaults; box up; DNS/
+**Status:** **DONE (2026-07-29, `89b8b4b`)** as a **dev/test relay** (owner intent — dogfooding, not
+primetime). iroh-relay v1.0.0 (prebuilt musl, pinned+sha256) deployed **mode A** (plain HTTP on
+`127.0.0.1:8440`, Caddy TLS-terminates `relay.croft.ing` + reverse-proxies) — **no UDP, no `:443`
+conflict, no Rust build**; QUIC address-discovery OFF (relay=connectivity, discovery=atproto; QUIC is a
+later mode-B upgrade with its own TLS/port/UDP). Governed, telemetry-sampled, idempotent. Public
+endpoint pending `relay.croft.ing` DNS. Session: `croft-stack/sessions/2026-07-29-phase-6-relay.md`. ·
+**Depends-on:** Phases 3–5 (governance defaults; box up; DNS/
 TLS) · **Gate-out:** the relay runs supervised + governed + observable; the box is proven under a real
 long-running service *before* any net-new invention.
 

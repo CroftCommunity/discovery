@@ -27,17 +27,20 @@ pre-resolved. Recommendations are marked *(rec)*.
 | 3 ✅ | [03-governance-telemetry.md](03-governance-telemetry.md) | limits+accounting defaults + local telemetry client | **DONE** — governance (`2f596a9`) + telemetry client (4 phases TDD, thru `73c25e5`; 32 pytest + 6 bats; validated on real box cgroups) |
 | 4 ✅ | [04-stub-bringup.md](04-stub-bringup.md) | **Ansible** converge on a clean box (idempotent) | **DONE** (`0550fb7`) — box converged; run-3 `changed=0`; no lockout (key-only); canary `/healthz` ok + governed; telemetry sampling |
 | 5 ✅ | [05-dns-tls.md](05-dns-tls.md) | A/AAAA + Caddy auto-TLS | **DONE** (`58dec5a`) — `canary.croft.ing` A/AAAA→box; Caddy upgraded (Debian 2.6.2→official v2.11.4); **`https://canary.croft.ing/healthz` → `ok`, trusted prod LE cert** |
-| 6 | [06-iroh-relay.md](06-iroh-relay.md) | **first real service** — off-the-shelf infra shakedown | relay supervised+governed+observable |
+| 6 ✅ | [06-iroh-relay.md](06-iroh-relay.md) | iroh-relay **dev/test relay** (prebuilt, behind Caddy) | **DONE** (`89b8b4b`) — iroh-relay 1.0.0 up, governed, telemetry-sampled; mode A (plain HTTP behind Caddy, no UDP); idempotent; public pending `relay.croft.ing` DNS |
 | 7 | [07-auth-helper.md](07-auth-helper.md) | confidential-client spike → shared broker | session past browser-only TTL; clean fallback |
 | 8 | [08-cache-server.md](08-cache-server.md) | `StateSource` seam; bluebird → arecipe cache | pad reads via cache; unaffected when cache off |
 | 9 | [09-stellin-index.md](09-stellin-index.md) | index mode; backups designed but paused | serves a query no upstream can |
 | 10 | [10-drystone-layer.md](10-drystone-layer.md) | croft-groups (factoring open) + MLS convergence (gated) | each an independent governed mini-stack |
 
-**Status:** Phases 0–5 **DONE** — box **converged and live over HTTPS**: `https://canary.croft.ing/healthz`
+**Status:** Phases 0–6 **DONE** — plus the **iroh-relay dev/test relay** is live (mode A: plain HTTP
+behind Caddy, governed, telemetry-sampled; public pending `relay.croft.ing` DNS). Box **converged and
+live over HTTPS**: `https://canary.croft.ing/healthz`
 → `ok` (trusted prod LE cert), firewall default-drop, SSH key-only, `canary` governed, telemetry
 sampling; converge idempotent. Phase 7 auth-helper **spike done/GO** (production broker remains).
-**Next: Phase 6 — the iroh relay** (first drystone-layer service; opens UDP/QUIC). Detailed = Phases
-0–5 + 07 + telemetry-client-plan; scaffolded = Phases 6, 8–10. (Pad `skylite` renamed **`bluebird`**.)
+**Next (serves live pads):** Phase 7 — the production auth-helper broker (Rust; mechanism proven), or
+Phase 8 — the cache server for bluebird/arecipe. Detailed = Phases 0–6 + 07 + telemetry-client-plan;
+scaffolded = Phases 8–10. (Pad `skylite` renamed **`bluebird`**.)
 
 **Execution logs (procedures, not just plans):** every working session is logged in the `croft-stack`
 repo under `sessions/` (grouped by target LOCAL / OVH-API / BOX / GIT, secrets redacted). This roadmap
@@ -293,9 +296,10 @@ in their own docs — pointers only):
 | **MLS history-convergence server** | content-blind "meer"/blind-mirror that helps MLS-group peers converge their append-only history | P2P convergence over iroh | drystone convergence briefs `beta/impl/experiments/`; relay lab E8/E9 |
 | **croft-groups** | an **AppView variant**: roster-gated large-group serving = the cache/index engine + a different membership/write policy (atproto-family; listed here for group affinity) | open tier is a zero-decision on-ramp (RUN-16) | `alpha/experiments/appview-infra/GROUPS.md` A.10; factoring = Open decision 13 |
 
-Order (decided): the **iroh relay lands first — before the pad accelerators** — as the infra shakedown
-(off-the-shelf, low-risk, real load; it needs its own **UDP/QUIC ports** opened in nftables, an
-exception to the 22/80/443-only default). **croft-groups is an AppView variant** — the same cache/index
+Order (as built): the **iroh relay** landed as a **dev/test relay** (Phase 6, DONE) in **mode A** —
+plain HTTP behind Caddy, **no UDP/QUIC** (so **no nftables exception** was needed). QUIC address-
+discovery (which would need the relay's own TLS + UDP 7842 + an nftables exception) is a later mode-B
+upgrade if we want it. **croft-groups is an AppView variant** — the same cache/index
 engine with a different membership/write policy — deployed as its own isolated mini-stack instance on
 product need; its code factoring (mode / shared-lib sibling / separate build) is open (Open decision
 13). The **MLS convergence server is gated** on drystone's fold/MLS becoming real — last by dependency,
@@ -452,7 +456,7 @@ Full plan: [03-governance-telemetry.md](03-governance-telemetry.md).
 | Unit | Kind | Port | Role | Restart |
 |---|---|---|---|---|
 | `caddy` | long-running | 80/443 | TLS + reverse proxy, one vhost per fqdn | auto; on boot |
-| `nftables` | ruleset | — | default-drop; allow 22/80/443 + the relay's UDP/QUIC port | on boot |
+| `nftables` | ruleset | — | default-drop; allow 22/80/443 (relay is mode-A behind Caddy — no UDP port) | on boot |
 | `iroh-relay` | long-running | **UDP/QUIC** (+ TLS) | first real service; NAT-traversal relay, infra shakedown (off-the-shelf) | `always`, `RestartSec=2` |
 | `auth-helper` | long-running | **8001** | shared confidential OAuth broker + session + outbox (canonical) | `always`, `RestartSec=2` |
 | `<pad>-cache` | long-running | **810x** | cache-mode serve; miss ⇒ proxy PDS/public AppView (disposable) | `always`, `RestartSec=2` |
@@ -510,8 +514,10 @@ change → edit `services/<name>.toml` → `make generate` → **Ansible converg
     `place_order=false`) and capture the plan_code/region to reproduce the *next* box.
 11. **Backups enable trigger** — paused both modes now; approach fixed (Litestream→R2). Enable gate:
     before any tenant carries real/canonical data.
-12. **Drystone-layer order** — *DECIDED:* iroh relay first (Phase 6); MLS convergence gated on
-    drystone's fold. Sub-item: relay `CONTRACT.md` fit vs thin wrapper (Phase 6).
+12. **Drystone-layer order** — *DECIDED + relay DONE:* the iroh relay shipped (Phase 6) as a dev/test
+    relay. Contract-fit sub-item *resolved:* the off-the-shelf binary needs **no wrapper** — it runs as
+    a plain governed systemd unit fronted by Caddy (mode A), rather than honoring `CONTRACT.md`'s
+    healthz/data-dir surface. MLS convergence still gated on drystone's fold.
 13. **croft-groups factoring** *(open — scope concretely later)* — it **is an AppView** (cache/index
     engine + different membership/write policy). Deploys as its own isolated mini-stack instance; code
     factoring (mode / shared-lib sibling / separate build) undecided. *(lean: mode-or-shared-libs.)*
