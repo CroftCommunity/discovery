@@ -48,6 +48,11 @@ refresh server-side and broker a longer-lived session — an optional accelerato
 reachable, with a clean fallback. This is the **least-proven piece** (net-new invention): `authserve.rs`
 proved the service-auth JWT verifier but explicitly named the interactive OAuth login leg a non-goal.
 
+**Production build plan (Rust, phase-planned): [auth-broker-plan.md](auth-broker-plan.md)** — the
+hardened rewrite, TDD across small phases (Phase 0 crate-pinning → crypto → OAuth → session → server →
+deploy). Scope fact: the spike is ~1,340 LOC hand-rolled crypto (no atproto-OAuth lib), so the Rust
+broker is a comparable security-sensitive build, not a one-shot.
+
 ## Approach
 
 **Spike first, then build.** The throwaway spike (like account-kernel/K1) **has confirmed** the
