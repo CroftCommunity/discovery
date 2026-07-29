@@ -37,9 +37,11 @@ pre-resolved. Recommendations are marked *(rec)*.
 behind Caddy, governed, telemetry-sampled; public pending `relay.croft.ing` DNS). Box **converged and
 live over HTTPS**: `https://canary.croft.ing/healthz`
 → `ok` (trusted prod LE cert), firewall default-drop, SSH key-only, `canary` governed, telemetry
-sampling; converge idempotent. Phase 7 auth-helper **spike done/GO** (production broker remains).
-**Next (serves live pads):** Phase 7 — the production auth-helper broker (Rust; mechanism proven), or
-Phase 8 — the cache server for bluebird/arecipe. Detailed = Phases 0–6 + 07 + telemetry-client-plan;
+sampling; converge idempotent. Phase 7 auth-helper **spike done/GO**; the **production Rust broker is
+IN PROGRESS** — Phases 0–1 done (`croft-stack/broker/`: crate stack pinned + JOSE/crypto core, TDD,
+7/7, `c771d53`), see [auth-broker-plan.md](auth-broker-plan.md).
+**Next (serves live pads):** Phase 7 — continue the production broker (next: Phase 2, DPoP/PKCE/client
+assertion), or Phase 8 — the cache server for bluebird/arecipe. Detailed = Phases 0–6 + 07 + telemetry-client-plan;
 scaffolded = Phases 8–10. (Pad `skylite` renamed **`bluebird`**.)
 
 **Execution logs (procedures, not just plans):** every working session is logged in the `croft-stack`

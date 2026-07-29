@@ -3,9 +3,10 @@
 date: 2026-07-29 · phase-plan for the production rebuild of the confidential-OAuth broker. Component of
 [07-auth-helper.md](07-auth-helper.md). Spike (mechanism proven GO): `discovery/spike/auth-helper/`.
 
-**Status: PLANNED — build pending.** The 2026-07-24 spike proved the mechanism end-to-end; this is the
-hardened Rust rewrite. Security-sensitive (hand-rolled OAuth crypto) → TDD + `rust-enforcer` discipline,
-built in small committed phases. Not a one-shot.
+**Status: IN PROGRESS — Phases 0–1 done (2026-07-29).** The 2026-07-24 spike proved the mechanism
+end-to-end; this is the hardened Rust rewrite. Security-sensitive (hand-rolled OAuth crypto) → TDD +
+`rust-enforcer` discipline, built in small committed phases. Not a one-shot. Crate is
+`croft-stack/broker/`; session log `sessions/2026-07-29-phase-7-broker-crypto.md`. Next: Phase 2.
 
 ---
 
@@ -55,16 +56,24 @@ Single new crate tree; no box mutation until the deploy phase (separately gated)
 
 ## Phases (TDD; crates to confirm in Phase 0/1, don't assume)
 
-### Phase 0 — Discovery: pin the Rust crypto/HTTP/web crates
+### Phase 0 — Discovery: pin the Rust crypto/HTTP/web crates ✅ DONE (2026-07-29)
 Probe + decide (a few `cargo` spikes, `throwaway` disposition): ES256 sign/verify + JWK
 (`p256` + `ecdsa`/`signature`, or `ring`); JWT/JOSE (hand-roll compact JWS on the above vs a JOSE
 crate); base64url/sha256 (`base64`, `sha2`); HTTP client for PAR/token/refresh (`reqwest` rustls vs
 `ureq`); web server (`axum`); session-at-rest encryption (`aes-gcm` + `zeroize`); store (`rusqlite` vs
 flat files). **Done when:** the crate set is chosen with a working ES256-sign + verify spike.
+**Outcome:** crypto floor pinned via a passing spike — `p256[ecdsa,jwk]` 0.13 (hand-rolled compact
+JWS, no JOSE crate), `rand_core[getrandom]` 0.6, `sha2` 0.10, `base64` 0.22, `zeroize`,
+`serde`/`serde_json`, `thiserror`. HTTP-client / axum / aes-gcm / store decisions deferred to the
+phases that first need them (Phases 3–5). ES256 `.to_bytes()` = raw 64-byte r‖s (JWS-ready).
 
-### Phase 1 — JOSE/crypto core (pure, TDD)
+### Phase 1 — JOSE/crypto core (pure, TDD) ✅ DONE (2026-07-29)
 base64url, sha256, ES256 sign/verify, JWK (public jwks.json + private key load), compact JWS. Mirror
 `oauth/jose.ts`. Secret key = `Zeroize` newtype, never `Debug`/serialized in the clear.
+**Outcome:** `broker/src/jose.rs` + `error.rs` — `b64url`/`b64url_decode`, `sha256`, `Es256Key`
+(`generate`/`from_jwk_json`/`public_jwk_json`/`verifying_key`/`sign_jws`), `verify_jws`. `Es256Key`
+has redacted `Debug` (p256 zeroizes secret scalar on drop). 7/7 tests, `clippy::pedantic` + `fmt`
+clean, `#![forbid(unsafe_code)]`. Commit `c771d53`.
 
 ### Phase 2 — DPoP + PKCE + client assertion (TDD)
 DPoP proof creation (+ the nonce retry), PKCE challenge, the `private_key_jwt` client assertion
