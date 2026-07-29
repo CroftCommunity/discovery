@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Croft content-fetch bridge (spike)",
+  "version": "0.0.1",
+  "description": "Spike: grant a static Croft PWA a cross-origin read it cannot do itself.",
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:5601/*", "https://localhost:5601/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "host_permissions": ["http://localhost:5602/*"]
+}
