@@ -300,6 +300,11 @@ mount instance) — asserted by the wiring test.
 
 ### Phase 2: Design system — the playful identity
 
+> ✅ **SHIPPED 2026-07-29 via the delivery slice `2026-07-29-playable-solitaire.md` → Phase E.**
+> `tokens.css` (only-file-with-hex, croft-pwa discipline) carries a green-felt / ivory-card identity
+> with a brass accent, light + dark; `src/theme.ts` + a header toggle + a pre-paint no-flash script;
+> WCAG-AA ratios recorded and asserted, axe clean on chrome + board in both themes. `docs/DESIGN.md`.
+
 **Goal:** `fun.croft.ing`'s **own playful visual identity** built on croft-pwa's token architecture,
 applied to the drawer chrome and placeholder. Establishes the look every game inherits.
 

@@ -1,12 +1,13 @@
 # Playable, verifiable solitaire in the drawer — the delivery slice
 
-**Status:** ✅ **PLAYABLE — D SHIPPED (`fun` `667cf66`).** ✅ A (`pond-docformat` `808df73`), ✅ B
-(`pond-outcome` `85df812`), ✅ C (binding `ff55c0d`), ✅ S (solver+pack `e52da18`), ✅ **D (board UI)**
-shipped + pushed. Sequence complete: A✅→B✅→C✅→S✅→**D✅** (E — playful identity — still open,
-restyles the neutral board baseline). `/solitaire/` is a real Klondike draw-1 game: tap-to-move with
+**Status:** ✅ **COMPLETE — ALL PHASES SHIPPED (`fun` `c95bb6f`).** ✅ A (`pond-docformat` `808df73`),
+✅ B (`pond-outcome` `85df812`), ✅ C (binding `ff55c0d`), ✅ S (solver+pack `e52da18`), ✅ D (board UI
+`667cf66`), ✅ **E (playful felt-table identity + light/dark `c95bb6f`)** shipped + pushed. Sequence
+complete: A✅→B✅→C✅→S✅→D✅→**E✅**. `/solitaire/` is a real Klondike draw-1 game: tap-to-move with
 core-driven legal-move glow, daily deal (UTC rollover) + free-play (`?seed=`), undo + declare-assistance
 (ON default), "I'm stuck", a verification-forward win screen (re-verify by replay) and a deflated `?r=`
-share link that re-verifies on open. Web green: typecheck/lint/vitest(19)/Playwright(10). Rust 52 green.
+share link that re-verifies on open — wearing a green-felt/ivory-card identity with a light/dark toggle.
+Web green: typecheck/lint/vitest(50)/Playwright(14, axe both themes). Rust 52 green.
 **What this is:** the **delivery plan** that takes the shipped pieces (the drawer chrome, `solitaire-core`,
 the cross-build determinism test) to a **playable, verifiable solitaire on `fun.croft.ing`**. It is a
 cross-cutting slice spanning **master-plan P5/P6** (the `pond-docformat` / `pond-outcome` substrate —
@@ -409,7 +410,24 @@ via taps with legal-move highlighting, and gets a re-verifiable clean-clear reco
 **Validation:** **Broad** — wiring E2E + a manual play session (mouse + touch) + confirm the emitted
 record re-verifies.
 
-### Phase E — design system / the playful identity (front P2)  *(parallel with A–C)*
+### Phase E — design system / the playful identity (front P2) — ✅ SHIPPED (`fun` `c95bb6f`)
+
+**Delivered (2026-07-29):** `fun/tokens.css` (the ONLY file with raw hex, mirroring croft-pwa) — a
+**card-table** identity in the Croft family: a green **felt** play surface (kin to Dark Moss), warm
+**ivory cards** with classic red/black suits, a **brass-gold** accent (actions + legal-target glow),
+**moss** for the verifiable win, **rust** for a failed verification; light + `[data-theme="dark"]`.
+`fun/src/theme.ts` — pure `resolveTheme` (stored choice wins, else follow-OS; two states, no "auto")
++ `toggleTheme`, unit-tested. `chrome.ts` gains the header **theme toggle** (`☾`/`☀`, syncs the
+manifest `theme-color`); `build.mjs` concatenates tokens+styles and injects a **pre-paint `THEME_INIT`
+script** (no flash of the wrong theme). `styles.css` rewritten to `var()` tokens (felt board, card
+faces, brass card-back weave, dashed empty-slot outlines, glow). a11y fixes surfaced by axe: the
+face-down back is `role="img"`; the decorative empty-waste placeholder drops its prohibited
+`aria-label`. `docs/DESIGN.md` records the palette, roles, and **every WCAG-AA ratio**. Tests:
+`tests/tokens.test.ts` (no-hex-in-`styles.css` + AA for all 13 pairs × 2 themes = 28),
+`tests/theme.test.ts` (3), `tests/theme.spec.ts` (4 — tokens carried, toggle changes computed styles,
+**axe clean on home + board in BOTH themes**). Gate green: vitest 50 / Playwright 14 / Rust 52.
+**Follow-ups:** a self-hosted display webfont (headline currently falls back to a system rounded face)
+and a win-cascade animation are front-plan polish; match-3/cribbage reuse these tokens.
 
 **Goal:** `fun.croft.ing`'s own playful identity on croft-pwa's token architecture — palette, type,
 card/felt motifs, light/dark — applied to the chrome and the solitaire board.
