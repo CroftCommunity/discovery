@@ -162,6 +162,9 @@ Active lanes stood up first: `Decisions & Gates`, `L4 Spec`, `L5 Impl`. The othe
 
 ## Deferred — next board steps (todo for later)
 
+Both are tracked as `Backlog` cards on the board (lane `Decisions & Gates` as a placeholder — re-lane
+during triage) so they surface when we get to them.
+
 1. **Set up the per-lane board views.** The data model and cards are in place; only the *views* remain,
    and GitHub has no API to create them. In the project UI: switch the default view to **Board**
    layout, set the column field to **Status**, then **Slice by → Lane** (one board, click a lane in the
