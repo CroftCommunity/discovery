@@ -1,11 +1,12 @@
 # Playable, verifiable solitaire in the drawer — the delivery slice
 
-**Status:** EXECUTION IN PROGRESS (substrate-first). ✅ A (`pond-docformat` `808df73`), ✅ B
-(`pond-outcome` `85df812`), ✅ C (binding `ff55c0d`) shipped + pushed. **Reordered (owner): S before D**
-— build the solver + winnable-daily pack + **winning-line fixture** first, so D's full **win-path E2E
-comes online with the board**. Sequence: A✅→B✅→C✅→**S✅**→ **D (next)** (E alongside). D is fully
-unblocked: binding ready, `games/solitaire/daily-pack.json` provides the daily deals + the win-path
-fixture (replay `pack[0]`).
+**Status:** ✅ **PLAYABLE — D SHIPPED (`fun` `667cf66`).** ✅ A (`pond-docformat` `808df73`), ✅ B
+(`pond-outcome` `85df812`), ✅ C (binding `ff55c0d`), ✅ S (solver+pack `e52da18`), ✅ **D (board UI)**
+shipped + pushed. Sequence complete: A✅→B✅→C✅→S✅→**D✅** (E — playful identity — still open,
+restyles the neutral board baseline). `/solitaire/` is a real Klondike draw-1 game: tap-to-move with
+core-driven legal-move glow, daily deal (UTC rollover) + free-play (`?seed=`), undo + declare-assistance
+(ON default), "I'm stuck", a verification-forward win screen (re-verify by replay) and a deflated `?r=`
+share link that re-verifies on open. Web green: typecheck/lint/vitest(19)/Playwright(10). Rust 52 green.
 **What this is:** the **delivery plan** that takes the shipped pieces (the drawer chrome, `solitaire-core`,
 the cross-build determinism test) to a **playable, verifiable solitaire on `fun.croft.ing`**. It is a
 cross-cutting slice spanning **master-plan P5/P6** (the `pond-docformat` / `pond-outcome` substrate —
@@ -339,7 +340,25 @@ golden hash matches through the binding.
 **Validation:** **Broad** — wiring test + cross-check the same wasm the browser loads + a manual
 `newGame → play → board` from a node REPL.
 
-### Phase D — solitaire board UI (front P4): tap-to-move, win → verifiable record
+### Phase D — solitaire board UI (front P4): tap-to-move, win → verifiable record — ✅ SHIPPED (`fun` `667cf66`)
+
+**Delivered (2026-07-29):** `fun/src/games/solitaire.ts` (the `GameModule`) + `solitaire-outcome.ts`
+(pure share/verify/daily logic, no DOM). Board renders stock/waste/4 foundations/7 fanned tableau
+columns; tap source → the core's `legalMoves()` glow the exact legal targets → tap target → matching
+`play()` (the UI never decides legality — the illegal-tap E2E guards it); double-tap auto-sends to a
+foundation; stock draws/recycles. Daily deal by default (UTC day index into `daily-pack.json`) + a
+free-play toggle (`?seed=<n>`). Undo (sets the binding's assistance flag) + a "Declare assistance used"
+setting (ON) + "I'm stuck" → `Stuck` record. Verification-forward win screen ("Cleared clean ✓ —
+verifiable" / with-assistance / Stuck) with the `pond-outcome` record, moves-to-clear, one-tap re-verify
+(re-replays through a dedicated binding instance), and a `?r=` share link — the **full self-verifying
+record, deflated** (a 500-move win: ~21 KB JSON → ~1.3 KB URL) — whose open path decodes + **re-verifies
+before display**. `registry.ts` flipped to `status: "playable"`; `build.mjs` serves `/daily-pack.json`;
+`playwright.config.ts` builds the wasm first. Tests: `tests/solitaire-unit.test.ts` (14 — share
+round-trip, daily seed, verify-orchestration + tamper against the **real wasm**, result-screen
+headlines) + `tests/solitaire.spec.ts` (6 — mechanics + win-path fixture via the `window.__solitaire`
+hook + share round-trip + full-screen). Web green (typecheck/lint/vitest 19/Playwright 10 incl. axe);
+Rust 52 green. **Follow-ups:** Phase E playful identity (restyles the neutral baseline); solver
+short-line tuning + full-year pack (Phase S).
 
 **Goal:** `/solitaire/` is **playable**: a real board over the binding, tap-source → tap-target with
 legal-move highlighting from the core, draw-1 stock cycling, win → a verifiable `pond-outcome` record

@@ -373,6 +373,13 @@ covers + one manual `newGame → play → win` from a REPL/console.
 
 ### Phase 4: Solitaire playable UI (the first game module)
 
+> ✅ **SHIPPED 2026-07-29 via the delivery slice `2026-07-29-playable-solitaire.md` → Phase D.**
+> `/solitaire/` is playable: tap-to-move with core-driven legal-move glow, daily (UTC) + free-play,
+> undo + declare-assistance, "I'm stuck", a verification-forward win screen, and a re-verifying `?r=`
+> share link. The verifiable-outcome substrate (P5 `pond-docformat` / P6 `pond-outcome`) and the
+> raw-C-ABI binding it consumes are described in that plan, which supersedes this Phase 4 stub. Phase E
+> (playful identity) remains open and restyles the neutral board baseline shipped here.
+
 **Goal:** Solitaire is **playable** in the drawer: a real board over `solitaire-wasm`, **tap-source →
 tap-target** input with legal-move highlighting from the core, draw-1 stock cycling, win detection, and
 a **verifiable outcome record** (`pond-outcome`, master P6). It implements the Phase 1 game-module
