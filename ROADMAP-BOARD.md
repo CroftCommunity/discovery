@@ -159,3 +159,17 @@ L5 Impl
 
 Active lanes stood up first: `Decisions & Gates`, `L4 Spec`, `L5 Impl`. The other eight lanes exist as
 `Lane` values (cards can be filed against them) and get dedicated views as work graduates into them.
+
+## Deferred — next board steps (todo for later)
+
+1. **Set up the per-lane board views.** The data model and cards are in place; only the *views* remain,
+   and GitHub has no API to create them. In the project UI: switch the default view to **Board**
+   layout, set the column field to **Status**, then **Slice by → Lane** (one board, click a lane in the
+   slicer to see its kanban); or add a dedicated Board view per active lane filtered on `Lane`. This is
+   a manual step because it requires driving the authenticated GitHub UI (the `chasemp` account +
+   2FA) — not something to automate headless from the sandbox.
+
+2. **Order the fuller backlog onto the board.** `ROADMAP_TODO.md` sections B (validation/spikes),
+   C (backports), D (strategic), and E (explorations) hold ~118 more open items. Map them to lanes and
+   decide, lane by lane, which graduate onto the board next — keeping the board a curated surface, not
+   a mirror of the whole backlog.
