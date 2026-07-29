@@ -81,6 +81,30 @@ Confirmed with the owner in the front-plan: tap source → tap target is the acc
 (mouse/touch/keyboard identical, legal-move highlighting natural); drag-and-drop is a later enhancement
 (front-plan Phase 7). Nothing here precludes it.
 
+### UI/UX from existing solitaire implementations (informs Phases D + E)
+
+Drawn from canonical Klondike layouts and modern web implementations (Microsoft Solitaire,
+solitaired.com, GNOME Aisleriot) — the conventions Phase D's board and Phase E's identity target:
+
+- **Layout (the standard grid):** top-left **stock** (face-down; tap to draw) + **waste** (face-up,
+  top playable); top-**right** four **foundations** (one per suit, build A→K); below, **7 tableau
+  columns** fanned downward — face-up cards overlap ~28% (rank+suit corner readable), face-down cards
+  tighter. Felt-table motif (our own palette on the token layer, Phase E).
+- **Interactions:** **tap source → tap target** (our accessible foundation; legal targets glow, illegal
+  snaps back); tap stock to draw, tap empty stock to **recycle** (↻); **double-tap → auto-send to
+  foundation** as a loved convenience; **drag-and-drop is the fast-follow** (front-plan P7) with tap
+  always present. Auto-flip exposed cards; a win **cascade** animation.
+- **Controls:** Undo + Hint (both count as **assistance**), New game (**daily** / free-play toggle),
+  and — our signature — **verify + share** on win. Move counter = our **moves-to-clear** metric.
+- **Modern convention = our design, validated:** the Wordle-ification of solitaire (Microsoft/
+  solitaired) is exactly **daily challenge + streak/clean-clear stats + share results** — which is our
+  daily deal + clean-clear count + share link. Good confirmation the pond direction matches where the
+  genre went.
+- **Accessibility + responsive:** large touch targets, keyboard select (arrow + Enter, aligns with the
+  tap model), ARIA card labels ("King of Spades, face up"), high-contrast; the 7-column grid scales,
+  fan tightens on narrow screens, stock/waste/foundations stay reachable. (Sources folded into the
+  Review Log.)
+
 ### Alternatives considered and rejected
 
 - **wasm-bindgen binding** — rejected: not installed, unneeded; raw C-ABI + serde-JSON is proven.
@@ -528,3 +552,14 @@ Scope impact: **new Phase S (solver + winnable-daily pack)**; Phase B's `Record`
 enum (`Won | Stuck | Abandoned`) + `assistance: Option<bool>`; Phase C gains an undo state-stack +
 assistance tracking + daily/free seed handling + a share-encode/decode; Phase D gains the mode toggle,
 undo + the declare-assistance setting, the verify-forward win screen, and the share link.
+
+### Execution reorder + UI/UX research — 2026-07-29
+- **Reorder (owner):** do **Phase S before Phase D** so the winnable-daily pack + the **winning-line
+  fixture** exist, and D's full **win-path E2E comes online with the board** (rather than free-play
+  first). Sequence now: A✅ → B✅ → C✅ → **S → D** (E alongside).
+- **UI/UX research (owner asked to look at other implementations):** folded canonical Klondike +
+  modern-web conventions into Reasoning → "UI/UX from existing solitaire implementations". Key
+  confirmation: modern solitaire's daily-challenge + streak-stats + share-results pattern *is* our
+  daily-deal + clean-clear + share-link direction. Sources: Smart Interface Design Patterns
+  (drag-and-drop UX), LogRocket & Pencil&Paper (drag/drop patterns), solitaire-play.com (Klondike),
+  and reference impls (kimgarpvall/HectorVilas on GitHub).
