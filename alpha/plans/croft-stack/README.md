@@ -26,19 +26,18 @@ pre-resolved. Recommendations are marked *(rec)*.
 | 2 ✅ | [02-adopt-box-declaratively.md](02-adopt-box-declaratively.md) | OpenTofu VPS read + reproduce recipe; box reimaged clean | **DONE** — `tofu plan` read `vps-e9655dff.vps.ovh.us` (no order); recipe `vps-2027-model3`/US/`us-west-or-2`; box reimaged Debian 13 |
 | 3 ✅ | [03-governance-telemetry.md](03-governance-telemetry.md) | limits+accounting defaults + local telemetry client | **DONE** — governance (`2f596a9`) + telemetry client (4 phases TDD, thru `73c25e5`; 32 pytest + 6 bats; validated on real box cgroups) |
 | 4 ✅ | [04-stub-bringup.md](04-stub-bringup.md) | **Ansible** converge on a clean box (idempotent) | **DONE** (`0550fb7`) — box converged; run-3 `changed=0`; no lockout (key-only); canary `/healthz` ok + governed; telemetry sampling |
-| 5 | [05-dns-tls.md](05-dns-tls.md) | A/AAAA + Caddy auto-TLS | `https://<fqdn>/healthz` → `200 ok`, valid cert |
+| 5 ✅ | [05-dns-tls.md](05-dns-tls.md) | A/AAAA + Caddy auto-TLS | **DONE** (`58dec5a`) — `canary.croft.ing` A/AAAA→box; Caddy upgraded (Debian 2.6.2→official v2.11.4); **`https://canary.croft.ing/healthz` → `ok`, trusted prod LE cert** |
 | 6 | [06-iroh-relay.md](06-iroh-relay.md) | **first real service** — off-the-shelf infra shakedown | relay supervised+governed+observable |
 | 7 | [07-auth-helper.md](07-auth-helper.md) | confidential-client spike → shared broker | session past browser-only TTL; clean fallback |
-| 8 | [08-cache-server.md](08-cache-server.md) | `StateSource` seam; skylite → arecipe cache | pad reads via cache; unaffected when cache off |
+| 8 | [08-cache-server.md](08-cache-server.md) | `StateSource` seam; bluebird → arecipe cache | pad reads via cache; unaffected when cache off |
 | 9 | [09-stellin-index.md](09-stellin-index.md) | index mode; backups designed but paused | serves a query no upstream can |
 | 10 | [10-drystone-layer.md](10-drystone-layer.md) | croft-groups (factoring open) + MLS convergence (gated) | each an independent governed mini-stack |
 
-**Status:** Phases 0–4 **DONE** — box **converged and live** (Debian 13): firewall default-drop,
-SSH key-only (no lockout), Caddy up, `canary` governed + `/healthz` ok, telemetry sampling; converge is
-idempotent (`changed=0`). Governance + telemetry client shipped (TDD). Phase 7 auth-helper **spike
-done/GO** (production broker remains). **Next: Phase 5 — DNS + TLS** (point `canary.croft.ing` at the
-box so Caddy serves it over HTTPS), then Phase 6 (iroh relay). Detailed = Phases 0–4 + 07 +
-telemetry-client-plan; scaffolded = Phases 5–6, 8–10.
+**Status:** Phases 0–5 **DONE** — box **converged and live over HTTPS**: `https://canary.croft.ing/healthz`
+→ `ok` (trusted prod LE cert), firewall default-drop, SSH key-only, `canary` governed, telemetry
+sampling; converge idempotent. Phase 7 auth-helper **spike done/GO** (production broker remains).
+**Next: Phase 6 — the iroh relay** (first drystone-layer service; opens UDP/QUIC). Detailed = Phases
+0–5 + 07 + telemetry-client-plan; scaffolded = Phases 6, 8–10. (Pad `skylite` renamed **`bluebird`**.)
 
 **Execution logs (procedures, not just plans):** every working session is logged in the `croft-stack`
 repo under `sessions/` (grouped by target LOCAL / OVH-API / BOX / GIT, secrets redacted). This roadmap
@@ -84,7 +83,7 @@ into phase N). Cleared items move to the owning phase's plan or are struck.
 
 ## Problem statement
 
-Croft has four live client-side pads (`arecipe`, `skylite`, `pdsview`, `croft-pwa`). They ride the
+Croft has four live client-side pads (`arecipe`, `bluebird`, `pdsview`, `croft-pwa`). They ride the
 user's own PDS and Bluesky's public infrastructure and **that is the intended design floor, not a
 gap**: each pad is meant to be fully usable with no server of ours. We have deliberately seeded
 discovery with high-value starterpacks so friends-scoped, backendless operation is genuinely useful.
@@ -94,9 +93,9 @@ Two facts from the code are frequently mis-read as deficiencies. They are not:
 - `arecipe` states in-source (`src/social/comments.ts`, `src/social/interactions.ts`):
   *"backendless: no global index of `app.arecipe.*`"* — discovery is friends-scoped, walking known
   repos one at a time. This is **working as intended**. It is not a defect to fix; it is the model.
-- `skylite` reads `app.bsky.feed.getAuthorFeed` from Bluesky's **public** AppView
+- `bluebird` reads `app.bsky.feed.getAuthorFeed` from Bluesky's **public** AppView
   (`public.api.bsky.app`, `src/atproto/client.ts:9`). That is an **unauthenticated public read by
-  design** ("Does not require auth"); skylite runs as a pure PWA with no account and no server of
+  design** ("Does not require auth"); bluebird runs as a pure PWA with no account and no server of
   ours. Its client already takes an injectable `baseUrl` that **defaults to the public AppView** —
   so an optional cache is a one-line origin swap, and if the cache is down the pad falls straight
   back to the public AppView with zero code change.
@@ -136,7 +135,7 @@ stack; not required) — hosting an estate of optional accelerators:
 
 ```
 CONSUMERS (browser pads — already live, stay fully usable with the box OFF)
-   arecipe · skylite · pdsview · croft-pwa
+   arecipe · bluebird · pdsview · croft-pwa
         │                    │                         │
         │ prefers helper     │ optional cache origin   │ serverless fallback always present
         │ when reachable     │ (baseUrl swap)          │ (public AppView / PDS / browser OAuth)
@@ -148,7 +147,7 @@ CONSUMERS (browser pads — already live, stay fully usable with the box OFF)
 │ · write-outbox             │   │  --mode index : firehose-fed, persistent index,        │
 │ preferred-when-reachable;  │   │                 answers queries no upstream can         │
 │ absent ⇒ browser-only      │   │  one SERVE surface over a StateSource seam             │
-│ public-client OAuth        │   │  arecipe→cache · skylite→cache · stellin→index         │
+│ public-client OAuth        │   │  arecipe→cache · bluebird→cache · stellin→index         │
 └───────────────────────────┘   └───────────────────────────────────────────────────────┘
         └───────────────────────────────┬───────────────────────────────────────────────┘
 ┌───────────────────────────────────────▼───────────────────────────────────────────────┐
@@ -277,11 +276,11 @@ simplicity (fewer creds). Recorded as **Open decision 14** below.
 | Pad | Accelerator | Mode | Auth helper | Serverless fallback if accelerator down |
 |---|---|---|---|---|
 | `arecipe` | cache/index server | **cache** | uses it for authed paths | friends-scoped backendless walk (today) |
-| `skylite` | cache/index server | **cache** | not required (public reads) | `baseUrl` → `public.api.bsky.app` (default) |
+| `bluebird` | cache/index server | **cache** | not required (public reads) | `baseUrl` → `public.api.bsky.app` (default) |
 | `stellin` | cache/index server | **index** from start | yes (viewer-aware serving) | friends-feed / Bluesky-direct (less good) |
 | `pdsview` | none near-term | — | optional | PDS-direct (today) |
 
-Cache fqdns: `skylite-cache.croft.ing` (skylite is `skylite.croft.ing`) and `cache.arecipe.app`
+Cache fqdns: `bluebird-cache.croft.ing` (bluebird is `bluebird.croft.ing`) and `cache.arecipe.app`
 (arecipe is `arecipe.app` — cache under its own domain, same-site). `arecipe` may later move to
 **index** mode for its own lexicons only, if a query emerges that the cache cannot serve. Not now.
 
@@ -477,11 +476,11 @@ change → edit `services/<name>.toml` → `make generate` → **Ansible converg
 
 1. **Manifest shape / naming** — *scheme DECIDED: role-based subdomains.* Croft-infra and croft-domain
    pads under `croft.ing` (`account.croft.ing` = auth helper, `relay.croft.ing` = iroh relay,
-   `skylite-cache.croft.ing` = skylite cache); a pad on its own domain gets its services **under that
+   `bluebird-cache.croft.ing` = bluebird cache); a pad on its own domain gets its services **under that
    domain** (arecipe → `cache.arecipe.app`; Stellin → `index.stellin.app`, same-site). This also keeps
    the contested "Stellin" name off `croft.ing` — the name-clearance itself is decision 6.
-2. **First cache pad** — *DECIDED:* cut both in Phase 8; **skylite validated first**
-   (`skylite-cache.croft.ing`), **arecipe immediately after** (`cache.arecipe.app`).
+2. **First cache pad** — *DECIDED:* cut both in Phase 8; **bluebird validated first**
+   (`bluebird-cache.croft.ing`), **arecipe immediately after** (`cache.arecipe.app`).
 3. **Auth-helper vs cache first (among net-new mini-stacks)** — owner chose auth helper first (after
    the relay); fallback if its spike stalls is cache-first. Pre-authorized.
 4. **arecipe index mode later** — if/when a query emerges that the cache cannot serve. Not now.
@@ -539,7 +538,7 @@ change → edit `services/<name>.toml` → `make generate` → **Ansible converg
   `discovery/spike/account-kernel/FINDINGS-AND-PIVOT.md`, OPEN-THREADS T55;
   `discovery/alpha/plans/2026-07-22-account-kernel-spike.md`.
 - Pads' integration surface: `arecipe/src/social/{comments,interactions}.ts`,
-  `skylite/src/atproto/client.ts`, `croft-pwa/src/atproto/oauth/` + `croft-pwa/client-metadata.json`.
+  `bluebird/src/atproto/client.ts`, `croft-pwa/src/atproto/oauth/` + `croft-pwa/client-metadata.json`.
 - Name clearance (contested): `discovery/alpha/research/stellin-name-clearance-2026-07.md`.
 - Drystone (the layer below): `discovery/beta/drystone-spec/` (Parts 1–2); overview
   `discovery/beta/socialization/drystone-elevator-pitch.md`; convergence design

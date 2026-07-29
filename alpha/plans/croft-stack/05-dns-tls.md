@@ -19,6 +19,10 @@ Create A/AAAA per service fqdn pointing at the box; let Caddy's auto-HTTPS issue
 Croft-domain services live under `croft.ing`; a pad on its own domain gets its cache subdomain under
 *that* domain.
 
+**Status: DONE for canary (2026-07-29).** `canary.croft.ing` A/AAAA → box; Caddy (upgraded to official
+v2.11.4) auto-issued a trusted **production** LE cert; `https://canary.croft.ing/healthz` → `ok`.
+Session: `croft-stack/sessions/2026-07-29-phase-5-dns-tls.md`. Remaining records land with their phases.
+
 ## The records (by hand; the box is `A 15.204.81.133`, `AAAA 2604:2dc0:222::431` — confirmed post-reimage)
 
 | fqdn | Zone | Added at | Status |
@@ -26,7 +30,7 @@ Croft-domain services live under `croft.ing`; a pad on its own domain gets its c
 | `account.croft.ing` | croft.ing (Porkbun) | Phase 4/7 | **exists** (spike); re-point after reimage |
 | `canary.croft.ing` | croft.ing (Porkbun) | Phase 4 | new |
 | `relay.croft.ing` | croft.ing (Porkbun) | Phase 6 | new (same A record; relay's UDP/QUIC is same host) |
-| `skylite-cache.croft.ing` | croft.ing (Porkbun) | Phase 8 | new |
+| `bluebird-cache.croft.ing` | croft.ing (Porkbun) | Phase 8 | new |
 | `cache.arecipe.app` | arecipe.app | Phase 8 | new (one record on arecipe.app's zone) |
 | `index.stellin.app` | stellin.app | Phase 9 | new (`stellin.app` apex already → box from spike) |
 

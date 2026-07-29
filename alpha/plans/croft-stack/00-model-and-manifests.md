@@ -39,7 +39,7 @@ re-litigate.
 | # | Decision | Value |
 |---|---|---|
 | Q1 | Naming scheme | role-based subdomains; croft-infra + croft-domain pads under `croft.ing`; a pad on its own domain gets its cache under that domain |
-| Q2 | First cache pad | both cut in Phase 8; **skylite first** (`skylite-cache.croft.ing`), **arecipe next** (`cache.arecipe.app`) |
+| Q2 | First cache pad | both cut in Phase 8; **bluebird first** (`bluebird-cache.croft.ing`), **arecipe next** (`cache.arecipe.app`) |
 | Q3 | Production repo name | `croft-stack` (`CroftCommunity/croft-stack`) |
 | — | Auth helper fqdn | `account.croft.ing` (owner prefers "account" over an "auth"-named domain) |
 | — | Relay ordering | first real service (Phase 6), before the pad accelerators |
@@ -48,7 +48,7 @@ re-litigate.
 ## The manifest set (draft — the paper artifact this phase produces)
 
 Ports — *explicit scheme confirmed (Q6)*, all localhost-only behind Caddy: `8001` auth helper · `8100`
-canary · `8101`/`8102` skylite-cache (main/api) · `8103`/`8104` arecipe-cache · `8201`/`8202`
+canary · `8101`/`8102` bluebird-cache (main/api) · `8103`/`8104` arecipe-cache · `8201`/`8202`
 stellin-index; the relay uses its own UDP/QUIC port. The generator still enforces no collision.
 
 | Manifest (`services/<name>.toml`) | fqdn | Port | Mode / kind | Data profile | Phase |
@@ -56,8 +56,8 @@ stellin-index; the relay uses its own UDP/QUIC port. The generator still enforce
 | `canary` | `canary.croft.ing` | 8100 | contract canary — bring-up vehicle **and permanent** health/smoke target | disposable | 4 |
 | `iroh-relay` | `relay.croft.ing` | UDP/QUIC (+TLS) | off-the-shelf relay | disposable | 6 |
 | `account` (auth helper) | `account.croft.ing` | 8001 | confidential OAuth broker | **canonical** (keys/sessions) | 7 |
-| `skylite-cache` | `skylite-cache.croft.ing` | 8101 | `--mode cache` | disposable | 8 |
-| `skylite-cache-api` | (same, path/host) | 8102 | own-data API (read-only) | — | 8 |
+| `bluebird-cache` | `bluebird-cache.croft.ing` | 8101 | `--mode cache` | disposable | 8 |
+| `bluebird-cache-api` | (same, path/host) | 8102 | own-data API (read-only) | — | 8 |
 | `arecipe-cache` | `cache.arecipe.app` | 8103 | `--mode cache` | disposable | 8 |
 | `arecipe-cache-api` | (same) | 8104 | own-data API (read-only) | — | 8 |
 | `stellin-index` | `index.stellin.app` | 8201 | `--mode index` | **canonical** (cursor) | 9 |
@@ -71,7 +71,7 @@ stellin-index; the relay uses its own UDP/QUIC port. The generator still enforce
   keeps the contested name off croft.ing). The name-clearance itself stays Open decision 6 (owner's
   legal call); it is already in active use on `stellin.app` via the auth-helper spike pad.
 - **Q6 — port scheme.** *RESOLVED:* explicit scheme confirmed — `8001` auth · `8100` canary ·
-  `8101`/`8102` skylite-cache · `8103`/`8104` arecipe-cache · `8201`/`8202` stellin-index; relay on its
+  `8101`/`8102` bluebird-cache · `8103`/`8104` arecipe-cache · `8201`/`8202` stellin-index; relay on its
   own UDP/QUIC port. Hand-pinned for predictable telemetry/debugging; generator enforces no collision.
 
 ## Reasoning
