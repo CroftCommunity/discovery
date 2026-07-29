@@ -142,6 +142,7 @@ preserve raw verbatim → distill → update connective tissue). The standing in
 - **No emojis in documents.** Markdown docs, plans, READMEs, session logs, status boards — use
   plain-text status tokens (e.g. `DONE` / `LIVE` / `PENDING` / `PARTIAL` / `n/a`), not emoji.
   ASCII box-drawing and arrows (`┌ │ └ → ▼`) are fine — those are diagrams, not emoji.
+  (Tolerated exception: the `ROADMAP_TODO.md` backlog's existing status markers.)
 
 ## Headline state (keep fresh; mirrors PLAYBOOK §7)
 
