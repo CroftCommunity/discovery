@@ -9,7 +9,7 @@ Built + tested in `croft-stack/broker/` (70/70 cargo tests, clippy/fmt clean, de
 **live at `account.croft.ing`** (governed unit, keys 0600, prod-LE TLS; `/healthz`, `/jwks.json`,
 `/client-metadata.json` all serving). No spike to supersede — the box had been reimaged, so this was a
 clean first deploy. Session logs `sessions/2026-07-29-phase-7-broker-crypto.md`, `-broker-build.md`,
-`-broker-converge.md`. Hands-on verification: `croft-stack/STACK-REVIEW.md`. Optional next: a live
+`-broker-converge.md`. Hands-on verification: `croft-stack/reviews/2026-07-29-stack-review.md`. Optional next: a live
 round-trip (one interactive authorize).
 
 ---

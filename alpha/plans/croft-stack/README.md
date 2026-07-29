@@ -42,7 +42,7 @@ LIVE** — Phases 0–6 built + converged (`croft-stack/broker/`: full confident
 70/70, clippy/fmt clean, deploy bats 6/6) and serving at **`account.croft.ing`** over prod-LE TLS
 (governed, keys 0600), see [auth-broker-plan.md](auth-broker-plan.md). Full re-converge idempotent
 (`changed=0`).
-**Next:** the whole stack is live — hands-on review in `croft-stack/STACK-REVIEW.md` (pre-Phase-8
+**Next:** the whole stack is live — hands-on review in `croft-stack/reviews/` (latest: 2026-07-29) (pre-Phase-8
 discussion). Then Phase 8 — the cache server (**bluebird track first**; arecipe-cache is backlog).
 Detailed = Phases 0–6 + 07 + telemetry-client-plan;
 scaffolded = Phases 8–10. (Pad `skylite` renamed **`bluebird`**.)
@@ -51,7 +51,7 @@ scaffolded = Phases 8–10. (Pad `skylite` renamed **`bluebird`**.)
 repo under `sessions/` (grouped by target LOCAL / OVH-API / BOX / GIT, secrets redacted). This roadmap
 is the intent; `sessions/` is the actuals.
 
-**Hands-on verification:** `croft-stack/STACK-REVIEW.md` is the work-through checklist for the whole
+**Hands-on verification:** `croft-stack/reviews/` (latest: 2026-07-29) is the work-through checklist for the whole
 deployed estate — every component with its exact prove/verify command, expected output, and status.
 
 ---
