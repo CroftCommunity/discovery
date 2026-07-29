@@ -230,7 +230,18 @@ each Disposition.
 
 ---
 
-### Phase 1: Front-end scaffold + game-agnostic drawer chrome
+### Phase 1: Front-end scaffold + game-agnostic drawer chrome — ✅ SHIPPED (`fun` `b167e55`)
+
+**Delivered (2026-07-29):** vanilla-TS + esbuild toolchain matching croft-pwa (tsconfig strict, eslint
+flat, vitest/jsdom, playwright/chromium + `tools/serve.mjs`). The game-module contract
+(`mount`/`unmount` + `PresentationMode`); the accessible slide-out `chrome.ts` (focus-trap, ESC,
+keyboard toggle, aria; full-screen toggle that re-styles WITHOUT remounting — same instance preserved;
+open-in-new-tab). Per-game static entry pages (`/`, `/placeholder/`, `/solitaire/`, `/match3/`) emitted
+by `build.mjs` — clean URLs, no router/404-hack; selection navigates to `/<id>/`. A placeholder module
+proves the chrome; solitaire/match3 show "coming soon". Tests: typecheck+lint clean, vitest 5/5,
+Playwright 4/4 incl. an **axe pass (no violations)** — added a visually-hidden `<h1>` to satisfy it.
+**Phase 0 spikes absorbed:** D1 (wasm feasibility) resolved by the `xbuild` raw-C-ABI path (master P2);
+D3 (accessible drawer) built directly and proven by the tests; D2 (board schema) deferred to P3.
 
 **Goal:** In the `fun` repo (created by master P1), a working web app scaffold matching croft-pwa, plus
 the **slide-out drawer chrome + play-area mount point + per-game static URLs + the three presentation
@@ -593,3 +604,11 @@ at P4); board-state schema → pinned at Phase 3 against the real core. None BLO
   installed and needs a `cargo install`). Reconsider THIS-P3: the board can be marshalled as a JSON
   string over a raw `ptr+len` export (like `xbuild`'s hash), sidestepping the `wasm-bindgen` toolchain
   entirely. Decide at P3. **THIS-P0/P1 (drawer chrome, no wasm) is the next active work.**
+- **2026-07-29 — THIS-P0/P1 ✅ SHIPPED** (`fun` `b167e55`): the esbuild/Vitest/Playwright toolchain +
+  the accessible slide-out drawer chrome + per-game static URLs + the game-module mount contract, all
+  green (vitest 5/5, Playwright 4/4 incl. axe). Phase 0 spikes absorbed (wasm feasibility via `xbuild`;
+  accessible-drawer built directly; board schema deferred to P3). **Remaining for a playable solitaire
+  in the drawer:** THIS-P2 (design system / playful identity), THIS-P3 (`solitaire-core` → browser
+  binding — recommend the raw C-ABI + serde-JSON path, no wasm-bindgen), THIS-P4 (solitaire board UI:
+  tap-to-move over the binding, win → `pond-outcome`). Master P5/P6 (`pond-docformat`/`pond-outcome`)
+  and the wasm-side board serialization are the substrate P3/P4 consume.
