@@ -1,10 +1,11 @@
 # Playable, verifiable solitaire in the drawer — the delivery slice
 
 **Status:** EXECUTION IN PROGRESS (substrate-first). ✅ A (`pond-docformat` `808df73`), ✅ B
-(`pond-outcome` `85df812`), ✅ C (binding `ff55c0d`) shipped + pushed. Next: **D (board UI, free-play
-first)**, then **S (solver + winnable daily pack)** → turn on dailies; **E (design)** alongside.
-Note: D's full *win-path* E2E is coupled to S (needs a known-winnable seed + winning-line fixture); D's
-free-play mechanics E2E + a unit-tested win-screen do not need S.
+(`pond-outcome` `85df812`), ✅ C (binding `ff55c0d`) shipped + pushed. **Reordered (owner): S before D**
+— build the solver + winnable-daily pack + **winning-line fixture** first, so D's full **win-path E2E
+comes online with the board**. Sequence: A✅→B✅→C✅→**S✅**→ **D (next)** (E alongside). D is fully
+unblocked: binding ready, `games/solitaire/daily-pack.json` provides the daily deals + the win-path
+fixture (replay `pack[0]`).
 **What this is:** the **delivery plan** that takes the shipped pieces (the drawer chrome, `solitaire-core`,
 the cross-build determinism test) to a **playable, verifiable solitaire on `fun.croft.ing`**. It is a
 cross-cutting slice spanning **master-plan P5/P6** (the `pond-docformat` / `pond-outcome` substrate —
@@ -413,7 +414,16 @@ over-designing before the board exists — tokens + chrome first, board specific
 dark. 2) **Verification:** `theme.spec.ts` + axe contrast green in both themes.
 **Validation:** **Moderate** — wiring test + axe both themes + a manual look review against `DESIGN.md`.
 
-### Phase S — Klondike solver + winnable-daily-seed pack (build-time)
+### Phase S — Klondike solver + winnable-daily-seed pack (build-time) — ✅ SHIPPED (`fun` `e52da18`)
+
+**Delivered (2026-07-29):** `crates/solitaire-solver` — `find_win(seed, budget)` (budgeted DFS over
+`solitaire-core`, state-hash memoization, `MAX_DEPTH` cap so it can't overflow the stack, foundation-
+first ordering) + `generate_pack` (deterministic seed stream → winnable seeds + verified lines) +
+`pack_to_doc` via `pond-docformat`. `games/solitaire/daily-pack.json` committed (6 winnable seeds — the
+daily deals **and** D's win-path fixture: replay `pack[0]` to a win). Tests: budget respected, committed
+pack all-winnable (fast replay), P10 byte-identical regeneration drill (`#[ignore]`), generator
+(`#[ignore]`). Workspace 52 green. **Follow-up:** solver sometimes finds long draw-heavy lines; tuning
+for shorter lines + scaling the pack to a full year are later work. **This unblocks D's win-path E2E.**
 
 **Goal:** a **build-time** solver that classifies a seed's deal as winnable, used to generate a
 **dated winnable-daily-seed pack** the runtime indexes by date. The runtime never runs the solver;
