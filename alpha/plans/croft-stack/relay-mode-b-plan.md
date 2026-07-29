@@ -113,7 +113,7 @@ The nftables role today allows **TCP** 22/80/443 only. Add:
 - `06-iroh-relay.md` — mode B is the target; link this plan; record the B1 design + rationale.
 - `relay/deploy/relay.toml`, `.caddy`, `ansible/group_vars/all.yml` — flip the mode-A comments to
   "mode A was interim; mode B (this plan) is target," then to LIVE once converged.
-- `croft-stack/STACK-REVIEW.md` §C (firewall now also UDP 7824 + TCP 8443) and §G (relay in mode B:
+- `croft-stack/reviews/2026-07-29-stack-review.md` §C (firewall now also UDP 7824 + TCP 8443) and §G (relay in mode B:
   direct handoff; QUIC endpoint; verification of a direct connection).
 - `ROADMAP_TODO.md` — mode-B build item until landed.
 
