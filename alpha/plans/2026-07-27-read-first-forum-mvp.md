@@ -9,6 +9,13 @@ cleared: D2 resolved (radius needs no OAuth), `feed-core` home = existing `croft
 architecture, E63/E69/E70/E71). Scope corrections (WASM `feed-core` is the core not deferred; Jetstream is the
 later live-updates path not "out"; E67 payments parked; private plane is Drystone's; mutuals-feed possible).
 
+> **Product-name reconciliation (2026-07-29).** The last open item ("repo/product name only") is filled
+> with a **working name: "Graze by Croft"**, under path **`/f/`**, with **commons framing** on the about
+> page and pastoral theme confined to edge copy — see `NAMING.md` → "Forum-layer naming". This does **not**
+> change the backbone/app decision below: **work from `forum.croft.ing` now**; **`graze.ing` is a
+> purchase-when-available** item (ROADMAP_TODO E73), and the "by Croft" affiliation lives in the wordmark
+> so the domain can stand alone later without a migration. "Graze" is a working name, not finally settled.
+
 ## Layering: Social Tree (backbone) vs `forum.croft.ing` (app) — resolved 2026-07-27
 
 > Canonical ecosystem framing for this: `ROADMAP.md` § "The Social Tree backbone → apps" (the integrated

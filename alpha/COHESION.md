@@ -1667,6 +1667,35 @@ bytes), and anti-extraction threads. The atproto-mechanics explainer is a **deep
 2026-06-22 explainer — consolidate into one reference rather than duplicating. Backlog: ROADMAP_TODO §E
 (E63–E71).
 
+## 61. 2026-07-29 — PWA content-fetch (extension model) + forum "Graze" naming + Skylite→Bluebird rename
+
+**Loose end ↔ work:** the next installment of the 2026-07-27 social-tree/forum-PWA body
+(`seeds/transcripts/raw/croft-pwa-content-fetch-extension-graze-bluebird-2026-07-29.md`), routed into
+existing tracks. Three seams:
+
+- **PWA cross-origin content-fetch (E72)** ↔ **E62**'s "RSS-reader-as-1-tap-discussion-seed" and **E71**'s
+  platform-reality correction. The open question — how a zero-backend static Croft PWA reaches arbitrary
+  reader/API content the same-origin policy blocks — is **decided as the browser-extension model** (not a
+  user-run local proxy), with a **Playwright spike greenlit** (`experiments/alpha/`, to build) to settle
+  the `[UNVERIFIED]` platform edges (localhost mixed-content, Chrome PNA, Safari). Feeds the **croft-pwa**
+  standards. **Status: OPEN (spike pending).**
+- **Forum name "Graze by Croft" (E73)** ↔ `plans/2026-07-27-read-first-forum-mvp.md`, whose last open item
+  was the product name. **Closes the name gap as a working name**, path `/f/`, commons framing — **without**
+  changing the resolved backbone/app decision: `forum.croft.ing` now, `graze.ing` purchase-when-available.
+  Recorded in `NAMING.md` (Forum-layer naming) + a reconciliation note in the plan. **Status: working name,
+  not finally settled.**
+- **Skylite → Bluebird (E74)** ↔ `NAMING.md` (Skylite→Bluebird), **E70** (the "borrow Bluesky-client
+  patterns for *Skylite*" note now points at Bluebird), and `plans/croft-stack/README.md` (already threads
+  `bluebird` as the cache/reader pad — this dialogue is the *source* of that rename, not a new one).
+  **Ground truth: org/domain rename DONE** (`CroftCommunity/bluebird`, `bluebird.croft.ing` live); the local
+  `skylite/` remote is **stale** and the in-repo **RUN-BLUEBIRD** (lexicon NSIDs, pages, tokens, oauth
+  client-metadata URL) is **pending in the bluebird repo, not discovery**. Lockup-clearance (Amex /
+  Bluebird.js) is an open gate. **Status: renamed (org/domain); in-repo run OPEN.**
+
+**Excised, not filed:** the pasted block also carried a an unrelated work repo GitHub-App/PAT thread —
+out of Croft scope, redacted from the raw per top-level `CLAUDE.md` ("repo content belongs in its repo").
+Backlog: ROADMAP_TODO §E (E72–E74).
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the

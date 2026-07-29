@@ -329,3 +329,72 @@ publishing any lexicon (NSIDs are reverse-DNS-authority-bound and permanent once
 **Status: front-runner, NOT finally settled** (the clearance gate is the user's, like **Noria** at the
 foundation layer). Per this repo's convention, do not propagate the name into durable structure until
 the live clearance clears. Tracked: ROADMAP_TODO; COHESION §46.
+
+## App-layer naming (2026-07-29): the atproto-reader pad **Skylite → Bluebird** (renamed; ski-beginner register; clearance CONTESTED)
+
+**Decision (user 2026-07-29).** The atproto/Bluesky-reader pad formerly **Skylite** is renamed
+**Bluebird**. Driver: "Skylight" is already a well-known atmosphere-project name, too close for comfort.
+Because the pad is still **alpha / greenfield (no user records)**, the rename was taken as a clean
+break rather than a migration — the one free window before records make NSIDs sticky. **Ground truth
+(2026-07-29):** `github.com/CroftCommunity/bluebird` and `https://bluebird.croft.ing/` are **live**; the
+GitHub repo + domain rename is done. The local `skylite/` working copy's remote is therefore stale, and
+the *in-repo* transformation (**RUN-BLUEBIRD**: lexicons `ing.croft.skylite.*`→`ing.croft.bluebird.*`,
+pages, manifest, tokens, copy, oauth client-metadata URL) is **still pending** — that run belongs in the
+bluebird repo, not here. Supersedes the "sibling Skylite" references in the Stellin section above.
+
+**Register (working, not finally settled).** A **ski-beginner** vocabulary: "bluebird" = a clear-sky
+powder day (sits in the atproto *sky* register, like the Bluesky/atmosphere family). Product surfaces map
+to the mountain as an information architecture — **Lodge** (home), **Trail Map**, **runs** that end
+(finite, unlike a feed), **corduroy** as the new-content affordance, **Cabin Mode** for on-device-only
+(*not* "backcountry" — that means unpatrolled/dangerous), **Ski School** onboarding, **Bunny Slope**
+first-run. Two seams held deliberately: (1) **vocabulary is role-based, never age-based** — durable role
+nouns (**sponsor**, **explorer**) stay in schemas/legal docs; mountain terms (**Patrol**, **Ski School**,
+**Lodge**) are the UI skin over them. (2) The **green-circle / blue-square / black-diamond** trail rating
+means **trust distance** (green = inside the tended garden, blue = one hop out, black = the open network),
+**not** content maturity — one canonical sentence in the docs must say so, and the tier belongs as an
+explicit enum **in the schemas**, not just the UI.
+
+**Lockup / clearance status: CONTESTED (not blocked).** Bare "Bluebird" is crowded in search — the Amex
+**"Bluebird"** prepaid card and the legacy **Bluebird.js** promise library `[UNVERIFIED]` — so brand as
+the **lockup "Bluebird for Bluesky"** in store listings / page titles, bare "Bluebird" inside the product;
+the metaphor never appears in the lockup. Fallbacks, if clearance fails, stay in the ski-beginner family.
+No live trademark / Bluesky-handle clearance pass has been run — do that before any store filing.
+
+**Provenance.** Skylite-era `CONCEPT.md` and seeds stay in-tree as **frozen historical seed**; the README
+gets a one-line bridge above the preserved section. The rebrand is an event in history, not a rewrite.
+
+**Status: renamed at the org/domain level (done); in-repo RUN-BLUEBIRD pending; lockup-clearance is the
+user's open gate.** Tracked: ROADMAP_TODO E74 (local execution) + §A (clearance gate); COHESION §61;
+`croft-stack/README.md` (already threads `bluebird` as the cache/reader pad).
+
+## Forum-layer naming (2026-07-29): **Graze by Croft** — working name for the community-discussion forum
+
+**Decision (user 2026-07-29).** The community-discussion **forum** (the read-first, Reddit/forum-idiom
+pad over Bluesky/atproto — the `2026-07-27-read-first-forum-mvp` product, whose last open item was the
+product name) gets the **working name "Graze by Croft"**. Not finally settled — if it doesn't hold, the
+fallback stays in the pastoral register. **Domain:** work from **`forum.croft.ing`** now (the plan's
+resolved domain, unchanged); **purchase `graze.ing` when possible** and let the affiliation live in the
+wordmark ("by Croft") rather than the URL, so `graze.ing` can stand alone later without a migration.
+
+**Why "Graze" earns it.** It sits in the same **working-landscape** spirit as Croft/Drystone without being
+bound to the drystone scheme — a hill farm, not a petting zoo. The **"by X"** lockup (cf. "Threads by
+Instagram") lets the forum have its own personality while Croft signs the work. The one **structural**
+Croft tie-in worth keeping is the **commons framing** — your croft is yours, Graze is the shared ground
+(an about-page sentence, maybe a cross-nav label "out to the common"), *not* a system of terminology.
+
+**Theme discipline (load-bearing).** The pastoral theme lives **only in edge copy the team writes** —
+onboarding ("Welcome to the herd", once), the notifications digest ("Have you herd?"), empty states
+("Nothing grazing here yet") and 404s — **never in the nouns users must learn**. Navigation, settings, and
+thread UI stay plain. Test: if someone can use it for a month and describe it to a friend without
+mentioning sheep, the volume is right. This guards against the feedback-loop trap (community in-jokes →
+product absorbs them → gatekeeping vocabulary for new users).
+
+**Path convention: `/f/`, decided over `/g/`.** Path letters work by **inheritance, not branding** —
+"f = forum" is a learned pattern (4chan boards, Reddit `/r/`, FB `/groups`); `graze.ing/f/gardening`
+parses with zero context. `/g` maps to the *brand*, is redundant with the domain, and carries a 4chan
+technology-board connotation. Reconsider only if a community's in-product noun became g-flavored — which
+cuts against keeping user-facing nouns ordinary, so it argues itself out.
+
+**Status: working name (not finally settled); `forum.croft.ing` is the live domain; `graze.ing` is a
+purchase-when-available item.** Tracked: ROADMAP_TODO E73 (`graze.ing` acquisition); COHESION §61;
+`plans/2026-07-27-read-first-forum-mvp.md` (reconciliation note).
