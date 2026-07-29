@@ -3,10 +3,12 @@
 date: 2026-07-29 · phase-plan for the production rebuild of the confidential-OAuth broker. Component of
 [07-auth-helper.md](07-auth-helper.md). Spike (mechanism proven GO): `discovery/spike/auth-helper/`.
 
-**Status: IN PROGRESS — Phases 0–1 done (2026-07-29).** The 2026-07-24 spike proved the mechanism
-end-to-end; this is the hardened Rust rewrite. Security-sensitive (hand-rolled OAuth crypto) → TDD +
-`rust-enforcer` discipline, built in small committed phases. Not a one-shot. Crate is
-`croft-stack/broker/`; session log `sessions/2026-07-29-phase-7-broker-crypto.md`. Next: Phase 2.
+**Status: BUILD COMPLETE — Phases 0–6 done (2026-07-29); live converge GATED.** The 2026-07-24 spike
+proved the mechanism end-to-end; this is the hardened Rust rewrite (built TDD + `rust-enforcer`, in
+small committed phases). The full broker is built and tested in `croft-stack/broker/` (70/70 cargo
+tests, clippy/fmt clean, deploy bats 6/6). Session logs `sessions/2026-07-29-phase-7-broker-crypto.md`
++ `-broker-build.md`. **Remaining: the live converge that supersedes the spike at `account.croft.ing`**
+— held for explicit go (hard-to-reverse, outward-facing). Hands-on verification: `croft-stack/STACK-REVIEW.md`.
 
 ---
 
@@ -75,29 +77,40 @@ base64url, sha256, ES256 sign/verify, JWK (public jwks.json + private key load),
 has redacted `Debug` (p256 zeroizes secret scalar on drop). 7/7 tests, `clippy::pedantic` + `fmt`
 clean, `#![forbid(unsafe_code)]`. Commit `c771d53`.
 
-### Phase 2 — DPoP + PKCE + client assertion (TDD)
+### Phase 2 — DPoP + PKCE + client assertion (TDD) ✅ DONE (2026-07-29)
 DPoP proof creation (+ the nonce retry), PKCE challenge, the `private_key_jwt` client assertion
 (**including `token_endpoint_auth_signing_alg`**). Mirror `oauth/dpop.ts`, `oauth/pkce.ts`,
 `assertion.ts`. Property-test the DPoP/JWS round-trips.
+**Outcome:** `pkce.rs`/`dpop.rs`/`assertion.rs` + jose helpers; `iat` injected (pure). Commit `cacf13a`.
 
-### Phase 3 — OAuth flow (resolve → PAR → token → refresh)
+### Phase 3 — OAuth flow (resolve → PAR → token → refresh) ✅ DONE (2026-07-29)
 handle→DID→PDS→authorization-server resolution; PAR; authorization-code exchange; server-side refresh
 (rotating token). Mirror `oauth/resolve.ts`, `confidential.ts`. Network calls behind a trait so units
 use recorded fixtures; the live leg is a verify-in-run item (needs a test account + one interactive
 authorize, exactly as the spike).
+**Outcome:** `HttpClient`/`Clock` ports + `FakeHttp`; `resolve.rs`; `oauth.rs` (begin/complete/refresh/
+`pds_authed_get` + `use_dpop_nonce` retry), all hermetic. Commits `79404f3` (ports+resolve), `6be262c` (flow).
 
-### Phase 4 — session store + opaque-ticket broker (TDD)
+### Phase 4 — session store + opaque-ticket broker (TDD) ✅ DONE (2026-07-29)
 Encrypted-at-rest session store (`Zeroize` store key); mint/redeem opaque tickets; `whoami` acts on the
 pad's behalf using the held session. Mirror `store.ts`, `keystore.ts`, the broker half of `server.ts`.
+**Outcome:** `store.rs` (AES-256-GCM, zeroizing `StoreKey`), `keystore.rs` (load-or-create 0600),
+`vault.rs` (pending/session/ticket). Commit `2c449e9`.
 
-### Phase 5 — HTTP server + wiring test (axum)
+### Phase 5 — HTTP server + wiring test (axum) ✅ DONE (2026-07-29)
 `/healthz`, `/client-metadata.json`, `/jwks.json`, `/login`, `/callback`, `/api/whoami`. **Wiring test:**
 drive login→ticket→whoami through the server (fixtured OAuth) end-to-end. Mirror `server.ts`.
+**Outcome:** `broker.rs` (hexagonal core, refresh-on-401 whoami), `server.rs` (axum + CORS + wiring test),
+`net.rs` (ureq), `main.rs`. 70/70 tests. Commit `c0ed4e0`.
 
-### Phase 6 — deploy (Ansible `broker` role) + supersede the spike
+### Phase 6 — deploy (Ansible `broker` role) + supersede the spike 🟡 ARTIFACTS DONE, live converge GATED
 Governed, hardened systemd unit (secrets addendum — key material 0600, `Zeroize`); `account.croft.ing`
-Caddy vhost; Ansible `broker` role (pinned artifact). Then tear down the spike (its BOX-CHANGELOG).
+Caddy vhost; Ansible `broker` role (builds on the box from this repo's source, `Cargo.lock`-pinned).
+Then tear down the spike (its BOX-CHANGELOG).
 Live gate: a pad holds a broker session past the browser-only TTL and falls back cleanly when stopped.
+**Outcome:** role + unit + vhost + bats (6/6) + `broker/README.md` authored, `site.yml`/`group_vars`
+wired, `ansible --syntax-check` clean. Commit `17ca385`. **Live converge NOT run** — the spike still
+serves `account.croft.ing`; superseding it is held for explicit go (hard-to-reverse, outward-facing).
 
 ## Open Questions
 - [RECOMMENDED: PHASE-0] Crate choices (p256 vs ring; reqwest vs ureq; rusqlite vs files). *Resolve in
