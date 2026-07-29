@@ -291,6 +291,13 @@ mount instance) — asserted by the wiring test.
 
 ---
 
+> **Phases 2, 3, 4 are SUPERSEDED (2026-07-29) by the delivery plan
+> `2026-07-29-playable-solitaire.md`.** That plan re-specifies the design system (P2 → its Phase E),
+> the browser binding (P3 → its Phase C, now **raw C-ABI + serde-JSON**, not wasm-bindgen), and the
+> board UI (P4 → its Phase D), grounded in the shipped code, and pulls in the master-plan P5/P6
+> substrate (`pond-docformat`/`pond-outcome`) they depend on. Execute from the delivery plan; the
+> specs below remain as the original front-plan framing.
+
 ### Phase 2: Design system — the playful identity
 
 **Goal:** `fun.croft.ing`'s **own playful visual identity** built on croft-pwa's token architecture,

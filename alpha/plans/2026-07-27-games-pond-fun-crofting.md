@@ -10,8 +10,8 @@
 | 2 — native+wasm cross-build test | ✅ SHIPPED | `fun` `705869c`: `xbuild` cdylib + `check.mjs` prove wasm==native for solitaire (deal + draw-cycle). **Caught + fixed a real `usize`-width RNG determinism bug**; `a94dd56` fixes the same bug in match3-core. Toolchain recipe below. (match3 active cross-check = small follow-up.) |
 | 4 — solitaire P1 (Klondike draw-1) | ✅ SHIPPED | `fun` `2810004`: RULES + deal + `state_hash` + full T1–T5 engine (`play_move`/`legal_moves`) + 14 tie-break tests + golden vectors; 39 workspace tests green |
 | 3 — match-3 shelf-parity | ⬜ | member stubs in place |
-| 5 — P2 pond-docformat | ⬜ | stub in place |
-| 6 — P8 pond-outcome | ⬜ | stub in place |
+| 5 — P2 pond-docformat | ⬜ (detailed in delivery plan) | stub in place; specified as Phase A of `2026-07-29-playable-solitaire.md` |
+| 6 — P8 pond-outcome | ⬜ (detailed in delivery plan) | stub in place; specified as Phase B of `2026-07-29-playable-solitaire.md` |
 | 7 — shelf + solitaire live | ⬜ | expanded by the front-end plan |
 | 8 — match-3 par/levels | ⬜ | — |
 | 9 — cribbage | ⏸ gated | own plan |

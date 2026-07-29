@@ -1,6 +1,7 @@
 # Playable, verifiable solitaire in the drawer — the delivery slice
 
-**Status:** Pass 1+2 (combined). Pass 3 pending. Planning only — no code written yet.
+**Status:** Pass 1+2+3 complete. Open questions walked through below (none BLOCKING). Ready for
+execution. Planning only — no code written yet.
 **What this is:** the **delivery plan** that takes the shipped pieces (the drawer chrome, `solitaire-core`,
 the cross-build determinism test) to a **playable, verifiable solitaire on `fun.croft.ing`**. It is a
 cross-cutting slice spanning **master-plan P5/P6** (the `pond-docformat` / `pond-outcome` substrate —
@@ -151,11 +152,14 @@ Parallel:          Phase E (design system) runs alongside A–C; it must MERGE b
 ```
 
 **Parallel {Phase E ∥ {A→B→C}}:**
-- **Disjoint write-sets:** Phase E writes only `fun/src/tokens.css`, `fun/styles.css`,
-  `fun/docs/DESIGN.md`, and theme wiring in `fun/src/` chrome files it already owns; Phases A/B/C write
-  `fun/crates/**` (+ Phase C touches `fun/src/games/…` binding wrapper, not the chrome styles). No file
-  overlap **provided** Phase E does not edit `chrome.ts`/`main.ts` logic (styling via CSS + a `theme.ts`
-  only). If E needs a chrome DOM change, it serializes before/after C — flagged.
+- **Disjoint write-sets (verified per file):** Phase E owns `fun/src/tokens.css`, `fun/src/theme.ts`,
+  `fun/styles.css`, `fun/docs/DESIGN.md`, **and `fun/src/chrome.ts`** (the theme-toggle control lives in
+  the chrome header — a real chrome edit, so E owns it in this window). Phases A/B write `fun/crates/**`
+  only. Phase C writes `fun/crates/solitaire-wasm/**`, `fun/crates/solitaire-core/src/{board,card}.rs`
+  (the `Serialize` derives), `fun/src/games/solitaire-wasm.ts`, and `fun/build.mjs`. **The one file that
+  could be contested is `chrome.ts` — and only E touches it** (A/B touch no `fun/src`; C touches
+  `src/games/*` + `build.mjs`, never `chrome.ts`/`main.ts`), so the sets are genuinely disjoint and the
+  parallelism is safe. If, mid-flight, C turns out to need a `chrome.ts` change, pull it sequential.
 - **Shared-state contract (invariants):** if run as concurrent agents, both in worktrees off the `fun`
   feature branch; neither invokes `git checkout`/`stash`/`rebase` in the parent worktree; neither edits
   the **discovery repo** (all plan-doc/roadmap edits are sequential, done by the orchestrator); Phase E
@@ -206,7 +210,9 @@ emit `{ kind, seed, result, final_hash, move_count }` that anyone re-verifies by
 **Changes:**
 - [ ] `pond-outcome`: `attest(kind, seed, moves) -> Record` (replays through the core, records
   `final_hash` = `state_hash`), and `verify(&Record) -> bool` (re-replays and re-hashes — **never**
-  trusts a stored field). Serialized via `pond-docformat` (Phase A).
+  trusts a stored field). Serialized via `pond-docformat` (Phase A). On mismatch, `verify` makes the
+  expected-vs-actual hash available (a typed result or a log), so a tamper/regression is diagnosable,
+  not a bare `false`.
 - [ ] A "clean-clear count" accumulator (additive count, never a ratio — the discipline).
 - [ ] Depends on a game core to replay: take a generic replay closure, or feature-gate a `solitaire`
   integration. Simplest: `pond-outcome` is generic over a `Replay` trait; `solitaire-core` (or the
@@ -268,6 +274,10 @@ golden hashes byte-identical (verify).
 **Risks:** the board JSON drifting from the core model → pin it with the binding wiring test asserting
 through the boundary. `static mut` for the held game needs the same `// SAFETY` discipline as `xbuild`
 (single-threaded wasm). serde on `wasm32-unknown-unknown` is already proven (serde_json compiles).
+**The binding must never panic:** a Rust panic in wasm **aborts the whole module** (the game becomes
+unresponsive). Every fallible path maps to a status code / empty-JSON return, not `unwrap`/`panic!`:
+`play_*` returns 0/1/2; a serialization failure (should be impossible for the board) returns an empty
+buffer the wrapper treats as an error, not a trap. No `unwrap`/`expect` on the hot path.
 **Done when:** 1) **Behavioral:** TS starts a solitaire game, reads the board, lists legal moves,
 applies typed moves (illegal rejected), detects a win, and exports a re-verifiable outcome — reproducing
 the golden hashes through the wasm boundary. 2) **Verification:** `binding.spec.ts` green + solitaire
@@ -383,3 +393,29 @@ dark. 2) **Verification:** `theme.spec.ts` + axe contrast green in both themes.
     (flagged), not assumed. `pond-outcome.verify` must re-replay, never trust a stored field.
   - **Pending:** Pass 3 quality gates (fresh context) + annotate the front-plan Phases 2/3/4 and the
     master-plan P5/P6 rows to point here.
+
+### Pass 3: Quality Gates — 2026-07-29
+**TDD ordering:** every phase is test-first with a wiring test through the real entry point (the crate
+API for A/B, the wasm boundary for C, the `/solitaire/` URL for D, both themes for E). No changes.
+**Specificity / mutation resistance:** phases name accept-and-reject edges (version minor-vs-major,
+tamper, illegal-move-status + board-unchanged, legal-glow-exactly, both-theme contrast). Held.
+**Observability / robustness:** added — (C) **the binding must never panic** (a wasm panic aborts the
+module); all fallible paths map to status codes / empty-JSON, no `unwrap` on the hot path. (B) `verify`
+surfaces expected-vs-actual hash on mismatch, not a bare `false`.
+**Debugging readiness:** commit-per-phase + wiring tests as checkpoints; the C boundary hash and B
+verify are the instrumented failures.
+**Validation calibration:** Broad for C (wasm boundary) and D (browser E2E); Moderate for A/B/E. Held.
+No Phase 0 — the unknowns (board schema, replay mechanism, winning-deal source) are phase-gated with
+leans and pinned in-phase against the real code, not deferred to a discovery pass.
+**Concurrency honesty — the material fix:** the E∥A–C write-set claim was hand-wavy about `chrome.ts`.
+Corrected to a per-file check: **E owns `chrome.ts`** (the theme toggle is a real chrome edit) and it is
+the *only* parallel phase that touches it (A/B write `crates/**`; C writes `src/games/*` + `build.mjs`,
+never `chrome.ts`) — so the sets are genuinely disjoint. Re-entry checks map to the invariants (parent
+HEAD unchanged, `git -C discovery` clean, `crates/**` vs styling untouched cross-track).
+**Coherence:** solves the stated problem; scope matches; supersession of the front-plan P2/P3/P4 stubs
+and the pull of master P5/P6 are now cross-linked in those docs (below). Fixed the `chrome.ts`
+ownership wording.
+**Documentation impact:** every listed doc has an owning phase; the front-plan/master-plan pointers are
+added now (Pass 3) rather than deferred, so the three plans read coherently for the next reader.
+**Confirmed ready:** yes. Open-question walk-through pending the owner's call on #1–#3 (all have leans;
+none BLOCKING — the plan can start Phase A immediately).
