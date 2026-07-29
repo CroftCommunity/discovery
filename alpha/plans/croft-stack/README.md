@@ -38,15 +38,19 @@ behind Caddy, governed, telemetry-sampled; public pending `relay.croft.ing` DNS)
 live over HTTPS**: `https://canary.croft.ing/healthz`
 → `ok` (trusted prod LE cert), firewall default-drop, SSH key-only, `canary` governed, telemetry
 sampling; converge idempotent. Phase 7 auth-helper **spike done/GO**; the **production Rust broker is
-IN PROGRESS** — Phases 0–1 done (`croft-stack/broker/`: crate stack pinned + JOSE/crypto core, TDD,
-7/7, `c771d53`), see [auth-broker-plan.md](auth-broker-plan.md).
-**Next (serves live pads):** Phase 7 — continue the production broker (next: Phase 2, DPoP/PKCE/client
-assertion), or Phase 8 — the cache server for bluebird/arecipe. Detailed = Phases 0–6 + 07 + telemetry-client-plan;
+BUILD-COMPLETE** — Phases 0–6 done (`croft-stack/broker/`: full confidential-OAuth broker, TDD 70/70,
+clippy/fmt clean, deploy bats 6/6; `17ca385`), see [auth-broker-plan.md](auth-broker-plan.md). Only
+the **live converge that supersedes the spike at `account.croft.ing` is gated** (hard-to-reverse).
+**Next (serves live pads):** Phase 7 — run the gated broker converge (supersede the spike), or
+Phase 8 — the cache server for bluebird/arecipe. Detailed = Phases 0–6 + 07 + telemetry-client-plan;
 scaffolded = Phases 8–10. (Pad `skylite` renamed **`bluebird`**.)
 
 **Execution logs (procedures, not just plans):** every working session is logged in the `croft-stack`
 repo under `sessions/` (grouped by target LOCAL / OVH-API / BOX / GIT, secrets redacted). This roadmap
 is the intent; `sessions/` is the actuals.
+
+**Hands-on verification:** `croft-stack/STACK-REVIEW.md` is the work-through checklist for the whole
+deployed estate — every component with its exact prove/verify command, expected output, and status.
 
 ---
 
