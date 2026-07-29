@@ -2,7 +2,13 @@
 
 date: 2026-07-29 · component of [06-iroh-relay.md](06-iroh-relay.md). Supersedes the mode-A default.
 
-**Status: PLANNED — design decision + firewall-posture change pending owner nod, then execute.**
+**Status: LIVE (2026-07-29) — B1 implemented + converged; idempotent (`changed=0`).** Owner chose
+topology **B1** (shared box). The relay serves its own TLS on TCP 8443 (HTTPS/WSS) + UDP 7824 (QUIC
+address-discovery), reusing Caddy's Let's Encrypt cert via `cert_mode=Reloading` + an `iroh-relay-certsync`
+copy; firewall opens 8443/tcp + 7824/udp; `relay.croft.ing:8443` serves `200` with a valid cert.
+Phase 0 (config surface) verified empirically on the box. **Remaining: the acceptance gate** — a
+two-node test proving nodes hole-punch a *direct* connection via this relay's address-discovery
+(needs two iroh nodes / the relay-loadtest crate). Commits `f01d794` + `242ae02` (croft-stack).
 
 ## Problem Statement
 

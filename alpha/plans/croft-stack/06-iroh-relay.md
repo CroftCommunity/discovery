@@ -7,11 +7,13 @@ primetime). iroh-relay v1.0.0 (prebuilt musl, pinned+sha256) deployed **mode A**
 `127.0.0.1:8440`, Caddy TLS-terminates `relay.croft.ing` + reverse-proxies), no Rust build. Governed,
 telemetry-sampled, idempotent. Session: `croft-stack/sessions/2026-07-29-phase-6-relay.md`.
 
-**Mode A was interim — mode B (QUIC address-discovery ON) is the target.** Mode A suppressed direct
-handoff (address-discovery off → traffic tunnels through the relay instead of hole-punching direct;
-iroh is ~90% hole-punch / ~95% direct). We want direct connections dogfooded. **DNS fixed (2026-07-29):
-`relay.croft.ing` A/AAAA now point at the box.** Mode-B design + firewall/cert plan (owner decision B1
-vs B2 pending): **[relay-mode-b-plan.md](relay-mode-b-plan.md)**. ·
+**Now LIVE in mode B (QUIC address-discovery / direct handoff), 2026-07-29.** Mode A suppressed direct
+handoff (address-discovery off → traffic tunnels the relay instead of hole-punching; iroh is ~90%
+hole-punch / ~95% direct), so we moved to mode B (topology **B1**, shared box): the relay terminates
+its own TLS on TCP 8443 + UDP 7824 (QUIC), reusing Caddy's LE cert via `cert_mode=Reloading` +
+`iroh-relay-certsync`; firewall opens 8443/tcp + 7824/udp; `relay.croft.ing:8443` → `200` valid cert;
+converge idempotent. DNS fixed (`relay.croft.ing` → box). Plan + acceptance gate (two-node direct
+test, pending): **[relay-mode-b-plan.md](relay-mode-b-plan.md)**. ·
 **Depends-on:** Phases 3–5 (governance defaults; box up; DNS/
 TLS) · **Gate-out:** the relay runs supervised + governed + observable; the box is proven under a real
 long-running service *before* any net-new invention.
