@@ -140,7 +140,11 @@ Unverified — resolve in-phase (do not assume):
   here (sequential discovery-repo edit). Phase A (first phase).
 - **`discovery/alpha/plans/2026-07-27-games-pond-fun-crofting.md`** — Outcome Summary rows for P5/P6 as
   they land; **discovery-repo edits done sequentially** (never inside a parallel set). Phases A/B.
-- **`discovery/alpha/ROADMAP_TODO.md` E46** — breadcrumb when solitaire goes playable. Phase D.
+- **`fun/crates/solitaire-solver/**`** (NEW) + **`fun/games/solitaire/daily-pack.json`** (NEW) — the
+  build-time solver + generated winnable-daily pack. Phase S.
+- **`fun/src/settings.ts`** (or chrome settings) — the "Declare assistance used" toggle. Phase D.
+- **`discovery/alpha/ROADMAP_TODO.md` E46** — breadcrumb when solitaire goes playable; also note the
+  solitaire solver now in scope (resolves the earlier deferred "solitaire par/solver" question). Phase D.
 
 ---
 
@@ -148,8 +152,12 @@ Unverified — resolve in-phase (do not assume):
 
 ```
 Sequential spine:  Phase A (pond-docformat) → Phase B (pond-outcome) → Phase C (binding) → Phase D (board UI)
-Parallel:          Phase E (design system) runs alongside A–C; it must MERGE before Phase D's visual polish.
+Parallel tracks (all merge before D):
+  • Phase E (design system)          ∥ A–C  — CSS/theme + chrome.ts theme toggle
+  • Phase S (solver + daily pack)    ∥ A–C  — new crate + data file, feeds D's daily mode
 ```
+Phase D depends on C + B + **S** (daily pack) + E (tokens). Free-play works without S; the default
+daily mode needs the pack.
 
 **Parallel {Phase E ∥ {A→B→C}}:**
 - **Disjoint write-sets (verified per file):** Phase E owns `fun/src/tokens.css`, `fun/src/theme.ts`,
@@ -165,13 +173,20 @@ Parallel:          Phase E (design system) runs alongside A–C; it must MERGE b
   the **discovery repo** (all plan-doc/roadmap edits are sequential, done by the orchestrator); Phase E
   touches no `crates/**`, the Rust phases touch no `styles.css`/`tokens.css`/`DESIGN.md`; each builds to
   its own `target/` / `node_modules` is shared read-only (no `npm install` in E — deps already present).
+- **Phase S ∥ A–C:** S adds a **new member crate** (`crates/solitaire-solver`) + a data file
+  (`games/solitaire/daily-pack.json`) — disjoint from A/B (`pond-*`), C (`solitaire-wasm` + core
+  derives), and E (styling). Its one shared touch is the workspace `Cargo.toml` `members` list; add the
+  `solitaire-solver` member **once, up front** (the master-plan stub-freeze pattern) so S runs parallel
+  without a `Cargo.toml` race. S reads `solitaire-core` (done), writes only its own crate + the pack.
 - **Re-entry verification:** parent HEAD == pre-dispatch SHA; `git -C discovery status` clean;
-  `crates/**` untouched by E and `styles.css`/`tokens.css` untouched by A/B/C; `npm test` + `cargo test
-  --workspace` green on the merged branch; no orphan `cargo`/`node` processes.
+  `crates/**` untouched by E, `styles.css`/`tokens.css` untouched by A/B/C/S, `Cargo.toml` `members`
+  frozen since dispatch; `npm test` + `cargo test --workspace` green on the merged branch; no orphan
+  `cargo`/`node` processes.
 
 Everything else sequential: B needs A (envelope); C needs solitaire-core (done) + B (outcome export);
-D needs C (binding) + B (record) + the chrome (done). Design (E) is the only independent track. Default
-is to run **sequential A→B→C→D→E** unless the owner wants E parallelized.
+D needs C (binding) + B (record) + **S (daily pack)** + the chrome (done). **E and S are independent
+tracks** parallelizable with A–C. Default: run **sequential A→B→C→D** with **E and S folded in before
+D**, unless the owner wants E/S parallelized as concurrent agents.
 
 ---
 
@@ -208,11 +223,16 @@ envelope; an old fixture loads, an unreadable newer-major fails loudly. 2) **Ver
 **Goal:** a self-checking outcome record: given `(kind, seed, move list)`, replay via the game core and
 emit `{ kind, seed, result, final_hash, move_count }` that anyone re-verifies by replaying. Local only.
 **Changes:**
-- [ ] `pond-outcome`: `attest(kind, seed, moves) -> Record` (replays through the core, records
-  `final_hash` = `state_hash`), and `verify(&Record) -> bool` (re-replays and re-hashes — **never**
-  trusts a stored field). Serialized via `pond-docformat` (Phase A). On mismatch, `verify` makes the
-  expected-vs-actual hash available (a typed result or a log), so a tamper/regression is diagnosable,
-  not a bare `false`.
+- [ ] `pond-outcome`: `Record { kind, seed, moves, move_count, final_hash, result, assistance }` where
+  `result: Outcome` is `Won | Stuck | Abandoned` and `assistance: Option<bool>` is the **self-declared**
+  flag (`Some(true/false)` when the "Declare assistance used" setting is on, `None` when off). `attest(...)`
+  replays through the core and records `final_hash = state_hash` + `result` (`Won` verified by `is_won`
+  after replay). `verify(&Record) -> bool` re-replays and re-hashes — **never** trusts a stored field —
+  and, for `result: Won`, also asserts `is_won` holds after replay. On mismatch, `verify` makes the
+  expected-vs-actual hash available (typed result or log), so a tamper/regression is diagnosable, not a
+  bare `false`. **Assistance is NOT verifiable** (it can't be derived from the winning move list — it is
+  an honesty declaration); `verify` proves the *deal was cleared legitimately*, and `assistance`/`Stuck`
+  are declared metadata. `clean_clear(&Record) = result == Won && assistance == Some(false)`.
 - [ ] A "clean-clear count" accumulator (additive count, never a ratio — the discipline).
 - [ ] Depends on a game core to replay: take a generic replay closure, or feature-gate a `solitaire`
   integration. Simplest: `pond-outcome` is generic over a `Replay` trait; `solitaire-core` (or the
@@ -249,12 +269,18 @@ computed by the Rust core over wasm, no `wasm-bindgen`.
   `board_json() -> ptr` + `board_len() -> u32`; `legal_moves_json() -> ptr`/`len`; typed
   `play_draw()`, `play_waste_to_foundation()`, `play_waste_to_tableau(pile)`,
   `play_tableau_to_foundation(pile)`, `play_tableau_to_tableau(from, count, to)` → status code
-  (0 applied / 1 illegal / 2 bad-arg); `is_won() -> u32`; `outcome_json() -> ptr`/`len` (via
-  `pond-outcome` over the tracked move list).
+  (0 applied / 1 illegal / 2 bad-arg); `is_won() -> u32`; `outcome_json() -> ptr`/`len` (the full
+  `Record` via `pond-outcome` over the tracked move list).
+- [ ] **Gameplay state in the binding:** an **undo stack** (snapshot the `GameState` before each
+  `play_*`; `undo()` pops and sets an `assistance_used` flag); `declare_assistance(on: u32)` wiring the
+  setting (controls whether `outcome_json` includes `assistance`); `mark_stuck()` → `result = Stuck`;
+  `verify_json(ptr, len) -> u32` (re-verify a shared record, for the share-link open path). Seed
+  handling stays in JS (daily = date-derived index into the Phase S pack; free = arbitrary); the binding
+  just takes a `u64` seed via `new_game(seed_lo, seed_hi)`.
 - [ ] A TS wrapper `fun/src/games/solitaire-wasm.ts` that loads the `.wasm`, decodes the `ptr`/`len`
-  strings, and presents a typed API (`newGame`, `board()`, `legalMoves()`, `play(move)`, `isWon()`,
-  `outcome()`). `build.mjs` builds + places the `.wasm` (documented; served with the existing `.wasm`
-  MIME).
+  strings, and presents a typed API (`newGame`, `board()`, `legalMoves()`, `play(move)`, `undo()`,
+  `isWon()`, `markStuck()`, `declareAssistance(bool)`, `outcome()`, `verify(record)`). `build.mjs`
+  builds + places the `.wasm` (documented; served with the existing `.wasm` MIME).
 - [ ] (Follow-on) add a solitaire case to `xbuild`/`check.mjs` for an active native==wasm cross-check
   through the binding.
 **Call chain:** UI → `solitaireWasm.newGame(seed)` → wasm holds `GameState` → `board()` JSON → UI
@@ -295,22 +321,34 @@ shown. Implements the chrome game-module contract; mounts in all three modes.
   `newGame(seed)`, renders the board JSON (7 tableau piles with face-up/down cards, 4 foundations, stock
   pile, waste top), and drives tap-to-move: tap a card/stack → `legalMoves()` → glow legal targets →
   tap target → the matching `play_*` → re-render. Draw by tapping the stock; recycle when empty.
-- [ ] Win: on `isWon()`, show a celebration + the `outcome()` record and a "verify" affordance that
-  re-checks it (calls `verify`). Clean-clear = no undo used (undo is a later nicety; P4 can ship without
-  undo, so every clear is clean — record that simplification).
+- [ ] **Modes:** **daily deal by default** (date-derived index into the Phase S winnable-seed pack, so
+  everyone gets the same winnable deal that day) + a **free-play / random** toggle (arbitrary seed). A
+  visible "today's deal" vs "free play" control.
+- [ ] **Undo + assistance:** an undo control (calls `undo()`, which sets the binding's assistance flag);
+  a **"Declare assistance used" setting, ON by default** (`declareAssistance(true)`), surfaced in the
+  chrome/settings. When on, the outcome carries `assistance`; when off, it's omitted.
+- [ ] **Stuck:** an "I'm stuck" control → `markStuck()` → `result = Stuck` outcome (with the same
+  share/record surface as a win).
+- [ ] **Verification-forward win screen:** lead with "Cleared clean ✓ — verifiable" (or "Cleared with
+  assistance" / "Stuck") + the `outcome()` record + a one-tap **re-verify** (`verify`) + **moves-to-clear**.
+- [ ] **Share-results link:** encode the record (base64url of the `pond-docformat` JSON) into a
+  `/solitaire/?r=<record>` URL; opening it renders the shared result and **re-verifies it** via
+  `verify(record)` before displaying (so a shared claim is checked, not trusted). The pre-leaderboard
+  social hook.
 - [ ] `registry.ts`: flip solitaire to `status: "playable"` with `load: solitaireModule`.
-- [ ] Seed choice: a `new game` control seeds from a UI source (e.g. a counter or date-derived; **not**
-  `Math.random` in the hashed path — the seed is fine to be arbitrary, but record how it's chosen).
 **Call chain:** `/solitaire/` → chrome mounts `solitaireModule` → `newGame(seed)` → render → tap →
 `play_*` → re-render → win → `outcome()` shown + verified.
 **Wiring test:** `solitaire.spec.ts` (Playwright E2E) — load `/solitaire/`, assert the dealt board
 renders (7 piles, correct counts); play a **scripted winning deal** (a fixed seed with a known winning
 move sequence, from the Phase B fixture) via taps; assert the win state **and** a verifiable outcome
 record appears and re-verifies. Name the edges: an illegal tap is rejected (board unchanged); tapping a
-card glows exactly the legal targets; stock cycling works. Repeat in-drawer and full-screen. RED before
-the UI, GREEN after.
-**Depends on:** Phase C (binding), Phase B (`pond-outcome`), the chrome (done), Phase E (tokens, for a
-non-neutral board — or ship on the baseline and restyle when E merges).
+card glows exactly the legal targets; stock cycling works; **the share link round-trips** (win → copy
+`?r=` → open in a fresh page → it re-verifies and renders); **assistance declaration** (with the setting
+on, using undo marks the record assisted; with it off, the record omits assistance). Repeat in-drawer
+and full-screen. RED before the UI, GREEN after.
+**Depends on:** Phase C (binding), Phase B (`pond-outcome`), **Phase S (winnable-daily pack — for the
+default daily mode; free-play works without it)**, the chrome (done), Phase E (tokens, for a non-neutral
+board — or ship on the baseline and restyle when E merges).
 **Read-set:** `fun/src/games/solitaire-wasm.ts`, `fun/src/contract.ts`, `fun/src/tokens.css`.
 **Write-set:** `fun/src/games/solitaire.ts`, `fun/src/registry.ts`, `fun/README.md`.
 **Shared-state contract:** front-end only; no shared mutable state beyond the file write-set.
@@ -348,28 +386,70 @@ over-designing before the board exists — tokens + chrome first, board specific
 dark. 2) **Verification:** `theme.spec.ts` + axe contrast green in both themes.
 **Validation:** **Moderate** — wiring test + axe both themes + a manual look review against `DESIGN.md`.
 
+### Phase S — Klondike solver + winnable-daily-seed pack (build-time)
+
+**Goal:** a **build-time** solver that classifies a seed's deal as winnable, used to generate a
+**dated winnable-daily-seed pack** the runtime indexes by date. The runtime never runs the solver;
+this mirrors the master-plan level-pack discipline (byte-identical regeneration from a master seed,
+P10). Also provides the bounded "is this state hopeless?" check that can confirm a player's `Stuck`.
+**Changes:**
+- [ ] `crates/solitaire-solver` — a depth-first / best-first Klondike draw-1 solver over `solitaire-core`
+  with transposition pruning and a **per-seed time/node budget** (unwinnability can be expensive to
+  prove; a seed that exceeds the budget is classified `unknown` and excluded from the pack, not
+  guessed). `classify(seed) -> Winnable | Unwinnable | Unknown`. Optionally `winning_line(seed) ->
+  Option<Vec<Move>>` (reused to capture the Phase B/D test fixture — resolves open question #2).
+- [ ] A build-time generator: run `classify` over a master-seed-derived seed stream, collect the first
+  N winnable seeds into `games/solitaire/daily-pack.json` (a versioned `pond-docformat` doc), dated
+  by index. Byte-identically regenerable on a clean machine (P10 drill).
+- [ ] A runtime **daily selector** (JS/binding): `dailySeed(date) = pack[dayIndex(date) % pack.len]`.
+- [ ] (Optional) a bounded `is_hopeless(state)` used to confirm a player-declared `Stuck`.
+**Call chain:** build step → `solitaire-solver::classify` over the seed stream → `daily-pack.json`;
+runtime → `dailySeed(today)` → `new_game(seed)`.
+**Wiring test:** `test_pack_is_all_winnable_and_regenerates` — every seed in a freshly generated pack
+`classify`es `Winnable` (and, spot-checked, `winning_line` replays to `is_won`); regenerating the pack
+from the master seed is **byte-identical** (the P10 drill in miniature). Plus a solver unit test on a
+few known-winnable and a known-unwinnable deal.
+**Depends on:** `solitaire-core` (done). Independent of A/B/C (can run parallel with them).
+**Read-set:** `crates/solitaire-core/**`. **Write-set:** `crates/solitaire-solver/**`,
+`fun/games/solitaire/daily-pack.json`.
+**Shared-state contract:** CPU-bound, no network, no shared state beyond output files. (If run parallel
+with other Rust phases, it only *adds* a new member crate + a data file — disjoint write-set; the
+workspace `members` edit is done once, up front, like the master-plan stub freeze.)
+**Risks:** proving unwinnability is the expensive tail — **the budget + `Unknown`-exclusion keeps
+generation bounded** and never ships a guessed-winnable daily. Solver determinism doesn't affect the
+game hash (it only *selects* seeds), but the pack must regenerate byte-identically or the P10 drill
+breaks. This is the heaviest phase — time-box it; if the solver underperforms, ship free-play first and
+turn on dailies when the pack lands.
+**Done when:** 1) **Behavioral:** a dated winnable-seed pack exists; `dailySeed(today)` yields a deal
+the solver proved winnable; the pack regenerates byte-identically. 2) **Verification:**
+`cargo test -p solitaire-solver` green incl. the pack-all-winnable + byte-identical-regeneration test.
+**Validation:** **Broad** — wiring test + regenerate the pack on a clean checkout and diff (byte-
+identical) + spot-check a daily deal is winnable by replaying its `winning_line`.
+
 ---
 
 ## Open Questions
 
-- **[RECOMMENDED: PHASE-GATED (Phase B)]** How does `pond-outcome` obtain a game to replay — a generic
-  `Replay` trait implemented by `solitaire-core`, or a feature-gated dependency? *Rationale: shapes the
-  crate's dependency direction; not needed to start Phase A.* Agent lean: a small `Replay` trait so
-  `pond-outcome` stays game-agnostic.
-- **[RECOMMENDED: PHASE-GATED (Phase B/D)]** Source of the **scripted winning deal** used by the
-  outcome wiring test + the board E2E — capture one via an `#[ignore]` greedy/solver helper and commit
-  it as a fixture, or assert on a partial (non-win) attested record if a full win is impractical to
-  script. *Rationale: a hand-authored winning Klondike line is hard; the capture approach mirrors the
-  golden-vector recorder.*
-- **[RECOMMENDED: PHASE-GATED (Phase C)]** Exact **board-JSON shape** (field names, how face-down cards
-  are represented to the UI — hidden rank or a `null`?). *Rationale: pin against the real `GameState`
-  in Phase C; the UI (D) targets it.* Agent lean: expose face-down cards as `{ faceUp: false }` with the
-  rank/suit **omitted** (the UI must not see hidden cards, matching the game).
-- **[RECOMMENDED: ADVISORY]** Undo in P4 — recommend **no undo in the first playable** (so every clear
-  is trivially "clean"), adding undo + the assistance flag later. *Rationale: keeps the clean-clear
-  definition simple for v1; decide at Phase D.*
-- **[RECOMMENDED: ADVISORY]** Run Phase E in parallel with A–C, or sequentially after D? *Rationale:
-  parallel saves wall-clock but the board (D) restyles once E lands; sequential is simpler. Owner call.*
+- **[RESOLVED 2026-07-29]** `pond-outcome` replay mechanism → a small **`Replay` trait** implemented by
+  `solitaire-core`, so `pond-outcome` stays game-agnostic (owner: go-with-lean).
+- **[RESOLVED 2026-07-29]** Scripted winning deal → **capture via the Phase S solver's `winning_line`**
+  and commit as a fixture (owner: agreed; the solver is now in scope, so this is free).
+- **[RESOLVED 2026-07-29]** Board-JSON for face-down cards → **`{ faceUp: false }` with rank/suit
+  omitted** (the UI cannot see hidden cards). Exact field names pinned in Phase C against the real model.
+- **[RESOLVED 2026-07-29]** Undo → **undo/hints ARE in v1**, with a **"Declare assistance used" setting
+  (ON by default)**; assistance is self-declared (not replay-derivable); clean-clear = `Won &&
+  assistance == Some(false)`. (Supersedes the earlier no-undo lean.)
+- **[RECOMMENDED: PHASE-GATED (Phase S)]** Solver **budget + daily-pack size** — the per-seed node/time
+  budget (unwinnability is the expensive tail) and how many dated seeds the pack holds (a year? rolling?).
+  *Rationale: needed to run generation, not to start the solver. Lean: generous per-seed budget,
+  `Unknown` excluded; pack sized to ≥ 1 year of dailies, regenerable.*
+- **[RECOMMENDED: PHASE-GATED (Phase D)]** **Daily rollover** — what timezone/boundary defines "today's
+  deal" (UTC midnight is simplest and shared globally). *Rationale: affects `dailySeed(date)`. Lean: UTC.*
+- **[RECOMMENDED: PHASE-GATED (Phase D)]** **Share-link payload** — encode the full record (bigger URL,
+  self-verifying offline) vs just `(seed, result, moves)` and re-derive. *Rationale: lean = full record,
+  base64url of the `pond-docformat` JSON, so the recipient verifies with no server.*
+- **[RECOMMENDED: ADVISORY]** Run Phase E and Phase S in parallel with A–C (concurrent agents), or fold
+  them in sequentially? *Rationale: parallel saves wall-clock; sequential is simpler. Owner call.*
 
 ---
 
@@ -419,3 +499,29 @@ ownership wording.
 added now (Pass 3) rather than deferred, so the three plans read coherently for the next reader.
 **Confirmed ready:** yes. Open-question walk-through pending the owner's call on #1–#3 (all have leans;
 none BLOCKING — the plan can start Phase A immediately).
+
+### Gameplay decisions (owner, 2026-07-29) — folded into the phases
+Post-Pass-3 product decisions that sharpen the game and add scope. Code-shaping questions #1–#3 resolved
+with the agent leans (Replay trait; capture winning-deal as a fixture; face-down cards omit rank/suit).
+
+1. **Both modes; daily deal by default.** A date-derived **daily deal** everyone shares (the follow-chain
+   comparison unit) is the default; a **free-play / random** mode sits alongside.
+2. **Winnable-filtered dailies ⟹ a Klondike solver, as a BUILD-TIME tool.** The solver runs offline over
+   many seeds to generate a **winnable-daily-seed pack** (dated, byte-identically regenerable — the
+   master-plan level-pack / P10 discipline); the runtime just indexes the pack by date and never runs
+   the solver. New **Phase S**. **Stalemate/stuck is a first-class outcome** (`Stuck`), noted in the
+   record — player-declared at runtime, optionally confirmed by a bounded no-progress check.
+3. **Assistance is self-declared, default-honest.** Undo/hints exist. Assistance (undo/hint use) **cannot
+   be derived from the move list** — the recorded winning sequence is clean by construction — so it is a
+   self-declared meta-fact. A **"Declare assistance used" setting, ON by default:** on → the record
+   carries the assistance flag; off → assistance is omitted (not claimed clean, just unstated).
+   **Clean-clear = `Won && assistance == Some(false)`.**
+4. **Verification-forward win screen + a share-results link** — the win screen leads with "Cleared clean
+   ✓ verifiable" + one-tap re-verify, and a **share link** encodes the result (seed + outcome record) so
+   a recipient can open and re-verify it (the pre-leaderboard social hook; ties to per-game URLs).
+5. **Compare metric = moves-to-clear + clean/assisted binary** (count, not ratio).
+
+Scope impact: **new Phase S (solver + winnable-daily pack)**; Phase B's `Record` gains a `result`
+enum (`Won | Stuck | Abandoned`) + `assistance: Option<bool>`; Phase C gains an undo state-stack +
+assistance tracking + daily/free seed handling + a share-encode/decode; Phase D gains the mode toggle,
+undo + the declare-assistance setting, the verify-forward win screen, and the share link.
