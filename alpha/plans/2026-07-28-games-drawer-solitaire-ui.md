@@ -584,3 +584,12 @@ at P4); board-state schema → pinned at Phase 3 against the real core. None BLO
   the target (`rustup target remove/add wasm32-unknown-unknown`, network) + building wasm with rustup's
   cargo. **Awaiting owner go on the toolchain reinstall.** THIS-P0/P1 can proceed independently in the
   meantime.
+- **2026-07-29 — wasm toolchain fixed + master-plan Phase 2 ✅ SHIPPED** (`fun` `705869c`/`a94dd56`).
+  Root cause of the earlier block: Homebrew's rustc (active, no wasm std) shadows the rustup toolchain
+  on `PATH`; fix = build wasm with the rustup stable toolchain and set `RUSTC` explicitly (recipe in the
+  master plan's Phase 2). The cross-build harness caught + fixed a real `usize`-width RNG determinism
+  bug in both cores. **Implication for THIS-P3 (the binding):** the `xbuild` crate proves a **raw
+  C-ABI + serde-JSON-string** marshalling path works to wasm without `wasm-bindgen` (which isn't
+  installed and needs a `cargo install`). Reconsider THIS-P3: the board can be marshalled as a JSON
+  string over a raw `ptr+len` export (like `xbuild`'s hash), sidestepping the `wasm-bindgen` toolchain
+  entirely. Decide at P3. **THIS-P0/P1 (drawer chrome, no wasm) is the next active work.**

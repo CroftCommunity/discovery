@@ -7,7 +7,7 @@
 | Phase | Outcome | Where |
 |---|---|---|
 | 1 — repo + workspace + promote match3-core | ✅ SHIPPED | `CroftCommunity/fun` `aed5817` (local); `cargo test --workspace` 19 green, `npm run build`→dist |
-| 2 — native+wasm cross-build test | ⛔ BLOCKED (toolchain) | `wasm32-unknown-unknown` std missing (`E0463: can't find crate for core/std`) under **both** Homebrew cargo (active) and rustup cargo — target shows "(installed)" but core/std components are absent. Fix: `rustup target remove wasm32-unknown-unknown && rustup target add wasm32-unknown-unknown` (network), then build wasm with `~/.cargo/bin/cargo` (rustup), not Homebrew's. Also gates front-plan P3. |
+| 2 — native+wasm cross-build test | ✅ SHIPPED | `fun` `705869c`: `xbuild` cdylib + `check.mjs` prove wasm==native for solitaire (deal + draw-cycle). **Caught + fixed a real `usize`-width RNG determinism bug**; `a94dd56` fixes the same bug in match3-core. Toolchain recipe below. (match3 active cross-check = small follow-up.) |
 | 4 — solitaire P1 (Klondike draw-1) | ✅ SHIPPED | `fun` `2810004`: RULES + deal + `state_hash` + full T1–T5 engine (`play_move`/`legal_moves`) + 14 tie-break tests + golden vectors; 39 workspace tests green |
 | 3 — match-3 shelf-parity | ⬜ | member stubs in place |
 | 5 — P2 pond-docformat | ⬜ | stub in place |
@@ -394,7 +394,25 @@ CroftC `.gitignore` must already ignore `fun/` (nested-repo rule) — verify it 
 
 ---
 
-### Phase 2: Native+wasm cross-build determinism test
+### Phase 2: Native+wasm cross-build determinism test — ✅ SHIPPED (`fun` `705869c`, `a94dd56`)
+
+**Delivered (2026-07-29):** `crates/xbuild` (cdylib) exports raw C-ABI `deal_hash`/`draw_cycle_hash`
+(no wasm-bindgen — minimal); `check.mjs` loads the wasm build under node and asserts the hashes equal
+the **locked native golden hashes** in `solitaire-core/vectors/`; `run.sh` builds + runs it. **The
+harness immediately caught a real determinism bug** (exactly Phase 2's purpose): `DetRng::index`
+sampled a `usize` range — 32-bit on wasm32, 64-bit native — so `rand`'s `gen_range` consumed the stream
+differently per target and the deal diverged. Fixed to a fixed-width `u32` range in **both** cores
+(`solitaire-core` `705869c`, `match3-core` `a94dd56`); re-locked the affected golden hashes; wasm ==
+native now. Also: `rand`/`rand_chacha` `default-features=false` so the cores cross-compile (drop
+`std`/`getrandom`; we only `seed_from_u64`).
+
+**Toolchain recipe (important — the environment has two Rust installs):** the active `cargo`/`rustc`
+is **Homebrew's** (no wasm std, and it shadows rustup on `PATH`). Build wasm with the **rustup** stable
+toolchain, setting `RUSTC` explicitly so cargo doesn't fall back to Homebrew's rustc:
+`RUSTC="$(rustup which --toolchain stable rustc)" "$(rustup which --toolchain stable cargo)" build
+--target wasm32-unknown-unknown -p xbuild --release`. Native tests/build keep using Homebrew cargo.
+**Follow-up:** wire match3 into `xbuild` for an active native==wasm check (needs a Board-constructing
+export; solitaire is checked today).
 
 **Goal:** The property that justified choosing Rust is now *enforced*: `match3-core`'s corpus replays
 to byte-identical `state_hash` values on a wasm build and on native, checked in CI. This becomes the
