@@ -25,6 +25,9 @@ nothing canonical; degrade-to-serverless (pad `baseUrl` falls back to `public.ap
 - **arecipe** next — its reads (`app.arecipe.*` / `exchange.recipe.*` from the PDS) are friends-scoped
   today; the cache accelerates + lightens the PDS. Cache under `cache.arecipe.app` (same-site). Its
   authed paths depend on the **Phase-7 auth broker** — so arecipe-cache is gated on Phase 7; bluebird is not.
+  **Decision (2026-07-29): arecipe-cache is NOT critical path — backlogged (a `ROADMAP_TODO` item).
+  Phase 8 focuses on the bluebird track (public reads, no broker dependency); arecipe-cache is picked
+  up later, once we want it.**
 
 **Forks to decide (the discussion):**
 1. **Cache backing store:** in-memory (LRU, simplest, lost on restart — fine, disposable) vs on-disk
@@ -33,8 +36,8 @@ nothing canonical; degrade-to-serverless (pad `baseUrl` falls back to `public.ap
    record reads), and per-method TTLs. Freshness vs hit-rate.
 3. **CORS:** `bluebird-cache.croft.ing` is cross-origin to `bluebird.croft.ing` → needs CORS headers;
    `cache.arecipe.app` is same-site (simpler). Confirm the pads' expectations.
-4. **Ordering vs Phase 7:** bluebird-cache can ship now (no auth); arecipe-cache waits on the broker.
-   Do we ship bluebird-cache first, or hold both until Phase 7?
+4. **Ordering vs Phase 7:** *Resolved (2026-07-29) — bluebird-cache first (no auth dependency);
+   arecipe-cache is backlog (not critical path), taken up after the broker is live.*
 5. **Does it also serve iroh NodeId discovery reads** (the cohesion win — PDS record lookups cached)?
    In scope for cache mode or later?
 6. **Reproducibility:** Rust binary cross-compiled for linux-x86_64, `get_url`+checksum deploy (like the
