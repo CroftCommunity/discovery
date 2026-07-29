@@ -1,7 +1,10 @@
 # Playable, verifiable solitaire in the drawer — the delivery slice
 
-**Status:** Pass 1+2+3 complete. Open questions walked through below (none BLOCKING). Ready for
-execution. Planning only — no code written yet.
+**Status:** EXECUTION IN PROGRESS (substrate-first). ✅ A (`pond-docformat` `808df73`), ✅ B
+(`pond-outcome` `85df812`), ✅ C (binding `ff55c0d`) shipped + pushed. Next: **D (board UI, free-play
+first)**, then **S (solver + winnable daily pack)** → turn on dailies; **E (design)** alongside.
+Note: D's full *win-path* E2E is coupled to S (needs a known-winnable seed + winning-line fixture); D's
+free-play mechanics E2E + a unit-tested win-screen do not need S.
 **What this is:** the **delivery plan** that takes the shipped pieces (the drawer chrome, `solitaire-core`,
 the cross-build determinism test) to a **playable, verifiable solitaire on `fun.croft.ing`**. It is a
 cross-cutting slice spanning **master-plan P5/P6** (the `pond-docformat` / `pond-outcome` substrate —
@@ -192,7 +195,7 @@ D**, unless the owner wants E/S parallelized as concurrent agents.
 
 ## Phases
 
-### Phase A — `pond-docformat` (master P5): the versioned document envelope
+### Phase A — `pond-docformat` (master P5): the versioned document envelope — ✅ SHIPPED (`fun` `808df73`)
 
 **Goal:** one versioned, forward/unknown-field-tolerant serialization envelope for all durable pond
 documents (saves, codes, outcome records), with a per-version fixture. Fail-loud on unreadable
@@ -218,7 +221,7 @@ envelope; an old fixture loads, an unreadable newer-major fails loudly. 2) **Ver
 `cargo test -p pond-docformat` green incl. the wiring test.
 **Validation:** **Moderate** — wiring test + author two versions of one fixture and prove forward-load.
 
-### Phase B — `pond-outcome` (master P6): the verifiable outcome record
+### Phase B — `pond-outcome` (master P6): the verifiable outcome record — ✅ SHIPPED (`fun` `85df812`)
 
 **Goal:** a self-checking outcome record: given `(kind, seed, move list)`, replay via the game core and
 emit `{ kind, seed, result, final_hash, move_count }` that anyone re-verifies by replaying. Local only.
@@ -255,7 +258,7 @@ is impractical — record which.
 by replay; tampering is detected. 2) **Verification:** `cargo test -p pond-outcome` green incl. wiring.
 **Validation:** **Moderate** — wiring test + manually tamper a serialized record and confirm rejection.
 
-### Phase C — `solitaire-wasm`: the browser binding (front P3, raw C-ABI + serde-JSON)
+### Phase C — `solitaire-wasm`: the browser binding (front P3, raw C-ABI + serde-JSON) — ✅ SHIPPED (`fun` `ff55c0d`)
 
 **Goal:** the UI can drive `solitaire-core` in the browser: start a game, read the full board as JSON,
 enumerate legal moves, apply typed moves, detect a win, and export a verifiable outcome record — all
