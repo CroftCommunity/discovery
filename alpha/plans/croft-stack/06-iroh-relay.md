@@ -10,9 +10,11 @@ Encrypt cert via `cert_mode=Reloading` + `iroh-relay-certsync`; firewall opens 8
 `relay.croft.ing` → box; `relay.croft.ing:8443` → `200` with a valid cert. Mode B is what enables
 **direct handoff** — nodes hole-punch direct (iroh ~90% hole-punch / ~95% direct) with the relay as
 fallback, rather than tunnelling everything. (Initially stood up in mode A — Caddy-fronted, discovery
-OFF — then moved to mode B once we realised mode A suppressed direct connections.) Plan + acceptance
-gate (two-node direct test, pending): **[relay-mode-b-plan.md](relay-mode-b-plan.md)**. Sessions:
-`croft-stack/sessions/2026-07-29-phase-6-relay.md`, `-relay-mode-b.md`. ·
+OFF — then moved to mode B once we realised mode A suppressed direct connections.) **Acceptance gate MET
+(2026-07-30):** a two-node `relay-loadtest` run (box ↔ NAT'd desktop) classified **5/5 connections
+`direct`** via the relay's address-discovery — direct handoff confirmed. Plan:
+**[relay-mode-b-plan.md](relay-mode-b-plan.md)**. Sessions: `croft-stack/sessions/2026-07-29-phase-6-relay.md`,
+`-relay-mode-b.md`, `2026-07-30-relay-two-node-direct-handoff.md`. ·
 **Depends-on:** Phases 3–5 (governance defaults; box up; DNS/
 TLS) · **Gate-out:** the relay runs supervised + governed + observable; the box is proven under a real
 long-running service *before* any net-new invention.
