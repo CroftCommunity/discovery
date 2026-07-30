@@ -358,8 +358,9 @@ before display**. `registry.ts` flipped to `status: "playable"`; `build.mjs` ser
 round-trip, daily seed, verify-orchestration + tamper against the **real wasm**, result-screen
 headlines) + `tests/solitaire.spec.ts` (6 — mechanics + win-path fixture via the `window.__solitaire`
 hook + share round-trip + full-screen). Web green (typecheck/lint/vitest 19/Playwright 10 incl. axe);
-Rust 52 green. **Follow-ups:** Phase E playful identity (restyles the neutral baseline); solver
-short-line tuning + full-year pack (Phase S).
+Rust 52 green. **Follow-ups (all since shipped):** Phase E playful identity (`c95bb6f`); the solitaire
+polish batch — drag-and-drop, opt-in auto-play, win cascade, responsive fit, self-hosted Fredoka
+(`c77473d`/`26defd7`); solver short-line + full-year seeds-lean pack (`bbbe083`).
 
 **Goal:** `/solitaire/` is **playable**: a real board over the binding, tap-source → tap-target with
 legal-move highlighting from the core, draw-1 stock cycling, win → a verifiable `pond-outcome` record
@@ -459,8 +460,13 @@ first ordering) + `generate_pack` (deterministic seed stream → winnable seeds 
 `pack_to_doc` via `pond-docformat`. `games/solitaire/daily-pack.json` committed (6 winnable seeds — the
 daily deals **and** D's win-path fixture: replay `pack[0]` to a win). Tests: budget respected, committed
 pack all-winnable (fast replay), P10 byte-identical regeneration drill (`#[ignore]`), generator
-(`#[ignore]`). Workspace 52 green. **Follow-up:** solver sometimes finds long draw-heavy lines; tuning
-for shorter lines + scaling the pack to a full year are later work. **This unblocks D's win-path E2E.**
+(`#[ignore]`). Workspace 52 green. **This unblocks D's win-path E2E.**
+**✅ Follow-ups done 2026-07-30 (`fun` `bbbe083`):** the pack moved to a **seeds-lean v2 format** — 365
+unique winnable seeds (a year of daily deals; runtime indexes by date) + one **shortest-line fixture**
+(seed 2131, 131 moves, was 500) for tests/win-path — shrinking the served asset from ~100 KB to ~5 KB
+(a per-day line would have been multiple MB). Byte-identically regenerable (P10 drill retargeted to 365,
+master seed 0, budget 2M). The DFS still returns the first win found; a true shortest-path search
+(IDDFS/A*) remains a deeper future improvement.
 
 **Goal:** a **build-time** solver that classifies a seed's deal as winnable, used to generate a
 **dated winnable-daily-seed pack** the runtime indexes by date. The runtime never runs the solver;
