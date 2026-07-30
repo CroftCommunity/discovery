@@ -426,7 +426,12 @@ verify converge. **Re-entry:** estate `changed=0`; all units `active`.
 **Done-when (static):** whole bats suite green. **Done-when (live):** estate-wide `changed=0` + a
 recorded five-unit score table.
 
-### Phase 7: Reboot persistence gate (final, user-requested)
+### Phase 7: Reboot persistence gate — DONE (2026-07-30) ✓
+Cold reboot (new boot_id, back ~10s), then the full gate set: all services active, netns recreated,
+**tmpfs relay cert re-synced before the relay** (the key risk — held), identities persisted 640–644,
+exposures match the ratchet, state dirs 0700, all functional probes 200, negative gates hold (admin API
+refused on TCP; cross-service reads denied). Post-reboot converge `changed=0`. Session:
+`sessions/2026-07-30-hardening-phase7-reboot.md`. **Hardening effort complete + reboot-proven.**
 After every unit is hardened + the identity remap is done, **reboot the box** and confirm the whole
 estate comes back in the expected hardened state — persistence is not assumed, it's proven.
 
