@@ -91,6 +91,29 @@ Net: a compromised relay is confined to its own net/pid/mount/user/ipc/uts view 
 a restricted syscall set + (via the netns) no route to the host — while telemetry still governs and
 observes it from the host. Built in **Phase 1b**.
 
+## Idempotency & repeatability (hard requirement — same bar as the rest of the stack)
+
+All of this is Ansible-managed and idempotent; a second `ansible-playbook site.yml` reports
+`changed=0` (a **Phase-1 Done-when gate**). netns/veth/nftables have real idempotency traps done
+naively; each is handled declaratively:
+
+- **Imperative netns/veth setup is NOT run by the converge** (that would be non-idempotent — `ip netns
+  add` errors if it exists). Ansible only **installs + enables** a guarded systemd oneshot
+  `netns-setup@<ns>.service` (`RemainAfterExit=yes`; create-if-absent guards on `ip netns list` /
+  `ip link show`). The *declaration* (unit file + enabled state) is idempotent; the unit reconstructs
+  the runtime namespace at boot, ordered `Before` the consumer.
+- **nftables rules live in the managed, templated `nftables.conf`** (a separate `ip <ns>nat` table +
+  the egress-deny), applied via the existing `nft -c`-validated atomic reload — declarative, not ad-hoc
+  `nft add`. (Phase 0 used throwaway ad-hoc `nft add`; the implementation does not.)
+- **`ip_forward`** via a `sysctl.d` drop-in (declarative), not a runtime `sysctl -w`.
+- **systemd drop-ins** (`netns.conf`, `hardening.conf`) installed by `template`/`copy` + daemon-reload
+  + a restart handler — idempotent.
+- **Reboot:** `netns-setup@<ns>` (enabled) + the relay unit (`Requires=`/`After=`) rebuild runtime state
+  from the declared config; nothing is hand-made on the box.
+
+The Phase-0 experiment was deliberately **throwaway discovery** (torn down by reloading the managed
+ruleset) — it is *not* the implementation. Phases 1/1b are fully declarative and re-converge `changed=0`.
+
 ## Verified Assumptions
 
 - **Relay behind DNAT keeps direct handoff.** Phase-0 D2: two-node `relay-loadtest` through a DNAT'd
