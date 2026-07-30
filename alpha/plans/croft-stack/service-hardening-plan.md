@@ -371,7 +371,12 @@ canary `active` + healthy; no other tenant disturbed.
 **Done-when (static):** tenant hardening bats green (both manifests inherit); `changed=0`. **Done-when
 (live):** canary exposure ratcheted; `/healthz` 200.
 
-### Phase 5: telemetry-poll (4.4 → recorded ratchet; cgroup-visibility constraint)
+### Phase 5: telemetry-poll — DONE (2026-07-30) ✓ (4.4 → 1.2)
+Full deep set + `PrivateUsers`, no cgroup namespace. Exposure **1.2**; the functional gate confirms a
+poll under the sandbox still records fresh cross-unit cgroup samples (≥5 other units), and telemetry
+cannot read other services' state. Session: `sessions/2026-07-30-hardening-phase5-telemetry.md`.
+All four long-lived units now hardened via the shared baseline (relay 1.5, caddy 1.9, broker 1.5,
+telemetry 1.2). Identity remap still deferred (Q11).
 - [ ] `telemetry/tests/test_telemetry_hardening.bats`: baseline deep set **minus cgroup-hiding** —
   assert `ProtectControlGroups=yes` (RO) present, `assert_not_present` any cgroup namespace directive,
   and the safe deep directives present (PrivateUsers per D4, MDWE, ProtectProc, RestrictNamespaces,
