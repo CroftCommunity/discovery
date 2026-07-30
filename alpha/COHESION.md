@@ -1698,6 +1698,39 @@ existing tracks. Three seams:
 out of Croft scope, redacted from the raw per top-level `CLAUDE.md` ("repo content belongs in its repo").
 Backlog: ROADMAP_TODO §E (E72–E74).
 
+## 62. 2026-07-30 — client-side/static single-player candidates ↔ the as-built fun.croft shelf + a two-tier charter DECISION
+
+**Loose end ↔ work:** the 2026-07-30 Gemini games dialogue
+(`seeds/transcripts/raw/client-side-static-browser-games-catalog-2026-07-30.md`), distilled into
+`thinking/app/ponds/client-side-static-game-candidates.md`. This is a **new axis** on the games work —
+**single-player, 100%-client-side, static-hostable** games — distinct from the two 2026-06-21 P2P/social
+catalogs (`games-pond-authoritative-list.md`, `p2p-games-pond-launch-set.md`), and it maps to the
+**as-built** `fun.croft.ing` shelf (solitaire + match-3 shipped; cribbage gated), not the still-gated P2P
+pond. Seams:
+
+- **Charter DECISION (owner, 2026-07-30) — CLOSED.** `fun.croft.ing` was implicitly "determinism-first-
+  verifiable only" (`fun/docs/BUILDING-GAMES.md`). The owner **widened it to a two-tier shelf**: **Tier 1
+  Croft-native** (build-fresh, determinism-first, verifiable outcome + re-verifying `?r=` share) and **Tier 2
+  opportunistic wrap/port** (already-packaged ethical games, taken as-is, **no verifiable record — stated
+  honestly**). Both tiers keep client-side/static/non-extractive/accessible. This resolves the "widen vs
+  stay pure" question the transcript raised; the reasoning + the **Tier-2 inclusion filter** (already-static ·
+  non-extractive · redistribution-licensed · fits-our-chrome · honestly-represented) live in the catalog doc.
+- **Determinism-first-verifiable clarified ↔ the packaging/webxdc axis.** The owner flagged uncertainty about
+  the term. Recorded distinction: *verifiability* = a property of the **result** (same seed+moves → same hash
+  → a win anyone can re-replay to check, no server); *packaging/webxdc* = how a game is **bundled/transported**
+  (the P2P-pond axis). Orthogonal — a Tier-2 game can be well-packaged yet non-verifiable.
+- **Two extracted candidates → two `fun/plans/` docs (Tier-1 vs Tier-2 exemplars).** **Bubble shooter**
+  (`fun/plans/2026-07-30-bubble-shooter.md`) = Tier-1 build-fresh, **single-player + ungated**, so it can
+  proceed in parallel *ahead of/alongside* the P2P-gated cribbage (unlike E46's cribbage-next assumption).
+  **TuxRacer.js wrap spike** (`fun/plans/2026-07-30-tux-racer-wrap-spike.md`) = the Tier-2 pathfinder:
+  gates the candidate on license/weight/fit and establishes the reusable wrap + honest-representation standard
+  (a deferred addendum to `BUILDING-GAMES.md`).
+- **DUPLICATION avoided.** Did **not** re-rank or fork the two P2P catalogs; the new catalog cross-references
+  them as a complementary axis. ECOSYSTEM rows for the named projects/engines are flagged dialogue-sourced /
+  pending-verification (§5c) — all repo/license/liveness claims are Gemini-sourced `[UNVERIFIED]`.
+
+Backlog: ROADMAP_TODO E46 (appended, not a new item).
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
