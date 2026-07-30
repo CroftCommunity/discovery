@@ -3,9 +3,12 @@
 date: 2026-07-30 · a reusable isolation pattern for the estate, first applied to the iroh relay.
 Related: [06-iroh-relay.md](06-iroh-relay.md), [relay-mode-b-plan.md](relay-mode-b-plan.md).
 
-**Status: PLANNED — comprehensive design; not yet executed.** Owner wants the *full* network-namespace
-isolation (not the cheap systemd-directive tightening), built as a **reusable pattern** we can carry to
-another box or keep on this one.
+**Status: Phase 0 DONE — PASS (2026-07-30); implementation spec below, build pending.** Owner wants the
+*full* network-namespace isolation (not the cheap systemd-directive tightening), built as a **reusable
+pattern** we can carry to another box or keep on this one. **Phase 0 cleared the make-or-break gate:**
+a relay behind DNAT in a namespace still delivers **5/5 direct** connections *and* is isolated from the
+host (can't reach the broker) — so B2 (own box) is **not** forced. Findings:
+`croft-stack/sessions/2026-07-30-netns-phase0.md`.
 
 ## Problem Statement
 
@@ -56,7 +59,12 @@ move off** to its own box.
   ns + veth + DNAT/masquerade + a drop-in setting `NetworkNamespacePath` on the consumer unit. The
   relay is consumer #1; future external services reuse it.
 
-## The load-bearing risk (Phase-0 gate): NAT vs the relay's own job
+## The load-bearing risk (Phase-0 gate): NAT vs the relay's own job — RESOLVED (2026-07-30)
+
+**Phase 0 settled this: a relay behind DNAT still yields 5/5 direct connections** (dest-NAT preserves
+the client source, so address-discovery observes the true reflexive address). The concern below stood
+until tested; it no longer blocks the shared-box netns for the relay. Kept for the reasoning record:
+
 
 A relay is a **NAT-traversal helper**; putting it *behind* NAT (the host's DNAT/masquerade) is in
 tension with that role. QUIC address-discovery works by the relay **observing the client's public
@@ -77,29 +85,47 @@ All sequential. Phase 0 (empirical, on the box) gates the build.
 
 ## Phases
 
-### Phase 0 — Discovery (empirical; the go/no-go for the relay specifically)
-- **D1:** Create `relayns` + veth + DNAT/masquerade by hand; run the relay in it; confirm it binds and
-  is reachable at `relay.croft.ing:8443` (TCP) from outside. Success: HTTPS 200 as today.
-- **D2 (the gate):** With a two-node test (see the mode-B acceptance gate), confirm **address-discovery
-  still yields DIRECT connections** with the relay behind DNAT — i.e. NAT didn't break the relay's job.
-  Success: `direct>0` (same as bare mode B). Failure → relay isolation = B2 (own box); keep the netns
-  pattern for non-relay services only.
-- **D3:** Confirm the relay in the ns **cannot** reach `127.0.0.1:8001` (broker) or other host services
-  (the isolation actually holds). Success: connection refused/unreachable from inside the ns.
-- **D4:** systemd `NetworkNamespacePath` ordering + persistence across reboot (ns recreated on boot
-  before the unit). Disposition: throwaway hand-setup; promote the working recipe into the role.
+### Phase 0 — Discovery — ✅ DONE, PASS (2026-07-30)
+All gates cleared on the box (throwaway netns + a separate test relay on alt ports 18443/18824; live
+relay untouched; `croft-stack/sessions/2026-07-30-netns-phase0.md`):
+- **D1 (reachable behind DNAT):** ns relay served HTTP **200** internally (veth) and externally
+  (`relay.croft.ing:18443` via prerouting DNAT). ✓
+- **D2 (the gate — direct handoff survives NAT):** two-node `relay-loadtest` through the DNAT'd relay →
+  **5/5 `direct`, relay=0**, RTT ~63–89 ms. dest-NAT preserves the client source, so address-discovery
+  observed the desktop's real reflexive addr and hole-punch succeeded. ✓ — **B2 not forced.**
+- **D3 (isolation holds):** from inside the ns, the broker (`127.0.0.1:8001`) is refused and
+  `10.88.0.1:8001` times out — a compromised relay can't reach the host. ✓
+- **D4 (persistence):** mechanism works (via `systemd-run`); deterministic boot recreation is Phase-1.
+- **Insight:** prerouting DNAT covers external clients; an **output-chain DNAT** is needed *only* if an
+  **on-box** process must reach the relay by public name (a test artifact here — real clients are
+  external, so production needs prerouting only).
 
-### Phase 1 — Reusable `netns_service` Ansible role
-Parameterised ns+veth+DNAT/masquerade+egress-deny + a systemd drop-in. TDD the rendered nftables
-(DNAT/masquerade/egress-deny present; default-drop preserved) + the ns-setup unit. Idempotent.
+### Phase 1 — Reusable `netns_service` Ansible role  ⏳ NEXT
+A parameterised role, inputs `{ ns, subnet (/30), tcp_ports[], udp_ports[], deny_egress_cidrs[] }`:
+- **ns + veth setup as a systemd oneshot** `netns-setup@<ns>.service` (not a converge-time-only script,
+  so it survives reboot): `ip netns add`, veth pair, addrs, ns default route, `ip_forward`. Idempotent
+  (guard on `ip netns list`). `RemainAfterExit=yes`; ordered `Before=` the consumer unit.
+- **nftables:** extend the firewall role's template with a generated `ip <ns>nat` table — prerouting
+  DNAT of `tcp_ports`/`udp_ports` → the ns IP (no inbound SNAT: preserve client source), postrouting
+  masquerade for the subnet, and forward accepts for the veth. Egress-deny (`deny_egress_cidrs`, e.g.
+  `127.0.0.0/8 ::1 10/8 172.16/12 192.168/16 169.254/16`) in the forward chain so the ns can't reach
+  the host/estate. Keep default-drop otherwise. (Output DNAT only if an on-box client needs the relay.)
+- **Consumer wiring:** a systemd drop-in setting `NetworkNamespacePath=/run/netns/<ns>` on the service
+  unit + `After=/Requires=` the setup unit.
+- **TDD:** bats over the rendered nftables (DNAT/masquerade/egress-deny present; `inet filter` default-
+  drop intact; no `flush` of the managed table) + the setup unit (idempotent create). Converge idempotent.
 
 ### Phase 2 — Adopt for the relay
-Wire the relay unit to `NetworkNamespacePath=/run/netns/relayns`; move its 8443/7824 exposure from the
-plain firewall accepts to the DNAT path; converge; re-run the mode-B acceptance test (D2) live.
+Apply `netns_service{ ns: relayns, ports: 8443/tcp + 7824/udp, deny_egress: host+RFC1918 }` to the
+relay: DNAT the box's public 8443/7824 → the ns relay (replacing the plain input accepts), add the
+`NetworkNamespacePath` drop-in to `iroh-relay.service`. `certsync` still writes `/etc/iroh-relay/certs`
+(FS is shared — the mount ns is unaffected). Converge; re-run the two-node acceptance test live
+(expect 5/5 direct, as Phase 0); confirm the relay can't reach `127.0.0.1:8001`.
 
 ### Phase 3 — Document + generalise
-Record the pattern; note which service types suit it (external, non-NAT-helper) vs which want their own
-box; update `06-iroh-relay.md` + the stack review's firewall/relay sections.
+Record the pattern; note it suits **external, non-relay** services outright (a cache/index behind DNAT
+has no NAT-helper tension), and that the relay is a *validated* consumer (Phase 0). Update
+`06-iroh-relay.md`, the stack review §C/§G, and the netns role README.
 
 ## Documentation Impact
 - New role `ansible/roles/netns_service/`; relay unit drop-in; nftables changes (DNAT/masquerade).
@@ -107,8 +133,8 @@ box; update `06-iroh-relay.md` + the stack review's firewall/relay sections.
 - `ROADMAP_TODO.md` item (the build).
 
 ## Risks & cautions
-- **QUIC/NAT vs address-discovery** (Phase-0 D2) — the make-or-break; a relay behind NAT may defeat its
-  own purpose. Decide empirically before building the role for the relay.
+- **QUIC/NAT vs address-discovery** (Phase-0 D2) — was the make-or-break; **RESOLVED (2026-07-30): 5/5
+  direct behind DNAT.** No longer a blocker.
 - **Ingress DNAT must not SNAT** (preserve client source) or address-discovery sees the wrong address.
 - **Reboot persistence** — the ns + veth + DNAT must come up deterministically before the unit.
 - **Reversible** — drop the drop-in + DNAT to fall back to bare mode B.
