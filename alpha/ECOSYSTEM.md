@@ -234,6 +234,7 @@ that bear on the current plans are rowed here; the full catalog lives in
 | Frozen-Bubble project / community | **Frozen Bubble** (+ HTML5/JS ports) | OSS Puzzle Bobble / Bust-a-Move clone (Tux cannon; shoot colored bubbles, pop 3+). GPL/Perl lineage + GPL/CC-BY-SA art → **homage/reference, build fresh** for the Tier-1 bubble shooter (`fun/plans/2026-07-30-bubble-shooter.md`) | homage, learn↔ (do NOT vendor its code) `[UNVERIFIED]` |
 | community (LLVM-based) | **Emscripten** | C/C++ → WASM compiler toolchain (OpenGL→WebGL, audio→Web Audio, input→DOM, disk→RAM VFS). The mechanism behind most Tier-2 C/C++ ports | build-on (Tier-2 ports) [toolchain widely attested; port-specific claims `[UNVERIFIED]`] |
 | maxbittker | **Sandspiel** | OSS falling-sand cellular-automata sandbox in **Rust + WASM** — a kindred-tech Tier-2 wrap candidate (our own core language) | wrap (Tier 2), learn↔ (Rust+WASM game precedent) `[UNVERIFIED]` |
+| SuperTuxKart project / ading2210 (wasm) | **SuperTuxKart (WASM port)** | Mario-Kart-style kart racer; real Emscripten/WASM port (`ading2210/stk-code` wasm branch; live at supertuxkart.pages.dev). **GPL; ~120 MB one-time download / ~500 MB RAM; networking-off/experimental.** **ADOPTED (owner 2026-07-30)** as the first "big-download-then-offline" Tier-2 class (ships with up-front size disclosure) | wrap (Tier 2, heavy class), homage [verified: web 2026-07-30 — repo + live demo] |
 
 ## 5e. AT Proto PDS self-hosting: implementations, hosts & blob-storage backends (from the 2026-06-22 atproto/PDS dialogue)
 
