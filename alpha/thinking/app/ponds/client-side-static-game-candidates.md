@@ -59,6 +59,14 @@ never build Tier-1 from scratch. A candidate is admissible to Tier 2 iff **all**
    works in all three chrome modes; themeable is a bonus, cleanly-framed is the floor.
 5. **Honestly represented** — if it has no verifiable outcome, the shelf must not imply it does.
 
+**Bundle weight is NOT a hard disqualifier — it is a disclosed class (owner decision 2026-07-30).**
+A large one-time download that then runs **fully offline with no further bandwidth** is a legitimate
+shelf class (the "big-download-then-offline" games), *provided the download size is disclosed up
+front, before the user commits to it.* So leg 1's "static" bar is about *architecture* (no backend),
+not *size*. The instant-start ideal stays the default; heavy titles are admitted as their own labelled
+class with an honest "≈N MB download, then offline" notice. (SuperTuxKart, ~120 MB, is the first of
+this class — see bucket B.)
+
 Explicitly **disqualified by the filter:** anything that needs an original **ROM / copyrighted asset**
 the user must supply, and any **emulator/iframe-host** path where the game is not ours to
 redistribute (bucket D below). Fun, but off-ethic to self-host and/or not license-clean.
@@ -84,8 +92,13 @@ Run a JS/WebGL bundle as-is behind the drawer contract. Real-time / arcade; no m
 per-game license + bundle weight are the filters. *Pathfinder → `fun/plans/2026-07-30-tux-racer-wrap-
 spike.md`.*
 
-- **Racing / 3D:** **TuxRacer.js** *(the extracted Tier-2 candidate)* · SuperTuxKart · HexGL · Slow
-  Roads · Swoop · Astray · OpenLara · Re-Volt (RVGL) · Captain Rogers.
+- **Racing / 3D:** **TuxRacer.js** *(the extracted Tier-2 candidate)* · **SuperTuxKart — ADOPTED
+  (owner, 2026-07-30) as the first "big-download-then-offline" class member.** Verified: real WASM
+  port (`ading2210/stk-code` wasm branch; live at supertuxkart.pages.dev), **GPL**, **~120 MB initial
+  download / ~500 MB RAM, experimental (networking off)** — a one-time download that then runs
+  offline, so it ships with an up-front size disclosure rather than being disqualified on weight. ·
+  HexGL (MIT, complete — the lowest-risk *first* Tier-2 exemplar) · Slow Roads · Swoop · Astray ·
+  OpenLara · Re-Volt (RVGL) · Captain Rogers.
 - **Platform / action:** Prince of Persia (PrinceJS) · Friday Night Funkin' · Pacman-Canvas · Clumsy
   Bird · T-Rex Runner (Chrome Dino) · Underrun · Agent 8 Ball · Monster Wants Candy · osu!web.
 - **Physics / sandbox:** Sandspiel (Rust + WASM) · Free Rider JS · Numpty Physics · Couch 2048 ·

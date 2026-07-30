@@ -1729,6 +1729,16 @@ pond. Seams:
   them as a complementary axis. ECOSYSTEM rows for the named projects/engines are flagged dialogue-sourced /
   pending-verification (§5c) — all repo/license/liveness claims are Gemini-sourced `[UNVERIFIED]`.
 
+- **Follow-on decision (owner, 2026-07-30) — SuperTuxKart ADOPTED + a new "big-download-then-offline"
+  class.** Verified against the real port (`ading2210/stk-code` wasm; supertuxkart.pages.dev): **GPL,
+  ~120 MB one-time download / ~500 MB RAM, networking-off/experimental.** Rather than disqualify it on
+  weight, the owner defined a **shelf class**: heavy titles that download once then run **fully
+  offline with no further bandwidth**, admitted **provided the size is disclosed up front**. This
+  refines the Tier-2 inclusion filter (leg 1 is about *architecture* = no backend, not *size*); the
+  instant-start ideal stays the default. Recorded in the catalog's inclusion-filter + bucket B;
+  ECOSYSTEM STK row upgraded from `[UNVERIFIED]` to verified. Note: a *complete, MIT* title (HexGL)
+  remains the lowest-risk **first** Tier-2 exemplar; SuperTuxKart is the class-defining heavy case.
+
 Backlog: ROADMAP_TODO E46 (appended, not a new item).
 
 ## How to use this map
