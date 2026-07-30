@@ -25,11 +25,11 @@ and the standing indexes. Status notes whether the prompt has been run.
   `match3-solver` crate + winnable-daily pack + mode-aware binding + UI toggle), and item 4 as "build tool,
   hold switch" (`reference_score_beam` built + validated, greedy par kept). Plan:
   `fun/plans/2026-07-30-match3-followups.md`. Remaining deferred → `build-match3-followups-round2.md`.
-- [`build-match3-followups-round2.md`](build-match3-followups-round2.md) — the next-round match-3 backlog
-  after round 1: more variant objectives (jelly / ingredients, owner-gated), specials (striped / wrapped /
-  colour-bomb, a large separate track), and adopting the held stronger reference / retuning the par (a
-  `Match3::VERSION` bump when real play data exists). Grounded in the now-shipped blockers-mode +
-  solver-pack + beam-reference code. **Not yet run.**
+- [`build-match3-followups-round2.md`](build-match3-followups-round2.md) — execute the **match-3 →
+  Candy-Crush parity program** (decisions D3–D6 locked in the 2026-07-30 owner walk-through: jelly, full
+  specials + combos, a deterministic par-player ladder, hint/coach backlogged). Roadmap is the source of
+  truth: `fun/plans/2026-07-30-match3-parity-roadmap.md`; start with Track A (jelly). Grounded in the
+  shipped blockers-mode + solver-pack + beam-reference code. **Not yet run.**
 - [`process-claude-code-sessions-prompt.md`](process-claude-code-sessions-prompt.md) — process pasted
   Claude Code session logs: verify-against-main first, extract decisions/narrative, leave execution logs
   behind (they're already in RUN summaries + git + registers). Reusable.
