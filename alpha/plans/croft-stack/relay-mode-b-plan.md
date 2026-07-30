@@ -6,9 +6,11 @@ date: 2026-07-29 · component of [06-iroh-relay.md](06-iroh-relay.md). Supersede
 topology **B1** (shared box). The relay serves its own TLS on TCP 8443 (HTTPS/WSS) + UDP 7824 (QUIC
 address-discovery), reusing Caddy's Let's Encrypt cert via `cert_mode=Reloading` + an `iroh-relay-certsync`
 copy; firewall opens 8443/tcp + 7824/udp; `relay.croft.ing:8443` serves `200` with a valid cert.
-Phase 0 (config surface) verified empirically on the box. **Remaining: the acceptance gate** — a
-two-node test proving nodes hole-punch a *direct* connection via this relay's address-discovery
-(needs two iroh nodes / the relay-loadtest crate). Commits `f01d794` + `242ae02` (croft-stack).
+Phase 0 (config surface) verified empirically on the box. **Acceptance gate MET (2026-07-30):** a
+two-node `relay-loadtest` run (box generator ↔ NAT'd desktop responder, both on `relay.croft.ing:8443`
+/QUIC 7824) classified **5/5 connections `direct` (relay=0)**, RTT ~64–94 ms — direct handoff via the
+relay's address-discovery confirmed. Commits `f01d794` + `242ae02` (croft-stack); test session log
+`croft-stack/sessions/2026-07-30-relay-two-node-direct-handoff.md`.
 
 ## Problem Statement
 
