@@ -25,11 +25,13 @@ and the standing indexes. Status notes whether the prompt has been run.
   `match3-solver` crate + winnable-daily pack + mode-aware binding + UI toggle), and item 4 as "build tool,
   hold switch" (`reference_score_beam` built + validated, greedy par kept). Plan:
   `fun/plans/2026-07-30-match3-followups.md`. Remaining deferred → `build-match3-followups-round2.md`.
-- [`build-match3-followups-round2.md`](build-match3-followups-round2.md) — execute the **match-3 →
-  Candy-Crush parity program** (decisions D3–D6 locked in the 2026-07-30 owner walk-through: jelly, full
-  specials + combos, a deterministic par-player ladder, hint/coach backlogged). Roadmap is the source of
-  truth: `fun/plans/2026-07-30-match3-parity-roadmap.md`; start with Track A (jelly). Grounded in the
-  shipped blockers-mode + solver-pack + beam-reference code. **Not yet run.**
+- [`continue-match3-parity-prompt.md`](continue-match3-parity-prompt.md) — continue the **match-3 →
+  Candy-Crush parity program** (decisions D3–D6 locked 2026-07-30). Source of truth:
+  `fun/plans/2026-07-30-match3-parity-roadmap.md`. **Partially run (2026-07-30):** jelly objective, mobile
+  hardening (a mobile-webkit e2e project), and the player-ladder baked par table are all shipped/live on
+  `CroftCommunity/fun` (latest `75ee5b8`). **Next: Track B — specials** (B0 gem model + shape detection →
+  striped → wrapped → colour bomb → fish → combos → specials-aware solver/re-par), then C2 calibration,
+  C3 re-par, Track D, and the backlogged hint/coach. (Renamed from `build-match3-followups-round2.md`.)
 - [`process-claude-code-sessions-prompt.md`](process-claude-code-sessions-prompt.md) — process pasted
   Claude Code session logs: verify-against-main first, extract decisions/narrative, leave execution logs
   behind (they're already in RUN summaries + git + registers). Reusable.
