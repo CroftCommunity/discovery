@@ -19,7 +19,17 @@ and the standing indexes. Status notes whether the prompt has been run.
 - [`build-match3-followups.md`](build-match3-followups.md) — plan + execute the four deferred match-3
   follow-ups in `CroftCommunity/fun`: full step-by-step cascade animation, deadlock reshuffle, an
   owner-chosen variant objective (clear-the-blockers / jelly / ingredients / specials), and stronger
-  reference/par tuning. Grounded in the shipped code + `docs/BUILDING-GAMES.md`. **Not yet run.**
+  reference/par tuning. Grounded in the shipped code + `docs/BUILDING-GAMES.md`. **Run (2026-07-30)** →
+  all four shipped/deployed on `CroftCommunity/fun`: cascade animation (`play_move_traced`), core deadlock
+  reshuffle (`reshuffle_if_dead`, no golden vector changed), **clear-the-blockers** (owner-picked: new
+  `match3-solver` crate + winnable-daily pack + mode-aware binding + UI toggle), and item 4 as "build tool,
+  hold switch" (`reference_score_beam` built + validated, greedy par kept). Plan:
+  `fun/plans/2026-07-30-match3-followups.md`. Remaining deferred → `build-match3-followups-round2.md`.
+- [`build-match3-followups-round2.md`](build-match3-followups-round2.md) — the next-round match-3 backlog
+  after round 1: more variant objectives (jelly / ingredients, owner-gated), specials (striped / wrapped /
+  colour-bomb, a large separate track), and adopting the held stronger reference / retuning the par (a
+  `Match3::VERSION` bump when real play data exists). Grounded in the now-shipped blockers-mode +
+  solver-pack + beam-reference code. **Not yet run.**
 - [`process-claude-code-sessions-prompt.md`](process-claude-code-sessions-prompt.md) — process pasted
   Claude Code session logs: verify-against-main first, extract decisions/narrative, leave execution logs
   behind (they're already in RUN summaries + git + registers). Reusable.
