@@ -2,11 +2,14 @@
 
 ← [06-iroh-relay.md](06-iroh-relay.md) · [roadmap](README.md) · next → [08-cache-server.md](08-cache-server.md)
 
-**Status:** **validation spike DONE — GO (2026-07-24)**; remaining work is the production broker (Rust,
-hardened, multi-account) · **Depends-on:** Phase 6 (box proven under a real service) for the production
-broker; the spike already ran ad-hoc on the box · **Gate-out (spike, met):** a pad holds a
-helper-brokered session and falls back cleanly when the helper is stopped. **Gate-out (production):** the
-Rust broker honors the contract + secrets addendum, deploys via the forced-command channel, governed.
+**Status:** **DONE + LIVE (2026-07-29).** The validation spike proved GO (2026-07-24); the **production
+Rust broker** is now built (`croft-stack/broker/`, TDD 70/70, clippy/fmt clean) and **live at
+`account.croft.ing`** (governed 192M/256, keys 0600, prod-LE TLS; `/healthz`, `/jwks.json`,
+`/client-metadata.json` serving). Build plan + phases: [auth-broker-plan.md](auth-broker-plan.md). ·
+**Gate-out (spike, met):** a pad holds a helper-brokered session and falls back cleanly when the helper
+is stopped. **Gate-out (production, met):** the Rust broker honors the confidential-client contract +
+secrets discipline (0600 keys), governed unit, converge idempotent. Optional next: a live round-trip
+(one interactive authorize).
 
 ---
 
