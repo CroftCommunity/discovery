@@ -478,6 +478,26 @@ active + hardened + serving, tmpfs cert re-synced, `changed=0`, all negative gat
 - **Q10 (non-blocking — certs/C3, deferred):** `LoadCredentialEncrypted` for the broker keys (host-bound
   at-rest encryption). Fast-follow after the core baseline; additive, doesn't block the profile.
 
+## Status: hardening complete (2026-07-30), reboot test pending
+
+Every unit hardened via the baseline + on the clean identity block:
+
+| unit | exposure | uid=gid |
+|------|----------|---------|
+| iroh-relay | 1.5 | 644 |
+| caddy | 1.9 | 640 |
+| croft-broker | 1.5 | 641 |
+| telemetry-poll | 1.2 | 643 |
+| canary (tenant) | 1.5 | 642 |
+
+Phases 0–5, 1b, 2c, 4, and Q11 all DONE + committed + idempotent (`changed=0`). Certs: admin API on a
+unix socket (C1), relay key on tmpfs (C2). Only **Phase 7 (reboot-persistence test)** remains.
+
+**Q11 DONE (2026-07-30):** identity moved to an early `identity` role; estate remapped to 640–644. Two
+bugs found + fixed live — `usermod` can't renumber a running user (stop-before-usermod, guarded) and
+`when: ... is exists` checks the control host not the target (target-stat guard; caddy's dir had stayed
+at the orphaned old gid). `StateDirectoryMode` set to 0700 estate-wide so systemd + identity agree.
+
 ## Review Log
 - 2026-07-30: Pass 1+2 authored. Conventions verified against the live repo (bats = static + converge;
   shared `tests/helpers.bash`; roles list; caddy has no service.d; no CONTRACT.md). Phase 0 added to
