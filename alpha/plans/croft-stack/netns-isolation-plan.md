@@ -4,11 +4,14 @@ date: 2026-07-30 · a reusable isolation pattern for the estate, first applied t
 Related: [06-iroh-relay.md](06-iroh-relay.md), [relay-mode-b-plan.md](relay-mode-b-plan.md).
 Tracked: `ROADMAP_TODO` E76.
 
-**Status: Phase 0 DONE — PASS (2026-07-30); full 3-pass plan below; Phases 1–3 build pending.** Owner
-wants the *full* network-namespace isolation (not the cheap systemd-directive tightening), built as a
-**reusable pattern** we can carry to another box or keep on this one. Phase 0 cleared the make-or-break
-gate: a relay behind DNAT in a namespace still delivers **5/5 direct** connections *and* is isolated
-from the host (can't reach the broker). Findings: `croft-stack/sessions/2026-07-30-netns-phase0.md`.
+**Status: LIVE — Phases 0–2 DONE (2026-07-30); Phase 3 (docs) in progress.** The relay now runs in its
+own **dual-stack network namespace** plus PID/IPC/UTS/user namespaces + a tightened mount + a syscall
+allowlist + `MemoryDenyWriteExecute` — **no route to the host**, `systemd-analyze security` exposure
+**1.7**. It still serves v4+v6 (200), hole-punches **5/5 direct**, relays **5/5** when forced, and is
+accurately telemetered. All Ansible, declarative, re-converge `changed=0`. The reusable `netns_service`
+role (`ansible/roles/netns_service/`) is consumer-ready. Sessions:
+`croft-stack/sessions/2026-07-30-netns-phase0.md` + `-netns-implementation.md`. Owner wanted the *full*
+isolation (not the cheap systemd-only tightening) — delivered, as a reusable pattern.
 
 ## Problem Statement
 
@@ -170,7 +173,7 @@ untouched; `croft-stack/sessions/2026-07-30-netns-phase0.md`):
 - **Insight:** prerouting DNAT covers external clients; **output-chain DNAT** is needed *only* if an
   on-box process must reach the relay by public name (a test artifact; production clients are external).
 
-### Phase 1 — Build the `netns_service` role and adopt it for the relay
+### Phase 1 — Build the `netns_service` role and adopt it for the relay — DONE (2026-07-30)
 **Goal:** the relay runs inside its own network namespace — public ports DNAT-exposed, egress denied to
 the host/estate, reboot-persistent — via a reusable, parameterised Ansible role.
 **Changes:**
@@ -223,7 +226,7 @@ relay on the host); reboot ordering wrong → relay starts before the ns exists 
 **Validation:** **Broad** (network surgery + a live service). bats over rendered artifacts + live
 converge + the isolation/ingress checks; keep a one-command revert ready.
 
-### Phase 1b — Deepen the unit sandbox (other namespaces + syscall filter)
+### Phase 1b — Deepen the unit sandbox (other namespaces + syscall filter) — DONE (2026-07-30)
 **Goal:** confine the relay to the minimum host surface — layer PID/mount/user/IPC/UTS namespaces +
 syscall filtering onto the unit (composes with the netns from Phase 1).
 **Changes:**
@@ -259,7 +262,7 @@ the unit stay active + serving; `systemd-analyze security` guides.
 **Validation:** **Moderate→Broad** — each directive verified to keep the relay serving; the security
 score confirms the isolation gain.
 
-### Phase 2 — Live acceptance (function + telemetry survive the namespace)
+### Phase 2 — Live acceptance (function + telemetry survive the namespace) — DONE (2026-07-30)
 **Goal:** prove isolation didn't break the relay's job (both **direct** and **relayed**) or telemetry.
 **Changes:** none (verification phase); record results in the session log.
 **Call chain:** the two-node `relay-loadtest` (desktop ↔ box) against the netns'd relay, exercising
@@ -302,13 +305,13 @@ finds no stale "relay shares the host network stack" claims.
 **Validation:** **Narrow** — doc review + a consistency grep.
 
 ## Open Questions
-- [RECOMMENDED: PHASE-GATED (Phase 1)] **IPv6 through the namespace.** Phase 0 tested **IPv4 only**
+- [RESOLVED (Phase 1)] **IPv6 through the namespace.** Chose DUAL-STACK; v6 veth + ip6 DNAT/masquerade built and verified (external v6 -> 200). Phase 0 tested **IPv4 only**
   (`10.88.0.0/30` veth + `ip` nat). The live relay binds `[::]` (dual-stack) and `relay.croft.ing` has
   **AAAA → the box**. An IPv4-only netns would drop IPv6 clients. Decide: add a dual-stack veth +
   `ip6` DNAT/masquerade (full parity), or accept **IPv4-only** for the dev relay (and drop/ignore the
   AAAA path). *Rationale: real functional gap the IPv4 Phase-0 didn't cover; cheap to decide now,
   annoying to discover after adoption.*
-- [RECOMMENDED: PHASE-GATED (Phase 1)] **`NetworkNamespacePath` vs `ip netns exec`.** Phase 0 launched
+- [RESOLVED (Phase 1)] **`NetworkNamespacePath` vs `ip netns exec`.** Equivalent — the relay PID runs in the ns, binds there, cert FS visible, cgroup unchanged (verified live). Phase 0 launched
   the relay via `ip netns exec` + `systemd-run`; production uses the systemd `NetworkNamespacePath`
   directive. Confirm equivalence (binds in the ns; cert FS visible; cgroup unchanged) at Phase-1
   converge before declaring done. *Rationale: the directive is the production launch path; validate it,
@@ -319,12 +322,12 @@ finds no stale "relay shares the host network stack" claims.
   tangential to netns but worth a look while we're in the telemetry code; not blocking.*
 - [RECOMMENDED: ADVISORY] **Output-chain DNAT** — include it in the role only if an on-box process ever
   needs the relay by public name (none today). *Rationale: keep the rule surface minimal.*
-- [RECOMMENDED: PHASE-GATED (Phase 1b)] **`PrivateUsers=yes` vs the cert read.** The relay's cert is
+- [RESOLVED (Phase 1b)] **`PrivateUsers=yes` vs the cert read.** KEEP — the userns gid mapping preserves the `relay` group, so the 0640 root:relay cert read holds (verified live). The relay's cert is
   `0640 root:relay`; user-namespacing remaps uids, so the read may break. Decide: relax cert perms
   (e.g. `0644` — the cert is public anyway; the **key** is the sensitive one), or map the user, or
   skip `PrivateUsers`. *Rationale: `PrivateUsers` is a big isolation win but the most likely directive
   to break the relay; settle it before enabling.*
-- [RECOMMENDED: PHASE-GATED (Phase 1b)] **`MemoryDenyWriteExecute=yes` with iroh/rustls.** Rust has no
+- [RESOLVED (Phase 1b)] **`MemoryDenyWriteExecute=yes` with iroh/rustls.** KEEP — Rust/rustls has no JIT; relay stays active + serving (verified live). Rust has no
   JIT, so W^X should be fine, but a dependency (e.g. a crypto backend) could need it. Verify the relay
   stays active with it on; drop it if not. *Rationale: cheap hardening if it holds; don't assume.*
 - [RECOMMENDED: ADVISORY] **Drop `AF_UNIX`** from `RestrictAddressFamilies` if the relay opens no unix
@@ -353,6 +356,13 @@ finds no stale "relay shares the host network stack" claims.
   `io_*` NULL. Restructured Phase 1 to **build the role and wire it to the relay in the same phase**
   (avoids dead code); Phase 2 is the live acceptance re-checking **both** direct and forced-relay plus
   telemetry accuracy.
+- **2026-07-30 — Phases 1/1b/2 EXECUTED (LIVE).** Built the `netns_service` role; relay isolated in a
+  dual-stack `relayns` (v4+v6 DNAT, egress-deny), reachable v4+v6 (200), host-isolated, idempotent.
+  Deepened the sandbox (PID/IPC/UTS/user ns + mount + syscall filter + MDWE) — exposure **1.7**; the two
+  gated directives (`PrivateUsers`, `MemoryDenyWriteExecute`) verified live → KEEP. Acceptance: direct
+  **5/5**, forced-relay **5/5**, telemetry exact-match, isolation — all against the production sandboxed
+  relay. IPv6 resolved to **dual-stack**; `NetworkNamespacePath` confirmed equivalent to `ip netns exec`.
+  Session: `croft-stack/sessions/2026-07-30-netns-implementation.md`.
 - **2026-07-30 — Added Phase 1b (deepen the unit sandbox).** Owner asked what *other* namespace
   isolations apply. Added an "Additional isolation surfaces" design section (PID/mount/user/IPC/UTS/
   cgroup namespaces + syscall filtering, all systemd directives composing with `NetworkNamespacePath`)

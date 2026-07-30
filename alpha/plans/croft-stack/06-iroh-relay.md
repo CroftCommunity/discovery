@@ -15,6 +15,8 @@ OFF — then moved to mode B once we realised mode A suppressed direct connectio
 `direct`** via the relay's address-discovery — direct handoff confirmed. Plan:
 **[relay-mode-b-plan.md](relay-mode-b-plan.md)**. Sessions: `croft-stack/sessions/2026-07-29-phase-6-relay.md`,
 `-relay-mode-b.md`, `2026-07-30-relay-two-node-direct-handoff.md`. ·
+
+**Now netns-isolated (2026-07-30).** The relay runs in its own dual-stack network namespace + PID/IPC/UTS/user namespaces + tightened mount + syscall allowlist + MemoryDenyWriteExecute (systemd-analyze security exposure 1.7) — no route to the host (can't reach the broker), ports DNAT'd in, reusable `netns_service` role. Still 5/5 direct + 5/5 forced-relay + accurately telemetered. Plan: [netns-isolation-plan.md](netns-isolation-plan.md). ·
 **Depends-on:** Phases 3–5 (governance defaults; box up; DNS/
 TLS) · **Gate-out:** the relay runs supervised + governed + observable; the box is proven under a real
 long-running service *before* any net-new invention.
