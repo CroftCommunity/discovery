@@ -295,7 +295,16 @@ all.yml (caddy block), baseline ratchet row. **Shared-state:** live box (caddy).
 **Done-when (static):** caddy hardening bats green; `changed=0` on re-converge. **Done-when (live):**
 exposure recorded + ratcheted; 443 serves valid cert; ACME path writable.
 
-### Phase 2c: Certificate handling (from the cert audit C1–C5)
+### Phase 2c: Certificate handling — DONE (2026-07-30) ✓ (C1 + C2)
+2c-A: caddy admin API moved off unauthenticated `localhost:2019` onto a root-only unix socket
+(`admin unix//run/caddy/admin.sock` + `RuntimeDirectory` + retargeted `ExecReload`); TCP 2019 closed,
+relay user gets 000, reload still works via the socket. 2c-B: relay key copy moved to tmpfs
+(`/run/iroh-relay/certs` via tmpfiles.d), old `/etc/iroh-relay/certs` removed — no private key at rest;
+relay still serves TLS in-netns; rationale inline in `certsync.sh`. 26/26 hardening bats; changed=0.
+C3/C4 (at-rest FDE / backup exclusion) documented; C5 (event-driven certsync) not needed. Session:
+`sessions/2026-07-30-hardening-phase2c-certs.md`. Q10 (broker `LoadCredentialEncrypted`) still deferred.
+
+### (original 2c task list follows)
 Runs with/after caddy since caddy is the ACME authority. TDD: each fix gets a negative gate that proves
 the exposure is closed.
 - [ ] **C1 — close the admin API exposure.** Add `admin unix//run/caddy/admin.sock` to the Caddyfile
