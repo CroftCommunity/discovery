@@ -324,7 +324,14 @@ Caddyfile.j2, certsync.sh + target, relay cert path, baseline cert section, new/
 **Done-when (static):** cert bats green; `changed=0` on re-converge. **Done-when (live):** admin API not
 on TCP; relay key on tmpfs, only root:relay; relay serves TLS; two-node mode-B still connects.
 
-### Phase 3: croft-broker (holds key material — 4.7 → recorded ratchet)
+### Phase 3: croft-broker — DONE (2026-07-30) ✓ (4.7 → 1.5)
+Full deep set + `PrivateUsers` + `InaccessiblePaths` converged (identity deferred). Exposure **1.5**,
+`/jwks.json` serves the ES256 key (loads under the userns), and the incidental `BROKER_SCOPE`
+truncation is fixed (multi-token `Environment=` values now quoted → `transition:generic` restored).
+Negative gates confirmed live: `/var/lib/caddy` + `/var/lib/iroh-relay` show 0 entries in the broker's
+mount ns; uid_map is a non-identity remap. Fixed two test-harness bugs (assert_inaccessible semantics;
+ssh pipe quoting) — not security gaps. 17/17 hardening bats green. Session:
+`sessions/2026-07-30-hardening-phase3-broker.md`.
 *Incidental fix (from Phase 0):* `croft-broker.service` line 22 `Environment=BROKER_SCOPE=atproto
 transition:generic` is unquoted → systemd drops `transition:generic` and the broker's OAuth scope is
 **silently truncated to `atproto`**. Quote it: `Environment="BROKER_SCOPE=atproto transition:generic"`.
