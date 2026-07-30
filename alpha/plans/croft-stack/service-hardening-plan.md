@@ -236,6 +236,20 @@ read-only/`sudo -u` probes). **Re-entry:** box unchanged; no probe residue.
 known-forbidden action is denied).
 
 ### Phase 1b: Migrate the relay onto the shared baseline (prove reproduction of the reference)
+**Reproduction proof DONE (2026-07-30) ✓** — relay converged onto the shared `zz-hardening.conf`
+(standalone `hardening.conf` removed), exposure reproduced at **1.7**, TLS serving in-netns (HTTP 200),
+negative gates hold, telemetry unaffected. Session: `sessions/2026-07-30-hardening-phase1b-relay.md`.
+**Identity remap deferred** (see finding below). Idempotency re-run pending confirmation.
+
+**Structural finding (Q11) — identity pinning must run EARLY, not in the end-stage hardening role.**
+The relay role installs the cert copy (`root:relay`) before the hardening role would run last; a late
+gid remap leaves that cert's group stale and the relay can't read it on restart. Generally: any role
+creating files owned by a canonical id must run *after* the id is pinned. **Decision:** move the
+identity + state-dir tasks to an early step (dedicated `identity` role first, or fold into `base`),
+leaving `hardening` to own only the sandbox drop-in. The `hardening_apply_identity` toggle already
+lets us defer identity; the estate remap happens in the early step once added. Recommendation: add an
+`identity` role at the front of `site.yml` before the estate-wide remap in the service phases.
+
 - [ ] Add `hardening` role invocation for the relay in `site.yml` (or fold into the relay role) with the
   relay's carve-out vars; **remove** the relay's standalone `hardening.conf` in favor of the rendered
   one. Keep the drop-in path/content byte-compatible where possible.
