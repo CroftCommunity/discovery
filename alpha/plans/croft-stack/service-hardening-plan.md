@@ -270,7 +270,12 @@ remove standalone `hardening.conf`. **Shared-state:** the live box (relay only).
 **Done-when (static):** relay bats green; rendered drop-in passes the baseline. **Done-when (live):**
 relay 1.7 + 5/5 direct + 5/5 forced-relay + telemetry exact-match, `changed=0` on re-converge.
 
-### Phase 2: caddy (highest priority — 8.8 → recorded ratchet)
+### Phase 2: caddy — DONE (2026-07-30) ✓ (8.8 → 1.9)
+Sandbox drop-in converged (identity deferred). caddy `NoNewPrivileges=yes`, caps reduced to exactly
+`cap_net_bind_service`, `PrivateUsers=no` (D1), exposure **1.9**, still serving TLS on 443; 11/11 bats
+green incl. the ProtectSystem write-deny negative gate. Added `ProtectKernelModules`+`ProtectClock` to
+the canonical set (proven safe in Phase 0) — improved the relay to **1.5** as a bonus. Session:
+`sessions/2026-07-30-hardening-phase2-caddy.md`. Admin-API socket (C1) + tmpfs key (C2) remain for 2c.
 - [ ] Per-service bats `croft-stack/caddy/tests/test_caddy_hardening.bats` (create `caddy/tests/` or add
   to the role tests): sources `tests/hardening.bash`; asserts the rendered caddy drop-in carries the
   baseline set with caddy's carve-outs (`assert_cap_only ... CAP_NET_BIND_SERVICE`,
@@ -393,6 +398,26 @@ unit (idempotency, estate-wide); `systemd-analyze security` for all five units r
 verify converge. **Re-entry:** estate `changed=0`; all units `active`.
 **Done-when (static):** whole bats suite green. **Done-when (live):** estate-wide `changed=0` + a
 recorded five-unit score table.
+
+### Phase 7: Reboot persistence gate (final, user-requested)
+After every unit is hardened + the identity remap is done, **reboot the box** and confirm the whole
+estate comes back in the expected hardened state — persistence is not assumed, it's proven.
+
+- [ ] Reboot `croft-vps`. On return, assert:
+  - all units active: caddy, croft-broker, iroh-relay (in its netns), telemetry-poll.timer; canary.
+  - **netns recreated on boot** (the reboot-persistent oneshot) and the relay reachable via DNAT.
+  - **tmpfs cert copy re-populated before the relay started** (Q9: `/run/iroh-relay/certs` is wiped on
+    reboot; certsync `Persistent=true` + the relay `Wants=/After=` it must re-sync first, or the relay
+    can't read its cert). This is the highest-risk reboot interaction — assert relay serves TLS.
+  - exposure scores match the ratchet table for every unit (drop-ins are in `/etc`, persistent).
+  - identity remap persisted (uid/gid in `/etc/passwd`); state dirs owned + moded correctly.
+  - firewall/nftables + egress-deny restored; telemetry DB intact and the timer fires a fresh sample.
+  - negative gates still hold post-boot (cross-service reads denied, admin API not on TCP).
+- [ ] A `changed=0` converge after reboot (nothing drifted across the boot).
+
+**Validation:** live — a single post-reboot script runs the full positive + negative gate set across all
+units and prints a pass/fail table (reuse `tests/hardening.bash`). **Done-when (live):** every unit
+active + hardened + serving, tmpfs cert re-synced, `changed=0`, all negative gates pass after a cold boot.
 
 ## Open Questions
 
