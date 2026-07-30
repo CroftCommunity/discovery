@@ -2,18 +2,17 @@
 
 ← [05-dns-tls.md](05-dns-tls.md) · [roadmap](README.md) · next → [07-auth-helper.md](07-auth-helper.md)
 
-**Status:** **DONE (2026-07-29, `89b8b4b`)** as a **dev/test relay** (owner intent — dogfooding, not
-primetime). iroh-relay v1.0.0 (prebuilt musl, pinned+sha256) deployed **mode A** (plain HTTP on
-`127.0.0.1:8440`, Caddy TLS-terminates `relay.croft.ing` + reverse-proxies), no Rust build. Governed,
-telemetry-sampled, idempotent. Session: `croft-stack/sessions/2026-07-29-phase-6-relay.md`.
-
-**Now LIVE in mode B (QUIC address-discovery / direct handoff), 2026-07-29.** Mode A suppressed direct
-handoff (address-discovery off → traffic tunnels the relay instead of hole-punching; iroh is ~90%
-hole-punch / ~95% direct), so we moved to mode B (topology **B1**, shared box): the relay terminates
-its own TLS on TCP 8443 + UDP 7824 (QUIC), reusing Caddy's LE cert via `cert_mode=Reloading` +
-`iroh-relay-certsync`; firewall opens 8443/tcp + 7824/udp; `relay.croft.ing:8443` → `200` valid cert;
-converge idempotent. DNS fixed (`relay.croft.ing` → box). Plan + acceptance gate (two-node direct
-test, pending): **[relay-mode-b-plan.md](relay-mode-b-plan.md)**. ·
+**Status:** **LIVE in mode B (QUIC address-discovery / direct handoff), 2026-07-29** — a **dev/test
+relay** (owner intent: dogfooding, not primetime). iroh-relay v1.0.0 (prebuilt musl, pinned+sha256, no
+Rust build), governed + telemetry-sampled + idempotent. Topology **B1** (shared box): the relay
+terminates its **own** TLS on **TCP 8443** (HTTPS/WSS) + **UDP 7824** (QUIC), reusing Caddy's Let's
+Encrypt cert via `cert_mode=Reloading` + `iroh-relay-certsync`; firewall opens 8443/tcp + 7824/udp;
+`relay.croft.ing` → box; `relay.croft.ing:8443` → `200` with a valid cert. Mode B is what enables
+**direct handoff** — nodes hole-punch direct (iroh ~90% hole-punch / ~95% direct) with the relay as
+fallback, rather than tunnelling everything. (Initially stood up in mode A — Caddy-fronted, discovery
+OFF — then moved to mode B once we realised mode A suppressed direct connections.) Plan + acceptance
+gate (two-node direct test, pending): **[relay-mode-b-plan.md](relay-mode-b-plan.md)**. Sessions:
+`croft-stack/sessions/2026-07-29-phase-6-relay.md`, `-relay-mode-b.md`. ·
 **Depends-on:** Phases 3–5 (governance defaults; box up; DNS/
 TLS) · **Gate-out:** the relay runs supervised + governed + observable; the box is proven under a real
 long-running service *before* any net-new invention.
