@@ -16,6 +16,10 @@ and the standing indexes. Status notes whether the prompt has been run.
   full fresh adversarial sweep. **Not yet run.**
 - [`file-transcripts-prompt.md`](file-transcripts-prompt.md) — file incoming transcripts/dossiers per
   `PLAYBOOK.md` (classify → preserve raw → distill → update connective tissue). Reusable.
+- [`build-match3-followups.md`](build-match3-followups.md) — plan + execute the four deferred match-3
+  follow-ups in `CroftCommunity/fun`: full step-by-step cascade animation, deadlock reshuffle, an
+  owner-chosen variant objective (clear-the-blockers / jelly / ingredients / specials), and stronger
+  reference/par tuning. Grounded in the shipped code + `docs/BUILDING-GAMES.md`. **Not yet run.**
 - [`process-claude-code-sessions-prompt.md`](process-claude-code-sessions-prompt.md) — process pasted
   Claude Code session logs: verify-against-main first, extract decisions/narrative, leave execution logs
   behind (they're already in RUN summaries + git + registers). Reusable.
