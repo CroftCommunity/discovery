@@ -362,7 +362,13 @@ ratcheted; broker functional; InaccessiblePaths confirmed.
 *(Netns for the broker is out of scope here — noted as a follow-on in the review; deep unit hardening
 first.)*
 
-### Phase 4: tenant template / canary (high leverage — 4.7 → recorded ratchet)
+### Phase 4: tenant template / canary — DONE (2026-07-30) ✓ (4.7 → 1.5)
+Deep set folded into the render.py tenant template via a `${sandbox}` block + a `[hardening]` manifest
+table (default-on; `private_users`/`mdwe`/`syscall_filter` overridable per tenant). Regenerated
+`generated/`; canary converged to **1.5**, active, `/healthz` 200, `PrivateUsers` effective, can't read
+broker state. Fixed a tenants-role gap (a unit change wasn't restarting the tenant — added a restart
+handler). 3/3 hermetic tenant bats + render.bats regression green. Session:
+`sessions/2026-07-30-hardening-phase4-tenants.md`.
 - [ ] `tenants/tests/test_tenant_hardening.bats` (or extend the render test): assert the **rendered**
   `config-templates/service.service.tmpl` carries the baseline deep set, and that the riskier directives
   (`SystemCallFilter`, `MemoryDenyWriteExecute`, `PrivateUsers`) are **overridable per manifest** with a
