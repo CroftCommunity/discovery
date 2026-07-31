@@ -66,7 +66,7 @@ Graze: the comment collapse gutter).
 | Build | Genre | Current tier (ships now) | Large-tier target (the real backend) |
 |---|---|---|---|
 | **Stellin** (was "Meridian") | Professional networking (LinkedIn-shape) | **mock** — `stellin.app` · repo `CroftCommunity/stellin` · persona-switch PWA | atproto AppView "Stellin by Croft" — `seeds/stellin-unpacked/` RUN-14/15 appview-infra; `research/stellin-name-clearance-2026-07.md`; `NAMING.md` → "App-layer naming" |
-| **Graze** | Topic aggregation / forum (Reddit-shape) | **mock** — `graze.ing` · repo `CroftCommunity/graze` · persona-switch PWA | **contested — see below.** The build spec assumes Next.js + Postgres; the corpus's active forum plan (`plans/2026-07-27-read-first-forum-mvp.md`) chose a read-first lens over the public Bluesky AppView |
+| **Graze** (forum-layer name moving to **Amble by Croft** — pending clearance, 2026-07-31; built mock unrenamed) | Topic aggregation / forum (Reddit-shape) | **mock** — `graze.ing` · repo `CroftCommunity/graze` · persona-switch PWA | **contested — see below.** The build spec assumes Next.js + Postgres; the corpus's active forum plan (`plans/2026-07-27-read-first-forum-mvp.md`) chose a read-first lens over the public Bluesky AppView. Name clearance: `research/amble-name-clearance-2026-07.md`; `NAMING.md` → Forum-layer (2026-07-31) |
 
 Per-build filed material:
 
