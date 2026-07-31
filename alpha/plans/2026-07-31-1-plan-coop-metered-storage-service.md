@@ -159,9 +159,16 @@ a re-entry check; default remains sequential.
 notes, **no code write-set** — and Phases 1–3 port pure ledger logic (crypto / items / manifest /
 receipts) that does **not** depend on the atproto/rsky/storage findings. So Phase 0 need not block the
 port start; they are disjoint (notes vs the crate). Phase 0's findings must land before **Phase 4's
-persistence** (needs D5's per-user-SQLite layout) and **Phases 7–8** (need D1/D2/D3/D6). **{7,8} audited:
+persistence** (needs D5's per-user-SQLite layout) and **Phases 7–8** (need D1/D2/D3/D6/**D7**). **{7,8} audited:
 NOT parallel** — Phase 8 depends on Phase 7's server and shares `server.rs` / `Cargo.toml` (overlapping
 write-set). The code spine (1→…→9) stays sequential.
+
+**[Pass 3] Isolation invariant if Phase 0 and Phases 1–3 are run by separate agents.** Invariant: the
+Phase 0 agent writes **only discovery notes** (into this plan doc / a scratch notes path), **never** under
+`experiments/item-store/`, and runs **no `git` mutation** in the crate worktree. Re-entry check: `git
+status` in the crate shows only the Phase 1–3 agent's files; main-repo HEAD == the pre-dispatch SHA; no
+orphaned fetch process. Default execution remains **sequential** — Phase 0 is a user-reviewed checkpoint,
+so the overlap is a permitted optimization, not the planned path.
 
 ## Phases
 
@@ -203,6 +210,14 @@ inference. Network is open — fetch real sources.
   interface exposed to clients** (our metering boundary, v0). **Success:** a confirmed statement of what
   the official PDS does for blobs + how our S3-compatible client interface differs from a backend S3
   store. **Disposition:** throwaway → feeds Phase 7 (which "S3" is the boundary).
+- [ ] **D7: telemetry/observability contract + the governed envelope (local docs; Pass-3 addition).**
+  **Probe:** read `plans/croft-stack/telemetry-client-plan.md` and `plans/croft-stack/service-hardening-plan.md`
+  locally — confirm (a) the metrics/log **format the telemetry poller scrapes** from a unit (so Phase 7's
+  `tracing` output is *consumable*, not invented) and (b) the resource **envelope** (limits) a new unit must
+  stay within. **Success:** a written statement of the poller's expected metric/log shape + the envelope
+  ceilings the metered store must respect. **Disposition:** throwaway → feeds **Phase 7 instrumentation
+  design** (so we don't emit tracing the poller can't read) + **Phase 9 telemetry wiring**. Not blocking
+  (internal docs, not an external API), but must land before Phase 7's observability is built.
 
 **Done when:** all BLOCKING open questions below are resolved, Verified Assumptions updated with
 firsthand evidence, and Phases 7/8 re-sized if D3 changes their scope (record in Review Log).
@@ -216,7 +231,11 @@ crate** (its own `Cargo.toml`; no experiments-wide Rust workspace) under `experi
 Open Question on repo/IP home). **Port oracle = the dependency-free `item-storage-protocol-standalone/`**
 (the 81/81 build); cross-check the full `item-storage-protocol/` for E4/E7–E9 detail if needed. **Preserve
 the SPEC's `SEAM:` grep discipline** — every place a mock stands in for real infra gets a `SEAM:` comment
-so production gaps stay enumerable by grep.
+so production gaps stay enumerable by grep. **Test invocation (Pass 3):** because `item-store` is a
+**standalone crate** (not a workspace member), run `cargo test` **from `experiments/item-store/`** — `-p
+item-store` is a workspace-package selector and does **not** apply to a standalone crate; filter by name
+(`cargo test e0`) or target a specific integration binary (`cargo test --test e0_identity`). The
+per-phase Verification commands below use this form.
 
 ### Phase 1: Crate skeleton + crypto/identity (port E0)
 **Goal:** A Rust crate that generates keypairs, derives stable ids, signs/verifies — E0's "we recognize
@@ -228,18 +247,26 @@ you the same way we count you."
   secret material per rust-enforcer).
 - [ ] `src/identity.rs` — deterministic id derivation from pubkey; pin/verify peer keys.
 - [ ] `README.md` — the crate's purpose + the cross-ref to `item-storage-protocol`.
+- [ ] **[Pass 3, Doc-Impact] Update `experiments/item-storage-protocol/README.md`** — cross-reference the
+  Rust port as the productionization. This is the scheduled Documentation-Impact edit landing in the phase
+  that first makes it stale (Phase 1 creates the port it must point to), not a trailing docs phase.
 **Call chain:** `tests/e0` → `identity::derive`/`crypto::{sign,verify}`.
 **Wiring test:** `tests/e0_identity.rs` — a message signed by A verifies under A's pinned key and fails
 under B's; id derivation deterministic (ports E0's 4 assertions). RED → GREEN.
 **Depends on:** Phase 0 (D5 storage choice informs nothing here; independent).
 **Read-set:** `experiments/item-storage-protocol/src/crypto.ts`, `.../e0-identity.ts` (reference).
-**Write-set:** `experiments/item-store/{Cargo.toml,src/lib.rs,src/crypto.rs,src/identity.rs,README.md,tests/e0_identity.rs}`.
+**Write-set:** `experiments/item-store/{Cargo.toml,src/lib.rs,src/crypto.rs,src/identity.rs,README.md,tests/e0_identity.rs}`
++ `experiments/item-storage-protocol/README.md` (the cross-ref edit above).
 **Shared-state contract:** no shared mutable state beyond the file write-set; standalone crate, so no
 workspace `Cargo.toml` to touch (Pass-2 verified: no experiments-wide Rust workspace).
 **Risks:** Rust Ed25519 crate choice (`ed25519-dalek`) vs the TS lib — confirm the same curve/encoding so
 signatures are comparable to the oracle.
+**Observability:** Library crate — the primary observable is the **typed error surface** (`thiserror`;
+fail-loud on verify/derive failure, no silent fallback per the global rule). Add `tracing` at the crate
+root; emit a WARN event on a signature/verify failure carrying the key **fingerprint** (never the secret —
+Zeroize-wrapped keys must not `Debug`-print or serialize). No logging in the pure hash/derive path.
 **Done when:** (1) *Behavioral:* the crate signs/verifies and derives ids matching the TS E0 behavior;
-(2) *Verification:* `cargo test -p item-store e0` green.
+(2) *Verification:* `cargo test e0` green (from `experiments/item-store/`; standalone crate — no `-p`).
 **Validation:** Narrow — wiring + unit tests sufficient.
 
 ### Phase 2: Content-addressed items + signed manifest (port E1–E2)
@@ -259,8 +286,11 @@ claims detected. RED → GREEN.
 **Write-set:** `experiments/item-store/src/{item.rs,manifest.rs}`, `.../tests/e{1,2}_*.rs`.
 **Shared-state contract:** none beyond write-set.
 **Risks:** Merkle domain-separation must match the TS root construction to stay oracle-comparable.
+**Observability:** Typed errors (`thiserror`) for tamper / root-mismatch — fail-loud, never a silent
+accept. `tracing` WARN on a manifest-root mismatch or a byte-flip detection, carrying the offending
+fingerprint + expected-vs-got root; DEBUG on manifest build (item count, total bytes).
 **Done when:** (1) items round-trip + tamper detected; manifest root + expected-bytes correct; (2)
-`cargo test -p item-store e1 e2` green.
+`cargo test e1 e2` green.
 **Validation:** Narrow.
 
 ### Phase 3: Transfer receipts — postage metering (port E3)
@@ -292,8 +322,11 @@ walkaway exposure bounded. RED → GREEN.
 **Write-set:** `experiments/item-store/src/{ledger.rs,receipts.rs}`, `.../tests/e3_receipts.rs`.
 **Shared-state contract:** ledger files under the crate's tmp/test dir only.
 **Risks:** canonical serialization for signing (must be deterministic) — port `canonical.ts` faithfully.
-**Done when:** (1) postage metered by signed receipts, walkaway bounded; (2) `cargo test -p item-store
-e3` green.
+**Observability:** First half of the **metering byte-path trail** Phase 7 exposes at the HTTP boundary.
+`tracing` INFO per receipt (mode `Unilateral`/`Bilateral`, direction, fingerprint, byte range, running
+total, ts); WARN on a forged-count / signature failure carrying the failing entry; DEBUG on ledger append
+(entry index, running total). The mode-selection `SEAM:` logs which mode the trust policy chose and why.
+**Done when:** (1) postage metered by signed receipts, walkaway bounded; (2) `cargo test e3` green.
 **Validation:** Narrow.
 
 ### Phase 4: Balance-forward statements — the monthly close (port E4)
@@ -320,7 +353,11 @@ integral; any historical edit located. RED → GREEN.
 **Write-set:** `experiments/item-store/src/statements.rs`, `.../tests/e4_statements.rs`.
 **Shared-state contract:** none beyond write-set.
 **Risks:** byte-day integration over a period timeline — port the time model (`time.ts`) exactly.
-**Done when:** (1) monthly statements co-signed + chained, rent correct; (2) `cargo test ... e4` green.
+**Observability:** `tracing` INFO per statement close (period, opening/closing root, rent, postage, fees);
+WARN on a chain-verify failure carrying the exact broken link; INFO on **purge** (period, receipt count
+dropped, chain-still-verifies confirmation). The purge log is the audit trail that granular receipts were
+dropped legitimately (provenance preserved by the co-signed chain).
+**Done when:** (1) monthly statements co-signed + chained, rent correct; (2) `cargo test e4` green.
 **Validation:** Narrow.
 
 ### Phase 5: Spot-checks + the audit dial (port E5–E6)
@@ -330,16 +367,24 @@ integral; any historical edit located. RED → GREEN.
   randomness challenge seeding.
 - [ ] `src/dial.rs` — audit tiers, cost linear in audit count, chosen tier as a signed declaration.
 - [ ] `tests/e5_audit.rs`, `tests/e6_dial.rs` — port incl. the measured-vs-predicted detection table +
-  linear-cost + pro-rate-on-change.
+  linear-cost + pro-rate-on-change. **[Pass 3, mutation-resistance]** assert the *relationship* across k,
+  not a single happy-path point: boundary cases `f=0` (no faults → detection 0 for any k), `k=0` (no
+  sample → no detection), `k=1` (detection ≈ f), and full-corpus k (detection → 1). Dial cost: assert no
+  discount/step at the tier edges (the boundary sample points), not one interior value.
 **Call chain:** `tests/e5/e6` → `audit::sample`/`dial::price` → `manifest` + `ledger`.
 **Wiring test:** `tests/e5_audit.rs` — measured detection ≈ `1−(1−f)^k` within tolerance; honest provider
 passes; cost scales with k, not corpus size. RED → GREEN.
 **Depends on:** Phase 4.
-**Read-set:** `.../src/audit.ts`, `.../e{5,6}-*.ts`.
+**Read-set:** `.../src/audit.ts`, `.../exp/e5_audits.ts`, `.../exp/e6_dial.ts` (**[Pass 3 spot-check]** the
+standalone has **no `dial.ts` src module** — the dial/pricing logic lives in `src/pricing.ts` + the
+`exp/e6_dial.ts` experiment; `dial.rs` is a new consolidation, oracle = those assertions).
 **Write-set:** `experiments/item-store/src/{audit.rs,dial.rs}`, `.../tests/e{5,6}_*.rs`.
-**Shared-state contract:** seeded RNG only (port `prng.ts` for determinism).
+**Shared-state contract:** seeded RNG only (port `rng.ts` for determinism — standalone name; not `prng.ts`).
 **Risks:** Monte-Carlo tolerance flakiness — seed the RNG (deterministic, per the SPEC).
-**Done when:** (1) detection math holds + dial priced at cost; (2) `cargo test ... e5 e6` green.
+**Observability:** `tracing` INFO per spot-check (k, sampled fingerprints, pass/fail, measured detection);
+WARN on a failed sample (which fingerprint, expected-vs-got); DEBUG on dial price (tier, cost). **Log the
+deterministic RNG seed** so a flaky Monte-Carlo run is reproducible from the log alone.
+**Done when:** (1) detection math holds + dial priced at cost; (2) `cargo test e5 e6` green.
 **Validation:** Moderate — also eyeball the measured-vs-predicted table.
 
 ### Phase 6: Seal + tombstone + grace (port E7–E9)
@@ -355,12 +400,17 @@ grace ledger (waivers + deceased-member hold net to zero). E7–E9.
 **Wiring test:** `tests/e7_seal.rs` — no write path succeeds post-ceremony; direct mutation caught vs
 pinned root; postage over sealed period == audit reads. RED → GREEN.
 **Depends on:** Phase 5.
-**Read-set:** `.../src/seal.ts`, `.../e{7,8,9}-*.ts`.
+**Read-set:** `.../src/seal.ts`, `.../exp/{e7_seal,e8_tombstone,e9_grace}.ts` (**[Pass 3 spot-check]** no
+`grace.ts` src module — grace logic lives in `src/ledger.ts` + `exp/e9_grace.ts`; `grace.rs` is new,
+oracle = those assertions).
 **Write-set:** `experiments/item-store/src/{seal.rs,grace.rs}`, `.../tests/e{7,8,9}_*.rs`.
 **Shared-state contract:** none beyond write-set (key "destruction" is a mock file delete under tmp).
 **Risks:** the seal's fail-closed write path is a `SEAM:` (mock key deletion) — mark it; real
 key-destruction is a later spike.
-**Done when:** (1) sealed/tombstone verified, grace balances; (2) `cargo test ... e7 e8 e9` green. This
+**Observability:** The fail-closed path must be **loud** — a silent denied write is a bug. `tracing` WARN
+on any post-seal write attempt (denied, with the pinned root); INFO on ceremony + tombstone (which cred
+"destroyed" — the mock `SEAM:`); INFO on grace events (event kind, running grace balance netting to zero).
+**Done when:** (1) sealed/tombstone verified, grace balances; (2) `cargo test e7 e8 e9` green. This
 completes the **E0–E9 ledger core in Rust** (parity with the TS oracle).
 **Validation:** Moderate — run the full crate suite; compare pass-count to the TS reference.
 
@@ -390,10 +440,22 @@ Phase 0 (D1 HTTP/S3 crate choice, D3 boundary shape, D5/D6 backend + which "S3" 
 writes blobs under a tmp dir / a local Garage instance scoped to the test.
 **Risks:** S3 API compatibility surface is large — implement the **minimal** put/get subset for v0, mark
 the rest `SEAM:`. Port count / async runtime (tokio) discipline.
+**Observability:** The metering byte-path must be **traceable end-to-end** (the phase where the receipt/
+ledger writes, the HTTP boundary, and the byte-count meet). Structured `tracing` events, format aligned to
+**Phase 0 D7's poller contract**: per HTTP request at the boundary — method, object key, status,
+bytes-in/out (INFO); per receipt written — receipt id, mode, running total, ledger index (INFO); backend
+write/read — `BlobStore` impl, CID, byte count (DEBUG); **fail-loud WARN/ERROR on any byte-count mismatch
+between the HTTP boundary and the receipt** (the metering-integrity invariant). Log the bound ephemeral
+port (DEBUG) so a leaked port is diagnosable. These are exactly the events Phase 9 wires to the telemetry
+poller — build them to D7's shape now, not retrofit at deploy.
 **Done when:** (1) *Behavioral:* I can `PUT`/`GET` a real object over HTTP and the transfer is metered
-with a signed receipt + a recomputable rent; (2) *Verification:* `cargo test -p item-store
-wiring_s3_metered` green + a manual `curl PUT/GET` against a locally-run instance.
-**Validation:** Moderate — run the server, exercise put/get with `curl`, inspect the ledger.
+with a signed receipt + a recomputable rent; (2) *Verification:* `cargo test --test wiring_s3_metered`
+green (from the crate dir; standalone — no `-p`) + a manual `curl PUT/GET` against a locally-run instance.
+**Validation:** Broad — first real integration (HTTP + a real blob backend + the metering wiring).
+Out-of-harness checks: `curl` PUT then GET a real object against a locally-run instance; inspect the
+per-user SQLite to confirm the receipt + running total; **assert the HTTP-boundary byte count == the
+receipt byte count** (metering integrity); recompute rent from the manifest independently; confirm the
+ephemeral test port is released afterward (no leak).
 
 ### Phase 8: Minimal atproto PDS API surface — the thin blob-endpoint layer (in v0, confirmed 2026-07-31)
 **Goal:** Serve the minimal atproto PDS endpoints (at least `getBlob`/`uploadBlob`, plus whatever D2/D3
@@ -414,9 +476,16 @@ Phase 0 D2/D3/D6 set the exact endpoint set + shapes; the phase is **not gated o
 **Shared-state contract:** same as Phase 7 (ephemeral port, tmp storage).
 **Risks:** must match the **verified** atproto shapes from D2 exactly — no guessing (global rule). If the
 full PDS surface is large, ship only the blob subset for v0 and mark the rest `SEAM:`/tracked.
-**Done when:** (1) an atproto `uploadBlob`/`getBlob` round-trip works and is metered; (2) `cargo test ...
-wiring_pds_blob` green + a manual probe against a locally-run instance.
-**Validation:** Broad — verify against the atproto shapes; check the response matches the spec.
+**Observability:** `tracing` at the atproto boundary — per `uploadBlob`/`getBlob`: endpoint, blob CID,
+byte count, and **the metered receipt id it produced** (INFO); WARN on an atproto-shape mismatch vs D2.
+Reuses Phase 7's byte-path trail (the metering hook is shared); this phase adds only the atproto-surface
+span so the two boundaries are distinguishable in the telemetry.
+**Done when:** (1) an atproto `uploadBlob`/`getBlob` round-trip works and is metered; (2) `cargo test
+--test wiring_pds_blob` green (crate dir; no `-p`) + a manual probe against a locally-run instance.
+**Validation:** Broad — out-of-harness: probe `uploadBlob`/`getBlob` against a locally-run instance
+(`curl` or a minimal atproto client) and **diff the response against the D2-confirmed atproto shape**
+(no guessing — global rule); confirm the round-trip is metered (receipt present) via the SQLite + the
+Phase 7 byte-path trace.
 
 ### Phase 9: croft-stack deploy + VPS smoke test
 **Goal:** Deploy the built binary on the VPS via croft-stack as a governed, hardened, isolated service we
@@ -427,23 +496,40 @@ can test against.
 - [ ] croft-stack role/wiring for the binary (build/ship, systemd unit via the template, telemetry
   poller, hardening baseline, netns isolation).
 - [ ] a smoke test / canary hitting the deployed put/get (and blob endpoint if Phase 8 shipped).
+- [ ] **[Pass 3, Doc-Impact] the scheduled doc edits that go stale at deploy** — in `discovery`:
+  `ECOSYSTEM.md` §5c-3 (add the deployed-service row), `COHESION.md` §65 (v0-runs status note),
+  `ROADMAP_TODO.md` E82 (status → deployed/live), the lane doc's "Next step",
+  `plans/croft-stack/README.md` (the plan index notes the live service); in the **croft-stack repo**:
+  register the service in its `services/*` set + repo docs. These land in Phase 9 because deploy is what
+  makes them stale — not a trailing docs phase.
 **Call chain:** `render.py` → Ansible converge → systemd unit → the running service; canary → HTTP put/get.
 **Wiring test:** a deploy smoke test (put/get against the live VPS instance) — the service is reachable,
 metered, and governed (telemetry shows it).
 **Depends on:** Phase 7 (and Phase 8 if in v0). **This phase writes in the `croft-stack` repo**, not
 `discovery` — its own write-set, committed there.
 **Read-set:** croft-stack `00-model-and-manifests.md`, `service-hardening-plan.md`, `netns-isolation-plan.md`,
-the tenant template.
-**Write-set:** `croft-stack/services/<name>.toml`, the role files, the canary config.
+`telemetry-client-plan.md` (**[Pass 3]** the poller contract), the tenant template; **Phase 0 D7 notes**.
+**Write-set:** **two repos** — (croft-stack) `services/<name>.toml`, the role files, the canary config +
+repo docs; (discovery) `ECOSYSTEM.md`, `COHESION.md`, `ROADMAP_TODO.md`,
+`plans/2026-07-31-coop-storage-metered-hosting-lane.md`, `plans/croft-stack/README.md`. **Two commits, two
+repos** (croft-stack deploy; discovery doc/status) — do not cross-commit.
 **Shared-state contract:** touches the VPS (a real deploy) — governed envelope + netns; this is the one
 phase with real external side effects. Coordinate with the estate (ports, DNS/TLS, identity block).
 **Risks:** the VPS is production estate — deploy behind the hardening baseline + netns from the first;
 confirm no port/identity collision with existing services (relay/broker/telemetry/canary/caddy).
+**Observability:** This is the **telemetry-poller integration** phase. Wire the Phase 7/8 `tracing` output
+to the croft-stack telemetry poller per **D7's confirmed contract**; confirm the byte-path/receipt events
+are visible in the **estate's telemetry** (not just local stdout) and that the unit's metrics land
+**within the governed envelope** (telemetry-within-envelope). Verify **no secret material** (keys) reaches
+the logs. If the poller can't read the format, that is a Phase 7 instrumentation bug surfaced here — fix
+upstream, do not paper over at deploy.
 **Done when:** (1) *Behavioral:* the metered store is reachable on the VPS and a put/get round-trip is
 metered + telemetered; (2) *Verification:* the smoke test passes against the live instance + telemetry
 shows the unit within its envelope.
-**Validation:** Broad — real deploy; verify logs, telemetry, hardening (`systemd-analyze security`), and
-the put/get path end-to-end in a prod-like setting.
+**Validation:** Broad — real deploy; out-of-harness: `curl` PUT/GET against the live fqdn; verify logs,
+telemetry-**within-envelope**, and hardening (`systemd-analyze security` on the unit); confirm no
+port/identity collision with existing services; check the byte-path/receipt events surface in the estate
+telemetry, end-to-end in a prod-like setting.
 
 ### Phase 10 (tracked, later — gated): history-convergence consumer/meer mode
 **Goal:** Wire the content-blind meer mode so the MLS history-convergence server uses this store as its
@@ -541,3 +627,77 @@ content-blind.
 - The E0–E9 port target is complete + proven (81/81). The two-layer split, per-user-SQLite co-location,
   rollup/purge, and the two-mode receipt hold up under review. **No new open questions; no Pass-1 severity
   revised.**
+
+### Pass 3: Quality Gates — 2026-07-31
+Spot-checked the codebase first: all touch points resolve — the standalone oracle
+(`experiments/item-storage-protocol-standalone/src/` with `item/receipt/statement/clock/rng/pricing.ts` +
+`crypto/manifest/ledger/audit/seal/canonical` + `exp/e0_identity.ts … e11_financing.ts`), the full
+`item-storage-protocol/{README.md,SPEC.md}` (SEAM discipline at SPEC.md:225), the internal Rust spikes
+(`hist-atproto-spike`, `lexicon-community`), `appview-infra/GROUPS.md`, all `plans/croft-stack/*` (incl.
+`telemetry-client-plan.md`, `10-drystone-layer.md`), `ROADMAP_TODO` E82, `ECOSYSTEM` §5c-3/§5e, `COHESION`
+§65, the lane doc. `item-store` not yet created (expected). Two spot-check facts folded into read-sets:
+the standalone has **no `dial.ts`/`grace.ts` src modules** (logic in `pricing.ts`/`ledger.ts` + the
+`exp/e6_dial.ts`/`e9_grace.ts` experiments), and the RNG module is `rng.ts` (not `prng.ts`).
+
+**TDD ordering:**
+- Every impl phase already RED-first with a named wiring test (`tests/e*_*.rs`, `wiring_s3_metered.rs`,
+  `wiring_pds_blob.rs`, Phase 9 deploy smoke test) failing before code, green at end — confirmed, no
+  change needed.
+- **Verification-command fix (real defect):** Phases 1/2/3/7 used `cargo test -p item-store …`, but Pass 2
+  established `item-store` is a **standalone crate, not a workspace member**, so `-p` (a workspace-package
+  selector) is wrong. Added a preamble Test-invocation note and normalized every Verification command to
+  `cargo test <filter>` / `cargo test --test <binary>` run from the crate dir (also de-ellipsized the
+  `cargo test ...` shorthands in Phases 4/5/6/8).
+- **Mutation-resistance (Phase 5):** its detection-math/threshold tests were single-table; added explicit
+  boundary cases (`f=0`, `k=0`, `k=1`, full-corpus k) + tier-edge assertions for the dial, and required
+  asserting the *relationship* across k, not one interior point.
+- rust-enforcer discipline (no `unwrap` in prod, `Result`/`thiserror`, Zeroize on keys, doc comments,
+  `clippy::pedantic`) confirmed in the preamble + Phase 1; Observability additions reinforce the
+  fail-loud / no-`Debug`-print-of-secrets rules.
+
+**Observability:**
+- The plan had **no** logging/metrics declarations — the biggest gap. Added an **Observability** field to
+  every phase, calibrated: Phases 1–6 (library) = typed-error surface + `tracing` WARN on verify/tamper/
+  chain/seal failures, DEBUG on appends, seed logged for the Monte-Carlo phase, fail-closed writes logged
+  loud, secrets never printed. Phases 7–9 (the user's focus) = the full **metering byte-path** trail (HTTP
+  boundary method/key/status/bytes; receipt id/mode/running-total/ledger-index; backend CID/bytes;
+  fail-loud on any boundary-vs-receipt byte-count mismatch = the metering-integrity invariant), the atproto
+  boundary span (endpoint/CID/receipt-id), and the **telemetry-poller integration** at Phase 9.
+- Added **Phase 0 D7** (read `telemetry-client-plan.md` + `service-hardening-plan.md`) so Phase 7's
+  `tracing` output is built to the poller's confirmed contract + the governed envelope, not invented; D7
+  disposition = throwaway; wired into the Concurrency Map ("before Phases 7–8") and Phase 9's read-set.
+
+**Debugging readiness:**
+- Phase boundaries are already commit-at-green checkpoints; each wiring test is the health gate. The new
+  byte-count-mismatch WARN/ERROR (Phase 7) and the seed-logging (Phase 5) make the two flakiest paths
+  self-diagnosing. Phase 9 read-set now includes the telemetry plan so a deploy-time telemetry gap traces
+  back to the D7 contract.
+
+**Validation calibration:**
+- **Phase 7 upgraded Moderate → Broad** (first real integration: HTTP + blob backend + metering) with
+  named out-of-harness checks (curl PUT/GET, SQLite receipt inspection, boundary-vs-receipt byte-count
+  assertion, rent recompute, port-leak check). Phase 8 (Broad) given a concrete probe (diff response vs
+  the D2-confirmed atproto shape). Phase 9 (Broad) named `systemd-analyze security`, telemetry-within-
+  envelope, live-fqdn curl, port/identity-collision check. Phases 1–6 Narrow/Moderate left as-is
+  (pure-logic port, appropriate).
+- Phase 0 discovery tasks all carry a concrete question/probe/success + a **disposition** (all `throwaway`);
+  D7 added in the same shape. None could be resolved during planning (they need live fetches / local reads
+  at execution).
+
+**Concurrency honesty:**
+- Concurrency Map accounts for every phase; code spine sequential (shared `lib.rs`/`Cargo.toml`), {7,8}
+  audited not-parallel. Converted the one real overlap (Phase 0 ∥ Phases 1–3) from a mechanism note to an
+  **invariant + re-entry check** (Phase 0 writes only notes, never the crate, no git mutation in the crate
+  worktree; re-entry: crate `git status` shows only the port agent's files, main HEAD == pre-dispatch SHA).
+  No new parallelism available — the ledger dependency chain is genuinely linear.
+
+**Documentation impact:**
+- The section already scheduled updates per-triggering-phase (no trailing docs phase). **Promoted the
+  scheduled edits to first-class phase checklist items + write-set entries:** Phase 1 now edits the
+  existing `item-storage-protocol/README.md` (cross-ref) — previously only listed in Doc-Impact; Phase 9
+  now has an explicit checklist item + write-set for `ECOSYSTEM §5c-3`, `COHESION §65`, `ROADMAP_TODO`
+  E82, the lane "Next step", `plans/croft-stack/README.md`, and the croft-stack `services/*` registration,
+  with a **two-repo / two-commit** note (croft-stack deploy vs discovery docs).
+
+**Confirmed ready:** yes — pending the two prior-confirmed PHASE-GATED items (repo/IP home + service name
+at Phase 9) and BLOCKING-resolved boundary shape (already resolved: both). No new open questions.
