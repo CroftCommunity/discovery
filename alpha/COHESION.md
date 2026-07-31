@@ -1741,6 +1741,24 @@ pond. Seams:
 
 Backlog: ROADMAP_TODO E46 (appended, not a new item).
 
+## 63. 2026-07-30 — the behavior-scale methodology + the Stellin & Graze builds ↔ the appview/forum work
+
+> Naming note (2026-07-31): the founding dialogue called this "the behavioral twin"; renamed
+> **behavior-scale** ("twin" implied exactly two deployments — it is one behavioral model across a
+> **mock → small → medium → large** backend continuum). Terms below use the new name.
+
+**Incoming:** two claude.ai design dialogues (filed `seeds/transcripts/raw/stellin-graze-behavior-scale-sessions-2026-07.md`) that produced (a) a reusable **behavior-scale / persona-switch** methodology and (b) two built, deployed **mocks** — **Stellin** (`stellin.app`, professional-networking, working name "Meridian") and **Graze** (`graze.ing`, forum). Filed: `thinking/behavior-scale/` (methodology + persona-switch + README/registry); `thinking/app/build-specs/{stellin-meridian-build-prompt,graze-persona-switch-spec,graze-topic-aggregation-build-spec}.md`; `research/{linkedin-ux-architecture,reddit-aggregation-ux-slashdot-baseline}-2026-07.md`.
+
+**CLOSED — an unindexed island wired in.** Before this pass the whole behavior-scale/persona-switch/Meridian body existed only as orphaned files that **no index referenced** (confirmed by a full-corpus sweep). Now cross-linked from ROADMAP_TODO E80, ECOSYSTEM §5c-3 (two live-property rows), NAMING (Stellin app-layer + Forum-layer), and RAW-ARTIFACTS-MANIFEST. The methodology README carries the reusable seed→spec→build pipeline so the next build starts from a home, not from scratch.
+
+**CLOSED — Stellin mock ↔ large-tier backend.** The professional-networking mock (`stellin.app`) is the UX instrument for the atproto "Stellin by Croft" AppView already spiked in the corpus (RUN-14/15 appview-infra, `seeds/stellin-unpacked/`, §46, A18). This is exactly the methodology's continuum: mock (memory substrate, ships now) → large tier (atproto AppView). No conflict — the mock and the appview work are two points on one continuum of the same product. Ties §46 (name-clearance) and A18 (clearance gate).
+
+**DRIFT / fork to reconcile (surface, don't resolve — PLAYBOOK §5) — Graze mock ↔ read-first forum plan.** Two visions of "Graze"/the forum now coexist and assume **different large-tier backends**: (1) the **Graze mock** (`graze-persona-switch-spec.md` §13) whose declared large-tier backend is the **Next.js + Postgres** stack from the Reddit-family aggregation build spec; (2) the corpus's **active forum plan** (`plans/2026-07-27-read-first-forum-mvp.md`, E62/§59) — a **read-first lens over the public Bluesky AppView** (Rust `feed-core`/WASM, no custom backend), on the Social Tree backbone. These are not the same architecture. Under behavior-scale this is a design fork that is the **user's to resolve**; the mock answers "does it behave/feel right," the large-tier backend is a separate decision. **Do not silently merge the two.** Tracked: ROADMAP_TODO E80 [decision].
+
+**CLOSED — graze.ing supersedes forum.croft.ing.** User acquired `graze.ing` (2026-07-30); it is now the forum domain, retiring the `forum.croft.ing` placeholder. Backported to NAMING (Forum-layer), ROADMAP_TODO E73 (acquisition DONE). Note the naming layer still reads the forum as "the read-first lens on the Social Tree backbone" (E62/§59/§61) — consistent as the *product*; the mock is that product's UX instrument, with the backend fork above still open.
+
+Backlog: ROADMAP_TODO E80 (new), E73 (updated).
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
