@@ -220,6 +220,22 @@ glance at bundle time). iroh-blobs/docs/gossip themselves are §1.
 | Google | Gemini Nano (AICore + ML Kit GenAI) | On-device model; strong privacy isolation but steep device cliff (~flagship-only) + weaker structured output | build-on (optional assistant; Android target, fallback-heavy) |
 | — | Bond Touch (and similar) | The "thinking-of-you" bracelet — built a business/account/cloud-relay around ~50 bytes; the anti-pattern the free perpetual ping rebukes | learn↔ (negative example) |
 
+### Client-side / static single-player game projects (from the 2026-07-30 catalog dialogue — dialogue-sourced, pending verification)
+
+Distinct axis from the P2P rows above: **single-player, 100%-client-side, static-hostable** games,
+mapping to the as-built `fun.croft.ing` shelf. **All rows Gemini-sourced and `[UNVERIFIED]`** — repo,
+license, and liveness are the inclusion gates and must be confirmed per-candidate. Only the projects
+that bear on the current plans are rowed here; the full catalog lives in
+`thinking/app/ponds/client-side-static-game-candidates.md`.
+
+| Org/Author | Project | Purpose / relevance | Relationship |
+|---|---|---|---|
+| 0x00EB (attrib. `ebbejan/tux-racer-js`) | **TuxRacer.js** | TypeScript + WebGL rewrite of Extreme Tux Racer; 100% client-side, static-servable; desktop + touch controls. The **Tier-2 wrap pathfinder** (`fun/plans/2026-07-30-tux-racer-wrap-spike.md`) | wrap (Tier 2), pending license/weight/fit verification `[UNVERIFIED]` |
+| Frozen-Bubble project / community | **Frozen Bubble** (+ HTML5/JS ports) | OSS Puzzle Bobble / Bust-a-Move clone (Tux cannon; shoot colored bubbles, pop 3+). GPL/Perl lineage + GPL/CC-BY-SA art → **homage/reference, build fresh** for the Tier-1 bubble shooter (`fun/plans/2026-07-30-bubble-shooter.md`) | homage, learn↔ (do NOT vendor its code) `[UNVERIFIED]` |
+| community (LLVM-based) | **Emscripten** | C/C++ → WASM compiler toolchain (OpenGL→WebGL, audio→Web Audio, input→DOM, disk→RAM VFS). The mechanism behind most Tier-2 C/C++ ports | build-on (Tier-2 ports) [toolchain widely attested; port-specific claims `[UNVERIFIED]`] |
+| maxbittker | **Sandspiel** | OSS falling-sand cellular-automata sandbox in **Rust + WASM** — a kindred-tech Tier-2 wrap candidate (our own core language) | wrap (Tier 2), learn↔ (Rust+WASM game precedent) `[UNVERIFIED]` |
+| SuperTuxKart project / ading2210 (wasm) | **SuperTuxKart (WASM port)** | Mario-Kart-style kart racer; real Emscripten/WASM port (`ading2210/stk-code` wasm branch; live at supertuxkart.pages.dev). **GPL; ~120 MB one-time download / ~500 MB RAM; networking-off/experimental.** **ADOPTED (owner 2026-07-30)** as the first "big-download-then-offline" Tier-2 class (ships with up-front size disclosure) | wrap (Tier 2, heavy class), homage [verified: web 2026-07-30 — repo + live demo] |
+
 ## 5e. AT Proto PDS self-hosting: implementations, hosts & blob-storage backends (from the 2026-06-22 atproto/PDS dialogue)
 
 Surfaced and web-verified 2026-06-22 (see
