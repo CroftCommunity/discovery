@@ -11,7 +11,7 @@
 | 0 Discovery | DONE | `e5f0004` | 7 tasks resolved firsthand; D7 corrected telemetry to cgroup-accounting; no v0 blocker. |
 | 1 crypto/identity (E0) | SHIPPED | `8389a0e` | Deterministic Ed25519 derive + id derivation + sign/verify/pin; 9 tests, clippy/fmt clean. |
 | 2 items + manifest (E1–E2) | SHIPPED | `9476b97` | Content-addressed `Item`/`ContentStore` (tamper-evident, dedup) + canonical signed Merkle manifest; 19 tests. |
-| 3 receipts (E3) | pending | — | |
+| 3 receipts (E3) | SHIPPED | `b31be48` | Two-mode receipts (Bilateral/Unilateral) + append-only signed ledger + canonical serialization; walkaway/forgery caught; 30 tests. |
 | 4 statements (E4) | pending | — | |
 | 5 audit + dial (E5–E6) | pending | — | |
 | 6 seal + grace (E7–E9) | pending | — | |
@@ -102,6 +102,18 @@ search don't coexist without a delegate (or searchable-encryption) — a Phase-1
 v0 realises: interface {S3, atproto-blob}, index {flat}, backend {FS→pluggable}, confidentiality
 {payload-agnostic — we meter ciphertext or plaintext identically}. MST/RBSR/records + blind-vs-delegate
 tiers are tracked (E85, D4, `HS OC-2`), not v0.
+
+**Access model — public-read, authorized-write (user framing, 2026-07-31).** Like a real atproto PDS
+(and a unix `774`): the byte layer is **public-read by default** (`getBlob`/`getRecord`/firehose are
+public — anyone fetches bytes) and **writes are authorized** to the owner DID + **delegated capabilities**
+(OAuth scopes / capability grants — "some can write"; ties E83's delegate idea + the social-trust layer).
+Metering is orthogonal (billing ≠ access control). **Load-bearing caveat:** a read-ACL is *not*
+server-enforceable in a blind/replicated model — a content-blind store can't police plaintext it can't
+see, and public replication defeats "deny read." So **"private" is done by encryption (axis 4), not a
+server read-bit**: `chmod`-style authz governs *byte* access (public-read / authorized-write); *encryption*
+governs *plaintext* access (the group holds keys; the server is not the confidentiality trust anchor —
+the local-first/atproto stance). Lands at the **interface/auth layer (Phase 7/8)** on the Phase 8
+`uploadBlob` auth `SEAM:`, not in the E0–E9 core; tracked in Open Questions.
 
 **Where Layer 2's records live (user framing, 2026-07-31).** The metering records are themselves
 **signed, append-only, per-DID records of the same shape as user content** — so they are stored the same
@@ -428,7 +440,15 @@ fingerprint + expected-vs-got root; DEBUG on manifest build (item count, total b
 `cargo test e1 e2` green.
 **Validation:** Narrow.
 
-### Phase 3: Transfer receipts — postage metering (port E3)
+### Phase 3: Transfer receipts — postage metering (port E3) — SHIPPED (`b31be48`)
+**Delivered (2026-07-31):** `canonical.rs` (deterministic sorted-key/no-whitespace serialization, `SEAM:`
+for DAG-CBOR) + `ledger.rs` (append-only hash-linked signed ledger + `verify_entries` chain/signature
+re-verification) + `receipts.rs` (two-mode receipt: `Bilateral` co-signed | `Unilateral` provider-signed
+our-side measurement + walkaway + `from_parts` reconstruction; mode-selection `SEAM:`). Wiring test
+`e3_receipts.rs`: receipts flow into both ledgers, the chain re-verifies end-to-end, totals reconcile;
+forged-byte-count / walkaway-bounded / unilateral-not-co-attested adversarials. +`serde`/`serde_json`.
+30 tests; clippy pedantic + fmt clean. **Write-set expanded:** added `canonical.rs` (prerequisite for
+hashing/signing) + `Cargo.toml` serde deps.
 **Goal:** Transfer receipts per increment in **two modes** — **unilateral** (provider-signed "our-side
 measurement," valid by the trust relationship) and **bilateral** (both parties co-sign — the co-attested,
 third-party-verifiable form). The **social-trust layer selects the mode** per transfer (size / sensitivity
@@ -454,7 +474,8 @@ must use bilateral mode — the two-mode design stays forward-compatible.
 walkaway exposure bounded. RED → GREEN.
 **Depends on:** Phase 2.
 **Read-set:** `.../src/{ledger,receipts}.ts`, `.../e3-*.ts`.
-**Write-set:** `experiments/item-store/src/{ledger.rs,receipts.rs}`, `.../tests/e3_receipts.rs`.
+**Write-set:** `experiments/item-store/src/{ledger.rs,receipts.rs,canonical.rs}`, `.../tests/e3_receipts.rs`,
+`Cargo.toml` (serde deps). ([Pass-3-shipped] `canonical.rs` added — prerequisite for deterministic hashing/signing.)
 **Shared-state contract:** ledger files under the crate's tmp/test dir only.
 **Risks:** canonical serialization for signing (must be deterministic) — port `canonical.ts` faithfully.
 **Observability:** First half of the **metering byte-path trail** Phase 7 exposes at the HTTP boundary.
@@ -601,7 +622,9 @@ green (from the crate dir; standalone — no `-p`) + a manual `curl PUT/GET` aga
 Out-of-harness checks: `curl` PUT then GET a real object against a locally-run instance; inspect the
 per-user SQLite to confirm the receipt + running total; **assert the HTTP-boundary byte count == the
 receipt byte count** (metering integrity); recompute rent from the manifest independently; confirm the
-ephemeral test port is released afterward (no leak).
+ephemeral test port is released afterward (no leak). **[E86] Run the end-to-end abuse suite here** —
+drive the live engine and actively try to break it (forge/replay receipts, inflate manifest, tamper at
+rest across the boundary, walkaway, double-count audit, malformed input).
 
 ### Phase 8: Minimal atproto PDS API surface — the thin blob-endpoint layer (in v0, confirmed 2026-07-31)
 **Goal:** Serve the minimal atproto PDS endpoints (at least `getBlob`/`uploadBlob`, plus whatever D2/D3
@@ -777,6 +800,21 @@ content-blind.
   MST-like content-addressed object index only if/when we host atproto records, the flat manifest's O(n)
   re-sign hurts at scale, or we need compact audit-inclusion / sync-diff proofs. Keep manifest/index
   addressing **pluggable** (same seam as D4 / `HS OC-2`). Not a v0 blocker.
+- [CONFIRMED: PHASE-GATED (Phase 7/8)] **Access model — public-read, authorized-write.** DECIDED (user,
+  2026-07-31): the PDS/unix-`774` shape — byte layer **public-read by default**; **writes authorized** to
+  the owner DID + delegated capabilities (OAuth scopes / capability grants). Metering orthogonal. **"Private"
+  = encryption (axis 4), not a server read-ACL** (unenforceable in a blind/replicated model — the server is
+  not the confidentiality trust anchor). Lands on the Phase 8 `uploadBlob` auth `SEAM:` (v0 mocks auth);
+  not an E0–E9-core concern. Delegation ties E83 + the social-trust layer.
+- [CONFIRMED: ADVISORY — tracked E86] **Test-hardening for a sensitive/complex engine.** DECIDED (user,
+  2026-07-31): beyond per-phase wiring tests, three layers — (1) **paired rejection tests** (every verify
+  path gets a should-fail-for-sure negative, not just a happy path — apply now, per phase); (2) **mutation
+  testing** (`cargo-mutants`) + **property tests** (`proptest`: canonical round-trip, Merkle order-
+  independence over random sets, sign/verify round-trips) — periodic, operationalises the Pass-3 mutation-
+  resistance gate; (3) an **end-to-end abuse suite** driving the whole engine and actively trying to break
+  it (forge/replay receipts, inflate manifest, tamper at rest across the boundary, walkaway, malformed
+  input) — real version at **Phase 7** (HTTP engine); an in-process E0–E9 abuse suite before that. Not a
+  v0 blocker; strengthens validation throughout.
 
 ## Review Log
 
