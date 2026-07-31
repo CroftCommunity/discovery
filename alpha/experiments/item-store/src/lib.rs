@@ -17,3 +17,5 @@
 
 pub mod crypto;
 pub mod identity;
+pub mod item;
+pub mod manifest;
