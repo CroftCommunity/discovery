@@ -1,7 +1,24 @@
 # Cooperative metered-storage service — build plan (Rust custom-PDS-like store)
 
 > Phase-plan (three-pass). This is the **build plan**; the lane overview + committed direction live in
-> `2026-07-31-coop-storage-metered-hosting-lane.md` (E82). Pass 1 below.
+> `2026-07-31-coop-storage-metered-hosting-lane.md` (E82). Passes 1–3 + Phase 0 discovery complete;
+> execution underway.
+
+## Outcome Summary
+
+| Phase | Status | Commit | Note |
+|---|---|---|---|
+| 0 Discovery | DONE | `e5f0004` | 7 tasks resolved firsthand; D7 corrected telemetry to cgroup-accounting; no v0 blocker. |
+| 1 crypto/identity (E0) | SHIPPED | `8389a0e` | Deterministic Ed25519 derive + id derivation + sign/verify/pin; 9 tests, clippy/fmt clean. |
+| 2 items + manifest (E1–E2) | pending | — | |
+| 3 receipts (E3) | pending | — | |
+| 4 statements (E4) | pending | — | |
+| 5 audit + dial (E5–E6) | pending | — | |
+| 6 seal + grace (E7–E9) | pending | — | |
+| 7 S3 metered boundary | pending | — | |
+| 8 atproto PDS blob surface | pending | — | |
+| 9 croft-stack deploy | pending | — | |
+| 10 convergence consumer | gated | — | Phase-10 gated (drystone/MLS not real yet). |
 
 ## Problem Statement
 
@@ -307,9 +324,15 @@ item-store` is a workspace-package selector and does **not** apply to a standalo
 (`cargo test e0`) or target a specific integration binary (`cargo test --test e0_identity`). The
 per-phase Verification commands below use this form.
 
-### Phase 1: Crate skeleton + crypto/identity (port E0)
+### Phase 1: Crate skeleton + crypto/identity (port E0) — SHIPPED (`8389a0e`)
 **Goal:** A Rust crate that generates keypairs, derives stable ids, signs/verifies — E0's "we recognize
 you the same way we count you."
+**Delivered (2026-07-31):** `item-store` standalone crate (`experiments/item-store/`) with `crypto.rs`
+(deterministic Ed25519 derive from a `sha256("{master}::keyseed::{label}")` seed matching the TS oracle;
+Zeroize on the secret seed; `sign_message`/`verify_message`; `public_key_from_hex` with a `thiserror`
+`CryptoError`) and `identity.rs` (`derive_id` = `id:` + `sha256(pubkey)[..16]`; a pinned `Identity`).
+Wiring test `tests/e0_identity.rs` ports E0's 4 assertions + a tamper edge, RED→GREEN. 9 tests pass;
+`clippy::pedantic -D warnings` + `cargo fmt` clean. Cross-ref added to `item-storage-protocol/README.md`.
 **Changes:**
 - [ ] `Cargo.toml` + `src/lib.rs` (crate scaffold; **standalone crate**, own `Cargo.toml` — no
   experiments-wide Rust workspace, Pass-2 verified).
