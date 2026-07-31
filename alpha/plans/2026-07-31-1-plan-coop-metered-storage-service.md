@@ -730,6 +730,16 @@ content-blind.
   `io_uring` vs the seccomp/hardening baseline (`io_uring_disabled=2` on hardened kernels) — hardening
   likely wins v0; io_uring is a measured later upgrade. The `BlobStore` + Phase-7 op-dispatch seams are the
   attach points. Gated on a **Phase-9 probe of the VPS kernel version** (needs 5.x+).
+- [CONFIRMED: ADVISORY — post-v0, tracked E85] **Object grouping / index structure (flat vs MST vs RBSR).**
+  Three distinct set-structures: **blobs** (v0) = flat `(DID,CID)` set (not MST-structured even in atproto);
+  the **billing manifest (E2)** = flat sorted Merkle root (already deterministic-over-set + tamper/omission
+  detection — adequate for v0, a periodic co-signed snapshot); atproto **repo records** = an **MST** (keyed
+  `collection/rkey`; deterministic shape + bounded O(log n) add/remove + compact diffs/proofs — a spec
+  requirement only if we host records, full-repo scope out of v0); the **convergence consumer** (Phase 10)
+  = **RBSR** over envelope hashes (iroh-docs; per FACTCHECK not an MST). **v0 flat is correct**; adopt an
+  MST-like content-addressed object index only if/when we host atproto records, the flat manifest's O(n)
+  re-sign hurts at scale, or we need compact audit-inclusion / sync-diff proofs. Keep manifest/index
+  addressing **pluggable** (same seam as D4 / `HS OC-2`). Not a v0 blocker.
 
 ## Review Log
 
