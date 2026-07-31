@@ -7,7 +7,7 @@
 //! Ports `item-storage-protocol-standalone/src/statement.ts` + the world's
 //! byte-day timeline (`world.ts` `byteDays`), and adds the rollup/purge boundary.
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::canonical::to_canonical_bytes;
 use crate::crypto::sha256_hex;
@@ -64,7 +64,7 @@ impl RentTimeline {
 }
 
 /// The signed content of a period-closing statement. All money is integer cents.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StatementBody {
     /// Period number (0-based; equals its chain position).
     pub period: u64,
@@ -103,7 +103,7 @@ pub struct StatementBody {
 }
 
 /// A built statement: its body plus the hash over the body's canonical form.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Statement {
     body: StatementBody,
     hash: String,

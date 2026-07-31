@@ -21,13 +21,13 @@
 use std::collections::BTreeMap;
 
 use ed25519_dalek::VerifyingKey;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::canonical::to_canonical_bytes;
 use crate::crypto::{sha256_hex, verify_message, Keypair};
 
 /// Which way the bytes crossed the boundary.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Direction {
     /// Customer → provider.
@@ -37,7 +37,7 @@ pub enum Direction {
 }
 
 /// How a receipt is attested.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ReceiptMode {
     /// Provider-signed only — an our-side measurement, valid by trust.
@@ -47,7 +47,7 @@ pub enum ReceiptMode {
 }
 
 /// The signed content of a receipt (everything the signatures are taken over).
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReceiptCore {
     /// Transfer direction.
     pub direction: Direction,
@@ -105,7 +105,7 @@ impl ReceiptCore {
 
 /// A transfer receipt: a core, its content hash, its mode, and the signatures
 /// gathered over the content hash (keyed by signer id).
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Receipt {
     core: ReceiptCore,
     content_hash: String,
