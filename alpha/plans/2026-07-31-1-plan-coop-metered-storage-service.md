@@ -1077,3 +1077,10 @@ layer 1) covering each. Second pass: **117 mutants → 103 caught / 0 missed / 1
 timeout** (the `merkle_root` `while len > 1` → `>= 1` non-terminating loop). Trivial field accessors are
 excluded via `.cargo/mutants.toml` (documented there; logic is never excluded). 35 tests total, clippy
 pedantic + fmt clean. `proptest` + the Phase-7 e2e abuse suite remain (E86 layers 2–3).
+
+### Test run 2026-07-31 — E0–E4 mutation gate (full-crate re-run)
+Re-ran `cargo-mutants` over the full crate after Phase 4 (statements + persistence): **172 mutants → 145
+caught / 1 missed / 24 unviable / 2 timeouts**. The single "missed" is an **equivalent mutant** — `replace
+* with / in rent_cents`: because `RENT_NUMERATOR == 1`, `byte_days * 1 / D` and `byte_days / 1 / D` are
+identical for every input, so no test can distinguish them. Excluded in `.cargo/mutants.toml` with that
+rationale (not a coverage gap). **Zero real survivors across E0–E4.** 48 tests; clippy pedantic + fmt clean.
