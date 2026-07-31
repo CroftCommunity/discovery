@@ -35,8 +35,9 @@ implementations, deployed on the VPS via **croft-stack** as a service we can tes
 
 - **Prior art to extrapolate from** (ECOSYSTEM §5e; `research/atproto-private-data-architecture.md`
   already recommends this path): **`rsky-pds`** (Blacksky / Rudy Fraser) — an alternative PDS in **Rust**
-  with **Postgres + S3 blobs** — is closest to Croft's stack (build-on). Secondary: **Cocoon** (Go +
-  Postgres, for the Postgres lesson) and the **official `@atproto/pds`** (TS, single-tenant SQLite) for
+  with **(per-actor) SQLite + S3 blobs** (Phase 0 D1 confirmed: the repo README's "Postgres" is stale vs
+  `main`'s `rusqlite`) — is closest to Croft's stack (build-on). Secondary: **Cocoon** (Go, optional
+  Postgres) and the **official `@atproto/pds`** (TS, per-actor SQLite) for
   the reference API surface. Blob backend: R2 / B2 / **Garage or SeaweedFS** — **not** MinIO (community
   edition archived Feb 2026). atproto **decouples identity from host** (CAR repo export/import), so the
   store can front a repo without owning the identity.
@@ -76,7 +77,7 @@ manifest."* Keep to the **E0–E9 core**; defer E10 (erasure) and E11–E14 (fin
     own Ed25519 key                                  own Ed25519 key
     signed manifest        ──── put / get bytes ───▶ thin HTTP boundary
     (repo + blob CIDs)     ◀─── signed receipt ─────  over a real S3-compatible
-    local ledger (JSONL)                              blobstore (MinIO → real bucket)
+    local ledger (JSONL)                              blobstore (FS → Garage/SeaweedFS)
           │                                                  │
           └────── monthly: co-sign statement ◀───────────────┘
                   opening root + Σ receipts + byte-days = closing root; both sign
@@ -136,20 +137,20 @@ statement, verify it. That is the "starting point" we can then show and build on
 > → atproto PDS blob surface incl. `listBlobs` (Phase 8, in v0) → croft-stack VPS deploy (Phase 9) →
 > history-convergence consumer (Phase 10, gated/later). Phases 1–6 ready to start.
 
-Because this extrapolates from a real implementation and speaks a real network API, we ground and plan
-before writing service code (global rules: verify APIs against a source of truth; TDD; phase-plan for
-complex changes; rust-enforcer discipline).
+Because this extrapolates from a real implementation and speaks a real network API, we grounded and
+planned before writing service code (global rules: verify APIs against a source of truth; TDD; phase-plan
+for complex changes; rust-enforcer discipline). **Status (2026-07-31):**
 
-1. **Prior-art / design-grounding pass (no guessing).** Study `rsky-pds`'s crate structure (how it does
-   repo + blob + S3 + Postgres) and the atproto **PDS network API surface** (`com.atproto.sync.*` /
-   `repo.*` / `getBlob` / `uploadBlob`, relay/firehose), and **resolve the S3-interface ↔ atproto-API
-   question.** Output: a short grounding note in `research/` with confirmed shapes (not "likely").
-2. **Phase-plan the Rust service** (`phase-plan` skill): the E0–E9 metering ledger ported to Rust behind
-   an S3-compatible blob boundary + the atproto PDS API surface; the content-blind posture for the meer
-   role; storage for the ledger (redb/Postgres). Problem/Approach/Reasoning; TDD ordering.
-3. **Build the first vertical slice TDD** (recommend the metered blob put/get + signed receipt — the
-   boundary), then wire a **croft-stack** service (tenant manifest, hardening, netns, telemetry) for VPS
-   deploy.
-
-Confirm the sequence, and tell me whether web/repo access is available in this environment for the
-grounding pass (the `rsky-pds` repo + atproto docs), or whether you'll drop those sources in locally.
+1. **Prior-art / design-grounding — DONE (Phase 0 discovery).** Studied `rsky-pds` (Rust + per-actor
+   SQLite + `aws-sdk-s3`; `BlobStore` trait; `blocks/{did}/{cid}`), the official `@atproto/pds`
+   (per-actor SQLite; S3 backend via `PDS_BLOBSTORE_S3_*`), and the atproto blob API (`uploadBlob` /
+   `getBlob` / `listBlobs`, shapes confirmed from the lexicon). Boundary resolved: **both** — an
+   S3-compatible metering plane + a thin atproto PDS blob layer. Findings live in the build plan's
+   Verified Assumptions.
+2. **Phase-plan — DONE (three passes + Phase 0).** `2026-07-31-1-plan-coop-metered-storage-service.md`.
+   Ledger storage resolved to **per-user SQLite** (official-PDS pattern; supersedes the earlier
+   redb/Postgres lean).
+3. **Build — UNDERWAY.** Phases 1–3 SHIPPED (E0 identity; E1–E2 items + signed manifest; E3 two-mode
+   receipts + append-only ledger; E0–E3 mutation gate green). Next: Phase 4 (balance-forward statements +
+   byte-day rent + rollup/purge, on per-user SQLite), then the S3/atproto boundary (7–8) and the
+   croft-stack VPS deploy (9).

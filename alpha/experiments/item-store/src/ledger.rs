@@ -8,7 +8,7 @@
 //! re-checks the chain linkage, and re-checks every signature against pinned
 //! public keys — so "the books balance" is recomputable, not asserted on trust.
 //!
-//! Ports `item-storage-protocol-standalone/src/ledger.rs`.
+//! Ports `item-storage-protocol-standalone/src/ledger.ts`.
 
 use std::collections::BTreeMap;
 

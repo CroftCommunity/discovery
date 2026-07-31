@@ -48,8 +48,9 @@ blob backend, real CIDs) and in the atproto/PDS network surface — not in the l
 This keeps every phase small and lets the Rust suite be checked against the TS reference behavior.
 
 **Why Rust + rsky-pds as prior art.** The user chose Rust; it matches the corpus's substrate stance and
-the global Rust discipline (rust-enforcer). `rsky-pds` (Blacksky) is a real **Rust + Postgres + S3-blobs**
-PDS — ECOSYSTEM §5e already tags it "closest to Croft's stack, build-on," and
+the global Rust discipline (rust-enforcer). `rsky-pds` (Blacksky) is a real **Rust + (per-actor) SQLite +
+S3-blobs** PDS (Phase 0 D1: the repo README's "Postgres" is stale vs `main`'s `rusqlite`) — ECOSYSTEM §5e
+already tags it "closest to Croft's stack, build-on," and
 `research/atproto-private-data-architecture.md` already recommends this path. We extrapolate from a real
 implementation rather than guess the atproto surface (global rule: never guess external API shapes).
 
@@ -75,7 +76,9 @@ provenance. Phases 1–6 build Layer 2; Phase 7 wires it at the S3 boundary over
 trait); the atproto PDS layer (Phase 8) is a thin surface over the same boundary.
 
 **Architecture layers — the consolidated picture (user framing, 2026-07-31).** The design separates into
-**four orthogonal axes**; conflating them is the trap. They compose freely.
+**five orthogonal axes**; conflating them is the trap. They compose freely. (**E-number namespaces:**
+E0–E14 = item-storage experiments; E82–E86 = `ROADMAP_TODO` backlog; relay-lab E8/E9 = the blind-mirror
+confidentiality spike — three distinct namespaces.)
 
 ```
  (1) INTERFACE      S3-compatible · atproto PDS blob API   (· full atproto repo API — records, later)
@@ -88,20 +91,26 @@ trait); the atproto PDS layer (Phase 8) is a thin surface over the same boundary
         ───────────── boundary metering / provenance (Layer 2) ─────────────
  (3) PHYSICAL       local disk · proxied object store (S3/Garage/R2) · PDS-style objects-alongside-records
      BACKEND          — the dumb Layer-1 `BlobStore` trait; ORTHOGONAL to (2): any index on any backend
- (4) PAYLOAD        blind (ciphertext-only) ·············· delegate (plaintext, keys delegated by the group)
-     CONFIDENTIALITY  — ORTHOGONAL to (1–3). Metering is content-agnostic (bytes + signed manifest, never
-                        plaintext), so the co-op can host what it cannot read and still bill it. Blind vs
-                        delegate = the meer confidentiality tiers (relay-lab E9, unmeasured — D4).
+ (4) CONFIDENTIALITY  plaintext ·············· encrypted (keys held by the group; blind vs delegate tier)
+     (who can DECRYPT)  — encryption governs plaintext; the server never holds the confidentiality trust
+                          anchor. blind = ciphertext-only; delegate = keys delegated so the server/reader
+                          can read (the meer confidentiality tiers, relay-lab E8/E9, unmeasured — D4).
+ (5) ACCESS         public-read (default) ·············· gated per object
+     (who can FETCH)   — object gating is SERVER-ENFORCEABLE even when blind (hand over bytes or not
+                         without knowing contents); billing ⟂ access; public-relay replication
+                         (`subscribeRepos` firehose) is opt-in, out of v0. Writes: owner DID + delegated caps.
 ```
 
 Key invariants: **metering never needs plaintext** (blind hosting bills correctly, natively); the backend
-is dumb (index ⟂ backend); and (4) touches (2) in one place — the CID is over the *stored* bytes
-(ciphertext when encrypted), so cross-user dedup needs **convergent encryption** (which leaks
-plaintext-equality) and blind hosting therefore generally forgoes cross-user dedup. Blind + plaintext
-search don't coexist without a delegate (or searchable-encryption) — a Phase-10 tier decision, not v0.
-v0 realises: interface {S3, atproto-blob}, index {flat}, backend {FS→pluggable}, confidentiality
-{payload-agnostic — we meter ciphertext or plaintext identically}. MST/RBSR/records + blind-vs-delegate
-tiers are tracked (E85, D4, `HS OC-2`), not v0.
+is dumb (index ⟂ backend); **access (5) and confidentiality (4) are independent** — they compose four ways
+(public/gated × plaintext/encrypted; gated+plaintext = the delegate tier); and (4) touches (2) in one
+place — the CID is over the *stored* bytes (ciphertext when encrypted), so cross-user dedup needs
+**convergent encryption** (which leaks plaintext-equality) and blind hosting therefore generally forgoes
+cross-user dedup. Blind + plaintext search don't coexist without a delegate (or searchable-encryption) —
+a Phase-10 tier decision, not v0. v0 realises: interface {S3, atproto-blob}, index {flat}, backend
+{FS→pluggable}, confidentiality {payload-agnostic — we meter ciphertext or plaintext identically},
+access {public-read default, gateable per object}. MST/RBSR/records + blind-vs-delegate tiers are tracked
+(E85, D4, `HS OC-2` — the CID-vs-envelope-hash reconciliation), not v0.
 
 **Access model — two independent dimensions: access + confidentiality (user framing, 2026-07-31,
 corrected).** The PDS/unix-`774` default is **public-read, authorized-write** — writes authorized to the
@@ -159,8 +168,9 @@ pure S3* — kept as a fallback (v0 could be S3-only), but Phase 0 decides wheth
   (`experiments/item-storage-protocol/src/{crypto,items,manifest,receipts,statements,audit,seal}.ts` +
   `experiments/e{0..9}-*.ts` + `test/e{0..9}.test.ts`); the standalone (E0–E11) ran **81/81 green** this
   session (`node src/run.ts`). The assertions are the port spec.
-- **rsky-pds is Rust + Postgres + S3 blobs** (ECOSYSTEM §5e, verified web 2026-06-22; Blacksky/Rudy
-  Fraser). Exact crate structure = Phase 0.
+- **rsky-pds is Rust + (per-actor) SQLite + S3 blobs** (ECOSYSTEM §5e; Blacksky/Rudy Fraser).
+  **[Superseded by Phase 0 D1]** the README's "Postgres" is stale — `main`'s `Cargo.toml` uses `rusqlite`;
+  see the D1 RESOLVED bullet below for the verified crate structure.
 - **croft-stack service model** (croft-stack `00-model-and-manifests.md`, `service-hardening-plan.md`,
   `netns-isolation-plan.md`, `telemetry-client-plan.md`): a service = a `services/<name>.toml` manifest
   consumed by `render.py` → Ansible converge; hardening baseline + netns isolation + telemetry apply;
@@ -240,7 +250,8 @@ pure S3* — kept as a fallback (v0 could be S3-only), but Phase 0 decides wheth
   dependency-free E0–E11 build that ran 81/81 this session), not the full `item-storage-protocol/`. Its
   module names differ from what the per-phase Read-sets below still cite: standalone uses **`item.ts`,
   `receipt.ts`, `statement.ts`, `clock.ts` (not `time.ts`), `rng.ts` (not `prng.ts`), `pricing.ts`** (the
-  dial cost), plus `crypto/manifest/ledger/audit/seal/canonical.ts` and experiments `e0_identity.ts …
+  dial cost), plus `crypto/manifest/ledger/audit/seal/canonical.ts`, **`actor.ts`** (the `deriveId`
+  source that `identity.rs` ports), and experiments `e0_identity.ts …
   e11_financing.ts`. Execution reads the standalone; treat the full-version filenames in the Read-sets as
   the standalone equivalents.
 - **[Pass 2 verified] No experiments-wide Rust workspace** — existing crates (`ap-ambassador`,
@@ -346,6 +357,10 @@ inference. Network is open — fetch real sources.
   ceilings the metered store must respect. **Disposition:** throwaway → feeds **Phase 7 instrumentation
   design** (so we don't emit tracing the poller can't read) + **Phase 9 telemetry wiring**. Not blocking
   (internal docs, not an external API), but must land before Phase 7's observability is built.
+  **[D7 FINDING OVERTURNED THIS PREMISE — see the D7 RESOLVED bullet + Phase 0 COMPLETE:** the poller reads
+  **cgroup v2 files**, it does NOT scrape `tracing`/logs/Prometheus; a Rust service emits no app-level
+  metrics for it. The real "contract" is systemd accounting (`*Accounting=yes` + limits), not a log format;
+  app `tracing` is our own journald debugging trail, independent of the poller.**]**
 
 **Done when:** all BLOCKING open questions below are resolved, Verified Assumptions updated with
 firsthand evidence, and Phases 7/8 re-sized if D3 changes their scope (record in Review Log).
@@ -396,7 +411,8 @@ Wiring test `tests/e0_identity.rs` ports E0's 4 assertions + a tamper edge, RED�
 **Wiring test:** `tests/e0_identity.rs` — a message signed by A verifies under A's pinned key and fails
 under B's; id derivation deterministic (ports E0's 4 assertions). RED → GREEN.
 **Depends on:** Phase 0 (D5 storage choice informs nothing here; independent).
-**Read-set:** `experiments/item-storage-protocol/src/crypto.ts`, `.../e0-identity.ts` (reference).
+**Read-set:** `experiments/item-storage-protocol/src/{crypto,actor}.ts`, `.../exp/e0_identity.ts` (reference;
+`actor.ts` = the `deriveId` source `identity.rs` ports).
 **Write-set:** `experiments/item-store/{Cargo.toml,src/lib.rs,src/crypto.rs,src/identity.rs,README.md,tests/e0_identity.rs}`
 + `experiments/item-storage-protocol/README.md` (the cross-ref edit above).
 **Shared-state contract:** no shared mutable state beyond the file write-set; standalone crate, so no
@@ -516,7 +532,7 @@ integral; any historical edit located. RED → GREEN.
 **Read-set:** `.../src/statements.ts`, `.../e4-*.ts`.
 **Write-set:** `experiments/item-store/src/statements.rs`, `.../tests/e4_statements.rs`.
 **Shared-state contract:** none beyond write-set.
-**Risks:** byte-day integration over a period timeline — port the time model (`time.ts`) exactly.
+**Risks:** byte-day integration over a period timeline — port the time model (`clock.ts` — standalone name; not `time.ts`) exactly.
 **Observability:** `tracing` INFO per statement close (period, opening/closing root, rent, postage, fees);
 WARN on a chain-verify failure carrying the exact broken link; INFO on **purge** (period, receipt count
 dropped, chain-still-verifies confirmation). The purge log is the audit trail that granular receipts were
@@ -692,7 +708,8 @@ metered, and governed (telemetry shows it).
 **Depends on:** Phase 7 (and Phase 8 if in v0). **This phase writes in the `croft-stack` repo**, not
 `discovery` — its own write-set, committed there.
 **Read-set:** croft-stack `00-model-and-manifests.md`, `service-hardening-plan.md`, `netns-isolation-plan.md`,
-`telemetry-client-plan.md` (**[Pass 3]** the poller contract), the tenant template; **Phase 0 D7 notes**.
+`telemetry-client-plan.md` (**[D7]** the cgroup-accounting contract — `*Accounting=yes` + limits, not a log
+format), the tenant template; **Phase 0 D7 notes**.
 **Write-set:** **two repos** — (croft-stack) `services/<name>.toml`, the role files, the canary config +
 repo docs; (discovery) `ECOSYSTEM.md`, `COHESION.md`, `ROADMAP_TODO.md`,
 `plans/2026-07-31-coop-storage-metered-hosting-lane.md`, `plans/croft-stack/README.md`. **Two commits, two
@@ -920,6 +937,8 @@ the standalone has **no `dial.ts`/`grace.ts` src modules** (logic in `pricing.ts
 - Added **Phase 0 D7** (read `telemetry-client-plan.md` + `service-hardening-plan.md`) so Phase 7's
   `tracing` output is built to the poller's confirmed contract + the governed envelope, not invented; D7
   disposition = throwaway; wired into the Concurrency Map ("before Phases 7–8") and Phase 9's read-set.
+  **[Superseded — see Phase 0 D7 RESOLVED: the poller reads cgroup v2, not `tracing`; this "tracing→poller
+  contract" premise was overturned.]**
 
 **Debugging readiness:**
 - Phase boundaries are already commit-at-green checkpoints; each wiring test is the health gate. The new

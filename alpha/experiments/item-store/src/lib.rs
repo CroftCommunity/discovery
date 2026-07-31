@@ -8,9 +8,12 @@
 //! boundary, real blob backend, real CIDs). The build plan is
 //! `discovery/alpha/plans/2026-07-31-1-plan-coop-metered-storage-service.md`.
 //!
-//! Phase 1 (this slice) ports **E0 — identity**: both parties exist as keys and
-//! nothing more; recognition (signature verification) and counting (identifier
-//! derivation) rest on the same public key.
+//! Current span: **E0–E3** — identity (E0: keypairs, id derivation, sign/verify),
+//! content-addressed items + a customer-signed Merkle manifest (E1–E2), and
+//! transfer receipts + an append-only signed ledger with canonical serialization
+//! (E3: two-mode postage metering, Bilateral | Unilateral). The E0–E3 mutation
+//! gate is green (see `ROADMAP_TODO` E86). Phases 4–9 (statements, audit, seal,
+//! the S3/atproto boundary, deploy) follow the build plan.
 
 #![warn(missing_docs)]
 #![warn(clippy::pedantic)]
