@@ -1,0 +1,16 @@
+{
+  "name": "item-storage-protocol-standalone",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A deterministic, dependency-free protocol experiment: keeping items for people, priced and proven in cryptographic terms (E0-E11).",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "scripts": {
+    "start": "node src/run.ts",
+    "report": "node src/run.ts",
+    "verify": "node src/verify.ts",
+    "test": "node --test"
+  }
+}
