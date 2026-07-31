@@ -25,6 +25,7 @@ pub mod identity;
 pub mod item;
 pub mod ledger;
 pub mod manifest;
+pub mod persist;
 pub mod pricing;
 pub mod receipts;
 pub mod statements;

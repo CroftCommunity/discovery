@@ -11,11 +11,12 @@
 //! flat sorted root vs an MST — is tracked as `ROADMAP_TODO` E85; v0 is flat.)
 
 use ed25519_dalek::VerifyingKey;
+use serde::{Deserialize, Serialize};
 
 use crate::crypto::{sha256_hex, verify_message, Keypair};
 
 /// A single manifest leaf: a fingerprint bound to its claimed size.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ManifestLeaf {
     cid: String,
     size: usize,
@@ -73,7 +74,7 @@ pub fn merkle_root(leaves: &[ManifestLeaf]) -> String {
 }
 
 /// A built, signed manifest.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Manifest {
     leaves: Vec<ManifestLeaf>,
     root: String,
