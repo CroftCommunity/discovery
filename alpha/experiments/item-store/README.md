@@ -35,6 +35,14 @@ Phase 0 discovery complete). Phases: 1 crypto/identity (E0) · 2 items+manifest 
 
 - **Phase 1 (E0 — identity): DONE.** Deterministic Ed25519 keypair derivation, stable
   id derivation (`id:` + SHA-256(pubkey)[..16]), sign/verify, peer pinning.
+- **Phase 2 (E1–E2 — items + manifest): DONE.** Content-addressed `Item`/`ContentStore`
+  (tamper-evident retrieval, dedup) + a customer-signed canonical Merkle manifest
+  (order-independent root, tamper/omission detection).
+- **Phase 3 (E3 — receipts + ledger): DONE.** Two-mode transfer receipts
+  (`Bilateral` co-signed | `Unilateral` provider-signed) + an append-only,
+  hash-linked, signed ledger + deterministic canonical serialization.
+- **Test hardening (E86): E0–E3 mutation gate green** (`cargo-mutants`: 103 caught /
+  0 missed; trivial accessors excluded via `.cargo/mutants.toml`).
 
 ## Develop
 
