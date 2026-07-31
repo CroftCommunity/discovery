@@ -1,0 +1,16 @@
+[package]
+name = "item-store"
+version = "0.0.0"
+edition = "2021"
+publish = false
+description = "Cooperative metered-storage service — Rust port of the item-storage protocol (E0–E9 ledger). Placeholder name (A21); see discovery/alpha/plans/2026-07-31-1-plan-coop-metered-storage-service.md."
+
+# Standalone crate (no experiments-wide Rust workspace). Run `cargo test` from
+# this directory.
+
+[dependencies]
+ed25519-dalek = { version = "2", features = ["zeroize"] }
+sha2 = "0.10"
+hex = "0.4"
+thiserror = "2"
+zeroize = "1"
