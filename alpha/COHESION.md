@@ -1787,6 +1787,18 @@ Distilled → `thinking/cooperative-social-union-model.md` (new "charging mechan
 
 Backlog: ROADMAP_TODO E25/D5 (advance + the metering mechanism) + the Drystone-naming-collision gate.
 
+## 66. 2026-07-31 — forum pad: bare-link discovery + subjective-consensus reputation; a new data point on the E80↔E62 fork
+
+**Incoming:** the Gemini forum-mechanics dialogue (`seeds/transcripts/raw/graze-forum-subjective-consensus-gemini-2026-07.md`) + the claude.ai bare-link idea (`amble-naming-coop-metering-dialogue-2026-07-31.md`, Thread A). Distilled → `thinking/app/forum-subjective-consensus-and-reputation.md`.
+
+**CLOSED — the social-tree thesis, made concrete as a shippable reputation model.** Ungameable karma on user-owned PDSes = compute from *others'* authenticated interactions, not the PDS's self-report: piggyback `app.bsky.feed.like` for upvotes + a contained `com.graze.feed.downvote`; **graph-weight** by depth (Depth-1 highest) + tenure + cheap diversity proxies; Network-Score/Tree-Score two-mode UI; subjective Hot/Rising/Controversial; Ozone-labeler moderation; graph-amplified awards. Sybil resistance is structural (a bot farm has ≈0 subjective weight from your trunk → organic shadowban). Plus the **bare-link view** ("this is something I wish someone would recommend to me"; multi-fidelity link rendering incl. on-device AI summary).
+
+**DRIFT/fork — a new data point on the E80↔E62 backend fork (surface, don't resolve; ties §63).** The user pulls both ways: the bare-link view "may make sense to build an AppView side" (E80-ward: Next.js+Postgres large tier) *and* "social tree is my preference" (E62-ward: read-first lens on public Bluesky). The decisive addition: **subjective consensus runs entirely client-side on Jetstream + `getFollows` — no mandatory AppView.** So the read-first E62 path *can* carry the forum/karma vision, with an AppView demoted to an optional accelerator. This **lowers the fork's stakes** (the pad ships and behaves correctly with no backend) but does **not** decide the large tier. Tracked ROADMAP_TODO E80/E62.
+
+**Backported — ECOSYSTEM §5b** rows for **atwork.place** + **Sifa** (atproto job boards), flagged **dialogue-sourced / pending-verification** (not laundered as verified).
+
+**OPEN — gates.** (1) E80↔E62 backend fork = [decision], the user's. (2) [verify] atproto/lexicon mechanics + the atwork.place/Sifa projects (Gemini-sourced). (3) [open] don't mint `com.graze.*` NSIDs into records until the **Amble** rename holds (A20) — NSIDs are permanent once records circulate. Ties **§63** (behavior-scale Graze mock ↔ read-first plan), **§64** (Amble naming), **E62/E80**.
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
