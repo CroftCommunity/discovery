@@ -687,6 +687,13 @@ content-blind.
   co-attestable) — moot here since it is not a charged/attested unit. **v0:** only the **Phase-7
   op-dispatch `SEAM:`** (forward-compat); the capability itself is post-v0 (E83). *Latent decision kept
   closed: whether compute ever becomes a billed axis — no for now (economic-model / D5, the user's call).*
+  **Data model (decided 2026-07-31):** a **separate** record **linked by receipt/op id**, co-located in
+  the per-user SQLite (a third shape alongside manifest + receipts/statements), **unsigned to start**,
+  separately rolled-up/purged. Resource data is **never** embedded in the signed receipt — it is
+  non-deterministic + Unilateral and would break the receipt's deterministic co-attestation. **Where
+  signing would attach if we decide later:** a provider-signed **Unilateral** signature over the sidecar
+  at op close-out (never co-signed) — a hook that could underpin **delegating / authorizing burden-heavy
+  operations** via an attested resource record.
 
 ## Review Log
 
@@ -865,4 +872,7 @@ charged. **Plan changes:** added the **Phase-7 op-dispatch `SEAM:`** (forward-co
 ops through a dispatch boundary so a later per-DID scope wrapper slots in; cheap ops never scoped), a
 **CONFIRMED: ADVISORY (post-v0) Open Question**, and backlog **E83** in `ROADMAP_TODO.md`. Corrected a
 Pass-3-era caveat: per-DID attribution is **not** a croft-stack poller change (the service is its own
-independent reader of the cgroup primitive). v0 scope unchanged; only the seam lands in v0.
+independent reader of the cgroup primitive). v0 scope unchanged; only the seam lands in v0. **Data model
+(decided 2026-07-31):** separate sidecar record linked by receipt/op id, co-located per-user SQLite,
+unsigned to start, separately purged; never embedded in the signed receipt; signing hook = provider-signed
+Unilateral at close-out if later needed (a possible basis for delegating burden-heavy ops).
