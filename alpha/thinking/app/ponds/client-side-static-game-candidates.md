@@ -158,6 +158,30 @@ Archive's DMCA library exemption making iframe embeds legal while self-hosting t
 - **Tier-1 build** → `fun/plans/2026-07-30-bubble-shooter.md` (ungated, single-player, verifiable).
 - **Tier-2 pathfinder** → `fun/plans/2026-07-30-tux-racer-wrap-spike.md` (license/weight/fit gates +
   the reusable wrap + honest-representation standard).
-- **Open follow-on (not started):** a wrapped-game addendum to `fun/docs/BUILDING-GAMES.md` that
-  encodes the Tier-2 filter + honest-representation rule as shelf standards (deferred to the wrap
-  spike's T4).
+- **SHIPPED 2026-07-31** → `fun/plans/2026-07-31-tier2-wraps.md`. Tier 2 went from zero shipping
+  games + a drafted standard to **three live wraps** + the reusable machinery. The follow-on below
+  is done: the wrapped-game standard is **ratified** in `fun/docs/BUILDING-GAMES.md` §9 (plus a
+  step-by-step porting recipe + mobile/desktop guidance), with **Astray** as the reference impl.
+- **Open follow-on (DONE 2026-07-31):** the wrapped-game addendum to `fun/docs/BUILDING-GAMES.md`
+  now encodes the Tier-2 filter + honest-representation rule as shelf standards (§9), shipped with
+  the first wraps rather than deferred.
+
+## Tier-2 shipped — recon corrections to the candidates above (2026-07-31)
+
+The candidate licenses/postures were `[UNVERIFIED]` (Gemini-sourced). Confirmed against primary
+sources when building the first three wraps (`fun/plans/2026-07-31-tier2-wraps.md`):
+
+- **Astray** — VERIFIED **The Unlicense** (public domain), self-contained ~10 static files, zero
+  egress. Promoted to the **pathfinder** (cleaner than HexGL), shipped at `/astray/`.
+- **HexGL** — VERIFIED **MIT**, self-contained WebGL; 2012 Three.js runs with no shim. Bundled
+  Google Analytics — **stripped at vendor time**. Shipped at `/hexgl/` (~17 MB, disclosed).
+- **Clumsy Bird** — VERIFIED **GPL-3.0** (copyleft; source-offer recorded), prebuilt MelonJS
+  bundle, zero patches, zero egress. Shipped at `/clumsybird/` as the third wrap.
+- **REJECTED on the inclusion filter, not license:** **Pacman-canvas** (Pac-Man is a Namco/Bandai
+  **trademark**; also ships `ads.txt` + a highscore backend + hot-linked sounds) and **T-Rex
+  Runner** (Google's Chromium asset/brand). Trademark on a name/character disqualifies a wrap even
+  when its code license is clean — a filter refinement worth carrying forward.
+- **Containment posture (as built):** `iframe[sandbox="allow-scripts"]` (opaque origin, no
+  `allow-same-origin`) + a same-origin egress allowlist, proven by a real-browser gate. Every wrap
+  ships a `tier2.meta.json` (provenance + posture). Avoid the Emscripten + runtime-asset-untar class
+  (the SuperTuxKart cut, `fun/plans/2026-07-31-supertuxkart-wrap.md`).
