@@ -108,6 +108,22 @@ pure S3* — kept as a fallback (v0 could be S3-only), but Phase 0 decides wheth
 - **Unverified → Phase 0:** rsky-pds crate structure; the exact atproto PDS endpoint set + blob API
   shapes (`getBlob`/`uploadBlob`, `com.atproto.sync.*`); the boundary shape (S3 vs PDS-API vs both); what
   the history-convergence server requires of the store.
+- **[Pass 2 verified] The port oracle is the STANDALONE** (`item-storage-protocol-standalone/`, the
+  dependency-free E0–E11 build that ran 81/81 this session), not the full `item-storage-protocol/`. Its
+  module names differ from what the per-phase Read-sets below still cite: standalone uses **`item.ts`,
+  `receipt.ts`, `statement.ts`, `clock.ts` (not `time.ts`), `rng.ts` (not `prng.ts`), `pricing.ts`** (the
+  dial cost), plus `crypto/manifest/ledger/audit/seal/canonical.ts` and experiments `e0_identity.ts …
+  e11_financing.ts`. Execution reads the standalone; treat the full-version filenames in the Read-sets as
+  the standalone equivalents.
+- **[Pass 2 verified] No experiments-wide Rust workspace** — existing crates (`ap-ambassador`,
+  `attest-family`, `hist-atproto-spike`, `lexicon-community`, …) are each **standalone** (own `Cargo.toml`).
+  So `item-store` is its **own standalone crate**, not a workspace member; `cargo test` runs in the crate
+  dir. (Phase 1's "workspace member" language corrected below.)
+- **[Pass 2 verified] Internal Rust prior art exists** — `experiments/hist-atproto-spike/` and
+  `experiments/lexicon-community/` are Rust atproto/history spikes in-corpus; Phase 0 reads these first
+  (may reduce external fetching and directly inform the atproto-in-Rust + history-convergence surface).
+- **[Pass 2 verified]** `item-storage-protocol/README.md` (8.0K), `ECOSYSTEM.md §5c-3`,
+  `experiments/appview-infra/GROUPS.md` (27.8K) all exist — the Documentation-Impact / D4 references resolve.
 
 ## Documentation Impact
 
@@ -139,6 +155,14 @@ module). If, after Phase 0, the S3 interface (Phase 7) and the atproto PDS surfa
 have fully disjoint modules, revisit parallelizing {7,8} in Pass 2 — but only with disjoint write-sets +
 a re-entry check; default remains sequential.
 
+**[Pass 2] Phase 0 overlaps Phases 1–3 (the one real concurrency).** Phase 0 is discovery — it produces
+notes, **no code write-set** — and Phases 1–3 port pure ledger logic (crypto / items / manifest /
+receipts) that does **not** depend on the atproto/rsky/storage findings. So Phase 0 need not block the
+port start; they are disjoint (notes vs the crate). Phase 0's findings must land before **Phase 4's
+persistence** (needs D5's per-user-SQLite layout) and **Phases 7–8** (need D1/D2/D3/D6). **{7,8} audited:
+NOT parallel** — Phase 8 depends on Phase 7's server and shares `server.rs` / `Cargo.toml` (overlapping
+write-set). The code spine (1→…→9) stays sequential.
+
 ## Phases
 
 ### Phase 0: Discovery (network-enabled; Discovery Exemption applies)
@@ -146,11 +170,13 @@ a re-entry check; default remains sequential.
 **Goal:** Resolve the external unknowns firsthand so the boundary phases are sized on evidence, not
 inference. Network is open — fetch real sources.
 
-- [ ] **D1: rsky-pds crate structure.** **Probe:** WebFetch `github.com/blacksky-algorithms/rsky`
-  (rsky-pds crate) — read how it structures repo storage, blob storage, the S3 backend integration, and
-  the HTTP/PDS API layer; note crate deps (axum/actix? sqlx? aws-sdk-s3/rust-s3?). **Success:** a written
-  list of the crates it uses for (HTTP server, S3, DB, atproto lexicon) + how blob put/get maps to S3.
-  **Disposition:** throwaway (notes only).
+- [ ] **D1: PDS-in-Rust prior art — internal first, then rsky-pds.** **Probe:** (a) read the in-corpus
+  Rust spikes **`experiments/hist-atproto-spike/`** and **`experiments/lexicon-community/`** (atproto /
+  history in Rust — internal prior art we already own); then (b) WebFetch `github.com/blacksky-algorithms/rsky`
+  (rsky-pds) — how it structures repo storage, blob storage, the S3 backend, and the HTTP/PDS API layer;
+  note crate deps (axum/actix? sqlx? aws-sdk-s3/rust-s3? atproto lexicon crate). **Success:** a written
+  list of the crates for (HTTP server, S3, DB, atproto lexicon) + how blob put/get maps to S3, and what
+  the internal spikes already give us. **Disposition:** throwaway (notes only).
 - [ ] **D2: atproto PDS network API surface.** **Probe:** WebFetch the atproto lexicon/spec for
   `com.atproto.sync.*`, `com.atproto.repo.uploadBlob`, `com.atproto.sync.getBlob`, and the "what a PDS
   serves" docs (atproto.com). **Success:** the minimal endpoint set a PDS-like store must serve, and the
@@ -185,14 +211,19 @@ firsthand evidence, and Phases 7/8 re-sized if D3 changes their scope (record in
 
 Implementation phases (1–9) all follow the same shape: **port the proven module TDD (port its assertions
 as the RED tests first), rust-enforcer discipline (no `unwrap()` in prod, `Result`/`thiserror`, doc
-comments, `clippy::pedantic`), commit at green.** Crate/dir placeholder: `item-store` (under
-`experiments/` for dev — see Open Question on repo/IP home). The reference oracle is the TS suite.
+comments, `clippy::pedantic`), commit at green.** Crate/dir placeholder: `item-store`, a **standalone
+crate** (its own `Cargo.toml`; no experiments-wide Rust workspace) under `experiments/` for dev (see
+Open Question on repo/IP home). **Port oracle = the dependency-free `item-storage-protocol-standalone/`**
+(the 81/81 build); cross-check the full `item-storage-protocol/` for E4/E7–E9 detail if needed. **Preserve
+the SPEC's `SEAM:` grep discipline** — every place a mock stands in for real infra gets a `SEAM:` comment
+so production gaps stay enumerable by grep.
 
 ### Phase 1: Crate skeleton + crypto/identity (port E0)
 **Goal:** A Rust crate that generates keypairs, derives stable ids, signs/verifies — E0's "we recognize
 you the same way we count you."
 **Changes:**
-- [ ] `Cargo.toml` + `src/lib.rs` (crate scaffold; workspace member).
+- [ ] `Cargo.toml` + `src/lib.rs` (crate scaffold; **standalone crate**, own `Cargo.toml` — no
+  experiments-wide Rust workspace, Pass-2 verified).
 - [ ] `src/crypto.rs` — Ed25519 sign/verify + SHA-256 fingerprint, newtype-wrapped keys (Zeroize on
   secret material per rust-enforcer).
 - [ ] `src/identity.rs` — deterministic id derivation from pubkey; pin/verify peer keys.
@@ -203,8 +234,8 @@ under B's; id derivation deterministic (ports E0's 4 assertions). RED → GREEN.
 **Depends on:** Phase 0 (D5 storage choice informs nothing here; independent).
 **Read-set:** `experiments/item-storage-protocol/src/crypto.ts`, `.../e0-identity.ts` (reference).
 **Write-set:** `experiments/item-store/{Cargo.toml,src/lib.rs,src/crypto.rs,src/identity.rs,README.md,tests/e0_identity.rs}`.
-**Shared-state contract:** no shared mutable state beyond the file write-set; adds a workspace member
-(touches the workspace `Cargo.toml` if one exists — confirm in Phase 0/here).
+**Shared-state contract:** no shared mutable state beyond the file write-set; standalone crate, so no
+workspace `Cargo.toml` to touch (Pass-2 verified: no experiments-wide Rust workspace).
 **Risks:** Rust Ed25519 crate choice (`ed25519-dalek`) vs the TS lib — confirm the same curve/encoding so
 signatures are comparable to the oracle.
 **Done when:** (1) *Behavioral:* the crate signs/verifies and derives ids matching the TS E0 behavior;
@@ -284,7 +315,7 @@ purged while the signed chain preserves provenance. E4 + purge.
 **Call chain:** `tests/e4` → `statements::{close,verify_chain,rent}` → `ledger` + `manifest`.
 **Wiring test:** `tests/e4_statements.rs` — chain verifies genesis→head; rent == independent byte-day
 integral; any historical edit located. RED → GREEN.
-**Depends on:** Phase 3.
+**Depends on:** Phase 3; **Phase 0 D5** (the persistence sub-item needs the confirmed per-user-SQLite layout).
 **Read-set:** `.../src/statements.ts`, `.../e4-*.ts`.
 **Write-set:** `experiments/item-store/src/statements.rs`, `.../tests/e4_statements.rs`.
 **Shared-state contract:** none beyond write-set.
@@ -340,17 +371,20 @@ boundary. Backed by a real blob store (Garage/SeaweedFS local; local-FS fallback
 **Changes:**
 - [ ] `src/server.rs` — HTTP server (crate per Phase 0 D1, e.g. axum) with S3-compatible `PUT`/`GET`
   object routes.
-- [ ] `src/blobstore.rs` — the storage backend behind the interface (local FS first, then S3/Garage) +
-  the boundary byte-count → receipt hook.
+- [ ] `src/blobstore.rs` — the pluggable storage backend behind the interface (`BlobStore` trait; local
+  FS first, then S3/Garage) + the boundary byte-count → receipt hook.
+- [ ] `src/main.rs` (or `src/bin/item-store.rs`) — the **runnable service binary** entry point (the lib
+  alone can't be `curl`'d or deployed; Phases 7/9 need a real binary).
 - [ ] `tests/wiring_s3_metered.rs` — end-to-end: `PUT` bytes over HTTP → a signed receipt is recorded and
   postage tallied; `GET` returns bytes + receipt; rent recomputable from the manifest.
 **Call chain:** HTTP `PUT /obj` → `server::put` → `blobstore::write` + `receipts::ack` → `ledger::append`.
 **Wiring test:** `tests/wiring_s3_metered.rs` — the whole path from an HTTP request to a ledger receipt is
 live (not just `blobstore` in isolation). RED at phase start, GREEN at end. **This is the anti-dead-code
 gate.**
-**Depends on:** Phases 3–4 (receipts/statements), Phase 0 (D1 HTTP/S3 crate choice, D5 backend).
-**Read-set:** `src/{receipts,ledger,manifest,statements}.rs`; Phase 0 D1 notes.
-**Write-set:** `experiments/item-store/src/{server.rs,blobstore.rs}`, `.../tests/wiring_s3_metered.rs`,
+**Depends on:** Phases 2–4 (items/manifest for content-addressing + rent; receipts/statements),
+Phase 0 (D1 HTTP/S3 crate choice, D3 boundary shape, D5/D6 backend + which "S3" is the boundary).
+**Read-set:** `src/{item,receipts,ledger,manifest,statements}.rs`; Phase 0 D1/D3/D6 notes.
+**Write-set:** `experiments/item-store/src/{server.rs,blobstore.rs,main.rs}`, `.../tests/wiring_s3_metered.rs`,
 `Cargo.toml` (new deps).
 **Shared-state contract:** binds a local TCP port in tests (use an ephemeral port; assert none leaks);
 writes blobs under a tmp dir / a local Garage instance scoped to the test.
@@ -477,3 +511,33 @@ content-blind.
   `Bilateral` (co-signed) — **social-trust-layer-selected**, both valid; bilateral is the co-attested
   form the deferred capital layer (E11–E14) will require (forward-compatible; ties E14). **All 6 open
   questions confirmed; Pass 1 complete.**
+
+### Pass 2: Gap Analysis — 2026-07-31
+**Found:**
+- **Port-oracle mismatch (factual):** Read-sets cited the full-version module names; the dependency-free
+  **standalone** (the 81/81 build) is the correct oracle, with different names (`item/receipt/statement/
+  clock/rng/pricing.ts`). Verified against both `src/` trees.
+- **"Workspace member" was wrong (factual):** no experiments-wide Rust workspace exists; the sibling
+  crates are standalone → `item-store` is its **own crate**.
+- **Internal Rust prior art unreferenced:** `experiments/hist-atproto-spike/` + `lexicon-community/`
+  (atproto/history in Rust) — Phase 0 should read these before fetching rsky externally.
+- **Preconditions:** Phase 4 persistence depends on **Phase 0 D5**; Phase 7 depends on Phases **2**–4
+  (needs items/manifest for content-addressing + rent) and needs a **`main.rs`** entry point (a library
+  alone can't be `curl`'d or deployed — Phases 7/9 need a runnable binary).
+- **SEAM discipline** (SPEC Part 5: mocks marked `SEAM:` so production gaps grep-enumerable) wasn't stated
+  as a port invariant.
+**Concurrency:**
+- Code spine confirmed **sequential** (shared crate `lib.rs`/`Cargo.toml`). **{7,8} audited → NOT
+  parallel** (Phase 8 depends on Phase 7's server; overlapping `server.rs`/`Cargo.toml` write-set).
+  Surfaced one real overlap: **Phase 0 (discovery — no code write-set) ∥ Phases 1–3 (pure port)**;
+  findings must land before Phase 4 persistence + Phases 7–8. Recorded in the Concurrency Map.
+**Changed:**
+- Verified Assumptions: added the port-oracle/standalone module map, the no-workspace fact, the
+  internal-prior-art crates, resolved doc references. Preamble: oracle = standalone; standalone crate;
+  SEAM discipline. Phase 0 D1: internal spikes first. Phase 1: standalone-crate language. Phase 4:
+  +Phase-0-D5 dependency. Phase 7: Depends-on 2–4, +`main.rs`, `BlobStore` trait. Concurrency Map:
+  Phase-0∥1–3 note + {7,8}-not-parallel.
+**Confirmed:**
+- The E0–E9 port target is complete + proven (81/81). The two-layer split, per-user-SQLite co-location,
+  rollup/purge, and the two-mode receipt hold up under review. **No new open questions; no Pass-1 severity
+  revised.**
