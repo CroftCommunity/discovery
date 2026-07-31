@@ -10,6 +10,10 @@
 # (verify_*, merkle_root, retrieve_verified, ContentStore::has, etc.) are NOT
 # excluded — they must be killed by tests.
 exclude_re = [
+    # Equivalent mutant: rent_cents is `byte_days * RENT_NUMERATOR / RENT_DENOMINATOR`
+    # with RENT_NUMERATOR == 1, so `* 1` and `/ 1` produce identical output for every
+    # input — no test can distinguish them. Not a coverage gap. See ROADMAP_TODO E86.
+    "with / in rent_cents",
     "replace Keypair::label ->",
     "replace Identity::verifying_key ->",
     "replace Ledger::owner_id ->",
