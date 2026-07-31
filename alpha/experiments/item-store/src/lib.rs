@@ -15,7 +15,10 @@
 #![warn(missing_docs)]
 #![warn(clippy::pedantic)]
 
+pub mod canonical;
 pub mod crypto;
 pub mod identity;
 pub mod item;
+pub mod ledger;
 pub mod manifest;
+pub mod receipts;
