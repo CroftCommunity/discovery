@@ -1,0 +1,5 @@
+# Generated, deterministic run artifacts (regenerate with `node src/run.ts`).
+# The ledgers are reproducible byte-for-byte and re-verifiable with `node src/verify.ts`,
+# so they are not committed; RUN_REPORT.md IS committed as the readable deliverable.
+/ledgers/
+node_modules/
