@@ -19,9 +19,12 @@
 #![warn(clippy::pedantic)]
 
 pub mod canonical;
+pub mod clock;
 pub mod crypto;
 pub mod identity;
 pub mod item;
 pub mod ledger;
 pub mod manifest;
+pub mod pricing;
 pub mod receipts;
+pub mod statements;
