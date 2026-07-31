@@ -10,7 +10,7 @@
 |---|---|---|---|
 | 0 Discovery | DONE | `e5f0004` | 7 tasks resolved firsthand; D7 corrected telemetry to cgroup-accounting; no v0 blocker. |
 | 1 crypto/identity (E0) | SHIPPED | `8389a0e` | Deterministic Ed25519 derive + id derivation + sign/verify/pin; 9 tests, clippy/fmt clean. |
-| 2 items + manifest (E1–E2) | pending | — | |
+| 2 items + manifest (E1–E2) | SHIPPED | `9476b97` | Content-addressed `Item`/`ContentStore` (tamper-evident, dedup) + canonical signed Merkle manifest; 19 tests. |
 | 3 receipts (E3) | pending | — | |
 | 4 statements (E4) | pending | — | |
 | 5 audit + dial (E5–E6) | pending | — | |
@@ -73,6 +73,35 @@ storage backend — the backend never does metering at all, by design. The servi
 This is precisely why "meter the boundary, not the machine" holds: the *machine* (backend) needs no
 provenance. Phases 1–6 build Layer 2; Phase 7 wires it at the S3 boundary over Layer 1 (`blobstore.rs`
 trait); the atproto PDS layer (Phase 8) is a thin surface over the same boundary.
+
+**Architecture layers — the consolidated picture (user framing, 2026-07-31).** The design separates into
+**four orthogonal axes**; conflating them is the trap. They compose freely.
+
+```
+ (1) INTERFACE      S3-compatible · atproto PDS blob API   (· full atproto repo API — records, later)
+     front door
+ (2) INDEX /        flat (DID,CID)  ·  MST (NSID collection/rkey, a flat keyspace as a tree)
+     ADDRESSING       ·  RBSR (range set-reconciliation over peer nodes)
+     — pick per surface/consumer; each has its own needs:
+       flat = lookup + dedup (v0 blobs) · MST = bounded O(log n) add/remove + inclusion/sync proofs
+       (only if we host records; spec-required there) · RBSR = cheap peer set-reconciliation (Phase 10)
+        ───────────── boundary metering / provenance (Layer 2) ─────────────
+ (3) PHYSICAL       local disk · proxied object store (S3/Garage/R2) · PDS-style objects-alongside-records
+     BACKEND          — the dumb Layer-1 `BlobStore` trait; ORTHOGONAL to (2): any index on any backend
+ (4) PAYLOAD        blind (ciphertext-only) ·············· delegate (plaintext, keys delegated by the group)
+     CONFIDENTIALITY  — ORTHOGONAL to (1–3). Metering is content-agnostic (bytes + signed manifest, never
+                        plaintext), so the co-op can host what it cannot read and still bill it. Blind vs
+                        delegate = the meer confidentiality tiers (relay-lab E9, unmeasured — D4).
+```
+
+Key invariants: **metering never needs plaintext** (blind hosting bills correctly, natively); the backend
+is dumb (index ⟂ backend); and (4) touches (2) in one place — the CID is over the *stored* bytes
+(ciphertext when encrypted), so cross-user dedup needs **convergent encryption** (which leaks
+plaintext-equality) and blind hosting therefore generally forgoes cross-user dedup. Blind + plaintext
+search don't coexist without a delegate (or searchable-encryption) — a Phase-10 tier decision, not v0.
+v0 realises: interface {S3, atproto-blob}, index {flat}, backend {FS→pluggable}, confidentiality
+{payload-agnostic — we meter ciphertext or plaintext identically}. MST/RBSR/records + blind-vs-delegate
+tiers are tracked (E85, D4, `HS OC-2`), not v0.
 
 **Where Layer 2's records live (user framing, 2026-07-31).** The metering records are themselves
 **signed, append-only, per-DID records of the same shape as user content** — so they are stored the same
@@ -364,9 +393,17 @@ Zeroize-wrapped keys must not `Debug`-print or serialize). No logging in the pur
 (2) *Verification:* `cargo test e0` green (from `experiments/item-store/`; standalone crate — no `-p`).
 **Validation:** Narrow — wiring + unit tests sufficient.
 
-### Phase 2: Content-addressed items + signed manifest (port E1–E2)
+### Phase 2: Content-addressed items + signed manifest (port E1–E2) — SHIPPED (`9476b97`)
 **Goal:** Items named by fingerprint (tamper-evident) + a customer-signed manifest (the bill's source of
 truth). E1–E2.
+**Delivered (2026-07-31):** `item.rs` — `Item` (cid = SHA-256 fingerprint, computed on construction;
+`SEAM:` for CIDv1/DAG-CBOR) + `ContentStore` (dumb key→bytes Layer-1 backend; `retrieve_verified`
+re-fingerprints → `RetrieveError::{Missing,Tampered}` naming the failing item; content-addressed dedup).
+`manifest.rs` — canonical sorted-leaf Merkle root (`leaf:cid:size` / `node:l:r`, dup-last padding, empty
+sentinel) matching the oracle; `build_manifest` signs the root; `Manifest::verify` checks root-recompute +
+signature; `expected_bytes`. Wiring test `tests/e2_manifest.rs` ports E2 (provider root == customer root,
+order-independent; inflated-total + missing-leaf + impostor-key adversarials); `tests/e1_items.rs` ports
+E1. 19 tests; `clippy::pedantic` + `fmt` clean.
 **Changes:**
 - [ ] `src/item.rs` — content-addressed object (fingerprint = SHA-256; `SEAM:` note for CIDv1/DAG-CBOR).
   **[Phase 0 D1-internal]** the CIDv1/DAG-CBOR `SEAM:` can be closed with the **proven in-corpus path**
