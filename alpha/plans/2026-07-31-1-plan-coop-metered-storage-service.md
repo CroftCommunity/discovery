@@ -19,7 +19,7 @@ croft-stack Phase 10 `10-drystone-layer.md`): one metered, content-blind, networ
 
 Constraints: no browser extension, but **network is open** (WebFetch/WebSearch, Playwright available).
 The co-op and its storage service are **unnamed** (ROADMAP_TODO A21) — build under a descriptive
-placeholder (`metered-store`), not a brand. Advances the existential **D5** gate; the legal-review gate
+placeholder (`item-store`), not a brand. Advances the existential **D5** gate; the legal-review gate
 stays deferred (user).
 
 ## Reasoning
@@ -41,6 +41,34 @@ implementation rather than guess the atproto surface (global rule: never guess e
 transferred, rent = byte-days from the member's own signed manifest). So the **S3-compatible interface is
 also the metering boundary** — receipts are signed on each byte transfer, rent is derived from the signed
 manifest. This is why the S3 interface and the ledger are not two features but one seam.
+
+**The two-layer split this implies (user framing, 2026-07-31).** Metering is **not** a property of the
+storage backend — the backend never does metering at all, by design. The service is two layers:
+- **Layer 1 — the shim + dumb backend:** the S3-compatible + atproto PDS interface over a **pluggable**
+  backend (FS first, then Garage/SeaweedFS/R2). Plain bytes in/out; content-addressed by CID computed at
+  the boundary. The backend is *deliberately dumb* — that is the feature (any S3-compatible store works;
+  nothing in the storage layer must be trusted).
+- **Layer 2 — metering / crypto provenance (the E0–E9 ledger):** bilateral **signed receipts** on each
+  transfer (postage) + the customer's **own signed manifest** (rent) + statements/audit/seal — all at the
+  **boundary**. The provenance comes from the **two parties' keys + the customer's manifest**, never from
+  the backend.
+
+This is precisely why "meter the boundary, not the machine" holds: the *machine* (backend) needs no
+provenance. Phases 1–6 build Layer 2; Phase 7 wires it at the S3 boundary over Layer 1 (`blobstore.rs`
+trait); the atproto PDS layer (Phase 8) is a thin surface over the same boundary.
+
+**Where Layer 2's records live (user framing, 2026-07-31).** The metering records are themselves
+**signed, append-only, per-DID records of the same shape as user content** — so they are stored the same
+way and **co-located with the user's repo** (the official PDS's **per-user SQLite**), not in a separate
+engine (this supersedes an earlier redb lean). One provenance + management machinery (signing, CAR
+export, per-user isolation) serves both content and metering. Subtlety for Phase 0/3–4: the customer's
+**manifest is single-author** and drops straight into the repo, but **receipts/statements are bilateral
+(co-signed by both parties)** — not standard single-author atproto records — so they live as a co-signed
+structure *alongside* (same SQLite, distinct shape). **Rollup + purge boundary:** the balance-forward
+close (E4) *is* a rollup — once a period is co-signed, its granular receipts are **purgeable past the
+boundary** because the signed statement chain carries the provenance (cumulative state = the signed
+rollup, not the raw receipts). This bounds the store's growth (rhymes with the corpus's verifiable-roll-up
+/ checkpoint-compaction thinking).
 
 **Why the boundary shape is a Phase 0 unknown, not a guess.** "Custom PDS-like with an S3-compatible
 interface" leaves genuinely open whether the network boundary is (a) an S3 put/get API, (b) the atproto
@@ -136,10 +164,19 @@ inference. Network is open — fetch real sources.
   locally. **Success:** the concrete requirement the content-blind meer places on the store (append-only
   envelope sets, content-blind, addressed how). **Disposition:** throwaway → confirms the "one store, two
   consumers" claim or flags a mismatch.
-- [ ] **D5: ledger storage + blob backend choice.** From D1 + corpus (redb contract exists; croft-stack
-  conventions): pick the ledger store (redb / SQLite / Postgres) and the local blob backend
-  (Garage/SeaweedFS). **Success:** a chosen pair with rationale aligned to rsky-pds + croft-stack.
+- [ ] **D5: storage layout (confirm the Q5 resolution) + blob backend.** Confirm the official-PDS
+  **per-user SQLite** layout (from D1/D6) and how to co-locate the metering records there — the manifest
+  as a single-author repo record, receipts/statements as a co-signed structure alongside — and that the
+  **rollup/purge** boundary fits. Pick the local blob backend (Garage/SeaweedFS; FS first). **Success:**
+  a confirmed per-user-SQLite storage layout + backend aligned to official-PDS/rsky-pds + croft-stack.
   **Disposition:** throwaway.
+- [ ] **D6: official-PDS S3 support + the interface-vs-backend distinction** (from the user's question).
+  **Probe:** WebFetch the official `bluesky-social/pds` repo/docs — confirm whether/how it supports an
+  **S3 blob backend** (env-var config) vs the corpus's "SQLite + local-FS" note, and separate two
+  surfaces: (a) **S3 as a blob backend the PDS writes bytes to** (internal), (b) **an S3-compatible
+  interface exposed to clients** (our metering boundary, v0). **Success:** a confirmed statement of what
+  the official PDS does for blobs + how our S3-compatible client interface differs from a backend S3
+  store. **Disposition:** throwaway → feeds Phase 7 (which "S3" is the boundary).
 
 **Done when:** all BLOCKING open questions below are resolved, Verified Assumptions updated with
 firsthand evidence, and Phases 7/8 re-sized if D3 changes their scope (record in Review Log).
@@ -148,7 +185,7 @@ firsthand evidence, and Phases 7/8 re-sized if D3 changes their scope (record in
 
 Implementation phases (1–9) all follow the same shape: **port the proven module TDD (port its assertions
 as the RED tests first), rust-enforcer discipline (no `unwrap()` in prod, `Result`/`thiserror`, doc
-comments, `clippy::pedantic`), commit at green.** Crate/dir placeholder: `metered-store` (under
+comments, `clippy::pedantic`), commit at green.** Crate/dir placeholder: `item-store` (under
 `experiments/` for dev — see Open Question on repo/IP home). The reference oracle is the TS suite.
 
 ### Phase 1: Crate skeleton + crypto/identity (port E0)
@@ -165,13 +202,13 @@ you the same way we count you."
 under B's; id derivation deterministic (ports E0's 4 assertions). RED → GREEN.
 **Depends on:** Phase 0 (D5 storage choice informs nothing here; independent).
 **Read-set:** `experiments/item-storage-protocol/src/crypto.ts`, `.../e0-identity.ts` (reference).
-**Write-set:** `experiments/metered-store/{Cargo.toml,src/lib.rs,src/crypto.rs,src/identity.rs,README.md,tests/e0_identity.rs}`.
+**Write-set:** `experiments/item-store/{Cargo.toml,src/lib.rs,src/crypto.rs,src/identity.rs,README.md,tests/e0_identity.rs}`.
 **Shared-state contract:** no shared mutable state beyond the file write-set; adds a workspace member
 (touches the workspace `Cargo.toml` if one exists — confirm in Phase 0/here).
 **Risks:** Rust Ed25519 crate choice (`ed25519-dalek`) vs the TS lib — confirm the same curve/encoding so
 signatures are comparable to the oracle.
 **Done when:** (1) *Behavioral:* the crate signs/verifies and derives ids matching the TS E0 behavior;
-(2) *Verification:* `cargo test -p metered-store e0` green.
+(2) *Verification:* `cargo test -p item-store e0` green.
 **Validation:** Narrow — wiring + unit tests sufficient.
 
 ### Phase 2: Content-addressed items + signed manifest (port E1–E2)
@@ -188,48 +225,68 @@ truth). E1–E2.
 claims detected. RED → GREEN.
 **Depends on:** Phase 1.
 **Read-set:** `.../src/{items,manifest}.ts`, `.../e{1,2}-*.ts`.
-**Write-set:** `experiments/metered-store/src/{item.rs,manifest.rs}`, `.../tests/e{1,2}_*.rs`.
+**Write-set:** `experiments/item-store/src/{item.rs,manifest.rs}`, `.../tests/e{1,2}_*.rs`.
 **Shared-state contract:** none beyond write-set.
 **Risks:** Merkle domain-separation must match the TS root construction to stay oracle-comparable.
 **Done when:** (1) items round-trip + tamper detected; manifest root + expected-bytes correct; (2)
-`cargo test -p metered-store e1 e2` green.
+`cargo test -p item-store e1 e2` green.
 **Validation:** Narrow.
 
 ### Phase 3: Transfer receipts — postage metering (port E3)
-**Goal:** Bilateral signed transfer receipts per increment; walkaway exposure = one increment. E3 — "meter
-the boundary, not the machine."
+**Goal:** Transfer receipts per increment in **two modes** — **unilateral** (provider-signed "our-side
+measurement," valid by the trust relationship) and **bilateral** (both parties co-sign — the co-attested,
+third-party-verifiable form). The **social-trust layer selects the mode** per transfer (size / sensitivity
+/ trust distance); both are handled the same way on our end. Ports E3 (bilateral) + adds the unilateral
+mode. "Meter the boundary, not the machine."
 **Changes:**
-- [ ] `src/ledger.rs` — append-only signed-entry ledger (JSONL), the substrate under receipts/statements.
-- [ ] `src/receipts.rs` — per-increment ack (direction, fingerprint, byte range, running total, ts),
-  countersigned; both ledgers reconcile.
-- [ ] `tests/e3_receipts.rs` — port E3 incl. adversarial (forged count fails signature; walkaway exposure
-  == increment, recorded as a reputation event).
+- [ ] `src/ledger.rs` — append-only signed-entry ledger, the substrate under receipts/statements.
+- [ ] `src/receipts.rs` — per-increment record (direction, fingerprint, byte range, running total, ts)
+  with a **mode**: `Unilateral` (provider-signed only) | `Bilateral` (countersigned). Both append to the
+  ledger identically; bilateral reconciles across both parties' copies.
+- [ ] a **mode-selection seam** (`SEAM:` social-trust policy hook) — the trust layer decides unilateral
+  vs bilateral per transfer; default configurable, not hardcoded. Reuses the same trust-distance primitive
+  as the forum's subjective consensus.
+- [ ] `tests/e3_receipts.rs` — port E3 bilateral (forged count fails signature; walkaway exposure ==
+  increment) **+ unilateral** (provider-signed measurement logs and validates as an our-side measurement;
+  test asserts it is single-party — *not* third-party-co-attested — so its provenance is weaker, valid by
+  trust).
+**Forward-compat note:** the deferred funder-diligence layer (E11–E14) requires **co-attested (bilateral)**
+records to be verifiable-from-files (the E14 attested-vs-verified line), so records destined for that layer
+must use bilateral mode — the two-mode design stays forward-compatible.
 **Call chain:** `tests/e3` → `receipts::{ack,countersign,reconcile}` → `ledger::append`.
 **Wiring test:** `tests/e3_receipts.rs` — both ledgers reconcile to identical totals; forged entry fails;
 walkaway exposure bounded. RED → GREEN.
 **Depends on:** Phase 2.
 **Read-set:** `.../src/{ledger,receipts}.ts`, `.../e3-*.ts`.
-**Write-set:** `experiments/metered-store/src/{ledger.rs,receipts.rs}`, `.../tests/e3_receipts.rs`.
+**Write-set:** `experiments/item-store/src/{ledger.rs,receipts.rs}`, `.../tests/e3_receipts.rs`.
 **Shared-state contract:** ledger files under the crate's tmp/test dir only.
 **Risks:** canonical serialization for signing (must be deterministic) — port `canonical.ts` faithfully.
-**Done when:** (1) postage metered by signed receipts, walkaway bounded; (2) `cargo test -p metered-store
+**Done when:** (1) postage metered by signed receipts, walkaway bounded; (2) `cargo test -p item-store
 e3` green.
 **Validation:** Narrow.
 
 ### Phase 4: Balance-forward statements — the monthly close (port E4)
 **Goal:** Co-signed opening→closing statements chained by hash; rent = byte-day integral; disputes bound
-to one period. E4.
+to one period — and the **rollup + purge boundary**: a co-signed period lets its granular receipts be
+purged while the signed chain preserves provenance. E4 + purge.
 **Changes:**
 - [ ] `src/statements.rs` — balance-forward commit (opening root, closing root, rent, postage, fees),
   hash-chained; rent recomputable independently.
+- [ ] **rollup + purge boundary** — once a period statement is co-signed, that period's granular receipts
+  become purgeable (the hash-chained statement carries the provenance); cumulative state = the signed
+  rollup, so the store stays bounded.
+- [ ] persistence (Q5 resolution): the **manifest** as a single-author repo record and
+  **receipts/statements** as the co-signed structure alongside, co-located in the per-user SQLite
+  (evolves `ledger.rs` from Phase 3; exact module split refined in Pass 2).
 - [ ] `tests/e4_statements.rs` — port E4 incl. adversarial (historical edit located at the exact link;
-  fabricated period rejected).
+  fabricated period rejected) + a **purge test** (granular receipts of a co-signed period are dropped,
+  yet the chain still verifies genesis→head and rent stays recomputable).
 **Call chain:** `tests/e4` → `statements::{close,verify_chain,rent}` → `ledger` + `manifest`.
 **Wiring test:** `tests/e4_statements.rs` — chain verifies genesis→head; rent == independent byte-day
 integral; any historical edit located. RED → GREEN.
 **Depends on:** Phase 3.
 **Read-set:** `.../src/statements.ts`, `.../e4-*.ts`.
-**Write-set:** `experiments/metered-store/src/statements.rs`, `.../tests/e4_statements.rs`.
+**Write-set:** `experiments/item-store/src/statements.rs`, `.../tests/e4_statements.rs`.
 **Shared-state contract:** none beyond write-set.
 **Risks:** byte-day integration over a period timeline — port the time model (`time.ts`) exactly.
 **Done when:** (1) monthly statements co-signed + chained, rent correct; (2) `cargo test ... e4` green.
@@ -248,7 +305,7 @@ integral; any historical edit located. RED → GREEN.
 passes; cost scales with k, not corpus size. RED → GREEN.
 **Depends on:** Phase 4.
 **Read-set:** `.../src/audit.ts`, `.../e{5,6}-*.ts`.
-**Write-set:** `experiments/metered-store/src/{audit.rs,dial.rs}`, `.../tests/e{5,6}_*.rs`.
+**Write-set:** `experiments/item-store/src/{audit.rs,dial.rs}`, `.../tests/e{5,6}_*.rs`.
 **Shared-state contract:** seeded RNG only (port `prng.ts` for determinism).
 **Risks:** Monte-Carlo tolerance flakiness — seed the RNG (deterministic, per the SPEC).
 **Done when:** (1) detection math holds + dial priced at cost; (2) `cargo test ... e5 e6` green.
@@ -268,7 +325,7 @@ grace ledger (waivers + deceased-member hold net to zero). E7–E9.
 pinned root; postage over sealed period == audit reads. RED → GREEN.
 **Depends on:** Phase 5.
 **Read-set:** `.../src/seal.ts`, `.../e{7,8,9}-*.ts`.
-**Write-set:** `experiments/metered-store/src/{seal.rs,grace.rs}`, `.../tests/e{7,8,9}_*.rs`.
+**Write-set:** `experiments/item-store/src/{seal.rs,grace.rs}`, `.../tests/e{7,8,9}_*.rs`.
 **Shared-state contract:** none beyond write-set (key "destruction" is a mock file delete under tmp).
 **Risks:** the seal's fail-closed write path is a `SEAM:` (mock key deletion) — mark it; real
 key-destruction is a later spike.
@@ -293,22 +350,23 @@ live (not just `blobstore` in isolation). RED at phase start, GREEN at end. **Th
 gate.**
 **Depends on:** Phases 3–4 (receipts/statements), Phase 0 (D1 HTTP/S3 crate choice, D5 backend).
 **Read-set:** `src/{receipts,ledger,manifest,statements}.rs`; Phase 0 D1 notes.
-**Write-set:** `experiments/metered-store/src/{server.rs,blobstore.rs}`, `.../tests/wiring_s3_metered.rs`,
+**Write-set:** `experiments/item-store/src/{server.rs,blobstore.rs}`, `.../tests/wiring_s3_metered.rs`,
 `Cargo.toml` (new deps).
 **Shared-state contract:** binds a local TCP port in tests (use an ephemeral port; assert none leaks);
 writes blobs under a tmp dir / a local Garage instance scoped to the test.
 **Risks:** S3 API compatibility surface is large — implement the **minimal** put/get subset for v0, mark
 the rest `SEAM:`. Port count / async runtime (tokio) discipline.
 **Done when:** (1) *Behavioral:* I can `PUT`/`GET` a real object over HTTP and the transfer is metered
-with a signed receipt + a recomputable rent; (2) *Verification:* `cargo test -p metered-store
+with a signed receipt + a recomputable rent; (2) *Verification:* `cargo test -p item-store
 wiring_s3_metered` green + a manual `curl PUT/GET` against a locally-run instance.
 **Validation:** Moderate — run the server, exercise put/get with `curl`, inspect the ledger.
 
-### Phase 8: Minimal atproto PDS API surface (Phase 0-gated)
-**Goal:** Serve the minimal atproto PDS endpoints (at least `getBlob`/`uploadBlob`, and whatever D2/D3
-deem the v0 floor) so the store is a **PDS-like node on the Bluesky network**, with the S3 plane behind it.
-**Scope is set by Phase 0 D3** — if D3 concludes S3-only for v0, this phase is deferred (tracked) and v0
-ends at Phase 7 + 9.
+### Phase 8: Minimal atproto PDS API surface — the thin blob-endpoint layer (in v0, confirmed 2026-07-31)
+**Goal:** Serve the minimal atproto PDS endpoints (at least `getBlob`/`uploadBlob`, plus whatever D2/D3
+deem the v0 floor) as a **thin blob-endpoint layer on top of the S3-metering plane**, so the store is a
+**PDS-like node on the Bluesky network**. **In v0 (user-confirmed): both boundaries from the start** — the
+S3-compatible interface (Phase 7) is the storage/metering plane; this phase is the atproto layer over it.
+Phase 0 D2/D3/D6 set the exact endpoint set + shapes; the phase is **not gated out**.
 **Changes:**
 - [ ] `src/pds_api.rs` — the atproto endpoints from D2 (blob upload/get mapped onto `blobstore`; the
   metering hook stays on the byte path).
@@ -318,7 +376,7 @@ ends at Phase 7 + 9.
 **Wiring test:** `tests/wiring_pds_blob.rs` — the atproto endpoint reaches the metered blob path. RED → GREEN.
 **Depends on:** Phase 7, Phase 0 (D2/D3).
 **Read-set:** `src/{server,blobstore,receipts}.rs`; Phase 0 D2/D3 notes.
-**Write-set:** `experiments/metered-store/src/pds_api.rs`, `.../tests/wiring_pds_blob.rs`.
+**Write-set:** `experiments/item-store/src/pds_api.rs`, `.../tests/wiring_pds_blob.rs`.
 **Shared-state contract:** same as Phase 7 (ephemeral port, tmp storage).
 **Risks:** must match the **verified** atproto shapes from D2 exactly — no guessing (global rule). If the
 full PDS surface is large, ship only the blob subset for v0 and mark the rest `SEAM:`/tracked.
@@ -363,24 +421,38 @@ content-blind.
 
 ## Open Questions
 
-- [RECOMMENDED: BLOCKING] **The network boundary shape** — S3 put/get only, the atproto PDS API too, or
-  both (and if both, is the PDS surface in v0)? *Resolved by Phase 0 D2/D3; it sets the scope of Phases
-  7–8, so it must be settled before those phases are sized.*
-- [RECOMMENDED: PHASE-GATED (Phase 9)] **Repo / IP home** — build in `discovery/alpha/experiments/`
-  (corpus convention, dev), or its own `CroftCommunity/<repo>`, or directly in `croft-stack`? *Same
-  IP/ownership class as the app Phase-0 (A8) and foundation IP (E28) — the user's call. v0 can start in
-  `experiments/` and graduate; the decision gates the deploy repo home.*
-- [RECOMMENDED: PHASE-GATED (Phase 9)] **The service NAME** (A21) — the co-op + storage service are
-  unnamed; a placeholder (`metered-store`) carries dev, but a name is needed before a public fqdn/repo.
-  *Naming is a user decision (like Amble/Noria); not a v0-code blocker.*
-- [RECOMMENDED: PHASE-GATED (Phase 7)] **Blob backend for the first slice** — local FS (fastest to a
-  wiring test) then Garage/SeaweedFS, or Garage from the start? *Recommend local-FS for the first wiring
-  test, Garage/SeaweedFS before deploy. Resolved with Phase 0 D5.*
-- [RECOMMENDED: ADVISORY] **Ledger storage** — redb vs SQLite vs Postgres for the signed-ledger/manifest
-  state. *Recommend aligning with rsky-pds (Phase 0 D1) + the corpus redb contract; JSONL append-only is
-  the experiment's model and fine for v0.*
-- [RECOMMENDED: ADVISORY] **Does v0 include the funder-diligence/E11–E14 layer?** *Recommend no — deferred
-  (capital layer + the publish-co-attested-ledgers transparency commitment is an unresolved decision).*
+- [CONFIRMED: BLOCKING] **The network boundary shape** — **RESOLVED (user, 2026-07-31): BOTH, from the
+  start** — an **S3-compatible interface as the storage + metering plane** with the **atproto PDS API as
+  a thin blob-endpoint layer on top**. **Phase 8 is in v0** (not deferred). Phase 0 still verifies the
+  exact atproto shapes (D2/D3) and the official-PDS S3 support + the interface-vs-backend distinction
+  (new **D6**). *Both boundaries are core; sets Phases 7–8 scope.*
+- [CONFIRMED: PHASE-GATED (Phase 9)] **Repo / IP home** — **RESOLVED (user, 2026-07-31): start in
+  `discovery/alpha/experiments/item-store/`** (beside the `item-storage-protocol` it ports, under the
+  reviewed-before-commit flow); decide the graduation target (own `CroftCommunity/<repo>` vs into
+  `croft-stack`) at **Phase 9**. Same IP/ownership class as the app Phase-0 (A8) / foundation IP (E28) —
+  the user's call at deploy.
+- [CONFIRMED: PHASE-GATED (Phase 9)] **The service NAME** (A21) — **placeholder set to `item-store`**
+  (user, 2026-07-31: "metered is a capability," so name the *noun* — items — not the capability; ties to
+  `item-storage-protocol`). The co-op + storage service remain formally **unnamed**; the real name is a
+  deliberate naming pass (Amble/Noria-style) triggered at **Phase 9** before a public fqdn/repo. Not a
+  v0-code blocker.
+- [CONFIRMED: PHASE-GATED (Phase 7)] **Blob backend for the first slice** — **RESOLVED (user,
+  2026-07-31): a pluggable backend behind a trait; FS first, Garage/SeaweedFS/R2 later.** Because metering
+  lives at the boundary (Layer 2), the backend (Layer 1) is a deliberately-dumb, swappable implementation
+  detail — FS gets to the first wiring test fastest; Garage/SeaweedFS before Phase 9 deploy (not MinIO —
+  archived). Confirmed against rsky-pds in Phase 0 D5.
+- [CONFIRMED: ADVISORY] **Metering-ledger storage** — **RESOLVED (user, 2026-07-31): store the metering
+  records *alongside the user repo* in the same per-user SQLite** (official-PDS pattern), as same-shaped
+  signed records managed the same way — not a separate engine (supersedes the redb lean). Blob *bytes*
+  stay in the pluggable backend (Layer 1); cumulative state is a **signed rollup** (balance-forward E4)
+  with granular receipts **purgeable past the co-signed period boundary**. Subtlety for Phase 0/3–4:
+  manifest = single-author (fits the repo); receipts/statements = bilateral co-signed (a co-signed
+  structure alongside). ADVISORY — swappable behind the ledger API.
+- [CONFIRMED: ADVISORY] **Does v0 include the E11–E14 funder-diligence layer?** **RESOLVED (user,
+  2026-07-31): no — deferred** (capital layer; the publish-co-attested-ledgers transparency commitment is
+  an unresolved decision). v0 stays the storage service. The E3 **two-mode receipt** (unilateral |
+  bilateral, social-trust-selected) keeps v0 forward-compatible — the deferred layer will require
+  bilateral (co-attested) records.
 
 ## Review Log
 
@@ -389,3 +461,19 @@ content-blind.
   unknowns (network now open → fetch, not local-drop). E0–E9 port split across Phases 1–6 (≤4 files each,
   per the split rule); SEAM-closure in Phases 7–8; deploy in Phase 9; convergence consumer tracked as
   Phase 10 (gated). Concurrency: all sequential (linear ledger dependency; shared crate write-set).
+- **Pass 1 walk-through (2026-07-31):** Q1 (boundary shape) CONFIRMED BLOCKING and **resolved
+  substantively — both boundaries from the start** (S3-compatible metering plane + a thin atproto PDS
+  blob-endpoint layer on top). Effect: **Phase 8 moved from Phase-0-gated/deferrable → in v0**; added
+  **D6** (verify official-PDS S3 support + the S3-interface-vs-backend distinction, from the user's
+  question).
+- **Pass 1 walk-through, cont'd (2026-07-31):** Q2 (repo/IP home) → PHASE-GATED (Phase 9), start in
+  `experiments/item-store/`. Q3 (name) → PHASE-GATED (Phase 9), placeholder `item-store` ("metered is a
+  capability" — name the noun). Q4 (blob backend) → PHASE-GATED (Phase 7), pluggable/FS-first (added the
+  **two-layer split**: dumb backend vs boundary-metering). Q5 (ledger storage) → ADVISORY, **resolved to
+  store metering records alongside the user repo in per-user SQLite** (official-PDS pattern; supersedes
+  redb) + **rollup/purge** made explicit in Phase 4 + the bilateral-vs-single-author subtlety noted +
+  D5 revised. Q6 (E11–E14 in v0?) → ADVISORY, **deferred**. Plus a design refinement to **Phase 3**: the
+  transfer receipt is now **two-mode** — `Unilateral` (provider-signed our-side measurement) |
+  `Bilateral` (co-signed) — **social-trust-layer-selected**, both valid; bilateral is the co-attested
+  form the deferred capital layer (E11–E14) will require (forward-compatible; ties E14). **All 6 open
+  questions confirmed; Pass 1 complete.**
