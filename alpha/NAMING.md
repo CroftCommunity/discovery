@@ -330,6 +330,13 @@ publishing any lexicon (NSIDs are reverse-DNS-authority-bound and permanent once
 foundation layer). Per this repo's convention, do not propagate the name into durable structure until
 the live clearance clears. Tracked: ROADMAP_TODO; COHESION §46.
 
+**Behavior-scale mock (built, 2026-07-30).** The professional-networking pad ships first as a **persona-switch
+behavior-scale mock** (the mock tier) deployed at `stellin.app` (repo `CroftCommunity/stellin`; working name during the build
+was **"Meridian"**). It is the UX instrument for the eventual atproto AppView — its **scaled sibling** is the
+"Stellin by Croft" appview-infra work (RUN-14/15; A18). "Three deployments of one contract" per
+`thinking/behavior-scale/`. Build prompt: `thinking/app/build-specs/stellin-meridian-build-prompt.md`;
+LinkedIn research: `research/linkedin-ux-architecture-2026-07.md`. Tracked: COHESION §63, ROADMAP_TODO E80.
+
 ## App-layer naming (2026-07-29): the atproto-reader pad **Skylite → Bluebird** (renamed; ski-beginner register; clearance CONTESTED)
 
 **Decision (user 2026-07-29).** The atproto/Bluesky-reader pad formerly **Skylite** is renamed
@@ -372,9 +379,10 @@ user's open gate.** Tracked: ROADMAP_TODO E74 (local execution) + §A (clearance
 **Decision (user 2026-07-29).** The community-discussion **forum** (the read-first, Reddit/forum-idiom
 pad over Bluesky/atproto — the `2026-07-27-read-first-forum-mvp` product, whose last open item was the
 product name) gets the **working name "Graze by Croft"**. Not finally settled — if it doesn't hold, the
-fallback stays in the pastoral register. **Domain:** work from **`forum.croft.ing`** now (the plan's
-resolved domain, unchanged); **purchase `graze.ing` when possible** and let the affiliation live in the
-wordmark ("by Croft") rather than the URL, so `graze.ing` can stand alone later without a migration.
+fallback stays in the pastoral register. **Domain (updated 2026-07-30):** **`graze.ing` is acquired
+and is now the domain**, superseding the earlier `forum.croft.ing` plan (the affiliation lives in the
+wordmark "by Croft" so `graze.ing` stands alone). Prior thinking worked from `forum.croft.ing` as a
+placeholder until `graze.ing` became available; that placeholder is retired.
 
 **Why "Graze" earns it.** It sits in the same **working-landscape** spirit as Croft/Drystone without being
 bound to the drystone scheme — a hill farm, not a petting zoo. The **"by X"** lockup (cf. "Threads by
@@ -395,6 +403,10 @@ parses with zero context. `/g` maps to the *brand*, is redundant with the domain
 technology-board connotation. Reconsider only if a community's in-product noun became g-flavored — which
 cuts against keeping user-facing nouns ordinary, so it argues itself out.
 
-**Status: working name (not finally settled); `forum.croft.ing` is the live domain; `graze.ing` is a
-purchase-when-available item.** Tracked: ROADMAP_TODO E73 (`graze.ing` acquisition); COHESION §61;
-`plans/2026-07-27-read-first-forum-mvp.md` (reconciliation note).
+**Status: working name (not finally settled). `graze.ing` ACQUIRED (user, 2026-07-30) and now the
+domain**, superseding the `forum.croft.ing` thinking. The **Graze behavior-scale mock** (persona-switch
+PWA, no backend — the mock tier) is deployed there — repo `CroftCommunity/graze`; method + spec in
+`thinking/behavior-scale/` and `thinking/app/build-specs/graze-persona-switch-spec.md`. Tracked:
+ROADMAP_TODO E73 (acquisition — DONE) + E80 (build filed); COHESION §61, §63;
+`plans/2026-07-27-read-first-forum-mvp.md` (reconciliation — the build spec assumes a Next.js+Postgres
+large-tier backend vs the plan's read-first Bluesky lens; that fork is tracked in COHESION §63).
