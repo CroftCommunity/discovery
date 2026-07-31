@@ -292,5 +292,5 @@ real crypto (Ed25519/SHA-256) + exact ledger arithmetic; **not** a network/scale
 
 Feeds **D5** (`thinking/cooperative-social-union-model.md` → the charging mechanism); the "meter the
 boundary" razor is in `principles.md` (Tier 3). Open: the `SEAM:` production gaps (real CIDs/DAG-CBOR,
-real network, real key-destruction) and the **Drystone (storage) vs Drystone (protocol)** naming
-collision (surface, don't resolve).
+real network, real key-destruction) and the cooperative storage-service **name** (undefined —
+Drystone is the protocol; the dialogue's "Drystone (storage)" was a miscommunication).

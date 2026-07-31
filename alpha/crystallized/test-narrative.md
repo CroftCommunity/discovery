@@ -676,6 +676,7 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
 - **Open edges.** (1) `SEAM:`-marked production gaps — real CIDs/DAG-CBOR (not hex), real network (not
   in-process actors), real key-destruction (not deleted files); nothing here is a scale/concurrency
   claim. (2) **E14 scope condition** — the standard only holds for boundary-countable units; state it
-  wherever pitched. (3) The **Drystone (storage co-op) vs Drystone (protocol)** naming collision is
-  unresolved. (4) The **legal-review gate** (receipts-as-contract, the E11 royalty instrument, the
-  deceased-member hold) is the user's.
+  wherever pitched. (3) The cooperative storage-service is **unnamed** (Drystone stays the protocol; the
+  dialogue's "Drystone" for the storage co-op was a miscommunication). (4) The **legal-review gate**
+  (receipts-as-contract, the E11 royalty instrument, the deceased-member hold) is the user's — deferred
+  to the coop-layer pile.

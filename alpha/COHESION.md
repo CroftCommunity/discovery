@@ -1783,9 +1783,9 @@ Distilled → `thinking/cooperative-social-union-model.md` (new "charging mechan
 
 **CLOSED — a thinking-layer gap the left-behind-audit flagged.** "PDS-as-cold-storage with cryptographic receipts" existed only in `cairn/` as atproto substrate mechanics, not as a Drystone/co-op design implication in `thinking/`; the charging-mechanism section now homes it. Ties **E25** (coop model — the mechanism under Pillar 3), **E23** (the blind-broker/object-store wedge this descends from), **E28** (foundation/IP — E11 royalty + E12–14 funder-diligence), and invariant **S5** (structural-not-runtime privacy — the two-plane split).
 
-**OPEN — two gates (surface, don't resolve — the user's):** (1) **Drystone naming collision** — the dialogue's working name for the object-store co-op is "Drystone," colliding with the settled Drystone *protocol* (`NAMING.md`); reconcile (family sub-name / new name / recall-drift), don't propagate. (2) **Legal-review gate (D5)** — receipts-as-contract, the E11 royalty, the deceased-member hold — a cooperative attorney/CPA before reliance. **NOT LEGAL ADVICE.**
+**OPEN — gates (surface, don't resolve — the user's):** (1) **Cooperative storage-service name — undefined** (RESOLVED-as-miscommunication 2026-07-31: the dialogue's "Drystone" for the storage co-op was a recall-drift — **Drystone stays the P2P protocol**; the co-op and its storage service are yet to be named — a lane naming item, A21). (2) **Legal-review gate (D5, deferred to the coop-layer pile)** — receipts-as-contract, the E11 royalty, the deceased-member hold — a cooperative attorney/CPA before reliance; a ways off and expected to accrue more with it. **NOT LEGAL ADVICE.**
 
-Backlog: ROADMAP_TODO E25/D5 (advance + the metering mechanism) + the Drystone-naming-collision gate.
+Backlog: ROADMAP_TODO E25/D5 (advance + the metering mechanism); the **coop-storage lane** (E82) with its v0 sketch; A21 (coop/storage name TBD).
 
 ## 66. 2026-07-31 — forum pad: bare-link discovery + subjective-consensus reputation; a new data point on the E80↔E62 fork
 
