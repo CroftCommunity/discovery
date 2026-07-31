@@ -31,6 +31,13 @@ if (!existsSync(LEDGERS)) {
 const files = walk(LEDGERS).sort();
 let totalEntries = 0;
 let badFiles = 0;
+let adversarialTampersDetected = 0;
+
+// Ledgers under ./ledgers/adversarial/ are the E12/E13 cooked-books and
+// covenant-violation fixtures. Some of them carry a DELIBERATE tamper (e.g. a
+// retroactively edited statement), so a bad signature there is the property
+// working, not a corpus failure. Honest ledgers must all verify clean.
+const isAdversarial = (rel: string): boolean => rel.includes("/adversarial/");
 
 console.log(`Verifying ${files.length} ledger file(s) under ./ledgers/\n`);
 for (const f of files) {
@@ -39,6 +46,10 @@ for (const f of files) {
   totalEntries += res.count;
   if (res.ok) {
     console.log(`  [OK]   ${rel}  (${res.count} entries)`);
+  } else if (isAdversarial(rel)) {
+    adversarialTampersDetected++;
+    console.log(`  [TAMPER — expected, detected]  ${rel}  (${res.count} entries)`);
+    for (const e of res.errors) console.log(`         - ${e}`);
   } else {
     badFiles++;
     console.log(`  [BAD]  ${rel}  (${res.count} entries)`);
@@ -48,9 +59,14 @@ for (const f of files) {
 
 console.log("");
 if (badFiles === 0) {
-  console.log(`All ${files.length} ledger files verified; ${totalEntries} signed entries checked.`);
+  console.log(
+    `All honest ledger files verified; ${totalEntries} signed entries checked` +
+      (adversarialTampersDetected
+        ? `; ${adversarialTampersDetected} adversarial fixture(s) had their deliberate tamper detected as designed.`
+        : "."),
+  );
   process.exit(0);
 } else {
-  console.error(`${badFiles} ledger file(s) failed verification.`);
+  console.error(`${badFiles} honest ledger file(s) failed verification.`);
   process.exit(1);
 }

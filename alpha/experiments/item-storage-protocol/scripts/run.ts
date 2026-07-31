@@ -26,6 +26,10 @@ import { run as e7 } from "../experiments/e7-seal.ts";
 import { run as e8 } from "../experiments/e8-tombstone.ts";
 import { run as e9 } from "../experiments/e9-grace.ts";
 import { run as e10 } from "../experiments/e10-erasure.ts";
+import { run as e11 } from "../experiments/e11-royalty.ts";
+import { run as e12 } from "../experiments/e12-outside-reader.ts";
+import { run as e13 } from "../experiments/e13-covenants.ts";
+import { run as e14 } from "../experiments/e14-soft-unit.ts";
 
 const BASE_SEED = 424242;
 
@@ -41,6 +45,10 @@ const suite: { fn: (seed: number) => ExperimentResult; seed: number }[] = [
   { fn: e8, seed: BASE_SEED + 80 },
   { fn: e9, seed: BASE_SEED + 90 },
   { fn: e10, seed: BASE_SEED + 100 },
+  { fn: e11, seed: BASE_SEED + 110 },
+  { fn: e12, seed: BASE_SEED + 120 },
+  { fn: e13, seed: BASE_SEED + 130 },
+  { fn: e14, seed: BASE_SEED + 140 },
 ];
 
 // Fresh ledger tree each run.
@@ -73,7 +81,9 @@ if (failures === 0) {
       "All assertions green. Ledgers are under `./ledgers/` (one JSONL file per actor per " +
       "experiment); verify every signature with `node scripts/verify-ledgers.ts`.",
   });
-  console.log(`All ${results.length} experiments green. Wrote RUN_REPORT.md and ./ledgers/.`);
+  console.log(
+    `All ${results.length} experiments green. Wrote RUN_REPORT.md, DILIGENCE_REPORT.md, and ./ledgers/.`,
+  );
   process.exit(0);
 } else {
   console.error(`${failures} experiment(s) failed.`);
