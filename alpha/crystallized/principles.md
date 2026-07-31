@@ -334,3 +334,16 @@ seeds/transcripts/raw/germ-xchat-design-dialogue.md); the client-architecture AD
   stable while shipping improvements behind it; security changes are the exception and must be
   over-communicated. Honest cost to budget: multiple live UI generations = real
   documentation/support load — name it, or the principle dies in year two.
+
+- **Meter the boundary, not the machine; postage by weight, not by trips, signed on each end.**
+  (User's formulation, 2026-07-31.) You cannot cryptographically prove a provider's internal compute or
+  bandwidth — and you don't need to. Charge for a **boundary-observable unit**: the size of the package
+  delivered (bytes transferred = postage) and bytes held over time (byte-days = rent), each computable
+  by the customer from their **own signed** repo/manifest and co-signed on each end. The provider's
+  internal costs (hops, retries, hardware) become *their* problem to optimize under a price, not
+  something to prove to you — which is exactly what makes the deal non-extractive and disputable in one
+  period. **Scope condition (the honest boundary):** the discipline holds only where the unit is
+  countable at the boundary by both sides; a signed ledger of an uncountable unit (e.g. "consulting
+  hours") is *attested-but-unverifiable*, distinct from *verified* — "without a countable unit, it's
+  signed vibes." Proven in code (`experiments/item-storage-protocol`, E3 receipts + E14 counterexample);
+  underpins the co-op charging mechanism (`thinking/cooperative-social-union-model.md`); advances D5.

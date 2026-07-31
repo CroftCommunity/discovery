@@ -1773,6 +1773,20 @@ Backlog: ROADMAP_TODO E80 (new), E73 (updated).
 
 Ties §63 (behavior-scale / the Graze mock), §46 + A18 (the Stellin clearance pattern this mirrors). Backlog: ROADMAP_TODO (new A-row clearance gate; E73 disposition).
 
+## 65. 2026-07-31 — cooperative PDS-hosting metered billing: the concrete D5 mechanism, proven in code
+
+**Incoming:** the claude.ai coop-metering dialogue (`seeds/transcripts/raw/amble-naming-coop-metering-dialogue-2026-07-31.md`, the "second half") + the **item-storage-protocol experiment suite already on `main`** (PRs #33/#34/#36): `experiments/item-storage-protocol/` (E0–E14 + `SPEC.md` + independent funder verifier + tests + `RUN_REPORT.md`) and `experiments/item-storage-protocol-standalone/` (E0–E11).
+
+**ADVANCED (biggest single move on the existential item) — D5 now has a concrete, code-backed charging + accountability mechanism.** E25/D5 named the cooperative *mechanism* as existential but left *how the co-op actually charges* abstract. This supplies it: **meter the boundary, not the machine** (postage = bytes transferred, rent = byte-days from the member's own signed manifest), co-signed balance-forward statements, a cost-priced **audit dial** (`1−(1−f)^k`), sealed/tombstone cold-storage tiers, an on-book **grace ledger**, the **two-plane public/private split** (structural privacy), and — critically for *capital* — the **extinguishing-royalty** instrument (E11, bounded return = bounded extraction) + the **funder-side diligence machine** (E12–E14: revenue co-attested, underwritable from files alone, "the loan application is a build artifact"). Status **green-real** (deterministic assertion suite; not a scale claim — `SEAM:` markers enumerate production gaps).
+
+Distilled → `thinking/cooperative-social-union-model.md` (new "charging mechanism" section, deepening Pillar 3); `crystallized/principles.md` Tier 3 ("meter the boundary…", the user's razor); `proof-ledger.md` + `test-narrative.md` (T-ISP).
+
+**CLOSED — a thinking-layer gap the left-behind-audit flagged.** "PDS-as-cold-storage with cryptographic receipts" existed only in `cairn/` as atproto substrate mechanics, not as a Drystone/co-op design implication in `thinking/`; the charging-mechanism section now homes it. Ties **E25** (coop model — the mechanism under Pillar 3), **E23** (the blind-broker/object-store wedge this descends from), **E28** (foundation/IP — E11 royalty + E12–14 funder-diligence), and invariant **S5** (structural-not-runtime privacy — the two-plane split).
+
+**OPEN — two gates (surface, don't resolve — the user's):** (1) **Drystone naming collision** — the dialogue's working name for the object-store co-op is "Drystone," colliding with the settled Drystone *protocol* (`NAMING.md`); reconcile (family sub-name / new name / recall-drift), don't propagate. (2) **Legal-review gate (D5)** — receipts-as-contract, the E11 royalty, the deceased-member hold — a cooperative attorney/CPA before reliance. **NOT LEGAL ADVICE.**
+
+Backlog: ROADMAP_TODO E25/D5 (advance + the metering mechanism) + the Drystone-naming-collision gate.
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
