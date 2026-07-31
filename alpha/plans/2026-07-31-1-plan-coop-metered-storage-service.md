@@ -1031,3 +1031,14 @@ v0). Corrected the Reasoning "Access model" note + the Open Question; lands on t
 **(2) Test-hardening (E86).** Beyond wiring tests: paired rejection tests (now, per phase), `cargo-mutants`
 + `proptest` (periodic — operationalises the Pass-3 mutation-resistance gate), and a Phase-7 end-to-end
 abuse suite. Backlog E86 + Open Question + Phase-7 validation note. Neither is a v0 blocker.
+
+### Test run 2026-07-31 — E0–E3 mutation gate
+Ran `cargo-mutants` on the E0–E3 crate (`experiments/item-store/`). First pass: 130 mutants, 24 survived —
+almost all in the boolean structure of the receipt verify predicates (`verify_bilateral`'s `&&`,
+`verify_unilateral`'s guard, `is_acknowledged`/`is_co_attested`) plus a **security-relevant** one: a
+`leaf_hash` that ignored its input survived (no test checked the manifest root actually *binds* each leaf's
+`(cid, size)` — a size-forgery would go undetected). Added paired should-fail-for-sure negatives (E86
+layer 1) covering each. Second pass: **117 mutants → 103 caught / 0 missed / 13 unviable / 1 benign
+timeout** (the `merkle_root` `while len > 1` → `>= 1` non-terminating loop). Trivial field accessors are
+excluded via `.cargo/mutants.toml` (documented there; logic is never excluded). 35 tests total, clippy
+pedantic + fmt clean. `proptest` + the Phase-7 e2e abuse suite remain (E86 layers 2–3).
