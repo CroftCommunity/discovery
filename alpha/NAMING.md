@@ -480,5 +480,5 @@ carry "Amble (pending clearance)."
 
 **Status: working name (not finally settled); clearance gate is the user's.** Tracked: ROADMAP_TODO
 (a Stellin-style name-clearance gate row + the `graze.ing` disposition on E73 + the E80/E62 fork);
-COHESION §64 (naming supersession) + §65 (the bare-link forum feature). Clearance report:
+COHESION §64 (naming supersession) + §66 (the bare-link forum feature). Clearance report:
 `research/amble-name-clearance-2026-07.md`.
