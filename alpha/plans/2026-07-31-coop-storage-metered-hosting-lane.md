@@ -129,6 +129,11 @@ statement, verify it. That is the "starting point" we can then show and build on
 
 ## Next step (build sequence — grounding before code)
 
+> **Build plan (phase-plan, Pass 1 done):** `2026-07-31-1-plan-coop-metered-storage-service.md` —
+> Phase 0 discovery (rsky-pds + atproto surface, network-fetched) → E0–E9 Rust port (Phases 1–6) →
+> S3-compatible metered boundary (Phase 7) → atproto PDS surface (Phase 8, Phase-0-gated) → croft-stack
+> VPS deploy (Phase 9) → history-convergence consumer (Phase 10, gated/later).
+
 Because this extrapolates from a real implementation and speaks a real network API, we ground and plan
 before writing service code (global rules: verify APIs against a source of truth; TDD; phase-plan for
 complex changes; rust-enforcer discipline).
