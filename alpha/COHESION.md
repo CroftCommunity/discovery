@@ -1759,6 +1759,20 @@ Backlog: ROADMAP_TODO E46 (appended, not a new item).
 
 Backlog: ROADMAP_TODO E80 (new), E73 (updated).
 
+## 64. 2026-07-31 — Forum-layer naming: Graze → Amble by Croft (working name, clearance CONTESTED)
+
+**Incoming:** the claude.ai naming dialogue (`seeds/transcripts/raw/amble-naming-coop-metering-dialogue-2026-07-31.md`) + a commissioned clearance memo (`research/amble-name-clearance-2026-07.md`).
+
+**DECISION (user 2026-07-31) — the forum-layer working name moves Graze → Amble by Croft.** "Graze" was premature. Recorded in `NAMING.md` (Forum-layer 2026-07-31, superseding the 2026-07-29 Graze section, whose *pad-design* content stays valid). Follows the **Stellin/Noria/Bluebird** convention: a working name behind a **user-owned clearance gate**; not propagated into durable structure until it holds.
+
+**OPEN — clearance gate (CONTESTED, not blocked), broader than Stellin's.** Beyond a live-source re-run it carries an **outreach dependency**: (1) counsel knockout search (classes 9/38/41/42/45; TSDR on Serials 99174346 language/reading software + 99446780); (2) a live `amble.ing` premium-tier quote; (3) the **AMBLE NZ coexistence-letter outcome**. The one hard conflict is a **direct-category common-law senior user** — "amble — social media without influence" (AMBLE NZ, holds `amble.social`) — Stellin had only SEO adjacency, so this is a sharper reverse-confusion risk. Decision is right **conditional on the letter being sent + pursued before launch** (user: "if it lands, we reach out before launch").
+
+**Recorded so it isn't re-litigated — Meander runner-up.** On pure register cleanliness Meander is *safer* (MEANDER US Reg. 3738941 DEAD/§8-cancelled; no live software conflict). Amble chosen for register-fit + open atproto niche; Meander is the fallback (same pattern as "Watershed rejected" under Noria).
+
+**OPEN — two domain reconciliations (surface, don't resolve).** `graze.ing` (acquired, E73) is now name-superseded → disposition needed (retire/redirect/hold); `amble.ing` wanted but **premium-tier UNVERIFIED** → live quote gates it. Built Graze mock (repo/domain/spec/behavior-scale registry) **not renamed** until Amble clears.
+
+Ties §63 (behavior-scale / the Graze mock), §46 + A18 (the Stellin clearance pattern this mirrors). Backlog: ROADMAP_TODO (new A-row clearance gate; E73 disposition).
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the
