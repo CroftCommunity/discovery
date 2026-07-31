@@ -175,6 +175,10 @@ mod tests {
         store.put(&a);
         store.put(&b);
         assert!(store.has(a.cid()));
+        assert!(
+            !store.has("a-cid-that-was-never-stored"),
+            "absent cid is not present"
+        );
         assert_eq!(store.stored_bytes(), 30);
     }
 

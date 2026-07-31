@@ -195,4 +195,29 @@ mod tests {
         assert!(manifest.verify(&customer.verifying_key()));
         assert!(!manifest.verify(&other.verifying_key()));
     }
+
+    #[test]
+    fn root_binds_each_leaf_cid_and_size() {
+        // The root must bind (cid, size) per leaf: changing one leaf's size or
+        // cid (same leaf count) changes the root — otherwise a size-forgery
+        // would go undetected and rent could be forged. (E86 mutation-resistance:
+        // kills a `leaf_hash` that ignores its input.)
+        let base = leaves();
+
+        let mut size_changed = leaves();
+        size_changed[0] = ManifestLeaf::new(size_changed[0].cid(), size_changed[0].size() + 1);
+        assert_ne!(
+            merkle_root(&base),
+            merkle_root(&size_changed),
+            "root binds each leaf's size",
+        );
+
+        let mut cid_changed = leaves();
+        cid_changed[0] = ManifestLeaf::new("dddd", cid_changed[0].size());
+        assert_ne!(
+            merkle_root(&base),
+            merkle_root(&cid_changed),
+            "root binds each leaf's cid",
+        );
+    }
 }

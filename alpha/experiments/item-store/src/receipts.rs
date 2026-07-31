@@ -286,7 +286,10 @@ pub fn make_unilateral_receipt(
 
 #[cfg(test)]
 mod tests {
-    use super::{make_bilateral_receipt, Direction, Receipt, ReceiptCore};
+    use super::{
+        make_bilateral_receipt, make_unilateral_receipt, Direction, Receipt, ReceiptCore,
+        ReceiptMode,
+    };
     use crate::crypto::derive_keypair;
     use crate::identity::derive_id;
     use ed25519_dalek::VerifyingKey;
@@ -343,5 +346,109 @@ mod tests {
         let receipt = make_bilateral_receipt(core, None, &sender);
         assert!(!receipt.is_acknowledged());
         assert!(receipt.sigs().is_empty());
+    }
+
+    // The following are mutation-resistance tests (E86): they pin the boolean
+    // structure of the verify predicates that a happy-path suite leaves free.
+
+    #[test]
+    fn bilateral_with_one_bad_signature_fails() {
+        // Exactly one of the two signatures is invalid — the AND in
+        // verify_bilateral must reject (a lone valid sig is not enough).
+        let (rid, receiver, sid, sender) = parties();
+        let ring = ring(&[(&rid, &receiver), (&sid, &sender)]);
+        let core = ReceiptCore::new(Direction::Upload, "cid", (0, 100), 100, 1, &rid, &sid);
+        let good = make_bilateral_receipt(core, Some(&receiver), &sender);
+
+        let mut sigs = good.sigs().clone();
+        // Overwrite the sender's signature with one over a different message.
+        sigs.insert(sid.clone(), sender.sign_message("some other message"));
+        let one_bad = Receipt::from_parts(
+            good.core().clone(),
+            good.content_hash().to_owned(),
+            ReceiptMode::Bilateral,
+            sigs,
+        );
+        assert!(
+            !one_bad.verify_bilateral(&ring),
+            "one valid + one invalid signature must not verify bilaterally",
+        );
+    }
+
+    #[test]
+    fn bilateral_with_only_one_signature_is_not_acknowledged_or_co_attested() {
+        let (rid, receiver, sid, sender) = parties();
+        let core = ReceiptCore::new(Direction::Upload, "cid", (0, 100), 100, 1, &rid, &sid);
+        let good = make_bilateral_receipt(core, Some(&receiver), &sender);
+
+        // Drop the sender's signature — only the receiver's remains.
+        let mut sigs = good.sigs().clone();
+        sigs.remove(&sid);
+        let one_sig = Receipt::from_parts(
+            good.core().clone(),
+            good.content_hash().to_owned(),
+            ReceiptMode::Bilateral,
+            sigs,
+        );
+        assert!(
+            !one_sig.is_acknowledged(),
+            "one signature is not acknowledged"
+        );
+        assert!(
+            !one_sig.is_co_attested(),
+            "one signature is not co-attested"
+        );
+    }
+
+    #[test]
+    fn acknowledged_bilateral_receipt_is_co_attested() {
+        let (rid, receiver, sid, sender) = parties();
+        let core = ReceiptCore::new(Direction::Upload, "cid", (0, 100), 100, 1, &rid, &sid);
+        let receipt = make_bilateral_receipt(core, Some(&receiver), &sender);
+        assert!(
+            receipt.is_co_attested(),
+            "a fully-signed bilateral receipt is co-attested",
+        );
+    }
+
+    #[test]
+    fn unilateral_rejection_paths() {
+        let (rid, receiver, sid, sender) = parties();
+        let ring = ring(&[(&rid, &receiver), (&sid, &sender)]);
+        let core = ReceiptCore::new(Direction::Upload, "cid", (0, 100), 100, 1, &rid, &sid);
+
+        // A valid unilateral (provider = sender here) measurement verifies.
+        let good = make_unilateral_receipt(core.clone(), &sid, &sender);
+        assert!(good.verify_unilateral(&ring));
+
+        // (a) tampered core: the content hash no longer matches -> reject.
+        let mut tampered_core = good.core().clone();
+        tampered_core.bytes += 1;
+        let tampered = Receipt::from_parts(
+            tampered_core,
+            good.content_hash().to_owned(),
+            ReceiptMode::Unilateral,
+            good.sigs().clone(),
+        );
+        assert!(!tampered.verify_unilateral(&ring), "tampered core rejected");
+
+        // (b) no signatures: an unsigned measurement is not valid.
+        let empty = Receipt::from_parts(
+            good.core().clone(),
+            good.content_hash().to_owned(),
+            ReceiptMode::Unilateral,
+            std::collections::BTreeMap::new(),
+        );
+        assert!(
+            !empty.verify_unilateral(&ring),
+            "empty-sig unilateral rejected"
+        );
+
+        // (c) wrong mode: a Bilateral-mode receipt is not unilaterally valid.
+        let bilateral = make_bilateral_receipt(core, Some(&receiver), &sender);
+        assert!(
+            !bilateral.verify_unilateral(&ring),
+            "bilateral is not unilaterally valid",
+        );
     }
 }
