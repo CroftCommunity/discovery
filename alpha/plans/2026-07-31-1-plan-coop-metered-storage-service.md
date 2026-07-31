@@ -12,7 +12,7 @@
 | 1 crypto/identity (E0) | SHIPPED | `8389a0e` | Deterministic Ed25519 derive + id derivation + sign/verify/pin; 9 tests, clippy/fmt clean. |
 | 2 items + manifest (E1–E2) | SHIPPED | `9476b97` | Content-addressed `Item`/`ContentStore` (tamper-evident, dedup) + canonical signed Merkle manifest; 19 tests. |
 | 3 receipts (E3) | SHIPPED | `b31be48` | Two-mode receipts (Bilateral/Unilateral) + append-only signed ledger + canonical serialization; walkaway/forgery caught; 30 tests. |
-| 4 statements (E4) | pending | — | |
+| 4 statements (E4) | SHIPPED | `18fd199`+`0b0464c` | Statement chain + byte-day rent + rollup/purge (4a) + per-user SQLite persistence (4b, `:memory:` tests); 48 tests. |
 | 5 audit + dial (E5–E6) | pending | — | |
 | 6 seal + grace (E7–E9) | pending | — | |
 | 7 S3 metered boundary | pending | — | |
@@ -509,10 +509,26 @@ total, ts); WARN on a forged-count / signature failure carrying the failing entr
 **Done when:** (1) postage metered by signed receipts, walkaway bounded; (2) `cargo test e3` green.
 **Validation:** Narrow.
 
-### Phase 4: Balance-forward statements — the monthly close (port E4)
+### Phase 4: Balance-forward statements — the monthly close (port E4) — SHIPPED (4a `18fd199`, 4b `0b0464c`)
 **Goal:** Co-signed opening→closing statements chained by hash; rent = byte-day integral; disputes bound
 to one period — and the **rollup + purge boundary**: a co-signed period lets its granular receipts be
 purged while the signed chain preserves provenance. E4 + purge.
+**Delivered (2026-07-31), split into two commits:**
+- **4a (`18fd199`) — statement logic:** `clock.rs` (`SimClock` day counter) + `pricing.rs` (`rent_cents`
+  = floor(byte-days/10k), `postage_cents` = floor(bytes/1k), integer cents) + `statements.rs` (`RentTimeline`
+  bytes-at-rest step-function → byte-day integral; `StatementBody`/`build_statement` hash over canonical
+  body; `verify_chain` prev-link/hash-recompute/period-sequence reporting exact `failed_at`;
+  `purge_receipts_settled_through`). Wiring test `e4_statements.rs` (3-period chain, balance-forward, rent
+  == recomputed integral, tamper-located, fabrication-rejected, purge-preserves-chain).
+- **4b (`0b0464c`) — per-user SQLite persistence** (D5 co-location; user chose to build it now, not defer:
+  `rusqlite` `:memory:` mode runs the *real* persistence path in tests). `persist.rs` — a per-DID `Store`
+  co-locating manifest (single-author) + receipts + statements (co-signed alongside); records stored as
+  canonical JSON, `load_*` reconstruct + callers re-verify. Added `Deserialize` to the persisted types;
+  `SEAM:` for `Connection` `!Sync` → pooling at Phase 7. Wiring test `wiring_persist.rs` (round-trip +
+  per-DID isolation).
+- **Write-set expanded** beyond the Pass-2 plan: added `clock.rs`, `pricing.rs`, `persist.rs`,
+  `tests/wiring_persist.rs`, `Cargo.toml` (`rusqlite` bundled), `clippy.toml` (`doc-valid-idents`), and
+  `Deserialize` derives on `manifest.rs`/`receipts.rs`. 48 tests; clippy pedantic + fmt clean.
 **Changes:**
 - [ ] `src/statements.rs` — balance-forward commit (opening root, closing root, rent, postage, fees),
   hash-chained; rent recomputable independently.

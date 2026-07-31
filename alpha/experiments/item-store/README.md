@@ -41,6 +41,10 @@ Phase 0 discovery complete). Phases: 1 crypto/identity (E0) · 2 items+manifest 
 - **Phase 3 (E3 — receipts + ledger): DONE.** Two-mode transfer receipts
   (`Bilateral` co-signed | `Unilateral` provider-signed) + an append-only,
   hash-linked, signed ledger + deterministic canonical serialization.
+- **Phase 4 (E4 — statements + persistence): DONE.** Balance-forward statement
+  chain (byte-day rent, hash-linked close, rollup/purge) + per-user SQLite
+  persistence co-locating manifest/receipts/statements (`rusqlite`; `:memory:`
+  mode in tests, file-backed in production).
 - **Test hardening (E86): E0–E3 mutation gate green** (`cargo-mutants`: 103 caught /
   0 missed; trivial accessors excluded via `.cargo/mutants.toml`).
 
