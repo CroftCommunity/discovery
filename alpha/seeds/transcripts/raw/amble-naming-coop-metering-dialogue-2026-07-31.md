@@ -144,6 +144,11 @@ walked **Frontpage**'s architecture and the **PDS config seam** (the reference P
 S3-compatible blobstore via environment variables), which became the wedge idea: **an object store
 built for PDS-shaped needs, offered by a co-op, working name Drystone.**
 
+> *[editorial note, 2026-07-31: "Drystone" as the storage-co-op name was a recall-drift /
+> miscommunication — confirmed by the user. **Drystone is the P2P protocol** (`NAMING.md` →
+> Protocol-layer) and stays that; the co-op and its storage service are **yet to be named** (A21).
+> Dialogue text left intact above for fidelity.]*
+
 The metering design built on top: **meter the boundary, not the machine**, with two units —
 **bytes transferred** (postage, bilaterally signed receipts per increment) and **byte-days at rest**
 (rent, computed from the member's own signed repo, since a repo plus its referenced blob CIDs is the
@@ -203,5 +208,5 @@ humanity point the same direction.**
   architecture fork, COHESION §63).
 - Coop metering design → `thinking/cooperative-social-union-model.md`; the "meter the boundary"
   principle → `crystallized/principles.md`; the proof it points at → `experiments/item-storage-protocol/`
-  (proof-ledger + test-narrative). Advances **D5**. Naming collision "Drystone (storage)" vs the
-  settled Drystone protocol = a tracked reconciliation gate.
+  (proof-ledger + test-narrative). Advances **D5**. The co-op and its storage service are **unnamed**
+  (the dialogue's "Drystone" for storage was a miscommunication — Drystone is the protocol; A21).

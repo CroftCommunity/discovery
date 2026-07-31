@@ -148,10 +148,10 @@ are nearly free to serve, so the economics and the humanity point the same direc
 anti-extraction ethos, made cheap.
 
 **Two gates to surface, not resolve (both the user's):**
-- **[decision] Naming collision — "Drystone."** The dialogue's working name for the object-store co-op
-  is **Drystone**, but in the corpus **Drystone is the settled name of the P2P protocol** (`NAMING.md` →
-  Protocol-layer). This is either a deliberate family reuse, a new sub-name, or a recall-drift — do
-  **not** propagate "Drystone (storage)" into structure until reconciled.
+- **[open, naming] The cooperative and its storage service are unnamed.** The dialogue used "Drystone"
+  as a working name for the object-store co-op, but that was a **miscommunication / recall-drift**
+  (user, 2026-07-31) — **Drystone is the P2P protocol** (`NAMING.md` → Protocol-layer) and stays that.
+  The co-op and its storage service are **yet to be named**; a naming item for the lane, not a blocker.
 - **[decision] Legal-review gate (D5).** The receipts-as-contract, the E11 extinguishing-royalty
   instrument, and the deceased-member hold add to the existing Pillar-3 legal-review gate — a
   cooperative attorney/CPA must review before reliance. **NOT LEGAL ADVICE.**
