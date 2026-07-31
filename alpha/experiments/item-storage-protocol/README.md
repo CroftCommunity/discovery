@@ -8,6 +8,12 @@ generated `RUN_REPORT.md` is the narrative.
 This is an `alpha/experiments/` spike (see the workspace `AGENTS.md`). It stands alone: zero external
 dependencies, no network, no build step.
 
+**Productionization (Rust port):** the network-accessible, metered service that turns this proven model
+into a usable product is being built in `../item-store/` — a Rust port of the dependency-free standalone
+(`../item-storage-protocol-standalone/`, the 81/81 build) module-by-module under TDD, then closing the
+`SEAM:`s (real network boundary, blob backend, CIDs). Build plan:
+`../../plans/2026-07-31-1-plan-coop-metered-storage-service.md`.
+
 ## What it is
 
 We keep items for people. Every item is named by its own SHA-256 fingerprint, so an item cannot
