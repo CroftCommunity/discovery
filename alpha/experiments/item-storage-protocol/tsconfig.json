@@ -1,0 +1,15 @@
+{
+  "//": "For editor / optional `tsc --noEmit` type-checking only. The suite runs directly on Node's native TypeScript type-stripping (Node >= 22.6, on by default >= 22.18) — there is no build step and no emitted JS.",
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["src", "experiments", "test", "scripts"]
+}
