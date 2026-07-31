@@ -103,17 +103,25 @@ v0 realises: interface {S3, atproto-blob}, index {flat}, backend {FS→pluggable
 {payload-agnostic — we meter ciphertext or plaintext identically}. MST/RBSR/records + blind-vs-delegate
 tiers are tracked (E85, D4, `HS OC-2`), not v0.
 
-**Access model — public-read, authorized-write (user framing, 2026-07-31).** Like a real atproto PDS
-(and a unix `774`): the byte layer is **public-read by default** (`getBlob`/`getRecord`/firehose are
-public — anyone fetches bytes) and **writes are authorized** to the owner DID + **delegated capabilities**
-(OAuth scopes / capability grants — "some can write"; ties E83's delegate idea + the social-trust layer).
-Metering is orthogonal (billing ≠ access control). **Load-bearing caveat:** a read-ACL is *not*
-server-enforceable in a blind/replicated model — a content-blind store can't police plaintext it can't
-see, and public replication defeats "deny read." So **"private" is done by encryption (axis 4), not a
-server read-bit**: `chmod`-style authz governs *byte* access (public-read / authorized-write); *encryption*
-governs *plaintext* access (the group holds keys; the server is not the confidentiality trust anchor —
-the local-first/atproto stance). Lands at the **interface/auth layer (Phase 7/8)** on the Phase 8
-`uploadBlob` auth `SEAM:`, not in the E0–E9 core; tracked in Open Questions.
+**Access model — two independent dimensions: access + confidentiality (user framing, 2026-07-31,
+corrected).** The PDS/unix-`774` default is **public-read, authorized-write** — writes authorized to the
+owner DID + **delegated capabilities** (OAuth scopes / capability grants — "some can write"; ties E83 +
+the social-trust layer); metering orthogonal (billing ≠ access control). But **access and confidentiality
+are two separate axes**, not one:
+- **Access (object gating): server-enforceable, even when blind.** The store authenticates the requester
+  and decides whether to hand over the *object* — without knowing its contents. So a read-ACL on the
+  *bytes* works fine; "public-read" is a **default**, not a limitation, and can be gated per object.
+- **Confidentiality (plaintext): encryption, orthogonal.** Who can *decrypt* is governed by keys the group
+  holds, never the server. The server gates *access to ciphertext* but cannot (and need not) control
+  decryption — the local-first/atproto stance (server is not the confidentiality trust anchor).
+
+They compose four ways: public+plaintext, public+encrypted (anyone fetches ciphertext, only key-holders
+read), gated+encrypted (defense in depth), gated+plaintext (the delegate tier — server/delegate can read).
+**Public replication (the PDS→relay firehose, `subscribeRepos`) is an opt-in feature, not a requirement:**
+objects you replicate to a public relay become publicly fetchable (you chose to broadcast them); objects
+you don't stay access-gated by the store. Relay replication is later (full-repo sync scope, out of v0) and
+a toggle. All of this lands at the **interface/auth layer (Phase 7/8)** on the Phase 8 `uploadBlob` auth
+`SEAM:`, not in the E0–E9 core; tracked in Open Questions.
 
 **Where Layer 2's records live (user framing, 2026-07-31).** The metering records are themselves
 **signed, append-only, per-DID records of the same shape as user content** — so they are stored the same
@@ -800,11 +808,15 @@ content-blind.
   MST-like content-addressed object index only if/when we host atproto records, the flat manifest's O(n)
   re-sign hurts at scale, or we need compact audit-inclusion / sync-diff proofs. Keep manifest/index
   addressing **pluggable** (same seam as D4 / `HS OC-2`). Not a v0 blocker.
-- [CONFIRMED: PHASE-GATED (Phase 7/8)] **Access model — public-read, authorized-write.** DECIDED (user,
-  2026-07-31): the PDS/unix-`774` shape — byte layer **public-read by default**; **writes authorized** to
-  the owner DID + delegated capabilities (OAuth scopes / capability grants). Metering orthogonal. **"Private"
-  = encryption (axis 4), not a server read-ACL** (unenforceable in a blind/replicated model — the server is
-  not the confidentiality trust anchor). Lands on the Phase 8 `uploadBlob` auth `SEAM:` (v0 mocks auth);
+- [CONFIRMED: PHASE-GATED (Phase 7/8)] **Access model — two axes: access + confidentiality.** DECIDED
+  (user, 2026-07-31, corrected): default **public-read, authorized-write** (PDS/unix-`774`); writes
+  authorized to the owner DID + delegated capabilities. Metering orthogonal. **Access (object gating) IS
+  server-enforceable, even when blind** — the store authenticates the requester and decides whether to
+  hand over the object without knowing its contents (public-read is a default, gateable per object).
+  **Confidentiality (plaintext) is a separate axis** — encryption; keys held by the group; the server
+  gates ciphertext access but never controls decryption. They compose (public/gated × plaintext/encrypted;
+  gated+plaintext = the delegate tier). **Public relay replication (`subscribeRepos` firehose) is an opt-in
+  feature, not a requirement** (out of v0). Lands on the Phase 8 `uploadBlob` auth `SEAM:` (v0 mocks auth);
   not an E0–E9-core concern. Delegation ties E83 + the social-trust layer.
 - [CONFIRMED: ADVISORY — tracked E86] **Test-hardening for a sensitive/complex engine.** DECIDED (user,
   2026-07-31): beyond per-phase wiring tests, three layers — (1) **paired rejection tests** (every verify
@@ -1007,3 +1019,15 @@ only `copy_file_range`/reflink adopted early. Flagged tension: `io_uring` vs the
 (hardened kernels disable io_uring) — hardening wins v0, io_uring is a measured later upgrade. The
 `BlobStore` + Phase-7 op-dispatch seams are the attach points; gated on a Phase-9 VPS-kernel-version probe
 (needs 5.x+). Recorded as backlog **E84** + a Phase-7 blobstore note + Open Question. v0 scope unchanged.
+
+### Decision 2026-07-31 — access model (corrected) + test-hardening (E86)
+Two records from the Phase-3 discussion. **(1) Access model — corrected.** Initial framing overstated that
+read-ACLs aren't server-enforceable in a blind model. User correction: the store *can* gate access to the
+**object** (hand over bytes or not) without knowing its contents — access control is server-enforceable
+even when blind; what the server cannot control is **decryption** (confidentiality). So **access and
+confidentiality are two independent axes**, not one; "public-read" is a default, gateable per object; and
+public relay replication (`subscribeRepos` firehose) is an **opt-in feature, not a requirement** (out of
+v0). Corrected the Reasoning "Access model" note + the Open Question; lands on the Phase-8 auth `SEAM:`.
+**(2) Test-hardening (E86).** Beyond wiring tests: paired rejection tests (now, per phase), `cargo-mutants`
++ `proptest` (periodic — operationalises the Pass-3 mutation-resistance gate), and a Phase-7 end-to-end
+abuse suite. Backlog E86 + Open Question + Phase-7 validation note. Neither is a v0 blocker.
