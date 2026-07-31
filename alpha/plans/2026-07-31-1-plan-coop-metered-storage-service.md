@@ -498,6 +498,12 @@ boundary. Backed by a real blob store (Garage/SeaweedFS local; local-FS fallback
   object routes.
 - [ ] `src/blobstore.rs` — the pluggable storage backend behind the interface (`BlobStore` trait; local
   FS first, then S3/Garage) + the boundary byte-count → receipt hook.
+- [ ] **op-dispatch seam (forward-compat, `SEAM:`)** — route request handling through a small op-dispatch
+  boundary (an `Op` enum / dispatch fn) rather than inlining all work in the HTTP handler. v0 dispatches
+  in-process; the seam exists so a **later** per-DID compute-observability wrapper (E83, watch-in-place)
+  can route a *heavy* op (CAR export, MST rebuild, audit sampling, seal ceremony) into a per-DID cgroup
+  scope without a rewrite. Mirror of the pluggable-backend / pluggable-addressing hooks. **Not a v0
+  feature** — just the seam. Cheap ops (blob PUT/GET) never get scoped (spawn cost > their compute).
 - [ ] `src/main.rs` (or `src/bin/item-store.rs`) — the **runnable service binary** entry point (the lib
   alone can't be `curl`'d or deployed; Phases 7/9 need a real binary).
 - [ ] `tests/wiring_s3_metered.rs` — end-to-end: `PUT` bytes over HTTP → a signed receipt is recorded and
@@ -667,6 +673,20 @@ content-blind.
   an unresolved decision). v0 stays the storage service. The E3 **two-mode receipt** (unilateral |
   bilateral, social-trust-selected) keeps v0 forward-compatible — the deferred layer will require
   bilateral (co-attested) records.
+- [CONFIRMED: ADVISORY — post-v0, tracked E83] **Per-DID compute/mem/io observability ("watch in
+  place").** **DECIDED (user, 2026-07-31):** leverage the **cgroup v2 primitive** to attribute per-repo /
+  per-DID CPU/memory/IO load — as **operational data, NOT a billing axis**. Billing stays **transfer
+  (postage) + storage (rent)**; compute/mem/io is for (a) capacity/scaling signals ("where to scale, when
+  to step in"), (b) per-user load **attribution**, and (c) an **anti-gamesmanship cross-dimension** (a
+  second orthogonal observation so abuse that games the transfer model — e.g. tiny transfers driving heavy
+  compute — still shows up). **Mechanism:** `Delegate=yes` on the unit → the service creates a per-DID
+  child cgroup for a *heavy* op, moves the worker in, and reads `cpu.stat`/`memory.peak`/`io.stat` deltas
+  **directly** (the service is its own consumer of the cgroup primitive — **independent of** the
+  croft-stack admin poller; no cross-repo dependency for attribution). Cheap ops (blob PUT/GET) are never
+  scoped (spawn cost > their compute). Provenance: machine-measured → **Unilateral only** (never
+  co-attestable) — moot here since it is not a charged/attested unit. **v0:** only the **Phase-7
+  op-dispatch `SEAM:`** (forward-compat); the capability itself is post-v0 (E83). *Latent decision kept
+  closed: whether compute ever becomes a billed axis — no for now (economic-model / D5, the user's call).*
 
 ## Review Log
 
@@ -833,3 +853,16 @@ the narrative.
 
 **No v0 blocker surfaced; no BLOCKING open question reopened.** Phases 1–6 (pure ledger port) are unaffected
 by discovery and ready to start. Phases 7–9 are now sized on firsthand evidence.
+
+### Decision 2026-07-31 — per-DID compute/mem/io observability ("watch in place")
+Design thread raised by the user off the D7 cgroup finding. Recorded (not built): the cgroup v2
+**primitive** (not the admin poller) can attribute per-repo/per-DID CPU/memory/IO load; this is
+**operational data + attribution + an anti-gamesmanship cross-dimension, NOT a billing axis** — billing
+stays transfer + storage. Mechanism: `Delegate=yes` → the service reads per-DID child-cgroup deltas
+directly, independent of the croft-stack poller (no cross-repo dependency for attribution; the poller-glob
+change is only for an optional admin dashboard). Machine-measured ⇒ Unilateral provenance, moot since not
+charged. **Plan changes:** added the **Phase-7 op-dispatch `SEAM:`** (forward-compat only — route heavy
+ops through a dispatch boundary so a later per-DID scope wrapper slots in; cheap ops never scoped), a
+**CONFIRMED: ADVISORY (post-v0) Open Question**, and backlog **E83** in `ROADMAP_TODO.md`. Corrected a
+Pass-3-era caveat: per-DID attribution is **not** a croft-stack poller change (the service is its own
+independent reader of the cgroup primitive). v0 scope unchanged; only the seam lands in v0.
