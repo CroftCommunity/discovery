@@ -147,6 +147,47 @@ fingerprints. Re-run the E5 math to show how coding changes the loss story. Reco
 threshold and fails beyond it; audits over coded shares still verify against the original manifest. —
 "Erasure-coded retrievability is the upgrade path if spot checks ever are not enough."
 
+### E11. The financing ledger: extinguishing royalty
+The cap table is just another balance-forward ledger. Principal P per investor, cap multiple m (mock
+m=3), royalty rate r on a base (both percent-of-profit and percent-of-revenue), payments continue until
+cumulative reaches m·P then extinguish permanently — no interest, no accrual in loss years, no residual
+claim. Investors hold pro-rata slices of one pool. Simulated across four futures (flat, linear, S-curve,
+downside-with-loss-years) × rates × bases, with each payment a co-signed entry chained into the E4
+statement, and the extinguishment its own signed entry. A sensitivity table shows years-to-extinguish
+across the grid (flat closed form: years = m·P / (r·base)); a low rate on a small base runs multi-decade
+or never. Adversarial: a payment after extinguishment is rejected; a rewritten historical figure breaks
+the chain at that link; a loss year charges zero with the obligation unchanged and no penalty. Cumulative
+payout equals exactly m·P to the cent; all investors extinguish simultaneously; pro-rata splits sum
+exactly. — "The return is bounded because the extraction is bounded; the ledger is how we keep that
+promise."
+
+### E12. The outside reader: diligence from the files alone
+A Funder who holds no keys and gets no private access underwrites the co-op from the published ledger
+files, the actors' public keys, the audit transcripts, and the public randomness source, using a
+verifier that shares no code with the actors (enforced by module boundary). She confirms, from files
+alone: revenue is co-attested (every entry carries a valid customer countersignature and the total
+matches); service was delivered (the public-randomness audit challenges replay and the transcripts
+verify); the statement chain is intact from genesis; grace is on-book and the books balance; and the E11
+royalty payments match the instrument terms. One cooked-books scenario per trust problem — un-co-attested
+revenue, an off-book waiver, a retroactive edit, a fabricated audit transcript — is detected and
+classified, from the files. — "Revenue isn't asserted, it's co-attested; the loan officer can check it
+from her desk."
+
+### E13. Covenants as code, and the underwriting packet
+Loan covenants become executable checks over the ledger: salary ratio within the chartered cap, surplus
+by a fixed published formula, repayment priority (workers before investors), grace within a declared
+band. One compliant year passes; one violation scenario per covenant is flagged with the exact entries
+responsible. `DILIGENCE_REPORT.md` is generated entirely by the Funder-side verifier, so the co-op cannot
+influence its contents except by changing the underlying signed facts. — "The loan application is a build
+artifact."
+
+### E14. The soft-unit counterexample: proving the scope condition
+The ledger is trustworthy only where the unit is countable at the boundary by both sides. A "consulting
+hours" ledger where both parties sign every entry, but an hour of advice has no boundary-observable
+count, is classified by the Funder as attested-but-unverifiable — distinct from verified — so the
+standard's boundary is demonstrated, not claimed. — "The signature attests the count, and the count
+disciplines the signature; without a countable unit, it's signed vibes."
+
 ---
 
 ## Part 4. Narrative thread
@@ -156,8 +197,16 @@ Ada's items get names no one can forge (E1) and she signs the list of what she i
 and both sides sign every receipt (E3), months close into a chain of agreed statements (E4), and Ada
 picks how suspicious she feels like being, at cost (E5, E6). Years later she seals the collection for
 her family (E7), and eventually chooses the tombstone (E8). Along the way the co-op waives a fee once,
-because it could afford to and the books say so out loud (E9). The last experiment (E10) is the door
-left open for a stronger guarantee, deliberately not walked through yet.
+because it could afford to and the books say so out loud (E9). E10 is the door left open for a stronger
+guarantee, deliberately not walked through yet except where the word archive is on the label. And the
+co-op's early investor, Bram, holds a slice of the royalty pool whose every payment is a co-signed entry
+in the same kind of ledger Ada's rent lives in, until the year the cap is reached, the extinguishment
+entry is signed, and Bram is simply a well-wisher with receipts (E11). Late in the story a loan officer
+at a cooperative fund, June, underwrites the co-op without ever logging in: she verifies Ada's
+countersigned rent, replays the public-randomness audits, checks the covenants, and her diligence report
+falls out of the verifier as a build artifact (E12, E13). The suite ends by showing June the one thing
+her verifier cannot bless, a signed ledger of consulting hours, so the standard's boundary is
+demonstrated rather than claimed (E14).
 
 ---
 
@@ -165,10 +214,12 @@ left open for a stronger guarantee, deliberately not walked through yet.
 
 - All experiments runnable via a single command, deterministic, all assertions green.
 - Ledger files inspectable by a human after a run, with every entry signature-checkable by a standalone
-  verify script.
-- A generated `RUN_REPORT.md` containing the E5 measured-vs-predicted table, per-period statement
-  summaries, and the plain-language sentence from each experiment in order, so the report reads as the
-  Part 4 narrative.
+  verify script; the E12 Funder verifier implemented as an independent module (`funder/`) sharing no
+  code with the actors.
+- A generated `RUN_REPORT.md` containing the E5 measured-vs-predicted table, the E11 years-to-extinguish
+  sensitivity table, per-period statement summaries, and the plain-language sentence from each experiment
+  in order, so the report reads as the Part 4 narrative; plus the E13 `DILIGENCE_REPORT.md` as a separate
+  artifact, generated by the Funder-side verifier alone, with the E14 side-by-side page included.
 - No hidden trust: any place the mock stands in for a real mechanism (hex hashes for CIDs, in-process
-  actors for the network, deleted files for destroyed keys) is marked with a comment beginning `SEAM:`
-  so the production gaps are enumerable by grep.
+  actors for the network, deleted files for destroyed keys, an in-process packet for published public
+  inputs) is marked with a comment beginning `SEAM:` so the production gaps are enumerable by grep.

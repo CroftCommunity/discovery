@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Protocol-level cryptographic model of the co-op item-storage offering: signed manifests, bilateral receipts, balance-forward statements, spot-check audits, seal/tombstone tiers, a grace ledger, and an erasure-coded upgrade path. Zero external dependencies; Node built-in crypto + node:test.",
+  "description": "Protocol-level cryptographic model of the co-op item-storage offering: signed manifests, bilateral receipts, balance-forward statements, spot-check audits, seal/tombstone tiers, a grace ledger, an erasure-coded upgrade path, an extinguishing-royalty financing ledger, and an independent funder-side diligence verifier. Zero external dependencies; Node built-in crypto + node:test.",
   "engines": {
     "node": ">=22.6.0"
   },
