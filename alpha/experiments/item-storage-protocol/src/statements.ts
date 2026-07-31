@@ -26,6 +26,14 @@ export interface StatementBody {
   graceNet: number;
   prevStatementHash: string;
   closeDay: number;
+  // Optional financing figures (E11). Present only for periods that carry a
+  // royalty payment, so pre-E11 statements hash exactly as before (the fields
+  // are omitted from the canonical form when undefined). When present, they are
+  // covered by the statement hash — so editing a historical royalty figure
+  // breaks the E4 chain at exactly that link, just like editing rent does.
+  royaltyPoolCents?: number; // this period's royalty pool payment
+  royaltyCumulativeCents?: number; // cumulative royalty paid through this period
+  extinguished?: boolean; // true on the period the cap is reached
 }
 
 export interface Statement {
@@ -38,7 +46,7 @@ export interface Statement {
 }
 
 function bodyAsJson(b: StatementBody): Json {
-  return {
+  const json: { [k: string]: Json } = {
     period: b.period,
     openingRoot: b.openingRoot,
     closingRoot: b.closingRoot,
@@ -51,6 +59,12 @@ function bodyAsJson(b: StatementBody): Json {
     prevStatementHash: b.prevStatementHash,
     closeDay: b.closeDay,
   };
+  // Financing figures (E11) are included in the signed/hashed body only when
+  // present, so statements that predate E11 canonicalize byte-for-byte as before.
+  if (b.royaltyPoolCents !== undefined) json.royaltyPoolCents = b.royaltyPoolCents;
+  if (b.royaltyCumulativeCents !== undefined) json.royaltyCumulativeCents = b.royaltyCumulativeCents;
+  if (b.extinguished !== undefined) json.extinguished = b.extinguished;
+  return json;
 }
 
 export function hashStatement(b: StatementBody): string {
