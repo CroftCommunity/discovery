@@ -105,9 +105,71 @@ pure S3* — kept as a fallback (v0 could be S3-only), but Phase 0 decides wheth
   repo without owning the identity.
 - **Node v25 runs the TS suites** (confirmed this session) — available as the reference oracle during the
   port.
-- **Unverified → Phase 0:** rsky-pds crate structure; the exact atproto PDS endpoint set + blob API
-  shapes (`getBlob`/`uploadBlob`, `com.atproto.sync.*`); the boundary shape (S3 vs PDS-API vs both); what
-  the history-convergence server requires of the store.
+- **[Phase 0 RESOLVED, 2026-07-31 — D1] rsky-pds structure.** Rust workspace; `rsky-pds` uses **Rocket
+  0.5.1** (not axum/actix), **`aws-sdk-s3` 1.29** + `aws-config` for the S3 blob backend, **`rusqlite`
+  (SQLite, per-actor)** — the repo README's "Postgres + S3" is **stale** vs `main`'s Cargo.toml — and
+  **`atrium-api` 0.24.6 + `rsky-lexicon`** for the atproto surface. Blob layer = `pub trait BlobStore`
+  (`actor_store/blobstore.rs`) with `put_temp`/`make_permanent`/`put_permanent`/`get_bytes`/`get_stream`/
+  `quarantine`/`delete*`; S3 key layout `tmp/{did}/{key}` → `blocks/{did}/{cid}`; handlers at
+  `apis/com/atproto/repo/upload_blob.rs` (POST, 100 MiB cap) + `apis/com/atproto/sync/get_blob.rs` (GET,
+  stream). **Directly reusable prior art for our Layer-1 `BlobStore` trait + the atproto→backend mapping.**
+- **[Phase 0 RESOLVED, 2026-07-31 — D2] atproto blob API shapes** (sourced from canonical lexicon JSON,
+  not the SPA docs). `com.atproto.repo.uploadBlob` = **POST** `/xrpc/com.atproto.repo.uploadBlob`, body =
+  raw bytes (`encoding "*/*"`), **auth REQUIRED**, response
+  `{"blob":{"$type":"blob","ref":{"$link":"<CID>"},"mimeType":"<ct>","size":<int>}}` (CIDv1; legacy
+  `{cid,mimeType}` is read-only). `com.atproto.sync.getBlob` = **GET** `/xrpc/...?did=<did>&cid=<cid>`,
+  **public (no auth)**, returns raw bytes. `com.atproto.sync.listBlobs` = **GET**, public,
+  `{"cids":["<cid>",...],"cursor":"..."}`. **Minimal blob-hosting floor = uploadBlob + getBlob +
+  listBlobs**; everything else (getRepo/getRecord/getBlocks/subscribeRepos/…) is full-repo-PDS scope,
+  out of v0. (getBlob's `Content-Type` echo is behavioral — UNCONFIRMED in the lexicon.)
+- **[Phase 0 RESOLVED, 2026-07-31 — D6] official PDS S3 support + interface-vs-backend.** `@atproto/pds`
+  supports an **S3 blob backend** via `PDS_BLOBSTORE_S3_{BUCKET,REGION,ENDPOINT,FORCE_PATH_STYLE,
+  ACCESS_KEY_ID,SECRET_ACCESS_KEY,…}` **or** disk via `PDS_BLOBSTORE_DISK_LOCATION` (discriminated union,
+  exactly one; `bluesky-social/pds` defaults to disk `/pds/blocks`). Storage = **per-actor SQLite** (one
+  `.sqlite` per DID + a PDS-wide SQLite; SQLite-only, local FS). **Load-bearing finding:** both PDSes use
+  S3 only as an **internal backend the server writes to (case a)** — *neither exposes an S3-compatible API
+  to clients (case b)*. Our client-facing S3 metering boundary is **case b, which has no PDS prior art** —
+  the novel part we own, built from the S3 API spec, not forked. (The "S3" appears twice in our stack:
+  case-b exposed front door = the metering plane; case-a optional internal backend = the dumb Layer-1
+  store, Garage/R2.)
+- **[Phase 0 RESOLVED, 2026-07-31 — D1-internal] internal Rust prior art.** `hist-atproto-spike` +
+  `lexicon-community` give a **proven CIDv1 (`raw` 0x55 + sha-256) + DAG-CBOR path** (`serde_ipld_dagcbor`
+  + `ipld-core` + `sha2`) that is **byte/CID-identical to real PDS records**, a live-PDS XRPC client
+  pattern (`reqwest`; uploadBlob/create/delete lifecycle, env-gated), and hand-written draft lexicons (no
+  atproto lexicon crate). Spike crypto is **blake3/sha2** (hist) + **ECDSA k256/p256/p384** (lexicon) —
+  **no internal Ed25519 precedent**, so the **TS item-storage oracle stays the Ed25519 parity target**
+  (Phase 1 `ed25519-dalek`), while the spikes' DAG-CBOR/CIDv1 path is **reusable to close Phase 2's
+  `item.rs` CID `SEAM:`**.
+- **[Phase 0 RESOLVED, 2026-07-31 — D5] storage layout.** Official-PDS **ActorStore = per-user SQLite
+  (WAL) + a PDS-wide SQLite**; blobs are **per-DID (`(DID,CID)` tuples**, atproto disc. #1756 / Newbold).
+  So metering records co-locate in the per-user SQLite (manifest = single-author repo record;
+  receipts/statements = co-signed structure alongside); blob bytes in the pluggable Layer-1 backend keyed
+  `(DID,CID)`; **FS first** (matches the PDS disk default), **Garage/SeaweedFS/R2 later** (matches rsky's
+  `aws-sdk-s3` pattern; not MinIO — archived).
+- **[Phase 0 RESOLVED, 2026-07-31 — D3, synthesized from D1/D2/D6] boundary shape.** BOTH, as
+  user-confirmed: **(b) an S3-compatible client interface = the storage+metering plane** (Phase 7; novel,
+  no PDS prior art) **+ the atproto PDS blob API as a thin layer over the same metered byte-path** (Phase
+  8; floor = uploadBlob/getBlob/listBlobs, mapping borrowed from rsky's handlers→`BlobStore`). HTTP crate:
+  rsky uses Rocket; **axum remains a fine independent choice** for our custom interface (learn from rsky,
+  don't fork) — final pick at Phase 7.
+- **[Phase 0 RESOLVED, 2026-07-31 — D7] CORRECTION: the telemetry poller reads cgroup v2, not tracing.**
+  The croft-stack telemetry poller does **NOT** scrape Prometheus/journald/stdout/`tracing` (Prometheus/
+  cAdvisor are explicit non-goals). It reads the **cgroup v2 filesystem** per unit
+  (`/sys/fs/cgroup/system.slice/<unit>.service/`): `memory.current`/`memory.peak` (bytes), `pids.current`,
+  `cpu.stat` (`usage_usec …`), `io.stat`. **A new Rust service emits no app-level metrics for the poller**
+  — its systemd unit only needs `MemoryAccounting=CPUAccounting=IOAccounting=TasksAccounting=yes` + limits
+  (`MemoryHigh` soft + generous `MemoryMax`, `CPUQuota`, `TasksMax`, `IOWeight`). This **corrects the
+  Pass-3 premise** that Phase 7 `tracing` must match a "poller contract": app-level `tracing`→journald is
+  for **our** debugging (`journalctl`), independent of the poller. Hardening: a Rust service (no JIT) can
+  take the full `MemoryDenyWriteExecute` set (like caddy/broker); target `systemd-analyze security` ≈
+  1.2–1.5; never add a cgroup namespace (breaks cross-unit cgroup reads).
+- **[Phase 0, 2026-07-31 — D4] "one store, two consumers" holds by design for v0; one tracked item.**
+  Blob hosting is the real v0 consumer; the content-blind convergence/meer consumer is **gated to Phase
+  10** (drystone fold/MLS not real yet; relay-lab E8/E9 not started). **Tracked (Phase 10, not a v0
+  blocker):** the two consumers address differently — blob hosting by **CID** (CIDv1 raw+sha-256), the
+  convergence node by **envelope hash** (blake3 in-house digest); unifying them is the still-open
+  `HS OC-2` (hist-spike `record.rs:8-13`). v0 keeps addressing **pluggable** so Phase 10 reconciles
+  without a rewrite.
 - **[Pass 2 verified] The port oracle is the STANDALONE** (`item-storage-protocol-standalone/`, the
   dependency-free E0–E11 build that ran 81/81 this session), not the full `item-storage-protocol/`. Its
   module names differ from what the per-phase Read-sets below still cite: standalone uses **`item.ts`,
@@ -177,40 +239,40 @@ so the overlap is a permitted optimization, not the planned path.
 **Goal:** Resolve the external unknowns firsthand so the boundary phases are sized on evidence, not
 inference. Network is open — fetch real sources.
 
-- [ ] **D1: PDS-in-Rust prior art — internal first, then rsky-pds.** **Probe:** (a) read the in-corpus
+- [x] **D1: PDS-in-Rust prior art — internal first, then rsky-pds.** **Probe:** (a) read the in-corpus
   Rust spikes **`experiments/hist-atproto-spike/`** and **`experiments/lexicon-community/`** (atproto /
   history in Rust — internal prior art we already own); then (b) WebFetch `github.com/blacksky-algorithms/rsky`
   (rsky-pds) — how it structures repo storage, blob storage, the S3 backend, and the HTTP/PDS API layer;
   note crate deps (axum/actix? sqlx? aws-sdk-s3/rust-s3? atproto lexicon crate). **Success:** a written
   list of the crates for (HTTP server, S3, DB, atproto lexicon) + how blob put/get maps to S3, and what
   the internal spikes already give us. **Disposition:** throwaway (notes only).
-- [ ] **D2: atproto PDS network API surface.** **Probe:** WebFetch the atproto lexicon/spec for
+- [x] **D2: atproto PDS network API surface.** **Probe:** WebFetch the atproto lexicon/spec for
   `com.atproto.sync.*`, `com.atproto.repo.uploadBlob`, `com.atproto.sync.getBlob`, and the "what a PDS
   serves" docs (atproto.com). **Success:** the minimal endpoint set a PDS-like store must serve, and the
   blob upload/get request/response shapes (recorded as confirmed, not "likely"). **Disposition:** throwaway.
-- [ ] **D3: resolve the boundary shape.** From D1+D2: is the network boundary S3 put/get, the atproto PDS
+- [x] **D3: resolve the boundary shape.** From D1+D2: is the network boundary S3 put/get, the atproto PDS
   API, or both? **Success:** a decision with rationale (recommend: S3 as the storage+metering plane;
   atproto PDS API as the network-facing layer if in v0 scope). **Disposition:** throwaway → feeds Phases
   7/8 sizing + the Open Question.
-- [ ] **D4: history-convergence store requirement.** **Probe:** read `experiments/appview-infra/GROUPS.md`
+- [x] **D4: history-convergence store requirement.** **Probe:** read `experiments/appview-infra/GROUPS.md`
   (the convergence node), the relay-lab E8/E9 briefs, and `plans/croft-stack/10-drystone-layer.md`
   locally. **Success:** the concrete requirement the content-blind meer places on the store (append-only
   envelope sets, content-blind, addressed how). **Disposition:** throwaway → confirms the "one store, two
   consumers" claim or flags a mismatch.
-- [ ] **D5: storage layout (confirm the Q5 resolution) + blob backend.** Confirm the official-PDS
+- [x] **D5: storage layout (confirm the Q5 resolution) + blob backend.** Confirm the official-PDS
   **per-user SQLite** layout (from D1/D6) and how to co-locate the metering records there — the manifest
   as a single-author repo record, receipts/statements as a co-signed structure alongside — and that the
   **rollup/purge** boundary fits. Pick the local blob backend (Garage/SeaweedFS; FS first). **Success:**
   a confirmed per-user-SQLite storage layout + backend aligned to official-PDS/rsky-pds + croft-stack.
   **Disposition:** throwaway.
-- [ ] **D6: official-PDS S3 support + the interface-vs-backend distinction** (from the user's question).
+- [x] **D6: official-PDS S3 support + the interface-vs-backend distinction** (from the user's question).
   **Probe:** WebFetch the official `bluesky-social/pds` repo/docs — confirm whether/how it supports an
   **S3 blob backend** (env-var config) vs the corpus's "SQLite + local-FS" note, and separate two
   surfaces: (a) **S3 as a blob backend the PDS writes bytes to** (internal), (b) **an S3-compatible
   interface exposed to clients** (our metering boundary, v0). **Success:** a confirmed statement of what
   the official PDS does for blobs + how our S3-compatible client interface differs from a backend S3
   store. **Disposition:** throwaway → feeds Phase 7 (which "S3" is the boundary).
-- [ ] **D7: telemetry/observability contract + the governed envelope (local docs; Pass-3 addition).**
+- [x] **D7: telemetry/observability contract + the governed envelope (local docs; Pass-3 addition).**
   **Probe:** read `plans/croft-stack/telemetry-client-plan.md` and `plans/croft-stack/service-hardening-plan.md`
   locally — confirm (a) the metrics/log **format the telemetry poller scrapes** from a unit (so Phase 7's
   `tracing` output is *consumable*, not invented) and (b) the resource **envelope** (limits) a new unit must
@@ -221,6 +283,14 @@ inference. Network is open — fetch real sources.
 
 **Done when:** all BLOCKING open questions below are resolved, Verified Assumptions updated with
 firsthand evidence, and Phases 7/8 re-sized if D3 changes their scope (record in Review Log).
+
+**COMPLETE (2026-07-31).** All seven tasks resolved firsthand (three parallel researchers: local corpus
+reads + live WebFetch of the atproto lexicons / rsky-pds / official PDS). Findings folded into Verified
+Assumptions above ([Phase 0 RESOLVED …] bullets) and the affected phase specs (7/8/9 + 1/2/10). One
+material correction (D7: the telemetry poller reads cgroup v2, not `tracing`) and two scope additions
+(D2: `listBlobs` in the Phase-8 floor + an auth `SEAM:`; D4: keep v0 addressing pluggable for the
+Phase-10 CID-vs-envelope-hash reconciliation). No BLOCKING open question was reopened; no v0 blocker
+surfaced. See the Review Log Phase-0 entry.
 
 ---
 
@@ -260,7 +330,9 @@ under B's; id derivation deterministic (ports E0's 4 assertions). RED → GREEN.
 **Shared-state contract:** no shared mutable state beyond the file write-set; standalone crate, so no
 workspace `Cargo.toml` to touch (Pass-2 verified: no experiments-wide Rust workspace).
 **Risks:** Rust Ed25519 crate choice (`ed25519-dalek`) vs the TS lib — confirm the same curve/encoding so
-signatures are comparable to the oracle.
+signatures are comparable to the oracle. **[Phase 0 D1-internal]** the in-corpus spikes use blake3/ECDSA,
+**not** Ed25519 — there is **no internal Ed25519 precedent**, so the **TS item-storage oracle is the parity
+target** (not the spikes); match its curve/encoding.
 **Observability:** Library crate — the primary observable is the **typed error surface** (`thiserror`;
 fail-loud on verify/derive failure, no silent fallback per the global rule). Add `tracing` at the crate
 root; emit a WARN event on a signature/verify failure carrying the key **fingerprint** (never the secret —
@@ -274,6 +346,9 @@ Zeroize-wrapped keys must not `Debug`-print or serialize). No logging in the pur
 truth). E1–E2.
 **Changes:**
 - [ ] `src/item.rs` — content-addressed object (fingerprint = SHA-256; `SEAM:` note for CIDv1/DAG-CBOR).
+  **[Phase 0 D1-internal]** the CIDv1/DAG-CBOR `SEAM:` can be closed with the **proven in-corpus path**
+  (`serde_ipld_dagcbor` + `ipld-core` + `sha2`, CIDv1 `raw` 0x55 + sha-256) from `hist-atproto-spike` /
+  `lexicon-community` — byte/CID-identical to real PDS records; reuse it rather than re-deriving.
 - [ ] `src/manifest.rs` — sorted `(fingerprint,size)` list, Merkle root, signature over the root; expected
   bytes-at-rest as a pure function of the manifest.
 - [ ] `tests/e1_items.rs`, `tests/e2_manifest.rs` — port the E1/E2 assertions incl. adversarial (byte-flip
@@ -441,13 +516,15 @@ writes blobs under a tmp dir / a local Garage instance scoped to the test.
 **Risks:** S3 API compatibility surface is large — implement the **minimal** put/get subset for v0, mark
 the rest `SEAM:`. Port count / async runtime (tokio) discipline.
 **Observability:** The metering byte-path must be **traceable end-to-end** (the phase where the receipt/
-ledger writes, the HTTP boundary, and the byte-count meet). Structured `tracing` events, format aligned to
-**Phase 0 D7's poller contract**: per HTTP request at the boundary — method, object key, status,
-bytes-in/out (INFO); per receipt written — receipt id, mode, running total, ledger index (INFO); backend
-write/read — `BlobStore` impl, CID, byte count (DEBUG); **fail-loud WARN/ERROR on any byte-count mismatch
-between the HTTP boundary and the receipt** (the metering-integrity invariant). Log the bound ephemeral
-port (DEBUG) so a leaked port is diagnosable. These are exactly the events Phase 9 wires to the telemetry
-poller — build them to D7's shape now, not retrofit at deploy.
+ledger writes, the HTTP boundary, and the byte-count meet). Structured `tracing` events **to stdout/journald
+for our own debugging** (**[Phase 0 D7]** the croft-stack poller reads cgroup v2, **not** tracing — so this
+is not a "poller contract," it is the `journalctl` trail we read when metering looks wrong): per HTTP
+request at the boundary — method, object key, status, bytes-in/out (INFO); per receipt written — receipt
+id, mode, running total, ledger index (INFO); backend write/read — `BlobStore` impl, CID, byte count
+(DEBUG); **fail-loud WARN/ERROR on any byte-count mismatch between the HTTP boundary and the receipt** (the
+metering-integrity invariant). Log the bound ephemeral port (DEBUG) so a leaked port is diagnosable.
+Resource telemetry (memory/cpu/io) is a **cgroup-accounting concern on the systemd unit at Phase 9**, not
+an app-level emission here.
 **Done when:** (1) *Behavioral:* I can `PUT`/`GET` a real object over HTTP and the transfer is metered
 with a signed receipt + a recomputable rent; (2) *Verification:* `cargo test --test wiring_s3_metered`
 green (from the crate dir; standalone — no `-p`) + a manual `curl PUT/GET` against a locally-run instance.
@@ -464,10 +541,17 @@ deem the v0 floor) as a **thin blob-endpoint layer on top of the S3-metering pla
 S3-compatible interface (Phase 7) is the storage/metering plane; this phase is the atproto layer over it.
 Phase 0 D2/D3/D6 set the exact endpoint set + shapes; the phase is **not gated out**.
 **Changes:**
-- [ ] `src/pds_api.rs` — the atproto endpoints from D2 (blob upload/get mapped onto `blobstore`; the
-  metering hook stays on the byte path).
+- [ ] `src/pds_api.rs` — the atproto endpoints **from D2's confirmed floor: `uploadBlob` (POST, auth
+  required), `getBlob` (GET, public), `listBlobs` (GET, public)** — mapped onto `blobstore` (mapping
+  modeled on rsky's `apis/com/atproto/{repo/upload_blob,sync/get_blob}.rs`); the metering hook stays on
+  the byte path. **`uploadBlob` must return the exact confirmed shape**
+  `{"blob":{"$type":"blob","ref":{"$link":"<CIDv1>"},"mimeType":"<ct>","size":<int>}}`; `listBlobs`
+  returns `{"cids":[...],"cursor":"..."}`.
+- [ ] **auth `SEAM:`** — `uploadBlob` requires a session/JWT (OAuth Bearer) per D2; v0 stands in a mock
+  auth check behind a `SEAM:` (real DID-session/OAuth is a later spike), `getBlob`/`listBlobs` stay public.
 - [ ] `tests/wiring_pds_blob.rs` — end-to-end: an `uploadBlob`/`getBlob` round-trip over the atproto API,
-  metered, returning the atproto-shaped response confirmed in D2.
+  metered, returning the exact D2-confirmed `blob` shape (`$type`/`ref.$link`/`mimeType`/`size`); a
+  `listBlobs` returns the uploaded CID.
 **Call chain:** atproto `uploadBlob` → `pds_api::upload` → `blobstore::write` + `receipts::ack`.
 **Wiring test:** `tests/wiring_pds_blob.rs` — the atproto endpoint reaches the metered blob path. RED → GREEN.
 **Depends on:** Phase 7, Phase 0 (D2/D3).
@@ -517,12 +601,14 @@ repos** (croft-stack deploy; discovery doc/status) — do not cross-commit.
 phase with real external side effects. Coordinate with the estate (ports, DNS/TLS, identity block).
 **Risks:** the VPS is production estate — deploy behind the hardening baseline + netns from the first;
 confirm no port/identity collision with existing services (relay/broker/telemetry/canary/caddy).
-**Observability:** This is the **telemetry-poller integration** phase. Wire the Phase 7/8 `tracing` output
-to the croft-stack telemetry poller per **D7's confirmed contract**; confirm the byte-path/receipt events
-are visible in the **estate's telemetry** (not just local stdout) and that the unit's metrics land
-**within the governed envelope** (telemetry-within-envelope). Verify **no secret material** (keys) reaches
-the logs. If the poller can't read the format, that is a Phase 7 instrumentation bug surfaced here — fix
-upstream, do not paper over at deploy.
+**Observability:** The **telemetry-poller integration** is a **systemd-unit / cgroup-accounting concern**,
+not app wiring (**[Phase 0 D7]** the poller reads cgroup v2 files, not `tracing`). Concretely: set
+`MemoryAccounting=CPUAccounting=IOAccounting=TasksAccounting=yes` on the unit and declare the governed
+envelope — `MemoryHigh` (soft) + a generous `MemoryMax`, `CPUQuota`, `TasksMax`, `IOWeight` sized to the
+role; confirm `/sys/fs/cgroup/system.slice/<unit>.service/{memory.current,cpu.stat,pids.current,io.stat}`
+populate and the poller records them **within the envelope** (telemetry-within-envelope). Separately, the
+Phase 7/8 `tracing` trail lands in **journald** (read via `journalctl -u <unit>`) — verify **no secret
+material** (Zeroize keys) reaches it. Never add a cgroup namespace (breaks the poller's cross-unit reads).
 **Done when:** (1) *Behavioral:* the metered store is reachable on the VPS and a put/get round-trip is
 metered + telemetered; (2) *Verification:* the smoke test passes against the live instance + telemetry
 shows the unit within its envelope.
@@ -536,6 +622,14 @@ telemetry, end-to-end in a prod-like setting.
 substrate (one store, two consumers). **Gated on drystone's fold/MLS becoming real** (per
 `10-drystone-layer.md`) — likely **out of v0**; tracked, not built now.
 **Depends on:** Phases 7–9 + a real MLS group producing real history.
+**[Phase 0 D4] Open reconciliation (Phase-10-gated, not a v0 blocker):** the two consumers address
+differently — blob hosting by **CID** (CIDv1 raw+sha-256), the content-blind convergence node by
+**envelope hash** (blake3 in-house digest, set-reconciliation/RBSR over envelope hashes) — the still-open
+`HS OC-2` (`hist-atproto-spike/src/record.rs:8-13`). The convergence node also requires **content-blind**
+storage (ciphertext only, blindness at a compile/dependency boundary) and membership-interval-scoped
+backfill (GROUPS.md). v0 must therefore keep the store's **addressing pluggable** (don't hardcode CID as
+the only key) so Phase 10 can add the envelope-hash addressing without a rewrite. relay-lab E8/E9 (the
+blind-mirror confidentiality tiers) are **not started** — a precondition to measure before this phase.
 **Done when:** (deferred) the convergence node converges append-only history through this store,
 content-blind.
 
@@ -701,3 +795,41 @@ the standalone has **no `dial.ts`/`grace.ts` src modules** (logic in `pricing.ts
 
 **Confirmed ready:** yes — pending the two prior-confirmed PHASE-GATED items (repo/IP home + service name
 at Phase 9) and BLOCKING-resolved boundary shape (already resolved: both). No new open questions.
+
+### Phase 0: Discovery — COMPLETE 2026-07-31
+Executed under the Discovery Exemption (no TDD/wiring/commit-per-item; all seven tasks `throwaway` notes).
+Ran three parallel researchers: local corpus reads (D1-internal/D4/D7/D5-corpus) + live WebFetch of the
+canonical atproto lexicon JSON, rsky-pds, and the official `@atproto/pds`/`bluesky-social/pds` (D1-ext/
+D2/D6). All findings + evidence are in Verified Assumptions ([Phase 0 RESOLVED …] bullets); this entry is
+the narrative.
+
+**Confirmed (assumptions held):**
+- rsky-pds is real Rust prior art (Rocket + `aws-sdk-s3` + `rusqlite` per-actor + `atrium-api`/
+  `rsky-lexicon`); its `BlobStore` trait + `blocks/{did}/{cid}` layout + `upload_blob.rs`/`get_blob.rs`
+  handlers are directly reusable for Layer 1 + the atproto→backend mapping (D1).
+- Official PDS = per-actor SQLite (WAL) + a PDS-wide SQLite; S3 supported as a **backend** via
+  `PDS_BLOBSTORE_S3_*` (or disk) (D5/D6). Confirms the per-user-SQLite co-location decision.
+- atproto blob API shapes locked from the lexicon source — uploadBlob (POST, auth), getBlob (GET, public),
+  listBlobs (GET, public), blob response `{$type,ref.$link,mimeType,size}` (D2).
+- "One store, two consumers" holds by design for v0 (blob hosting real; convergence gated to Phase 10) (D4).
+
+**Changed (discovery altered the plan — the point of Phase 0):**
+- **D7 material correction:** the croft-stack telemetry poller reads **cgroup v2 files, not `tracing`/
+  Prometheus**. Rewrote Phase 7 + Phase 9 Observability: app `tracing`→journald is our own debugging trail;
+  the poller integration is a **systemd-unit accounting + envelope** concern (`*Accounting=yes`,
+  `MemoryHigh`/`MemoryMax`/`CPUQuota`/`TasksMax`/`IOWeight`), no app-level metric emission. Corrected the
+  Pass-3 "build tracing to the poller contract" premise (Phase 0 D7 task, Concurrency Map).
+- **D6 load-bearing distinction:** no PDS exposes an S3-compatible **client** interface (case b) — both use
+  S3 only as an internal **backend** (case a). Recorded that our case-b metering boundary is the novel,
+  no-prior-art part built from the S3 spec; noted "S3 appears twice" (exposed front door vs optional dumb
+  backend) in VA + Phase 7 framing.
+- **D2 scope additions to Phase 8:** added `listBlobs` to the minimal floor; added an **auth `SEAM:`**
+  (uploadBlob needs a session/JWT — mock in v0, getBlob/listBlobs public); pinned the exact response shape.
+- **D1-internal reuse:** Phase 2's CIDv1/DAG-CBOR `SEAM:` can be closed with the in-corpus
+  `serde_ipld_dagcbor`+`ipld-core`+`sha2` path (byte/CID-identical to real PDS); Phase 1 risk updated —
+  no internal Ed25519 precedent, TS oracle is the parity target.
+- **D4 Phase-10 tracked item:** blob hosting addresses by CID, convergence by envelope-hash (open
+  `HS OC-2`); v0 must keep addressing **pluggable**. Recorded in Phase 10 + VA. relay-lab E8/E9 not started.
+
+**No v0 blocker surfaced; no BLOCKING open question reopened.** Phases 1–6 (pure ledger port) are unaffected
+by discovery and ready to start. Phases 7–9 are now sized on firsthand evidence.
