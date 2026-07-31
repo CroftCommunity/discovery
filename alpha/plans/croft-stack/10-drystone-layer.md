@@ -35,6 +35,14 @@ is nothing to converge until a real MLS group produces real history (the converg
 reference-model: "no production fold exists in croftc/upstream-repo"). Last by dependency, not choice.
 Serverless floor: P2P convergence over iroh.
 
+**Storage substrate (2026-07-31): the cooperative metered-storage service (E82) is what this needs.**
+Per the user, a content-blind convergence node "basically needs a metered PDS-like store available" —
+which is exactly the metered-storage lane: a network-accessible, content-blind, S3-metered PDS-like
+store (Rust, extrapolating from `rsky-pds`; item-storage-protocol E0–E9 ledger). So the convergence
+server is a **consumer / mode of that one store**, not a separate storage build — a real unification of
+this Phase-10 component with the coop-storage lane. See
+`../2026-07-31-coop-storage-metered-hosting-lane.md`; COHESION §65; ROADMAP_TODO E82.
+
 ## TODO (decide on arrival)
 - [ ] Open decision 13: croft-groups code factoring — resolve at concrete group-product scoping.
 - [ ] Convergence server: unblock only when drystone's fold/MLS is real; then design the blind-mirror
