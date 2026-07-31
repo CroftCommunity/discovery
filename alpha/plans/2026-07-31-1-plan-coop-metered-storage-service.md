@@ -497,7 +497,10 @@ boundary. Backed by a real blob store (Garage/SeaweedFS local; local-FS fallback
 - [ ] `src/server.rs` — HTTP server (crate per Phase 0 D1, e.g. axum) with S3-compatible `PUT`/`GET`
   object routes.
 - [ ] `src/blobstore.rs` — the pluggable storage backend behind the interface (`BlobStore` trait; local
-  FS first, then S3/Garage) + the boundary byte-count → receipt hook.
+  FS first, then S3/Garage) + the boundary byte-count → receipt hook. **[E84]** the FS backend's
+  temp→permanent move + content-addressed dedup may use `copy_file_range`/reflink (the one cheap
+  kernel-perf edge worth adopting in v0; no hardening cost). The `BlobStore` trait is the attach point for
+  the rest of the kernel-performance tier (io_uring/zero-copy backend impl) — deferred (E84).
 - [ ] **op-dispatch seam (forward-compat, `SEAM:`)** — route request handling through a small op-dispatch
   boundary (an `Op` enum / dispatch fn) rather than inlining all work in the HTTP handler. v0 dispatches
   in-process; the seam exists so a **later** per-DID compute-observability wrapper (E83, watch-in-place)
@@ -694,6 +697,16 @@ content-blind.
   signing would attach if we decide later:** a provider-signed **Unilateral** signature over the sidecar
   at op close-out (never co-signed) — a hook that could underpin **delegating / authorizing burden-heavy
   operations** via an attested resource record.
+- [CONFIRMED: ADVISORY — post-v0, tracked E84] **Kernel-performance tier (compliant kernels).** The
+  metering logic is irreducibly **L7/userspace** (CID + signed receipt; unlike LVS/IPVS/XDP at L3/L4), but
+  transport + storage offload to the kernel: `SO_REUSEPORT` (connection LB), `io_uring` (async I/O,
+  zero-copy send), `sendfile`/`splice` + page cache (zero-copy reads / free hot cache),
+  `copy_file_range`/reflink (temp→permanent move + content-addr dedup), SHA-NI/ARMv8 sha-256 (the one CPU
+  pass), **PSI** (contention signal → E83 "when to step in"). **v0 stays simple** (`tokio` epoll + std I/O
+  + SHA-NI sha-256); adopt only `copy_file_range`/reflink early (cheap, no hardening cost). **Tension:**
+  `io_uring` vs the seccomp/hardening baseline (`io_uring_disabled=2` on hardened kernels) — hardening
+  likely wins v0; io_uring is a measured later upgrade. The `BlobStore` + Phase-7 op-dispatch seams are the
+  attach points. Gated on a **Phase-9 probe of the VPS kernel version** (needs 5.x+).
 
 ## Review Log
 
@@ -876,3 +889,13 @@ independent reader of the cgroup primitive). v0 scope unchanged; only the seam l
 (decided 2026-07-31):** separate sidecar record linked by receipt/op id, co-located per-user SQLite,
 unsigned to start, separately purged; never embedded in the signed receipt; signing hook = provider-signed
 Unilateral at close-out if later needed (a possible basis for delegating burden-heavy ops).
+
+### Decision 2026-07-31 — kernel-performance tier (compliant kernels)
+Design thread raised by the user (LVS-analogy: reuse kernel primitives). Recorded (not built): the L7
+metering logic stays userspace, but transport+storage offload to the kernel — `SO_REUSEPORT`, `io_uring`
+(+ zero-copy send), `sendfile`/`splice` + page cache, `copy_file_range`/reflink (move + content-addr
+dedup), SHA-NI sha-256, PSI (contention → E83). **v0 stays simple** (`tokio` epoll + std I/O + SHA-NI);
+only `copy_file_range`/reflink adopted early. Flagged tension: `io_uring` vs the seccomp/hardening baseline
+(hardened kernels disable io_uring) — hardening wins v0, io_uring is a measured later upgrade. The
+`BlobStore` + Phase-7 op-dispatch seams are the attach points; gated on a Phase-9 VPS-kernel-version probe
+(needs 5.x+). Recorded as backlog **E84** + a Phase-7 blobstore note + Open Question. v0 scope unchanged.
