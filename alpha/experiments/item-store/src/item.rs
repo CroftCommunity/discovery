@@ -151,6 +151,22 @@ impl ContentStore {
     pub fn remove(&mut self, cid: &str) {
         self.blobs.remove(cid);
     }
+
+    /// Bytes actually read to retrieve a set of cids — an audit's true cost.
+    /// Only cids present contribute (a dropped item reads zero bytes), so the
+    /// cost tracks `k * item size`, independent of the corpus size.
+    ///
+    /// # Panics
+    ///
+    /// Panics only if a stored blob's length exceeds `u64` — impossible on any
+    /// real machine, so this is an unreachable path.
+    #[must_use]
+    pub fn audit_read_cost(&self, cids: &[String]) -> u64 {
+        cids.iter()
+            .filter_map(|cid| self.blobs.get(cid))
+            .map(|bytes| u64::try_from(bytes.len()).expect("blob length fits u64"))
+            .sum()
+    }
 }
 
 #[cfg(test)]
@@ -180,6 +196,25 @@ mod tests {
             "absent cid is not present"
         );
         assert_eq!(store.stored_bytes(), 30);
+    }
+
+    #[test]
+    fn audit_read_cost_counts_only_present_items() {
+        let mut store = ContentStore::new();
+        let a = Item::from_bytes("a", vec![0u8; 10]);
+        let b = Item::from_bytes("b", vec![1u8; 20]);
+        store.put(&a);
+        store.put(&b);
+        let present = vec![a.cid().to_owned(), b.cid().to_owned()];
+        assert_eq!(store.audit_read_cost(&present), 30, "sums the read bytes");
+        // A dropped/absent item reads zero bytes (cost tracks k*size, not corpus).
+        let mut with_missing = present.clone();
+        with_missing.push("a-cid-never-stored".to_owned());
+        assert_eq!(
+            store.audit_read_cost(&with_missing),
+            30,
+            "an absent cid contributes zero",
+        );
     }
 
     #[test]
