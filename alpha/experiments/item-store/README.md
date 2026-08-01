@@ -50,7 +50,14 @@ Phase 0 discovery complete). Phases: 1 crypto/identity (E0) · 2 items+manifest 
   deterministic RNG (`rng.rs`, mulberry32); the member-chosen assurance dial
   (`dial.rs`) priced at cost, linear in audit count, recorded as a signed ledger
   declaration; audit pricing added to `pricing.rs`.
-- **Test hardening (E86): E0–E6 mutation gate green.** The full-crate
+- **Phase 6 (E7–E9 — seal + tombstone + grace): DONE — completes the E0–E9
+  ledger core.** `seal.rs`: a signed seal declaration pinning a root, a write-path
+  ceremony that destroys the credential so writes fail closed (loud typed error),
+  and a rotation watch classifying root changes as customer-initiated or an alarm;
+  the tombstone tier additionally destroys the unseal capability. `grace.rs`:
+  co-signed grace events (fee waiver, deceased-member hold, throttle) as
+  forward-only ledger entries that net to zero against the co-op grace account.
+- **Test hardening (E86): E0–E9 mutation gate green.** The full-crate
   `cargo-mutants` run surfaced 11 survivors, all in `rng::next_f64`'s bit-mixing
   (uniformity/determinism properties cannot pin the exact algorithm); killed with
   a golden-vector parity test locking the mulberry32 sequence to the TS oracle
@@ -66,6 +73,9 @@ cargo test                       # full suite
 cargo test --test e0_identity    # the Phase 1 wiring test (E0)
 cargo test --test e5_audit       # the Phase 5 audit wiring test (E5)
 cargo test --test e6_dial        # the Phase 5 dial wiring test (E6)
+cargo test --test e7_seal        # the Phase 6 seal wiring test (E7)
+cargo test --test e8_tombstone   # the Phase 6 tombstone wiring test (E8)
+cargo test --test e9_grace       # the Phase 6 grace wiring test (E9)
 cargo clippy --all-targets -- -W clippy::pedantic -D warnings
 cargo fmt --check
 ```
