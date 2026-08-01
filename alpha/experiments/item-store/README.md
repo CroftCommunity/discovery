@@ -45,8 +45,17 @@ Phase 0 discovery complete). Phases: 1 crypto/identity (E0) · 2 items+manifest 
   chain (byte-day rent, hash-linked close, rollup/purge) + per-user SQLite
   persistence co-locating manifest/receipts/statements (`rusqlite`; `:memory:`
   mode in tests, file-backed in production).
-- **Test hardening (E86): E0–E3 mutation gate green** (`cargo-mutants`: 103 caught /
-  0 missed; trivial accessors excluded via `.cargo/mutants.toml`).
+- **Phase 5 (E5–E6 — audit + dial): DONE.** Random k-sample spot-check audit
+  (`audit.rs`) with the closed-form detection math `1 - (1 - f)^k`, over a seeded
+  deterministic RNG (`rng.rs`, mulberry32); the member-chosen assurance dial
+  (`dial.rs`) priced at cost, linear in audit count, recorded as a signed ledger
+  declaration; audit pricing added to `pricing.rs`.
+- **Test hardening (E86): E0–E6 mutation gate green.** The full-crate
+  `cargo-mutants` run surfaced 11 survivors, all in `rng::next_f64`'s bit-mixing
+  (uniformity/determinism properties cannot pin the exact algorithm); killed with
+  a golden-vector parity test locking the mulberry32 sequence to the TS oracle
+  (scoped re-run: 31/31 `rng` mutants caught). Trivial accessors + equivalent
+  mutants excluded via `.cargo/mutants.toml`; zero real survivors across E0–E6.
 
 ## Develop
 
@@ -55,6 +64,8 @@ Standalone crate (no experiments-wide Rust workspace). From this directory:
 ```sh
 cargo test                       # full suite
 cargo test --test e0_identity    # the Phase 1 wiring test (E0)
+cargo test --test e5_audit       # the Phase 5 audit wiring test (E5)
+cargo test --test e6_dial        # the Phase 5 dial wiring test (E6)
 cargo clippy --all-targets -- -W clippy::pedantic -D warnings
 cargo fmt --check
 ```
