@@ -330,6 +330,13 @@ publishing any lexicon (NSIDs are reverse-DNS-authority-bound and permanent once
 foundation layer). Per this repo's convention, do not propagate the name into durable structure until
 the live clearance clears. Tracked: ROADMAP_TODO; COHESION §46.
 
+**Behavior-scale mock (built, 2026-07-30).** The professional-networking pad ships first as a **persona-switch
+behavior-scale mock** (the mock tier) deployed at `stellin.app` (repo `CroftCommunity/stellin`; working name during the build
+was **"Meridian"**). It is the UX instrument for the eventual atproto AppView — its **scaled sibling** is the
+"Stellin by Croft" appview-infra work (RUN-14/15; A18). "Three deployments of one contract" per
+`thinking/behavior-scale/`. Build prompt: `thinking/app/build-specs/stellin-meridian-build-prompt.md`;
+LinkedIn research: `research/linkedin-ux-architecture-2026-07.md`. Tracked: COHESION §63, ROADMAP_TODO E80.
+
 ## App-layer naming (2026-07-29): the atproto-reader pad **Skylite → Bluebird** (renamed; ski-beginner register; clearance CONTESTED)
 
 **Decision (user 2026-07-29).** The atproto/Bluesky-reader pad formerly **Skylite** is renamed
@@ -369,12 +376,20 @@ user's open gate.** Tracked: ROADMAP_TODO E74 (local execution) + §A (clearance
 
 ## Forum-layer naming (2026-07-29): **Graze by Croft** — working name for the community-discussion forum
 
+> **SUPERSEDED (user, 2026-07-31): the forum-layer working name moved to "Amble by Croft" — see the
+> next section.** "Graze / Graze by Croft" was judged premature. This section is kept as the historical
+> Graze-era record; its **pad-design** content below (theme discipline, the `/f/` path decision, the
+> commons framing) is name-independent and still applies to the forum pad. The **built mock stays named
+> `graze`** (repo `CroftCommunity/graze`, `graze.ing`, `graze-persona-switch-spec.md`, the behavior-scale
+> registry row) until the Amble clearance holds — do not rename it yet.
+
 **Decision (user 2026-07-29).** The community-discussion **forum** (the read-first, Reddit/forum-idiom
 pad over Bluesky/atproto — the `2026-07-27-read-first-forum-mvp` product, whose last open item was the
 product name) gets the **working name "Graze by Croft"**. Not finally settled — if it doesn't hold, the
-fallback stays in the pastoral register. **Domain:** work from **`forum.croft.ing`** now (the plan's
-resolved domain, unchanged); **purchase `graze.ing` when possible** and let the affiliation live in the
-wordmark ("by Croft") rather than the URL, so `graze.ing` can stand alone later without a migration.
+fallback stays in the pastoral register. **Domain (updated 2026-07-30):** **`graze.ing` is acquired
+and is now the domain**, superseding the earlier `forum.croft.ing` plan (the affiliation lives in the
+wordmark "by Croft" so `graze.ing` stands alone). Prior thinking worked from `forum.croft.ing` as a
+placeholder until `graze.ing` became available; that placeholder is retired.
 
 **Why "Graze" earns it.** It sits in the same **working-landscape** spirit as Croft/Drystone without being
 bound to the drystone scheme — a hill farm, not a petting zoo. The **"by X"** lockup (cf. "Threads by
@@ -395,6 +410,75 @@ parses with zero context. `/g` maps to the *brand*, is redundant with the domain
 technology-board connotation. Reconsider only if a community's in-product noun became g-flavored — which
 cuts against keeping user-facing nouns ordinary, so it argues itself out.
 
-**Status: working name (not finally settled); `forum.croft.ing` is the live domain; `graze.ing` is a
-purchase-when-available item.** Tracked: ROADMAP_TODO E73 (`graze.ing` acquisition); COHESION §61;
-`plans/2026-07-27-read-first-forum-mvp.md` (reconciliation note).
+**Status: working name (not finally settled). `graze.ing` ACQUIRED (user, 2026-07-30) and now the
+domain**, superseding the `forum.croft.ing` thinking. The **Graze behavior-scale mock** (persona-switch
+PWA, no backend — the mock tier) is deployed there — repo `CroftCommunity/graze`; method + spec in
+`thinking/behavior-scale/` and `thinking/app/build-specs/graze-persona-switch-spec.md`. Tracked:
+ROADMAP_TODO E73 (acquisition — DONE) + E80 (build filed); COHESION §61, §63;
+`plans/2026-07-27-read-first-forum-mvp.md` (reconciliation — the build spec assumes a Next.js+Postgres
+large-tier backend vs the plan's read-first Bluesky lens; that fork is tracked in COHESION §63).
+
+## Forum-layer naming (2026-07-31): **Graze → Amble by Croft** — working name, PENDING CLEARANCE (contested, not decided)
+
+**Decision (user 2026-07-31).** The forum pad's working name moves from **Graze** to **Amble by Croft**.
+"Graze / Graze by Croft" was premature; **Amble** is the new working register. Not finally settled — the
+field is dense and there is already an existing **"Amble"** in this exact space, so clearance is
+**CONTESTED-until-cleared**, mirroring the **Stellin** discipline (`research/stellin-name-clearance-2026-07.md`
++ the Stellin NAMING gate + ROADMAP_TODO A18). Per this repo's convention, **do not propagate "Amble"
+into durable structure** (doc names, code, the built `graze` repo/domain/spec, the behavior-scale
+registry) until the clearance holds — carry "Amble (pending clearance)" and surface the gate rather than
+resolve it (PLAYBOOK §5). Same class as **Noria** (foundation) and **Bluebird** (reader pad): the
+clearance is the user's call.
+
+**Why "Amble" earns the register.** It stays in the **working-landscape / walking** spirit (an amble is
+an unhurried walk) that the forum pad wants, and it fits the pad's founding idea — a **bare-link sharing
+view** whose bar is *"this is something I wish someone else would recommend to me"* (a slow, unhurried,
+no-commentary resonance; you amble through links others found worth reading). The **"by Croft" lockup**
+is the stronger form and does **three jobs with one string**: it clears Apple's App-Store exact-string
+uniqueness (listing name "Amble by Croft," display name under the icon stays plain "Amble"); it is the
+trademark-strength move the clearance memo recommends (a suggestive dictionary word gains enforceable
+distinctiveness from its lockup); and it compounds the house brand (every install screen teaches the
+Croft mark, so Drystone and the other pads inherit recognition). Precedent that the pattern reads as
+craft not corporate: "Monument Valley by ustwo" `[UNVERIFIED]`. Store hygiene: never brand "Amble app"
+(collides head-on with the NZ senior user), and never keyword-pack their phrasing.
+
+**Clearance status: CONTESTED (not blocked).** Full report: `research/amble-name-clearance-2026-07.md`.
+The gate is broader than Stellin's — it is not only a live-source re-run but carries an **outreach
+dependency**:
+- **(1) Counsel knockout search** in classes 9/38/41/42/45; pull TSDR on Serials **99174346** (Class 9
+  language/reading software — the closest live risk, a *pending* app from the possibly-winding-down "Amble
+  – Language & Culture" / Page Nineteen) and **99446780** (telemedicine apps).
+- **(2) A live `amble.ing` premium-tier quote** — believed available, but .ing premiums a common
+  dictionary word; get a registrar quote before relying on it.
+- **(3) The AMBLE NZ coexistence-letter outcome** — the load-bearing mitigation (see below).
+
+**The one hard conflict: AMBLE NZ LIMITED.** A live **direct-category competitor**, *"amble — social media
+without influence"* (Auckland; ~100+ Play installs + iOS), occupying the **exact word** and **amble.social**.
+Unlike Stellin (SEO/phonetic adjacency only), this is a same-category common-law senior user. It is small
+and coexistence is plausible, but the **reverse-confusion branch** — they never answer, stay alive tiny,
+and Amble succeeds — is the real risk. Hence the decision is **right conditional on the coexistence letter
+being sent and pursued before launch** (user, 2026-07-31: "if it lands, we reach out before launch"), with
+intent-to-use filings fast if the answer is silence.
+
+**Runner-up recorded so it isn't re-litigated: Meander.** On pure register cleanliness Meander is
+currently the *safer* mark — its nearest computer-services registration (**MEANDER**, US Reg. 3738941,
+Class 42) is **DEAD** (Cancelled §8, 2016-08-26) and no live software/social MEANDER conflict was found.
+Amble was chosen for register-fit + the open atproto niche despite Meander's cleaner register; Meander is
+the fallback if the go/no-go tips (same pattern as "Watershed rejected" under Noria).
+
+**Domain reconciliation (two tracked decisions — surface, don't resolve):**
+- **`graze.ing`** — acquired (ROADMAP_TODO E73) but the name is now superseded → **disposition needed**:
+  retire / redirect-to-amble / hold. Until Amble clears, the built mock still lives at `graze.ing`.
+- **`amble.ing`** — the wanted domain; **believed available, premium-tier UNVERIFIED** → live registrar
+  quote is the gating step. Whether a defensive `amble.*` set (getamble/tryamble/amble.blue/amble.ink) is
+  wanted is the user's call.
+
+**Do-not-propagate discipline.** The forum pad's **pad-design** thinking (theme discipline, the `/f/`
+path, the commons framing — in the superseded section above) is name-independent and stands. The built
+Graze mock (repo/domain/spec/behavior-scale registry) is **not renamed** until Amble clears; references
+carry "Amble (pending clearance)."
+
+**Status: working name (not finally settled); clearance gate is the user's.** Tracked: ROADMAP_TODO
+(a Stellin-style name-clearance gate row + the `graze.ing` disposition on E73 + the E80/E62 fork);
+COHESION §64 (naming supersession) + §66 (the bare-link forum feature). Clearance report:
+`research/amble-name-clearance-2026-07.md`.

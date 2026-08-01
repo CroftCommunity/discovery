@@ -47,6 +47,12 @@ isolated in the one pond Croft owns. **This is now a settled decision** (2026-06
   WeChat-derived four-principle skeleton, gatekeeper mechanics stripped), and the visual system
   (cream / deep-green / ink palette with **semantic-meaning** accents, not per-pond).
 
+- `forum-subjective-consensus-and-reputation.md` — the **forum pad** design (mock **Graze**, working
+  name moving to **Amble by Croft** — see `../../NAMING.md`): bare-link discovery + **graph-weighted
+  subjective-consensus** reputation (the social-tree thesis made concrete), two-mode local-first (Global
+  via Jetstream / Subjective client-side — **no mandatory AppView**), better-than-Reddit features,
+  titleless-post bridging. Carries a new data point on the **E80↔E62 backend fork** (COHESION §63/§66).
+
 - `brand-and-voice-notes.md` — **working draft, unsettled.** Name, tagline ("Grow your own"),
   two-speed answer to "own what", "homegrown" as identity register, the message funnel. Reconcile
   with `../../NAMING.md` (umbrella Croft) when it settles — currently flagged in ROADMAP.

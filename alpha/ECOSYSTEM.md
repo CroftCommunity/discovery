@@ -129,6 +129,8 @@ would build alongside these.
 | sugyan | ATrium (atrium-rs) | Rust AT-Proto framework | live; atrium-lex + atrium-codegen (lexicon→Rust), bsky-sdk [verified: web] | build-on (Rust client path) |
 | @ksk001100 | bsky_tui | Rust TUI Bluesky client (Ratatui+Tokio+atrium) | live [verified: web] | homage (decoupled-presentation proof) |
 | Bluesky / community | Tap | Official Go repo-sync/backfill tool: subscribe to a Relay + auto `getRepo` backfill (events marked `live:false` → live), SQLite/Postgres | live, OSS [verified: web 2026-06-22 — atproto.com/blog/introducing-tap] | build-on (if Croft builds any AppView/indexer/backfill) |
+| — | atwork.place | Decentralized job board on ATProto: listings as a custom lexicon record (`place.atwork.listing`) in the poster's PDS/DID; `#hiring`/`#forhire` profile status singleton; H3 hexagonal geo-indexing for privacy-friendly proximity | **dialogue-sourced 2026-07-31 [UNVERIFIED — pending web confirm]** (Gemini) | learn↔ (job-board pad prior art; the open-LinkedIn / Stellin vein) |
+| — | Sifa | Professional identity + workspace on ATProto; reportedly integrating with atwork.place (candidate portfolios ↔ active listings) | **dialogue-sourced 2026-07-31 [UNVERIFIED — pending web confirm]** (Gemini) | learn↔ (professional-identity vein; relates Stellin) |
 
 Private-groups/E2EE on AT Proto are **third-party**: **Germ DM** (MLS, §6 below) and the
 **XMTP↔Bluesky bridge** (XMTP Labs `bluesky-chat`). This gap is what Croft's lineage-groups MLS proof
@@ -195,6 +197,8 @@ These are not prior art — they are Croft's own shipped surfaces, cross-repo un
 | skylite.croft.ing | `CroftCommunity/skylite` | Tended Bluesky window (sponsor-curated, no-algorithm view; kids/grandparents/quiet-sky use) | the "gate in the wall" surface |
 | pdsview.croft.ing | `CroftCommunity/pdsview` | Standalone zero-dependency SPA/PWA browser for public ATProto PDS content (browse collections/records/blobs + export); layer-honest about CORS | the public-repo inspector |
 | greetings.croft.ing | `CroftCommunity/greetings_site` | 1:1 greeting cards, link-delivered — public bare records or server-blind link-key (AES-256-GCM in-browser, key in the URL fragment); static PWA, no backend. Productizes the card-ingest link-key tier (E43) | the server-blind card surface (plan: `alpha/plans/2026-07-21-greetings-croft-ing-mvp.md`) |
+| stellin.app | `CroftCommunity/stellin` | **Behavior-scale mock** of the professional-networking pad (LinkedIn-shape): persona-switch PWA, no backend — the UX instrument and mock tier for the eventual atproto "Stellin by Croft" AppView (its large-tier backend, RUN-14/15). Working name during build: "Meridian" | the professional-networking build (method `thinking/behavior-scale/`; build prompt `thinking/app/build-specs/stellin-meridian-build-prompt.md`; COHESION §63) |
+| graze.ing | `CroftCommunity/graze` | **Behavior-scale mock** of the community-discussion forum pad (Reddit-shape): persona-switch PWA, no backend. `graze.ing` acquired 2026-07-30 and supersedes the earlier `forum.croft.ing` domain | the forum build (method `thinking/behavior-scale/`; spec `thinking/app/build-specs/graze-persona-switch-spec.md`; large-tier fork in COHESION §63) |
 
 ## 5d. Games & app-pond building blocks (from the ponds/games dialogue 2026-06-21)
 

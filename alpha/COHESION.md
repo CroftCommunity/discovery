@@ -1741,6 +1741,64 @@ pond. Seams:
 
 Backlog: ROADMAP_TODO E46 (appended, not a new item).
 
+## 63. 2026-07-30 — the behavior-scale methodology + the Stellin & Graze builds ↔ the appview/forum work
+
+> Naming note (2026-07-31): the founding dialogue called this "the behavioral twin"; renamed
+> **behavior-scale** ("twin" implied exactly two deployments — it is one behavioral model across a
+> **mock → small → medium → large** backend continuum). Terms below use the new name.
+
+**Incoming:** two claude.ai design dialogues (filed `seeds/transcripts/raw/stellin-graze-behavior-scale-sessions-2026-07.md`) that produced (a) a reusable **behavior-scale / persona-switch** methodology and (b) two built, deployed **mocks** — **Stellin** (`stellin.app`, professional-networking, working name "Meridian") and **Graze** (`graze.ing`, forum). Filed: `thinking/behavior-scale/` (methodology + persona-switch + README/registry); `thinking/app/build-specs/{stellin-meridian-build-prompt,graze-persona-switch-spec,graze-topic-aggregation-build-spec}.md`; `research/{linkedin-ux-architecture,reddit-aggregation-ux-slashdot-baseline}-2026-07.md`.
+
+**CLOSED — an unindexed island wired in.** Before this pass the whole behavior-scale/persona-switch/Meridian body existed only as orphaned files that **no index referenced** (confirmed by a full-corpus sweep). Now cross-linked from ROADMAP_TODO E80, ECOSYSTEM §5c-3 (two live-property rows), NAMING (Stellin app-layer + Forum-layer), and RAW-ARTIFACTS-MANIFEST. The methodology README carries the reusable seed→spec→build pipeline so the next build starts from a home, not from scratch.
+
+**CLOSED — Stellin mock ↔ large-tier backend.** The professional-networking mock (`stellin.app`) is the UX instrument for the atproto "Stellin by Croft" AppView already spiked in the corpus (RUN-14/15 appview-infra, `seeds/stellin-unpacked/`, §46, A18). This is exactly the methodology's continuum: mock (memory substrate, ships now) → large tier (atproto AppView). No conflict — the mock and the appview work are two points on one continuum of the same product. Ties §46 (name-clearance) and A18 (clearance gate).
+
+**DRIFT / fork to reconcile (surface, don't resolve — PLAYBOOK §5) — Graze mock ↔ read-first forum plan.** Two visions of "Graze"/the forum now coexist and assume **different large-tier backends**: (1) the **Graze mock** (`graze-persona-switch-spec.md` §13) whose declared large-tier backend is the **Next.js + Postgres** stack from the Reddit-family aggregation build spec; (2) the corpus's **active forum plan** (`plans/2026-07-27-read-first-forum-mvp.md`, E62/§59) — a **read-first lens over the public Bluesky AppView** (Rust `feed-core`/WASM, no custom backend), on the Social Tree backbone. These are not the same architecture. Under behavior-scale this is a design fork that is the **user's to resolve**; the mock answers "does it behave/feel right," the large-tier backend is a separate decision. **Do not silently merge the two.** Tracked: ROADMAP_TODO E80 [decision].
+
+**CLOSED — graze.ing supersedes forum.croft.ing.** User acquired `graze.ing` (2026-07-30); it is now the forum domain, retiring the `forum.croft.ing` placeholder. Backported to NAMING (Forum-layer), ROADMAP_TODO E73 (acquisition DONE). Note the naming layer still reads the forum as "the read-first lens on the Social Tree backbone" (E62/§59/§61) — consistent as the *product*; the mock is that product's UX instrument, with the backend fork above still open.
+
+Backlog: ROADMAP_TODO E80 (new), E73 (updated).
+
+## 64. 2026-07-31 — Forum-layer naming: Graze → Amble by Croft (working name, clearance CONTESTED)
+
+**Incoming:** the claude.ai naming dialogue (`seeds/transcripts/raw/amble-naming-coop-metering-dialogue-2026-07-31.md`) + a commissioned clearance memo (`research/amble-name-clearance-2026-07.md`).
+
+**DECISION (user 2026-07-31) — the forum-layer working name moves Graze → Amble by Croft.** "Graze" was premature. Recorded in `NAMING.md` (Forum-layer 2026-07-31, superseding the 2026-07-29 Graze section, whose *pad-design* content stays valid). Follows the **Stellin/Noria/Bluebird** convention: a working name behind a **user-owned clearance gate**; not propagated into durable structure until it holds.
+
+**OPEN — clearance gate (CONTESTED, not blocked), broader than Stellin's.** Beyond a live-source re-run it carries an **outreach dependency**: (1) counsel knockout search (classes 9/38/41/42/45; TSDR on Serials 99174346 language/reading software + 99446780); (2) a live `amble.ing` premium-tier quote; (3) the **AMBLE NZ coexistence-letter outcome**. The one hard conflict is a **direct-category common-law senior user** — "amble — social media without influence" (AMBLE NZ, holds `amble.social`) — Stellin had only SEO adjacency, so this is a sharper reverse-confusion risk. Decision is right **conditional on the letter being sent + pursued before launch** (user: "if it lands, we reach out before launch").
+
+**Recorded so it isn't re-litigated — Meander runner-up.** On pure register cleanliness Meander is *safer* (MEANDER US Reg. 3738941 DEAD/§8-cancelled; no live software conflict). Amble chosen for register-fit + open atproto niche; Meander is the fallback (same pattern as "Watershed rejected" under Noria).
+
+**OPEN — two domain reconciliations (surface, don't resolve).** `graze.ing` (acquired, E73) is now name-superseded → disposition needed (retire/redirect/hold); `amble.ing` wanted but **premium-tier UNVERIFIED** → live quote gates it. Built Graze mock (repo/domain/spec/behavior-scale registry) **not renamed** until Amble clears.
+
+Ties §63 (behavior-scale / the Graze mock), §46 + A18 (the Stellin clearance pattern this mirrors). Backlog: ROADMAP_TODO (new A-row clearance gate; E73 disposition).
+
+## 65. 2026-07-31 — cooperative PDS-hosting metered billing: the concrete D5 mechanism, proven in code
+
+**Incoming:** the claude.ai coop-metering dialogue (`seeds/transcripts/raw/amble-naming-coop-metering-dialogue-2026-07-31.md`, the "second half") + the **item-storage-protocol experiment suite already on `main`** (PRs #33/#34/#36): `experiments/item-storage-protocol/` (E0–E14 + `SPEC.md` + independent funder verifier + tests + `RUN_REPORT.md`) and `experiments/item-storage-protocol-standalone/` (E0–E11).
+
+**ADVANCED (biggest single move on the existential item) — D5 now has a concrete, code-backed charging + accountability mechanism.** E25/D5 named the cooperative *mechanism* as existential but left *how the co-op actually charges* abstract. This supplies it: **meter the boundary, not the machine** (postage = bytes transferred, rent = byte-days from the member's own signed manifest), co-signed balance-forward statements, a cost-priced **audit dial** (`1−(1−f)^k`), sealed/tombstone cold-storage tiers, an on-book **grace ledger**, the **two-plane public/private split** (structural privacy), and — critically for *capital* — the **extinguishing-royalty** instrument (E11, bounded return = bounded extraction) + the **funder-side diligence machine** (E12–E14: revenue co-attested, underwritable from files alone, "the loan application is a build artifact"). Status **green-real** (deterministic assertion suite; not a scale claim — `SEAM:` markers enumerate production gaps).
+
+Distilled → `thinking/cooperative-social-union-model.md` (new "charging mechanism" section, deepening Pillar 3); `crystallized/principles.md` Tier 3 ("meter the boundary…", the user's razor); `proof-ledger.md` + `test-narrative.md` (T-ISP).
+
+**CLOSED — a thinking-layer gap the left-behind-audit flagged.** "PDS-as-cold-storage with cryptographic receipts" existed only in `cairn/` as atproto substrate mechanics, not as a Drystone/co-op design implication in `thinking/`; the charging-mechanism section now homes it. Ties **E25** (coop model — the mechanism under Pillar 3), **E23** (the blind-broker/object-store wedge this descends from), **E28** (foundation/IP — E11 royalty + E12–14 funder-diligence), and invariant **S5** (structural-not-runtime privacy — the two-plane split). **Also unifies with the MLS history-convergence server** (Phase 10, `plans/croft-stack/10-drystone-layer.md`): a content-blind convergence node needs exactly this metered, content-blind store, so the metered-storage service is the shared substrate under **both** PDS-hosting and convergence (user, 2026-07-31). **E82 is now a committed experimental-product build** — Rust, S3-compatible interface, extrapolating from `rsky-pds` (ECOSYSTEM §5e), deployed on the VPS via croft-stack.
+
+**OPEN — gates (surface, don't resolve — the user's):** (1) **Cooperative storage-service name — undefined** (RESOLVED-as-miscommunication 2026-07-31: the dialogue's "Drystone" for the storage co-op was a recall-drift — **Drystone stays the P2P protocol**; the co-op and its storage service are yet to be named — a lane naming item, A21). (2) **Legal-review gate (D5, deferred to the coop-layer pile)** — receipts-as-contract, the E11 royalty, the deceased-member hold — a cooperative attorney/CPA before reliance; a ways off and expected to accrue more with it. **NOT LEGAL ADVICE.**
+
+Backlog: ROADMAP_TODO E25/D5 (advance + the metering mechanism); the **coop-storage lane** (E82) with its v0 sketch; A21 (coop/storage name TBD).
+
+## 66. 2026-07-31 — forum pad: bare-link discovery + subjective-consensus reputation; a new data point on the E80↔E62 fork
+
+**Incoming:** the Gemini forum-mechanics dialogue (`seeds/transcripts/raw/graze-forum-subjective-consensus-gemini-2026-07.md`) + the claude.ai bare-link idea (`amble-naming-coop-metering-dialogue-2026-07-31.md`, Thread A). Distilled → `thinking/app/forum-subjective-consensus-and-reputation.md`.
+
+**CLOSED — the social-tree thesis, made concrete as a shippable reputation model.** Ungameable karma on user-owned PDSes = compute from *others'* authenticated interactions, not the PDS's self-report: piggyback `app.bsky.feed.like` for upvotes + a contained `com.graze.feed.downvote`; **graph-weight** by depth (Depth-1 highest) + tenure + cheap diversity proxies; Network-Score/Tree-Score two-mode UI; subjective Hot/Rising/Controversial; Ozone-labeler moderation; graph-amplified awards. Sybil resistance is structural (a bot farm has ≈0 subjective weight from your trunk → organic shadowban). Plus the **bare-link view** ("this is something I wish someone would recommend to me"; multi-fidelity link rendering incl. on-device AI summary).
+
+**DRIFT/fork — a new data point on the E80↔E62 backend fork (surface, don't resolve; ties §63).** The user pulls both ways: the bare-link view "may make sense to build an AppView side" (E80-ward: Next.js+Postgres large tier) *and* "social tree is my preference" (E62-ward: read-first lens on public Bluesky). The decisive addition: **subjective consensus runs entirely client-side on Jetstream + `getFollows` — no mandatory AppView.** So the read-first E62 path *can* carry the forum/karma vision, with an AppView demoted to an optional accelerator. This **lowers the fork's stakes** (the pad ships and behaves correctly with no backend) but does **not** decide the large tier. Tracked ROADMAP_TODO E80/E62.
+
+**Backported — ECOSYSTEM §5b** rows for **atwork.place** + **Sifa** (atproto job boards), flagged **dialogue-sourced / pending-verification** (not laundered as verified).
+
+**OPEN — gates.** (1) E80↔E62 backend fork = [decision], the user's. (2) [verify] atproto/lexicon mechanics + the atwork.place/Sifa projects (Gemini-sourced). (3) [open] don't mint `com.graze.*` NSIDs into records until the **Amble** rename holds (A20) — NSIDs are permanent once records circulate. Ties **§63** (behavior-scale Graze mock ↔ read-first plan), **§64** (Amble naming), **E62/E80**.
+
 ## How to use this map
 
 When a document says "unproven," "open," "TBD," or "verify later," check here first — the

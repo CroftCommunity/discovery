@@ -262,3 +262,35 @@ the TS `lineage-group-model` (needs node/npm). Node-fabric + hard-gated tiers pe
    a threshold of admin *lineages* to sign (real Ed25519), a single-authority/broker checkpoint is
    rejected, the head must match the real log, and it's bound to one branch (can't span a fork).
    Test: `t3_threshold_checkpoint.rs`. (The Automerge-side compaction itself stays model-proven, F/G.)
+
+## Item-storage protocol — the cooperative metering suite (E0–E14, 2026-07-31)
+
+A dependency-free, deterministic, adversarial experiment suite for the co-op's PDS-hosting
+metered-billing design (the **D5** sustainability mechanism). Lives on `main` (PRs #33/#34/#36):
+`experiments/item-storage-protocol/` (E0–E14 + `SPEC.md` + an independent funder-side verifier + a green
+test suite + `RUN_REPORT.md`) and `experiments/item-storage-protocol-standalone/` (E0–E11, zero deps).
+Ed25519 signatures + SHA-256 fingerprints; the one deliberate `SEAM:`-marked simplification is hex hashes
+for CIDs / in-process actors for the network.
+
+status: **green-real** — the full assertion suite passes end-to-end (deterministic, seeded). "Real" =
+real crypto (Ed25519/SHA-256) + exact ledger arithmetic; **not** a network/scale/concurrency claim
+(in-process actors; every production gap is enumerable by grepping `SEAM:`). Narrative: `test-narrative.md`
+(T-ISP).
+
+- **E0–E2** identity · content-addressed items + per-item tamper detection · customer-signed manifest
+  (the bill's source of truth, in the customer's handwriting).
+- **E3** transfer receipts (postage; walkaway exposure = exactly one increment) — "meter the boundary" in code.
+- **E4** balance-forward co-signed statement chain (any historical edit located precisely).
+- **E5–E6** spot-check detection math `1−(1−f)^k` (measured vs predicted) · the member-chosen, cost-priced audit dial.
+- **E7–E8** sealed (revocable) + tombstone (permanent) cold-storage tiers — no-movement verified against a pinned root.
+- **E9** grace ledger (waivers + deceased-member hold net to zero against a grace account).
+- **E10** erasure-coding upgrade path (stretch; a labeled redundancy *floor* for any "archive" tier).
+- **E11** extinguishing-royalty financing ledger (bounded return = bounded extraction; cumulative payout = m·P to the cent).
+- **E12–E14** funder-side diligence machine: revenue **co-attested**, underwritable **from files alone** by an
+  independent verifier; covenants machine-checkable; **E14** the scope-condition counterexample
+  (attested-but-unverifiable vs verified).
+
+Feeds **D5** (`thinking/cooperative-social-union-model.md` → the charging mechanism); the "meter the
+boundary" razor is in `principles.md` (Tier 3). Open: the `SEAM:` production gaps (real CIDs/DAG-CBOR,
+real network, real key-destruction) and the cooperative storage-service **name** (undefined —
+Drystone is the protocol; the dialogue's "Drystone (storage)" was a miscommunication).
