@@ -13,7 +13,7 @@
 | 2 items + manifest (E1–E2) | SHIPPED | `9476b97` | Content-addressed `Item`/`ContentStore` (tamper-evident, dedup) + canonical signed Merkle manifest; 19 tests. |
 | 3 receipts (E3) | SHIPPED | `b31be48` | Two-mode receipts (Bilateral/Unilateral) + append-only signed ledger + canonical serialization; walkaway/forgery caught; 30 tests. |
 | 4 statements (E4) | SHIPPED | `18fd199`+`0b0464c` | Statement chain + byte-day rent + rollup/purge (4a) + per-user SQLite persistence (4b, `:memory:` tests); 48 tests. |
-| 5 audit + dial (E5–E6) | pending | — | |
+| 5 audit + dial (E5–E6) | SHIPPED | `1640b17` | Seeded RNG (mulberry32, bit-exact TS parity) + k-sample audit (`1−(1−f)^k`) + cost-priced signed dial; 75 tests; E0–E6 mutation gate green (golden-vector test killed the 11 `rng` survivors). |
 | 6 seal + grace (E7–E9) | pending | — | |
 | 7 S3 metered boundary | pending | — | |
 | 8 atproto PDS blob surface | pending | — | |
@@ -556,8 +556,22 @@ dropped legitimately (provenance preserved by the co-signed chain).
 **Done when:** (1) monthly statements co-signed + chained, rent correct; (2) `cargo test e4` green.
 **Validation:** Narrow.
 
-### Phase 5: Spot-checks + the audit dial (port E5–E6)
+### Phase 5: Spot-checks + the audit dial (port E5–E6) — SHIPPED (`1640b17`)
 **Goal:** Random-sample audit with detection math `1−(1−f)^k`; a member-chosen, cost-priced dial. E5–E6.
+**Delivered (2026-07-31):** `rng.rs` (seeded mulberry32, **bit-exact port** of `rng.ts` — a golden-vector
+test pins the exact sequence, proving Rust↔TS parity) + `audit.rs` (`detection_probability` = `1−(1−f)^k`
++ `audit_sample`: real retrieve + re-fingerprint, names failures, tallies bytes-read) + `dial.rs` (audit
+tiers, `per_audit_cents`/`tier_cost` linear-at-cost, `audits_for` half-up pro-rate, `DialDeclaration`
+recorded as a **signed ledger entry**) + `pricing.rs` `audit_cents` (bytes-at-cost + fixed per-audit
+overhead) + `item.rs` `ContentStore::audit_read_cost` (cost tracks k·size, not corpus size). Wiring tests
+`e5_audit.rs` (honest provider passes; dropped item caught **and named**; Monte-Carlo detection ≈
+`1−(1−f)^k` within 0.03 over a **seeded** RNG with seed literals in-file; cost ⟂ corpus size) +
+`e6_dial.rs` (linear at the tier edges; signed declaration re-verified in the ledger; chosen tier appears
+in the statement; mid-period change bills the sum of two pro-rated legs). Pass-3 boundary cases (`f=0`,
+`k=0`, `k=1`, large-k monotonic) as `audit.rs` unit tests. 75 tests; clippy pedantic + fmt clean.
+**Write-set expanded** beyond the Pass-2 plan (`audit.rs`, `dial.rs`, `tests/e{5,6}_*.rs`): added **`rng.rs`**
+(the seeded RNG the audit needs — standalone `rng.ts` port) + `pricing.rs` audit-pricing + `item.rs`
+`audit_read_cost` + `lib.rs` module decls.
 **Changes:**
 - [ ] `src/audit.rs` — random k-sample retrieve+fingerprint+verify; the detection-math check; public-
   randomness challenge seeding.
@@ -630,6 +644,13 @@ boundary. Backed by a real blob store (Garage/SeaweedFS local; local-FS fallback
   feature** — just the seam. Cheap ops (blob PUT/GET) never get scoped (spawn cost > their compute).
 - [ ] `src/main.rs` (or `src/bin/item-store.rs`) — the **runnable service binary** entry point (the lib
   alone can't be `curl`'d or deployed; Phases 7/9 need a real binary).
+- [ ] **graceful-shutdown + fd-inheritance seam (build-from-the-start hook, E87).** `main.rs` optionally
+  inherits a listening fd (systemd socket-activation via `sd_listen_fds`/`LISTEN_FDS`) and installs a
+  SIGTERM graceful-shutdown path (stop accepting → drain in-flight → SQLite `wal_checkpoint(TRUNCATE)` →
+  exit 0). Cheap seams so the **zero-downtime-upgrade spike (E87)** can measure options (stop-start /
+  graceful-drain / socket-activation / `SO_REUSEPORT` blue-green) without a rewrite — the capability +
+  chosen strategy land at Phase 9. Same "seam now, capability later" pattern as E83/E84; **not a v0
+  feature**, just the seam.
 - [ ] `tests/wiring_s3_metered.rs` — end-to-end: `PUT` bytes over HTTP → a signed receipt is recorded and
   postage tallied; `GET` returns bytes + receipt; rent recomputable from the manifest.
 **Call chain:** HTTP `PUT /obj` → `server::put` → `blobstore::write` + `receipts::ack` → `ledger::append`.
@@ -712,6 +733,13 @@ can test against.
 - [ ] croft-stack role/wiring for the binary (build/ship, systemd unit via the template, telemetry
   poller, hardening baseline, netns isolation).
 - [ ] a smoke test / canary hitting the deployed put/get (and blob endpoint if Phase 8 shipped).
+- [ ] **TLS + reverse-proxy via Caddy + the E87-chosen upgrade strategy.** Front the service with
+  croft-stack's existing **Caddy** (TLS on 80/443 — matches the official Bluesky PDS installer default)
+  reverse-proxying to the service on localhost; forward the `Host` header (needed for
+  `/.well-known/atproto-did`) + websocket `Upgrade`/`Connection` (needed for `subscribeRepos`), and enable
+  request-retry (`lb_try_duration` / `handle_errors`) to mask a restart. Wire the **zero-downtime upgrade
+  strategy the E87 spike selects** (lean: systemd socket activation + graceful drain; `SO_REUSEPORT`
+  blue-green as the stretch) into the systemd unit / a `.socket` unit.
 - [ ] **[Pass 3, Doc-Impact] the scheduled doc edits that go stale at deploy** — in `discovery`:
   `ECOSYSTEM.md` §5c-3 (add the deployed-service row), `COHESION.md` §65 (v0-runs status note),
   `ROADMAP_TODO.md` E82 (status → deployed/live), the lane doc's "Next step",
@@ -860,6 +888,33 @@ content-blind.
   it (forge/replay receipts, inflate manifest, tamper at rest across the boundary, walkaway, malformed
   input) — real version at **Phase 7** (HTTP engine); an in-process E0–E9 abuse suite before that. Not a
   v0 blocker; strengthens validation throughout.
+- [CONFIRMED: ADVISORY — post-v0, tracked E87] **Zero-downtime upgrade + TLS termination (Caddy).** Raised
+  by the user (2026-07-31): design the upgrade path for **zero downtime from the start**, and make it an
+  **experiment spike** (explore options + measure), not a blind pick. **TLS/reverse-proxy = Caddy** — matches
+  croft-stack's existing Caddy and the official Bluesky PDS installer default (Caddy on 80/443); it
+  reverse-proxies to the service on localhost, forwarding the `Host` header (needed for
+  `/.well-known/atproto-did`) + websocket `Upgrade`/`Connection` (needed for `subscribeRepos`), and its
+  request-retry masks a brief restart. **Reference — how Bluesky upgrades:** the official install is a
+  **container image swap** (watchtower pulls the new tag → recreates the container) — a brief restart,
+  **not connection-preserving**; durable state survives on a bind-mounted dir (per-actor SQLite + FS blobs)
+  and the firehose resumes from a **client-held cursor** (protocol-level handoff). **Favorable finding for
+  us:** our durable state is all on disk (per-user SQLite WAL + FS blobs) and the firehose resume is a
+  client cursor ⇒ little bespoke in-memory "handoff state" to transfer — the **listening socket** is the
+  main thing to preserve; and SQLite WAL permits a *safe* brief two-process overlap (readers concurrent,
+  the single writer serialized on the lock), which makes blue-green feasible. **Options the spike
+  measures:** (1) stop-start (`systemctl restart` — the Bluesky-equivalent floor; downtime = WAL-checkpoint
+  + re-open + rebind); (2) graceful drain (SIGTERM → stop-accept → drain in-flight → WAL-checkpoint → exit)
+  + Caddy retry; (3) **systemd socket activation** (`.socket` `ListenStream=`; the service inherits the fd
+  via `sd_listen_fds` → the kernel accept-backlog buffers new connections across the swap → near-zero
+  refused); (4) **`SO_REUSEPORT` blue-green** (old + new bind the same port; start-new / health-gate /
+  drain-old; the WAL overlap is safe) — true zero-downtime incl. in-flight, most orchestration. **Lean:**
+  (3)+(2)+Caddy-retry (effectively-zero refused on a single-writer store, no two-writer complexity); (4) as
+  the stretch measurement. **v0 hooks (build from the start, Phase 7):** design `main.rs` to optionally
+  inherit a listening fd (the socket-activation seam) + a SIGTERM graceful-shutdown path — cheap seams
+  (same "seam now, capability later" pattern as E83/E84) so the spike can measure options without a
+  rewrite. **Deliverable:** a measured comparison (dropped connections / refused requests / firehose gap
+  per option) → picks the Phase-9 upgrade strategy; may graduate to its own harness (like relay-loadtest).
+  Not a v0 blocker.
 
 ## Review Log
 
@@ -1084,3 +1139,37 @@ caught / 1 missed / 24 unviable / 2 timeouts**. The single "missed" is an **equi
 * with / in rent_cents`: because `RENT_NUMERATOR == 1`, `byte_days * 1 / D` and `byte_days / 1 / D` are
 identical for every input, so no test can distinguish them. Excluded in `.cargo/mutants.toml` with that
 rationale (not a coverage gap). **Zero real survivors across E0–E4.** 48 tests; clippy pedantic + fmt clean.
+
+### Test run 2026-07-31 — Phase 5 (E5–E6) mutation gate
+Ran `cargo-mutants` over the full crate after Phase 5 (audit + dial + seeded RNG): **241 mutants → 202
+caught / 11 missed / 26 unviable / 2 timeouts** on the first pass. **All 11 missed were in
+`rng::next_f64`'s bit-mixing** (`>>`↔`<<`, `|`↔`&`/`^`, `^`↔`|`): a PRNG mixing function is constrained
+only by *determinism + uniformity*, which the property tests assert and which almost any mixing variant
+still satisfies — so the exact algorithm was unpinned. Fixed the right way (**not** an exclusion): added a
+**golden-vector test** (`ports_the_oracle_sequence_bit_for_bit`) pinning the mulberry32 output to the TS
+oracle's exact sequence (captured by running `rng.ts` under node) — which both **kills all 11 survivors**
+and proves the Rust port is **bit-exact parity** with the oracle. Scoped re-run `cargo mutants --file
+src/rng.rs`: **31/31 caught**. Mutation coverage is monotonic and no non-`rng` logic changed, so the crate
+has **zero real survivors across E0–E6** (26 unviable + 2 benign timeouts as before). 75 tests; clippy
+pedantic + fmt clean.
+
+### Decision 2026-07-31 — zero-downtime upgrade + TLS termination (Caddy); spike (tracked E87)
+Design thread raised by the user: upgrade the running store with **zero downtime from the start**, and
+treat it as an **experiment spike** — explore options + do some testing — rather than pick one blind.
+Grounded against how Bluesky's PDS actually upgrades (the cprimozic self-hosting note + the official
+`bluesky-social/pds` installer): a **container image swap** (Caddy on 80/443 + watchtower auto-pull →
+container recreate) — a brief restart, **not connection-preserving**; state survives on a bind-mounted dir
+(per-actor SQLite + FS blobs) and the firehose resumes from a **client-held cursor**. **TLS decided:
+Caddy** — matches croft-stack's existing Caddy and Bluesky's default; forward the `Host` header (for
+`/.well-known/atproto-did`) + websocket `Upgrade`/`Connection` (for `subscribeRepos`); Caddy request-retry
+masks the restart. **Favorable finding:** our durable state is all on disk + the firehose resume is a
+client cursor ⇒ little bespoke in-memory handoff state (the listening socket is the thing to preserve); and
+SQLite WAL permits a safe brief two-process overlap (readers concurrent, writer serialized) ⇒ blue-green is
+feasible. **Options to measure:** (1) stop-start floor; (2) graceful drain + Caddy retry; (3) systemd
+socket activation (fd inheritance → kernel backlog buffers the swap); (4) `SO_REUSEPORT` blue-green (true
+zero-downtime, most orchestration). **Lean:** (3)+(2)+Caddy-retry, (4) as stretch. **Plan changes:**
+threaded a **Phase-7 `main.rs` graceful-shutdown + fd-inheritance (socket-activation) seam** (build-from-
+the-start hook; cheap seam, capability later), a **Phase-9 Caddy-TLS + upgrade-strategy** change, a
+**CONFIRMED: ADVISORY (post-v0) Open Question**, and backlog **E87** in `ROADMAP_TODO.md`. v0 scope
+unchanged — only the seams land in v0; the spike + chosen strategy are post-v0 / Phase-9. Deliverable = a
+measured comparison table → picks the Phase-9 approach; may graduate to its own harness (like relay-loadtest).
