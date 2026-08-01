@@ -656,3 +656,27 @@ E2.1–E2.8 → `PHASE_2_FINDINGS.md`; A2.* → `PHASE_2_5/2_6_FINDINGS.md`; cro
    topic-agnostic, so topic privacy rests entirely on the lineage id being unguessable. Lineage ids
    used as gossip-topic seeds must be **high-entropy / salted**, never human-readable handles.
    *(Promote to the design backlog alongside the staleness signal.)*
+
+## T-ISP — the item-storage protocol (cooperative metering) suite
+
+- **Why.** D5 (infra-sustainability ↔ the cooperative *mechanism*) is the existential open item. The
+  co-op needs to charge for PDS-shaped storage in a way that is (a) non-extractive, (b) computable by
+  the member, and (c) underwritable by an outside cooperative lender *without trusting the co-op's
+  word*. The suite walks the whole provider↔customer↔funder relationship out in protocol-level
+  cryptographic terms, with adversarial cases (tamper, forgery, walkaway, cooked books) mandatory.
+- **Tells us.** It holds in principle: every billing unit is boundary-observable and member-computable
+  (E2–E4); assurance is a priced dial with known detection math (E5–E6); cold storage can guarantee
+  "no movement, detectably" (E7–E8); mercy stays on-book and balances (E9); the capped-royalty
+  instrument extinguishes to the cent (E11); and a keyless funder can underwrite from the published
+  files alone, catching each cooked-books scenario (E12–E13). All assertions pass deterministically.
+- **Means.** D5 now has a concrete, code-backed **charging + accountability mechanism**, not a
+  hand-wave — the strongest single advance on the sustainability gate. It makes the co-op's Pillar-3
+  economy (`cooperative-social-union-model.md`) mechanical and its capital underwritable
+  non-extractively ("the loan application is a build artifact").
+- **Open edges.** (1) `SEAM:`-marked production gaps — real CIDs/DAG-CBOR (not hex), real network (not
+  in-process actors), real key-destruction (not deleted files); nothing here is a scale/concurrency
+  claim. (2) **E14 scope condition** — the standard only holds for boundary-countable units; state it
+  wherever pitched. (3) The cooperative storage-service is **unnamed** (Drystone stays the protocol; the
+  dialogue's "Drystone" for the storage co-op was a miscommunication). (4) The **legal-review gate**
+  (receipts-as-contract, the E11 royalty instrument, the deceased-member hold) is the user's — deferred
+  to the coop-layer pile.

@@ -64,6 +64,98 @@ salary runway before dividends. Pay labor in **cash** (avoid FLSA pitfalls, no m
 coercion); reserve patronage/credits for participation. This is the explicit antidote to the Ampled
 death.
 
+## The charging mechanism (2026-07-31): metered PDS-hosting, "meter the boundary, not the machine"
+
+source: distilled from `seeds/transcripts/raw/amble-naming-coop-metering-dialogue-2026-07-31.md` (claude.ai;
+the "second half" of that conversation). **Proven in code** — the full protocol was built as a
+deterministic, adversarial experiment suite that lives on `main`:
+`experiments/item-storage-protocol/` (E0–E14 + `SPEC.md` + an independent funder-side verifier + a green
+test suite + `RUN_REPORT.md`) and the dependency-free `experiments/item-storage-protocol-standalone/`
+(E0–E11). Status **green-real** (assertions pass end-to-end); see `crystallized/proof-ledger.md` +
+`test-narrative.md`. This is the concrete answer to what **Pillar 3** left abstract — *how* a
+non-extractive co-op actually charges for infrastructure, honestly and verifiably.
+
+**The service (the wedge).** The co-op's flagship non-extractive offering is **PDS-shaped object-store
+hosting**: the reference atproto PDS takes any S3-compatible blobstore via environment variables (the
+Frontpage-architecture config seam), so an object store built for PDS-shaped needs and offered by a
+co-op is a clean wedge. It is the digital analogue of the doc's own **Rural Electric Cooperative** model
+— the line the community owns because incumbents won't build it non-extractively.
+
+**Meter the boundary, not the machine** (the user's formulation; see `crystallized/principles.md`). Two
+boundary-observable units, both computable by the *member*:
+- **Postage = bytes transferred** — bilaterally signed transfer receipts per fixed increment. Walkaway
+  exposure is exactly one increment.
+- **Rent = byte-days at rest** — computed from the member's **own signed repo**, since a repo plus its
+  referenced blob CIDs *is* the storage manifest. The member writes the bill's source of truth in their
+  own handwriting.
+- **Monthly balance-forward statements**, co-signed by both sides and hash-chained — disputes bound to
+  one period; this month only explains the difference from a last month already agreed.
+
+The "trucks and trips vs load" razor (the user's): you cannot cryptographically prove a provider's
+internal compute/bandwidth, and you do not need to — meter the **size of the package delivered**,
+regardless of how it moved. That makes the provider's internal costs (hops, retries, hardware) *their*
+problem to optimize under a price, not something to prove to you.
+
+**Assurance is a declared, cost-priced dial.** Anyone can spot-check: pick items at random, retrieve,
+re-fingerprint, compare against the signed manifest. Detection probability is the closed form
+`1 − (1 − f)^k` (drop-fraction `f`, sample `k`); checking costs real work, so the **audit dial** (how
+often you check) is a member-chosen tier priced **at cost** — "your paranoia, your bill, no judgment
+either way." Challenges are seeded by **public randomness** so no arbitrary party can make you burn
+cycles.
+
+**Cold storage where the plan is no movement and verification proves it.** The **sealed** tier pins a
+root and destroys the provider's write credential (writes fail closed; any direct mutation is caught by
+audit against the pinned root; a legitimate unseal is a customer-signed rotation the monitor classifies,
+not an alarm). The **tombstone** tier destroys the customer's rotation capability too — frozen for all
+parties, audits still verify. ("The tombstone tier is a feature.") This is the missing *thinking*-layer
+articulation of the "PDS-as-cold-storage with cryptographic receipts" tier the corpus had only in
+`cairn/` as atproto substrate mechanics.
+
+**Mercy is on-book, not off-book — the grace ledger.** Fee waivers, the **deceased-member hold** (rent
+accrues to the co-op's own grace account for a fixed term), and throttle-instead-of-cutoff are
+**first-class signed ledger entries** that net to zero against a grace account, so the books still
+balance and grace is *reportable*. "The receipts make fairness legible; the margin makes mercy
+affordable." This is the mechanism under the doc's digital-legacy/estate-trust and
+maintenance-first commitments.
+
+**The two-plane split (public/private, always a pair).** A member's **public repo** and their **private
+household-effects storage** live on **separate hosts, fail-closed by topology** — privacy is structural,
+not a runtime flag (the same "make private data structurally private" lesson the corpus carries as
+invariant S5). The **LTS "we won't move the doorknobs" promise** (remodels only by member vote) is the
+governance-and-survivability tie.
+
+**The financing side makes Pillar 3's capped royalty mechanical.** E11 encodes an **extinguishing-royalty**
+instrument (invest P, receive m·P then stop — no interest, no accrual in loss years, no residual) — the
+RBF/"Demand Dividend" in Pillar 3, as another balance-forward ledger: "the return is bounded because the
+extraction is bounded; the ledger is how we keep that promise." E12–E14 are the **funder-side diligence
+machine**: an outside cooperative-fund lender, holding **no keys**, underwrites the co-op **from the
+published ledger files alone** — revenue is **co-attested** (not asserted), audits are replayable from
+public randomness, covenants are machine-checkable, and the diligence report is a **build artifact**
+("the loan application is a build artifact"). This is a concrete, non-extractive path to *capital* that
+doesn't require trusting the co-op's word — a direct advance on the D5 sustainability gate.
+
+**The honest boundary (E14, recorded not hidden).** The whole standard holds **only where the unit is
+countable at the boundary by both sides**. The counterexample — a signed "consulting hours" ledger — must
+be classified *attested-but-unverifiable*, distinct from *verified*: "the signature attests the count,
+and the count disciplines the signature; without a countable unit, it's signed vibes." State this
+wherever the mechanism is pitched.
+
+**The delivery-cadence "slow lane" (adjacent, same ethos).** In the tree-out (pull-based) architecture,
+refresh cadence is just how often you poll your follows' PDSes — so the novel move is to **declare** it
+(a small `delivery cadence: daily` record in your repo, visible to your tree), turning latency from an
+inferred slight into a stated fact "like a mailbox that says mail runs once a day." **Slow-lane users
+are nearly free to serve, so the economics and the humanity point the same direction** — the
+anti-extraction ethos, made cheap.
+
+**Two gates to surface, not resolve (both the user's):**
+- **[open, naming] The cooperative and its storage service are unnamed.** The dialogue used "Drystone"
+  as a working name for the object-store co-op, but that was a **miscommunication / recall-drift**
+  (user, 2026-07-31) — **Drystone is the P2P protocol** (`NAMING.md` → Protocol-layer) and stays that.
+  The co-op and its storage service are **yet to be named**; a naming item for the lane, not a blocker.
+- **[decision] Legal-review gate (D5).** The receipts-as-contract, the E11 extinguishing-royalty
+  instrument, and the deceased-member hold add to the existing Pillar-3 legal-review gate — a
+  cooperative attorney/CPA must review before reliance. **NOT LEGAL ADVICE.**
+
 ## Reasoning — why this answers what the corpus left open
 
 - **It is the missing sustainability mechanism.** `open-considerations.md` §8 and `ROADMAP_TODO`
