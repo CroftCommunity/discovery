@@ -8,15 +8,17 @@
 //! boundary, real blob backend, real CIDs). The build plan is
 //! `discovery/alpha/plans/2026-07-31-1-plan-coop-metered-storage-service.md`.
 //!
-//! Current span: **E0–E6** — identity (E0: keypairs, id derivation, sign/verify),
-//! content-addressed items + a customer-signed Merkle manifest (E1–E2), transfer
-//! receipts + an append-only signed ledger with canonical serialization (E3:
-//! two-mode postage metering, Bilateral | Unilateral), balance-forward statements
-//! with byte-day rent + rollup/purge + per-user SQLite persistence (E4), and
-//! random-sample spot-check audits with the detection math over a seeded RNG plus
-//! the cost-priced assurance dial (E5–E6). The E0–E5 mutation gate is green (see
-//! `ROADMAP_TODO` E86). Phases 6–9 (seal, the S3/atproto boundary, deploy) follow
-//! the build plan.
+//! Current span: **E0–E9 — the complete ledger core.** Identity (E0: keypairs,
+//! id derivation, sign/verify), content-addressed items + a customer-signed
+//! Merkle manifest (E1–E2), transfer receipts + an append-only signed ledger with
+//! canonical serialization (E3: two-mode postage metering, Bilateral | Unilateral),
+//! balance-forward statements with byte-day rent + rollup/purge + per-user SQLite
+//! persistence (E4), random-sample spot-check audits with the detection math over
+//! a seeded RNG plus the cost-priced assurance dial (E5–E6), and the seal /
+//! tombstone tiers (E7–E8: pin-a-root + fail-closed write ceremony + rotation
+//! watch) with the grace ledger (E9: co-signed grace events that net to zero).
+//! The E0–E9 mutation gate is green (see `ROADMAP_TODO` E86). Phases 7–9 (the
+//! S3/atproto network boundary, deploy) follow the build plan.
 
 #![warn(missing_docs)]
 #![warn(clippy::pedantic)]
@@ -26,6 +28,7 @@ pub mod canonical;
 pub mod clock;
 pub mod crypto;
 pub mod dial;
+pub mod grace;
 pub mod identity;
 pub mod item;
 pub mod ledger;
@@ -34,4 +37,5 @@ pub mod persist;
 pub mod pricing;
 pub mod receipts;
 pub mod rng;
+pub mod seal;
 pub mod statements;

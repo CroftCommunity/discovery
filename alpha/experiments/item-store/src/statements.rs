@@ -92,8 +92,10 @@ pub struct StatementBody {
     pub audit_cents: u64,
     /// The audit tier chosen (Phase 5; `"none"` until then).
     pub audit_tier: String,
-    /// Grace credited in the period, in cents (Phase 6; 0 until then).
-    pub grace_cents: u64,
+    /// Grace credited in the period, in cents. A credit, so **negative** (or 0);
+    /// e.g. a waived fee books `fees_cents: +f` and `grace_cents: -f`, netting to
+    /// zero on the member's bill (see `grace.rs` / E9).
+    pub grace_cents: i64,
     /// Other fees in the period, in cents.
     pub fees_cents: u64,
     /// The period total, in cents.
