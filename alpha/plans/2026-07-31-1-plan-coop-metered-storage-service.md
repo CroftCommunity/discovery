@@ -14,7 +14,7 @@
 | 3 receipts (E3) | SHIPPED | `b31be48` | Two-mode receipts (Bilateral/Unilateral) + append-only signed ledger + canonical serialization; walkaway/forgery caught; 30 tests. |
 | 4 statements (E4) | SHIPPED | `18fd199`+`0b0464c` | Statement chain + byte-day rent + rollup/purge (4a) + per-user SQLite persistence (4b, `:memory:` tests); 48 tests. |
 | 5 audit + dial (E5–E6) | SHIPPED | `1640b17` | Seeded RNG (mulberry32, bit-exact TS parity) + k-sample audit (`1−(1−f)^k`) + cost-priced signed dial; 75 tests; E0–E6 mutation gate green (golden-vector test killed the 11 `rng` survivors). |
-| 6 seal + grace (E7–E9) | pending | — | |
+| 6 seal + grace (E7–E9) | SHIPPED | `e9b06bc` | Seal/tombstone (pin-root + fail-closed write/unseal ceremonies + rotation watch) + co-signed grace ledger (nets to zero); **completes the E0–E9 core**; 88 tests; seal+grace mutation gate 32 caught / 0 missed. |
 | 7 S3 metered boundary | pending | — | |
 | 8 atproto PDS blob surface | pending | — | |
 | 9 croft-stack deploy | pending | — | |
@@ -597,9 +597,27 @@ deterministic RNG seed** so a flaky Monte-Carlo run is reproducible from the log
 **Done when:** (1) detection math holds + dial priced at cost; (2) `cargo test e5 e6` green.
 **Validation:** Moderate — also eyeball the measured-vs-predicted table.
 
-### Phase 6: Seal + tombstone + grace (port E7–E9)
+### Phase 6: Seal + tombstone + grace (port E7–E9) — SHIPPED (`e9b06bc`)
 **Goal:** Cold-storage tiers (sealed=revocable, tombstone=permanent) verified against a pinned root; the
 grace ledger (waivers + deceased-member hold net to zero). E7–E9.
+**Delivered (2026-07-31) — completes the E0–E9 ledger core:** `seal.rs` (E7–E8): `SealDeclaration` +
+`sign_seal` (customer-signed root pin, verify bound to the signer); `CollectionWriter` whose `write` fails
+closed with a **loud typed `SealError::Sealed`** once `destroy_credential` runs (the seal ceremony);
+`UnsealAuthority` whose `rotate` returns `None` once `destroy`ed (the tombstone ceremony); `RotationWatch`
+classifying each `RootAnnouncement` as `CustomerInitiated` (valid customer sig over this collection) or
+`Alarm`. Secret keys live in `Option<Keypair>` with **manual redacting `Debug`** impls (never printed —
+rust-enforcer). `grace.rs` (E9): `GraceAccount` + `record_event` appending **co-signed** forward-only
+`grace-event` ledger entries (member credited `-amount`, co-op grace account charged `+amount` → net zero;
+`balance_cents`/`customer_credits_cents` reportable). Wiring tests `e7_seal` (seal pins + write fails
+closed; sealed audits pass + a direct at-rest mutation is caught against the pinned root and named; watch
+classifies customer-signed vs forged) + `e8_tombstone` (all write/unseal paths frozen, audits still
+verify) + `e9_grace` (three grace scenarios; ledger verifies unbroken; a waived fee lands in a statement as
+rent only). 88 tests; clippy pedantic + fmt clean. E86 mutation gate (seal + grace): **37 → 32 caught / 0
+missed / 5 unviable**; six first-pass survivors killed by paired negatives + a Debug-redaction test +
+removing an always-true `nets_to_zero` predicate (assert the balance arithmetic directly).
+**Write-set expanded** beyond the Pass-2 plan (`seal.rs`, `grace.rs`, `tests/e{7,8,9}_*.rs`): also
+`statements.rs` — **`grace_cents` `u64` → `i64`** (a grace credit is inherently negative; the Phase-4 field
+was an explicit "0 until Phase 6" placeholder) + `lib.rs` module decls.
 **Changes:**
 - [ ] `src/seal.rs` — pin root + key-ceremony (mock: destroy write-cred → write fails closed); rotation
   watch classifies customer-signed unseal vs alarm; tombstone destroys rotation too.
@@ -1152,6 +1170,19 @@ and proves the Rust port is **bit-exact parity** with the oracle. Scoped re-run 
 src/rng.rs`: **31/31 caught**. Mutation coverage is monotonic and no non-`rng` logic changed, so the crate
 has **zero real survivors across E0–E6** (26 unviable + 2 benign timeouts as before). 75 tests; clippy
 pedantic + fmt clean.
+
+### Test run 2026-07-31 — Phase 6 (E7–E9) mutation gate
+Ran `cargo-mutants` scoped to the two new modules (`--file src/seal.rs --file src/grace.rs`) after Phase 6:
+first pass **6 missed**, all unconstrained/always-true predicates or untested `Debug` output — `nets_to_zero
+-> true` (the balancing invariant is maintained by construction, so the predicate is always true over
+reachable states — a test-only always-true method), `is_destroyed`/`is_customer_initiated`/`is_alarm ->
+true` (only the *true* case was asserted), and the two manual `Debug::fmt -> Ok(default)` (Debug output
+never checked). Fixes (all real, no exclusions): removed `nets_to_zero` and assert the balance arithmetic
+(`balance + credits == 0`) directly; added paired negatives asserting each predicate in **both** directions;
+added a `debug_redacts_secret_key_material` test (also a rust-enforcer security check — the redacting Debug
+must emit its non-secret status). Re-run: **37 mutants → 32 caught / 0 missed / 5 unviable.** Combined with
+the E0–E6 run, **zero real survivors across the whole E0–E9 core** (`statements.rs`'s `grace_cents` u64→i64
+is a type widening covered by the e4/e6/e9 statement tests). 88 tests; clippy pedantic + fmt clean.
 
 ### Decision 2026-07-31 — zero-downtime upgrade + TLS termination (Caddy); spike (tracked E87)
 Design thread raised by the user: upgrade the running store with **zero downtime from the start**, and
