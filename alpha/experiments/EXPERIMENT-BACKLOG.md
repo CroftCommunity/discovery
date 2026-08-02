@@ -380,6 +380,21 @@ leak the bound only characterized). All **Sketched**.
 - **S3/S4** (design gate G5), **T8** (UX decision), **T10** bsky / **T13** iOS host — named as gated;
   the T/S items point into the sibling `discovery`/`Proofs` repos, not this one.
 
+### 6j. atproto-gated relay admission — croft-relay (RUN-CROFT-RELAY-01)
+
+The app-side admission core (`croft-relay/crates/croft-admit`, relay-agnostic) is built and
+mutation-clean for Phases 1-3. Open follow-ons, in dependency order:
+
+| Item | Status | What it is / blocked on |
+|---|---|---|
+| **iroh-relay build + own test suite (Phase 0 baseline)** | **DONE (RUN-CROFT-RELAY-02)** | Git access to GitHub opened mid-project; cloned iroh, built + ran `iroh-relay 1.0.3 --features server` = 80 pass / 0 fail. ADR-0005. |
+| **The `AccessControl` adapter (Phase 2 embed)** | **DONE (RUN-CROFT-RELAY-02)** | `crates/croft-relay-embed` implements `iroh_relay::server::AccessControl::on_connect` over `croft-admit` (`TokenAccess` + `RegistryAccess`); 7 tests over real iroh 1.0.3 `ClientRequest`/`EndpointId`, anti-replay hinge exercised. The one iroh-dependent crate. |
+| **Local live leg (relay + 2 clients through our gate)** | **DONE (RUN-CROFT-RELAY-03)** | `croft-relay-embed/tests/live_relay.rs`: a real `iroh-relay` Server on localhost gated by our `TokenAccess`; real relay Clients admit/deny (incl. cross-endpoint replay denied at handshake); datagram forwarded A->B through our gate, intact. 3 tests. |
+| **Real holepunch calibration (2 NAT'd endpoints)** | **`SPEC-DELTA(phase-3-calibration)` — harness exists, number open** | The localhost leg gives a relay-client contact datapoint (~3 B/endpoint) and the measurement method, but the true holepunch *disco* total needs two `iroh` magicsock endpoints on separate networks. Re-derive then update `tier.rs` + the pinned regression test together. |
+| **Phase 4 — hardening/ops** | **Not started** | Cheap deny path + per-source pre-verification attach-rate limiting; tier-level metrics (admissions/active/bytes/saturation by tier — cardinality call is §7 Q5); token-parser fuzz (`cargo-fuzz`, time-boxed). |
+| **Phase 5 — upstream packaging** | **Not started; issues-first, ask before PRs** | Two policy-free candidates against `n0-computer/iroh`: (1) a `signed_token` access mode (verify bearer tokens against a configured ed25519 key, `sub`==endpoint id); (2) per-connection rate-limit override at admission (`Access::Allow { rate_limit: Option<ClientRateLimit> }`). Strip all atproto/tier/croft vocabulary. File issues first. |
+| **Owner calls (§7)** | **5 open** | `croft-relay/OPEN-QUESTIONS.md`: token format (defaulted JWT/EdDSA), repo shape, coordination hard-cap (defaulted), Phase-1-first deploy (undecided), metrics cardinality (defaulted tier-level). |
+
 ---
 
 ## 6b. Stellin AppView — caller-identity (RUN-14)

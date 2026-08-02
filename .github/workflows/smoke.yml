@@ -36,6 +36,9 @@ jobs:
           - alpha/experiments/local_storage_projection
           - alpha/experiments/croft-chat
           - alpha/experiments/bip39-recovery-roundtrip
+          # Carries iroh (like croft-chat): croft-admit is iroh-free, croft-relay-embed
+          # depends on iroh-relay and its live_relay test spawns a localhost relay.
+          - alpha/experiments/croft-relay
     steps:
       - uses: actions/checkout@v4
 

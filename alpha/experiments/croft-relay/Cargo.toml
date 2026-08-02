@@ -1,0 +1,37 @@
+[workspace]
+members = ["crates/croft-admit", "crates/croft-relay-embed"]
+resolver = "2"
+
+[workspace.package]
+version = "0.0.1"
+edition = "2021"
+# MSRV: track the stable toolchain this spike was built against. iroh-relay
+# 1.0.0-rc.1 (the pinned transport dep, see ADR-0001) builds on stable; we do
+# not pin below it because croft-admit itself has no unusual MSRV needs.
+rust-version = "1.75"
+license = "MIT OR Apache-2.0"
+authors = ["Chase Pettet <chase@owasp.org>"]
+
+[workspace.dependencies]
+# Only deps actually driven by a passing test belong here (house rule, mirrors
+# the sibling iroh/ experiment). Add when a test forces it, not speculatively.
+
+# HTTP surface for the access-check contract + enrollment/token endpoints.
+axum = "0.8"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# EdDSA (ed25519) signing of admission tokens. Boring, auditable, no atproto or
+# tier concepts leak into the primitive (keeps the upstream-candidate slice
+# clean, see ADR-0003 / plan Phase 5).
+jsonwebtoken = "9"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# EndpointId is a 32-byte ed25519 public key rendered as hex; hex handles the
+# wire form the relay presents in X-Iroh-Endpoint-Id.
+hex = "0.4"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
