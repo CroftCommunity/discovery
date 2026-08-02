@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/croft-admit"]
+members = ["crates/croft-admit", "crates/croft-relay-embed"]
 resolver = "2"
 
 [workspace.package]
