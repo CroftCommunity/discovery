@@ -380,6 +380,20 @@ leak the bound only characterized). All **Sketched**.
 - **S3/S4** (design gate G5), **T8** (UX decision), **T10** bsky / **T13** iOS host — named as gated;
   the T/S items point into the sibling `discovery`/`Proofs` repos, not this one.
 
+### 6j. atproto-gated relay admission — croft-relay (RUN-CROFT-RELAY-01)
+
+The app-side admission core (`croft-relay/crates/croft-admit`, relay-agnostic) is built and
+mutation-clean for Phases 1-3. Open follow-ons, in dependency order:
+
+| Item | Status | What it is / blocked on |
+|---|---|---|
+| **Live-relay legs (Phase 0/1 acceptance)** | **Deferred — env-blocked this run** | Stand up `iroh-relay --features server` in each access mode (open / allow-deny-list / HTTP hook), prove endpoint A reaches B through it, wire `croft-admit`'s `/access` as the hook. Blocked here by egress policy (github clone 403) + no multi-process holepunch sandbox. Needs network + a relay host. |
+| **The `AccessControl` adapter (Phase 2 embed)** | **Designed, not built** | The only iroh-dependent code: implement `iroh_relay::server::AccessControl::on_connect` to run `TokenVerifier::verify` against the authenticated `ClientRequest::endpoint_id()` and return `Access::Allow`/`Deny`. Seam confirmed in ADR-0001. |
+| **Phase-3 bucket calibration** | **`SPEC-DELTA(phase-3-calibration)`** | Instrument a real holepunch coordination exchange, measure its bytes, re-derive the coordination bucket (headroom above measured, far below media bitrate). Update `tier.rs` + the pinned regression test together. Needs the live relay. |
+| **Phase 4 — hardening/ops** | **Not started** | Cheap deny path + per-source pre-verification attach-rate limiting; tier-level metrics (admissions/active/bytes/saturation by tier — cardinality call is §7 Q5); token-parser fuzz (`cargo-fuzz`, time-boxed). |
+| **Phase 5 — upstream packaging** | **Not started; issues-first, ask before PRs** | Two policy-free candidates against `n0-computer/iroh`: (1) a `signed_token` access mode (verify bearer tokens against a configured ed25519 key, `sub`==endpoint id); (2) per-connection rate-limit override at admission (`Access::Allow { rate_limit: Option<ClientRateLimit> }`). Strip all atproto/tier/croft vocabulary. File issues first. |
+| **Owner calls (§7)** | **5 open** | `croft-relay/OPEN-QUESTIONS.md`: token format (defaulted JWT/EdDSA), repo shape, coordination hard-cap (defaulted), Phase-1-first deploy (undecided), metrics cardinality (defaulted tier-level). |
+
 ---
 
 ## 6b. Stellin AppView — caller-identity (RUN-14)
