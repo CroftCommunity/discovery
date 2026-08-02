@@ -32,11 +32,12 @@ Two crates:
 | 1 — admission | DID-bound enrollment (mocked PDS), deny-closed access check, axum `/access` service | `croft-admit`: `enroll`, `pds`, `registry`, `access`, `http_api` |
 | 2 — signed tokens | JWT/EdDSA mint + three-gate verify, full deny matrix; **embed `AccessControl` adapter over real iroh types** | `croft-admit`: `token`; `croft-relay-embed` |
 | 3 — tier buckets | `tier` -> `RateBucket` mapping (core); tier+bucket computed at admit | `croft-admit`: `tier`; `croft-relay-embed` |
+| live leg | real relay on localhost gated by our admission; A→B relayed; deny/anti-replay over the wire | `croft-relay-embed`: `tests/live_relay.rs` |
 
-- **43 tests**, red-first, all green: 36 in `croft-admit` + 7 in
-  `croft-relay-embed` (the latter against real `iroh-relay 1.0.3`
-  `ClientRequest`/`EndpointId`, incl. the anti-replay hinge and the async
-  `on_connect` on the wall clock).
+- **46 tests**, red-first, all green: 36 in `croft-admit` + 7 embed-unit +
+  3 live-relay (a real `iroh-relay 1.0.3` server on localhost gated by our
+  `TokenAccess`, with real relay clients; incl. the anti-replay hinge over the
+  actual relay handshake).
 - **`cargo mutants`: 0 surviving mutants** across `croft-admit` (52: 45 caught,
   7 unviable) — the plan's no-survivor policy for admission/token paths, met.
 - Clean `clippy` (all targets) and `cargo fmt --check`.
@@ -71,22 +72,31 @@ running its test suite (ADR-0005). Headline findings:
   at admission (`Access::Allow` has no rate field) — is confirmed on 1.0.3 and
   is the minimal upstream candidate for Phase 3.
 
-## Deferred (named, not built) — the seams that remain
+## Live leg (RUN-CROFT-RELAY-03) — done, localhost
 
-- **Live two-endpoint leg:** stand up a running relay, prove endpoint A reaches
-  B through it, and holepunch. This is the *only* remaining piece of Phase-0/
-  Phase-3 acceptance; it needs live networking + NAT traversal, beyond
-  clone-and-test. (The relay *build + its own test suite* is now done — 80/0.)
-- **Phase-3 calibration:** measure a real holepunch coordination exchange and
-  re-derive the coordination bucket. Current numbers are a `SPEC-DELTA`
-  placeholder (ADR-0004); the mapping and its application point are built and
-  tested.
+`croft-relay-embed/tests/live_relay.rs` stands up a **real `iroh-relay` server
+on localhost gated by our `TokenAccess`** and connects real relay clients:
+
+- a valid croft-admit token is **admitted**; a bogus token and a token
+  **replayed from another endpoint** are both **denied at the relay handshake**
+  (the anti-replay hinge, now over the wire);
+- **endpoint A's datagram reaches endpoint B through our gated relay**, payload
+  and origin id intact;
+- a byte-accounting of a minimal relayed contact round-trip, as a
+  calibration datapoint (`evidence/live-relay.txt`).
+
+## Deferred (named, not built) — what still remains
+
+- **Real holepunch calibration:** the live leg above is a relay-client exchange
+  on localhost, not the full holepunch *disco* total. Measuring that needs two
+  `iroh` magicsock endpoints doing NAT traversal on separate networks. The
+  coordination bucket stays a `SPEC-DELTA` placeholder until then (ADR-0004).
 - **Phase 4/5:** hardening (deny-path cheapness, metrics, token-parser fuzz),
   and upstream packaging (signed-token access mode; per-connection rate
   override; the header doc-fix).
 
-Done since RUN-01: the `AccessControl` embed adapter (`croft-relay-embed`) and
-the iroh-relay build+test baseline.
+Done since RUN-01: the `AccessControl` embed adapter, the iroh-relay build+test
+baseline (80/0), and the localhost live leg (relay + 2 clients through our gate).
 
 ## Decisions awaiting the human
 
