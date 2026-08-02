@@ -57,10 +57,22 @@ differs.
 
 The plan's Phase-3 calibration — instrument the harness, measure the bytes of a
 *successful* holepunch coordination, set the bucket with headroom above that
-and far below usable media bitrate — **could not be run here**: it needs a live
-relay and two endpoints doing a real holepunch, which this sandbox cannot host
-(multi-process networking; github-clone block, ADR-0001). Before any
-deployment, re-derive these numbers from measurement and update
+and far below usable media bitrate — is **partially advanced, not closed**:
+
+- **Done (RUN-CROFT-RELAY-03):** a live relay-client harness exists
+  (`croft-relay-embed/tests/live_relay.rs`). It stands up a real relay gated by
+  our admission and measures the app-payload a client pushes through the relay
+  for a minimal contact round-trip (localhost datapoint: ~3 B/endpoint for a
+  syn/ack, `evidence/live-relay.txt`). This confirms the sizing *direction* —
+  the 4 KiB/s coordination bucket clears such an exchange ~1000x over while
+  sustained media (>=24 kB/s) would exhaust it — and gives the measurement
+  method.
+- **Still open:** the figure above is a relay-client contact round-trip on
+  localhost, **not** the full holepunch *disco* total, which requires two
+  `iroh` magicsock endpoints attempting NAT traversal on separate networks.
+  Until that is measured, the constant stays a placeholder.
+
+Before any deployment, re-derive the number from a real holepunch and update
 `tier.rs` + the pinned test
 `coordination_bucket_has_the_calibrated_placeholder_values` together.
 
