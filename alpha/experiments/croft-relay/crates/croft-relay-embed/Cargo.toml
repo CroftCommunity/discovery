@@ -1,0 +1,26 @@
+[package]
+name = "croft-relay-embed"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "The iroh-relay embedding adapter: wires croft-admit's stateless token verification onto iroh_relay::server::AccessControl. This is the one iroh-dependent crate; the admission logic itself stays in croft-admit."
+
+[dependencies]
+croft-admit = { path = "../croft-admit" }
+# The relay library. `server` feature gates AccessControl / Access / ClientRequest.
+# Pinned to the latest published 1.x that carries the public AccessControl seam
+# and the public ClientRequest::new used by tests (verified against source,
+# ADR-0005). MSRV note: iroh-relay 1.0.3 raises the effective toolchain floor
+# well above croft-admit's 1.75 — this crate tracks stable.
+iroh-relay = { version = "1.0.3", features = ["server"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+# Construct authenticated ClientRequests in tests: a SecretKey -> EndpointId,
+# a ProtocolVersion, and http::request::Parts carrying the Bearer token.
+iroh-base = "1.0.3"
+http = "1"
+# Generate the enrollment-key material for minting test tokens (as in croft-admit).
+ring = "0.17"
