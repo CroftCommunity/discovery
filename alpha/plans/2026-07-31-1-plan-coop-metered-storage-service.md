@@ -17,7 +17,7 @@
 | 6 seal + grace (E7–E9) | SHIPPED | `e9b06bc` | Seal/tombstone (pin-root + fail-closed write/unseal ceremonies + rotation watch) + co-signed grace ledger (nets to zero); **completes the E0–E9 core**; 88 tests; seal+grace mutation gate 32 caught / 0 missed. |
 | 7 S3 metered boundary | SHIPPED | `fb2a1c7` | axum S3 PUT/GET metered end-to-end + pluggable `BlobStore` (mem/FS) + customer-signed manifest surface + runnable binary (graceful-shutdown/socket-activation seams); 106 tests, mutation gate 58 caught / 0 real survivors; live-binary curl round-trip validated. **`fb2a1c7` is a CISS commit** (see Graduation below). |
 | 8 atproto PDS blob surface | SHIPPED | `CISS@1bf3c0d` | `uploadBlob`/`getBlob`/`listBlobs` over the *same* metered path (atproto == S3 metering); real CIDv1 (`raw`+sha-256) `$link` closes the CID `SEAM:` (new `cidv1.rs`); mock-bearer auth `SEAM:`. 115 tests + `wiring_pds_blob`; scoped mutation gate 0 real survivors; live-probe confirmed D2 shape + 2 receipts. **CISS commit.** |
-| 9 croft-stack deploy | pending | — | Now unblocked: name (A21) + repo-home resolved; one input remains (Phase-9 VPS-kernel probe). |
+| 9 croft-stack deploy | SHIPPED | `croft-stack@4565382` | Live at `https://ciss.croft.ing` (Caddy TLS). VPS-kernel probe resolved (trixie/6.12/systemd257/cgroup2/ext4 → E84 reflink N/A, E87 lean drain). Release `CISS v0.1.0` binary fetched by an extended `tenants` role; governed unit (`systemd-analyze security` 1.5), cgroup-within-envelope, idempotent converge, no key leakage. Backup units generated-not-activated (need R2 env). |
 | 10 convergence consumer | gated | — | Phase-10 gated (drystone/MLS not real yet). |
 
 **Graduation (2026-08-03).** After Phase 7, the crate graduated from
@@ -792,23 +792,44 @@ span so the two boundaries are distinguishable in the telemetry.
 (no guessing — global rule); confirm the round-trip is metered (receipt present) via the SQLite + the
 Phase 7 byte-path trace.
 
-### Phase 9: croft-stack deploy + VPS smoke test
+### Phase 9: croft-stack deploy + VPS smoke test — **SHIPPED (live at https://ciss.croft.ing)**
 **Goal:** Deploy the built binary on the VPS via croft-stack as a governed, hardened, isolated service we
 can test against.
+
+> **Delivered (2026-08-03, live).** CISS is deployed on the OVH VPS via croft-stack and reachable at
+> **`https://ciss.croft.ing`** (Caddy TLS, Let's Encrypt). **VPS-kernel probe (the one gating input):**
+> Debian 13 trixie, kernel 6.12, systemd 257, cgroup v2 unified, x86_64/glibc 2.41, ext4. Findings —
+> **E84 reflink N/A** (ext4 has no CoW; the FsBlobStore temp→rename baseline stands), **E87** uses the
+> lean strategy (SIGTERM graceful drain; systemd socket-activation seam present but socket-activation +
+> `SO_REUSEPORT` blue-green deferred as the stretch). **Packaging:** a stripped x86_64 glibc release
+> binary (built on the trixie box; the local host had no Linux builder), published as
+> `CroftCommunity/CISS` release **v0.1.0** (`ciss-v0.1.0-x86_64-linux-gnu.tar.gz`, sha256 `b3828c09…`).
+> **croft-stack (`4565382`):** `services/ciss.toml` (port 8301, `serve_api=false`, canonical
+> `meter.sqlite` + immutable blobs `blocks/`, 256M/384M envelope); the **`tenants` role extended** to
+> fetch a pinned+checksummed GitHub-release binary (relay pattern) → `/opt/ciss/current/ciss`; the Caddy
+> vhost + generated governed unit. **Converge:** idempotent (`changed=0` on re-run). **Live verification:**
+> `/healthz` 200 over HTTPS; a public metered PUT/GET round-trip (2 receipts, up==down); atproto
+> `uploadBlob` returns the D2 shape; unit `active`, `systemd-analyze security` **1.5 OK**; cgroup
+> accounting within envelope (`memory.current` ~1 MB ≪ 384 M); journald carries only the public provider
+> id — **no seed/key material leaked** (Zeroize holds). **Deferred (honest gaps):** Litestream/rclone
+> backup units are *generated but not activated* (need the R2 credential env wired), so `meter.sqlite`
+> is not yet mirrored to R2; Caddy request-retry (`lb_try_duration`) not added (a restart briefly 502s;
+> graceful drain minimizes the window); no netns (a normal Caddy-fronted tenant, not a netns_service like
+> the relay); smoke-test rows (`id:pub`, `id:vps`) left in `/var/lib/ciss`.
+
 **Changes:**
-- [ ] `croft-stack: services/<name>.toml` — the service manifest (fqdn, port, mode, data profile, limits,
-  hardening carve-outs, netns) under the placeholder name.
-- [ ] croft-stack role/wiring for the binary (build/ship, systemd unit via the template, telemetry
-  poller, hardening baseline, netns isolation).
-- [ ] a smoke test / canary hitting the deployed put/get (and blob endpoint if Phase 8 shipped).
-- [ ] **TLS + reverse-proxy via Caddy + the E87-chosen upgrade strategy.** Front the service with
-  croft-stack's existing **Caddy** (TLS on 80/443 — matches the official Bluesky PDS installer default)
-  reverse-proxying to the service on localhost; forward the `Host` header (needed for
-  `/.well-known/atproto-did`) + websocket `Upgrade`/`Connection` (needed for `subscribeRepos`), and enable
-  request-retry (`lb_try_duration` / `handle_errors`) to mask a restart. Wire the **zero-downtime upgrade
-  strategy the E87 spike selects** (lean: systemd socket activation + graceful drain; `SO_REUSEPORT`
-  blue-green as the stretch) into the systemd unit / a `.socket` unit.
-- [ ] **[Pass 3, Doc-Impact] the scheduled doc edits that go stale at deploy** — in `discovery`:
+- [x] `croft-stack: services/ciss.toml` — the service manifest (fqdn `ciss.croft.ing`, port 8301,
+  `serve_api=false`, data profile canonical `meter.sqlite` + immutable blobs `blocks/`, cgroup envelope).
+  No netns (Caddy-fronted tenant).
+- [x] croft-stack role/wiring for the binary — `tenants` role fetches the pinned+checksummed release
+  binary (relay pattern) + installs the generated governed unit; telemetry poller + hardening baseline
+  apply via the generated unit's cgroup accounting + sandbox stanzas.
+- [x] a smoke test hitting the deployed put/get + the atproto blob endpoint (live `curl`, HTTPS + localhost).
+- [x] **TLS + reverse-proxy via Caddy.** Caddy vhost `ciss.croft.ing` → `127.0.0.1:8301`, Let's Encrypt
+  HTTP-01 (cert issued; DNS A record already pointed at the box). E87: graceful drain (lean); request-retry
+  (`lb_try_duration`) + socket-activation blue-green deferred (stretch). Websocket `Upgrade` not needed in
+  v0 (no `subscribeRepos`).
+- [x] **[Pass 3, Doc-Impact] the scheduled doc edits that go stale at deploy** — in `discovery`:
   `ECOSYSTEM.md` §5c-3 (add the deployed-service row), `COHESION.md` §65 (v0-runs status note),
   `ROADMAP_TODO.md` E82 (status → deployed/live), the lane doc's "Next step",
   `plans/croft-stack/README.md` (the plan index notes the live service); in the **croft-stack repo**:
@@ -1309,3 +1330,30 @@ bytes; listBlobs → the CIDv1; meter → 2 receipts, up==down==18 (atproto reac
 bad-CID → 400; SIGTERM → drain → exit 0. **`SEAM:`s carried forward:** mock-bearer auth (real OAuth/DPoP),
 getBlob Content-Type echo (UNCONFIRMED in the lexicon), listBlobs pagination. **Next:** Phase 9
 (croft-stack VPS deploy); one input remains (the VPS-kernel probe, E84 gate).
+
+### Deploy 2026-08-03 — Phase 9 (croft-stack VPS deploy), live at https://ciss.croft.ing
+Deployed CISS as a governed croft-stack tenant on the OVH VPS. **VPS-kernel probe (the gating input):**
+Debian 13 trixie, kernel 6.12, systemd 257, cgroup v2 unified (cpu/io/memory/pids), x86_64 + glibc 2.41,
+**ext4**. Resolutions: **E84 reflink is N/A on ext4** (no CoW; the FsBlobStore temp→rename baseline is the
+whole story on this box); **E87** ships the *lean* strategy (SIGTERM graceful drain; the socket-activation
+seam exists but socket-activation / `SO_REUSEPORT` blue-green stay the stretch). **CISS contract work
+(`CISS@0b65108`, v0.1.0):** the binary now honours `CONTRACT.md` — `--data-dir`/`--listen`, `/healthz`,
+self-managed layout (`meter.sqlite` + `blocks/`, staging `tmp/` outside the mirror), and a **provider seed
+persisted in the canonical SQLite** (generated first-boot; survives Litestream restore; no external secret
+wiring). 122 tests + a contract wiring gate, clippy/fmt clean, mutation gate 0 real survivors.
+**Packaging:** no local Linux builder, so the release binary was built on the trixie box (rustup stable,
+throwaway — cleaned up after), stripped, and published as `CroftCommunity/CISS` **release v0.1.0**
+(`ciss-v0.1.0-x86_64-linux-gnu.tar.gz`, sha256 `b3828c09…`; glibc build for the trixie estate). **croft-stack
+(`4565382`):** `services/ciss.toml` (port 8301, `serve_api=false`, canonical `meter.sqlite`, immutable
+blobs `blocks/`, 256M/384M/60%/io200); the **`tenants` role extended** to fetch a pinned+checksummed
+GitHub-release binary (mirroring the relay role) → `/opt/ciss/current/ciss`; regenerated units/vhost/
+litestream/backup-map. Gate: render 13/13, backup-audit 3/3, no-secrets, stub-contract 6/6, local drill
+passes for ciss (the terraform/docs/litestream-drill fails are absent-local-tooling only — verified
+identical without ciss). **Converge** (scoped tenants+caddy+telemetry, then idempotent `changed=0`).
+**Live verification:** `https://ciss.croft.ing/healthz` 200; public metered PUT/GET (2 receipts, up==down);
+atproto `uploadBlob` returns the D2 shape; unit `active`; `systemd-analyze security` **1.5 OK**; cgroup
+accounting within envelope (`memory.current` ~1 MB ≪ 384 M); journald shows only the public provider id —
+**no key material leaked**. **Deferred (honest):** Litestream/rclone backup units generated-but-not-activated
+(need the R2 credential env), so `meter.sqlite` is not yet mirrored; Caddy request-retry not wired (restart
+briefly 502s); no netns; smoke rows left in `/var/lib/ciss`. **v0 is live and dogfoodable** — the E82 lane's
+definition-of-done (point a real store at it, metered bytes, verifiable) is met end-to-end in production.
