@@ -2,9 +2,11 @@
 
 date: 2026-07-31
 
-status: **lane opened; build committed (user, 2026-07-31) as an experimental product** — a Rust
-custom-PDS-like metered storage service with an S3-compatible interface, deployed on the VPS via
-croft-stack. The v0 sketch below is the starting point; the grounding + phase-plan come next.
+status: **v0 LIVE (2026-08-03)** — CISS (Croft Item Storage Server) is built (E0–E9 ledger + S3 + atproto
+blob boundary) and **deployed on the VPS via croft-stack at `https://ciss.croft.ing`**, governed +
+hardened, metering end-to-end. The v0 sketch below was the starting point; build + deploy are done (see
+the build plan for the full record). Remaining: activate the R2 backup mirror (Litestream/rclone env — set aside for now) and
+the Phase-10 convergence consumer (gated).
 
 lane: cooperative layer (the D5 sustainability *mechanism*). Backlog: ROADMAP_TODO **E82**; ties **E25**/**D5**.
 
@@ -135,7 +137,8 @@ statement, verify it. That is the "starting point" we can then show and build on
 > surface network-fetched; boundary confirmed BOTH; per-user-SQLite + pluggable-backend confirmed;
 > telemetry = cgroup-accounting) → E0–E9 Rust port (Phases 1–6) → S3-compatible metered boundary (Phase 7)
 > → atproto PDS blob surface incl. `listBlobs` (Phase 8, in v0) → croft-stack VPS deploy (Phase 9) →
-> history-convergence consumer (Phase 10, gated/later). Phases 1–6 ready to start.
+> history-convergence consumer (Phase 10, gated/later). **Phases 1–8 SHIPPED; the crate graduated to
+> `CroftCommunity/CISS` (Croft Item Storage Server); Phase 9 (VPS deploy) remains, in CISS.**
 
 Because this extrapolates from a real implementation and speaks a real network API, we grounded and
 planned before writing service code (global rules: verify APIs against a source of truth; TDD; phase-plan
@@ -150,7 +153,23 @@ for complex changes; rust-enforcer discipline). **Status (2026-07-31):**
 2. **Phase-plan — DONE (three passes + Phase 0).** `2026-07-31-1-plan-coop-metered-storage-service.md`.
    Ledger storage resolved to **per-user SQLite** (official-PDS pattern; supersedes the earlier
    redb/Postgres lean).
-3. **Build — UNDERWAY.** Phases 1–3 SHIPPED (E0 identity; E1–E2 items + signed manifest; E3 two-mode
-   receipts + append-only ledger; E0–E3 mutation gate green). Next: Phase 4 (balance-forward statements +
-   byte-day rent + rollup/purge, on per-user SQLite), then the S3/atproto boundary (7–8) and the
-   croft-stack VPS deploy (9).
+3. **Build + deploy — Phases 1–9 SHIPPED; v0 LIVE at `https://ciss.croft.ing`.** The E0–E9 ledger core (Phases 1–6)
+   and the **Phase 7 S3-compatible metered boundary** (axum PUT/GET metered end-to-end + pluggable
+   `BlobStore` mem/FS + customer-signed manifest surface + runnable binary with graceful-shutdown/
+   socket-activation seams; 106 tests, mutation gate 58/0, live-binary curl validated). After Phase 7 the
+   crate **graduated into its own repo — `CroftCommunity/CISS` (Croft Item Storage Server, "a PDS+ storage
+   server")** — resolving the name (A21 → *CISS*) and repo/IP-home Open Questions. **Phase 8 SHIPPED (in
+   CISS, 2026-08-03):** the atproto PDS blob API (`uploadBlob`/`getBlob`/`listBlobs`) as a thin layer over
+   the *same* metered byte-path (atproto meters identically to S3); real CIDv1 (`raw`+sha-256) `$link`s
+   close the CID `SEAM:` via a new `cidv1.rs`; mock-bearer auth `SEAM:`; 115 tests + a wiring gate, scoped
+   mutation gate 0 real survivors, live-probe confirmed the D2 shape + shared metering. **Phase 9 SHIPPED
+   (2026-08-03) — v0 is LIVE at `https://ciss.croft.ing`.** VPS-kernel probe resolved (trixie/6.12/
+   systemd257/cgroup2/ext4 → E84 reflink N/A on ext4, E87 lean graceful-drain). The CISS binary was made
+   croft-stack-contract-compliant (`--data-dir`/`--listen`, `/healthz`, provider seed persisted in the
+   canonical SQLite) and published as release **v0.1.0**; croft-stack gained `services/ciss.toml` + a
+   `tenants`-role real-binary fetch (`croft-stack@4565382`). Converge idempotent; live HTTPS metered
+   round-trip + atproto uploadBlob verified; unit governed (`systemd-analyze security` 1.5) +
+   cgroup-within-envelope + no key leakage. Caddy request-retry (`lb_try_duration`) wired same day
+   (`croft-stack@5ce5e4e`) — verified 120/120 × 200 across a live restart. **Deferred:** R2 backup
+   activation (set aside for now), netns, socket-activation blue-green (E87 stretch). This lane + the build
+   plan stay the thinking/provenance layer in `discovery`; code lives in CISS, deploy config in croft-stack.
