@@ -15,10 +15,20 @@
 | 4 statements (E4) | SHIPPED | `18fd199`+`0b0464c` | Statement chain + byte-day rent + rollup/purge (4a) + per-user SQLite persistence (4b, `:memory:` tests); 48 tests. |
 | 5 audit + dial (E5–E6) | SHIPPED | `1640b17` | Seeded RNG (mulberry32, bit-exact TS parity) + k-sample audit (`1−(1−f)^k`) + cost-priced signed dial; 75 tests; E0–E6 mutation gate green (golden-vector test killed the 11 `rng` survivors). |
 | 6 seal + grace (E7–E9) | SHIPPED | `e9b06bc` | Seal/tombstone (pin-root + fail-closed write/unseal ceremonies + rotation watch) + co-signed grace ledger (nets to zero); **completes the E0–E9 core**; 88 tests; seal+grace mutation gate 32 caught / 0 missed. |
-| 7 S3 metered boundary | pending | — | |
-| 8 atproto PDS blob surface | pending | — | |
-| 9 croft-stack deploy | pending | — | |
+| 7 S3 metered boundary | SHIPPED | `fb2a1c7` | axum S3 PUT/GET metered end-to-end + pluggable `BlobStore` (mem/FS) + customer-signed manifest surface + runnable binary (graceful-shutdown/socket-activation seams); 106 tests, mutation gate 58 caught / 0 real survivors; live-binary curl round-trip validated. **`fb2a1c7` is a CISS commit** (see Graduation below). |
+| 8 atproto PDS blob surface | pending | — | Now built in `CroftCommunity/CISS`. |
+| 9 croft-stack deploy | pending | — | Now unblocked: name (A21) + repo-home resolved; one input remains (Phase-9 VPS-kernel probe). |
 | 10 convergence consumer | gated | — | Phase-10 gated (drystone/MLS not real yet). |
+
+**Graduation (2026-08-03).** After Phase 7, the crate graduated from
+`discovery/alpha/experiments/item-store/` into its own product repo,
+**`CroftCommunity/CISS` — Croft Item Storage Server** (a PDS+ storage server),
+resolving the two Phase-9-gated open questions (service **name** A21 → *CISS*;
+**repo/IP home** → its own `CroftCommunity` repo). The E0–E9 core + Phase 7 were
+**fresh-imported** (crate renamed `item-store` → `ciss`) and the copy in
+`discovery` was removed (this plan stays the build-provenance artifact; per-phase
+E0–E9 SHAs remain in discovery's git history). Phases 8–9 continue in CISS. The
+CISS import/Phase-7 commit is `fb2a1c7`.
 
 ## Problem Statement
 
@@ -642,7 +652,29 @@ on any post-seal write attempt (denied, with the pinned root); INFO on ceremony 
 completes the **E0–E9 ledger core in Rust** (parity with the TS oracle).
 **Validation:** Moderate — run the full crate suite; compare pass-count to the TS reference.
 
-### Phase 7: S3-compatible interface + the metering boundary (SEAM #1 + #2)
+### Phase 7: S3-compatible interface + the metering boundary (SEAM #1 + #2) — SHIPPED (`fb2a1c7`, in `CroftCommunity/CISS`)
+**Delivered (2026-08-03).** `blobstore.rs` — a dumb, pluggable `BlobStore` trait (Layer 1) with a
+`MemoryBlobStore` (default/test) and an `FsBlobStore` (`{root}/blocks/{did}/{cid}`, temp→permanent move
+with an E84 reflink `SEAM:`); the backend never content-checks (the dumb-backend contract is tested).
+`server.rs` — an **axum 0.8** HTTP server (Layer 2): S3-compatible `PUT /{did}/objects/{key}` (content-
+addressed, provider-signed **Unilateral** postage receipt, byte-count-integrity WARN/ERROR invariant) +
+`GET /{did}/objects/{cid}` (re-fingerprints on the way out — tamper-at-rest caught + metered as a download)
++ `PUT`/`GET /{did}/manifest` (verifies `derive_id(pubkey)==did` + `Manifest::verify`, persists) +
+`GET /{did}/meter`; all routed through a small **`Op` dispatch boundary** with the E83 heavy-op scope
+`SEAM:`; unimplemented S3 verbs behind a 501 fallback `SEAM:`. `main.rs` — a runnable binary (env-config,
+provisions its data dirs) with a SIGTERM/SIGINT graceful-shutdown path + the E87 systemd socket-activation
+fd-inheritance seam (`inherit_fd_requested`). `persist.rs` — WAL + `checkpoint_truncate` (the E87 flush).
+Pooling `SEAM:` resolved as a single-writer `Arc<Mutex<Store>>`. **Write-set expanded** beyond the Pass-3
+plan: `pricing`/`receipts`/`ledger` reused as-is; added `axum`/`tokio`/`tracing`/`tracing-subscriber`
+deps + `reqwest` dev-dep; `persist.rs` gained WAL + checkpoint. Tests: `wiring_s3_metered.rs` (the
+anti-dead-code gate — HTTP PUT→signed receipt, GET→exact bytes, rent recomputable from the manifest,
+boundary-byte == receipt-byte == manifest-byte, ephemeral-port no-leak), `e86_abuse.rs` (the E86 e2e abuse
+suite), `wiring_checkpoint.rs` (WAL truncation). **106 tests; clippy pedantic + fmt clean; mutation gate
+58 caught / 0 real survivors** (one equivalent `Op::is_heavy` mutant excluded). Broad out-of-harness
+validation: a live binary curl PUT/GET round-trip metered, receipts in the file-backed SQLite,
+boundary==receipt bytes, SIGTERM→drain→WAL-checkpoint→exit 0. **Then graduated to `CroftCommunity/CISS`**
+(see the Outcome Summary Graduation note); the copy in `discovery` was removed.
+
 **Goal:** A real HTTP server exposing an **S3-compatible put/get**, wired so every transfer produces a
 signed receipt (postage) and rent derives from the signed manifest — the network boundary IS the metering
 boundary. Backed by a real blob store (Garage/SeaweedFS local; local-FS fallback for the very first slice).
@@ -819,16 +851,16 @@ content-blind.
   a thin blob-endpoint layer on top**. **Phase 8 is in v0** (not deferred). Phase 0 still verifies the
   exact atproto shapes (D2/D3) and the official-PDS S3 support + the interface-vs-backend distinction
   (new **D6**). *Both boundaries are core; sets Phases 7–8 scope.*
-- [CONFIRMED: PHASE-GATED (Phase 9)] **Repo / IP home** — **RESOLVED (user, 2026-07-31): start in
-  `discovery/alpha/experiments/item-store/`** (beside the `item-storage-protocol` it ports, under the
-  reviewed-before-commit flow); decide the graduation target (own `CroftCommunity/<repo>` vs into
-  `croft-stack`) at **Phase 9**. Same IP/ownership class as the app Phase-0 (A8) / foundation IP (E28) —
-  the user's call at deploy.
-- [CONFIRMED: PHASE-GATED (Phase 9)] **The service NAME** (A21) — **placeholder set to `item-store`**
-  (user, 2026-07-31: "metered is a capability," so name the *noun* — items — not the capability; ties to
-  `item-storage-protocol`). The co-op + storage service remain formally **unnamed**; the real name is a
-  deliberate naming pass (Amble/Noria-style) triggered at **Phase 9** before a public fqdn/repo. Not a
-  v0-code blocker.
+- [RESOLVED (user, 2026-08-03)] **Repo / IP home** — **its own repo: `CroftCommunity/CISS`** (public;
+  remote `git@github-personal:CroftCommunity/CISS`), graduated after Phase 7. (Earlier interim: started in
+  `discovery/alpha/experiments/item-store/` beside the `item-storage-protocol` it ports.) The crate was
+  **fresh-imported** into CISS and the discovery copy removed. Graduation ahead of Phase 9 because the
+  destination is a croft-stack VPS deploy for real testing. Same IP/ownership class as the app / foundation
+  IP — the user's call, now made.
+- [RESOLVED (user, 2026-08-03)] **The service NAME** (A21) — **`CISS` — Croft Item Storage Server**
+  (framed "a PDS+ storage server"), crate/binary `ciss`. (Earlier placeholder: `item-store` — "metered is
+  a capability, name the noun.") The co-op itself remains a separate naming item; this resolves the
+  **storage-service** name.
 - [CONFIRMED: PHASE-GATED (Phase 7)] **Blob backend for the first slice** — **RESOLVED (user,
   2026-07-31): a pluggable backend behind a trait; FS first, Garage/SeaweedFS/R2 later.** Because metering
   lives at the boundary (Layer 2), the backend (Layer 1) is a deliberately-dumb, swappable implementation
@@ -1204,3 +1236,36 @@ the-start hook; cheap seam, capability later), a **Phase-9 Caddy-TLS + upgrade-s
 **CONFIRMED: ADVISORY (post-v0) Open Question**, and backlog **E87** in `ROADMAP_TODO.md`. v0 scope
 unchanged — only the seams land in v0; the spike + chosen strategy are post-v0 / Phase-9. Deliverable = a
 measured comparison table → picks the Phase-9 approach; may graduate to its own harness (like relay-loadtest).
+
+### Test run 2026-08-03 — Phase 7 (S3 metered boundary) mutation gate
+Ran `cargo-mutants` scoped to the three Phase-7-touched modules (`--file src/server.rs --file
+src/blobstore.rs --file src/persist.rs`). First pass: **49 caught / 10 missed / 66 unviable / 0 timeout.**
+The 10 missed, triaged: (a) `FsBlobStore::get`'s `NotFound` match guard → `true` (no test hit a
+non-NotFound read error) — killed with a test that reads a path where a **directory** sits, asserting the
+error surfaces as `Io`, not `Missing`; (b) `running_total -> 0/1` and two inline `+ boundary` arithmetic
+mutants (the per-receipt running total was never asserted) — extracted `next_running_total(prior, boundary)`
+and added a direct arithmetic unit test (kills `->0/->1`, `+↔*`, `+↔-`); (c) `checkpoint_truncate ->
+Ok(())` and `App::checkpoint -> Ok(())` (no test observed the WAL actually truncating) — added
+`wiring_checkpoint.rs`: a metered PUT grows the WAL, `App::checkpoint` truncates it to zero bytes; (d) the
+meter direction filter `==`→`!=` (upload/download never asserted unequal) — added a `download_bytes == 0`
+assertion to the uploads-only abuse test. One **equivalent** mutant excluded with rationale:
+`Op::is_heavy -> bool with false` (the fn returns `false` for every v0 op by design — the E83 seam; the
+`->true` mutant IS caught). Re-run scoped to the three files: **58 caught / 0 missed / 66 unviable / 0
+timeout — zero real survivors.** 106 tests; clippy pedantic + fmt clean. The layer-3 E86 end-to-end abuse
+suite (`e86_abuse.rs`) landed here as planned (server content-addresses so a client can't misname; tamper
+at rest caught; manifest forgery rejected every way; no-bytes-no-receipt; replays dedup yet meter per
+transfer; malformed input + out-of-v0 verbs fail cleanly).
+
+### Decision 2026-08-03 — graduate the crate to `CroftCommunity/CISS` (name A21 + repo-home resolved)
+After Phase 7 the user directed moving the build out of `discovery` and onto a real croft-stack VPS for
+testing, naming it **CISS — Croft Item Storage Server** ("a PDS+ storage server"). This **resolves two
+Phase-9-gated Open Questions**: the storage-service **name** (A21 → *CISS*; crate/binary `ciss`) and the
+**repo/IP home** (→ its own public repo `CroftCommunity/CISS`). Chosen approach (three user decisions):
+**fresh import** (copy the working tree — the E0–E9 core + the Phase-7 WIP — no `git subtree`/`filter-repo`
+history migration; per-phase E0–E9 SHAs remain in discovery's git + this plan's Outcome Summary), **rename**
+`item-store` → `ciss`, and **remove** the discovery copy leaving pointers. Rationale: the crate is
+graduating to a deployable product, one source of truth avoids drift, and the E0–E9 provenance is already
+preserved here. Effect on this plan: it stays the **build-provenance artifact** (reasoning + per-phase
+design + decisions); Phases 8 (atproto blob API) and 9 (croft-stack deploy) now execute **in CISS**. The
+Phase-7 ship commit `fb2a1c7` is a CISS commit. The one remaining Phase-9 input is the VPS-kernel probe
+(E84 gate). No v0 scope change.
