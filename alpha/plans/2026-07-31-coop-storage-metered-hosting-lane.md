@@ -135,8 +135,8 @@ statement, verify it. That is the "starting point" we can then show and build on
 > surface network-fetched; boundary confirmed BOTH; per-user-SQLite + pluggable-backend confirmed;
 > telemetry = cgroup-accounting) → E0–E9 Rust port (Phases 1–6) → S3-compatible metered boundary (Phase 7)
 > → atproto PDS blob surface incl. `listBlobs` (Phase 8, in v0) → croft-stack VPS deploy (Phase 9) →
-> history-convergence consumer (Phase 10, gated/later). **Phases 1–7 SHIPPED; the crate graduated to
-> `CroftCommunity/CISS` (Croft Item Storage Server); Phases 8–9 continue there.**
+> history-convergence consumer (Phase 10, gated/later). **Phases 1–8 SHIPPED; the crate graduated to
+> `CroftCommunity/CISS` (Croft Item Storage Server); Phase 9 (VPS deploy) remains, in CISS.**
 
 Because this extrapolates from a real implementation and speaks a real network API, we grounded and
 planned before writing service code (global rules: verify APIs against a source of truth; TDD; phase-plan
@@ -151,12 +151,15 @@ for complex changes; rust-enforcer discipline). **Status (2026-07-31):**
 2. **Phase-plan — DONE (three passes + Phase 0).** `2026-07-31-1-plan-coop-metered-storage-service.md`.
    Ledger storage resolved to **per-user SQLite** (official-PDS pattern; supersedes the earlier
    redb/Postgres lean).
-3. **Build — Phases 1–7 SHIPPED; graduated to `CroftCommunity/CISS`.** The E0–E9 ledger core (Phases 1–6)
+3. **Build — Phases 1–8 SHIPPED; graduated to `CroftCommunity/CISS`.** The E0–E9 ledger core (Phases 1–6)
    and the **Phase 7 S3-compatible metered boundary** (axum PUT/GET metered end-to-end + pluggable
    `BlobStore` mem/FS + customer-signed manifest surface + runnable binary with graceful-shutdown/
    socket-activation seams; 106 tests, mutation gate 58/0, live-binary curl validated). After Phase 7 the
    crate **graduated into its own repo — `CroftCommunity/CISS` (Croft Item Storage Server, "a PDS+ storage
-   server")** — resolving the name (A21 → *CISS*) and repo/IP-home Open Questions. **Next (now in CISS):**
-   Phase 8 (atproto PDS blob API `uploadBlob`/`getBlob`/`listBlobs` over the same metered path) → Phase 9
-   (croft-stack VPS deploy; one input left, the VPS-kernel probe). This lane + the build plan stay the
-   thinking/provenance layer in `discovery`; code lives in CISS.
+   server")** — resolving the name (A21 → *CISS*) and repo/IP-home Open Questions. **Phase 8 SHIPPED (in
+   CISS, 2026-08-03):** the atproto PDS blob API (`uploadBlob`/`getBlob`/`listBlobs`) as a thin layer over
+   the *same* metered byte-path (atproto meters identically to S3); real CIDv1 (`raw`+sha-256) `$link`s
+   close the CID `SEAM:` via a new `cidv1.rs`; mock-bearer auth `SEAM:`; 115 tests + a wiring gate, scoped
+   mutation gate 0 real survivors, live-probe confirmed the D2 shape + shared metering. **Next (now in
+   CISS):** Phase 9 (croft-stack VPS deploy; one input left, the VPS-kernel probe). This lane + the build
+   plan stay the thinking/provenance layer in `discovery`; code lives in CISS.
