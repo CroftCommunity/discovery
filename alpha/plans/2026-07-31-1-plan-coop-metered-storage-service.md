@@ -2,7 +2,7 @@
 
 > Phase-plan (three-pass). This is the **build plan**; the lane overview + committed direction live in
 > `2026-07-31-coop-storage-metered-hosting-lane.md` (E82). Passes 1–3 + Phase 0 discovery complete;
-> execution underway.
+> execution complete — Phases 1–9 SHIPPED, v0 LIVE at `https://ciss.croft.ing` (2026-08-03).
 
 ## Outcome Summary
 
@@ -17,7 +17,7 @@
 | 6 seal + grace (E7–E9) | SHIPPED | `e9b06bc` | Seal/tombstone (pin-root + fail-closed write/unseal ceremonies + rotation watch) + co-signed grace ledger (nets to zero); **completes the E0–E9 core**; 88 tests; seal+grace mutation gate 32 caught / 0 missed. |
 | 7 S3 metered boundary | SHIPPED | `fb2a1c7` | axum S3 PUT/GET metered end-to-end + pluggable `BlobStore` (mem/FS) + customer-signed manifest surface + runnable binary (graceful-shutdown/socket-activation seams); 106 tests, mutation gate 58 caught / 0 real survivors; live-binary curl round-trip validated. **`fb2a1c7` is a CISS commit** (see Graduation below). |
 | 8 atproto PDS blob surface | SHIPPED | `CISS@1bf3c0d` | `uploadBlob`/`getBlob`/`listBlobs` over the *same* metered path (atproto == S3 metering); real CIDv1 (`raw`+sha-256) `$link` closes the CID `SEAM:` (new `cidv1.rs`); mock-bearer auth `SEAM:`. 115 tests + `wiring_pds_blob`; scoped mutation gate 0 real survivors; live-probe confirmed D2 shape + 2 receipts. **CISS commit.** |
-| 9 croft-stack deploy | SHIPPED | `croft-stack@4565382` | Live at `https://ciss.croft.ing` (Caddy TLS). VPS-kernel probe resolved (trixie/6.12/systemd257/cgroup2/ext4 → E84 reflink N/A, E87 lean drain). Release `CISS v0.1.0` binary fetched by an extended `tenants` role; governed unit (`systemd-analyze security` 1.5), cgroup-within-envelope, idempotent converge, no key leakage. Backup units generated-not-activated (need R2 env). |
+| 9 croft-stack deploy | SHIPPED | `CISS@0b65108` + `croft-stack@4565382`,`5ce5e4e` | Live at `https://ciss.croft.ing` (Caddy TLS). CISS made croft-stack-contract-compliant (`0b65108`; 122 tests + a contract wiring gate). VPS-kernel probe resolved (trixie/6.12/systemd257/cgroup2/ext4 → E84 reflink N/A, E87 lean drain). Release `CISS v0.1.0` binary fetched by an extended `tenants` role (`4565382`); governed unit (`systemd-analyze security` 1.5), cgroup-within-envelope, idempotent converge, no key leakage. **Caddy request-retry DONE** (`5ce5e4e`, 120/120 across a live restart). Backup units generated-not-activated (R2 set aside). |
 | 10 convergence consumer | gated | — | Phase-10 gated (drystone/MLS not real yet). |
 
 **Graduation (2026-08-03).** After Phase 7, the crate graduated from
@@ -27,8 +27,8 @@ resolving the two Phase-9-gated open questions (service **name** A21 → *CISS*;
 **repo/IP home** → its own `CroftCommunity` repo). The E0–E9 core + Phase 7 were
 **fresh-imported** (crate renamed `item-store` → `ciss`) and the copy in
 `discovery` was removed (this plan stays the build-provenance artifact; per-phase
-E0–E9 SHAs remain in discovery's git history). Phases 8–9 continue in CISS. The
-CISS import/Phase-7 commit is `fb2a1c7`.
+E0–E9 SHAs remain in discovery's git history). Phases 8–9 **were completed in CISS**
+(see the Outcome Summary rows). The CISS import/Phase-7 commit is `fb2a1c7`.
 
 ## Problem Statement
 
@@ -797,7 +797,10 @@ Phase 7 byte-path trace.
 can test against.
 
 > **Delivered (2026-08-03, live).** CISS is deployed on the OVH VPS via croft-stack and reachable at
-> **`https://ciss.croft.ing`** (Caddy TLS, Let's Encrypt). **VPS-kernel probe (the one gating input):**
+> **`https://ciss.croft.ing`** (Caddy TLS, Let's Encrypt). **CISS contract compliance** (`CISS@0b65108`):
+> the binary honours `croft-stack/CONTRACT.md` (`--data-dir`/`--listen`, `/healthz`, self-managed layout,
+> provider seed persisted in the canonical SQLite) — 122 tests + a contract wiring gate, mutation gate 0
+> real survivors. **VPS-kernel probe (the one gating input):**
 > Debian 13 trixie, kernel 6.12, systemd 257, cgroup v2 unified, x86_64/glibc 2.41, ext4. Findings —
 > **E84 reflink N/A** (ext4 has no CoW; the FsBlobStore temp→rename baseline stands), **E87** uses the
 > lean strategy (SIGTERM graceful drain; systemd socket-activation seam present but socket-activation +

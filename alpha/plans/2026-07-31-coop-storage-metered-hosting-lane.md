@@ -130,15 +130,16 @@ statement, verify it. That is the "starting point" we can then show and build on
   `discovery/alpha/experiments/`; v0 growing into a real service touches the same IP/ownership question
   the app Phase-0 raised (surface, don't resolve).
 
-## Next step (build sequence — grounding before code)
+## Build & deploy record (grounding → code → live)
 
 > **Build plan (phase-plan, Passes 1–3 + Phase 0 discovery COMPLETE):**
 > `2026-07-31-1-plan-coop-metered-storage-service.md` — Phase 0 done (rsky-pds/atproto/official-PDS
 > surface network-fetched; boundary confirmed BOTH; per-user-SQLite + pluggable-backend confirmed;
 > telemetry = cgroup-accounting) → E0–E9 Rust port (Phases 1–6) → S3-compatible metered boundary (Phase 7)
 > → atproto PDS blob surface incl. `listBlobs` (Phase 8, in v0) → croft-stack VPS deploy (Phase 9) →
-> history-convergence consumer (Phase 10, gated/later). **Phases 1–8 SHIPPED; the crate graduated to
-> `CroftCommunity/CISS` (Croft Item Storage Server); Phase 9 (VPS deploy) remains, in CISS.**
+> history-convergence consumer (Phase 10, gated/later). **Phases 1–9 SHIPPED; the crate graduated to
+> `CroftCommunity/CISS` (Croft Item Storage Server); v0 is LIVE at `https://ciss.croft.ing`.** Only the
+> Phase-10 convergence consumer remains (gated).
 
 Because this extrapolates from a real implementation and speaks a real network API, we grounded and
 planned before writing service code (global rules: verify APIs against a source of truth; TDD; phase-plan
