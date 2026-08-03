@@ -5,7 +5,7 @@ date: 2026-07-31
 status: **v0 LIVE (2026-08-03)** — CISS (Croft Item Storage Server) is built (E0–E9 ledger + S3 + atproto
 blob boundary) and **deployed on the VPS via croft-stack at `https://ciss.croft.ing`**, governed +
 hardened, metering end-to-end. The v0 sketch below was the starting point; build + deploy are done (see
-the build plan for the full record). Remaining: activate the R2 backup mirror (Litestream/rclone env) and
+the build plan for the full record). Remaining: activate the R2 backup mirror (Litestream/rclone env — set aside for now) and
 the Phase-10 convergence consumer (gated).
 
 lane: cooperative layer (the D5 sustainability *mechanism*). Backlog: ROADMAP_TODO **E82**; ties **E25**/**D5**.
@@ -169,6 +169,7 @@ for complex changes; rust-enforcer discipline). **Status (2026-07-31):**
    canonical SQLite) and published as release **v0.1.0**; croft-stack gained `services/ciss.toml` + a
    `tenants`-role real-binary fetch (`croft-stack@4565382`). Converge idempotent; live HTTPS metered
    round-trip + atproto uploadBlob verified; unit governed (`systemd-analyze security` 1.5) +
-   cgroup-within-envelope + no key leakage. **Deferred:** R2 backup activation (Litestream/rclone env),
-   Caddy request-retry, netns. This lane + the build plan stay the thinking/provenance layer in
-   `discovery`; code lives in CISS, deploy config in croft-stack.
+   cgroup-within-envelope + no key leakage. Caddy request-retry (`lb_try_duration`) wired same day
+   (`croft-stack@5ce5e4e`) — verified 120/120 × 200 across a live restart. **Deferred:** R2 backup
+   activation (set aside for now), netns, socket-activation blue-green (E87 stretch). This lane + the build
+   plan stay the thinking/provenance layer in `discovery`; code lives in CISS, deploy config in croft-stack.
