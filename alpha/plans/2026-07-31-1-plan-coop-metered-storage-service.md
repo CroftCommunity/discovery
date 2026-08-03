@@ -16,7 +16,7 @@
 | 5 audit + dial (E5–E6) | SHIPPED | `1640b17` | Seeded RNG (mulberry32, bit-exact TS parity) + k-sample audit (`1−(1−f)^k`) + cost-priced signed dial; 75 tests; E0–E6 mutation gate green (golden-vector test killed the 11 `rng` survivors). |
 | 6 seal + grace (E7–E9) | SHIPPED | `e9b06bc` | Seal/tombstone (pin-root + fail-closed write/unseal ceremonies + rotation watch) + co-signed grace ledger (nets to zero); **completes the E0–E9 core**; 88 tests; seal+grace mutation gate 32 caught / 0 missed. |
 | 7 S3 metered boundary | SHIPPED | `fb2a1c7` | axum S3 PUT/GET metered end-to-end + pluggable `BlobStore` (mem/FS) + customer-signed manifest surface + runnable binary (graceful-shutdown/socket-activation seams); 106 tests, mutation gate 58 caught / 0 real survivors; live-binary curl round-trip validated. **`fb2a1c7` is a CISS commit** (see Graduation below). |
-| 8 atproto PDS blob surface | pending | — | Now built in `CroftCommunity/CISS`. |
+| 8 atproto PDS blob surface | SHIPPED | `CISS@1bf3c0d` | `uploadBlob`/`getBlob`/`listBlobs` over the *same* metered path (atproto == S3 metering); real CIDv1 (`raw`+sha-256) `$link` closes the CID `SEAM:` (new `cidv1.rs`); mock-bearer auth `SEAM:`. 115 tests + `wiring_pds_blob`; scoped mutation gate 0 real survivors; live-probe confirmed D2 shape + 2 receipts. **CISS commit.** |
 | 9 croft-stack deploy | pending | — | Now unblocked: name (A21) + repo-home resolved; one input remains (Phase-9 VPS-kernel probe). |
 | 10 convergence consumer | gated | — | Phase-10 gated (drystone/MLS not real yet). |
 
@@ -737,22 +737,40 @@ ephemeral test port is released afterward (no leak). **[E86] Run the end-to-end 
 drive the live engine and actively try to break it (forge/replay receipts, inflate manifest, tamper at
 rest across the boundary, walkaway, double-count audit, malformed input).
 
-### Phase 8: Minimal atproto PDS API surface — the thin blob-endpoint layer (in v0, confirmed 2026-07-31)
+### Phase 8: Minimal atproto PDS API surface — the thin blob-endpoint layer (in v0, confirmed 2026-07-31) — **SHIPPED (in CISS)**
 **Goal:** Serve the minimal atproto PDS endpoints (at least `getBlob`/`uploadBlob`, plus whatever D2/D3
 deem the v0 floor) as a **thin blob-endpoint layer on top of the S3-metering plane**, so the store is a
 **PDS-like node on the Bluesky network**. **In v0 (user-confirmed): both boundaries from the start** — the
 S3-compatible interface (Phase 7) is the storage/metering plane; this phase is the atproto layer over it.
 Phase 0 D2/D3/D6 set the exact endpoint set + shapes; the phase is **not gated out**.
+
+> **Delivered (2026-08-03, `CroftCommunity/CISS` `1bf3c0d`):** `src/pds_api.rs` serves the D2 floor —
+> `uploadBlob` (POST, mock-bearer auth), `getBlob` (GET, public), `listBlobs` (GET, public) — as a thin
+> layer that routes through the *same* `server::dispatch` boundary as the S3 plane, so an atproto transfer
+> meters identically (one signed receipt per byte-crossing; live probe confirmed `uploadBlob`+`getBlob` →
+> 2 receipts, up==down==boundary bytes). `uploadBlob` returns the **exact** confirmed shape
+> `{"blob":{"$type":"blob","ref":{"$link":"<CIDv1>"},"mimeType":"<ct>","size":<int>}}`. The CID `SEAM:` is
+> **closed**: a new `src/cidv1.rs` produces real CIDv1 (`raw` 0x55 + sha-256) `$link`s via the in-corpus
+> verified `ipld-core` path (D1-internal), losslessly bridging the network's CIDv1 and the backend's hex
+> key. Gates: 115 tests (+ `tests/wiring_pds_blob.rs`, the anti-dead-code gate), clippy pedantic clean,
+> fmt clean, **scoped mutation gate 0 real survivors** (`cidv1` + `pds_api` + `op_list_blobs`; one
+> `||→&&` survivor in `to_sha256_hex` killed by a raw-CID-non-sha256-hash test). `listBlobs` derives the
+> DID's uploaded CIDs from the ledger's upload receipts (no backend enumeration primitive needed).
+> **`SEAM:`s carried forward:** mock-bearer auth (real OAuth/DPoP session), `getBlob` Content-Type echo
+> (UNCONFIRMED in the lexicon), `listBlobs` pagination.
+
 **Changes:**
-- [ ] `src/pds_api.rs` — the atproto endpoints **from D2's confirmed floor: `uploadBlob` (POST, auth
+- [x] `src/pds_api.rs` — the atproto endpoints **from D2's confirmed floor: `uploadBlob` (POST, auth
   required), `getBlob` (GET, public), `listBlobs` (GET, public)** — mapped onto `blobstore` (mapping
   modeled on rsky's `apis/com/atproto/{repo/upload_blob,sync/get_blob}.rs`); the metering hook stays on
-  the byte path. **`uploadBlob` must return the exact confirmed shape**
+  the byte path. **`uploadBlob` returns the exact confirmed shape**
   `{"blob":{"$type":"blob","ref":{"$link":"<CIDv1>"},"mimeType":"<ct>","size":<int>}}`; `listBlobs`
-  returns `{"cids":[...],"cursor":"..."}`.
-- [ ] **auth `SEAM:`** — `uploadBlob` requires a session/JWT (OAuth Bearer) per D2; v0 stands in a mock
+  returns `{"cids":[...]}` (cursor omitted in v0 — atproto's "no more pages" signal; pagination `SEAM:`).
+- [x] `src/cidv1.rs` (**closes the Phase-2 CID `SEAM:`**) — real CIDv1 (`raw` + sha-256) blob refs +
+  lossless hex↔CID bridge, byte-identical to the in-corpus `hist-atproto-spike` path.
+- [x] **auth `SEAM:`** — `uploadBlob` requires a session/JWT (OAuth Bearer) per D2; v0 stands in a mock
   auth check behind a `SEAM:` (real DID-session/OAuth is a later spike), `getBlob`/`listBlobs` stay public.
-- [ ] `tests/wiring_pds_blob.rs` — end-to-end: an `uploadBlob`/`getBlob` round-trip over the atproto API,
+- [x] `tests/wiring_pds_blob.rs` — end-to-end: an `uploadBlob`/`getBlob` round-trip over the atproto API,
   metered, returning the exact D2-confirmed `blob` shape (`$type`/`ref.$link`/`mimeType`/`size`); a
   `listBlobs` returns the uploaded CID.
 **Call chain:** atproto `uploadBlob` → `pds_api::upload` → `blobstore::write` + `receipts::ack`.
@@ -1269,3 +1287,25 @@ preserved here. Effect on this plan: it stays the **build-provenance artifact** 
 design + decisions); Phases 8 (atproto blob API) and 9 (croft-stack deploy) now execute **in CISS**. The
 Phase-7 ship commit `fb2a1c7` is a CISS commit. The one remaining Phase-9 input is the VPS-kernel probe
 (E84 gate). No v0 scope change.
+
+### Test run 2026-08-03 — Phase 8 (atproto PDS blob surface) in CISS (`1bf3c0d`)
+Built the atproto blob layer TDD-first in `CroftCommunity/CISS`: `src/pds_api.rs` serves the D2-confirmed
+floor — `uploadBlob` (POST, mock-bearer auth), `getBlob` (GET, public), `listBlobs` (GET, public) — as a
+thin layer that routes every request through the **same `server::dispatch` boundary** as the S3 plane, so
+an atproto transfer meters identically (Op enum gained `ListBlobs`; `AppState`/`Op`/`OpOutcome`/`dispatch`
+opened to `pub(crate)`). The Phase-2 CID `SEAM:` is **closed** by a new `src/cidv1.rs`: real CIDv1 (`raw`
+0x55 + sha-256) blob refs via the in-corpus verified `ipld-core` path (D1-internal), losslessly bridging
+the network's CIDv1 (`ref.$link`) and the backend's hex key. `listBlobs` derives a DID's uploaded CIDs from
+its **upload receipts** (no backend enumeration primitive). **Gates:** 115 tests (added
+`tests/wiring_pds_blob.rs`, the anti-dead-code gate: 401-without-auth, exact D2 `blob` shape, getBlob exact
+bytes, listBlobs distinct-uploads-only, 2 metered receipts) — all green; clippy pedantic clean; fmt clean.
+**Mutation gate:** scoped `cargo mutants` on `cidv1.rs`+`pds_api.rs` (21 caught / 2 unviable / **0
+survivors**) and `op_list_blobs` (2 caught / 0 survivors). One survivor found + killed: a `||→&&` in
+`cidv1::to_sha256_hex` (the hash-code and codec checks were not independently tested) — killed by a
+raw-codec-CIDv1-with-a-blake3-hash rejection test. **Live-binary probe** (real `ciss` on
+`127.0.0.1:8091`, FS backend + file SQLite) confirmed: uploadBlob no-auth → 401; authed → exact
+`{"blob":{"$type":"blob","ref":{"$link":"bafkrei…"},"mimeType":"text/plain","size":18}}`; getBlob → exact
+bytes; listBlobs → the CIDv1; meter → 2 receipts, up==down==18 (atproto reached the shared metered ledger);
+bad-CID → 400; SIGTERM → drain → exit 0. **`SEAM:`s carried forward:** mock-bearer auth (real OAuth/DPoP),
+getBlob Content-Type echo (UNCONFIRMED in the lexicon), listBlobs pagination. **Next:** Phase 9
+(croft-stack VPS deploy); one input remains (the VPS-kernel probe, E84 gate).
