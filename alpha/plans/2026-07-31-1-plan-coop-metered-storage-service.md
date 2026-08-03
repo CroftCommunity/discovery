@@ -813,9 +813,12 @@ can test against.
 > accounting within envelope (`memory.current` ~1 MB ≪ 384 M); journald carries only the public provider
 > id — **no seed/key material leaked** (Zeroize holds). **Deferred (honest gaps):** Litestream/rclone
 > backup units are *generated but not activated* (need the R2 credential env wired), so `meter.sqlite`
-> is not yet mirrored to R2; Caddy request-retry (`lb_try_duration`) not added (a restart briefly 502s;
-> graceful drain minimizes the window); no netns (a normal Caddy-fronted tenant, not a netns_service like
-> the relay); smoke-test rows (`id:pub`, `id:vps`) left in `/var/lib/ciss`.
+> is not yet mirrored to R2 (R2 set aside for now, user 2026-08-03); no netns (a normal Caddy-fronted
+> tenant, not a netns_service like the relay); smoke-test rows (`id:pub`, `id:vps`) left in `/var/lib/ciss`.
+> **Caddy request-retry — DONE (`croft-stack@5ce5e4e`):** `lb_try_duration 5s` + `lb_try_interval 250ms`
+> in the shared vhost template; verified live — 120/120 requests returned 200 across a full
+> `systemctl restart ciss` (the restart window no longer 502s). Socket-activation blue-green remains the
+> E87 stretch.
 
 **Changes:**
 - [x] `croft-stack: services/ciss.toml` — the service manifest (fqdn `ciss.croft.ing`, port 8301,
@@ -826,9 +829,10 @@ can test against.
   apply via the generated unit's cgroup accounting + sandbox stanzas.
 - [x] a smoke test hitting the deployed put/get + the atproto blob endpoint (live `curl`, HTTPS + localhost).
 - [x] **TLS + reverse-proxy via Caddy.** Caddy vhost `ciss.croft.ing` → `127.0.0.1:8301`, Let's Encrypt
-  HTTP-01 (cert issued; DNS A record already pointed at the box). E87: graceful drain (lean); request-retry
-  (`lb_try_duration`) + socket-activation blue-green deferred (stretch). Websocket `Upgrade` not needed in
-  v0 (no `subscribeRepos`).
+  HTTP-01 (cert issued; DNS A record already pointed at the box). E87: graceful drain (lean) **plus
+  request-retry (`lb_try_duration 5s`/`lb_try_interval 250ms`) — DONE** (verified 120/120 × 200 across a
+  live restart); socket-activation blue-green remains the stretch. Websocket `Upgrade` not needed in v0
+  (no `subscribeRepos`).
 - [x] **[Pass 3, Doc-Impact] the scheduled doc edits that go stale at deploy** — in `discovery`:
   `ECOSYSTEM.md` §5c-3 (add the deployed-service row), `COHESION.md` §65 (v0-runs status note),
   `ROADMAP_TODO.md` E82 (status → deployed/live), the lane doc's "Next step",
@@ -1353,7 +1357,9 @@ identical without ciss). **Converge** (scoped tenants+caddy+telemetry, then idem
 **Live verification:** `https://ciss.croft.ing/healthz` 200; public metered PUT/GET (2 receipts, up==down);
 atproto `uploadBlob` returns the D2 shape; unit `active`; `systemd-analyze security` **1.5 OK**; cgroup
 accounting within envelope (`memory.current` ~1 MB ≪ 384 M); journald shows only the public provider id —
-**no key material leaked**. **Deferred (honest):** Litestream/rclone backup units generated-but-not-activated
-(need the R2 credential env), so `meter.sqlite` is not yet mirrored; Caddy request-retry not wired (restart
-briefly 502s); no netns; smoke rows left in `/var/lib/ciss`. **v0 is live and dogfoodable** — the E82 lane's
+**no key material leaked**. **Follow-up done same day (`croft-stack@5ce5e4e`):** Caddy request-retry
+(`lb_try_duration 5s`) wired into the shared vhost template — verified 120/120 × 200 across a live
+`systemctl restart ciss` (no more restart-window 502s). **Deferred (honest):** Litestream/rclone backup
+units generated-but-not-activated (R2 set aside for now, user 2026-08-03); no netns; smoke rows left in
+`/var/lib/ciss`. **v0 is live and dogfoodable** — the E82 lane's
 definition-of-done (point a real store at it, metered bytes, verifiable) is met end-to-end in production.
