@@ -6,7 +6,8 @@ render chrome stripped (the italic one-line "thinking summary" banners — e.g. 
 GitHub App setup…", "Architected…"; the trailing "Run bluebird plan / Document · MD" artifact marker).
 Long assistant passages condensed with load-bearing claims retained. No secrets.
 
-**SCOPE REDACTION (not a fidelity loss).** The pasted block also contained an unrelated **an unrelated work repo** thread (Slack Workflow Builder → GitHub `workflow_dispatch`; fine-grained PAT vs a
+**SCOPE REDACTION (not a fidelity loss).** The pasted block also contained an unrelated **work-repo**
+thread (Slack Workflow Builder → GitHub `workflow_dispatch`; fine-grained PAT vs a
 GitHub App with auto-rotating installation tokens; `--author`/`committer` and `Co-authored-by` commit
 attribution). That thread is **work-scoped, not Croft**, and is **deliberately excised** from this raw —
 CroftC repos are Croft-scoped (top-level `CLAUDE.md`: "repo content belongs in its repo"). It is marked
@@ -31,7 +32,7 @@ clearance gate in `NAMING.md`. atproto/iroh/iOS baseline facts defer to the FACT
 **User:** Is it at all possible to give a shortcut or a quick way for users to run a shell command to run
 a local proxy service from a PWA/SPA so it can get [RSS/H]reader or API content? A user-friendly workflow?
 
-*(No answer to this question appears in the pasted transcript — the paste jumped to the excised a work org
+*(No answer to this question appears in the pasted transcript — the paste jumped to the excised work
 thread. The question was carried live into the 2026-07-29 CroftC session and resolved there; see
 "Working-session resolutions" at the end of this file.)*
 
@@ -43,8 +44,8 @@ Two exchanges on triggering GitHub `workflow_dispatch` from a Slack Workflow Bui
 step: fine-grained PAT (one repo, `actions:write`, 90-day expiry) vs a GitHub App with auto-rotating
 1-hour installation tokens (`actions/create-github-app-token`), the hybrid "minimal-trigger-PAT + App-token
 does the real work" pattern, and commit attribution via `--author` (author vs committer identity) /
-`Co-authored-by` / writing the reactor identity into the evidence JSON. **Not filed** — work topic,
-`an unrelated work repo`, unrelated to Croft.
+`Co-authored-by` / writing the reactor identity into the evidence JSON. **Not filed** — a work topic in an
+unrelated work repo, not Croft.
 
 ---
 
@@ -221,9 +222,9 @@ Captured here because these close open items the dialogue left dangling (PLAYBOO
 - **Thread A → extension model.** The content-fetch approach is a **browser extension** that grants the
   cross-origin fetch, **not** a user-run local proxy. The "user-friendly workflow" becomes install-an-
   extension. A Playwright-driven **test spike** is greenlit (ROADMAP_TODO **E72**), to be built under
-  `experiments/alpha/`. (One transferable idea from the excised a work org thread, noted only: the
+  `experiments/alpha/`. (One transferable idea from the excised work thread, noted only: the
   "minimal-trigger credential + do-the-real-work-with-a-better-credential" split — relevant to Croft's
-  auth-helper thinking, not filed as a work org content.)
+  auth-helper thinking, not filed as work content.)
 - **Thread C → Graze.** `/f/`, commons framing, herd-puns-at-edges all adopted. **Work from
   `forum.croft.ing` now; purchase `graze.ing` when possible; "Graze by Croft" is a working name.** Backbone
   unchanged (reconciles the `2026-07-27-read-first-forum-mvp` plan, whose last open item was the product

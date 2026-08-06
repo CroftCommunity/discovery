@@ -1694,7 +1694,7 @@ existing tracks. Three seams:
   client-metadata URL) is **pending in the bluebird repo, not discovery**. Lockup-clearance (Amex /
   Bluebird.js) is an open gate. **Status: renamed (org/domain); in-repo run OPEN.**
 
-**Excised, not filed:** the pasted block also carried a an unrelated work repo GitHub-App/PAT thread —
+**Excised, not filed:** the pasted block also carried an unrelated work-repo GitHub-App/PAT thread —
 out of Croft scope, redacted from the raw per top-level `CLAUDE.md` ("repo content belongs in its repo").
 Backlog: ROADMAP_TODO §E (E72–E74).
 
