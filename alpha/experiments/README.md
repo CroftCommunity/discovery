@@ -111,6 +111,14 @@ alpha/
 │       by driving the real DerivedFold::ingest path and comparing against a fresh stamp's crypto
 │       membership. Suite 3/0.
 │
+├── drystone-convergence/  (imported 2026-08-06 from a stray work-repo branch) Rust standalone
+│       crate: the governance-fold convergence harness the beta prose already describes. Stage 1
+│       proves permutation-invariance and the R1–R4 resolutions under the A12 layered fold,
+│       including the discriminating D6/D7 a flat id-only fold fails; Stage 2 proves referenced-gap
+│       detection; Stage 4 proves the finality mechanics (quorum folding A1, non-exclusive
+│       recognition A2, the ceiling A3, the now A7). Faithful reference fold, NOT production.
+│       Suite 46/0 (27 + 3 + 16), re-verified on import.
+│
 └── match3-p1/            ⚰️ PROMOTED 2026-07-28 → live crate now at CroftCommunity/fun
         (crates/match3-core, self-contained). This dir is kept frozen as provenance; develop in `fun`.
         Original spike below. Rust Cargo workspace (Track B, games pond): Phase 1 of the candy-crush

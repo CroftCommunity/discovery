@@ -1,0 +1,12 @@
+[package]
+name = "drystone-convergence"
+version = "0.1.0"
+edition = "2021"
+description = "Stage 1 convergence test harness for the Drystone governance fold (reference stub)"
+
+[dependencies]
+sha2 = "0.10"
+
+[dev-dependencies]
+proptest = "1"
+rand = { version = "0.8", features = ["small_rng"] }
