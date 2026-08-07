@@ -347,3 +347,23 @@ seeds/transcripts/raw/germ-xchat-design-dialogue.md); the client-architecture AD
   hours") is *attested-but-unverifiable*, distinct from *verified* — "without a countable unit, it's
   signed vibes." Proven in code (`experiments/item-storage-protocol`, E3 receipts + E14 counterexample);
   underpins the co-op charging mechanism (`thinking/cooperative-social-union-model.md`); advances D5.
+
+- **The bill cannot surprise you — a synchronous meter makes a hard ceiling mechanical.** (2026-08-07;
+  `thinking/cost-ceilings-and-the-prepaid-meter.md`.) Because CISS meters *at request time* (a signed
+  receipt per byte-crossing), a spending cap is a **ledger comparison before serving**, not the
+  impossibility it is under batch billing. Express it in the **dial pattern** — a co-signed *"spend stops
+  at X this period."* Behavior past X is **throttle or defer, never bill**; the honest failure mode is
+  "service paused at your limit," not "surprise invoice." Rent cannot spike (`manifest × tariff`, only your
+  signature changes the manifest), so the ceiling governs **postage**, the volatile axis — and the client
+  can enforce the same ceiling **pre-flight** from the same tables (the two-sided **cost twin**).
+
+- **Prepaid is an equity instrument only when the member holds the levers — otherwise it is a poverty
+  trap.** (2026-08-07.) The prepaid meter's real history is dual (equity vs the UK 2022–23 forced-
+  prepayment scandal `[UNVERIFIED]`). Four rules keep CISS on the equity side, each a ledger fact not a
+  provider policy: **tariff parity** (prepaid == postpaid rate); **the meter's mode changes only with the
+  customer's signature** (no remote flip); **a ceiling never mints debt** (throttle, don't accrue standing
+  charges); and **exit is unconditionally cap-exempt** — reading out your own manifest and blobs *to
+  leave* must work at **zero balance**, always. *They can stop selling you service; they can never keep
+  your furniture.* (Exit-exempt self-egress is a candidate new CISS invariant — `SECURITY-POSTURE.md`.)
+  The general law: **same meter, opposite power geometry** — the difference between equity and extraction
+  is whether every lever (tariff, switch, ceiling, standing charge) is a co-signed record or a member vote.
