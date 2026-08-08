@@ -23,6 +23,7 @@ every unrun item).
 
 | Plan / spec doc | Covers | State |
 |---|---|---|
+| `meer-queue/SPIKE-SPEC.md` | **Meer Phase 0** — does the pub/sub-in, mailbox-out shape hold against real MLS traffic? M1 offline drain+decrypt, M2 byte-identical forwarding (with the negative re-framing arm), 8 shape-learning scenarios incl. S8 (MLS object sizes vs CISS's 2 MiB cap). Runs against plain CISS; 3 registered stand-ins. Extends `iroh/crates/mls-welcome-over-iroh` (real OpenMLS 0.8.1). Hypothesis: `alpha/thinking/meer-as-custodian-queue.md`; lane: `alpha/plans/2026-08-07-meer-lane.md` | **Specified, not yet run** |
 | `local_storage_projection/` (MUTATION_TESTING, TRAIT_CONTRACTS, CONVERGENCE_FINDING, FROZEN_FLUID, …) | Governance fold + projection substrate | **Characterized** (lib 97/0) |
 | `croft-chat/plans/2026-06-26-1-plan-integrated-drystone-cli.md` | Integrated Drystone CLI, P1–P20 (Milestones A–D) | **Closed** |
 | `croft-chat/plans/2026-07-11-1-plan-next-experiments.md` | **Master ledger** — Batteries 5–8 + re-plant | **Active** (Phases 1–6 done; 7–8 remainder open) |

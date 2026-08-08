@@ -309,8 +309,17 @@ Part A, B-series, T-series) excluded. Sources: `RELAY-PLACEMENT-LAB-SPEC.md`, `T
 
 ### 6c. Meer build (production, TDD-gated — `meer-superpeer-design.md` P2–P6)
 The *running form* of E8/E9/E11/E12. P0/P1 (Tier-0 blind mirror) done.
+
+**Re-scoped 2026-08-07 (the storage half only).** The meer no longer owns a store: it is a thin
+gateway over **CISS custodian chains** (per-DID queues, queue-only custodial write, 14-day ceiling).
+`meer-superpeer-design.md`'s roles, confidentiality tiers, and anti-entrenchment analysis stand; its
+storage assumption is superseded by `alpha/thinking/meer-as-custodian-queue.md`. **Phase 0 (the spike
+below) comes before P2–P6** — it is the discovery phase that tells the substrate what to be. Lane:
+`alpha/plans/2026-08-07-meer-lane.md`.
+
 | Item | For | Maturity |
 |---|---|---|
+| **Meer Phase 0 — queue spike** (`meer-queue/SPIKE-SPEC.md`) | does pub/sub-in, mailbox-out hold against real MLS traffic? M1 offline drain+decrypt, M2 byte-identical (incl. the negative re-framing arm), plus 8 shape-learning scenarios incl. **S8: measure MLS object sizes against CISS's 2 MiB `MAX_OBJECT_BYTES`** | **Specified** — runs against plain CISS as it exists; 3 stand-ins registered in `SPEC-DIVERGENCE-REGISTER.md`. Extends `iroh/crates/mls-welcome-over-iroh` (real OpenMLS 0.8.1 + real iroh), so no new MLS client is needed |
 | **Meer P2 — bridge mode** | straddle 2 namespaces/relays (runs E8) | Specified |
 | **Meer P3 — Tier-1 + no-mirror + reliability/overlap curve** | runs the rest of E9 | Specified |
 | **Meer P4 — RoQ SFU role** | transport form of E12 | Specified |
