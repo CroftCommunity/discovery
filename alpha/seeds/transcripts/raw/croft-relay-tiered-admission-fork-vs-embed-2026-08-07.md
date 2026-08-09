@@ -845,6 +845,208 @@ sponsorship quota both want the same real-NAT measurement and should be one gate
 
 ---
 
+## Part 9 — Pass 2, and the feasibility sweep (2026-08-08)
+
+The plan was written and run through the `phase-plan` skill's Pass 2 (gap analysis), which verifies a
+plan's claims **against the code** rather than against its own logic. It found that three preconditions
+the plan assumed did not exist: `Registry` is an in-memory `Mutex<HashMap>` with no persistence and only
+an EndpointId→Did direction; `croft-admit` has no `[[bin]]`; and `PdsResolver` is a fixture-only trait
+whose promised "production adapter" was never built. It also found that `ciss-auth` does **not** resolve
+DIDs (`ResolvedKeys` is defined there and must be supplied), that the Milestone B ∥ C parallel grouping
+was disqualified by a shared `Cargo.toml`, and that there was no `rust-toolchain.toml` against a
+CI-pinned toolchain.
+
+The owner's response set the direction for everything after:
+
+> our startnig plan got enough things flat out wring that I want to review the feasibility and plan in
+> it's entirety and surface items for discussion from there not adhoc big chnanges now
+
+A deeper sweep followed, which **confirmed the load-bearing feasibility claim** —
+`RelayServiceWithNotify` is `pub` in `pub mod http_server`, implements `Service<Request<Incoming>>`, and
+its own docs carry an embedding example using `serve_connection(...).with_upgrades()`; `KeyCache`,
+`Handlers`, `Metrics` are all reachable — and produced two corrections to claims made earlier in this
+dialogue:
+
+1. **"You can boot someone mid-call" was wrong.** `on_connect` runs once, at attach. An admitted
+   connection is never re-checked and token expiry does not disconnect anything. Eviction is possible
+   (`Clients::disconnect` is public) but must be actively driven by a control path that did not exist in
+   the design.
+2. **The byte quota had no data source.** iroh's metrics are server-wide counters
+   (`bytes_sent`/`bytes_recv`, `#[non_exhaustive]`), with no per-endpoint dimension. Per-member
+   accounting is not obtainable from the relay.
+
+## Part 10 — the objection that changed the mechanism
+
+**Owner:**
+
+> I still don't understand why we want to constrain moving the full tunnel by constraining speed. Is it
+> that it's the same connection that gets upgraded and so we're preventing that because it feels to me
+> like the the mutual you know handoff when that fails it seems like there would be an escalation to
+> tunnel and that's what we would want to stop rather than just trying to slow it down so it fails.
+>
+> That feels ugly.
+
+**Assistant:** The intuition is right and the mechanism is the reverse of the picture. **The relay
+carries the call from the first packet.** Direct connection is the *upgrade*; holepunch success is what
+*removes* the relay from the path. There is no "now switch to tunneling" moment to intercept, which is
+why the plan reached for a speed limit — there is no event to refuse, only an ongoing flow to shape.
+
+The relay cannot tell a coordination frame from audio (content-blindness, ADR-0004, a property to keep).
+But volume is an honest proxy, and there are two ways to use it:
+
+- **Throttle** — degrade until media fails. A soggy "maybe": the user gets a call that sounds broken
+  rather than one that says why it can't proceed. Calibration-sensitive.
+- **Budget and drop** — give a generous allowance, several times what an introduction needs, and when
+  it is spent **disconnect cleanly** so the client can surface "this needs a membership."
+
+Budget-and-drop is also far less sensitive: an introduction is kilobytes, a call is kilobytes *per
+second*, so any budget in the two-to-three-order gap separates them. Throttling had to thread a needle;
+a budget only has to land in a canyon.
+
+Two mechanics: no fork is needed (`Clients::disconnect` is public), and the wrinkle that iroh clients
+auto-reconnect with backoff is solved by **putting the budget in the token** — a spent token is refused
+re-admission, and a new call needs a new token whose issuance croft-admit controls.
+
+Later in the same thread this produced the largest structural consequence: **the budget deletes the tier
+switch.** With enforcement in our own layer, multiple relay instances with differing rate limits are
+unnecessary — one instance, no rate limit, and a supervisor that drops.
+
+The owner's product framing, given a few paragraphs later, is what made the mechanism obviously right:
+
+> the point here is to provide a very cheap service when possible, matchmaking, as a gesture of goodwill
+> when as long as we can, but then also have like you know a membership non-extractive sure you can
+> bridge the gap and get you know a different quality of service
+
+## Part 11 — the eleven questions, walked
+
+The remaining items were walked one by one in plain English. Owner rulings, condensed:
+
+1. **Lexicon / multi-device.** The owner pointed at `CroftCommunity/connect`, previously unseen by this
+   session. Its `docs/contract.md` defines `ing.croft.iroh.endpoint`, rkey `self`, `endpointId`
+   required. Nothing published yet. Ruling: extend for multi-device **up front**, "home"/"work" style,
+   and test with at least two devices for early personas. Assistant's addition: the atproto-idiomatic
+   shape is one record per device with rkey = the label, discovered via `com.atproto.repo.listRecords`
+   — which is also the native answer to the owner's "give me all your phone numbers / load this
+   contact" question, and keeps the exchange page backendless.
+2. **Strangers.** Coordination-only until admitted. "Open" is a choice we would advise against — build
+   it and test it as the counter-case so we understand the mechanism, do not advertise it.
+3. **One list or two.** Dissolved by the owner's own proposal: only people you have given a token to can
+   call you at all. The cap is both gates. Cost named: discovery and reachability come apart — findable,
+   not cold-callable.
+4. **Mid-call eviction.** Front door only. Both sides can hang up; do-not-disturb; a zero-cost blocklist
+   matters more. Reframed during the discussion: eviction is a **bandwidth-abuse** tool, not a safety
+   tool, because app-level hangup already closes the connection.
+5. **Who may press eviction.** Not worried; moot while 4 is no.
+6. **Usage counting.** Owner: "sponsorships and for how long is a shit proxy" (conceded). Proposed a
+   fork for structured call accounting, as pluggable and discrete as possible, and to try upstreaming
+   it. Assistant flagged the shape distinction: **volume** accounting (`endpoint, bytes, duration`)
+   builds no graph; **pair** accounting (`src, dst`) is a call-detail record, the exact artifact the
+   design exists to avoid. Owner agreed on the metadata danger.
+7. **Upper-bound byte counts.** Fine, as long as it is never called billing.
+8. **Storage.** Owner: person is a Bluesky handle, endpoint is a lexicon record, cache it locally — so
+   it is a resolve-and-cache, not a table we own. Most of the scoped work dissolved.
+9. **Resolution and failure.** Owner has test-account credentials. Fail closed, "and work it out from
+   there." Assistant clarified the two directories: **plc.directory** (DID → which PDS) versus the PDS
+   itself.
+10. **Measure first.** Owner: ~10% is the prevailing figure and that is fine. Recorded as a working
+    assumption, recalled rather than measured.
+11. **The two admission paths.** Owner asked for an explanation. Path A = n0's **stock prebuilt binary**
+    with its `access.http` hook calling croft-admit per connection — no custom binary needed, and
+    literally what runs at relay.croft.ing today (v1.0.0, from a tarball). Path B = **our own binary**
+    with the verifier compiled in, no network call in the attach path.
+
+## Part 12 — clarifications that changed the conclusion
+
+**Owner:**
+
+> I'm confused when you say the relay can tell what did you say? But I can't tell how much and for how
+> long. I mean, aren't you talking about per connection stats there? Because that just never persisted
+> anywhere.
+
+**Assistant, correcting:** two things were blurred. The rate limiter *does* count bytes per connection —
+that is what a token bucket is — but that counter lives in a `pub(crate)` wrapper, is never reported,
+and dies with the connection. The metrics are server-wide totals with no per-connection dimension. So
+the correct statement is: **the relay cannot tell us. We can, if we count it ourselves.**
+
+**The doorman, described in detail** (the owner asked whether it meant nftables or eBPF): none of those
+— they sit below the layer where identity is known, and the traffic is TLS. It is a decorator inside our
+own process. Our binary accepts the TCP connection, terminates TLS, reads the HTTP request (so the token,
+therefore the member, is known), then wraps the stream in a struct implementing `AsyncRead`/`AsyncWrite`
+that increments a counter, and hands the wrapped stream to iroh's service. On close it emits
+`(member, bytes_in, bytes_out, duration)`. Roughly forty lines. It counts framing as well as payload, so
+it is an upper bound.
+
+**The conflation that was driving the wrong conclusion.** The owner had said the compiling was not the
+worry, keeping a fork pristine across upstream changes was — and then concluded Path A looked right.
+Three distinct things were being collapsed:
+
+| | what it is | maintenance |
+|---|---|---|
+| Stock binary | n0's prebuilt release | none, but no customization |
+| **Our binary** | our `main.rs` depending on `iroh-relay` from crates.io, unmodified | `cargo update` |
+| Fork | a patch series carried on their tree | rebase every release, forever |
+
+The design lives in the middle: our own program, every line of relay code unpatched from the published
+crate. Nothing to keep pristine because nothing is patched. And Path A's ceiling is exactly one
+question — yes or no at the door: no budgets (one global speed limit for everybody), no disconnect
+(`Clients::disconnect` is in-process), no accounting (no doorman). So Path A is the **fallback**, not the
+destination.
+
+**Storage, followed through.** If a cap gates calling, there is no list to store; verification needs only
+the issuer's public key, resolvable from their DID. What must persist shrinks to **membership** (a
+commercial relationship we necessarily have) and **accounting** (our own costs). Neither is a social
+graph. That directly serves the owner's stated goal:
+
+> I'd rather people be able to use this who aren't, you know, not only not members, but like people we
+> don't have to manage storage for.
+
+The remaining fork: a `did:plc` user does not hold their signing key, so they cannot sign a cap on their
+device — but atproto signs **repo commits**, so a record in their repo is verifiably theirs. Caps as
+**opaque-id records in the callee's own repo** (the record names nobody; the caller holds the cap;
+revocation is a record delete) versus caps minted and stored by croft-admit.
+
+## Part 13 — the trust ruling, and the rewrite
+
+**Owner:**
+
+> Yeah, I understand about the them not holding their own signing key. I get it. Yeah, I think we just
+> count like a valid signed record in their PDS as a valid signed record and like that whether they run
+> their own PDS or not to us as a material.
+>
+> So, like, the risk is on their side.
+
+Recorded as the design's trust boundary:
+
+> A record in a user's repo is that user's statement. Whether they hold the signing key, or their PDS
+> operator does, is between them and their operator. We verify the signature and the DID binding; we do
+> not model PDS trust.
+
+Blast radius recorded alongside it: a hostile or compromised PDS could mint a grant in a user's name,
+buying **relayed bandwidth in their name** — not access to any call, since the call is end-to-end and the
+relay is blind. A bounded, financial-shaped harm, absorbable by a quota. Whether a user holds recovery
+keys and can undo a hostile PDS is the standard atproto recovery question; the corpus FACTCHECK docs do
+not cover it and nothing here depends on the answer.
+
+Final rulings in the same turn:
+
+- **Request-to-token flow: yes, and it is the user's choice.** "The flow needs to exist and the user
+  decides — like if strangers can request or, you know, only mutuals or whatever." Not one size fits
+  all. Implemented as a small published enum (`anyone | mutuals | nobody`), which leaks nothing about
+  who a user knows.
+- **Cap revocation: probably both** — expiry on the minted token *and* deletion of the grant record.
+  Each alone is insufficient: expiry alone lets a revoked cap keep minting until it lapses; deletion
+  alone leaves already-minted tokens live.
+- **No upstream accounting patch.** "let's try the our own binary, you know, wrapping theirs and see what
+  happens… it functions kind of like a decorator basically. Their stuff doesn't know the difference."
+- **A comprehensive rewrite**, with cohesion as the explicit requirement given how much surgery was
+  involved.
+
+The rewrite is `../../plans/2026-08-07-1-plan-croft-relay-tiered-admission.md`, retitled *cap-gated
+calling with a metered introduction budget*. Its Review Log carries the superseded Pass-1 and Pass-2
+records rather than deleting them.
+
+---
+
 ## Source-verified claims in this dialogue
 
 Every mechanism claim above was read from pinned source in this session, not recalled. For a future
@@ -867,3 +1069,14 @@ reader deciding what to re-verify:
 | `ReplayGuard` bounds `jti` reuse inside validity | `CISS/crates/ciss-auth/src/replay.rs:1-8` |
 | Deployed relay is 1.0.0 via prebuilt musl tarball, pinned + checksummed | `croft-stack/ansible/group_vars/all.yml:72-73` |
 | Prior art: blind relay moderates by membership + scale | `alpha/ROUND-2026-06-17-media-meer-conformance.md:78` and the E11 finding |
+| **(Part 9+)** `RelayServiceWithNotify` is `pub`, implements `Service<Request<Incoming>>`, docs carry the `serve_connection(...).with_upgrades()` embedding example — the seam the whole design rests on | `iroh-relay-1.0.3/src/server/http_server.rs:714-745` |
+| **(Part 9+)** `RelayService::handle_connection(TcpStream, Option<TlsConfig>, Duration)` is public but does its own TLS/HTTP, so it cannot expose the header to us | `.../http_server.rs:1013` |
+| **(Part 9+)** `KeyCache` exported; `Handlers` is `pub` + `Default` + `DerefMut`; `Metrics`/`RelayService` re-exported | `iroh-relay-1.0.3/src/lib.rs:48`; `src/server.rs:73`; `.../http_server.rs:1130` |
+| **(Part 9+)** `Clients::disconnect(endpoint_id, connection_id) -> bool` is public — eviction possible but must be actively driven | `iroh-relay-1.0.3/src/server/clients.rs:181` |
+| **(Part 9+)** Metrics are **server-wide counters**, `#[non_exhaustive]`, no per-endpoint dimension — per-user accounting unobtainable from iroh | `iroh-relay-1.0.3/src/server/metrics.rs:9-24` |
+| **(Part 9+)** `RelayConfig.limits.client_rx`; `Server::spawn(ServerConfig)` as the higher-level path | `iroh-relay-1.0.3/src/server.rs:111-160`, `:691`, `:741` |
+| **(Part 9+)** `Registry` is in-memory `Mutex<HashMap<EndpointId, Did>>`, one direction only | `crates/croft-admit/src/registry.rs:17-50` |
+| **(Part 9+)** `croft-admit` has no `[[bin]]`; `PdsResolver` is a fixture-only trait; `Did` is deliberately opaque | `crates/croft-admit/{Cargo.toml, src/pds.rs:38-42, src/did.rs:1-11}` |
+| **(Part 9+)** `ciss-auth` does not resolve DIDs — `ResolvedKeys` is defined there and must be supplied; no HTTP client | `CISS/crates/ciss-auth/src/lib.rs:127` and its `Cargo.toml` |
+| **(Part 9+)** CI pins toolchain `1.94.1`; experiment has no `rust-toolchain.toml`; `croft-relay` is in the smoke matrix | `discovery/.github/workflows/smoke.yml:41,45-48` |
+| **(Part 11)** `connect` lexicon: `ing.croft.iroh.endpoint`, rkey `self`, `endpointId` required; deep-link contract; resolution pipeline | `CroftCommunity/connect` `docs/contract.md` §1–§2 |

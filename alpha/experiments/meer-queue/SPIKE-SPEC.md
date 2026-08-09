@@ -1,6 +1,10 @@
 # Meer queue spike — does the pub/sub-in, mailbox-out shape hold against real MLS traffic?
 
-`Status: specified, not yet run`
+`Status: Phase 0 (Discovery) RUN 2026-08-08 — see PHASE-0-FINDINGS.md. M1/M2/S1-S8 not yet run.`
+
+`Correction from Phase 0: M2's negative-arm hypothesis below ("a re-framed copy is detectably
+different at the byte level") is FALSIFIED — a re-encode is byte-identical. The MUST stands; its
+rationale does not. See PHASE-0-FINDINGS.md D3 and the plan's restructured Phase 6.`
 
 `Hypothesis doc: discovery/alpha/thinking/meer-as-custodian-queue.md (claims under test cite it)`
 

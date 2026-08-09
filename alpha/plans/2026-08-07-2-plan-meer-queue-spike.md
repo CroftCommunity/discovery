@@ -347,7 +347,12 @@ text needing correction.
 - `alpha/experiments/meer-queue/S8-RESULTS.md` — **new.** S8's measurement table, kept separate so the
   long-running measurement does not contend with the queue phases on `TEST-LOG.md` (see Concurrency
   Map). Phase 11; folded into `TEST-LOG.md` in Phase 12.
-- `alpha/experiments/SPEC-DIVERGENCE-REGISTER.md` — five new rows. Phase 12.
+- `alpha/experiments/SPEC-DIVERGENCE-REGISTER.md` — five new rows. **Seeded 2026-08-08** (Phase 0
+  introduced the first live tag, and the register's convention requires a row per tag); Phase 12
+  verifies correspondence and flips the "declared" statuses.
+- `alpha/experiments/meer-queue/SPIKE-SPEC.md` — status line updated 2026-08-08 with the Phase-0 run
+  and a correction banner on M2's falsified negative-arm hypothesis.
+- `alpha/plans/2026-08-07-meer-lane.md` — status line updated 2026-08-08 (Discovery run).
 - `alpha/thinking/meer-as-custodian-queue.md` — falsifications folded back; the stale "MIT `cli` PoC"
   line in § "What we test next" corrected; § "Open" updated with what S8 measured. Phase 13.
 - `alpha/experiments/EXPERIMENT-BACKLOG.md` and `alpha/experiments/MASTER-INDEX.md` — register the
@@ -982,9 +987,12 @@ crossover. Note in `S8-RESULTS.md` that the with-extension rows had no prior bef
 - [ ] `TEST-LOG.md` — S1 as **Rung C (static)**: the enrollment sequence walked, every piece of state
       it implies, and whether "one line in your inventory" survives contact. Plus `S8-RESULTS.md`
       folded in.
-- [ ] `alpha/experiments/SPEC-DIVERGENCE-REGISTER.md` — five rows (`meer-spike-namespace`,
-      `meer-spike-kind-gate`, `meer-spike-drain-auth`, `meer-spike-clock`, `meer-spike-ciss-inproc`),
-      each with site, what it stands in for, spec requirement, path back, status.
+- [ ] `alpha/experiments/SPEC-DIVERGENCE-REGISTER.md` — **seeded 2026-08-08, verified here.** All five
+      rows were written when Phase 0 introduced the first live tag, because the register's own
+      convention is that tags and rows correspond — a tag without a row is the exact drift the
+      register exists to prevent. Four rows are marked *declared — code lands Phase N*. Phase 12's job
+      is therefore to **verify** correspondence (every tag has a row, every row has a tag, and the
+      "declared" statuses have flipped to live) rather than to author the rows.
 **Call chain:** n/a — documentation phase.
 **Wiring test:** `grep -rn "SPEC-DELTA" alpha/experiments/meer-queue/` and the register must
 correspond exactly: every tag has a row, every row has a tag. Run it and paste the output.
