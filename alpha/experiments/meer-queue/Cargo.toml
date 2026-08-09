@@ -1,0 +1,51 @@
+# meer-queue — Phase-0 spike for the MLS store-and-forward meer.
+#
+# Standalone crate (own lockfile), following `mls-replant`'s pattern. Detached
+# from any parent workspace by the empty `[workspace]` table below.
+#
+# Plan: discovery/alpha/plans/2026-08-07-2-plan-meer-queue-spike.md
+# Spec: ./SPIKE-SPEC.md
+[workspace]
+
+[package]
+name = "meer-queue"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# The real CISS server, driven in-process over loopback HTTP.
+# SPEC-DELTA[meer-spike-ciss-inproc | test-hermeticization] — see ../SPEC-DIVERGENCE-REGISTER.md
+ciss = { path = "../../../../CISS" }
+
+# Serving the real CISS router on an ephemeral loopback port (mirrors
+# CISS/tests/common/mod.rs, which is how CISS drives itself).
+axum = "0.8.9"
+tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros", "net", "sync", "time"] }
+reqwest = { version = "0.13.4", default-features = false, features = ["rustls", "http2", "charset"] }
+tempfile = "3"
+sha2 = "0.10"
+hex = "0.4"
+
+# Real MLS. Group construction reuses mls-replant (the Rung-A ancestor); the
+# application-message helpers and S8's config-parameterized construction are new here.
+mls-replant = { path = "../mls-replant" }
+openmls = "=0.8.1"
+openmls_rust_crypto = "=0.5.1"
+openmls_basic_credential = "=0.5.0"
+openmls_traits = "=0.5.0"
+tls_codec = "0.4"
+
+# Real iroh transport. relay.rs / node.rs are COPIED from
+# ../iroh/crates/mls-welcome-over-iroh (which path-depends on Proofs/lineage-mls, a
+# wrapper this spike does not want). Ports changed to ephemeral — see src/relay.rs.
+iroh = { version = "=1.0.0", features = ["test-utils"] }
+iroh-relay = { version = "=1.0.0", features = ["server", "test-utils"] }
+anyhow = "1"
+
+[features]
+# D3 / M2 negative arm only: openmls gates the decode→re-encode conversions behind
+# `test-utils`, with a source comment saying they "MUST NOT be made available outside
+# of tests". Enabling this is how the spike deliberately constructs the forbidden
+# thing in order to show it is detectable. Never on for the positive path.
+reframe = ["openmls/test-utils"]
