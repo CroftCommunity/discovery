@@ -3,6 +3,13 @@
 `Run: 2026-08-10, release mode, 49.6 s` · `Code: tests/s8_object_sizes.rs`, `src/mls.rs::measure_group`
 · `Rung: A (real-lib)`
 
+**Reproduce** (the sweep is `#[ignore]`d by default — the N = 8000 rungs are ~50 s in release and
+minutes in debug, which would make the ordinary suite unusable):
+
+```
+cargo test --release --test s8_object_sizes -- --ignored --nocapture --test-threads=1
+```
+
 ```
 rustc 1.97.1 · openmls =0.8.1 · openmls_rust_crypto =0.5.1
 openmls_basic_credential =0.5.0 · openmls_traits =0.5.0 · tls_codec 0.4

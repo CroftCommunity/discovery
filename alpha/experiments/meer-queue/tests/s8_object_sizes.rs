@@ -49,7 +49,14 @@ fn row(o: &GroupObjects) -> bool {
     biggest > MAX_OBJECT_BYTES
 }
 
+/// **Release-only.** Ignored by default: the N = 8000 rungs are ~50 s in release and minutes in
+/// debug, which would make the ordinary suite unusable. Run it deliberately:
+///
+/// ```text
+/// cargo test --release --test s8_object_sizes -- --ignored --nocapture --test-threads=1
+/// ```
 #[test]
+#[ignore = "release-only sweep; see the doc comment for the command"]
 fn object_sizes_against_the_two_mib_cap() {
     meer_queue::init_tracing();
     println!(
@@ -112,7 +119,9 @@ fn object_sizes_against_the_two_mib_cap() {
 
 /// The `Welcome`-with-k-joiners row: `O(N) + k`, measured separately because it varies in two
 /// dimensions and the table above holds k at N-1.
+/// Release-only for the same reason; see the sweep above.
 #[test]
+#[ignore = "release-only sweep; see the doc comment for the command"]
 fn welcome_grows_with_both_group_size_and_joiner_count() {
     println!("S8 — Welcome vs joiner count (tree extension ON)");
     println!("{:>6} {:>8} {:>12} {:>12}", "N", "joiners", "welcome B", "B/joiner");
