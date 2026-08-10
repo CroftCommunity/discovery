@@ -38,7 +38,7 @@ So the matrix is:
 ```
   no cap                    → cannot call (may ask for one out of band — see §5)
   cap, neither is a member  → introduced. Byte budget. Spent → connection dropped, cleanly.
-  cap, either is a member   → carried. No budget.
+  cap, either is a member   → carried when needed. No budget.
 ```
 
 "Either is a member" is the rule the owner set: a member's participation unlocks the tunnel whether
@@ -59,6 +59,66 @@ solved, calls connect only when both parties are already looking at the app.
 own constraints on each OS, tracked separately. Nothing here depends on it — cap distribution is
 out-of-band (§5), so no phase needs to reach a user who isn't watching. Recorded so it is not
 discovered later as a surprise, not because it gates anything below.
+
+### 1.2 Plain English: user stories, storage, and end state (owner-reviewed 2026-08-10)
+
+The §1 framing, retold at the level a non-engineer — or an engineer in a year — needs. Reviewed and
+corrected by the owner; the corrections are folded in, not appended.
+
+**What it is.** A phone system where nobody can cold-call you, nobody keeps a record of who talks to
+whom, and the thing you pay for is honest: bandwidth, when a direct connection can't be made. atproto
+answers "who are you," iroh answers "how do two devices connect," and `relay.croft.ing` covers the
+~10–15% of pairs whose networks won't let them connect directly.
+
+**The cap works like giving out your phone number.** Generate an invite — link or QR — and hand it
+over however you like: text, email, in person. Nothing traverses our infrastructure. No cap, no call:
+strangers can find your page, but they cannot ring you. Revocation is deleting one record from your
+own repo.
+
+**Membership means the relay carries you when needed** — it does not route you through the relay. A
+member's calls holepunch at the same rate as anyone's; most are direct and free. Membership removes
+the budget for whatever fraction can't be, in either direction: a member calling anyone, or anyone
+calling a member.
+
+**Where invite data lives, and what is public** — stated precisely, because the comfortable version
+overstates it:
+
+| Where | What | Visibility |
+|---|---|---|
+| Callee's atproto repo | grant record: opaque cap id + device scope | **public**, names nobody |
+| Callee's atproto repo | policy record (`anyone\|mutuals\|nobody`), device records | **public**; an enum and endpoint ids |
+| Caller's device | the cap secret itself | local, never published |
+| Our servers | nothing about invites — the grant record is read at mint and forgotten | n/a |
+
+So: an observer **can** see that you have issued N invites and which of your devices each reaches.
+They **cannot** see who holds any of them — the secret half exists only on the invitee's device, and
+verification is the presented secret matching the public opaque record. "Nobody can see who you've
+invited" is true. "Nobody can see that you invite people" is not, and this plan does not claim it.
+
+**User stories:**
+
+- *Two friends, neither pays.* Sam texts Riley an invite; Riley calls; their networks holepunch; two
+  hours of direct, encrypted conversation that cost us kilobytes. This is most calls — the free tier
+  is genuinely useful, not a crippled teaser.
+- *Same two, hotel wifi blocks the direct path.* The relay starts carrying real audio, the budget
+  spends in seconds, the call drops cleanly: "this call needs a membership." A price tag, not a
+  mystery failure. Either of them joining fixes it.
+- *Jo is a member.* Everyone Jo talks to gets carried calls when carrying is needed, in either
+  direction. One membership fixes calling for a whole family.
+- *Alex is being harassed.* Alex deletes one record from their own repo; the harasser's invite dies
+  within minutes without Alex asking us for anything — and nothing anywhere ever recorded that the
+  harasser had been invited.
+- *A stranger finds your page.* "Ask them for an invite," or "not callable" — the latter byte-identical
+  to "no such handle," so the page cannot be used to probe who exists.
+- *A phone and a desk.* Each device is its own record; each invite reaches the devices you chose at
+  issuance. The plumber's invite reaches `work`; your partner's reaches everything. A caller can
+  prefer a device, never widen the grant.
+
+**End state.** Our own relay binary (stock `iroh-relay` wrapped, never forked) serving
+`relay.croft.ing` with counting and budget enforcement; `croft-relay-admit` minting tokens, backed by
+a private CISS instance; the exchange page and Android client on the per-device lexicon; invites
+issued, redeemed, and revoked end to end. We store membership (peppered digests) and per-member byte
+totals. Who calls whom, when, and what they say exists **nowhere** — not as policy, but as absence.
 
 ## 2. Problem Statement
 
@@ -530,10 +590,17 @@ work re-checks this under load.
       deploy/                ← already there: systemd units, relay.toml, Caddy site
       tests/                 ← already there: bats deploy tests
       source/                ← NEW: the Rust workspace lands here
-        croft-admit/
+        croft-relay-admit/   ← renamed from croft-admit in the same move (owner, 2026-08-10)
         croft-relay-embed/
         croft-relay-bin/
 ```
+
+**The rename rides the move.** `croft-admit` becomes **`croft-relay-admit`** — the crate is the relay's
+admission authority, and the old name reads as a general-purpose admission service it is not. Phase 1
+is the free moment: the crate is changing repos anyway, no new code has been written against the old
+name, and one commit later every path is final. This document's paths say `croft-admit` below for the
+same reason they say `experiments/croft-relay/` — they match the tree the passes verified against.
+After Phase 1, read `croft-admit` as `croft-relay-admit` throughout.
 
 The bundle is the service plus what deploys it. A standalone repo was the other candidate; it splits
 those two apart again, which is the thing that is currently working.
@@ -658,6 +725,10 @@ depends on it.
       **add croft-stack's gate workflow before moving the code**, then move, then remove the
       `croft-relay` entry from `discovery`'s smoke matrix — never the reverse, or there is a window
       where the crates exist in a repo with no PR checks.
+- [ ] **(Owner, 2026-08-10) Rename `croft-admit` → `croft-relay-admit` in the same move** (§8.4):
+      directory, crate name, and every internal reference. One commit with the move, before any new
+      code exists against the old name. The gate proving the renamed workspace builds is the
+      verification.
 - [ ] Add `rust-toolchain.toml` pinning `1.94.1` to match CI — the experiment has none, which is the
       green-locally/red-in-CI failure `.claude/CI-PATTERN.md` names. **(Pass 3)** After the move this
       pin must agree with croft-stack's new gate, not `discovery`'s smoke workflow.
@@ -1957,3 +2028,20 @@ still points at text this plan actually relies on.
 
 **Verdict: correct, viable, and ready to execute** — Phase 1 first, and Phase 8's two new bullets are
 in-phase decisions, not new open questions.
+
+### Plain-English review with the owner — 2026-08-10
+
+The full design was retold in plain English with user stories before starting Phase 1; the owner
+reviewed it and made three calls, now folded in as **§1.2**:
+
+- **"Carried" corrected to "carried when needed."** Membership does not route calls through the relay;
+  a member's calls holepunch at the same rate as anyone's. Membership removes the budget for the
+  fraction that can't. The §1 matrix now says so.
+- **The storage/visibility claim stated precisely.** The grant record is public-but-opaque, so an
+  observer can see *that* you issue invites (their count, their device scopes) but never *to whom*.
+  The comfortable phrasing — "nobody can look anywhere" — overstated it; §1.2 now carries the honest
+  table of what lives where and what is public.
+- **`croft-admit` renamed `croft-relay-admit`**, riding the Phase 1 move: the crate is the relay's
+  admission authority, and the old name read as a general-purpose service it is not. Paths in this
+  document keep the old name below Phase 1 for the same reason they keep the old repo paths — they
+  match what the passes verified. Read `croft-admit` as `croft-relay-admit` after Phase 1.
