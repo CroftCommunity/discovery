@@ -30,7 +30,7 @@ use ciss::clock::SimClock;
 use crate::ciss_harness::{CissHarness, Identity};
 use crate::queue::Queue;
 
-pub use crate::queue::{Digest, Entry, RecipientId};
+pub use crate::queue::{Digest, Entry, RecipientId, Watermark};
 
 /// What can go wrong depositing or serving. The meer never invents a reason — a storage
 /// failure is reported with the status and body CISS actually returned.
@@ -46,6 +46,21 @@ pub enum MeerError {
         status: u16,
         body: String,
     },
+}
+
+/// The retention ceiling: mail is served for this many days **or until drained**, whichever
+/// comes first. A ceiling and not a floor — the unconditional form ("14 days no matter what")
+/// is a strictly harder promise that makes queue size a function of traffic rather than of
+/// delivery, and has to hold under adversarial load.
+pub const RETENTION_DAYS: u64 = 14;
+
+/// What one sweep did.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SweepReport {
+    /// Entries dropped across all queues.
+    pub swept: usize,
+    /// Queues that now carry a watermark as a result.
+    pub queues_marked: usize,
 }
 
 /// What key material a meer holds, by kind. See [`Meer::key_inventory`].
@@ -208,6 +223,39 @@ impl Meer {
             group_keys: 0,
             storage_credentials: 1,
         }
+    }
+
+    /// **Operation 5.** Sweep entries past the retention window, leaving a watermark.
+    ///
+    /// **What this does NOT do, and cannot:** remove the bytes. CISS's object plane is `PUT`/`GET`
+    /// with no `DELETE`, so a swept object stays in the meer's namespace indefinitely. Retention
+    /// here is a **serving** policy, not a storage guarantee — see S5 in `TEST-LOG.md`, where the
+    /// gap between the design's "here is what is gone" and what the substrate can actually do is
+    /// measured rather than assumed.
+    pub fn sweep(&mut self) -> SweepReport {
+        let now = self.clock.now();
+        let mut swept = 0;
+        let mut queues_marked = 0;
+        for queue in self.queues.values_mut() {
+            let n = queue.sweep(now, RETENTION_DAYS);
+            if n > 0 {
+                swept += n;
+                queues_marked += 1;
+            }
+        }
+        if swept > 0 {
+            tracing::debug!(swept, queues_marked, day = now, "sweep");
+        }
+        SweepReport {
+            swept,
+            queues_marked,
+        }
+    }
+
+    /// What `who` lost to the retention window, if anything.
+    #[must_use]
+    pub fn watermark(&self, who: &RecipientId) -> Option<Watermark> {
+        self.queues.get(who).and_then(Queue::watermark)
     }
 
     /// Advance the meer's clock by `days` (the `meer-spike-clock` stand-in).

@@ -90,10 +90,30 @@ impl Entry {
     }
 }
 
+/// What a recipient is told about mail that aged out before they drained it.
+///
+/// **Deliberately minimal: a count and a day range, no digests.** Enough to render a loud,
+/// specific, honest gap ("3 messages arrived between day 0 and day 2 and are gone"), and *not*
+/// enough to name what was missed to a peer. Retaining digests would enable recovery via D-peer
+/// corroboration, and would leave a per-recipient content-address log outliving the mail it
+/// describes — the same shape as the concern the design already raises about meter retention.
+/// S5 measures which side of that trade the design actually needs; the minimal form is the
+/// honest starting point because it cannot flatter the answer.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Watermark {
+    /// How many entries aged out unread.
+    pub swept: usize,
+    /// Deposit day of the earliest swept entry.
+    pub earliest_day: u64,
+    /// Deposit day of the latest swept entry.
+    pub latest_day: u64,
+}
+
 /// One recipient's mailbox.
 #[derive(Debug, Default)]
 pub struct Queue {
     entries: Vec<Entry>,
+    watermark: Option<Watermark>,
 }
 
 impl Queue {
@@ -155,5 +175,49 @@ impl Queue {
     #[must_use]
     pub fn entries(&self) -> &[Entry] {
         &self.entries
+    }
+
+    /// Drop entries deposited more than `retention_days` before `now`, folding what was dropped
+    /// into this queue's watermark. Returns how many were swept.
+    ///
+    /// The comparison is strict: an entry *at* the window is still within it. "14 days as a
+    /// ceiling" means it is served for its fourteenth day, not dropped on it.
+    ///
+    /// Only *undrained* entries reach here — an acked entry was already pruned — so a watermark
+    /// is raised for missed mail and never for delivered mail ("14 days **or until drained**").
+    pub fn sweep(&mut self, now: u64, retention_days: u64) -> usize {
+        let expired: Vec<Entry> = self
+            .entries
+            .iter()
+            .filter(|e| now.saturating_sub(e.deposited_day) > retention_days)
+            .cloned()
+            .collect();
+        if expired.is_empty() {
+            return 0;
+        }
+        self.entries
+            .retain(|e| now.saturating_sub(e.deposited_day) <= retention_days);
+
+        let earliest = expired.iter().map(Entry::deposited_day).min().unwrap_or(now);
+        let latest = expired.iter().map(Entry::deposited_day).max().unwrap_or(now);
+        self.watermark = Some(match self.watermark {
+            Some(prev) => Watermark {
+                swept: prev.swept + expired.len(),
+                earliest_day: prev.earliest_day.min(earliest),
+                latest_day: prev.latest_day.max(latest),
+            },
+            None => Watermark {
+                swept: expired.len(),
+                earliest_day: earliest,
+                latest_day: latest,
+            },
+        });
+        expired.len()
+    }
+
+    /// What this queue lost, if anything.
+    #[must_use]
+    pub fn watermark(&self) -> Option<Watermark> {
+        self.watermark
     }
 }
