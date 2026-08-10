@@ -1,9 +1,9 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–4 GREEN 2026-08-09.**
-All three planning passes complete, all 5 open questions resolved. Phases 5–14 not started.
-**The transport is live: M1 and M2 can now run end to end.** Phase 0 falsified one hypothesis inside M2 and forced
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–5 GREEN 2026-08-09/10.**
+All three planning passes complete, all 5 open questions resolved. Phases 6–14 not started.
+**M1 CONFIRMED (real-lib) — the first must-pass claim holds.** Phase 0 falsified one hypothesis inside M2 and forced
 seven plan changes — see § Phase 0 outcomes.
 
 **Executes:** `alpha/experiments/meer-queue/SPIKE-SPEC.md` (M1, M2, S1–S8)
@@ -751,7 +751,26 @@ established through the relay, not by a loopback shortcut.
 
 ---
 
-### Phase 5: M1 — an offline member drains and decrypts
+### Phase 5: M1 — an offline member drains and decrypts — GREEN 2026-08-10
+
+> **M1 CONFIRMED (real-lib).** Verdict line:
+> `M1 CONFIRMED (real-lib): offline member drained 1 blob(s) and decrypted; meer group keys held = 0,`
+> `storage credentials = 1. [openmls =0.8.1, openmls_rust_crypto =0.5.1, openmls_basic_credential`
+> `=0.5.0, openmls_traits =0.5.0, tls_codec 0.4]`
+>
+> **A mutation survived and exposed a vacuous assertion — the second time this pass.** The test
+> asserted only that Bob was *unreachable after* teardown. Removing the teardown entirely still
+> passed, because nothing listened on Bob's endpoint in either world, so the dial failed both ways.
+> The assertion was equally true of the correct state and the broken one — Anti-Pattern 7(a),
+> asserting an absence. Fixed by requiring **both halves**: reachable before teardown, unreachable
+> after. `MeerClient` gained a real accept loop to make that discriminating — which is not test
+> scaffolding but the **live-carriage path S3 needs anyway**, so the fix bought a phase's work.
+>
+> **Deliberate deviation from the plan.** The plan specified `keys_held() -> usize` returning 0.
+> Replaced with `KeyInventory { group_keys, storage_credentials }`, because a bare zero is both a
+> tautology (this module cannot name an MLS type) **and an overstatement** — the meer holds exactly
+> one credential, its own CISS namespace key, without which it could not write the mail anywhere.
+> *Blind to content is not the same as credential-less.* The verdict reports both numbers.
 
 **Goal:** The first must-pass claim.
 **Changes:**

@@ -26,7 +26,7 @@ use iroh::{Endpoint, EndpointAddr, RelayUrl};
 use tokio::sync::Mutex;
 
 use crate::ciss_harness::CissHarness;
-use crate::meer::{Digest, Meer, RecipientId};
+use crate::meer::{Digest, KeyInventory, Meer, RecipientId};
 use crate::node::{build_endpoint, ALPN};
 use crate::relay::{spawn as spawn_relay, RelayPorts};
 
@@ -38,6 +38,7 @@ const OP_ACK: u8 = 0x03;
 /// A meer listening on an iroh endpoint, homed on a loopback relay it also runs.
 pub struct MeerServer {
     endpoint: Endpoint,
+    meer: Arc<Mutex<Meer>>,
     relay_url: RelayUrl,
     /// Dropping the relay shuts it down, so it is held for the server's lifetime.
     _relay: iroh_relay::server::Server,
@@ -63,10 +64,11 @@ impl MeerServer {
         .await?;
 
         let meer = Arc::new(Mutex::new(Meer::new(ciss)));
+        let served = Arc::clone(&meer);
         let ep = endpoint.clone();
         let accept = tokio::spawn(async move {
             while let Some(incoming) = ep.accept().await {
-                let meer = Arc::clone(&meer);
+                let meer = Arc::clone(&served);
                 tokio::spawn(async move {
                     match incoming.await {
                         Ok(conn) => {
@@ -82,6 +84,7 @@ impl MeerServer {
 
         Ok(Self {
             endpoint,
+            meer,
             relay_url,
             _relay: relay,
             accept: Some(accept),
@@ -101,6 +104,11 @@ impl MeerServer {
     #[must_use]
     pub fn relay_url(&self) -> &RelayUrl {
         &self.relay_url
+    }
+
+    /// What key material this meer holds. M1 asserts on it.
+    pub async fn key_inventory(&self) -> KeyInventory {
+        self.meer.lock().await.key_inventory()
     }
 
     /// Stop accepting and close the endpoint.
@@ -158,8 +166,16 @@ async fn serve(conn: Connection, meer: Arc<Mutex<Meer>>) -> Result<()> {
 }
 
 /// A client of the meer protocol.
+///
+/// Also accepts inbound connections, so a peer can hand it bytes **directly** rather than via
+/// the meer. That is the "carried live" path S3 contrasts with a drain — and it is what makes
+/// reachability a discriminating observation: a client that is up answers a dial, and one that
+/// has been torn down does not. (M1 needed that distinction and did not have it until a
+/// surviving mutant showed the difference was invisible.)
 pub struct MeerClient {
     endpoint: Endpoint,
+    received: Arc<Mutex<Vec<Vec<u8>>>>,
+    accept: Option<tokio::task::JoinHandle<()>>,
 }
 
 impl MeerClient {
@@ -168,15 +184,99 @@ impl MeerClient {
     /// # Errors
     /// If the endpoint cannot be built.
     pub async fn connect(relay_url: &RelayUrl) -> Result<Self> {
+        Self::connect_with_key(relay_url, None).await
+    }
+
+    /// Bind a client endpoint with an explicit secret key.
+    ///
+    /// The key **is** the identity: rebinding with the same secret returns the same
+    /// `EndpointId`, and therefore the same queue. That is what lets M1 model a genuine
+    /// absence — Bob's endpoint is torn down and later rebound, not merely marked away.
+    ///
+    /// # Errors
+    /// If the endpoint cannot be built.
+    pub async fn connect_with_key(
+        relay_url: &RelayUrl,
+        secret: Option<iroh::SecretKey>,
+    ) -> Result<Self> {
         let endpoint = build_endpoint(
             "127.0.0.1:0".parse().expect("loopback bind addr"),
             relay_url,
             None,
-            None,
+            secret,
             false,
         )
         .await?;
-        Ok(Self { endpoint })
+
+        let received = Arc::new(Mutex::new(Vec::new()));
+        let sink = Arc::clone(&received);
+        let ep = endpoint.clone();
+        let accept = tokio::spawn(async move {
+            while let Some(incoming) = ep.accept().await {
+                let sink = Arc::clone(&sink);
+                tokio::spawn(async move {
+                    let Ok(conn) = incoming.await else { return };
+                    while let Ok((mut send, mut recv)) = conn.accept_bi().await {
+                        match read_bytes(&mut recv).await {
+                            Ok(bytes) if !bytes.is_empty() => sink.lock().await.push(bytes),
+                            _ => {}
+                        }
+                        let _ = write_u32(&mut send, 0).await;
+                        send.finish().ok();
+                    }
+                });
+            }
+        });
+
+        Ok(Self { endpoint, received, accept: Some(accept) })
+    }
+
+    /// Hand `bytes` straight to `peer`, bypassing the meer entirely — the live-carriage path.
+    ///
+    /// # Errors
+    /// If the peer is unreachable.
+    pub async fn live_deliver(&self, peer: EndpointAddr, bytes: &[u8]) -> Result<()> {
+        let conn = self.endpoint.connect(peer, ALPN).await?;
+        let (mut send, mut recv) = conn.open_bi().await?;
+        write_bytes(&mut send, bytes).await?;
+        send.finish()?;
+        let _ = read_u32(&mut recv).await?;
+        conn.close(0u32.into(), b"done");
+        Ok(())
+    }
+
+    /// Everything handed to this client directly (not drained from the meer).
+    pub async fn received(&self) -> Vec<Vec<u8>> {
+        self.received.lock().await.clone()
+    }
+
+    /// This client's dialable address.
+    #[must_use]
+    pub fn addr(&self) -> EndpointAddr {
+        self.endpoint.addr()
+    }
+
+    /// Can `peer` be reached right now? Discriminating: a live client answers, a torn-down one
+    /// does not, because [`Self::connect_with_key`] runs an accept loop for as long as it lives.
+    ///
+    /// # Errors
+    /// If the peer cannot be reached.
+    pub async fn probe(&self, peer: EndpointAddr) -> Result<()> {
+        let conn = self.endpoint.connect(peer, ALPN).await?;
+        let (mut send, mut recv) = conn.open_bi().await?;
+        write_bytes(&mut send, &[]).await?;
+        send.finish()?;
+        let _ = read_u32(&mut recv).await?;
+        conn.close(0u32.into(), b"probe");
+        Ok(())
+    }
+
+    /// Tear this endpoint down.
+    pub async fn close(mut self) {
+        if let Some(a) = self.accept.take() {
+            a.abort();
+        }
+        self.endpoint.close().await;
     }
 
     /// The id a depositor names to send this client mail — and the id the meer will scope this

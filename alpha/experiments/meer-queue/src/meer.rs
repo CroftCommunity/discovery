@@ -48,6 +48,16 @@ pub enum MeerError {
     },
 }
 
+/// What key material a meer holds, by kind. See [`Meer::key_inventory`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct KeyInventory {
+    /// MLS / group key material. Structurally zero — this module cannot name an MLS type.
+    pub group_keys: usize,
+    /// The meer's own storage credential (its CISS namespace keypair). Exactly one: it must
+    /// be able to write, and that is a different capability from being able to read.
+    pub storage_credentials: usize,
+}
+
 /// A blind mailbox over CISS.
 ///
 /// Holds no group state, no ordering, and no key. Its only durable state is, per recipient, a
@@ -180,6 +190,24 @@ impl Meer {
             .get(who)
             .map(|q| q.entries().iter().map(Entry::deposited_day).collect())
             .unwrap_or_default()
+    }
+
+    /// What key material this meer holds, by kind.
+    ///
+    /// Deliberately **not** a single `keys_held() -> usize` returning zero, which the plan
+    /// originally specified. A bare zero would be a tautology (this module cannot name an MLS
+    /// type, so it could not hold a group key if it tried) *and* an overstatement — the meer
+    /// does hold exactly one credential: its own CISS namespace keypair, without which it
+    /// could not write the mail anywhere. **Blind to content is not the same as
+    /// credential-less**, and M1's verdict is stronger for saying so out loud.
+    #[must_use]
+    pub fn key_inventory(&self) -> KeyInventory {
+        KeyInventory {
+            // Structural, not a count: no MLS type is reachable from this module. Phase 6
+            // asserts that mechanically with `cargo tree`.
+            group_keys: 0,
+            storage_credentials: 1,
+        }
     }
 
     /// Advance the meer's clock by `days` (the `meer-spike-clock` stand-in).

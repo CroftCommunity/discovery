@@ -270,6 +270,19 @@ Read from pinned source. Anything not listed is unverified.
 | `Endpoint::insert_relay` is public + async — runtime token swap without rebinding | `src/endpoint.rs:984` |
 | `RelayConfig::with_auth_token` sets the bearer | `iroh-relay-1.0.3/src/relay_map.rs:266` |
 
+**CISS (Pass 3 — read at the owner's direction, 2026-08-09)**
+
+| Assumption | Source |
+|---|---|
+| **The self-assertion substrate is the "one mechanism for every customer-signed setting":** `kind` + optional `subkey` + strictly-monotonic `seq`, domain-separated preimage, pure verify choke point | `CISS/src/assertion.rs:1-30` |
+| Two authorization models: **Model A** (`OwnerSigned`, an `id:` owner signs, key must derive the DID) and **Model C** (`ProviderAttested`, a `did:` owner authorizes the *action* by service-auth JWT and CISS counter-signs with a dedicated attestation key). Model C records the authorizing `jti` | `.../assertion.rs:19-27`, `:57-67` |
+| Existing kinds: `policy`, `dial/ceiling`, `dial/account-mode`, `dial/period`, `dial/receipt-mode` | `src/policy.rs:27`; `src/dials.rs`; `src/server.rs:51-54` |
+| **`ledger.rs` is a generic append-only, hash-linked, signed chain — one per actor, entries carry `kind`/`body`, `seq`/`prev_hash`, one or more signatures; `verify_entries` recomputes hashes, linkage, and signatures** | `src/ledger.rs:1-11` |
+| `statements.rs` closes periods into co-signed, hash-chained balance-forward statements with a byte-day rent integrator — an edit to a historical figure breaks the chain at that link | `src/statements.rs:1-8` |
+| **Persistence underneath is SQLite** (`Db::Memory` / `Db::File`), holding per-DID metering records | `src/server.rs:153-160` |
+| **`Did` distinguishes two disjoint identity spaces at the type level** — `id:` (CISS-native, hash of a presented key, no resolution) and `did:*` (atproto, resolved to a signing key) — with a `WrongSpace` error stopping either plane accepting the other | `src/identifiers.rs:46-58`, `:100-110` |
+| CISS is already deployed by `croft-stack` (the `tenants` role) | `croft-stack/ansible/roles/tenants/` |
+
 **Our tree**
 
 | Assumption | Source |
@@ -878,7 +891,47 @@ legitimately ours.
 - [ ] `[[bin]]` target: bind, serve the router, config for keys and store path.
 - [ ] Durable store behind a narrow interface, holding **only**: membership, and accounting/quota
       counters. Explicitly **not**: allowlists, call policies, or any pair.
-- [ ] Keep the in-memory implementation for tests.
+- [ ] **(Pass 3 — owner's direction, 2026-08-09) The store is a CISS instance of our own, reached over
+      localhost.** Not the customer-facing deployment: **our own private instance, on our host, exposed
+      to nothing but this process.**
+
+      ```
+        our host
+        ┌──────────────────────────────────────────┐
+        │  croft-admit                             │
+        │      │  HTTP over 127.0.0.1              │
+        │      ▼                                   │
+        │  CISS instance (ours, private)           │
+        │      └─ SQLite + chained signed records  │
+        └──────────────────────────────────────────┘
+      ```
+
+      **The reason is one persistence story, not two.** Backup, restore, failover, upgrade, and the
+      operational wisdom around all of it accrue to a single mechanism we are already committed to
+      running, instead of croft-admit inventing a second one that has to grow its own answers to the
+      same questions. That argument stands on its own; the feature overlap below is corroboration, not
+      the case.
+
+      Corroborating findings from source: `ledger.rs` is a generic append-only, hash-linked, signed
+      chain (one per actor, `kind`/`body`, `verify_entries` recomputing rather than trusting) — the
+      "chain kind just to this end"; persistence underneath is **already SQLite**, so "SQLite vs CISS"
+      was a false choice; and `Did` separates `id:` from `did:*` at the type level with a `WrongSpace`
+      error, so keying on atproto DIDs **does not extend the `id:` identity outside its scope** (§2's
+      standing constraint).
+
+- [ ] **(Pass 3) Scoping note, so later readers do not re-derive the concerns Pass 3 raised and
+      withdrew.** Three worries were raised against a *shared, customer-facing* CISS and do **not**
+      apply to a private instance: that membership must live on the provider-signed side because a
+      customer could otherwise assert their own membership (nobody else can reach this instance); that
+      CISS in the call-setup path is an availability coupling needing caching and buffering (it is a
+      localhost call to a process on the same host — if it is down, we are down); and that CISS's HA
+      design must be located before depending on it (the point is that whatever it becomes, it becomes
+      it once, for both). **If a shared instance is ever proposed, all three return.** One line in
+      ADR-0006 to that effect; not a Phase 6 gate.
+- [ ] Keep the in-memory implementation for tests, and keep the narrow interface **even though the
+      engine is now decided** — its job was never engine-portability, it was to make "add an allowlist"
+      awkward. CISS being a general store makes that discipline *more* necessary, not less: the engine
+      will happily hold a graph if we ask it to.
 - [ ] Fail loudly if the store path is unwritable — never silently fall back to in-memory.
 - [ ] **(Pass 3) Logging:** `INFO` on startup naming the resolved store path and the `IdIndex` mode in
       force — **the mode especially**, because `Transparent` in production is the failure this seam
@@ -920,6 +973,19 @@ legitimately ours.
       touches the store. That is a small interface written once, not speculative machinery — it is the
       "cheap but clear" line, and anything beyond it (rotation orchestration, envelope encryption,
       multi-key eras) waits until a rung above L1 is actually chosen.
+- [ ] **(Pass 3) What the hashing actually buys, stated without inflation.** We store the digest and
+      compare by digest: the caller's DID arrives in hand at call time, so the pre-image never needs to
+      be stored. Two properties follow, and the second is the one that is easy to get wrong.
+      - **The salt does nothing; the pepper does all the work.** atproto DIDs are enumerable from the
+        firehose, so a per-record salt only makes each guess cost one hash instead of zero — it does not
+        stop enumeration. What stops it is a **secret** mixed into the digest, held outside the database
+        it protects. That secret is exactly the L1 key above; there are not two mechanisms here, there
+        is one, and it is handled like a password.
+      - **Exact-match is the only query left.** No prefix scan, no readable roster, and every admin or
+        debugging surface must go through the same digest. Free for "is this caller a member"; a real
+        cost only if we later want a question we can no longer ask.
+      - Rejected in passing (owner): keeping the map only in memory. It narrows exposure to the process
+        image and costs a restart story — not worth it at this stage.
 - [ ] **The ADR states what is and is not claimed at each rung.** At L1 the property is "a leaked store
       or backup does not reveal the member roster" — **not** "the roster is protected from someone with
       the host." Without that sentence, "we hash the DIDs" gets read a year later as the stronger claim
@@ -1300,8 +1366,14 @@ measure its overhead rather than assuming it is free.
 - **[RECOMMENDED: PHASE-GATED — Phase 12]** OPEN-QUESTIONS Q5: tier-level aggregates only, or
   endpoint-level labels authorized? *Rationale: currently defaulted to tier-level; Phase 12 is where the
   default becomes a shipped choice.*
-- **[RECOMMENDED: ADVISORY]** Store engine for Phase 6. *Rationale: keep the interface narrow so it
-  stays replaceable; low stakes now, expensive after Milestone C builds on it.*
+- ~~**[ADVISORY]** Store engine for Phase 6.~~ **(RESOLVED 2026-08-09 — owner.)** **A private CISS
+  instance of our own, over localhost** — not the customer-facing deployment. The reason is *one
+  persistence story instead of two*: backup, restore, failover, and the ops wisdom around them accrue to
+  a single mechanism we are already committed to running. Corroborating: CISS is SQLite underneath (so
+  "SQLite vs CISS" was a false choice), `ledger.rs` is the chained signed store both our records want,
+  and `Did` keeps atproto and CISS-native `id:` identities disjoint at the type level, so this does not
+  extend `id:` outside its scope. Concerns Pass 3 raised against a *shared* instance were withdrawn as
+  inapplicable to a private one — see Phase 6's scoping note.
 - **[RECOMMENDED: ADVISORY]** Owning the relay release cadence becomes a standing obligation once Phase
   5 lands — we are already three releases behind on a *prebuilt* binary. Who watches upstream releases?
 
