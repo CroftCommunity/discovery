@@ -13,3 +13,16 @@
 //! `../SPEC-DIVERGENCE-REGISTER.md`. Every tag has a row; every row has a tag.
 
 pub mod ciss_harness;
+pub mod mls;
+
+/// Initialise stderr tracing for a probe or test run, honouring `RUST_LOG`.
+///
+/// Idempotent: repeated calls are ignored, so every test may call it without racing. Verdict
+/// lines go to **stdout** and never through this subscriber, so a result can never be lost to
+/// a log-level setting.
+pub fn init_tracing() {
+    let _ = tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .with_writer(std::io::stderr)
+        .try_init();
+}

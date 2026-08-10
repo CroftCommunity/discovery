@@ -1,8 +1,9 @@
 # croft-relay: cap-gated calling with a metered introduction budget
 
-- **Status:** Rewrite (2026-08-08), **Pass 2 complete against the rewrite** (2026-08-08). Supersedes the
-  2026-08-07 draft and its gap analysis — both preserved in the Review Log, not above it. Pass 3
-  (quality gates) pending; one BLOCKING open question wants an owner answer first.
+- **Status:** Rewrite (2026-08-08), Pass 2 complete against the rewrite (2026-08-08), cap distribution
+  settled out-of-band (2026-08-09). Supersedes the 2026-08-07 draft and its gap analysis — both
+  preserved in the Review Log, not above it. **12 phases** in five milestones. Pass 3 (quality gates)
+  pending; **no outstanding blocking questions.**
 - **Supersedes in part:** ADR-0001's fork-vs-embed framing; **ADR-0004's entire enforcement
   mechanism** (rate-limiting is replaced by a byte budget with a clean disconnect).
 - **Source dialogue:** `../seeds/transcripts/raw/croft-relay-tiered-admission-fork-vs-embed-2026-08-07.md`
@@ -50,10 +51,13 @@ the foreground.** The `connect` Android client is foreground-only by design — 
 needs a foreground service plus push-to-wake, which its README calls out as its own phase. Nothing in
 this plan changes that.
 
-This is stated here rather than buried in a phase because it bounds the whole product: a calling system
-where both parties must already be looking at the app is a demo, not a service. It also blocks Phase 9's
-request delivery, which assumes a way to reach someone who isn't watching. **Sequencing this work is
-out of scope for this plan, but it must not be discovered later as a surprise.**
+This is stated here rather than buried in a phase because it bounds what the plan delivers: until it is
+solved, calls connect only when both parties are already looking at the app.
+
+**It is not a blocking question for this plan.** Background reachability is per-platform work with its
+own constraints on each OS, tracked separately. Nothing here depends on it — cap distribution is
+out-of-band (§5), so no phase needs to reach a user who isn't watching. Recorded so it is not
+discovered later as a surprise, not because it gates anything below.
 
 ## 2. Problem Statement
 
@@ -227,6 +231,8 @@ cold-callable — and §5 gives it a release valve.
 | Upstream accounting patch as a dependency | Owner's call: build ours first. Kept as a future contribution, volume-only |
 | Allowlist in `croft-admit` or public in the PDS | Holds/publishes the call graph (§3.5) |
 | Time-based budget | Would evict idle campers, killing free reception (§3.1) |
+| In-band cap requests via a `croft-admit` queue | Storage and a message queue for non-members — the two things we set out not to run (§5) |
+| In-band cap requests via a record in the requester's repo | Makes "X wants to call Y" a public firehose fact; infrastructure-free but leaks the request graph (§5) |
 
 ## 4. Verified Assumptions
 
@@ -371,7 +377,7 @@ Phase 1 (record + correct; docs + toolchain + manifest) ───────┘
                               │
                               │
    Milestone B (relay binary)  →  Milestone C (admission service)
-   P2 → P3 → P4 → P5              P6 → P7 → P8 → P9
+   P2 → P3 → P4 → P5              P6 → P7 → P8
                                   (P8 consumes P3's usage records)
                               │
                     Milestone D (client + lexicon)
@@ -926,12 +932,10 @@ measure its overhead rather than assuming it is free.
 - ~~**[Phase 1]** Hoist dependency entries to keep B and C parallel?~~ **(Pass 2: MOOT.)** Phase 4
   writes `crates/croft-admit/src/tier.rs`, a Milestone C file, so B ∥ C is disqualified by something no
   hoist can fix. B and C run sequentially and each adds its own deps per the repo's rule.
-- **[RECOMMENDED: BLOCKING] (Pass 2 — new)** Reachability. The whole product currently requires both
-  parties to have the app in the foreground (§1.1), and Phase 9's request delivery has no transport at
-  all. Does the foreground-service + push-to-wake work land before this plan executes, or does Phase 9
-  ship degraded (request queued until the callee next opens the app)? *Rationale: it bounds what any of
-  this delivers. A calling service where both parties must already be watching is a demo. This is not
-  this plan's work, but this plan cannot honestly claim a working product without it.*
+- ~~**[BLOCKING]** Reachability / request delivery transport.~~ **(RESOLVED 2026-08-09: out-of-band cap
+  distribution only.)** With no in-band request there is nothing to deliver, so nothing in this plan
+  needs to reach a user who isn't watching. Foreground reachability remains real per-platform work
+  (§1.1) but gates none of this. Phase 9 was removed and its content folded into Phase 10.
 - **[RECOMMENDED: PHASE-GATED — Phase 6] (Pass 2 — new)** Does `IdIndex` still earn its place? Its
   original rationale (breaking cross-list correlation) died with the lists. The surviving value is that
   a leaked accounting store doesn't expose the member roster. *Rationale: keep it for that reason, or
@@ -1075,6 +1079,33 @@ entries; one open question mooted, two added (one BLOCKING).
 - The reasoning in §1 and §3 survives: every finding is missing or mis-specified *work*, not a wrong
   direction.
 
-**Next:** Pass 3 (quality gates — TDD ordering, diagnostic logging, validation calibration). Note that
-the BLOCKING reachability question is not a Pass-3 item; it wants an answer from the owner first,
-because it may change what Phase 9 is for.
+### Cap distribution settled — 2026-08-09
+
+The Pass-2 BLOCKING question was poorly framed: it conflated **platform reachability** (per-OS work the
+owner had already correctly scoped out) with a design question that was ours — *does a cap request need
+an in-band path at all?* Re-asked properly, the owner's answer was immediate: **out-of-band is the only
+model we are pursuing.**
+
+**Changed:**
+
+- §5 rewritten from "the request-to-token flow" to "cap distribution: out-of-band only," with the two
+  rejected in-band shapes recorded — the `croft-admit` queue, and the requester's-repo record that
+  looks infrastructure-free but makes "X wants to call Y" a public firehose fact. Both added to the
+  alternatives table.
+- **Phase 9 removed.** With no in-band request, `croft-admit` never sees one and had nothing to build:
+  the policy record is a lexicon concern and cap issuance is the callee's client writing to its own
+  repo. Both folded into Phase 10, which is now "per-device lexicon, policy record, and cap
+  distribution." Phase count 13 → 12; Milestone C is P6–P8.
+- **The policy record's role narrowed to advisory UI.** It tells the exchange page what to render; the
+  cap is the only gate. Phase 10 now asserts that a valid cap is admitted **regardless** of the policy
+  setting, so nobody can quietly turn the policy into a second gate.
+- §1.1 downgraded from a blocking question to a stated precondition, with an explicit note that nothing
+  below depends on it.
+- The BLOCKING open question struck, marked resolved.
+
+**Confirmed:** the identity-leak property survives — the grant record carries an opaque cap id and
+names nobody, the policy record is an enum rather than a list, and the page refuses identically for
+`nobody` and for a nonexistent handle.
+
+**Next:** Pass 3 (quality gates — TDD ordering, diagnostic logging, validation calibration). No
+outstanding blocking questions.

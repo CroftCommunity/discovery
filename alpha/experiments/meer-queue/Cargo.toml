@@ -35,6 +35,14 @@ openmls_rust_crypto = "=0.5.1"
 openmls_basic_credential = "=0.5.0"
 openmls_traits = "=0.5.0"
 tls_codec = "0.4"
+thiserror = "2"
+
+# Diagnostics. Three independent failure surfaces live in one process (openmls, axum,
+# iroh); "the test failed" does not say which. Matches the ancestor's pattern
+# (mls-welcome-over-iroh/src/main.rs). Expected negative outcomes -- M2's re-frame
+# rejection, S7's decrypt failure -- are RESULTS, logged as such, never as errors.
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Real iroh transport. relay.rs / node.rs are COPIED from
 # ../iroh/crates/mls-welcome-over-iroh (which path-depends on Proofs/lineage-mls, a

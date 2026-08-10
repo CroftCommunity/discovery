@@ -1,8 +1,8 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phase 1 (CISS harness) GREEN 2026-08-09.**
-All three planning passes complete, all 5 open questions resolved. Phases 2–14 not started. Phase 0 falsified one hypothesis inside M2 and forced
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–2 GREEN 2026-08-09.**
+All three planning passes complete, all 5 open questions resolved. Phases 3–14 not started. Phase 0 falsified one hypothesis inside M2 and forced
 seven plan changes — see § Phase 0 outcomes.
 
 **Executes:** `alpha/experiments/meer-queue/SPIKE-SPEC.md` (M1, M2, S1–S8)
@@ -569,7 +569,20 @@ boundary is real HTTP and not an in-process shortcut.
 
 ---
 
-### Phase 2: MLS layer
+### Phase 2: MLS layer — ✅ GREEN 2026-08-09
+
+> **Executed.** RED first (unresolved import `meer_queue::mls`), then GREEN: 3 tests, clippy clean.
+> Three mutations run, all killed:
+> - **`seal` replaced with an XOR placeholder** — the methodology's canonical forbidden move. Killed
+>   at the `wire_format()` assertion. Worth recording *why*: the weaker "plaintext is not in the
+>   bytes" check **passes under XOR**, so it was the Pass-3 framing assertion, not the obvious one,
+>   that caught it. The mutation-resistance addition earned its place empirically.
+> - **Banner drifted from the manifest** (`0.5.0`→`0.4.9`) — killed by the `Cargo.toml` cross-check.
+> - **`open` panics instead of returning `Err`** — killed by the S7 pre-condition test.
+>
+> **Deliberate deviation from the plan's signature:** `open` returns `Result`, not `Vec<u8>`. S7 must
+> record *the named error a non-member receives*, and an unwinding panic cannot be recorded. Pinned
+> by a test so it cannot regress.
 
 **Goal:** Real OpenMLS application messages on top of `mls-replant`'s group construction.
 **Changes:**
