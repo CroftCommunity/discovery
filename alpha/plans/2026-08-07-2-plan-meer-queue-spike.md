@@ -1,8 +1,8 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–7 GREEN 2026-08-10.**
-All three planning passes complete, all 5 open questions resolved. Phases 8–14 not started.
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–8 GREEN 2026-08-10.**
+All three planning passes complete, all 5 open questions resolved. Phases 9–14 not started.
 **Both must-pass claims are settled: M1 CONFIRMED (real-lib); M2's positive arm CONFIRMED and its
 negative-arm hypothesis FALSIFIED (real-lib), with the `MUST` upheld on stronger grounds.**
 Verdicts in `alpha/experiments/meer-queue/TEST-LOG.md`. Phase 0 falsified one hypothesis inside M2 and forced
@@ -933,7 +933,22 @@ sources because the whole point of S2 is that the dedup is CISS's, not our bookk
 
 ---
 
-### Phase 8: S4 — multi-device and deliver-once
+### Phase 8: S4 — multi-device and deliver-once — GREEN 2026-08-10
+
+> **S4 FALSIFIED (real-lib)** for naive deliver-once, exactly as predicted: the laptop starves.
+> Rung-A follow-up for the with-device-group arm filed as **ROADMAP_TODO E92**. Write-up in
+> `TEST-LOG.md`.
+>
+> **The second measurement is the one that matters.** Racing across two enrolled devices costs
+> **1 deposit, 1 stored object, 2 queue entries** — the blob is shared, only the reference
+> duplicates. So the fallback is nearly free at the meer, and the §6.6.5 dependency buys less than
+> the doc's framing implies. The real trade is **metadata** (racing reveals device count to a node
+> whose whole posture is knowing less) and **retention** (entries persist until every device acks),
+> versus **a dependency on a mechanism that does not exist yet**. Not "correct vs compromise".
+>
+> **Recorded from the failure mode:** a starving device and an idle device are **indistinguishable
+> at the meer** — both have an empty queue. That is why device-group presence has to be asserted at
+> enrolment (a property of the custodial grant, not of the message) and must fail closed.
 
 **Goal:** Make the deliver-once dependency concrete rather than asserted. **The scenario the ask
 singles out.**

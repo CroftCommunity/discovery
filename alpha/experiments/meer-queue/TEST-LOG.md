@@ -334,7 +334,84 @@ ratchet rather than to the queue.
 
 ---
 
-## S1, S4–S8
+## S4 — Multi-device and deliver-once
 
-Not yet run. S4 (multi-device) Phase 8; S5/S6 Phase 9; S7 Phase 10; S8 Phase 11; S1 (enrollment,
+**Claim.** From `meer-as-custodian-queue.md` §"Cursors and delivery": *"Deliver-once is correct, not
+a compromise. §6.6.5 guarantees that if any one of a persona's enrolled devices receives a message,
+every enrolled device eventually sees it, so the device-Group is the fan-out and the meer must not
+duplicate it."*
+
+**Two arms, two different rungs — stated up front so the result is not over-read.**
+
+| arm | rung | why |
+|---|---|---|
+| without a device group | **A (real-lib)** | real group, real transport, real prune-on-ack |
+| with a device group | **NOT TESTED** | §6.6.5 fan-out is not built; standing in for it would substitute for the exact mechanism the claim is about |
+
+**Code.** `tests/s4_multi_device.rs`.
+
+**Raw output.**
+```
+S4 FALSIFIED-AS-EXPECTED (real-lib, without-device-group arm): the phone received and acked;
+the laptop drained its own queue and got 0 messages. Naive deliver-once starves a second
+enrolled device. The compensating mechanism (§6.6.5 device-group fan-out) is NOT BUILT and is
+NOT TESTED here.
+
+S4 MEASURED (real-lib): racing across 2 enrolled devices costs 1 deposit(s), 1 stored
+object(s), and 2 queue entries.
+```
+
+**Verdict: `S4 FALSIFIED (real-lib)` for naive deliver-once; `S4 with-device-group arm NOT TESTED —
+Rung-A follow-up filed as ROADMAP_TODO E92`.**
+
+### Design consequence — the second measurement matters more than the first
+
+The starvation is what the plan predicted, so on its own it changes little. **The measurement beside
+it does change something:** racing across two enrolled devices costs **one deposit, one stored
+object, and two queue entries.** The blob is shared; only the queue reference is duplicated.
+
+So the fallback the doc treats as the lesser option is **nearly free at the meer**, and the §6.6.5
+dependency is buying less than the framing implies. The doc argues deliver-once is *correct rather
+than a compromise* **because** the device group fans out. But if the alternative costs one extra
+queue entry per device and no extra storage or transit, correctness is not what the argument is
+really about.
+
+**The honest trade, restated from the measurement:**
+
+| | deliver-once (+ device group) | race across enrolled devices |
+|---|---|---|
+| meer cost | 1 queue entry, prune on 1 ack | N queue entries, prune per device |
+| storage | 1 object | 1 object (**unchanged**) |
+| transit | 1 deposit | 1 deposit (**unchanged**) |
+| metadata to the meer | device count hidden | **device count revealed** |
+| dependency | **needs §6.6.5 fan-out to exist** | none |
+
+That is a materially better-framed dial than "deliver-once is correct." The real cost of racing is
+**metadata** — the meer learns how many devices a persona has, which the blindness posture exists to
+minimise — plus longer retention, since entries persist until every device acks. The real cost of
+deliver-once is a dependency on a mechanism that is not built.
+
+**Neither is obviously right, and the spike does not resolve it** — that is E92's job, once §6.6.5
+exists and the with-arm can be run at Rung A.
+
+### The with-device-group arm, reasoned (NOT measured)
+
+Recorded as reasoning, explicitly not evidence. For deliver-once to be safe, the meer must **detect**
+whether a device group is present — the doc calls this "a detectable condition, not a preference."
+Two things that detection would have to be true of, both visible from this arm's failure:
+
+1. **It must be observable to the meer without reading the seal.** The meer cannot inspect group
+   membership — that is the blindness. So presence has to be asserted out of band, at enrolment,
+   which makes it a property of the *custodial grant* rather than of the message.
+2. **It must fail closed.** If presence is asserted but the fan-out silently stops working, the
+   result is exactly this test: a device that never learns it is missing anything. Nothing in the
+   drain path would surface it, because a starved device's queue is *legitimately* empty — it looks
+   identical to having nothing waiting. **A starving device and an idle device are indistinguishable
+   at the meer**, which is why the dial cannot be left to a default.
+
+---
+
+## S1, S5–S8
+
+Not yet run. S5/S6 Phase 9; S7 Phase 10; S8 Phase 11; S1 (enrollment,
 Rung C static) Phase 12.
