@@ -1082,15 +1082,20 @@ handle that does not resolve → deny; DID that resolves to no PDS → deny; PDS
 PDS returning **valid JSON of the wrong shape** → deny (not a panic, and not a partial parse that
 proceeds); PDS that **hangs past the timeout** → deny, and within the timeout, not whenever the socket
 eventually gives up; `did:web` whose `.well-known` is a redirect to another host → deny. Plus the cache:
-a second lookup inside the TTL makes no network call; one after it does; and **a failed lookup is not
-cached**, or one plc.directory blip locks a user out for the whole TTL.
+a lookup **inside the refresh age** makes no network call; one **past the refresh age but inside
+max-stale** serves the cached entry **and** triggers a refresh (assert both halves — serving stale
+without refreshing, and refusing to serve while refreshing, are different bugs that a single assertion
+misses); one **past max-stale** with the upstream unreachable **refuses**; a **failed** lookup is not
+cached, or one plc.directory blip locks a user out; and **N concurrent misses for the same DID produce
+one upstream call**, not N.
 **Depends on:** Phase 6.
 **Read-set:** `crates/croft-admit/src/{pds,did,enroll}.rs`, `CISS/crates/ciss-auth/src/lib.rs`.
 **Write-set:** `crates/croft-admit/src/{pds_client,did_doc,cache}.rs`, `Cargo.toml`.
 **Shared-state contract:** **(Pass 3 — invariants.)** First outbound network dependency in this crate.
 No test resolves a hostname outside `127.0.0.1`; the fixture server binds `:0`; **CI makes no egress
 whatsoever**, and the resolver's base URLs are injected by config so a test can point them at the
-fixture rather than relying on a network being absent. Cache is process-local, bounded, and never
+fixture rather than relying on a network being absent. **Clock is injected**, so the two cache ages are
+tested by advancing time, never by sleeping. Cache is process-local, bounded, and never
 written to disk. The one live run against the owner's test account is **manual and recorded in
 `evidence/`** — it is not part of any `cargo test` invocation.
 **Risks:** Under-scoping this a second time — handle resolution, DID methods, PDS discovery, document

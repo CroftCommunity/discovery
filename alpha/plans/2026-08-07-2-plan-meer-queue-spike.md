@@ -1,9 +1,11 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–5 GREEN 2026-08-09/10.**
-All three planning passes complete, all 5 open questions resolved. Phases 6–14 not started.
-**M1 CONFIRMED (real-lib) — the first must-pass claim holds.** Phase 0 falsified one hypothesis inside M2 and forced
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–6 GREEN 2026-08-10.**
+All three planning passes complete, all 5 open questions resolved. Phases 7–14 not started.
+**Both must-pass claims are settled: M1 CONFIRMED (real-lib); M2's positive arm CONFIRMED and its
+negative-arm hypothesis FALSIFIED (real-lib), with the `MUST` upheld on stronger grounds.**
+Verdicts in `alpha/experiments/meer-queue/TEST-LOG.md`. Phase 0 falsified one hypothesis inside M2 and forced
 seven plan changes — see § Phase 0 outcomes.
 
 **Executes:** `alpha/experiments/meer-queue/SPIKE-SPEC.md` (M1, M2, S1–S8)
@@ -801,7 +803,25 @@ reaches no openmls crate, so "holds no key" is structural.
 
 ---
 
-### Phase 6: M2 — byte-identical forwarding, and the negative case
+### Phase 6: M2 — byte-identical forwarding, and the negative case — GREEN 2026-08-10
+
+> **M2 positive arm CONFIRMED (real-lib); negative-arm hypothesis FALSIFIED (real-lib).** Full
+> write-up in `TEST-LOG.md`, including the normative-text flag against Part 2 §6.6.2 (the `MUST`
+> stands; the rationale it gives names the wrong hazard — re-framing rather than re-sealing).
+>
+> Two mutations killed: the meer altering a byte on the way out, and `meer.rs` gaining an `openmls`
+> import. Both restores went through `git checkout HEAD -- <path>` from a committed green state,
+> which is the corrected discipline.
+>
+> **A plan mechanism that did not exist as specified.** The plan called for asserting the meer's
+> blindness via `cargo tree`. `cargo tree` resolves **crates**, and the meer is a **module** in a
+> crate that also contains the MLS layer — crate-granularity tooling cannot see a module-granularity
+> boundary. Replaced with a source-level lint and **labelled as a lint, not a guarantee**.
+> Recommendation recorded for the meer lane's Phase 2: split the meer into its own crate, where the
+> gateway is a separate process anyway, and the compiler enforces what the lint currently asserts.
+>
+> **`TEST-LOG.md` was created here rather than in Phase 5 as planned** — a gap from the previous
+> phase, caught and closed. It now carries both M1 and M2.
 
 **Goal:** The second must-pass claim. **Restructured after Phase 0 — the spec's negative-arm
 hypothesis was falsified by D3 before the arm was written.**
