@@ -381,9 +381,15 @@ Read from pinned source. Anything not listed is unverified.
   `connect/docs/contract.md` evidences only `resolveHandle` and `getRecord` (which are working,
   deployed code). `listRecords` is this plan's addition and is asserted from general knowledge. Confirm
   against the atproto lexicon before Phase 10 builds the contract on it.
-- **(Pass 2) That post-upgrade bytes traverse our `CountingStream`.** The mechanism is understood
-  (hyper hands the original IO to the upgraded task) but untested. Phase 3 asserts it; the counting
-  design fails silently if it does not hold.
+- ~~**(Pass 2) That post-upgrade bytes traverse our `CountingStream`.**~~ **REFUTED at source,
+  Phase 3 start (2026-08-10) — and worse than "does not hold": the in-line decorator cannot exist at
+  all.** After the websocket upgrade the relay **downcasts the IO to exactly
+  `TokioIo<MaybeTlsStream>`** (`http_server.rs:95-96`; failure is a runtime error per `:321`), and
+  `MaybeTlsStream` is `#[non_exhaustive]` with concrete variants — `Plain(TcpStream)`,
+  `Tls(TlsStream<TcpStream>)` (`streams.rs:194-202`). Any interposed type, above or below, breaks
+  every relay connection. Phase 3's design was revised to the loopback airlock (see the phase and the
+  Review Log); the assumption this row replaced is now trivially true in the revised shape, because
+  the airlock pump carries every byte of the connection's lifetime, upgrade included.
 
 ## 5. Cap distribution: out-of-band only
 
@@ -2099,3 +2105,39 @@ the weakest assertion in the file and is noted as such), then implemented to gre
 - **Verification:** workspace 12 suites green (4 through the running binary), clippy clean,
   `cargo fmt --check` clean. Hand-run against a real iroh endpoint (the phase's Moderate validation)
   remains open until one is convenient; the relay-client legs cover the protocol path meanwhile.
+
+### Phase 3 course-correction: the in-line decorator cannot exist — 2026-08-10
+
+The phase's own "verify in-phase, do not assume" bullet fired **before implementation**, at the
+source level. `Upgraded::downcast::<TokioIo<MaybeTlsStream>>()` (`http_server.rs:96`) recovers the
+concrete IO type after the websocket upgrade; `MaybeTlsStream` is `#[non_exhaustive]` over concrete
+`TcpStream` variants. So the Pass-2 design — wrap the stream, hand it to `serve_connection` — breaks
+the downcast and with it every relay connection. Not "untested": impossible.
+
+**Revised design — the loopback airlock.** The public connection never reaches the relay directly:
+
+```
+public accept → CountingStream<TcpStream> ──pump──▶ loopback TCP ──▶ internal accept
+                (counts every byte,                                    │ port map → ConnState
+                 connection lifetime,                                  ▼
+                 upgrade included)                     serve_connection(MaybeTlsStream::Plain(tcp))
+                                                       — a REAL TcpStream: downcast intact
+```
+
+- `CountingStream` survives as planned, on the **public** side, where every byte of the connection's
+  lifetime passes — the refuted assumption becomes trivially true.
+- The relay side is untouched upstream code over a genuine `TcpStream`.
+- **The join gains a fourth participant** but keeps the token as its key: the pump binds its loopback
+  client socket **before** connecting (port known → `ConnState` registered → no accept race), the
+  internal accept resolves peer-port → `ConnState`, the per-connection Service wrapper reads the
+  token, and `on_connect` supplies `endpoint_id`/`connection_id`.
+- **Bypass guard:** the internal listener drops any connection whose peer port is not in the map —
+  a local process cannot skip the meter. (In production the netns already isolates the listener;
+  the guard makes the property hold everywhere, not just there.)
+- **Cost, named:** one extra user-space copy and a loopback socket pair per connection, on the
+  relay's data path. Accepted: it is the price of counting without forking, and Phase 12 already
+  measures decorator overhead. The upstream accounting hook remains the future contribution that
+  would delete this cost.
+- **Usage records** are emitted as one structured line on the dedicated `usage` tracing target at
+  connection close — the §8.3 "human-readable shadow" is, for now, also the machine-readable surface
+  the wiring test parses; Phase 8 settles the real transport.
