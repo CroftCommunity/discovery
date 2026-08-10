@@ -826,7 +826,7 @@ it, take only what is needed, record deliberate omissions in the config doc.
 deliberately: we want the numbers before we act on them.
 
 **Changes:**
-- [ ] `CountingStream<S>`: implements `AsyncRead`/`AsyncWrite`, increments byte counters, wraps the
+- [x] `CountingStream<S>`: implements `AsyncRead`/`AsyncWrite`, increments byte counters, wraps the
       stream before it is handed to `serve_connection`.
 - [ ] **(Pass 2 — corrected design.) Two decorators, not one.** The Pass-1 text said "the token is read
       at dispatch, before the wrap, so the association is available at wrap time." That is **wrong**:
@@ -851,21 +851,21 @@ deliberately: we want the numbers before we act on them.
       ```
 
       The result is `(endpoint_id, connection_id, bytes)` — exactly what Phase 4's `disconnect` needs.
-- [ ] **Verify in-phase, do not assume:** that post-upgrade traffic still flows through `CountingStream`.
+- [x] **Verify in-phase, do not assume:** that post-upgrade traffic still flows through `CountingStream`.
       The Service takes the upgrade from the request (`handle_relay_ws_upgrade`), and hyper hands the
       original IO to the upgraded task, so it should — but the entire counting design rests on it, so
       assert it with a test that pushes a known payload *after* the websocket is established.
-- [ ] The authoritative verification stays in `on_connect`; the wrapper's token read is for attribution
+- [x] The authoritative verification stays in `on_connect`; the wrapper's token read is for attribution
       only and must never be treated as authorization.
-- [ ] On close, emit `(subject, bytes_in, bytes_out, duration)`.
-- [ ] Document that the count includes framing — an **upper bound**, suitable for budgets and capacity,
+- [x] On close, emit `(subject, bytes_in, bytes_out, duration)`.
+- [x] Document that the count includes framing — an **upper bound**, suitable for budgets and capacity,
       never described as billing.
-- [ ] **(Pass 3) Logging, at exactly one point:** `DEBUG` on close, carrying `endpoint_id`,
+- [x] **(Pass 3) Logging, at exactly one point:** `DEBUG` on close, carrying `endpoint_id`,
       `connection_id`, byte totals, duration. **Nothing is logged inside `CountingStream` itself** —
       it sits in every byte's path, so a log call there is a performance bug and, at `TRACE`, a
       content-adjacent one. The usage record *is* the observability for this phase; the log line is its
       human-readable shadow. Per §8.3 the record names one endpoint, never a pair.
-- [ ] **(Pass 3) Diagnose the join failing, don't just fail it.** The three-way token join is the
+- [x] **(Pass 3) Diagnose the join failing, don't just fail it.** The three-way token join is the
       fragile part of this design. If a connection closes with a counter that was never associated with
       a token, emit `WARN` with the connection id — an unattributed connection is either a bug in the
       join or a client that never authenticated, and Phase 4 will silently fail to enforce against it.
@@ -2141,3 +2141,25 @@ public accept → CountingStream<TcpStream> ──pump──▶ loopback TCP ─
 - **Usage records** are emitted as one structured line on the dedicated `usage` tracing target at
   connection close — the §8.3 "human-readable shadow" is, for now, also the machine-readable surface
   the wiring test parses; Phase 8 settles the real transport.
+
+### Phase 3 executed — 2026-08-10
+
+Commit `536cb7a` on `relay-bin` (PR #6). The course-correction entry above records the refutation
+that opened the phase; this records the build.
+
+- **RED honestly:** the wiring test failed against the Phase-2 binary (no records emitted), then
+  drove the airlock green. `CountingStream` has exact-count unit tests at the duplex level; the
+  wiring assertions are the plan's named set — the 10× ratio measured **9.5×**, no
+  cross-attribution, record ≥ post-upgrade payload, and the unattributed-WARN-no-record path.
+- **The join completes on deny as well as admit** — a denied handshake still has an authenticated
+  endpoint worth attributing, so even a rejected connection's bytes land under a subject.
+- **One field bug, fixed in the binary not the parser:** `tracing` emitted ANSI color codes to a
+  piped stderr, so `bytes_in=` was never a literal substring of the record line. `with_ansi(false)` —
+  stderr is a record surface and a journal, not a terminal. The kind of bug only a
+  through-the-binary test catches.
+- **Validation (Broad, as Pass 3 re-rated it):** 13 suites green, clippy zero warnings, fmt clean;
+  the formerly load-bearing unverified assumption is now true **by construction** (the airlock pump
+  carries the connection's whole lifetime) and asserted anyway.
+- **Carried forward to Phase 12:** the airlock adds one user-space copy and a loopback socket pair
+  per connection on the data path — the overhead measurement Phase 12 already owns now has a
+  concrete thing to measure.
