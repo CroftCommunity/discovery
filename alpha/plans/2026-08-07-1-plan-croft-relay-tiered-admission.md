@@ -36,7 +36,7 @@ Two independent gates, and keeping them independent is what makes the design coh
 So the matrix is:
 
 ```
-  no cap                    → cannot call (may be able to *request* a cap — see §5)
+  no cap                    → cannot call (may ask for one out of band — see §5)
   cap, neither is a member  → introduced. Byte budget. Spent → connection dropped, cleanly.
   cap, either is a member   → carried. No budget.
 ```
@@ -180,7 +180,7 @@ wrap it in a struct implementing `AsyncRead`/`AsyncWrite` that increments a coun
 It counts framing as well as payload, so it is an **upper bound**. That is fine for a budget and for
 capacity planning, and it must never be described as billing.
 
-### 3.5 Why caps live in the caller's own repo
+### 3.5 Why caps live in the callee's own repo
 
 A cap is a durable statement by the callee that a specific person may call them. Three homes were
 considered:
@@ -383,7 +383,7 @@ Scheduled into the phase that makes each reference stale.
 - `beta/OPEN-THREADS.md` T62 — gates rewritten: budget sizing, deployment, and the `insert_relay` reconnect question. Phase 1.
 - `alpha/experiments/EXPERIMENT-BACKLOG.md` §6j, `alpha/COHESION.md`, `alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`. Phase 1.
 - `alpha/ROADMAP_TODO.md` + `alpha/plans/croft-stack/06-iroh-relay.md` — own musl artifact replaces the prebuilt tarball; 1.0.0 → 1.0.3. Phase 5.
-- **`CroftCommunity/connect` `docs/contract.md`** — lexicon moves to per-device records; `getRecord` → `listRecords`; adds the request-policy record. Cross-repo. Phase 10.
+- **`CroftCommunity/connect` `docs/contract.md`** — lexicon moves to per-device records; `getRecord` → `listRecords`; adds the grant and policy records. Cross-repo. Phase 10.
 - ~~`.claude/CI-PATTERN.md` — grepped: no change needed; `croft-relay` is already in the smoke
   matrix.~~ **(Pass 3: retired by the relocation.)** Superseded by the two CI items below.
 - **(Pass 3)** `discovery/.github/workflows/smoke.yml` — **remove** the `croft-relay` matrix entry; the
@@ -663,7 +663,6 @@ depends on it.
       pin must agree with croft-stack's new gate, not `discovery`'s smoke workflow.
 - [ ] Fix the stale MSRV comment in the workspace `Cargo.toml` (it claims `iroh-relay 1.0.0-rc.1`;
       it has been 1.0.3 since ADR-0005).
-- [ ] *(Conditional — see Concurrency Map and Open Questions)* the hoisted root-manifest edit.
 
 **Call chain:** n/a (docs plus one toolchain/manifest edit).
 **Wiring test:** the repo's `build + broken-ref` gate passes on changed references. **Note it is
@@ -976,7 +975,8 @@ changing how the binary arrives.
 legitimately ours.
 
 **Changes:**
-- [ ] `[[bin]]` target: bind, serve the router, config for keys and store path.
+- [ ] `[[bin]]` target: bind, serve the router, config for keys and the store backend (post-relocation:
+      the private CISS instance's localhost URL and credentials — see below).
 - [ ] Durable store behind a narrow interface, holding **only**: membership, and accounting/quota
       counters. Explicitly **not**: allowlists, call policies, or any pair.
 - [ ] **(Pass 3 — owner's direction, 2026-08-09) The store is a CISS instance of our own, reached over
@@ -1020,14 +1020,25 @@ legitimately ours.
       engine is now decided** — its job was never engine-portability, it was to make "add an allowlist"
       awkward. CISS being a general store makes that discipline *more* necessary, not less: the engine
       will happily hold a graph if we ask it to.
-- [ ] Fail loudly if the store path is unwritable — never silently fall back to in-memory.
-- [ ] **(Pass 3) Logging:** `INFO` on startup naming the resolved store path and the `IdIndex` mode in
-      force — **the mode especially**, because `Transparent` in production is the failure this seam
-      exists to prevent and it is otherwise indistinguishable from `Keyed` at runtime. `ERROR` on store
-      open failure with the path and the OS error. `DEBUG` per admission decision with its outcome.
-      Never log a stored identifier's pre-image in `Keyed` mode — logging the DID next to its digest
-      defeats the seam entirely, and it is exactly what someone debugging a lookup mismatch will reach
-      for.
+- [ ] Fail loudly if the store is unreachable or refuses writes at startup — never silently fall back
+      to in-memory. **(Free-form pass, 2026-08-10: reworded from "store path unwritable" — with CISS as
+      the backend, the failure is a localhost connection or auth refusal, not a filesystem error. The
+      principle is unchanged: a croft-admit that starts without durable storage is lying about every
+      acknowledgment it sends.)**
+- [ ] **(Free-form pass) The persistence test needs a CISS binary, which is a cross-repo test
+      dependency.** The wiring test below restarts the store, so it must run a real CISS process against
+      a tmp SQLite file — the in-memory store impl proves nothing about survival. Source it by the
+      owner's standing dependency rule (ours → git pin): a pinned CISS release artifact or a build from
+      the pinned commit, fetched in CI the same way `ciss-auth` is. Settle the mechanics at phase start;
+      what is not acceptable is the test silently downgrading to the in-memory impl when no CISS binary
+      is present — absent binary, the test **fails**, not skips.
+- [ ] **(Pass 3) Logging:** `INFO` on startup naming the resolved store backend (the CISS URL, never
+      its credentials) and the `IdIndex` mode in force — **the mode especially**, because `Transparent`
+      in production is the failure this seam exists to prevent and it is otherwise indistinguishable
+      from `Keyed` at runtime. `ERROR` on store-unreachable with the URL and the error class. `DEBUG`
+      per admission decision with its outcome. Never log a stored identifier's pre-image in `Keyed`
+      mode — logging the DID next to its digest defeats the seam entirely, and it is exactly what
+      someone debugging a lookup mismatch will reach for.
 - [ ] `IdIndex` seam over stored identifiers: `Transparent` (dev/test) and `Keyed`, both behaviourally
       tested, with the migration written now while the store is small.
       **(Pass 2 — the rationale was stale.)** The Pass-1 form was `HMAC(k, member ‖ counterpart)`,
@@ -1080,12 +1091,13 @@ legitimately ours.
       by someone who does not know which rung is in force. In keyed mode an absent key is a hard error,
       never a silent fall back to `Transparent`.
 
-**Call chain:** `main()` → config → store open → router → bind → serve.
-**Wiring test:** Start the binary against a tmp store, record a membership over HTTP, **restart the
-process**, and confirm it survives. Restart is the assertion — an in-memory store passes every test
-that does not restart.
+**Call chain:** `main()` → config → store connect (CISS over localhost) → router → bind → serve.
+**Wiring test:** Start a CISS instance against a tmp SQLite file, start the `croft-admit` binary
+against it, record a membership over HTTP, **restart both processes**, and confirm it survives.
+Restart is the assertion — an in-memory store passes every test that does not restart, and restarting
+only croft-admit would prove CISS's durability rather than our wiring to it.
 **(Pass 3) Named behaviours, RED-first:** membership survives restart; an accounting counter survives
-restart **with its value**, not merely its existence; an unwritable store path aborts startup rather
+restart **with its value**, not merely its existence; an unreachable store aborts startup rather
 than degrading; `Keyed` mode with no key present is a hard error at startup, not a fallback to
 `Transparent`; a value written under `Transparent` and migrated is retrievable under `Keyed` (the
 migration is the part that is written once and run once, which is precisely when it is never tested);
@@ -1093,13 +1105,16 @@ lookups by an identifier that was never stored return absent rather than errorin
 **Depends on:** Phase 1.
 **Read-set:** `crates/croft-admit/src/{registry,access,http_api,enroll}.rs`.
 **Write-set:** `crates/croft-admit/src/{store,id_index,main}.rs`, `Cargo.toml`.
-**Shared-state contract:** **(Pass 3 — invariants.)** Binds only `:0` ports. Opens a store only at a
-path given by config, never a default under `$HOME` or the repo. Reads exactly one environment variable
-(the `IdIndex` key) and refuses to start in `Keyed` mode without it — it never falls back. Deletes no
-store it did not create. Tests leave no file outside their tmpdir.
+**Shared-state contract:** **(Pass 3 — invariants; free-form pass — restated for CISS.)** Binds only
+`:0` ports. Talks to a store only at the URL given by config — never a discovered or default one — and
+in tests that URL is always `127.0.0.1`. The test's CISS instance uses a tmp SQLite path and is owned
+by a guard that kills it on drop. Reads exactly one environment variable (the `IdIndex` key) and
+refuses to start in `Keyed` mode without it — it never falls back. Tests leave no file outside their
+tmpdir and no process running after the test binary exits.
 **Risks:** Scope creep back into holding a graph. The store's interface should make "add an allowlist"
-awkward rather than easy. Second: store-engine choice has a long tail — keep the interface narrow so it
-stays replaceable.
+awkward rather than easy — and CISS being a general store makes the discipline more necessary, not
+less. Second (free-form pass): the CISS-binary test dependency is a build-order coupling CI must
+actually satisfy; a skipped-not-failed persistence test would hollow this phase out silently.
 **Done when:**
 1. **Behavioral:** Membership and accounting survive restart; nothing about relationships is stored.
 2. **Verification:** `cargo test -p croft-admit --test persistence` (starts the **binary**, not the
@@ -1204,7 +1219,8 @@ carrying tier and budget.
 
 **Changes:**
 - [ ] Cap format: an opaque id, plus whatever the holder presents to prove possession. The callee's repo
-      holds a grant record naming **only** the opaque id.
+      holds a grant record naming the opaque id and its device scope — **never a grantee** (free-form
+      pass: aligned with the device-scope ruling below; "only the opaque id" was the pre-scope wording).
 - [ ] Verification: fetch the issuer's grant records (Phase 7, cached), confirm the presented cap
       matches a live record.
 - [ ] **(Pass 3 — owner, 2026-08-09) Mint the device scope into the token.** The grant record carries
@@ -1217,11 +1233,31 @@ carrying tier and budget.
       record to stop re-issue. Expiry alone would let a revoked cap keep minting until it lapsed;
       record-deletion alone would leave already-minted tokens live. Together, revocation takes effect
       within one token lifetime and cannot be renewed.
+- [ ] **(Free-form pass, 2026-08-10) The mint-time grant read must not ride Phase 7's identity cache,
+      or the line above is false.** Phase 7 caches with a ~1h refresh age — sized for DID documents,
+      where staleness buys bandwidth. A grant record served from that cache keeps a **deleted** grant
+      minting for up to the refresh age, and "within one token lifetime" silently becomes "within cache
+      age *plus* token lifetime." No test catches it, because fixtures do not age. So: the grant check
+      at mint is **fresh or near-fresh** (no cache, or a cache age of seconds, decided in-phase and
+      stated in the ADR next to the revocation claim), while identity resolution keeps Phase 7's two
+      ages. One resolver, two cache policies, each sized to what staleness costs — and a test that
+      deletes the grant and asserts the *next* mint refuses without any clock advance, which is exactly
+      the assertion a cached read would fail.
 - [ ] `sponsorship_for(caller, callee, membership, now) -> Budget`: member-involved → unlimited;
       otherwise → introduction budget. Mint to **both** parties.
 - [ ] Service-auth JWT (via `ciss-auth`) authenticates a member's instruction where one is needed;
       `ReplayGuard` for `jti`.
 - [ ] Quota decrement from the usage records Phase 3 emits.
+- [ ] **(Free-form pass, 2026-08-10) Those records cross a process boundary this plan never wired.**
+      Phase 3's sink is in-process in `croft-relay-bin`; Phase 4's supervisor reads it there — same
+      binary, no gap. The quota decrement is in `croft-admit`, a different daemon. Settle the transport
+      at phase start — the natural candidates are the relay binary POSTing usage to a localhost
+      `croft-admit` endpoint, or writing it to the shared private CISS instance and letting croft-admit
+      read it there — under two constraints that are not candidates: the record stays **volume-only,
+      one endpoint per record, never a pair** (§3.3's rule for the never-attempted upstream patch binds
+      our own wire just as hard), and a transport outage degrades **quota freshness, not calling** —
+      the relay must never block a connection on croft-admit's availability. The wiring test asserts
+      the decrement end to end across both processes, not against a hand-delivered record.
 - [ ] Record the fate of `RegistryAccess` and the HTTP-hook path: **kept, labelled as the fallback**
       (Phase 5), not deleted.
 - [ ] **(Pass 3) Update ADR-0003 in this phase** — claims gain a budget and revocation becomes
@@ -1301,8 +1337,11 @@ own repo. Both folded into Phase 10. See §5 and the Review Log.)*
 cap-gated calling work, and the client affordances that issue and redeem a cap.
 
 **Changes — caps and policy (folded in from the removed Phase 9):**
-- [ ] **Grant record** in the callee's own repo, carrying an **opaque cap id and nothing else**. It
-      names no grantee, so the call graph is not published. Deleting the record is revocation.
+- [ ] **Grant record** in the callee's own repo, carrying an **opaque cap id and a device scope —
+      nothing that names a person**. *(Free-form pass: "and nothing else" predated the device-scope
+      ruling below; the two bullets now agree.)* It names no grantee, so the call graph is not
+      published; the scope names only the callee's own endpoint ids, which `listRecords` already makes
+      public. Deleting the record is revocation.
 - [ ] **Policy record** in the callee's own repo: `anyone | mutuals | nobody`. A small enum, not a
       list. **It is advisory UI, not enforcement** — the cap is the gate. The policy exists so the
       exchange page knows what to render, and so a user can say "don't bother asking" without that
@@ -1429,7 +1468,8 @@ holepunch shows the membership message rather than failing silently.
 **Depends on:** Phase 4, Phase 8, Phase 10.
 **Read-set:** `crates/croft-relay-bin/src/main.rs`, `crates/croft-admit/src/http_api.rs`,
 `connect/android/*`.
-**Write-set:** client integration crate (location gated on the repo-shape Open Question).
+**Write-set:** client integration crate, a new member of the `croft-stack/relay/source/` workspace
+(free-form pass: the repo-shape question this was gated on resolved to croft-stack on 2026-08-09).
 **Shared-state contract:** Holds a live iroh Endpoint; tests bind ephemeral ports.
 **Risks:** A rebind creeping in would invalidate published records — assert EndpointId stability
 explicitly.
@@ -1771,7 +1811,8 @@ the post-rewrite version.
   operator runs first recorded in `06-iroh-relay.md`.
 
 **Debugging readiness:**
-- Added **§8.4**: three load-bearing checkpoints (after P2, P4, P8), so a later failure is localized by
+- Added the checkpoints section (§8.4 at the time; **now §8.5**, after the relocation section was
+  inserted): three load-bearing checkpoints (after P2, P4, P8), so a later failure is localized by
   re-running the checkpoint above it rather than bisecting a milestone.
 - Phase 5 gained a **written rollback procedure** — which variable reverts, how long, and what
   capability is lost while reverted. The stock-binary fallback was named but its steps were not.
@@ -1874,3 +1915,45 @@ point, matching how it was given, with a note that the figure decides how often 
 exercised and never whether it is correct.
 
 **No open questions remain.** The plan is ready for execution.
+
+### Free-form coherence pass — 2026-08-10
+
+A full end-to-end read after the question walk-through, checking the phases against each other rather
+than each in isolation — the amendment-heavy history (rewrite, two Pass 2s, Pass 3, nine resolutions)
+made stale cross-references the likely defect class, and that is what was found. The design itself
+survived the re-read: the mechanism, the verified seams, and the two-gate structure required no change.
+
+**Two substantive gaps, both invisible to any single-phase review:**
+
+- **The Phase 7 cache broke Phase 8's revocation claim.** The identity cache's ~1h refresh age, applied
+  to the mint-time grant read, turns "revocation within one token lifetime" into "within cache age plus
+  token lifetime" — and no test would catch it, because fixtures do not age. Fixed: the grant check at
+  mint is fresh or near-fresh (one resolver, two cache policies, each sized to what staleness costs),
+  with a no-clock-advance deletion-then-refusal test that a cached read would fail.
+- **Usage records cross a process boundary nobody wired.** Phase 3's sink is in-process in the relay
+  binary — fine for Phase 4, same process — but Phase 8's quota decrement runs in `croft-admit`.
+  Transport now named as an explicit in-phase decision with two fixed constraints: volume-only and
+  never a pair; and a transport outage degrades quota freshness, never calling.
+
+**Contradictions left behind by later decisions, reconciled:**
+
+- Phase 6 still described the pre-CISS store throughout — "store path," tmp-store wiring test,
+  filesystem invariants. Reworded end to end for CISS-over-localhost, including the previously
+  unstated **cross-repo test dependency** (the persistence test needs a real CISS binary, sourced by
+  the standing dependency rule; absent binary the test fails, never skips) and the both-processes
+  restart assertion.
+- The grant record was "an opaque cap id and nothing else" in two places, twenty lines from the
+  device-scope ruling that added a scope to it. Both aligned: cap id + device scope, never a grantee.
+- Phase 11's write-set still gated the client crate's location on the resolved repo-shape question.
+- §3.5's heading said "caller's own repo"; the body and the whole design say callee's.
+- Removed Phase 1's leftover conditional manifest-hoist bullet (mooted by Pass 2); "request-policy
+  record" → grant + policy records in §6; §1's matrix now says "ask out of band"; the Pass 3 log's
+  checkpoint reference renumbered to §8.5.
+
+**Confirmed sound on re-read, for the record:** the B→C sequencing and its two collisions; the
+three-way token join and its Phase 3 assertions; the budget boundary rows; the fail-closed resolver
+matrix; the relocation ordering (gate → move → smoke-matrix removal); and that every §4 source citation
+still points at text this plan actually relies on.
+
+**Verdict: correct, viable, and ready to execute** — Phase 1 first, and Phase 8's two new bullets are
+in-phase decisions, not new open questions.
