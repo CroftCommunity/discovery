@@ -929,30 +929,30 @@ person and the tests there still pass.
 token is not re-admitted.
 
 **Changes:**
-- [ ] `Tier` → **budget** rather than rate bucket: rewrite `tier.rs`'s `bucket_for` as `budget_for`,
+- [x] `Tier` → **budget** rather than rate bucket: rewrite `tier.rs`'s `bucket_for` as `budget_for`,
       returning `Budget::Unlimited` (member-involved) or `Budget::Bytes(n)` (introduction only). Rewrite
       the `SPEC-DELTA` comment around Phase 0's sizing.
-- [ ] Supervisor: when a counted connection exceeds its budget, call
+- [x] Supervisor: when a counted connection exceeds its budget, call
       `RelayService::clients().disconnect(endpoint_id, connection_id)`. **(Pass 2:** passing `None` for
       the connection id drops *every* connection for that endpoint, which is simpler and is what we
       want — verified at `clients.rs:172-195`. `ConnectionId` is public if we ever need precision.**)**
-- [ ] **(Pass 2) Treat the budget as a threshold, not a hard cap.** `disconnect` is documented as
+- [x] **(Pass 2) Treat the budget as a threshold, not a hard cap.** `disconnect` is documented as
       asynchronous — "each per-connection actor exits its run loop and unregisters itself after this
       call returns" — so bytes can still flow between the decision and the close. Overshoot is expected
       and acceptable; **the test must not assert an exact byte ceiling**, or it will be flaky for a
       reason that isn't a bug.
-- [ ] **Spent-token refusal:** record the spent token id; `TokenAccess::on_connect` denies re-admission
+- [x] **Spent-token refusal:** record the spent token id; `TokenAccess::on_connect` denies re-admission
       on it. Without this, iroh's automatic reconnect-with-backoff turns one drop into a flap.
-- [ ] No `client_rx` rate limit configured on the service at all — the budget replaces it. Keep a
+- [x] No `client_rx` rate limit configured on the service at all — the budget replaces it. Keep a
       coarse global limit only as an anti-hammering backstop, documented as such.
-- [ ] **(Pass 3) Log every drop at `WARN`, with the reason distinguishable from a fault.** A budget
+- [x] **(Pass 3) Log every drop at `WARN`, with the reason distinguishable from a fault.** A budget
       disconnect and a spent-token refusal are the two lines an operator will search for first, and they
       are the only evidence that the product mechanism fired at all. Fields: `endpoint_id`,
       `connection_id`, `bytes_counted`, `budget`, and a stable `reason` discriminant
       (`budget_exhausted` / `spent_token`). Per §8.3, one endpoint per line — never the pair, even
       though the supervisor could name both and it would be convenient during debugging. That
       convenience is how a call-detail record gets built by accident.
-- [ ] **(Pass 3) Log the near-miss too, at `DEBUG`:** a connection that closed having used most of its
+- [x] **(Pass 3) Log the near-miss too, at `DEBUG`:** a connection that closed having used most of its
       budget without exceeding it. When Phase 0's number turns out to be wrong, this is the line that
       shows it — and a budget that is silently near-missed by every real introduction is
       indistinguishable, in logs, from one that is comfortably right.
@@ -2180,3 +2180,39 @@ that opened the phase; this records the build.
 - **Carried forward to Phase 12:** the airlock adds one user-space copy and a loopback socket pair
   per connection on the data path — the overhead measurement Phase 12 already owns now has a
   concrete thing to measure.
+
+### Phase 4 executed — 2026-08-10
+
+Commit `dd5cff9` on `relay-bin` (PR #6). The phase opened with its gate: **the `insert_relay` probe**
+(scratchpad, full-iroh dep deliberately kept out of the workspace; evidence + probe source preserved
+in `evidence/insert-relay-probe.txt`). **Verdict: no reconnect** — the established connection persists
+with the old token; the swapped config is read only at the next connect. Consequence adopted:
+**sponsored upgrades are disconnect-to-upgrade**, the same lever this phase builds; no live-connection
+budget re-reader exists or is needed.
+
+- **`tier.rs` rewritten:** `bucket_for` → `budget_for`, `RateBucket` → `Budget`
+  (`Unlimited | Bytes`), SPEC-DELTA moved to the introduction-budget placeholder (256 KiB — build
+  against, never deploy; Phase 0 measures). The exceeded decision is a method with the boundary rows
+  as unit tests: under / **at** (not exceeded — the budget is what you may spend) / one-over /
+  unlimited-never / zero-budget. **Mutation run: 8 mutants, 7 caught, 1 unviable, zero survivors** —
+  the `>`→`>=` mutant died to exactly the at-the-budget row, which is the mutation-resistance
+  argument §8.1 made, demonstrated.
+- **`phase3_tier.rs` deleted, `tests/budget.rs` replaces it** (topic-named, §8.2): the old file
+  tested the superseded rate-bucket shape and could not survive the API it pinned being removed.
+- **The supervisor:** 100ms scan; over-budget → `dropped` flag (idempotent while the async disconnect
+  completes), token → spent set, WARN `reason=budget_exhausted` with `bytes_counted` + `budget` (one
+  endpoint per line), `Clients::disconnect(endpoint, None)`. **Spent-token refusal runs first in
+  `on_connect`, before verification**, so iroh's auto-reconnect cannot flap. Near-miss DEBUG within
+  20% of budget — the line that shows when Phase 0's number is wrong.
+- **RED honestly:** `budget_drop.rs` failed against the unenforcing Phase-3 binary on exactly the
+  enforcement path (the two negative tests passed trivially, as expected — their value is guarding
+  against over-enforcement now that it exists). Green through the spawned process: dropped → refused
+  on the spent token → admitted on a fresh one; Broker survives the volume that kills Coordination;
+  under-budget left alone.
+- **Membership-matrix note, stated honestly:** at the relay layer "either party is a member" has
+  already been decided at mint and arrives as a tier. The four-row matrix is asserted where the `||`
+  lives — `sponsorship_for`, Phase 8. This phase's wiring asserts Broker survives what kills
+  Coordination on the same binary; the caller-only/callee-only rows are mint-side.
+- **DESIGN.md** tier-enforcement section rewritten to budgets (the phase's doc-impact item).
+- **Validation:** 14 suites green, clippy zero warnings, fmt clean, mutation clean on `tier.rs`.
+  Remaining from the phase's list: nothing.
