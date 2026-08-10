@@ -385,8 +385,15 @@ Read from pinned source. Anything not listed is unverified.
   as a working assumption, and recorded as a **range** rather than a point because that is how it was
   given. Our own users' NAT distribution may differ. Note the budget mechanism is insensitive to this
   number — it decides how *often* the budget path is exercised, never whether it is correct.
-- **Whether `Endpoint::insert_relay` with a changed auth token forces a relay reconnect.** The budget
-  boundary depends on it (see Phase 4). Verify before designing around either answer.
+- ~~**Whether `Endpoint::insert_relay` with a changed auth token forces a relay reconnect.**~~
+  **SETTLED BY PROBE (2026-08-10): NO RECONNECT.** The established connection persists with the old
+  token; the swapped config is read only at the next connect. Empirical (in-process relay, admissions
+  counted through our `TokenAccess`; `evidence/insert-relay-probe.txt` holds output + probe source)
+  and consistent with source (`iroh-1.0.3 socket.rs:1236-1247` sends `RelayMapChange`, whose handler
+  only re_stuns — `:1763-1782`). **Consequence:** a sponsored upgrade starts a fresh budget via
+  **disconnect-to-upgrade** — drop the endpoint with the lever Phase 4 already builds; the client's
+  relay actor auto-reconnects reading the new token from the swapped map. No live-connection budget
+  re-reader needed.
 - **Introduction byte cost across real NATs.** Phase 0.
 - **(Pass 2) `com.atproto.repo.listRecords`** — the corpus FACTCHECK docs do not cover it, and
   `connect/docs/contract.md` evidences only `resolveHandle` and `getRecord` (which are working,
@@ -949,7 +956,7 @@ token is not re-admitted.
       budget without exceeding it. When Phase 0's number turns out to be wrong, this is the line that
       shows it — and a budget that is silently near-missed by every real introduction is
       indistinguishable, in logs, from one that is comfortably right.
-- [ ] **Verify first:** does `Endpoint::insert_relay` with a changed auth token force a reconnect? The
+- [x] **Verify first:** does `Endpoint::insert_relay` with a changed auth token force a reconnect? The
       budget boundary depends on the answer. If it reconnects, a sponsored upgrade naturally starts a
       fresh budget; if it does not, the supervisor must re-read the budget on an existing connection.
       Settle this with a probe **before** implementing, and record the result in Verified Assumptions.
@@ -1651,10 +1658,9 @@ measure its overhead rather than assuming it is free.
   stored outside the store's backup path) as the simple default, and keep the shape of L2/L3 alive
   through a narrow `KeySource` seam while that is still cheap. The ADR must name which rung is in force
   and what it does *not* claim. See Phase 6.
-- **[CONFIRMED: PHASE-GATED — Phase 4]** Does `Endpoint::insert_relay` with a changed auth token force
-  a relay reconnect? *Rationale: it determines whether a sponsored upgrade starts a fresh budget
-  naturally or the supervisor must re-read budgets on live connections. Settle by probe before
-  implementing; it is cheap to answer and expensive to assume.*
+- ~~**[CONFIRMED: PHASE-GATED — Phase 4]** Does `Endpoint::insert_relay` force a reconnect?~~
+  **(SETTLED BY PROBE, 2026-08-10: no.)** See §4's row and `evidence/insert-relay-probe.txt`.
+  Sponsored upgrades use disconnect-to-upgrade; no live-connection budget re-reader.
 - **[CONFIRMED: PHASE-GATED — Phase 7]** DID-document cache TTL. **(Owner, 2026-08-09: phase-gated
   confirmed; shape settled, values provisional.)** Split into a **~1h refresh age** (background refresh,
   keep serving) and a **24h hard max-stale** (refuse), so noticing a rotation and surviving an upstream
