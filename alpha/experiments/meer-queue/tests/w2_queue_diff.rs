@@ -8,6 +8,8 @@
 //! here too — an empty queue, an unknown digest in the have-set, and a repeated drain. Those
 //! are the boundaries a one-line mutation to the diff would otherwise survive.
 
+use std::sync::Arc;
+
 use meer_queue::ciss_harness::CissHarness;
 use meer_queue::meer::{Meer, RecipientId};
 
@@ -26,8 +28,8 @@ fn carol() -> RecipientId {
 
 #[tokio::test]
 async fn one_publish_to_many_recipients_stores_the_blob_once() {
-    let ciss = CissHarness::spawn().await;
-    let mut meer = Meer::new(&ciss);
+    let ciss = Arc::new(CissHarness::spawn().await);
+    let mut meer = Meer::new(Arc::clone(&ciss));
 
     let digest = meer
         .publish(MSG_A, &[bob(), carol()])
@@ -61,8 +63,8 @@ async fn one_publish_to_many_recipients_stores_the_blob_once() {
 
 #[tokio::test]
 async fn a_drain_returns_only_what_the_recipient_lacks() {
-    let ciss = CissHarness::spawn().await;
-    let mut meer = Meer::new(&ciss);
+    let ciss = Arc::new(CissHarness::spawn().await);
+    let mut meer = Meer::new(Arc::clone(&ciss));
 
     let a = meer.publish(MSG_A, &[bob()]).await.expect("publish a");
     let b = meer.publish(MSG_B, &[bob()]).await.expect("publish b");
@@ -88,8 +90,8 @@ async fn a_drain_returns_only_what_the_recipient_lacks() {
 
 #[tokio::test]
 async fn draining_an_empty_queue_is_empty_not_an_error() {
-    let ciss = CissHarness::spawn().await;
-    let meer = Meer::new(&ciss);
+    let ciss = Arc::new(CissHarness::spawn().await);
+    let meer = Meer::new(Arc::clone(&ciss));
 
     let drained = meer
         .drain(&bob(), &[])
@@ -103,8 +105,8 @@ async fn draining_an_empty_queue_is_empty_not_an_error() {
 
 #[tokio::test]
 async fn an_unknown_digest_in_the_have_set_is_ignored() {
-    let ciss = CissHarness::spawn().await;
-    let mut meer = Meer::new(&ciss);
+    let ciss = Arc::new(CissHarness::spawn().await);
+    let mut meer = Meer::new(Arc::clone(&ciss));
     let a = meer.publish(MSG_A, &[bob()]).await.expect("publish");
 
     // A digest the queue never held: must neither crash nor be echoed back.
@@ -126,8 +128,8 @@ async fn an_unknown_digest_in_the_have_set_is_ignored() {
 
 #[tokio::test]
 async fn draining_twice_without_a_publish_is_idempotent() {
-    let ciss = CissHarness::spawn().await;
-    let mut meer = Meer::new(&ciss);
+    let ciss = Arc::new(CissHarness::spawn().await);
+    let mut meer = Meer::new(Arc::clone(&ciss));
     meer.publish(MSG_A, &[bob()]).await.expect("publish");
 
     let first = meer.drain(&bob(), &[]).await.expect("first");
@@ -145,8 +147,8 @@ async fn draining_twice_without_a_publish_is_idempotent() {
 async fn entries_record_the_day_they_were_deposited() {
     // The watermark story (S5, Phase 9) needs to know when mail arrived. The clock is
     // CISS's own `SimClock` — deterministic, day-granular, no wall-clock reads.
-    let ciss = CissHarness::spawn().await;
-    let mut meer = Meer::new(&ciss);
+    let ciss = Arc::new(CissHarness::spawn().await);
+    let mut meer = Meer::new(Arc::clone(&ciss));
 
     meer.publish(MSG_A, &[bob()]).await.expect("day 0");
     meer.advance_days(3);
@@ -168,8 +170,8 @@ async fn the_same_object_queued_twice_for_one_recipient_is_one_entry() {
     // same recipient is a no-op rather than a duplicate. This is what makes S3's dual delivery
     // (carried live AND drained) free rather than a special case — but it is queue behaviour,
     // so it is pinned here where the queue is built, not left for S3 to discover.
-    let ciss = CissHarness::spawn().await;
-    let mut meer = Meer::new(&ciss);
+    let ciss = Arc::new(CissHarness::spawn().await);
+    let mut meer = Meer::new(Arc::clone(&ciss));
 
     let first = meer.publish(MSG_A, &[bob()]).await.expect("first");
     let second = meer.publish(MSG_A, &[bob()]).await.expect("second");

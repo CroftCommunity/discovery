@@ -23,6 +23,7 @@
 //! — Register: `alpha/experiments/SPEC-DIVERGENCE-REGISTER.md`
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use ciss::clock::SimClock;
 
@@ -51,18 +52,21 @@ pub enum MeerError {
 ///
 /// Holds no group state, no ordering, and no key. Its only durable state is, per recipient, a
 /// list of content addresses — and even the bytes those name live in CISS, not here.
-pub struct Meer<'a> {
-    ciss: &'a CissHarness,
+pub struct Meer {
+    ciss: Arc<CissHarness>,
     /// The meer's own CISS namespace (the `meer-spike-namespace` stand-in).
     namespace: Identity,
     queues: HashMap<RecipientId, Queue>,
     clock: SimClock,
 }
 
-impl<'a> Meer<'a> {
+impl Meer {
     /// A meer backed by `ciss`, owning its own namespace within it.
+    ///
+    /// Takes an `Arc` rather than a borrow so a transport accept loop can hold it: a spawned
+    /// task must be `'static`.
     #[must_use]
-    pub fn new(ciss: &'a CissHarness) -> Self {
+    pub fn new(ciss: Arc<CissHarness>) -> Self {
         Self {
             namespace: ciss.identity("meer"),
             ciss,

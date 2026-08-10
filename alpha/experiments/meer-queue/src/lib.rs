@@ -15,7 +15,10 @@
 pub mod ciss_harness;
 pub mod meer;
 pub mod mls;
+pub mod node;
 pub mod queue;
+pub mod relay;
+pub mod transport;
 
 /// Initialise stderr tracing for a probe or test run, honouring `RUST_LOG`.
 ///

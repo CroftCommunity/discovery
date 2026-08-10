@@ -22,7 +22,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
 use ciss::server::{App, Blobs, Db, Limits};
-use tokio::sync::oneshot;
+use tokio::sync::{oneshot, Mutex};
 
 /// CISS's per-object ceiling (`CISS/src/blobstore.rs`), restated so tests can sit on it.
 ///
@@ -101,8 +101,10 @@ pub struct CissHarness {
     /// not**, and the design meters transit. A meer that PUT once per recipient would bill
     /// N x the bytes for one delivered message. Found by a surviving mutant in Phase 3.
     puts: Arc<AtomicUsize>,
-    shutdown: Option<oneshot::Sender<()>>,
-    handle: Option<tokio::task::JoinHandle<()>>,
+    /// Behind a `Mutex` so shutdown takes `&self`: the harness lives behind an `Arc` once a
+    /// meer server shares it with an accept loop.
+    shutdown: Mutex<Option<oneshot::Sender<()>>>,
+    handle: Mutex<Option<tokio::task::JoinHandle<()>>>,
     /// Held so the temp dir outlives the server; dropped last.
     _dir: tempfile::TempDir,
 }
@@ -149,8 +151,8 @@ impl CissHarness {
             client: reqwest::Client::new(),
             blob_root,
             puts: Arc::new(AtomicUsize::new(0)),
-            shutdown: Some(tx),
-            handle: Some(handle),
+            shutdown: Mutex::new(Some(tx)),
+            handle: Mutex::new(Some(handle)),
             _dir: dir,
         }
     }
@@ -239,11 +241,12 @@ impl CissHarness {
 
     /// Shut the server down gracefully and wait for the task to finish, so a caller can
     /// observe that the port was released rather than leaked.
-    pub async fn shutdown(mut self) {
-        if let Some(tx) = self.shutdown.take() {
+    pub async fn shutdown(&self) {
+        if let Some(tx) = self.shutdown.lock().await.take() {
             let _ = tx.send(());
         }
-        if let Some(handle) = self.handle.take() {
+        let handle = self.handle.lock().await.take();
+        if let Some(handle) = handle {
             let _ = handle.await;
         }
     }

@@ -1,8 +1,9 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–3 GREEN 2026-08-09.**
-All three planning passes complete, all 5 open questions resolved. Phases 4–14 not started. Phase 0 falsified one hypothesis inside M2 and forced
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–4 GREEN 2026-08-09.**
+All three planning passes complete, all 5 open questions resolved. Phases 5–14 not started.
+**The transport is live: M1 and M2 can now run end to end.** Phase 0 falsified one hypothesis inside M2 and forced
 seven plan changes — see § Phase 0 outcomes.
 
 **Executes:** `alpha/experiments/meer-queue/SPIKE-SPEC.md` (M1, M2, S1–S8)
@@ -692,7 +693,29 @@ blob directory that the in-memory backend would not have had.)
 
 ---
 
-### Phase 4: iroh transport
+### Phase 4: iroh transport — ✅ GREEN 2026-08-09
+
+> **Executed.** RED first, then GREEN on the first run: 2 tests. Four mutations, all killed —
+> including the one that matters, **a drain that ignores the caller and serves every queue**
+> (Mallory received Bob's message; the negative half of the wiring test caught it).
+> Also killed: a byte flipped in transit, the have-set dropped on the wire, and an ignored ack.
+>
+> **A design property worth recording, because it is stronger than a test.** The wire format has
+> **no recipient field on a drain**. The server derives the queue from `connection.remote_id()`, so
+> there is nothing for a caller to claim and therefore nothing to validate — a scope that *cannot be
+> misstated*, rather than one that is checked. Sealed payloads travel as raw length-prefixed bytes
+> and are never re-encoded, which keeps M2's claim out of the transport's reach.
+>
+> **Refactor this phase forced:** `Meer` now owns an `Arc<CissHarness>` instead of borrowing it, and
+> `CissHarness::shutdown` takes `&self` via interior mutability. A spawned accept loop must be
+> `'static`, and a borrow cannot be. Phases 1–3 tests updated; all still green.
+>
+> **Process note (recorded because it nearly cost a silent regression):** a mutation-restore used a
+> stale `/tmp` backup that predated the `Arc` refactor and clobbered `meer.rs` with the older
+> lifetime-bearing version. Caught by a compile failure, recovered with `git checkout` + re-applied
+> patch. Later mutations in this phase snapshot to a per-phase directory from a known-green state
+> instead. The lesson is not "be careful with `cp`" — it is that **mutation testing edits working
+> code, so the restore path needs to be as reliable as the mutation**, and git is that path.
 
 **Goal:** Deposit and drain over a real iroh connection homed on a real loopback relay.
 **Changes:**
