@@ -1,9 +1,10 @@
 # croft-relay: cap-gated calling with a metered introduction budget
 
 - **Status:** Rewrite (2026-08-08), Pass 2 complete against the rewrite (2026-08-08), cap distribution
-  settled out-of-band (2026-08-09). Supersedes the 2026-08-07 draft and its gap analysis — both
-  preserved in the Review Log, not above it. **12 phases** in five milestones. Pass 3 (quality gates)
-  pending; **no outstanding blocking questions.**
+  settled out-of-band (2026-08-09), **Pass 3 (quality gates) complete (2026-08-09)**. Supersedes the
+  2026-08-07 draft and its gap analysis — both preserved in the Review Log, not above it. **12 phases**
+  in five milestones. **No blocking questions; nine open questions await the owner's severity
+  confirmation before execution starts.**
 - **Supersedes in part:** ADR-0001's fork-vs-embed framing; **ADR-0004's entire enforcement
   mechanism** (rate-limiting is replaced by a byte budget with a clean disconnect).
 - **Source dialogue:** `../seeds/transcripts/raw/croft-relay-tiered-admission-fork-vs-embed-2026-08-07.md`
@@ -407,6 +408,91 @@ Phase 1 (record + correct; docs + toolchain + manifest) ───────┘
   here, so it may start as soon as the lexicon shape is agreed — but Phase 11 needs both it and
   Milestone C.
 - Everything else sequential.
+- **(Pass 3) Parallel candidate, flagged not adopted: Phase 10 alongside Milestone B.** Phase 10 lives
+  in `CroftCommunity/connect`, shares no write-set with this repo, and depends on Phase 8 only for the
+  *verification* half. Its lexicon, page, and cap-issuance work could run concurrently with Milestone B
+  by a second person. Not restructured here because it is a resourcing decision, not a technical one —
+  surfaced so it is a choice rather than an oversight.
+  - *Re-entry (P10, if run in parallel):* `git -C connect status` clean apart from the contract and
+    client paths; no records left on the owner's test account beyond the two fixture personas; this
+    repo's `git status` untouched.
+
+## 8. Cross-cutting: test conventions, logging, and checkpoints (Pass 3)
+
+Three things every phase below inherits, hoisted here so they are not restated twelve times.
+
+### 8.1 Test-first is the phase order, not a phase step
+
+Each phase's **Changes** list is written implementation-first because that is how the work reads. It is
+not the order it is executed in. **The wiring test named in each phase is written and watched fail
+before any of that phase's production code exists.** Where a phase also names unit-level behaviours,
+those are RED-first too, in the same phase — no phase defers a test for behaviour it introduces.
+
+Two phases are exempt and say so explicitly: **Phase 0** (Discovery Exemption — spike work) and
+**Phase 1** (documentation plus one toolchain edit; its gate is the broken-ref check, not a test).
+
+### 8.2 Test naming, and a numbering collision to avoid
+
+The existing tree names integration tests `phase1_access.rs`, `phase1_http.rs`, `phase2_token.rs`,
+`phase3_tier.rs` — numbered against the **original** phase plan, which this document renumbers.
+`phase3_tier.rs` in particular tests the old Phase 3 (rate buckets); this plan's Phase 3 is the counting
+decorator. Continuing the numeric convention would produce two unrelated meanings for "phase 3" in the
+same tree.
+
+**Convention from here: topic names, not phase numbers** — `budget_drop.rs`, `usage_accounting.rs`,
+`persistence.rs`, `caps.rs`, `resolution.rs`. Existing files are **not renamed** (they are cited in
+evidence files and run summaries); Phase 1 adds a one-line note to the experiment README recording that
+the `phaseN_` prefix refers to the superseded numbering.
+
+### 8.3 Logging: the convention does not exist yet, and this plan needs it
+
+**Spot-checked at Pass 3: the tree has no `tracing` or `log` dependency and no logging call anywhere.**
+That was fine for a library spike. It is not fine for what this plan builds — a long-running network
+daemon (Phase 2) whose central product behaviour is *silently dropping someone's connection* (Phase 4),
+fronted by a second daemon making network calls in an authentication path (Phases 6–7). Without
+logging, the first production question — "why did this call end?" — has no answer at all.
+
+So **Phase 2 establishes the convention** (it is the phase that introduces a daemon), and every later
+phase logs at the points named in its own Changes list. Metrics still land in Phase 12; **logging does
+not wait for it.** Deferring all observability to a hardening phase is the same anti-pattern as a docs
+phase at the end.
+
+The convention:
+
+| | |
+|---|---|
+| Crate | `tracing` + `tracing-subscriber`, structured fields (not formatted strings) |
+| `ERROR` | We are broken: store unwritable, cert unreadable, bind failed |
+| `WARN` | They are broken, or a policy fired: resolver timeout, budget exhausted, spent-token refusal |
+| `INFO` | Lifecycle only: startup with resolved config, bind address, shutdown |
+| `DEBUG` | Per-connection admit/deny with reason; per-connection close with byte totals |
+| `TRACE` | Not used — the counting decorator is in every byte's path and must never log there |
+
+**The privacy rule, which is not negotiable and belongs in ADR-0006:** logs may carry an
+`endpoint_id`, a `connection_id`, a `cap_id`, and byte counts. Logs must **never** carry a token, a
+cap secret, a DID *pair*, or anything from which who-called-whom can be reconstructed. A log line
+naming both parties to a call is a call-detail record — the exact artifact §3.5 exists to avoid
+holding, and it would arrive through the back door of a debugging convenience. Phase 12's deny-path
+work re-checks this under load.
+
+### 8.4 Checkpoints: which phase broke?
+
+Each phase's **Verification** command is its checkpoint, and they are cumulative — every phase re-runs
+the suite that precedes it. Three are the load-bearing ones, in the sense that if the system is healthy
+at these three points the phases between them are almost certainly fine:
+
+```
+  after P2   a stock iroh client relays a datagram through our binary
+             → the embedding seam is real, not just reachable in source
+
+  after P4   a non-member is dropped and refused re-admission; a member is not
+             → the product mechanism works end to end
+
+  after P8   a cap mints a token; deleting the grant record stops it
+             → the authorization core works end to end
+```
+
+A failure after P5 or P11 that cannot be localized is diagnosed by re-running the checkpoint above it.
 
 ---
 
@@ -417,8 +503,16 @@ Phase 1 (record + correct; docs + toolchain + manifest) ───────┘
 **Goal:** Turn the budget from a guess into a measurement. Cheaper than the old calibration because
 budget-and-drop only has to separate kilobytes from kilobytes-per-second.
 
-**Discovery Exemption applies** — spike work, not TDD. The harness is `keep-as-fixture`; scripting is
-`throwaway`.
+**Discovery Exemption applies** — spike work, not TDD. **Dispositions, per task:** the two-endpoint
+harness is `keep-as-fixture` (Phase 4's forced-holepunch-failure test needs exactly this rig, and
+rebuilding it there would be waste); the byte-counting instrumentation is `promote` — **Phase 3
+re-implements it test-first as `CountingStream`**, and the Phase 0 version is a measuring tape, not a
+draft of the production type; all scripting and one-off analysis is `throwaway`. No Phase 0 code reaches
+`crates/` without going through Phase 3's RED-first cycle.
+
+**(Pass 3) Could any of this be resolved during planning instead?** No — every task requires two hosts
+on genuinely separate networks, which is the owner-supplied resource this phase is gated on. Nothing
+here is answerable from source.
 
 **Changes:**
 - [ ] Two `iroh` endpoints on genuinely separate networks. Instrument our side to count bytes per
@@ -456,12 +550,17 @@ depends on it.
 
 **Changes:**
 - [ ] Write ADR-0006: the two gates, budget-and-drop, our-binary-not-a-fork, the decorator, caps as
-      opaque-id records, the PDS trust ruling and its blast radius, the request-policy flow, and what
-      we store (membership and accounting only).
+      opaque-id records, the PDS trust ruling and its blast radius, out-of-band cap distribution, and
+      what we store (membership and accounting only). **(Pass 3)** It also carries §8.3's **log privacy
+      rule** — never a token, a cap secret, or a DID pair — because that rule is a design constraint
+      with the same standing as content-blindness, and a convention that lives only in a plan is a
+      convention that dies with the plan.
 - [ ] Supersede ADR-0004's mechanism section; **retain** its content-blindness argument.
 - [ ] Mark ADR-0001's fork-vs-embed conclusion superseded-in-part.
 - [ ] OPEN-QUESTIONS: resolve Q1/Q3/Q4, leave Q2/Q5 with current status.
-- [ ] Fix the stale build-plan pointer in the experiment README.
+- [ ] Fix the stale build-plan pointer in the experiment README, **and (Pass 3) add the one-line note
+      that the existing `phaseN_*.rs` test names refer to the superseded numbering** (§8.2) — without
+      it, "phase3_tier.rs" reads as this plan's Phase 3, which is the counting decorator.
 - [ ] Rewrite T62's gates.
 - [ ] Backlog §6j, MASTER-INDEX, COHESION, RAW-ARTIFACTS-MANIFEST.
 - [ ] Add `rust-toolchain.toml` pinning `1.94.1` to match CI — the experiment has none, which is the
@@ -506,15 +605,34 @@ parity first, no new behaviour.
 - [ ] Wire `TokenAccess` (existing, from `croft-relay-embed`) as the `AccessControl`.
 - [ ] TOML config: bind addrs, cert paths, verification pubkey. Every knob documented with its why.
 - [ ] Preserve upstream's probe path so existing health checks keep working.
+- [ ] **(Pass 3) Establish the logging convention** (§8.3): add `tracing` + `tracing-subscriber` — the
+      first logging dependency in the tree — with `RUST_LOG`-style filtering. In this phase that means
+      `INFO` on startup (bind address, cert path, **pubkey fingerprint not the key**), `ERROR` on the
+      three fatal starts (bind failed, cert unreadable, config invalid), and `DEBUG` per connection
+      carrying `endpoint_id` + `connection_id` + admit/deny with reason. **Deny reasons must be logged
+      even though they are not returned to the client** — a relay that refuses strangers with an opaque
+      error is one whose operators cannot tell a misconfigured client from an attack.
+- [ ] **(Pass 3) Fail loud on config:** an unparseable or incomplete config aborts at startup with the
+      offending field named. No defaults substituted for a missing verification pubkey — a relay that
+      silently starts unable to verify anything would deny every connection and look like a network
+      fault.
 
 **Call chain:** `main()` → config → accept → TLS → parse request → `RelayServiceWithNotify` →
 `/relay` upgrade → `TokenAccess::on_connect` → relay carries traffic.
 **Wiring test:** A **real relay client** (not a unit stub) connects to the binary started from a config
 file, is admitted on a valid token, and relays a datagram A→B. RED before the binary exists.
+**(Pass 3) Named behaviours, all RED-first, all in this phase:** valid token → admitted and datagram
+delivered; **absent** token → denied; **malformed** token → denied; token valid but signed by a
+different key → denied. The deny cases are three distinct paths through `TokenAccess::decide` and a
+single happy-path test leaves all three unexercised through the binary. Plus: a config missing the
+verification pubkey aborts with that field named, rather than starting.
 **Depends on:** Phase 1.
 **Read-set:** `crates/croft-relay-embed/src/lib.rs`, `crates/croft-admit/src/{token,tier}.rs`.
-**Write-set:** `crates/croft-relay-bin/*`.
-**Shared-state contract:** Binds ports; tests use `:0` as the existing live-relay harness does.
+**Write-set:** `crates/croft-relay-bin/*`, workspace root `Cargo.toml` (new member + `tracing` deps).
+**Shared-state contract:** **(Pass 3 — restated as invariants.)** Binds only ports obtained from `:0`;
+never a fixed port. Writes no file outside its write-set and the test's own tmpdir. Performs no git
+operation. Leaves no process running after the test binary exits — every spawned relay is owned by a
+guard that kills it on drop.
 **Risks:** Accidentally reimplementing parts of upstream's `main.rs` (ACME, metrics, probe path). Read
 it, take only what is needed, record deliberate omissions in the config doc.
 **Done when:**
@@ -563,23 +681,50 @@ deliberately: we want the numbers before we act on them.
 - [ ] On close, emit `(subject, bytes_in, bytes_out, duration)`.
 - [ ] Document that the count includes framing — an **upper bound**, suitable for budgets and capacity,
       never described as billing.
+- [ ] **(Pass 3) Logging, at exactly one point:** `DEBUG` on close, carrying `endpoint_id`,
+      `connection_id`, byte totals, duration. **Nothing is logged inside `CountingStream` itself** —
+      it sits in every byte's path, so a log call there is a performance bug and, at `TRACE`, a
+      content-adjacent one. The usage record *is* the observability for this phase; the log line is its
+      human-readable shadow. Per §8.3 the record names one endpoint, never a pair.
+- [ ] **(Pass 3) Diagnose the join failing, don't just fail it.** The three-way token join is the
+      fragile part of this design. If a connection closes with a counter that was never associated with
+      a token, emit `WARN` with the connection id — an unattributed connection is either a bug in the
+      join or a client that never authenticated, and Phase 4 will silently fail to enforce against it.
+      Assert this path: a connection that closes before presenting a token produces exactly this warning
+      and no usage record, rather than a record attributed to nobody.
 
 **Call chain:** accept → TLS → parse request (token known) → `CountingStream::wrap` →
 `RelayServiceWithNotify` → … → close → usage record.
 **Wiring test:** Two clients push known payload sizes through the running binary; the emitted records
 attribute the right order-of-magnitude byte counts to the right subjects. Assert attribution and
 ordering, not exact byte equality — framing overhead makes exactness a false precision.
+**(Pass 3) Named behaviours, RED-first:** (a) a connection that pushes 10× another's produces a record
+with 10× the bytes, ±framing — a *ratio* assertion, which is mutation-resistant where an absolute
+threshold is not, since it fails if the counter is wired to the wrong stream, counts one direction, or
+double-counts; (b) two concurrent connections produce two records with **no cross-attribution** — one
+client's bytes never appear under the other's subject, which is the failure the shared-`Arc` join makes
+possible; (c) bytes pushed **after** the websocket upgrade appear in the record (the §4 unverified
+assumption — this is the test that settles it); (d) a connection closing without a token yields a `WARN`
+and no record.
 **Depends on:** Phase 2.
 **Read-set:** `crates/croft-relay-bin/src/main.rs`.
 **Write-set:** `crates/croft-relay-bin/src/{counting,usage}.rs`, `src/main.rs`.
-**Shared-state contract:** In-process counters only; nothing persisted in this phase.
+**Shared-state contract:** **(Pass 3 — invariants.)** In-process counters only; writes no file and
+opens no store. Binds only `:0` ports. Emits usage records to an in-process sink the test can read;
+does not append to any path on disk in this phase.
 **Risks:** The decorator sits in the hot path of every byte — keep it to counter increments and no
 allocation. Second risk: the pre-verification token read becoming load-bearing for anything but
 attribution.
 **Done when:**
 1. **Behavioral:** Every closed connection yields a usage record naming its subject.
-2. **Verification:** `cargo test -p croft-relay-bin --test usage_accounting`.
-**Validation:** Moderate.
+2. **Verification:** `cargo test -p croft-relay-bin --test usage_accounting` — starts the binary and
+   drives real clients through it; no test in this file may construct `CountingStream` directly, or the
+   suite would prove the type works while the binary never calls it.
+**Validation:** **(Pass 3) Moderate → Broad.** Pass 2 rated this Moderate as a measurement-only phase.
+That undersells it: this phase is where the plan's single load-bearing unverified assumption gets
+settled (post-upgrade bytes traversing our wrapper), and everything Phase 4 enforces rests on these
+numbers being attributed correctly. If the join is subtly wrong, Phase 4 enforces against the wrong
+person and the tests there still pass.
 
 ### Phase 4: Budget enforcement and the clean drop
 
@@ -603,6 +748,17 @@ token is not re-admitted.
       on it. Without this, iroh's automatic reconnect-with-backoff turns one drop into a flap.
 - [ ] No `client_rx` rate limit configured on the service at all — the budget replaces it. Keep a
       coarse global limit only as an anti-hammering backstop, documented as such.
+- [ ] **(Pass 3) Log every drop at `WARN`, with the reason distinguishable from a fault.** A budget
+      disconnect and a spent-token refusal are the two lines an operator will search for first, and they
+      are the only evidence that the product mechanism fired at all. Fields: `endpoint_id`,
+      `connection_id`, `bytes_counted`, `budget`, and a stable `reason` discriminant
+      (`budget_exhausted` / `spent_token`). Per §8.3, one endpoint per line — never the pair, even
+      though the supervisor could name both and it would be convenient during debugging. That
+      convenience is how a call-detail record gets built by accident.
+- [ ] **(Pass 3) Log the near-miss too, at `DEBUG`:** a connection that closed having used most of its
+      budget without exceeding it. When Phase 0's number turns out to be wrong, this is the line that
+      shows it — and a budget that is silently near-missed by every real introduction is
+      indistinguishable, in logs, from one that is comfortably right.
 - [ ] **Verify first:** does `Endpoint::insert_relay` with a changed auth token force a reconnect? The
       budget boundary depends on the answer. If it reconnects, a sponsored upgrade naturally starts a
       fresh budget; if it does not, the supervisor must re-read the budget on an existing connection.
@@ -613,14 +769,41 @@ token is not re-admitted.
 **Wiring test:** A non-member pair whose holepunch is forced to fail pushes past its budget and is
 **disconnected**, and its immediate reconnect is **refused**; a member-involved pair on the same binary
 pushes the same volume and is not disconnected. This single test is the product.
+
+**(Pass 3) Boundary cases, named — this is the phase where a single-point assertion would be worthless.**
+`budget_for` is pure branching and the supervisor is a threshold comparison; both are exactly the shape
+a one-line mutation survives. Assert, RED-first:
+
+| Input | Expected |
+|---|---|
+| neither party a member | `Budget::Bytes(n)` |
+| caller is a member | `Budget::Unlimited` |
+| callee is a member | `Budget::Unlimited` |
+| both are members | `Budget::Unlimited` |
+| bytes well **under** budget | not disconnected |
+| bytes **at** the budget | not disconnected (the budget is what you may spend, not the point of refusal) |
+| bytes **over** budget | disconnected, within a generous tolerance — **never an exact ceiling** |
+| a second connection on a spent token | refused at `on_connect` |
+| a fresh token after a drop | admitted (the refusal is per-token, not a ban) |
+
+The three member cases matter individually: "either is a member" is an `||`, and a test with only the
+neither/both rows passes against `&&`. That mutation would ship a product that silently requires *both*
+parties to pay.
+
+**(Pass 3) One negative-space assertion, restated from Risks because it is easy to leave unwritten:** a
+pair whose holepunch **succeeds** never has its budget consumed. Without it, the self-cleaning property
+in §3.1 is an argument rather than a tested behaviour, and a regression there is invisible — the call
+works, we just start charging budget against calls we never carried.
 **Depends on:** Phase 3 and Phase 0 (for the number; a placeholder is acceptable to build against but
 not to deploy).
 **Read-set:** `crates/croft-admit/src/{tier,token}.rs`, `crates/croft-relay-bin/src/usage.rs`.
 **Write-set:** `crates/croft-relay-bin/src/{supervisor,main}.rs`,
 `crates/croft-admit/src/tier.rs`, `experiments/croft-relay/DESIGN.md`.
-**Shared-state contract:** The spent-token set is process-local and lost on restart — acceptable
-(tokens are short-lived) but state it, because "revocation survives restart" is a claim someone will
-otherwise assume.
+**Shared-state contract:** **(Pass 3 — invariants.)** The spent-token set is process-local and lost on
+restart — acceptable (tokens are short-lived) but state it, because "revocation survives restart" is a
+claim someone will otherwise assume. The supervisor writes nothing to disk, opens no store, and calls
+`disconnect` only for endpoints whose usage records it has itself observed — it never enumerates
+`clients()` and acts on connections it has no record for.
 **Risks:** Dropping a connection whose holepunch *succeeded* would be invisible in testing (the direct
 path carries on) but wasteful. Assert that a successful-holepunch pair never has its budget consumed.
 Second: disconnect must be a clean close the client can distinguish from a network fault, or the app
@@ -645,6 +828,15 @@ loosening the netns/systemd posture.
 - [ ] Keep the stock-binary + HTTP-hook path documented as the **fallback**: it can only answer yes/no,
       but it restores registered-only admission in minutes if our binary misbehaves.
 - [ ] Update `06-iroh-relay.md`; add the ROADMAP_TODO E-item.
+- [ ] **(Pass 3) Ship the logging as an operable thing, not just a compiled-in one:** log level set in
+      the systemd unit (default `INFO`, `DEBUG` togglable without a rebuild), stdout to the journal so
+      `journalctl -u` is the whole story, and **no log file inside the netns** to grow unbounded. Record
+      in `06-iroh-relay.md` the two greps an operator runs first: `reason=budget_exhausted` and
+      `reason=spent_token`.
+- [ ] **(Pass 3) Write the rollback down before it is needed.** The stock-binary + HTTP-hook fallback is
+      already named as the fallback; state the *procedure* — which Ansible variable reverts, how long it
+      takes, and what capability is lost while reverted (budgets and accounting; admission still works).
+      A fallback nobody has written the steps for is a hope.
 
 **Call chain:** CI tag → artifact + checksum → Ansible `get_url` + checksum → `/opt/iroh-relay/` →
 systemd unit (unchanged shape) → netns.
@@ -681,6 +873,13 @@ legitimately ours.
       counters. Explicitly **not**: allowlists, call policies, or any pair.
 - [ ] Keep the in-memory implementation for tests.
 - [ ] Fail loudly if the store path is unwritable — never silently fall back to in-memory.
+- [ ] **(Pass 3) Logging:** `INFO` on startup naming the resolved store path and the `IdIndex` mode in
+      force — **the mode especially**, because `Transparent` in production is the failure this seam
+      exists to prevent and it is otherwise indistinguishable from `Keyed` at runtime. `ERROR` on store
+      open failure with the path and the OS error. `DEBUG` per admission decision with its outcome.
+      Never log a stored identifier's pre-image in `Keyed` mode — logging the DID next to its digest
+      defeats the seam entirely, and it is exactly what someone debugging a lookup mismatch will reach
+      for.
 - [ ] `IdIndex` seam over stored identifiers: `Transparent` (dev/test) and `Keyed`, both behaviourally
       tested, with the migration written now while the store is small.
       **(Pass 2 — the rationale was stale.)** The Pass-1 form was `HMAC(k, member ‖ counterpart)`,
@@ -698,18 +897,27 @@ legitimately ours.
 **Wiring test:** Start the binary against a tmp store, record a membership over HTTP, **restart the
 process**, and confirm it survives. Restart is the assertion — an in-memory store passes every test
 that does not restart.
+**(Pass 3) Named behaviours, RED-first:** membership survives restart; an accounting counter survives
+restart **with its value**, not merely its existence; an unwritable store path aborts startup rather
+than degrading; `Keyed` mode with no key present is a hard error at startup, not a fallback to
+`Transparent`; a value written under `Transparent` and migrated is retrievable under `Keyed` (the
+migration is the part that is written once and run once, which is precisely when it is never tested);
+lookups by an identifier that was never stored return absent rather than erroring.
 **Depends on:** Phase 1.
 **Read-set:** `crates/croft-admit/src/{registry,access,http_api,enroll}.rs`.
 **Write-set:** `crates/croft-admit/src/{store,id_index,main}.rs`, `Cargo.toml`.
-**Shared-state contract:** Binds a port, opens a store file. Tests use `:0` and tmp paths. Keyed mode
-reads a key from the environment and must not proceed without it.
+**Shared-state contract:** **(Pass 3 — invariants.)** Binds only `:0` ports. Opens a store only at a
+path given by config, never a default under `$HOME` or the repo. Reads exactly one environment variable
+(the `IdIndex` key) and refuses to start in `Keyed` mode without it — it never falls back. Deletes no
+store it did not create. Tests leave no file outside their tmpdir.
 **Risks:** Scope creep back into holding a graph. The store's interface should make "add an allowlist"
 awkward rather than easy. Second: store-engine choice has a long tail — keep the interface narrow so it
 stays replaceable.
 **Done when:**
 1. **Behavioral:** Membership and accounting survive restart; nothing about relationships is stored.
-2. **Verification:** `cargo test -p croft-admit --test persistence` (includes restart) and
-   `--test id_index` (both impls plus migration).
+2. **Verification:** `cargo test -p croft-admit --test persistence` (starts the **binary**, not the
+   router in-process — restart is only meaningful against a process) and `--test id_index` (both impls
+   plus migration).
 **Validation:** Moderate + mutation run on `id_index`.
 
 ### Phase 7: Real atproto resolution
@@ -732,15 +940,37 @@ network-facing, all in an authentication path.
       "fail open under load" is the classic regression. Accept and document the consequence: a
       plc.directory outage stops new call setup for `did:plc` identities.
 - [ ] Keep fixtures; no test may touch the live network.
+- [ ] **(Pass 3) Logging — this is the phase where a production failure is otherwise undiagnosable.**
+      Five lookups can fail (handle resolution, plc.directory, `did:web` fetch, document parsing, record
+      listing) and they fail identically from the caller's view: the call does not connect. Each gets a
+      `WARN` naming **which** lookup, the DID or handle involved, and the failure class (timeout /
+      status / parse). Cache hits and misses at `DEBUG` with the key and remaining TTL — the two
+      questions asked when the resolver "works but is slow" or "serves stale keys" are both answered by
+      that line and by nothing else.
+- [ ] **(Pass 3) Never log a resolved key or a JWT.** The DID and the lookup outcome, yes; the material,
+      no. An authentication path that logs its inputs at `DEBUG` is one `RUST_LOG` change away from a
+      credential leak in the journal.
 
 **Call chain:** call setup → resolver (cache or network) → keys/records → verification.
 **Wiring test:** End-to-end against a **local fixture HTTP server** (not a trait stub) serving
 plc.directory-shaped and `listRecords`-shaped responses; plus an asserted deny on resolver timeout.
+**(Pass 3) Named behaviours, RED-first — the fail-closed cases are the point, and each failure mode
+needs its own row because they are five different code paths that must converge on one outcome:**
+handle that does not resolve → deny; DID that resolves to no PDS → deny; PDS returning `500` → deny;
+PDS returning **valid JSON of the wrong shape** → deny (not a panic, and not a partial parse that
+proceeds); PDS that **hangs past the timeout** → deny, and within the timeout, not whenever the socket
+eventually gives up; `did:web` whose `.well-known` is a redirect to another host → deny. Plus the cache:
+a second lookup inside the TTL makes no network call; one after it does; and **a failed lookup is not
+cached**, or one plc.directory blip locks a user out for the whole TTL.
 **Depends on:** Phase 6.
 **Read-set:** `crates/croft-admit/src/{pds,did,enroll}.rs`, `CISS/crates/ciss-auth/src/lib.rs`.
 **Write-set:** `crates/croft-admit/src/{pds_client,did_doc,cache}.rs`, `Cargo.toml`.
-**Shared-state contract:** First outbound network dependency in this crate. Tests bind a local fixture
-server on `:0`; **CI must have no egress expectation.** Cache is process-local with a TTL.
+**Shared-state contract:** **(Pass 3 — invariants.)** First outbound network dependency in this crate.
+No test resolves a hostname outside `127.0.0.1`; the fixture server binds `:0`; **CI makes no egress
+whatsoever**, and the resolver's base URLs are injected by config so a test can point them at the
+fixture rather than relying on a network being absent. Cache is process-local, bounded, and never
+written to disk. The one live run against the owner's test account is **manual and recorded in
+`evidence/`** — it is not part of any `cargo test` invocation.
 **Risks:** Under-scoping this a second time — handle resolution, DID methods, PDS discovery, document
 parsing, and record listing are five failure surfaces. Cache invalidation on key rotation is a real
 correctness question: state the TTL and its rationale rather than picking silently. Corpus rule: atproto
@@ -773,20 +1003,58 @@ carrying tier and budget.
 - [ ] Quota decrement from the usage records Phase 3 emits.
 - [ ] Record the fate of `RegistryAccess` and the HTTP-hook path: **kept, labelled as the fallback**
       (Phase 5), not deleted.
+- [ ] **(Pass 3) Update ADR-0003 in this phase** — claims gain a budget and revocation becomes
+      expiry-*and*-record-deletion. §6 already schedules it here; it was missing from the write-set
+      below, which is how a scheduled doc update silently becomes a docs-phase-at-the-end.
+- [ ] **(Pass 3) Logging:** `WARN` on every mint refusal with a `reason` discriminant (`no_cap`,
+      `cap_not_found`, `cap_revoked`, `jwt_invalid`, `replay`, `quota_exhausted`) — six refusals that
+      look identical to the user and must not look identical to us. `INFO` on quota exhaustion for a
+      member, which is a commercial event someone will need to answer for. `DEBUG` on a successful mint
+      with the `cap_id` and the resulting budget class. **Never log the cap secret, the minted token, or
+      the `(caller, callee)` pair** — the mint is the one place in the system that legitimately sees
+      both parties, which makes it the one place a call-detail record could accidentally be written.
+      §3.5's whole guarantee is destroyed by one convenient log line here.
 
 **Call chain:** client → `/grantCall` → resolve → verify cap → `sponsorship_for` → mint → client swaps
 its relay token.
 **Wiring test:** A caller holding a valid cap is minted a token; the callee **deletes the grant record**;
 the next mint attempt is refused. Deletion-then-refusal is the assertion — testing only the happy path
-proves nothing about revocation.
+proves nothing about revocation. Driven over HTTP against the running `croft-admit` binary — the same
+reason as Phase 6: a test that calls `sponsorship_for` directly proves the function, not the endpoint.
+
+**(Pass 3) Boundary cases, named.** `sponsorship_for` has the same `||` hazard as Phase 4 and the same
+four-row matrix applies (neither / caller / callee / both) — assert all four, at this layer too, since
+the relay-side and mint-side membership rules are separate code that must agree. Then the refusal
+surface, one row each, because they are six paths to one user-visible outcome:
+
+| Presented | Expected |
+|---|---|
+| no cap | refused, `no_cap` |
+| a cap that never existed | refused, `cap_not_found` |
+| a cap whose grant record was deleted | refused, `cap_revoked` |
+| a valid cap, invalid service-auth JWT | refused, `jwt_invalid` |
+| a valid cap, replayed `jti` | refused, `replay` |
+| a valid cap, member over quota | refused, `quota_exhausted` |
+| a valid cap, everything in order | minted, with the budget class the matrix says |
+
+**Revocation timing is a boundary, not a yes/no.** Assert that a token minted *before* the grant
+deletion **stays valid until it expires** — that is the designed behaviour (§ "revocation is both"), and
+a test that asserts immediate invalidation would be asserting a property the design deliberately does
+not have. Assert the complementary half too: after deletion, no new token is issued. Together they are
+the claim "revocation takes effect within one token lifetime"; separately, neither is.
 **Depends on:** Phase 7, **and Phase 3 (Pass 2)** — the quota decrement consumes the usage records the
 counting decorator emits. Pass 1 declared only Phase 7, hiding a cross-milestone dependency from
 Milestone B into Milestone C.
 **Read-set:** `crates/croft-admit/src/{token,tier,http_api}.rs`, `CISS/crates/ciss-auth/src/*`,
 `crates/croft-relay-bin/src/usage.rs`.
-**Write-set:** `crates/croft-admit/src/{cap,sponsorship,quota,token,http_api}.rs`.
-**Shared-state contract:** Clock injected as the existing verifier does; no wall-clock reads outside the
-edge. `ciss-auth` enters as a dependency (path or git — Open Questions).
+**Write-set:** `crates/croft-admit/src/{cap,sponsorship,quota,token,http_api}.rs`,
+**`experiments/croft-relay/docs/adr/0003-token-format.md` (Pass 3 — was scheduled in §6 but missing
+here)**, `Cargo.toml`.
+**Shared-state contract:** **(Pass 3 — invariants.)** Clock injected as the existing verifier does; no
+wall-clock read outside the edge, so no test sleeps to reach an expiry. The `ReplayGuard` is
+process-local and bounded — it never grows unbounded on `jti`s that have already expired. `ciss-auth`
+enters as a dependency (path or git — Open Questions). No test reaches the network; caps and grant
+records come from Phase 7's fixture server.
 **Risks:** Reimplementing JWT verification instead of reusing `ciss-auth` — it is the highest-risk
 crypto surface and the existing code is reviewed. Second: an unenforced quota is worse than none;
 assert exhaustion behaviour, not just accounting.
@@ -847,12 +1115,37 @@ it → presents it at call setup (Phase 8 verifies it).
 resolves to both and the page produces a working link for each — two devices is the assertion, one
 hides every bug this introduces. (b) A cap issued by one persona's client is redeemed by another's and
 verifies against the grant record; deleting the record makes it stop verifying.
+
+**(Pass 3) Named behaviours, RED-first.** The policy enum is three-valued and the device list is
+variable-length; both are single-point-assertion traps.
+
+| Case | Expected |
+|---|---|
+| policy `nobody` | page renders "not callable" |
+| policy `mutuals` | page renders the out-of-band invite affordance |
+| policy `anyone` | same affordance (built, tested, unadvertised) |
+| handle does not exist | **byte-identical refusal to `nobody`** — assert the equality directly, not each in isolation, or the leak returns the first time someone adds a helpful error message |
+| policy record absent entirely | treated as `nobody`, not as `anyone` — the default must fail closed |
+| 0 device records | page renders not-callable, no crash |
+| 1 device record | link produced |
+| 2 device records | **both** resolved, both linkable |
+| a valid cap, policy `nobody` | **still admitted** — the cap is the only gate (the anti-second-gate assertion) |
+
+**(Pass 3) Client-side logging is not the same problem.** The exchange page is a public, backendless
+artifact: it must log **nothing** about who was looked up — not to a console, not to any analytics. The
+Android client may log at debug for its own diagnosis, but a cap secret must never reach a log or a
+crash report. State this in `contract.md`, since it constrains two codebases and neither one's authors
+will infer it.
+
 **Depends on:** Phase 8 for the verification side. The lexicon and page work may start as soon as the
 shape is agreed.
 **Read-set:** `connect/docs/contract.md`, `web/resolver.js`, `android/.../DeepLink.kt`.
 **Write-set:** the same files plus the cap issue/redeem paths, in `CroftCommunity/connect`. **Different
 repo** — separate PR, separate CI.
-**Shared-state contract:** Writes records to the owner's test account. No shared state with this repo.
+**Shared-state contract:** **(Pass 3 — invariants.)** Writes records only to the owner's two designated
+fixture personas, never to a real account. Every record written by a test is deleted by that test, so a
+re-run starts from the same state — a persona left with three device records makes the two-device
+assertion pass for the wrong reason. Touches no path in this repo and performs no git operation here.
 **Risks:** Nothing is published yet, so the lexicon change is free now and a migration later. Second:
 the policy record is easy to mistake for enforcement — if any code path treats it as a gate, the cap
 stops being the only gate and the design's simplicity is lost. Assert that a caller with a valid cap is
@@ -874,6 +1167,11 @@ admitted **regardless** of the callee's policy setting.
 - [ ] Surface a budget drop as **a tier limitation, not a bug** — the original build plan's app-facing
       note, and the entire point of choosing a clean drop over degradation.
 - [ ] Do-not-disturb and a zero-cost blocklist. Owner's ranking: these matter more than eviction.
+- [ ] **(Pass 3) The client must distinguish three endings and say so.** A budget drop, a network
+      failure, and a callee declining are three different things that all present as "the call ended."
+      The clean close chosen in Phase 4 exists precisely so the client can tell them apart — if the app
+      shows one message for all three, the entire argument in §3.1 for budget-and-drop over throttling
+      is forfeited at the last step. Assert each ending renders its own message.
 
 **Call chain:** app call action → `/grantCall` → token → `insert_relay` → dial → (budget spent) →
 disconnect → honest UI.
@@ -908,6 +1206,14 @@ explicitly.
       level aggregates**, per OPEN-QUESTIONS Q5, unless explicitly overridden.
 - [ ] Fuzz the token parser (network-facing), time-boxed.
 - [ ] Load test: N clients, stable memory, correct budget behaviour, decorator overhead measured.
+- [ ] **(Pass 3) Audit the logging this plan added, under load.** Every `WARN` introduced in Phases 2–8
+      is on a path a stranger can trigger, which makes each one a log-amplification vector. Confirm the
+      deny path allocates no per-attempt line at the default level, and that the per-attempt limiter
+      sits **ahead of** verification cost rather than behind it.
+- [ ] **(Pass 3) Grep the logging for the privacy rule, mechanically.** A test or CI check asserting no
+      log call site takes both a caller and a callee identifier. §8.3 states the rule and ADR-0006
+      records it, but a rule enforced only by review is one that survives until the first difficult
+      debugging session.
 
 **Call chain:** deny path → counters; parser → fuzz harness.
 **Wiring test:** Under load, denied connections allocate no per-attempt log lines and budget counters

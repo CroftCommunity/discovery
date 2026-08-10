@@ -1,8 +1,8 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–2 GREEN 2026-08-09.**
-All three planning passes complete, all 5 open questions resolved. Phases 3–14 not started. Phase 0 falsified one hypothesis inside M2 and forced
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–3 GREEN 2026-08-09.**
+All three planning passes complete, all 5 open questions resolved. Phases 4–14 not started. Phase 0 falsified one hypothesis inside M2 and forced
 seven plan changes — see § Phase 0 outcomes.
 
 **Executes:** `alpha/experiments/meer-queue/SPIKE-SPEC.md` (M1, M2, S1–S8)
@@ -618,7 +618,32 @@ degenerate seal.
 
 ---
 
-### Phase 3: Meer core and queue
+### Phase 3: Meer core and queue — ✅ GREEN 2026-08-09
+
+> **Executed.** RED first, then GREEN: 7 tests, clippy clean. Five mutations run; **one survived
+> and exposed a vacuous assertion.**
+>
+> **The surviving mutant.** Making `publish` deposit **once per recipient** did not fail the suite.
+> Cause: CISS is content-addressed, so five `PUT`s of identical bytes still leave **one file**.
+> `blob_files().len() == 1` was therefore testing *CISS's dedup*, not *the meer's store-once* — two
+> different claims that the on-disk count cannot tell apart.
+>
+> **Why that distinction is load-bearing, not pedantic.** Storage dedups; **transit does not**. The
+> design meters transit (the hypothesis doc's "meter both transit and at-rest", and the transit meter
+> *is* the offline-data fraction). A meer that deposited per-recipient would bill N × the bytes for
+> one delivered message while looking identical on disk. Fix: `CissHarness` now counts `PUT`s, and
+> the test asserts **`put_count() == 1`** alongside the file count, as two separate claims. Mutant
+> re-run and killed.
+>
+> **This reshapes S2.** Phase 7's fan-out measurement must count deposits, not just files — the plan's
+> "measure actual storage cost" is the weaker half of what S2 is really about.
+>
+> Four other mutations killed: `ack` not pruning; `want` ignoring the have-set; `append` not
+> idempotent on digest; a constant deposit day.
+>
+> **One in-phase correction:** `append`'s dedup-on-digest was written without a test driving it
+> (spotted before commit). A test was added rather than the code deferred — it is genuine Phase-3
+> queue behaviour, and it is what makes S3's dual delivery free rather than a special case.
 
 **Goal:** Four of the five operations, blind, with the have/want digest diff. **Sweep-and-watermark
 is deliberately NOT built here** — see below.

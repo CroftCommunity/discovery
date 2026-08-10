@@ -18,6 +18,8 @@
 //!   independent of both our bookkeeping and CISS's own `du`.
 
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Arc;
 
 use ciss::server::{App, Blobs, Db, Limits};
 use tokio::sync::oneshot;
@@ -91,6 +93,14 @@ pub struct CissHarness {
     base: String,
     client: reqwest::Client,
     blob_root: PathBuf,
+    /// How many object `PUT`s have been issued through this harness.
+    ///
+    /// Exists because **on-disk file count cannot distinguish "the caller stored once" from
+    /// "the caller stored the same bytes N times into a content-addressed store"** — both
+    /// leave one file. That distinction is not cosmetic: storage dedups, but **transit does
+    /// not**, and the design meters transit. A meer that PUT once per recipient would bill
+    /// N x the bytes for one delivered message. Found by a surviving mutant in Phase 3.
+    puts: Arc<AtomicUsize>,
     shutdown: Option<oneshot::Sender<()>>,
     handle: Option<tokio::task::JoinHandle<()>>,
     /// Held so the temp dir outlives the server; dropped last.
@@ -138,6 +148,7 @@ impl CissHarness {
             base: format!("http://{addr}"),
             client: reqwest::Client::new(),
             blob_root,
+            puts: Arc::new(AtomicUsize::new(0)),
             shutdown: Some(tx),
             handle: Some(handle),
             _dir: dir,
@@ -155,6 +166,7 @@ impl CissHarness {
     /// `PUT /{did}/objects/{key}` — store an object in `who`'s namespace.
     pub async fn put_object(&self, who: &Identity, key: &str, bytes: &[u8]) -> Outcome {
         let (pubkey, session) = who.session_headers();
+        self.puts.fetch_add(1, Ordering::SeqCst);
         let url = format!("{}/{}/objects/{key}", self.base, who.did());
         self.run(
             self.client
@@ -192,6 +204,13 @@ impl CissHarness {
                 .header("x-croft-session", session),
         )
         .await
+    }
+
+    /// How many object `PUT`s have been issued. See [`Self::puts`]'s field docs for why this
+    /// is not the same question as how many blobs are on disk.
+    #[must_use]
+    pub fn put_count(&self) -> usize {
+        self.puts.load(Ordering::SeqCst)
     }
 
     /// Every blob file the server has actually written, relative to the blob root

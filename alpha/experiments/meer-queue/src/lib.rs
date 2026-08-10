@@ -13,7 +13,9 @@
 //! `../SPEC-DIVERGENCE-REGISTER.md`. Every tag has a row; every row has a tag.
 
 pub mod ciss_harness;
+pub mod meer;
 pub mod mls;
+pub mod queue;
 
 /// Initialise stderr tracing for a probe or test run, honouring `RUST_LOG`.
 ///
