@@ -233,9 +233,20 @@ Not nftables, not eBPF, not a second process. Those sit below the layer where id
 the traffic is TLS regardless.
 
 Our binary accepts the TCP connection, terminates TLS, and reads the HTTP request — at which point we
-know which token was presented, therefore which member. Before handing the stream to iroh's service, we
-wrap it in a struct implementing `AsyncRead`/`AsyncWrite` that increments a counter. On close we emit
+know which token was presented, therefore which member. On close we emit
 `(member, bytes_in, bytes_out, duration)`.
+
+**(Phase 3 correction, 2026-08-10.)** The original mechanism here — "wrap the stream in an
+`AsyncRead`/`AsyncWrite` struct before handing it to iroh's service" — turned out to be
+**impossible**: after the websocket upgrade the relay downcasts its IO to exactly
+`TokioIo<MaybeTlsStream>`, whose variants are concrete `TcpStream` types, so any interposed type
+breaks every relay connection at runtime. The built shape is the **loopback airlock**:
+`CountingStream` wraps the *public* connection (where every byte of the connection's lifetime passes,
+upgrade included) and a pump splices it over a loopback TCP hop to an internal listener whose
+connections are genuine `TcpStream`s — upstream unmodified, downcast intact. The section's argument
+survives unchanged: the counter still sits in our own process at the layer where identity is known,
+which no nftables/eBPF/second-process design can reach. Full detail: the Review Log's Phase 3
+course-correction and `croft-relay-bin/src/counting.rs`.
 
 It counts framing as well as payload, so it is an **upper bound**. That is fine for a budget and for
 capacity planning, and it must never be described as billing.
