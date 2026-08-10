@@ -134,3 +134,100 @@ pub fn reframe(sealed: &[u8]) -> Result<Vec<u8>, MlsError> {
         .tls_serialize_detached()
         .map_err(|e| MlsError::Create(e.to_string()))
 }
+
+/// Every object S8 measures, for one group of a given size and tree-extension setting.
+#[derive(Debug, Clone, Copy)]
+pub struct GroupObjects {
+    /// Members seated (planter included).
+    pub n: usize,
+    /// Was the ratchet-tree extension enabled?
+    pub tree_ext: bool,
+    /// The add-all commit that seats the member set.
+    pub commit_add: usize,
+    /// A lone member's self-update commit (the M1 "floor" shape).
+    pub commit_update: usize,
+    /// A remove commit.
+    pub commit_remove: usize,
+    /// The Welcome seating all joiners.
+    pub welcome: usize,
+    /// `GroupInfo`, when the config asks for it.
+    pub group_info: Option<usize>,
+    /// An application message (expected flat).
+    pub app_message: usize,
+}
+
+/// Build a real group of `n` members and measure every object S8 cares about.
+///
+/// **Why this exists rather than reusing `mls_replant::stamp`:** `stamp_kps` hardcodes
+/// `MlsGroupCreateConfig::default()`, whose `use_ratchet_tree_extension` is `false`, and it
+/// **discards** the `GroupInfo` returned by `add_members`. Both objects S8 is about are therefore
+/// unreachable through it (Phase 0, D7). Real openmls throughout — this is a construction path,
+/// not a stand-in.
+///
+/// # Panics
+/// On any openmls error — these are measurement-time invariants, not runtime paths.
+#[must_use]
+pub fn measure_group(n: usize, tree_ext: bool) -> GroupObjects {
+    assert!(n >= 2, "a group needs at least a planter and one other");
+    let planter = Persona::new("planter");
+    let others: Vec<Persona> = (1..n).map(|i| Persona::new(&format!("m{i}"))).collect();
+    let kps: Vec<KeyPackage> = others.iter().map(Persona::key_package).collect();
+
+    let config = MlsGroupCreateConfig::builder()
+        .use_ratchet_tree_extension(tree_ext)
+        .ciphersuite(mls_replant::CS)
+        .build();
+
+    let mut group = MlsGroup::new(&planter.provider, &planter.signer, &config, planter.cwk.clone())
+        .expect("create group");
+
+    let (commit, welcome, group_info) = group
+        .add_members(&planter.provider, &planter.signer, &kps)
+        .expect("add_members");
+    group.merge_pending_commit(&planter.provider).expect("merge");
+
+    let commit_add = ser_len(&commit);
+    let welcome_len = ser_len(&welcome);
+    let group_info = group_info.map(|gi| {
+        gi.tls_serialize_detached()
+            .expect("serialize group_info")
+            .len()
+    });
+
+    let app_message = seal(&mut group, &planter, b"a representative application message")
+        .expect("seal")
+        .len();
+
+    // A lone self-update commit — the shape mls-replant measured as the O(N) floor.
+    let update_bundle = group
+        .self_update(&planter.provider, &planter.signer, LeafNodeParameters::default())
+        .expect("self_update");
+    let commit_update = ser_len(update_bundle.commit());
+    group.merge_pending_commit(&planter.provider).expect("merge update");
+
+    // A remove commit.
+    let victim = group
+        .members()
+        .find(|m| m.index != group.own_leaf_index())
+        .expect("another member")
+        .index;
+    let (remove_msg, _, _) = group
+        .remove_members(&planter.provider, &planter.signer, &[victim])
+        .expect("remove_members");
+    let commit_remove = ser_len(&remove_msg);
+
+    GroupObjects {
+        n,
+        tree_ext,
+        commit_add,
+        commit_update,
+        commit_remove,
+        welcome: welcome_len,
+        group_info,
+        app_message,
+    }
+}
+
+fn ser_len(m: &MlsMessageOut) -> usize {
+    m.tls_serialize_detached().expect("serialize").len()
+}

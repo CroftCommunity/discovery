@@ -1,8 +1,8 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–10 GREEN 2026-08-10.**
-All three planning passes complete, all 5 open questions resolved. Phases 11–14 not started.
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–11 GREEN 2026-08-10. **All eight scenarios and both must-pass claims are run.**
+All three planning passes complete, all 5 open questions resolved. Phases 12–14 (register, fold-back, close-out) remain.
 **Both must-pass claims are settled: M1 CONFIRMED (real-lib); M2's positive arm CONFIRMED and its
 negative-arm hypothesis FALSIFIED (real-lib), with the `MUST` upheld on stronger grounds.**
 Verdicts in `alpha/experiments/meer-queue/TEST-LOG.md`. Phase 0 falsified one hypothesis inside M2 and forced
@@ -1101,7 +1101,28 @@ from the spec.
 
 ---
 
-### Phase 11: S8 — object sizes against the 2 MiB cap
+### Phase 11: S8 — object sizes against the 2 MiB cap — GREEN 2026-08-10
+
+> **Full sweep run to the cap** (N = 2…8000, tree ON and off, 49.6 s release). It stopped because
+> objects crossed 2 MiB, not because a budget ran out. Full table and analysis in `S8-RESULTS.md`.
+>
+> **Application messages are FLAT at 181 bytes** across the whole range — the object the meer carries
+> in steady state never approaches the cap.
+>
+> **"commit ~log N" is falsified — all three commit types are linear.** Rates pinned: 82 B/member for
+> self-update and remove, 282 B/member for the add-all commit.
+>
+> **The pre-registered catastrophic branch is HALF closed.** Application messages never cross;
+> **ordinary commits do**, at ≈ 25 500 members. So CISS does not need streaming for conversational
+> groups, but would at broadcast scale — the tier §6.9.1 already treats separately.
+>
+> **Crossover order:** `Welcome`-with-tree ≈ 6 350 → add-all commit ≈ 7 440 → `GroupInfo` ≈ 11 780 →
+> `Welcome`-without-tree ≈ 13 790 → ordinary commits ≈ 25 500. Shipping the tree out of band (already
+> the corpus's de-facto default) roughly **doubles** the viable group size — the largest single lever
+> measured.
+>
+> **Limits stated rather than buried:** one ciphersuite, `BasicCredential` only, and `k` not varied
+> independently of N. Real credentials are larger per leaf, so **these figures are a best case.**
 
 **Goal:** The measurement most likely to change the design. Runs **sequentially** after Phase 10 (Open
 Question 5; and after Pass 3 added `src/mls.rs` here, the parallel option is unsafe as well as unused
