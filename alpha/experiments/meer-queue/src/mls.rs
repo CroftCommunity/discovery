@@ -104,3 +104,33 @@ pub fn open(
         }
     }
 }
+
+/// **The forbidden move, made available only under the `reframe` feature.**
+///
+/// Decode an `MlsMessage` and re-encode it without changing semantic content — what a
+/// misbehaving forwarder would do. It exists solely so M2 can construct the thing the spec
+/// forbids and measure what actually happens.
+///
+/// Two facts about it, both established by Phase 0's D3 probe and both load-bearing:
+///
+/// 1. **It does not compile in a default build.** openmls gates
+///    `From<MlsMessageIn> for MlsMessageOut` behind `test-utils`
+///    (`framing/message_out.rs:195-211`), with the comment *"break abstraction layers and MUST
+///    NOT be made available outside of tests"*. The library enforces the property Part 2 §6.6.2
+///    states, independently of our discipline.
+/// 2. **The result is byte-identical to the input**, because TLS-codec serialization is
+///    canonical. Re-framing is therefore not a route to a different-but-valid copy. The
+///    dangerous operation is *re-sealing*, which requires a group key.
+///
+/// # Errors
+/// [`MlsError::Parse`] if the input is not an MLS message; [`MlsError::Create`] if
+/// re-serialization fails.
+#[cfg(feature = "reframe")]
+pub fn reframe(sealed: &[u8]) -> Result<Vec<u8>, MlsError> {
+    let msg_in = MlsMessageIn::tls_deserialize_exact(sealed)
+        .map_err(|e| MlsError::Parse(e.to_string()))?;
+    let msg_out: MlsMessageOut = msg_in.into();
+    msg_out
+        .tls_serialize_detached()
+        .map_err(|e| MlsError::Create(e.to_string()))
+}

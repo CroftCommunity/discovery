@@ -1035,6 +1035,29 @@ network-facing, all in an authentication path.
 - [ ] Record reads: `com.atproto.repo.listRecords` for device records and for cap-grant records.
 - [ ] **Cache with an explicit TTL**, since a plc.directory round-trip inside every call setup is both
       latency and an availability coupling.
+- [ ] **(Pass 3 — owner, 2026-08-09) Two ages, not one TTL.** A single number forces a choice between
+      noticing a key rotation and surviving someone else's outage. Two do not:
+
+      | Dial | Starting value | Behaviour past it |
+      |---|---|---|
+      | **Refresh age** | ~1h | refresh in the background on next use; **keep serving the cached entry** |
+      | **Hard max-stale** | 24h | refuse — fail closed, per the ruling below |
+
+      In normal operation entries are fresh within the hour, because the background refresh succeeds.
+      The 24h figure is load-bearing **only** during an upstream outage, which is the case it exists
+      for. Tune either independently.
+
+      **Why a long max-stale is defensible here specifically:** a stale key means we would accept a
+      signature from a key its owner has abandoned. In this system that buys **relayed bandwidth in
+      their name** — not access to any call, because calls are end-to-end and the relay is blind (§3.5).
+      A bandwidth-theft window, not an eavesdropping one. Were the key guarding message content, the
+      numbers should be much shorter; state this reasoning in the ADR so the values are not later copied
+      into a context where the premise does not hold.
+- [ ] **Cache shape, since it is what makes the above work:** process-local, **bounded** (an unbounded
+      identity cache is a memory-growth vector driven by strangers), single-flight on refresh so a
+      thundering herd does not multiply one miss into hundreds of upstream calls, and **failures are
+      never cached** — one plc.directory timeout must not lock a user out for the refresh age, let alone
+      the max-stale.
 - [ ] **Fail closed** on any resolver failure — owner's ruling — with a test asserting it, because
       "fail open under load" is the classic regression. Accept and document the consequence: a
       plc.directory outage stops new call setup for `did:plc` identities.
@@ -1351,9 +1374,12 @@ measure its overhead rather than assuming it is free.
   a relay reconnect? *Rationale: it determines whether a sponsored upgrade starts a fresh budget
   naturally or the supervisor must re-read budgets on live connections. Settle by probe before
   implementing; it is cheap to answer and expensive to assume.*
-- **[RECOMMENDED: PHASE-GATED — Phase 7]** DID-document cache TTL, and the accepted consequence of
-  fail-closed (a plc.directory outage stops new `did:plc` call setup). *Rationale: fail-closed is
-  decided; the TTL trades outage exposure against serving a rotated key past its rotation.*
+- **[CONFIRMED: PHASE-GATED — Phase 7]** DID-document cache TTL. **(Owner, 2026-08-09: phase-gated
+  confirmed; shape settled, values provisional.)** Split into a **~1h refresh age** (background refresh,
+  keep serving) and a **24h hard max-stale** (refuse), so noticing a rotation and surviving an upstream
+  outage stop competing. Defensible because a stale key buys relayed bandwidth, not call content.
+  Remaining for Phase 7: confirm both numbers against real plc.directory behaviour, and implement the
+  cache shape (bounded, single-flight, failures never cached).
 - **[RECOMMENDED: PHASE-GATED — Phase 8]** `ciss-auth` as a path dependency, a git dependency, or
   vendored. *Rationale: cross-repo coupling versus drift. Reimplementation is not on the table.*
 - **[RECOMMENDED: PHASE-GATED — Phase 10]** Deep link with a device selector, or client tries devices in
