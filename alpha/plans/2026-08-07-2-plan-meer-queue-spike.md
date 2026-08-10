@@ -1,8 +1,8 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08.** All three planning passes complete, all 5 open
-questions resolved. Phases 1–14 not started. Phase 0 falsified one hypothesis inside M2 and forced
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phase 1 (CISS harness) GREEN 2026-08-09.**
+All three planning passes complete, all 5 open questions resolved. Phases 2–14 not started. Phase 0 falsified one hypothesis inside M2 and forced
 seven plan changes — see § Phase 0 outcomes.
 
 **Executes:** `alpha/experiments/meer-queue/SPIKE-SPEC.md` (M1, M2, S1–S8)
@@ -512,7 +512,18 @@ tests, no commit-per-item. Each task honors its declared Disposition.
 
 ---
 
-### Phase 1: CISS harness
+### Phase 1: CISS harness — ✅ GREEN 2026-08-09
+
+> **Executed.** RED first (`w0_ciss_roundtrip` failed to compile against a non-existent
+> `ciss_harness`), then GREEN: 3 tests passing, clippy clean. Both load-bearing assertions were
+> **mutation-checked** rather than trusted: swapping `Blobs::Fs`→`Blobs::Memory` killed the
+> disk-count assertion (`found: []`), and flipping the expected status 413→200 killed the cap
+> assertion. A compile-error RED proves a test needs the code; it does not prove the assertions bite,
+> so each was made to fail deliberately.
+>
+> One deviation from the plan: `src/lib.rs` was created here rather than in Phase 2, because the
+> integration test needs a lib target to import. Phase 2 still adds `resolved_versions()` and the
+> tracing init to it.
 
 **Goal:** Spin the real CISS axum router on loopback and round-trip an object over real HTTP.
 **Changes:**
@@ -1128,6 +1139,26 @@ why.
   wants it), but the executor runs the sequential spine. `S8-RESULTS.md` is kept: it was introduced to
   make the write-sets disjoint, and it remains useful as a place for a long measurement table that
   would otherwise crowd `TEST-LOG.md`.
+
+- `[RECOMMENDED: PHASE-GATED (Phase 9)]` **Add S9 — drain the queue with no meer in the loop?**
+  *Raised by the owner 2026-08-09, reviewing the walkthrough: the "your mail never leaves home"
+  claim is **not compelling as user value**, and that critique is correct. A user does not experience
+  namespace ownership; the mail is sealed either way, so ownership adds no confidentiality; and the
+  queue is a 14-day transient buffer, not an archive. The claim does real work for anti-entrenchment
+  (an operator/governance property) but was being presented as user-facing value it cannot carry.*
+  *The owner's reframing is stronger and, unlike the original, **falsifiable**: if the queue really
+  lives in the recipient's namespace, the meer is a **writer**, not a required **reader** — any
+  authorized client could drain straight from CISS (`ciss-sync`, a second meer, a user script, or
+  nothing at all). The claim becomes "**no single service sits on the critical path for reading your
+  own mail**."*
+  *Proposed S9: after a normal publish, drain the queue **with the meer process absent**, straight
+  from CISS, and assert the recipient recovers the same sealed bytes. Cheap — the harness and the
+  queue entries already exist by Phase 9. Caveat: under `meer-spike-namespace` the queue lives in the
+  meer's namespace, so S9 would prove the **mechanism** (a meer-free read path exists) and not yet the
+  **entitlement** (that it is the recipient's own namespace being read). That limit must be stated in
+  the verdict, same as S6's.*
+  *Owner's position as of 2026-08-09: interested, not decided ("I'm not there yet"). Nothing before
+  Phase 9 depends on the answer, so this does not gate execution.*
 
 ## Review Log
 

@@ -1,8 +1,8 @@
 # croft-relay: cap-gated calling with a metered introduction budget
 
-- **Status:** Rewrite (2026-08-08). Supersedes the 2026-08-07 draft and its Pass-2 gap analysis —
-  those are preserved in the Review Log, not above it. Not yet re-reviewed; a fresh Pass 2 against
-  *this* structure is the next step.
+- **Status:** Rewrite (2026-08-08), **Pass 2 complete against the rewrite** (2026-08-08). Supersedes the
+  2026-08-07 draft and its gap analysis — both preserved in the Review Log, not above it. Pass 3
+  (quality gates) pending; one BLOCKING open question wants an owner answer first.
 - **Supersedes in part:** ADR-0001's fork-vs-embed framing; **ADR-0004's entire enforcement
   mechanism** (rate-limiting is replaced by a byte budget with a clean disconnect).
 - **Source dialogue:** `../seeds/transcripts/raw/croft-relay-tiered-admission-fork-vs-embed-2026-08-07.md`
@@ -42,6 +42,18 @@ So the matrix is:
 "Either is a member" is the rule the owner set: a member's participation unlocks the tunnel whether
 they are transmitting or receiving. It is decided at call setup by `croft-admit`, which is the only
 component that sees both parties.
+
+### 1.1 Precondition this plan does not solve (Pass 2)
+
+**Both parties must be reachable for any of this to matter, and today that means both have the app in
+the foreground.** The `connect` Android client is foreground-only by design — background reachability
+needs a foreground service plus push-to-wake, which its README calls out as its own phase. Nothing in
+this plan changes that.
+
+This is stated here rather than buried in a phase because it bounds the whole product: a calling system
+where both parties must already be looking at the app is a demo, not a service. It also blocks Phase 9's
+request delivery, which assumes a way to reach someone who isn't watching. **Sequencing this work is
+out of scope for this plan, but it must not be discovered later as a surprise.**
 
 ## 2. Problem Statement
 
@@ -237,6 +249,10 @@ Read from pinned source. Anything not listed is unverified.
 | Token rides `Authorization: Bearer` (native) or `?token=` (wasm) | `src/client.rs:157`; `src/http.rs:23` |
 | Client-auth header is `x-iroh-relay-client-auth-v1`; TLS-exporter auth failure is normal and falls back to a challenge round-trip | `src/http.rs:18`; `src/protos/handshake.rs:447` |
 | Relay path is `/relay`, constant — not a routing key | `src/http.rs:13` |
+| **(Pass 2)** `Clients::disconnect(endpoint_id, None)` drops **every** connection for that endpoint; `Some(id)` targets one. `ConnectionId` is `pub` | `src/server/clients.rs:172-195`; `src/server.rs:175` |
+| **(Pass 2)** `disconnect` is **asynchronous** — actors exit their run loop and unregister *after* the call returns, so byte overshoot between decision and close is expected | `src/server/clients.rs:179-181` (doc comment) |
+| **(Pass 2)** `ClientRequest` exposes `endpoint_id()`, `connection_id()`, `auth_token()`, `uri()` as public accessors | `src/server.rs:186-235` |
+| **(Pass 2)** The Service takes the websocket upgrade from the request inside `call` (`handle_relay_ws_upgrade`) — so the upgraded task receives the IO we wrapped. **Mechanism understood, not yet asserted by a test** (Phase 3 does that) | `src/server/http_server.rs:742-760` |
 
 **iroh 1.0.3**
 
@@ -278,35 +294,56 @@ Read from pinned source. Anything not listed is unverified.
 - **Whether `Endpoint::insert_relay` with a changed auth token forces a relay reconnect.** The budget
   boundary depends on it (see Phase 4). Verify before designing around either answer.
 - **Introduction byte cost across real NATs.** Phase 0.
+- **(Pass 2) `com.atproto.repo.listRecords`** — the corpus FACTCHECK docs do not cover it, and
+  `connect/docs/contract.md` evidences only `resolveHandle` and `getRecord` (which are working,
+  deployed code). `listRecords` is this plan's addition and is asserted from general knowledge. Confirm
+  against the atproto lexicon before Phase 10 builds the contract on it.
+- **(Pass 2) That post-upgrade bytes traverse our `CountingStream`.** The mechanism is understood
+  (hyper hands the original IO to the upgraded task) but untested. Phase 3 asserts it; the counting
+  design fails silently if it does not hold.
 
-## 5. The request-to-token flow
+## 5. Cap distribution: out-of-band only
 
-A cap gates calling, so a stranger has no way in. That is intentional, but it needs a release valve,
-and the owner's ruling is that **the valve is the user's setting, not a product default**:
+A cap gates calling, so a stranger has no way in. That is intentional. The question was whether a
+stranger needs an in-band way to *ask*. **Owner's decision (2026-08-09): out-of-band is the only model
+we are pursuing.**
 
-> The flow needs to exist and the user decides — strangers may request, or only mutuals, or nobody.
-
-So each user publishes a **request policy**: who may ask them for a cap. This is a small enum, not a
-list, so it can live as a public record in their own repo without leaking anything about who they know.
+You hand someone a cap the way you would hand them your phone number — a link, a QR code, an email.
+Nothing traverses our infrastructure, nothing queues anywhere, nothing about the request is published.
 
 ```
-  stranger looks up handle on the exchange page
+  callee's client                                   caller
+        │  writes a grant record to its own repo
+        │  (opaque cap id, names nobody)
         │
-        ├─ callee's request policy = nobody   → page renders "not callable"
-        ├─ = mutuals                          → page checks the graph, then offers "request"
-        └─ = anyone                           → page offers "request"
-                    │
-                    ▼
-        a connection request reaches the callee's client
-        (this is a call-adjacent notion, not a relay one:
-         "someone would like to be able to call you")
-                    │
-                    ▼
-        callee accepts → issues a cap → caller can now call
+        │  produces a link / QR carrying the cap
+        └───────────── out of band ───────────────▶ stores it
+                     (message, email, in person)         │
+                                                         ▼
+                                       presents the cap at call setup
+                                       croft-admit verifies it against
+                                       the grant record in the callee's repo
 ```
 
-The request is an app-layer notion. The relay never sees it. "Open to anyone" is built and tested as
-the counter-case so we understand the mechanism, and is not advertised.
+Each user still publishes a **policy record** — `anyone | mutuals | nobody` — but its role is narrower
+than the earlier design assumed: **it is advisory UI, not enforcement.** The cap is the gate. The
+policy exists so the exchange page knows what to render, and so a user can say "don't bother asking"
+without that statement disclosing anything about who they know. A caller holding a valid cap is
+admitted regardless of what the policy says.
+
+The page refuses identically for `nobody` and for "no such handle" — a refusal that leaks existence
+would be a worse privacy failure than the allowlist this design avoided. `anyone` is built and tested
+as the counter-case so we understand what enabling it means, and is not advertised.
+
+**Rejected in-band alternatives, recorded because the second one looks free and is not:**
+
+- **A request queue in `croft-admit`.** Storage and a message queue for people we have no relationship
+  with — the two things this design set out not to run.
+- **A request record in the *requester's* repo**, found the way Bluesky notifications are. Repos are
+  write-authenticated by their owner, so a stranger cannot deposit anything in *your* repo — only in
+  their own. Which makes the request **public**: "X wants to call Y" becomes a firehose fact. It
+  requires no infrastructure from us and leaks the request graph in exchange, which is a bad trade for
+  a system whose whole point is that the graph lives nowhere.
 
 ## 6. Documentation Impact
 
@@ -332,13 +369,10 @@ Scheduled into the phase that makes each reference stale.
 Phase 0 (budget sizing — owner-gated on a second network) ─────┐ independent
 Phase 1 (record + correct; docs + toolchain + manifest) ───────┘
                               │
-              ┌───────────────┴────────────────┐
-              │                                │
-   Milestone B (relay binary)      Milestone C (admission service)
-   P2 → P3 → P4 → P5               P6 → P7 → P8 → P9
-   writes crates/croft-relay-bin/* writes crates/croft-admit/*
-              │                                │
-              └───────────────┬────────────────┘
+                              │
+   Milestone B (relay binary)  →  Milestone C (admission service)
+   P2 → P3 → P4 → P5              P6 → P7 → P8 → P9
+                                  (P8 consumes P3's usage records)
                               │
                     Milestone D (client + lexicon)
                     P10 (connect repo) → P11
@@ -352,16 +386,17 @@ Phase 1 (record + correct; docs + toolchain + manifest) ───────┘
     harness ports released.
   - *Re-entry (P1):* `git diff --name-only` shows only `.md` plus the single manifest and toolchain
     edit.
-- **Milestone B ∥ Milestone C — conditional.** Both would otherwise write the workspace root
-  `Cargo.toml` (B registers the new member crate, C adds dependencies). **A single shared file
-  disqualifies a parallel set.** Resolution: hoist both manifest edits into Phase 1 as one edit; after
-  that the write-sets are genuinely disjoint.
-  - **This conflicts with the crate's own rule** — "add deps when a test forces it, not
-    speculatively." See Open Questions. If the rule wins, **B and C run sequentially** and this
-    grouping reverts. Default assumption until decided: **sequential**, because the rule is stated in
-    the repo and the parallelism is a convenience.
-  - *Re-entry (each):* root `Cargo.toml` byte-identical to its post-Phase-1 state; a `Cargo.lock`
-    conflict is the tell that the hoist did not hold.
+- **Milestone B ∥ Milestone C — DISQUALIFIED (Pass 2). They run sequentially, B then C.**
+  Two independent collisions, and the second is not fixable by hoisting:
+  1. Both would write the workspace root `Cargo.toml` (B registers the new member crate, C adds
+     dependencies). Hoisting both edits into Phase 1 would have fixed this — at the cost of the crate's
+     "no speculative deps" rule.
+  2. **Phase 4 (Milestone B) writes `crates/croft-admit/src/tier.rs`** — a Milestone C file — because
+     the tier→budget rewrite lives there. No hoist resolves a phase writing another milestone's source.
+  Since (2) settles it regardless, **the dep-rule question is moot** and the manifest hoist is dropped:
+  each milestone adds its own dependencies when a test forces them, per the repo's stated rule.
+  Sequencing B before C is also the right order on merit — Phase 8's quota work consumes the usage
+  records Phase 3 emits.
 - **Phase 10 is in a different repo** (`CroftCommunity/connect`) and shares no write-set with anything
   here, so it may start as soon as the lexicon shape is agreed — but Phase 11 needs both it and
   Milestone C.
@@ -489,11 +524,36 @@ deliberately: we want the numbers before we act on them.
 
 **Changes:**
 - [ ] `CountingStream<S>`: implements `AsyncRead`/`AsyncWrite`, increments byte counters, wraps the
-      stream between TLS termination and handoff.
-- [ ] Associate the connection with the token presented in the request — the token is read at dispatch,
-      before the wrap, so the association is available at wrap time. The authoritative *verification*
-      still happens in `on_connect`; the decorator's copy is for attribution only and must never be
-      treated as authorization.
+      stream before it is handed to `serve_connection`.
+- [ ] **(Pass 2 — corrected design.) Two decorators, not one.** The Pass-1 text said "the token is read
+      at dispatch, before the wrap, so the association is available at wrap time." That is **wrong**:
+      with `serve_connection(TokioIo::new(stream), service)`, hyper parses the request *after* we hand
+      it the stream, so at wrap time the connection is anonymous. The association needs three
+      participants:
+
+      ```
+      CountingStream        wraps the stream. Counts bytes. Knows no identity.
+            │  Arc<ConnCounter>
+            ▼
+      our Service wrapper   sees Request<Incoming> → reads the bearer token.
+            │               Records token → Arc<ConnCounter>. Delegates to
+            │               RelayServiceWithNotify (upstream type; we cannot
+            ▼               add fields to it, hence the wrapper).
+      TokenAccess::on_connect
+                            supplies endpoint_id() and connection_id() — both
+                            public accessors on ClientRequest — plus auth_token().
+
+      join key = the token, which all three see. Tokens are per-call and
+      short-lived, so token → connection is 1:1 in practice.
+      ```
+
+      The result is `(endpoint_id, connection_id, bytes)` — exactly what Phase 4's `disconnect` needs.
+- [ ] **Verify in-phase, do not assume:** that post-upgrade traffic still flows through `CountingStream`.
+      The Service takes the upgrade from the request (`handle_relay_ws_upgrade`), and hyper hands the
+      original IO to the upgraded task, so it should — but the entire counting design rests on it, so
+      assert it with a test that pushes a known payload *after* the websocket is established.
+- [ ] The authoritative verification stays in `on_connect`; the wrapper's token read is for attribution
+      only and must never be treated as authorization.
 - [ ] On close, emit `(subject, bytes_in, bytes_out, duration)`.
 - [ ] Document that the count includes framing — an **upper bound**, suitable for budgets and capacity,
       never described as billing.
@@ -525,7 +585,14 @@ token is not re-admitted.
       returning `Budget::Unlimited` (member-involved) or `Budget::Bytes(n)` (introduction only). Rewrite
       the `SPEC-DELTA` comment around Phase 0's sizing.
 - [ ] Supervisor: when a counted connection exceeds its budget, call
-      `RelayService::clients().disconnect(endpoint_id, connection_id)`.
+      `RelayService::clients().disconnect(endpoint_id, connection_id)`. **(Pass 2:** passing `None` for
+      the connection id drops *every* connection for that endpoint, which is simpler and is what we
+      want — verified at `clients.rs:172-195`. `ConnectionId` is public if we ever need precision.**)**
+- [ ] **(Pass 2) Treat the budget as a threshold, not a hard cap.** `disconnect` is documented as
+      asynchronous — "each per-connection actor exits its run loop and unregisters itself after this
+      call returns" — so bytes can still flow between the decision and the close. Overshoot is expected
+      and acceptable; **the test must not assert an exact byte ceiling**, or it will be flaky for a
+      reason that isn't a bug.
 - [ ] **Spent-token refusal:** record the spent token id; `TokenAccess::on_connect` denies re-admission
       on it. Without this, iroh's automatic reconnect-with-backoff turns one drop into a flap.
 - [ ] No `client_rx` rate limit configured on the service at all — the budget replaces it. Keep a
@@ -608,9 +675,15 @@ legitimately ours.
       counters. Explicitly **not**: allowlists, call policies, or any pair.
 - [ ] Keep the in-memory implementation for tests.
 - [ ] Fail loudly if the store path is unwritable — never silently fall back to in-memory.
-- [ ] `IdIndex` seam over stored identifiers: `Transparent` (dev/test) and `Keyed`
-      (`HMAC(k, member ‖ counterpart)`), both behaviourally tested, with the migration written now while
-      the store is small. **The ADR must state the security property is not claimed** in either mode
+- [ ] `IdIndex` seam over stored identifiers: `Transparent` (dev/test) and `Keyed`, both behaviourally
+      tested, with the migration written now while the store is small.
+      **(Pass 2 — the rationale was stale.)** The Pass-1 form was `HMAC(k, member ‖ counterpart)`,
+      justified by stopping one person recurring as the same digest across many members' lists. **The
+      rewrite deleted all the lists** — storage is membership and accounting, both keyed by member
+      alone. So the key is `HMAC(k, member_did)`, and the surviving value is narrower but real: a leaked
+      accounting store does not reveal our **member roster**, which is a customer list. If that is not
+      worth a seam, the honest move is to drop `IdIndex` rather than keep it for a reason that no longer
+      applies. **The ADR must state the security property is not claimed** in either mode
       until key custody is answered — otherwise "we hash the DIDs" gets read a year later as "they are
       protected" by someone who does not know the key sits in the same backup. In keyed mode an absent
       key is a hard error, never a default.
@@ -700,8 +773,11 @@ its relay token.
 **Wiring test:** A caller holding a valid cap is minted a token; the callee **deletes the grant record**;
 the next mint attempt is refused. Deletion-then-refusal is the assertion — testing only the happy path
 proves nothing about revocation.
-**Depends on:** Phase 7.
-**Read-set:** `crates/croft-admit/src/{token,tier,http_api}.rs`, `CISS/crates/ciss-auth/src/*`.
+**Depends on:** Phase 7, **and Phase 3 (Pass 2)** — the quota decrement consumes the usage records the
+counting decorator emits. Pass 1 declared only Phase 7, hiding a cross-milestone dependency from
+Milestone B into Milestone C.
+**Read-set:** `crates/croft-admit/src/{token,tier,http_api}.rs`, `CISS/crates/ciss-auth/src/*`,
+`crates/croft-relay-bin/src/usage.rs`.
 **Write-set:** `crates/croft-admit/src/{cap,sponsorship,quota,token,http_api}.rs`.
 **Shared-state contract:** Clock injected as the existing verifier does; no wall-clock reads outside the
 edge. `ciss-auth` enters as a dependency (path or git — Open Questions).
@@ -714,67 +790,71 @@ assert exhaustion behaviour, not just accounting.
 2. **Verification:** `cargo test -p croft-admit --test caps`.
 **Validation:** Broad + mutation run (authorization path).
 
-### Phase 9: The request-to-token flow
-
-**Goal:** A stranger has a way to ask, and each user decides whether they may.
-
-**Changes:**
-- [ ] Request-policy record in the user's own repo: `anyone | mutuals | nobody`. A small enum, **not a
-      list**, so it publishes nothing about who they know.
-- [ ] Request endpoint: accepts a connection request when the policy permits, refuses cheaply otherwise.
-- [ ] Delivery to the callee's client, and the accept path that issues a cap.
-- [ ] `anyone` is **built and tested as the counter-case** so we understand what enabling it means. Not
-      advertised.
-
-**Call chain:** exchange page → policy record → request → callee's client → accept → grant record
-written → caller can call.
-**Wiring test:** Three policies, three outcomes, end to end: `nobody` refuses without disclosing
-whether the user exists; `mutuals` refuses a non-mutual; `anyone` admits the request. The
-non-disclosure property is part of the assertion.
-**Depends on:** Phase 8.
-**Read-set:** `crates/croft-admit/src/{cap,pds_client}.rs`.
-**Write-set:** `crates/croft-admit/src/{request,http_api}.rs`.
-**Shared-state contract:** Reads records; writes nothing durable of our own.
-**Risks:** A refusal that leaks existence is a worse privacy failure than the allowlist we avoided.
-Refuse identically for "policy is nobody" and "no such user."
-**Done when:**
-1. **Behavioral:** A stranger can ask when the callee allows it, and cannot otherwise.
-2. **Verification:** `cargo test -p croft-admit --test request_flow`.
-**Validation:** Moderate.
+*(Phase 9 — "the request-to-token flow" — was removed on 2026-08-09 when cap distribution was settled
+as **out-of-band only**. With no in-band request, `croft-admit` never sees a request and has nothing to
+build: the policy record is a lexicon concern and cap issuance is the callee's client writing to its
+own repo. Both folded into Phase 10. See §5 and the Review Log.)*
 
 ---
 
 ## Milestone D — Client and lexicon
 
-### Phase 10: Per-device lexicon (in `CroftCommunity/connect`)
+### Phase 10: Per-device lexicon, policy record, and cap distribution (in `CroftCommunity/connect`)
 
-**Goal:** One identity, several devices, discoverable in one call.
+**Goal:** One identity, several devices, discoverable in one call — plus the two records that make
+cap-gated calling work, and the client affordances that issue and redeem a cap.
 
-**Changes:**
+**Changes — caps and policy (folded in from the removed Phase 9):**
+- [ ] **Grant record** in the callee's own repo, carrying an **opaque cap id and nothing else**. It
+      names no grantee, so the call graph is not published. Deleting the record is revocation.
+- [ ] **Policy record** in the callee's own repo: `anyone | mutuals | nobody`. A small enum, not a
+      list. **It is advisory UI, not enforcement** — the cap is the gate. The policy exists so the
+      exchange page knows what to render, and so a user can say "don't bother asking" without that
+      statement disclosing anything about who they know.
+- [ ] Page behaviour per policy: `nobody` renders "not callable"; `mutuals` and `anyone` render an
+      "ask them for an invite" affordance that explains the **out-of-band** step. The page must refuse
+      identically whether the policy is `nobody` or the handle does not exist — a refusal that leaks
+      existence is a worse privacy failure than the allowlist this design avoided.
+- [ ] **Cap issuance in the callee's client:** write a grant record, and produce a shareable artifact
+      (link or QR) carrying the cap. This is the whole distribution mechanism.
+- [ ] **Cap redemption in the caller's client:** accept a pasted or scanned cap and store it against
+      that callee.
+- [ ] `anyone` is **built and tested as the counter-case** so we understand what enabling it means. Not
+      advertised.
+
+**Changes — devices:**
 - [ ] Lexicon moves from rkey `self` to **one record per device, rkey = the device label** (`home`,
       `work`, `phone`), each carrying `endpointId`, optional `homeRelay`, `createdAt`, and a
       human label.
 - [ ] Discovery becomes `com.atproto.repo.listRecords` — atproto's native "give me all of them" call,
       public and unauthenticated, so the exchange page stays backendless. Adding a device does not
       rewrite the others; removing one is a record delete.
-- [ ] Add the request-policy record (Phase 9) to the contract.
 - [ ] `docs/contract.md` first, then both halves' tests, then the implementations — the repo's own rule.
+      The contract now covers **three** record shapes (device, grant, policy) plus the deep link.
 - [ ] Update `web/resolver.js`, `web-tests/`, and `android/.../DeepLink.kt` accordingly.
 - [ ] Deep link gains a device selector or the client tries devices in order — decide in the contract.
 
-**Call chain:** page → `resolveHandle` → PDS → `listRecords` → device list → deep link → app.
-**Wiring test:** A test account with **two** device records resolves to both, and the page produces a
-working link for each. Two devices is the assertion; one device hides every bug this introduces.
-**Depends on:** nothing in this repo — may start as soon as the shape is agreed. Phase 11 needs it.
+**Call chain:** page → `resolveHandle` → PDS → `listRecords` (devices + policy) → render → deep link →
+app. Separately: callee's client → write grant record → share cap out-of-band → caller's client stores
+it → presents it at call setup (Phase 8 verifies it).
+**Wiring test:** Two assertions, both end to end. (a) A test account with **two** device records
+resolves to both and the page produces a working link for each — two devices is the assertion, one
+hides every bug this introduces. (b) A cap issued by one persona's client is redeemed by another's and
+verifies against the grant record; deleting the record makes it stop verifying.
+**Depends on:** Phase 8 for the verification side. The lexicon and page work may start as soon as the
+shape is agreed.
 **Read-set:** `connect/docs/contract.md`, `web/resolver.js`, `android/.../DeepLink.kt`.
-**Write-set:** the same files, in `CroftCommunity/connect`. **Different repo** — separate PR, separate
-CI.
+**Write-set:** the same files plus the cap issue/redeem paths, in `CroftCommunity/connect`. **Different
+repo** — separate PR, separate CI.
 **Shared-state contract:** Writes records to the owner's test account. No shared state with this repo.
-**Risks:** Nothing is published yet, so this is free now and expensive later. If records exist before
-this lands, it becomes a migration.
+**Risks:** Nothing is published yet, so the lexicon change is free now and a migration later. Second:
+the policy record is easy to mistake for enforcement — if any code path treats it as a gate, the cap
+stops being the only gate and the design's simplicity is lost. Assert that a caller with a valid cap is
+admitted **regardless** of the callee's policy setting.
 **Done when:**
-1. **Behavioral:** A two-device persona is fully resolvable and callable on either device.
-2. **Verification:** `npm test` in `connect` plus the Android unit tests, both against the new contract.
+1. **Behavioral:** A two-device persona is resolvable and callable on either device, and a cap can be
+   issued, shared out-of-band, redeemed, and revoked.
+2. **Verification:** `npm test` in `connect` plus the Android unit tests against the new contract.
 **Validation:** Moderate, plus a live run against the owner's test account.
 
 ### Phase 11: Client integration
@@ -843,10 +923,19 @@ measure its overhead rather than assuming it is free.
 
 ## Open Questions
 
-- **[RECOMMENDED: PHASE-GATED — Phase 1]** The workspace `Cargo.toml` says "add deps when a test forces
-  it, not speculatively." Hoisting Milestones B and C's dependency entries into Phase 1 (to make their
-  write-sets disjoint and keep them parallel) violates that. *Recommend keeping the rule and running B
-  and C sequentially — the rule is stated in the repo and the parallelism is a convenience.*
+- ~~**[Phase 1]** Hoist dependency entries to keep B and C parallel?~~ **(Pass 2: MOOT.)** Phase 4
+  writes `crates/croft-admit/src/tier.rs`, a Milestone C file, so B ∥ C is disqualified by something no
+  hoist can fix. B and C run sequentially and each adds its own deps per the repo's rule.
+- **[RECOMMENDED: BLOCKING] (Pass 2 — new)** Reachability. The whole product currently requires both
+  parties to have the app in the foreground (§1.1), and Phase 9's request delivery has no transport at
+  all. Does the foreground-service + push-to-wake work land before this plan executes, or does Phase 9
+  ship degraded (request queued until the callee next opens the app)? *Rationale: it bounds what any of
+  this delivers. A calling service where both parties must already be watching is a demo. This is not
+  this plan's work, but this plan cannot honestly claim a working product without it.*
+- **[RECOMMENDED: PHASE-GATED — Phase 6] (Pass 2 — new)** Does `IdIndex` still earn its place? Its
+  original rationale (breaking cross-list correlation) died with the lists. The surviving value is that
+  a leaked accounting store doesn't expose the member roster. *Rationale: keep it for that reason, or
+  drop it — but do not keep it for the reason written in Pass 1.*
 - **[RECOMMENDED: PHASE-GATED — Phase 4]** Does `Endpoint::insert_relay` with a changed auth token force
   a relay reconnect? *Rationale: it determines whether a sponsored upgrade starts a fresh budget
   naturally or the supervisor must re-read budgets on live connections. Settle by probe before
@@ -929,6 +1018,63 @@ resolution; the restart-based persistence assertion.
 switch-and-instances work; Phases 6–9 (admission) absorb the old 5/5a/6/6a/7/8; Phase 10 (lexicon, in a
 different repo) is new.
 
-**Next:** a fresh Pass 2 against this structure. The previous gap analysis was against a plan that no
-longer exists, and its clean bill on the embedding seam is the only finding that carries forward
-untouched.
+### Pass 2: Gap Analysis (against the rewrite) — 2026-08-08
+
+**Found:**
+
+- **The counting decorator was designed wrong.** Pass 1 said "the token is read at dispatch, before the
+  wrap, so the association is available at wrap time." False — with
+  `serve_connection(TokioIo::new(stream), service)`, hyper parses the request *after* receiving the
+  stream, so the connection is anonymous when we wrap it. Needs **two** decorators (a stream wrapper
+  that counts, a Service wrapper that reads the token) joined by shared state, with `on_connect`
+  supplying `endpoint_id()`/`connection_id()`. Join key is the token, which all three see. Phase 3
+  rewritten with the diagram.
+- **Phase 4 writes a Milestone C file.** `crates/croft-admit/src/tier.rs` — the tier→budget rewrite
+  lives there. This is a second write-set collision beyond the root manifest, and unlike that one it
+  cannot be hoisted away.
+- **Phase 8 had an undeclared cross-milestone dependency** — quota decrement consumes the usage records
+  Phase 3 emits, but only Phase 7 was declared.
+- **The `IdIndex` rationale is stale.** `HMAC(k, member ‖ counterpart)` existed to break cross-list
+  correlation; the rewrite deleted every list. Re-keyed to `member_did` with the narrower surviving
+  justification (a leaked accounting store shouldn't expose the member roster), and flagged as
+  drop-if-not-worth-it rather than kept on a dead reason.
+- **Phase 9's delivery has no transport**, and behind it the plan never stated that the whole product
+  currently requires both parties to have the app in the foreground. Added as §1.1 and raised to a
+  BLOCKING open question — it bounds what any of this delivers.
+- **`disconnect` is asynchronous**, so budget overshoot between decision and close is expected. The
+  budget is a threshold, not a hard cap, and the test must not assert an exact ceiling or it will be
+  flaky for a non-bug reason.
+- **`listRecords` is unverified.** FACTCHECK doesn't cover it; `contract.md` evidences only
+  `resolveHandle` and `getRecord`. It is this plan's addition, asserted from general knowledge, and
+  Phase 10 builds the contract on it.
+- **Post-upgrade byte flow through `CountingStream` is understood but untested** — the counting design
+  fails silently if it doesn't hold, so Phase 3 now asserts it explicitly.
+
+**Concurrency:**
+
+- **Milestone B ∥ C disqualified outright** and moved to sequential (B then C), on the `tier.rs`
+  collision rather than the manifest one. This **moots the dep-rule open question** and drops the
+  hoisted-manifest item from Phase 1 — each milestone adds its own dependencies per the repo's stated
+  rule. Sequencing B first is also correct on merit, since Phase 8 consumes Phase 3's output.
+- Phase 0 ∥ Phase 1 confirmed unchanged.
+- Phase 10 (different repo) confirmed independent.
+
+**Changed:** §1.1 added; Phase 3's decorator design corrected with the three-way join; Phase 4 gained
+the async-disconnect threshold caveat and the `None`-drops-all simplification; Phase 6's `IdIndex`
+rationale rewritten; Phase 8's dependency and read-set corrected; Phase 9's delivery gap named;
+Concurrency Map rewritten to sequential; five new Verified Assumption rows plus two new unverified
+entries; one open question mooted, two added (one BLOCKING).
+
+**Confirmed:**
+
+- `Clients::disconnect(endpoint_id, None)` drops every connection for an endpoint — simpler than Pass 1
+  assumed, and `ConnectionId` is public if precision is ever needed.
+- `ClientRequest` exposes everything the join needs as public accessors.
+- The embedding seam holds, as it did in the previous pass. Nothing found argues against
+  budget-and-drop, against our-own-binary, or for reinstating the tier switch.
+- The reasoning in §1 and §3 survives: every finding is missing or mis-specified *work*, not a wrong
+  direction.
+
+**Next:** Pass 3 (quality gates — TDD ordering, diagnostic logging, validation calibration). Note that
+the BLOCKING reachability question is not a Pass-3 item; it wants an answer from the owner first,
+because it may change what Phase 9 is for.
