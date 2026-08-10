@@ -2,6 +2,10 @@
 
 `Run summary, 2026-08-02. Branch claude/croft-relay-iroh-atproto-by891s. Rust 1.94.1.
 Experiment lands at alpha/experiments/croft-relay/ (own workspace, one crate: croft-admit).
+NOTE (2026-08-10): the workspace has since MOVED to croft-stack/relay/source/ and the crate is
+renamed croft-relay-admit; paths below are the run-time locations, kept as the historical record.
+The tier-bucket mechanism this run built was later superseded by budget-and-drop (see
+alpha/plans/2026-08-07-1-plan-croft-relay-tiered-admission.md).
 TDD, mutation-gated. Recon done against real iroh-relay 1.0.0-rc.1 source (read from the
 crates.io registry). Honest boundary: github clone is blocked by egress policy this session, so
 the live-relay legs (stand up the relay, prove A→B, holepunch calibration) were NOT run; what is

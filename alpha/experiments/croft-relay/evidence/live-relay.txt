@@ -1,8 +1,0 @@
-# croft-relay-embed local live leg — real iroh-relay Server on localhost, gated by our TokenAccess
-# cargo test -p croft-relay-embed --test live_relay -- --nocapture
-running 3 tests
-CALIBRATION-DATAPOINT relayed_contact_roundtrip a_to_relay=3B b_to_relay=3B coord_bucket=4096B/s (localhost relay-client; not the holepunch total)
-test coordination_bytes_datapoint_for_calibration ... ok
-test endpoint_a_reaches_endpoint_b_through_our_relay ... ok
-test valid_token_admits_and_bogus_or_expired_is_denied ... ok
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s

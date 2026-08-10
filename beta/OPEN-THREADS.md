@@ -1085,39 +1085,50 @@ The C4/C7/C8/C9/C10 reconcile-semantics gaps are now the "Reconcile-semantics su
 - **Alpha provenance:** `../alpha/seeds/transcripts/raw/gemini-atproto-clientside-search-heardle-pond-kudoboard-2026-07-22.md`
   (Part B — **whole-doc `[UNVERIFIED]`**). ROADMAP_TODO E47 + E50 (licensing).
 
-#### T62 — atproto-gated relay admission: production validation (croft-relay)
+#### T62 — cap-gated calling with a metered introduction budget (croft-relay)
 
 - **Layer:** croft, impl
-- **Status:** `open · gated`. Built and proven locally; the remaining gates are all
-  production-network conditions that a sandbox cannot supply.
+- **Status:** `open · in-execution`. The admission core is built and proven locally; the
+  design was comprehensively revised (2026-08-08/09/10) and the build plan is executing —
+  Phase 1 (relocation + record) started 2026-08-10.
 - **Type:** `needs-experimentation` (couples-with `needs-proving`).
-- **What it is:** the calling system's relay-admission layer is built and green
-  (`../alpha/experiments/croft-relay/`, RUN-CROFT-RELAY-01/02/03): Phases 1-3 app-side
-  in the relay-agnostic `croft-admit` (DID-bound enrollment, deny-closed access check,
-  JWT/EdDSA per-endpoint capability tokens with a three-gate verify, tier->rate-bucket
-  mapping; `cargo mutants` 0 survivors), the `AccessControl` embed adapter against real
-  `iroh-relay 1.0.3`, and a **localhost live leg** — a real relay gated by our
-  `TokenAccess`, admitting valid tokens and denying bogus/cross-endpoint-replayed ones at
-  the handshake, forwarding a datagram A->B through our gate. What is **not yet tested is
-  production**: real NAT traversal, the three product tiers under real load, and the
-  coordination-bucket number.
+- **What it is:** the calling system's admission layer. Built and green: the relay-agnostic
+  admission core (**`croft-relay-admit`**, renamed from `croft-admit` 2026-08-10 —
+  DID-bound enrollment, deny-closed access check, JWT/EdDSA per-endpoint capability tokens,
+  `cargo mutants` 0 survivors), the `AccessControl` embed adapter against real
+  `iroh-relay 1.0.3`, and a localhost live leg through a real gated relay.
+  **The design around it changed (2026-08-08):** *introduction is free, carrying is what
+  membership buys.* Two independent gates — a **cap** (may you call me; the callee's
+  choice, an opaque-id grant record in their own repo, distributed **out-of-band**) and
+  **membership** (will we carry you; commercial, either party's membership unlocks the
+  tunnel). Enforcement is a **byte budget with a clean disconnect** in our own binary
+  wrapping the unmodified `iroh-relay` crate — **not** the tier→rate-bucket mapping the
+  earlier record describes; that mechanism is superseded (ADR-0006 / ADR-0004).
+- **Code home:** **`croft-stack/relay/source/`** as of 2026-08-10 (moved from
+  `../alpha/experiments/croft-relay/` — plan §8.4; the service now lives beside its
+  `deploy/` and `tests/`, gated by `croft-stack/.github/workflows/gate.yml`).
+- **Plan (authoritative):** `../alpha/plans/2026-08-07-1-plan-croft-relay-tiered-admission.md` —
+  12 phases, three passes complete, all open questions closed with the owner 2026-08-09.
 - **Promotion target:** `croft/` (calling as a Croft capability) + `impl/` (the relay-admission
   component), once the production gates clear.
 - **Gates — must settle before it becomes resolved beta narrative:**
-  1. **Real holepunch-disco calibration** on two `iroh` magicsock endpoints across separate
-     NATs — measure the coordination exchange's bytes and re-derive the coordination bucket,
-     replacing the `SPEC-DELTA(phase-3-calibration)` placeholder (`tier.rs` + its pinned test).
-     The localhost leg gives only a relay-client contact datapoint (~3 B/endpoint), not the
-     disco total.
-  2. **Deploy to `relay.croft.ing`** and validate the three dials end to end under real
-     network conditions: registered-only reception, coordination tier (holepunch succeeds
-     while sustained relayed media is starved), and full-broker tier.
-  3. The five **§7 owner-calls** (`croft-relay/OPEN-QUESTIONS.md`): token format
-     (defaulted JWT/EdDSA), repo shape, coordination hard-cap stance, Phase-1-first deploy,
-     metrics label cardinality.
-- **Alpha provenance:** `../alpha/experiments/croft-relay/` (`docs/adr/0001-0005`,
-  `OPEN-QUESTIONS.md`, `evidence/`); `../alpha/experiments/RUN-CROFT-RELAY-01/02/03-SUMMARY.md`;
-  `EXPERIMENT-BACKLOG.md` §6j; MASTER-INDEX row.
+  1. **Budget sizing** (plan Phase 0): measure the introduction byte cost — successful *and*
+     failed holepunch — on two endpoints across genuinely separate networks, replacing the
+     `SPEC-DELTA` placeholder with a measured number. Owner-gated on a second network.
+  2. **The relay binary end to end** (plan Phases 2–4): our binary, the counting decorator,
+     budget-and-drop with spent-token refusal — the wiring test where a non-member pair is
+     dropped and refused while a member-involved pair is carried.
+  3. **Deploy to `relay.croft.ing`** (plan Phase 5): our artifact replaces the prebuilt
+     tarball without loosening the netns/systemd posture.
+  4. **The `insert_relay` reconnect probe** (plan Phase 4, verify-before-implement): does a
+     changed auth token force a reconnect? Decides whether a sponsored upgrade starts a
+     fresh budget naturally.
+  - *(The five §7 owner-calls the previous gate list carried are **all resolved** — the
+    2026-08-09 walk-through in the plan's Review Log records each ruling.)*
+- **Alpha provenance:** `../alpha/experiments/RUN-CROFT-RELAY-01/02/03-SUMMARY.md`;
+  `EXPERIMENT-BACKLOG.md` §6j; MASTER-INDEX row; the design transcript
+  `../alpha/seeds/transcripts/raw/croft-relay-tiered-admission-fork-vs-embed-2026-08-07.md`.
+  ADRs travel with the code: `croft-stack/relay/source/docs/adr/`.
 
 ### Governance (Layer 7)
 

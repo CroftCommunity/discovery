@@ -391,7 +391,18 @@ leak the bound only characterized). All **Sketched**.
 
 ### 6j. atproto-gated relay admission — croft-relay (RUN-CROFT-RELAY-01)
 
-The app-side admission core (`croft-relay/crates/croft-admit`, relay-agnostic) is built and
+> **Relocated + superseded-in-part (2026-08-10).** The workspace moved to
+> **`croft-stack/relay/source/`** (crate renamed `croft-admit` → `croft-relay-admit`), and the
+> design was comprehensively revised: tier→rate-bucket enforcement is superseded by a **byte
+> budget with a clean disconnect** in our own binary (never a fork), caps as opaque-id records
+> in the callee's repo, out-of-band distribution. The authoritative plan is
+> `../plans/2026-08-07-1-plan-croft-relay-tiered-admission.md` (12 phases; all owner calls
+> resolved 2026-08-09; Phase 1 started 2026-08-10). The rows below are the historical run
+> record; read "Phase 4/5" here as the *old* plan's numbering, and the §7 owner-calls row as
+> **resolved** — the upstream rate-override candidate is explicitly **not** attempted (owner's
+> call; our own wrapper first).
+
+The app-side admission core (relay-agnostic) is built and
 mutation-clean for Phases 1-3. Open follow-ons, in dependency order:
 
 | Item | Status | What it is / blocked on |
