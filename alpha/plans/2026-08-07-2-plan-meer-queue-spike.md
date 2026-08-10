@@ -1,8 +1,8 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–8 GREEN 2026-08-10.**
-All three planning passes complete, all 5 open questions resolved. Phases 9–14 not started.
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–9 GREEN 2026-08-10.**
+All three planning passes complete, all 5 open questions resolved. Phases 10–14 not started.
 **Both must-pass claims are settled: M1 CONFIRMED (real-lib); M2's positive arm CONFIRMED and its
 negative-arm hypothesis FALSIFIED (real-lib), with the `MUST` upheld on stronger grounds.**
 Verdicts in `alpha/experiments/meer-queue/TEST-LOG.md`. Phase 0 falsified one hypothesis inside M2 and forced
@@ -987,7 +987,28 @@ question, so the follow-up item is part of "done," not an optional extra.
 
 ---
 
-### Phase 9: S5 expiry and watermark, S6 revocation and re-point
+### Phase 9: S5 expiry and watermark, S6 revocation and re-point — GREEN 2026-08-10
+
+> **S5** — the gap IS constructible from a minimal watermark (count + day range, no digests):
+> *"You were away. 3 message(s) arrived between day 0 and day 2 and are no longer available."*
+> Boundary exact (served **at** day 14, swept at 15); drained mail leaves no watermark. It supports
+> no-invisible-loss but **not recovery** — with no digests the client cannot name the gap to a peer,
+> and retaining them would leave a content-address log outliving the mail. Trade named, not resolved.
+>
+> **S5's falsification: "gone" is a serving claim, not a storage claim.** CISS has **no object
+> DELETE**, so sweeping ends service while the bytes stay in the meer's namespace forever. The
+> 14-day promise cannot be honoured at the storage layer; the queue-mode deployment profile
+> ("14-day churn / no backup") rests on churn that does not happen. **Filed as E95.**
+>
+> **S6 CONFIRMED-WITH-STAND-IN** — the mechanism holds (no mail lost, nothing migrated, the queue
+> address survives because it *is* Bob's identity), but it passes for a weaker reason than the design
+> claims: under `meer-spike-namespace` the mail is in each *meer's* namespace, so "nothing to
+> migrate" follows from the meers being independent, not from Bob owning the bytes. **The
+> strong claim is untested and needs custodian mode.** The plan predicted this scenario would pass
+> for the wrong reason; it did, and the verdict says so.
+>
+> Two mutations killed: the retention boundary off-by-one (`>` → `>=`), and a watermark raised for
+> drained mail.
 
 **Goal:** Whether "loud, visible gap" is constructible, and whether "it never left home" holds.
 **Changes:**

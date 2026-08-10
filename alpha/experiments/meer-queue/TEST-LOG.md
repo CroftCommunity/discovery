@@ -468,7 +468,106 @@ depositor). Flagged, not decided.
 
 ---
 
-## S1, S5–S8
+## S5 — Expiry and the watermark
 
-Not yet run. S5/S6 Phase 9; S7 Phase 10; S8 Phase 11; S1 (enrollment,
+**Claim.** Retention is *"14 days as a ceiling, not a floor — 14 days **or until drained**"*, and
+past the window the recipient gets a watermark: *"a loud, visible, SSH-host-key-shaped 'here is what
+is gone'"* (`meer-as-custodian-queue.md` §"Cursors and delivery"; Part 1 §2.2 no-invisible-loss).
+
+**Learning goal (spike spec).** Whether a loud, visible gap is **constructible from what the meer
+retains**, or needs more state than a watermark.
+
+**Rung: A (real-lib)** for the storage boundary; time is SPEC-DELTA[meer-spike-clock].
+
+**Code.** `tests/s5_expiry_watermark.rs`. **Method note:** the watermark is deliberately minimal —
+a count and a day range, **no digests** — so the test cannot flatter its own answer by retaining
+enough state to guarantee it.
+
+**Verdict: `S5 CONFIRMED (real-lib)` for the gap being constructible; `S5 FALSIFIES "it is gone"
+as a storage claim (real-lib)`.**
+
+### The gap is constructible, and bounded
+
+The minimal watermark renders:
+
+> *"You were away. 3 message(s) arrived between day 0 and day 2 and are no longer available from
+> this meer."*
+
+That satisfies no-invisible-loss: loud, counted, time-bounded. Also confirmed at the boundary —
+an entry **at** day 14 is still served, at day 15 it is swept (the ceiling means served *for* its
+fourteenth day) — and confirmed that **drained mail leaves no watermark**, since a gap marker for
+successfully delivered mail would be a false alarm, the opposite of the rule's intent.
+
+**What it does not support is recovery.** With no digests retained, a client can say *how much* it
+missed but cannot **name** it to a peer — so D-peer corroboration cannot be pointed at the gap.
+Retaining digests would enable that, and would leave a **per-recipient content-address log
+outliving the mail it describes**: the same shape as the concern the design already raises about
+meter retention ("the meer's most sensitive artifact being the one thing that outlives
+everything"). The trade is real and is not resolved here.
+
+### The falsification: "gone" is a serving claim, not a storage claim
+
+```
+S5 MEASURED (real-lib): after sweep, queue serves 0 entries but CISS still holds 1 object(s).
+```
+
+**CISS's object plane is `PUT`/`GET` with no `DELETE`** (`src/server.rs` routes: objects, manifest,
+assertion, receipt-countersign, meter, du — no delete on any). The meer therefore has **no
+mechanism to remove what it stored**. Sweeping ends *service*; the bytes remain in the meer's
+namespace indefinitely.
+
+Three consequences, none of which the design currently states:
+
+1. **The 14-day promise is about serving, not holding.** "Here is what is gone" is false as
+   written; "we stopped serving it" is true. The user-facing wording should not claim deletion the
+   substrate cannot perform.
+2. **Storage grows monotonically.** Every message ever deposited stays. The design's framing of a
+   queue as *"high write rate / tiny objects / 14-day churn / no backup"* assumes a churn that does
+   not happen — the deployment sizing follows from a false premise.
+3. **Ciphertext outlives its window.** Sealed, so not readable — but it is a harvest-now-decrypt-
+   later surface and a durable metadata surface (sizes, timing, counts, and the graph from E94)
+   that the retention window was supposed to bound.
+
+**What would close it:** an object-expiry or delete surface in CISS (which has its own security
+review — a delete is a new authenticated destructive path), or a storage arrangement the meer can
+abandon wholesale (e.g. per-window namespaces), or restating retention honestly as a serving
+policy. **Filed as E95.**
+
+---
+
+## S6 — Revocation and re-point
+
+**Claim.** *"There is nothing to port because it never left home."* The design's strongest story.
+
+**Rung: A (real-lib)** for the mechanism, **bounded by SPEC-DELTA[meer-spike-namespace]**.
+
+**Code.** `tests/s6_repoint.rs`. Two independent meers over two independent CISS instances.
+
+**Raw output.**
+```
+S6 CONFIRMED-WITH-STAND-IN (real-lib): re-pointing lost no mail and migrated nothing — each meer
+served only its own era, and Bob's queue address survived the move because it is his identity.
+```
+
+**Verdict: `S6 CONFIRMED-WITH-STAND-IN (real-lib)` — the mechanism holds; the claim that makes it
+interesting is UNTESTED.**
+
+Bob keeps one identity across the move (the secret key *is* the queue address), era-1 mail stays
+readable at the old meer, era-2 arrives at the new one, both decrypt against the same group, and
+neither meer is asked to hand anything over.
+
+**The limit, stated because the verdict would otherwise overstate itself.** Under the namespace
+stand-in the mail sits in each **meer's** CISS namespace, not Bob's. So *"nothing to migrate"* holds
+here because the two meers are **independent**, not because Bob **owned** the bytes. The design's
+actual claim — mail never left home, and the meer held only a revocable grant to write into Bob's
+own namespace — requires custodian mode and **cannot be tested in this spike**. A stronger S6
+belongs in meer lane Phase 1.
+
+This is the scenario the plan flagged as most likely to pass for the wrong reason, and it did.
+
+---
+
+## S1, S7–S8
+
+Not yet run. S7 Phase 10; S8 Phase 11; S1 (enrollment,
 Rung C static) Phase 12.
