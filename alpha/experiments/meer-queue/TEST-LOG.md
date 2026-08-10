@@ -411,6 +411,63 @@ Two things that detection would have to be true of, both visible from this arm's
 
 ---
 
+## Standing finding — the meer's leak profile, measured rather than assumed
+
+**Framing (owner, 2026-08-10):** using a meer is a choice, and *nothing can queue for delivery to an
+absent recipient without learning the shape of that task.* That is inherent to the function, not a
+defect. **The obligation is to be clear about it, not to run from it** — which means an enumerated
+profile, in a form the subject can read (the metadata-transparency guard,
+`meer-superpeer-design.md` item 6), rather than a minimised one.
+
+The scenarios so far have been accumulating this incidentally. Collected here; S7 (Phase 10)
+completes the carrier's column and this becomes §6.4's grounding.
+
+| the meer observes | necessarily? | evidence |
+|---|---|---|
+| that mail exists for a recipient | **yes** — it is the queue | S2, S4 |
+| deposit time | **yes** — it is the retention clock | Phase 3 (`deposit_days`) |
+| object size | **yes** — it stores the bytes | S2 (173 B sealed) |
+| fan-out width (recipient count) | **yes** — one deposit names N | S2 |
+| drain time (when you came back) | **yes** — it serves the drain | M1 |
+| **depositor → recipient edges** | **NO — see below** | S2, S4 |
+| device count per persona | only when racing | S4 |
+| message content | **never** — sealed | M1, S7 (pending) |
+| which group a message belongs to | **never** — drain uses account identity, not MLS identity | design |
+| ordering / causality | **never** — the per-author index is inside the seal | design |
+
+### The one that is not inherent, and is not in the doc: the communication graph
+
+A deposit names its recipients explicitly, and the depositor is identified by the authenticated
+connection. **So the meer learns `(depositor → recipients)` edges — the communication graph.**
+
+That is worth separating from the rest of the table because:
+
+1. **It is arguably more sensitive than what the design carefully protects.** The doc reasons at
+   length that drain must authorize on *account* identity and never MLS identity, because
+   "presenting group credentials to a blind store would tell it which groups you are in — metadata
+   the blindness exists to prevent." The deposit side hands over who-talks-to-whom directly, which
+   is a superset of that concern for most threat models.
+2. **It is not enumerated anywhere.** §"Cursors and delivery" covers the drain side; deposit gets one
+   clause — *"deposit is gated at the meer's admission policy"* — about authorization, not about
+   what admission reveals.
+3. **Unlike the rest of the table, it is not forced by the function.** The meer must know *who to
+   queue for*. It does **not** need to know *who deposited*. The depositor identity is currently
+   supplied by the transport (`meer-spike-drain-auth`'s `EndpointId` comes free off the QUIC
+   connection) rather than by necessity — so an unlinkable deposit is a design option, not a
+   contradiction.
+
+**Consequence for S4's dial.** This shrinks the marginal cost I attributed to racing. If the meer
+already holds the graph, deposit times, sizes, and fan-out width, then *device count* is one more
+row in a table that is already substantial — not a categorical change in what it knows. That weakens
+"racing leaks device count" as an argument against racing, and correspondingly weakens the case for
+depending on §6.6.5. Noted against **E92**.
+
+**Not resolved here.** Whether deposit should be unlinkable is a design question with real costs
+(admission policy, abuse control, and the metering story all currently lean on knowing the
+depositor). Flagged, not decided.
+
+---
+
 ## S1, S5–S8
 
 Not yet run. S5/S6 Phase 9; S7 Phase 10; S8 Phase 11; S1 (enrollment,
