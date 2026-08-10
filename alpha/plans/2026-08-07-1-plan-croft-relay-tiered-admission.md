@@ -772,20 +772,20 @@ the verification above is what tells them apart.
 parity first, no new behaviour.
 
 **Changes:**
-- [ ] New crate `crates/croft-relay-bin`: accept loop, TLS, HTTP, dispatch to one
+- [x] New crate `crates/croft-relay-bin`: accept loop, TLS, HTTP, dispatch to one
       `RelayServiceWithNotify` via `serve_connection(...).with_upgrades()` — the embedding pattern
       upstream documents.
-- [ ] Wire `TokenAccess` (existing, from `croft-relay-embed`) as the `AccessControl`.
+- [x] Wire `TokenAccess` (existing, from `croft-relay-embed`) as the `AccessControl`.
 - [ ] TOML config: bind addrs, cert paths, verification pubkey. Every knob documented with its why.
 - [ ] Preserve upstream's probe path so existing health checks keep working.
-- [ ] **(Pass 3) Establish the logging convention** (§8.3): add `tracing` + `tracing-subscriber` — the
+- [x] **(Pass 3) Establish the logging convention** (§8.3): add `tracing` + `tracing-subscriber` — the
       first logging dependency in the tree — with `RUST_LOG`-style filtering. In this phase that means
       `INFO` on startup (bind address, cert path, **pubkey fingerprint not the key**), `ERROR` on the
       three fatal starts (bind failed, cert unreadable, config invalid), and `DEBUG` per connection
       carrying `endpoint_id` + `connection_id` + admit/deny with reason. **Deny reasons must be logged
       even though they are not returned to the client** — a relay that refuses strangers with an opaque
       error is one whose operators cannot tell a misconfigured client from an attack.
-- [ ] **(Pass 3) Fail loud on config:** an unparseable or incomplete config aborts at startup with the
+- [x] **(Pass 3) Fail loud on config:** an unparseable or incomplete config aborts at startup with the
       offending field named. No defaults substituted for a missing verification pubkey — a relay that
       silently starts unable to verify anything would deny every connection and look like a network
       fault.
@@ -2073,3 +2073,29 @@ Both repos, in the plan's order: **gate → move → smoke removal → record.**
   enforced by the gate, which is the agreement that matters.
 - **Still open in this phase:** nothing. Phase 0 (budget sizing) is next and remains gated on the
   owner-supplied second network; Milestone B (Phase 2, our binary) can start independently of it.
+
+### Phase 2 executed — 2026-08-10
+
+Branch `relay-bin` in croft-stack (stacked on the Phase-1 PR), commit `2c1424f`. RED-first per §8.1:
+`tests/live_binary.rs` written against a stub `main` and watched fail (3 of 4, each for the right
+reason — the fourth, unparseable-config, passed trivially against a stub that exits nonzero, which is
+the weakest assertion in the file and is noted as such), then implemented to green.
+
+- **The binary:** `croft-relay --config relay.toml`. Accept loop → `MaybeTlsStream::Plain` →
+  `http1::serve_connection(...).with_upgrades()` → `RelayServiceWithNotify` — the embedding pattern
+  upstream's own docs carry, all types public as §4 verified. `TokenAccess` wired via a `LoggedAccess`
+  adapter (admit/deny + reason at DEBUG; verification untouched). No `client_rx` rate limit, per
+  Phase 4's design.
+- **Named behaviours, all through the spawned process:** valid token → admitted, datagram relayed
+  A→B intact; absent / malformed / wrong-key tokens → each denied at the handshake; config missing
+  `verification_pubkey_hex` → aborts naming the field; unparseable config → aborts.
+- **§8.3 established:** first `tracing` dependency in the tree. Logs to stderr; stdout carries
+  exactly one contract line, `listening on <addr>`, which the wiring test and later the deploy's
+  readiness check parse. INFO startup logs the pubkey **fingerprint**, never the key.
+- **Stated deviation:** no `[tls]` config section. The phase text names cert paths; shipping TLS
+  here would ship untested production code (no test forces it — the staging wiring test in Phase 5
+  is where real certificates exist). `deny_unknown_fields` makes a premature `[tls]` block a loud
+  abort. Recorded here so Phase 5 picks it up as scope, not as a surprise.
+- **Verification:** workspace 12 suites green (4 through the running binary), clippy clean,
+  `cargo fmt --check` clean. Hand-run against a real iroh endpoint (the phase's Moderate validation)
+  remains open until one is convenient; the relay-client legs cover the protocol path meanwhile.
