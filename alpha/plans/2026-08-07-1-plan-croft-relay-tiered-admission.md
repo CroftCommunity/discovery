@@ -704,7 +704,7 @@ data points into a claim.
 depends on it.
 
 **Changes:**
-- [ ] Write ADR-0006: the two gates, budget-and-drop, our-binary-not-a-fork, the decorator, caps as
+- [x] Write ADR-0006: the two gates, budget-and-drop, our-binary-not-a-fork, the decorator, caps as
       opaque-id records, the PDS trust ruling and its blast radius, out-of-band cap distribution, and
       what we store (membership and accounting only). **(Pass 3)** It also carries §8.3's **log privacy
       rule** — never a token, a cap secret, or a DID pair — because that rule is a design constraint
@@ -712,27 +712,27 @@ depends on it.
       convention that dies with the plan. **(Pass 3)** Same for the observability posture settled in
       Phase 12: aggregates-only metrics, identity confined to logs, ≥30-day retention on both, and *why*
       each — an ADR is what a future 2am debugging decision argues with.
-- [ ] Supersede ADR-0004's mechanism section; **retain** its content-blindness argument.
-- [ ] Mark ADR-0001's fork-vs-embed conclusion superseded-in-part.
-- [ ] OPEN-QUESTIONS: resolve Q1/Q3/Q4, leave Q2/Q5 with current status.
-- [ ] Fix the stale build-plan pointer in the experiment README, **and (Pass 3) add the one-line note
+- [x] Supersede ADR-0004's mechanism section; **retain** its content-blindness argument.
+- [x] Mark ADR-0001's fork-vs-embed conclusion superseded-in-part.
+- [x] OPEN-QUESTIONS: resolve Q1/Q3/Q4, leave Q2/Q5 with current status.
+- [x] Fix the stale build-plan pointer in the experiment README, **and (Pass 3) add the one-line note
       that the existing `phaseN_*.rs` test names refer to the superseded numbering** (§8.2) — without
       it, "phase3_tier.rs" reads as this plan's Phase 3, which is the counting decorator.
-- [ ] Rewrite T62's gates.
-- [ ] Backlog §6j, MASTER-INDEX, COHESION, RAW-ARTIFACTS-MANIFEST.
-- [ ] **(Pass 3 — owner's ruling) Relocate the workspace to `croft-stack/relay/source/`** (§8.4), and
+- [x] Rewrite T62's gates.
+- [x] Backlog §6j, MASTER-INDEX, COHESION, RAW-ARTIFACTS-MANIFEST.
+- [x] **(Pass 3 — owner's ruling) Relocate the workspace to `croft-stack/relay/source/`** (§8.4), and
       do it **first in this phase**, so every later phase writes to its final home. Order matters:
       **add croft-stack's gate workflow before moving the code**, then move, then remove the
       `croft-relay` entry from `discovery`'s smoke matrix — never the reverse, or there is a window
       where the crates exist in a repo with no PR checks.
-- [ ] **(Owner, 2026-08-10) Rename `croft-admit` → `croft-relay-admit` in the same move** (§8.4):
+- [x] **(Owner, 2026-08-10) Rename `croft-admit` → `croft-relay-admit` in the same move** (§8.4):
       directory, crate name, and every internal reference. One commit with the move, before any new
       code exists against the old name. The gate proving the renamed workspace builds is the
       verification.
-- [ ] Add `rust-toolchain.toml` pinning `1.94.1` to match CI — the experiment has none, which is the
+- [x] Add `rust-toolchain.toml` pinning `1.94.1` to match CI — the experiment has none, which is the
       green-locally/red-in-CI failure `.claude/CI-PATTERN.md` names. **(Pass 3)** After the move this
       pin must agree with croft-stack's new gate, not `discovery`'s smoke workflow.
-- [ ] Fix the stale MSRV comment in the workspace `Cargo.toml` (it claims `iroh-relay 1.0.0-rc.1`;
+- [x] Fix the stale MSRV comment in the workspace `Cargo.toml` (it claims `iroh-relay 1.0.0-rc.1`;
       it has been 1.0.3 since ADR-0005).
 
 **Call chain:** n/a (docs plus one toolchain/manifest edit).
@@ -2045,3 +2045,31 @@ reviewed it and made three calls, now folded in as **§1.2**:
   admission authority, and the old name read as a general-purpose service it is not. Paths in this
   document keep the old name below Phase 1 for the same reason they keep the old repo paths — they
   match what the passes verified. Read `croft-admit` as `croft-relay-admit` after Phase 1.
+
+### Phase 1 executed — 2026-08-10
+
+Both repos, in the plan's order: **gate → move → smoke removal → record.**
+
+- **croft-stack** (branch `relay-source-move`, four commits): a pre-existing red bats assertion
+  fixed first (the cert path moved to tmpfs and the test still said `/etc` — the gate must not be
+  born red on drift that predates it); the gate workflow (`gate.yml`: relay/source Rust +
+  relay/tests bats, on every PR and push to `main`, trivially green in the pre-move window); the
+  move itself with the `croft-admit` → `croft-relay-admit` rename riding it, plus
+  `rust-toolchain.toml` (1.94.1) and the MSRV-comment fix; then the record — **ADR-0006**,
+  ADR-0004's mechanism superseded with the unreachable-fallback correction in place (content-
+  blindness retained), ADR-0001 superseded-in-part, README rewritten for the current design,
+  croft-stack README + CONTRACT.md scoping notes (the workspace is not a kit tenant).
+- **discovery** (on `main`): tree removed, smoke matrix entry replaced with a pointer, **T62
+  rewritten** (new gates: budget sizing / relay binary end-to-end / deploy / the `insert_relay`
+  probe; the five owner-calls noted resolved), backlog §6j banner, MASTER-INDEX + RUN-01-summary
+  relocation notes, manifest row updated. COHESION needed nothing — its croft-relay reference is a
+  wiki-link to a lab note, not a path into the moved tree.
+- **Deviation from the phase text, correct on arrival:** the OPEN-QUESTIONS bullet said "resolve
+  Q1/Q3/Q4, leave Q2/Q5" — written before the 2026-08-09 walk-through resolved Q2 (repo shape) and
+  Q5 (metric cardinality). All five are closed in the file, each citing its ruling.
+- **Verification:** cargo test **46/46**, clippy clean, bats **8/8** post-move;
+  `grep -rn "wrap the admitted connection" docs/` returns nothing; discovery's smoke no longer
+  references croft-relay. Local rustc is Homebrew (ignores the toolchain pin) — the pin is
+  enforced by the gate, which is the agreement that matters.
+- **Still open in this phase:** nothing. Phase 0 (budget sizing) is next and remains gated on the
+  owner-supplied second network; Milestone B (Phase 2, our binary) can start independently of it.
