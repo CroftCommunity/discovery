@@ -1,10 +1,10 @@
 # croft-relay: cap-gated calling with a metered introduction budget
 
 - **Status:** Rewrite (2026-08-08), Pass 2 complete against the rewrite (2026-08-08), cap distribution
-  settled out-of-band (2026-08-09), **Pass 3 (quality gates) complete (2026-08-09)**. Supersedes the
-  2026-08-07 draft and its gap analysis — both preserved in the Review Log, not above it. **12 phases**
-  in five milestones. **No blocking questions; nine open questions await the owner's severity
-  confirmation before execution starts.**
+  settled out-of-band (2026-08-09), **Pass 3 (quality gates) complete and all nine open questions closed
+  with the owner (2026-08-09)**. Supersedes the 2026-08-07 draft and its gap analysis — both preserved
+  in the Review Log, not above it. **12 phases** in five milestones. **No open questions. Ready for
+  execution, starting with Phase 1's relocation to `croft-stack/relay/source/`.**
 - **Supersedes in part:** ADR-0001's fork-vs-embed framing; **ADR-0004's entire enforcement
   mechanism** (rate-limiting is replaced by a byte budget with a clean disconnect).
 - **Source dialogue:** `../seeds/transcripts/raw/croft-relay-tiered-admission-fork-vs-embed-2026-08-07.md`
@@ -405,8 +405,11 @@ Scheduled into the phase that makes each reference stale.
 ## 7. Concurrency Map
 
 ```
-Phase 0 (budget sizing — owner-gated on a second network) ─────┐ independent
-Phase 1 (record + correct; docs + toolchain + manifest) ───────┘
+Phase 1 (relocate to croft-stack + CI gate; record + correct)
+                              │   (Pass 3: no longer ∥ with P0 — P1 moves
+                              │    the directory P0 writes into)
+                              ▼
+Phase 0 (budget sizing — owner-gated on a second network)
                               │
                               │
    Milestone B (relay binary)  →  Milestone C (admission service)
@@ -419,12 +422,20 @@ Phase 1 (record + correct; docs + toolchain + manifest) ───────┘
                     Milestone E — P12
 ```
 
-- **Phase 0 ∥ Phase 1.** Disjoint write-sets. Phase 1 writes the T62 gate *shape*; Phase 0 fills the
-  constants. If run in parallel, Phase 1's placeholders must be explicitly marked.
-  - *Re-entry (P0):* nothing written outside `experiments/croft-relay/{tests,evidence}/`; both hosts'
-    harness ports released.
-  - *Re-entry (P1):* `git diff --name-only` shows only `.md` plus the single manifest and toolchain
-    edit.
+- ~~**Phase 0 ∥ Phase 1.** Disjoint write-sets.~~ **(Pass 3: DISQUALIFIED by the relocation.)** Phase 1
+  now **moves `experiments/croft-relay/` to `croft-stack/relay/source/`** (§8.4), and Phase 0 writes
+  into `experiments/croft-relay/{tests,evidence}/` — the directory being moved. Running them
+  concurrently means Phase 0 writing evidence into a tree that is disappearing underneath it, which git
+  will not warn about because both operations are individually legitimate.
+  **Sequential: Phase 1's move goes first, then Phase 0 writes to the new home.** This costs nothing —
+  Phase 0 is gated on an owner-supplied second network and may be delayed indefinitely, so blocking the
+  move on it would be the tail wagging the dog. Phase 1's remaining work (docs, T62, the toolchain pin)
+  still has no dependency on Phase 0 beyond the budget constants, which stay marked as placeholders.
+  - *Re-entry (P1):* the move is a single commit whose diff is pure renames plus the new CI gate;
+    `discovery` shows only `.md` edits and the smoke-matrix removal; `croft-stack` builds green on its
+    new gate before anything else proceeds.
+  - *Re-entry (P0, now after the move):* nothing written outside `croft-stack/relay/source/{tests,
+    evidence}/`; both hosts' harness ports released.
 - **Milestone B ∥ Milestone C — DISQUALIFIED (Pass 2). They run sequentially, B then C.**
   Two independent collisions, and the second is not fixable by hoisting:
   1. Both would write the workspace root `Cargo.toml` (B registers the new member crate, C adds
@@ -631,7 +642,9 @@ depends on it.
       what we store (membership and accounting only). **(Pass 3)** It also carries §8.3's **log privacy
       rule** — never a token, a cap secret, or a DID pair — because that rule is a design constraint
       with the same standing as content-blindness, and a convention that lives only in a plan is a
-      convention that dies with the plan.
+      convention that dies with the plan. **(Pass 3)** Same for the observability posture settled in
+      Phase 12: aggregates-only metrics, identity confined to logs, ≥30-day retention on both, and *why*
+      each — an ADR is what a future 2am debugging decision argues with.
 - [ ] Supersede ADR-0004's mechanism section; **retain** its content-blindness argument.
 - [ ] Mark ADR-0001's fork-vs-embed conclusion superseded-in-part.
 - [ ] OPEN-QUESTIONS: resolve Q1/Q3/Q4, leave Q2/Q5 with current status.
@@ -640,8 +653,14 @@ depends on it.
       it, "phase3_tier.rs" reads as this plan's Phase 3, which is the counting decorator.
 - [ ] Rewrite T62's gates.
 - [ ] Backlog §6j, MASTER-INDEX, COHESION, RAW-ARTIFACTS-MANIFEST.
+- [ ] **(Pass 3 — owner's ruling) Relocate the workspace to `croft-stack/relay/source/`** (§8.4), and
+      do it **first in this phase**, so every later phase writes to its final home. Order matters:
+      **add croft-stack's gate workflow before moving the code**, then move, then remove the
+      `croft-relay` entry from `discovery`'s smoke matrix — never the reverse, or there is a window
+      where the crates exist in a repo with no PR checks.
 - [ ] Add `rust-toolchain.toml` pinning `1.94.1` to match CI — the experiment has none, which is the
-      green-locally/red-in-CI failure `.claude/CI-PATTERN.md` names.
+      green-locally/red-in-CI failure `.claude/CI-PATTERN.md` names. **(Pass 3)** After the move this
+      pin must agree with croft-stack's new gate, not `discovery`'s smoke workflow.
 - [ ] Fix the stale MSRV comment in the workspace `Cargo.toml` (it claims `iroh-relay 1.0.0-rc.1`;
       it has been 1.0.3 since ADR-0005).
 - [ ] *(Conditional — see Concurrency Map and Open Questions)* the hoisted root-manifest edit.
@@ -652,9 +671,12 @@ currently red on `main`** for unrelated `thinking-app-*` drift; check the failin
 red as this phase's failure.
 **Depends on:** Phase 0 for constants only; structure lands first with marked placeholders.
 **Read-set:** the ADR tree, `OPEN-THREADS.md`, `EXPERIMENT-BACKLOG.md`, `COHESION.md`.
-**Write-set:** `experiments/croft-relay/docs/adr/*`, `{README,OPEN-QUESTIONS}.md`, `Cargo.toml`,
+**Write-set:** the relocated tree's `docs/adr/*`, `{README,OPEN-QUESTIONS}.md`, `Cargo.toml`,
 `rust-toolchain.toml` (new); `beta/OPEN-THREADS.md`; `alpha/experiments/EXPERIMENT-BACKLOG.md`;
-`alpha/COHESION.md`; `alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`.
+`alpha/COHESION.md`; `alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`. **(Pass 3) Plus, in
+`croft-stack`:** the new gate workflow, `README.md`, `CONTRACT.md`, and the moved tree itself. **Plus,
+in `discovery`:** the `croft-relay` removal from `.github/workflows/smoke.yml`. **This phase now spans
+two repos and therefore two PRs** — croft-stack's lands first (gate, then code), discovery's second.
 **Shared-state contract:** No mutable state beyond the write-set, except that the toolchain pin is
 ambient for every later phase — re-run the existing suite once after adding it.
 **Risks:** An ADR that records the decision without the rejected alternatives is not re-derivable
@@ -663,8 +685,12 @@ later, which is the whole point of writing it.
 1. **Behavioral:** A reader who has not seen the dialogue can reconstruct why throttling was replaced,
    why there is no fork and no switch, and what the PDS trust ruling does and does not assume.
 2. **Verification:** `grep -rn "wrap the admitted connection" docs/` returns nothing; broken-ref gate
-   clean on changed files.
-**Validation:** Narrow.
+   clean on changed files; **(Pass 3)** croft-stack's new gate is green on the moved tree, and
+   `discovery`'s smoke run no longer references `croft-relay`.
+**Validation:** **(Pass 3) Narrow → Moderate.** It was a docs phase when Pass 2 rated it; it now
+performs a cross-repo relocation and stands up a CI gate that did not exist. The docs half is still
+narrow; the move half is the kind of change that is either completely right or obviously broken, and
+the verification above is what tells them apart.
 
 ---
 
@@ -910,6 +936,11 @@ loosening the netns/systemd posture.
       `journalctl -u` is the whole story, and **no log file inside the netns** to grow unbounded. Record
       in `06-iroh-relay.md` the two greps an operator runs first: `reason=budget_exhausted` and
       `reason=spent_token`.
+- [ ] **(Pass 3 — owner, 2026-08-09) Turn on automated dependency PRs**, targeting croft-stack's gate:
+      `iroh-relay` (ours to track from the moment we build the binary) and the git-pinned `ciss-auth`.
+      This is the phase that takes on the release-cadence obligation, so it is the phase that arranges
+      for the obligation to be met by a mechanism rather than by remembering. Record in the ADR that
+      owning the cadence is a standing cost, not a one-time step.
 - [ ] **(Pass 3) Write the rollback down before it is needed.** The stock-binary + HTTP-hook fallback is
       already named as the fallback; state the *procedure* — which Ansible variable reverts, how long it
       takes, and what capability is lost while reverted (budgets and accounting; admission still works).
@@ -1420,7 +1451,34 @@ explicitly.
 - [ ] Cheap rejects; no logging amplification on the deny path; per-source attempt limiting ahead of
       verification cost.
 - [ ] Metrics: admissions by outcome, budgets exhausted, bytes by tier, spent-token refusals — **tier-
-      level aggregates**, per OPEN-QUESTIONS Q5, unless explicitly overridden.
+      level aggregates**, per OPEN-QUESTIONS Q5.
+- [ ] **(Pass 3 — owner's ruling, 2026-08-09) Aggregates only in metrics; identity only in logs; both
+      retained at least 30 days. Document what and why in ADR-0006, not just here.**
+
+      | | Cardinality | Retention | Carries identity |
+      |---|---|---|---|
+      | **Metrics** | tier-level labels only — never `endpoint_id` | **≥ 30 days** | no |
+      | **Logs** | per-connection lines (§8.3) | **≥ 30 days** | `endpoint_id`, never a pair |
+
+      **Why aggregates in metrics.** Two costs, different in kind. *Privacy:* a per-endpoint time
+      series, kept for the monitoring system's whole retention and usually visible to everyone with a
+      dashboard link, is a record of an individual's activity — one side of a call, not the pair, but
+      the same slide toward holding records about people that §3.5 exists to avoid. *Cardinality:* one
+      series per endpoint grows the metric count with the user base and melts the monitoring system at
+      precisely the moment we are growing.
+
+      **Why identity stays available in logs.** The debugging capability is real and we should not give
+      it up — it just belongs where retention is bounded and access is narrower, rather than in a
+      dashboard. §8.3's `DEBUG`/`WARN` lines already carry `endpoint_id` and `connection_id`.
+
+      **Why write it down.** The failure mode is not a decision to surveil users. It is someone
+      debugging at 2am who adds an endpoint label because it would help *right now*, and it stays. A
+      recorded decision is what that person argues with.
+
+      **Named honestly:** 30 days of identity-bearing logs is itself a deliberate choice, not a
+      neutral default — it is a month in which who-connected-when is reconstructable from our logs for a
+      single side of each call. Accepted as the working posture; revisit if the log content ever widens
+      beyond one endpoint per line.
 - [ ] Fuzz the token parser (network-facing), time-boxed.
 - [ ] Load test: N clients, stable memory, correct budget behaviour, decorator overhead measured.
 - [ ] **(Pass 3) Audit the logging this plan added, under load.** Every `WARN` introduced in Phases 2–8
@@ -1465,7 +1523,7 @@ measure its overhead rather than assuming it is free.
   stored outside the store's backup path) as the simple default, and keep the shape of L2/L3 alive
   through a narrow `KeySource` seam while that is still cheap. The ADR must name which rung is in force
   and what it does *not* claim. See Phase 6.
-- **[RECOMMENDED: PHASE-GATED — Phase 4]** Does `Endpoint::insert_relay` with a changed auth token force
+- **[CONFIRMED: PHASE-GATED — Phase 4]** Does `Endpoint::insert_relay` with a changed auth token force
   a relay reconnect? *Rationale: it determines whether a sponsored upgrade starts a fresh budget
   naturally or the supervisor must re-read budgets on live connections. Settle by probe before
   implementing; it is cheap to answer and expensive to assume.*
@@ -1496,9 +1554,12 @@ measure its overhead rather than assuming it is free.
   missing third. Root `ansible/roles/relay/` stays where it is. Histories get mixed by the move;
   accepted as unlikely to matter. **Move in Phase 1**, before any code is written against the old
   paths — see §9.
-- **[RECOMMENDED: PHASE-GATED — Phase 12]** OPEN-QUESTIONS Q5: tier-level aggregates only, or
-  endpoint-level labels authorized? *Rationale: currently defaulted to tier-level; Phase 12 is where the
-  default becomes a shipped choice.*
+- ~~**[Phase 12]** OPEN-QUESTIONS Q5: tier-level aggregates only, or endpoint-level labels?~~
+  **(RESOLVED 2026-08-09 — owner.)** **Tier-level aggregates only in metrics; identity confined to logs;
+  both retained at least 30 days.** Reasoning recorded in ADR-0006 rather than only in the plan, because
+  the thing it has to survive is a 2am debugging decision. Endpoint-level metric labels are refused on
+  two independent grounds — a long-retention, widely-visible record of individual activity, and
+  cardinality that grows with the user base.
 - ~~**[ADVISORY]** Store engine for Phase 6.~~ **(RESOLVED 2026-08-09 — owner.)** **A private CISS
   instance of our own, over localhost** — not the customer-facing deployment. The reason is *one
   persistence story instead of two*: backup, restore, failover, and the ops wisdom around them accrue to
@@ -1507,8 +1568,14 @@ measure its overhead rather than assuming it is free.
   and `Did` keeps atproto and CISS-native `id:` identities disjoint at the type level, so this does not
   extend `id:` outside its scope. Concerns Pass 3 raised against a *shared* instance were withdrawn as
   inapplicable to a private one — see Phase 6's scoping note.
-- **[RECOMMENDED: ADVISORY]** Owning the relay release cadence becomes a standing obligation once Phase
-  5 lands — we are already three releases behind on a *prebuilt* binary. Who watches upstream releases?
+- ~~**[ADVISORY]** Who watches upstream releases once Phase 5 makes the release cadence ours?~~
+  **(RESOLVED 2026-08-09 — owner.)** **Automated dependency PRs against croft-stack's new gate**, not a
+  person on a schedule. Being three releases behind on a *prebuilt* binary is the evidence that manual
+  noticing does not happen. It covers **two** standing obligations with one mechanism: `iroh-relay`
+  from crates.io, and the git-pinned `ciss-auth` (Phase 8) — both pinned dependencies in paths where a
+  missed security fix matters. Cheap specifically because the gate from §8.4 lands in Phase 1 anyway:
+  an automated bump PR is worth little without a gate to prove the bump is safe. **Phase 5 checklist
+  item**, since Phase 5 is where the obligation is taken on.
 
 ## Review Log
 
@@ -1758,7 +1825,52 @@ the post-rewrite version.
   the config doc's log knob (P2), the rollback procedure (P5), and `contract.md`'s client-side logging
   constraint (P10).
 
-**Confirmed ready:** Yes, with one caveat that is procedural rather than technical — **nine open
-questions carry agent-recommended severities that the owner has not yet confirmed.** None is BLOCKING;
-seven are PHASE-GATED and two ADVISORY. Execution of Phase 0 and Phase 1 is unblocked regardless, since
-no open question touches either.
+**Confirmed ready:** Yes — see the walk-through below, which closed every open question.
+
+### Pass 3 walk-through: all nine open questions closed — 2026-08-09
+
+Walked one at a time with the owner. **Two were deferred as-is, seven were decided**, and three of the
+decisions changed the plan's structure rather than filling in a blank.
+
+| # | Question | Outcome |
+|---|---|---|
+| 1 | `insert_relay` reconnect (P4) | **Phase-gated, unchanged.** Probe first; either answer is workable |
+| 2 | Does `IdIndex` earn its place? (P6) | **Kept** — key custody reframed as its own dial (L0–L3), ship **L1** behind a `KeySource` seam |
+| 3 | Store engine (P6) | **A private CISS instance over localhost** — one persistence story instead of two |
+| 4 | DID cache TTL (P7) | **Two ages, not one:** ~1h refresh, 24h hard max-stale |
+| 5 | `ciss-auth` dependency shape (P8) | **Git pin**, per a standing rule now recorded: ours → git pin, not ours → vendor + CI checks |
+| 6 | Device selector (P10) | **One cap per callee, carrying its own device scope** — a device is just an endpoint id |
+| 7 | Repo shape (P11) | **Moves to `croft-stack/relay/source/`, in Phase 1** — service bundled with what deploys it |
+| 8 | Metric cardinality (P12) | **Aggregates only; identity in logs; ≥30-day retention on both** |
+| 9 | Upstream release cadence | **Automated dependency PRs** against the new gate, covering `iroh-relay` and `ciss-auth` |
+
+**Structural consequences, none of which existed before the walk-through:**
+
+- **(#7) Phase 1 is now a two-repo, two-PR phase** and its validation rises Narrow → Moderate. It
+  relocates the workspace and must **add a CI gate to `croft-stack` first** — that repo's only workflow
+  is `deploy-service.yml`, a `workflow_call` deploy with no `pull_request` trigger, which
+  `.claude/CI-PATTERN.md` classifies as a notification rather than a gate. Order is gate → move →
+  remove `discovery`'s smoke entry; any other order leaves the crates in a repo with no PR checks.
+  This also **retired §6's "CI-PATTERN: no change needed"**, which held only while the code stayed in
+  `discovery`.
+- **(#7) Phase 0 ∥ Phase 1 is disqualified.** Phase 1 moves the directory Phase 0 writes evidence into.
+  Both operations are individually legitimate, so git gives no warning. Phase 1's move goes first,
+  which costs nothing since Phase 0 waits on an owner-supplied second network.
+- **(#3 → #2) The `IdIndex` decision is provisional on where the roster actually sits.** Settled by the
+  clarification that CISS here is a *private* instance, not the customer-facing one — which withdrew
+  three concerns Pass 3 had raised against a shared deployment, recorded in Phase 6 so they are not
+  re-derived. What survives is narrower and honest: the **pepper** does the work (DIDs are enumerable,
+  so a salt alone buys nothing), and exact-match becomes the only query available.
+- **(#6) The device scope is authoritative in the grant record, advisory in the link** — the same
+  caller-holds-preference / callee-holds-authority split the policy record already has. Notably this
+  does *not* re-introduce an allowlist: the callee keeps no per-person state, and the grant record still
+  names no grantee.
+- **(#9 ← #5) Two standing obligations, one mechanism.** The git pin from #5 has the same failure shape
+  as owning the relay release cadence, and the automation from #9 covers both — cheap only because
+  #7's gate lands in Phase 1 regardless.
+
+**Also updated:** the holepunch working assumption is now recorded as a **range** (10–15%) rather than a
+point, matching how it was given, with a note that the figure decides how often the budget path is
+exercised and never whether it is correct.
+
+**No open questions remain.** The plan is ready for execution.
