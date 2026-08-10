@@ -431,8 +431,10 @@ completes the carrier's column and this becomes §6.4's grounding.
 | drain time (when you came back) | **yes** — it serves the drain | M1 |
 | **depositor → recipient edges** | **NO — see below** | S2, S4 |
 | device count per persona | only when racing | S4 |
-| message content | **never** — sealed | M1, S7 (pending) |
-| which group a message belongs to | **never** — drain uses account identity, not MLS identity | design |
+| message content | **never** — sealed | M1, **S7** |
+| ~~which group a message belongs to~~ **which group a message belongs to** | ~~never~~ **YES — `group_id` is cleartext in the MLS framing** | **S7 — this row was assumed and is now FALSIFIED** |
+| epoch (and therefore that membership changed) | **yes** — cleartext | **S7** |
+| content type (application vs handshake) | **yes** — cleartext | **S7** |
 | ordering / causality | **never** — the per-author index is inside the seal | design |
 
 ### The one that is not inherent, and is not in the doc: the communication graph
@@ -581,7 +583,68 @@ This is the scenario the plan flagged as most likely to pass for the wrong reaso
 
 ---
 
-## S1, S7–S8
+## S7 — Carol carries and learns nothing
+
+**Claim.** A node that handles the sealed bytes but is not in the group cannot decrypt them.
+Learning goal: *state the real observed metadata set rather than the assumed one, so §6.4's leak
+profile is grounded in a measurement.*
+
+**Rung: A (real-lib).** **Code.** `tests/s7_carol_carries.rs`.
+
+**Raw output.**
+```
+S7 MEASURED (real-lib) — what a carrier observes with NO key:
+  byte length     : 169
+  sha256          : 3a098701d7d675eb...
+  wire format     : PrivateMessage
+  group_id        : 818801a8fea6b21533c84b2f57d0e6af   <-- CLEARTEXT
+  epoch           : 1                                  <-- CLEARTEXT
+  content_type    : Application                        <-- CLEARTEXT
+  plaintext       : NOT AVAILABLE — Message group ID differs from the group's group ID.
+```
+
+**Verdict: `S7 CONFIRMED (real-lib)` for confidentiality; `S7 FALSIFIES "learns nothing"
+(real-lib)`.**
+
+### The content is safe. "Learns nothing" is not true.
+
+`group_id`, `epoch` and `content_type` sit **beside** the ciphertext in the MLS `PrivateMessage`
+framing, not inside it (`openmls-0.8.1/src/framing/private_message.rs:33–38`), and are readable
+through the public API with **no key at all**. This is RFC 9420 framing, not a CISS or meer choice.
+
+**And the refusal is a routing check, not cryptography.** Carol is turned away with *"Message group
+ID differs from the group's group ID"* — the library declines **before attempting decryption**,
+because the cleartext group_id does not match her state. That is a different security story from
+"tried and failed": the confidentiality guarantee is real, but nothing about this refusal exercises
+it.
+
+### The consequence for the design's stated reasoning
+
+`meer-as-custodian-queue.md` §Reasoning argues:
+
+> **Why drain authorizes on account identity, never MLS identity.** Presenting group credentials to
+> a blind store would tell it which groups you are in — metadata the blindness exists to prevent.
+
+**That mitigation is defeated by the payload it protects.** Refusing MLS identity at the drain gate
+does not stop the meer learning which groups you are in — `group_id` is in every message it stores.
+Measured: two messages to one group are **linkable by a carrier** with no key.
+
+So a meer can, without breaking any seal:
+
+- partition its store **by conversation**;
+- count **per-conversation** traffic per recipient;
+- watch **epoch advancement**, which signals commits — i.e. that membership or keys changed.
+
+The account-identity drain gate is still right (it avoids *adding* a second, credential-based
+disclosure), but it should not be presented as preventing group-linkability. It does not.
+
+**The corpus already owns the fix, and has not applied it here.** The history-convergence store is
+specified with **nested double-sealing**; the meer is not. An outer seal over the MLS message would
+close this, at the cost the history store already pays. **Filed as E96.**
+
+---
+
+## S1, S8
 
 Not yet run. S7 Phase 10; S8 Phase 11; S1 (enrollment,
 Rung C static) Phase 12.

@@ -1,8 +1,8 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–9 GREEN 2026-08-10.**
-All three planning passes complete, all 5 open questions resolved. Phases 10–14 not started.
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–10 GREEN 2026-08-10.**
+All three planning passes complete, all 5 open questions resolved. Phases 11–14 not started.
 **Both must-pass claims are settled: M1 CONFIRMED (real-lib); M2's positive arm CONFIRMED and its
 negative-arm hypothesis FALSIFIED (real-lib), with the `MUST` upheld on stronger grounds.**
 Verdicts in `alpha/experiments/meer-queue/TEST-LOG.md`. Phase 0 falsified one hypothesis inside M2 and forced
@@ -1056,7 +1056,25 @@ prevents it from proving.
 
 ---
 
-### Phase 10: S7 — Carol carries and learns nothing
+### Phase 10: S7 — Carol carries and learns nothing — GREEN 2026-08-10
+
+> **Content is safe; "learns nothing" is FALSE.** `group_id`, `epoch` and `content_type` are
+> **cleartext** in the MLS `PrivateMessage` framing and readable with no key — RFC 9420 framing, not
+> a CISS or meer choice. Measured: two messages to one group are **linkable by a carrier**.
+>
+> **This falsifies a row the leak-profile table asserted from the design rather than measurement**
+> (my own, written two phases ago: *"which group a message belongs to — never"*). Corrected in place
+> and marked as falsified, because the point of S7 was to replace assumption with measurement and
+> quietly editing it would erase the lesson.
+>
+> **The design's stated mitigation is defeated by the payload it protects.** Drain refuses MLS
+> identity *"because presenting group credentials would tell it which groups you are in"* — but the
+> meer already holds `group_id` on every message. The gate is still right; the rationale overclaims.
+> **The corpus owns the fix and has not applied it here:** the history store is specified with nested
+> double-sealing, the meer is not. **Filed as E96.**
+>
+> Also measured: a non-member's refusal is a **routing** check, not cryptography — the library
+> declines before attempting decryption. Confidentiality holds, but that refusal does not exercise it.
 
 **Goal:** Ground §6.4's leak profile in a measurement instead of an assumption.
 **Changes:**
