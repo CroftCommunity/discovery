@@ -1180,7 +1180,8 @@ here)**, `Cargo.toml`.
 **Shared-state contract:** **(Pass 3 — invariants.)** Clock injected as the existing verifier does; no
 wall-clock read outside the edge, so no test sleeps to reach an expiry. The `ReplayGuard` is
 process-local and bounded — it never grows unbounded on `jti`s that have already expired. `ciss-auth`
-enters as a dependency (path or git — Open Questions). No test reaches the network; caps and grant
+enters as a **git dependency pinned to a commit** (Pass 3 — owner's standing rule); the pin is bumped
+deliberately and never floated to a branch. No test reaches the network; caps and grant
 records come from Phase 7's fixture server.
 **Risks:** Reimplementing JWT verification instead of reusing `ciss-auth` — it is the highest-risk
 crypto surface and the existing code is reviewed. Second: an unenforced quota is worse than none;
@@ -1385,8 +1386,13 @@ measure its overhead rather than assuming it is free.
   outage stop competing. Defensible because a stale key buys relayed bandwidth, not call content.
   Remaining for Phase 7: confirm both numbers against real plc.directory behaviour, and implement the
   cache shape (bounded, single-flight, failures never cached).
-- **[RECOMMENDED: PHASE-GATED — Phase 8]** `ciss-auth` as a path dependency, a git dependency, or
-  vendored. *Rationale: cross-repo coupling versus drift. Reimplementation is not on the table.*
+- ~~**[Phase 8]** `ciss-auth` as a path dependency, a git dependency, or vendored.~~ **(RESOLVED
+  2026-08-09 — owner.)** **Git dependency pinned to a commit**, per the owner's standing rule: *if the
+  dependency is ours, pin it by git; if it is not ours, bundle it and add CI checks.* A path dep only
+  resolves under a fixed on-disk layout, so CI (which already runs `croft-relay` in the smoke matrix)
+  and any single-repo clone could not build. Vendoring is the one option where a CISS **security** fix
+  silently fails to reach an authentication path. The residual cost — someone must do the bumping — is
+  the same standing obligation as watching upstream iroh releases.
 - **[RECOMMENDED: PHASE-GATED — Phase 10]** Deep link with a device selector, or client tries devices in
   order? *Rationale: it is a contract change, and the contract is the source of truth for two
   codebases.*

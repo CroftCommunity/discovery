@@ -149,6 +149,99 @@ guarantee is free at that point — and it converts this lint into something the
 
 ---
 
-## S1–S8
+## S2 — Fan-out and dedup
 
-Not yet run. S1 (enrollment, Rung C static) lands in Phase 12; S2–S8 in Phases 7–11.
+**Claim.** The blob is stored **once** in CISS and referenced N times — `meer-as-custodian-queue.md`
+§"What the meer does": *"`PUT` the blob once to CISS (content-addressed, so a message to fifty
+recipients is stored once)"*.
+
+**Rung: A (real-lib).** Real OpenMLS seal, real CISS storage boundary.
+
+**Code.** `tests/s2_fanout_dedup.rs`.
+
+**Raw output.**
+```
+S2 MEASURED (real-lib): fan-out to 5 = 1 deposit(s), 1 stored object(s), 173 sealed bytes.
+Naive per-recipient = 5 deposit(s), still 1 stored object(s).
+Dedup saves TRANSIT (5x), not at-rest storage.
+
+S2 MEASURED (real-lib): identical bytes stored under 2 namespaces = 2 object(s) on disk. 
+Dedup is per-namespace.
+```
+
+**Verdict: `S2 CONFIRMED (real-lib)` for the meer's store-once; `S2 FALSIFIES the unconditional
+form of the dedup claim (real-lib)`.**
+
+**Design consequence 1 — the saving is transit, not storage.** A naive per-recipient meer leaves
+*the same one object on disk*, because the store is content-addressed. What five deposits actually
+cost is 5x the **transit**. Since the design meters transit — and the transit meter *is* the
+offline-data fraction that sizes a meer fleet — "stored once" is the less interesting half of the
+claim. "Deposited once" is the half that has a price attached.
+
+**Design consequence 2 — dedup does not cross a namespace, which bounds the claim to one custody
+mode.** CISS lays objects out as `blocks/{did}/{cid}`. Identical bytes under two DIDs are **two**
+stored objects (same content address, different paths). So:
+
+| custody mode | one message to 50 recipients |
+|---|---|
+| meer-owned pool (**the spike's stand-in**) | 1 stored object |
+| per-DID queues (**the design's stated default**) | **50 stored objects** |
+
+The hypothesis doc states the dedup claim unconditionally in §"What the meer does", while
+§"Custody is a dial" separately lists "dedup across everyone" as a *pooled-mode advantage*. Those two
+passages disagree, and the measurement settles it: **dedup is per-namespace.** The unconditional
+sentence needs qualifying, and the custody dial gains a cost dimension it does not currently name —
+per-DID buys ownership and legible accounting, and it costs at-rest storage linear in fan-out.
+
+---
+
+## S3 — Dual delivery
+
+**Claim.** Bob receives the same message twice — once carried live, once drained — and it
+deduplicates to a single entry, with MLS applying it idempotently (Part 2 §6.6.2). The hypothesis
+doc calls the racing story §6.6.4 *free in practice*.
+
+**Rung: A (real-lib).** Live carriage is a real iroh connection straight to Bob's endpoint,
+bypassing the meer; the second copy goes through the meer.
+
+**Code.** `tests/s3_dual_delivery.rs`.
+
+**Raw output.**
+```
+S3 MEASURED (real-lib): a duplicate application message is REJECTED by openmls 0.8.1 at the
+second application: process_message refused: The requested secret was deleted to preserve
+forward secrecy.
+
+S3 CONFIRMED (real-lib): live + drained delivery of one object dedups to 1 entry on content
+hash; declaring the digest suppresses re-send.
+```
+
+**Verdict: `S3 CONFIRMED (real-lib)` for the dedup shape; `S3 FALSIFIES "MLS applies it
+idempotently" for application messages (real-lib)`.**
+
+**Design consequence — dedup is required, not an optimisation.** openmls 0.8.1 does **not** apply a
+duplicate application message idempotently. It **errors**: the per-message secret is deleted after
+first use to preserve forward secrecy, so the second application fails with *"The requested secret
+was deleted to preserve forward secrecy."*
+
+Part 2 §6.6.2's idempotence language describes **commits** ("a duplicate commit no longer matches
+current state and is dropped"), and that reasoning does not carry to application messages. The
+practical consequence is sharp:
+
+- A client that feeds both copies to `process_message` gets a **hard error on the second**, and that
+  error is indistinguishable at a glance from tampering or a decryption attack.
+- Therefore **content-hash dedup must happen before MLS processing**, not after and not as an
+  optimisation. The racing story is free *only if you dedup first*; done in the wrong order it
+  manufactures alarming errors on a completely normal delivery race.
+
+**Scope note, stated so the result is not over-read.** S3's dedup assertion models *client*
+behaviour (two identical byte strings have one digest — trivially true). The production assertions
+it exercises are the queue's want-diff and prune, already mutation-verified in Phases 3 and 4. **S3's
+real contribution is the measurement**, not a new assertion.
+
+---
+
+## S1, S4–S8
+
+Not yet run. S4 (multi-device) Phase 8; S5/S6 Phase 9; S7 Phase 10; S8 Phase 11; S1 (enrollment,
+Rung C static) Phase 12.

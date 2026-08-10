@@ -1,8 +1,8 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–6 GREEN 2026-08-10.**
-All three planning passes complete, all 5 open questions resolved. Phases 7–14 not started.
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–7 GREEN 2026-08-10.**
+All three planning passes complete, all 5 open questions resolved. Phases 8–14 not started.
 **Both must-pass claims are settled: M1 CONFIRMED (real-lib); M2's positive arm CONFIRMED and its
 negative-arm hypothesis FALSIFIED (real-lib), with the `MUST` upheld on stronger grounds.**
 Verdicts in `alpha/experiments/meer-queue/TEST-LOG.md`. Phase 0 falsified one hypothesis inside M2 and forced
@@ -877,7 +877,26 @@ tempting to smooth over, not less.
 
 ---
 
-### Phase 7: S2 fan-out and dedup, S3 dual delivery
+### Phase 7: S2 fan-out and dedup, S3 dual delivery — GREEN 2026-08-10
+
+> **Two falsifications, both in the hypothesis doc rather than in the code.** Full write-ups in
+> `TEST-LOG.md`.
+>
+> **S2** — the meer's store-once holds, but the doc's *unconditional* dedup claim does not. CISS lays
+> objects out as `blocks/{did}/{cid}`, so **dedup does not cross a namespace**: identical bytes under
+> two DIDs are two stored objects. One message to fifty recipients is 1 object under the spike's
+> meer-owned pool and **50 under per-DID queues, the design's stated default**. The doc contradicts
+> itself here (§"What the meer does" states it unconditionally; §"Custody is a dial" lists dedup as a
+> *pooled-mode* advantage) and the measurement settles it. The custody dial gains an unnamed cost
+> dimension: per-DID costs at-rest storage linear in fan-out. Also measured: the naive per-recipient
+> meer leaves the same one object on disk — the saving is **transit**, 5x, which is the metered
+> quantity.
+>
+> **S3** — dedup works, but "MLS applies it idempotently" is **false for application messages**.
+> openmls 0.8.1 *errors* on the second application: *"The requested secret was deleted to preserve
+> forward secrecy."* Part 2 §6.6.2's idempotence language is about **commits** and does not carry.
+> Consequence: content-hash dedup must happen **before** MLS processing — done after, a normal
+> delivery race manufactures an error indistinguishable from tampering.
 
 **Goal:** Confirm dedup is real at the CISS boundary, and that dual delivery is free.
 **Changes:**
