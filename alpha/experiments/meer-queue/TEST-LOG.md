@@ -528,10 +528,24 @@ Three consequences, none of which the design currently states:
    later surface and a durable metadata surface (sizes, timing, counts, and the graph from E94)
    that the retention window was supposed to bound.
 
-**What would close it:** an object-expiry or delete surface in CISS (which has its own security
-review — a delete is a new authenticated destructive path), or a storage arrangement the meer can
-abandon wholesale (e.g. per-window namespaces), or restating retention honestly as a serving
-policy. **Filed as E95.**
+**What would close it — owner's call 2026-08-10 is to build it.** Two designs, and they are
+complementary rather than alternatives (detail in **E95**):
+
+- **A — manifest-driven reclamation.** No DELETE endpoint is needed, because the manifest already
+  *is* the owner's signed statement of what should exist: it binds every leaf (B1) and carries a
+  monotonic `seq` refused on rollback (B3, `CISS/src/server.rs:1299`). Signing manifest `N+1`
+  without a leaf is an authenticated, replay-proof "I no longer claim this"; the server reclaims
+  what no manifest references. This is **independently owed by the PDS-compat claim** — CISS ships
+  `uploadBlob`/`getBlob`/`listBlobs` with no record surface, so nothing can ever *become*
+  unreferenced, whereas atproto collects blobs once their referencing records are deleted.
+  **Limitation:** it needs the owner online, which the meer case cannot assume.
+- **B — owner-declared retention on the `queue` chain kind.** The planned slot declaration already
+  carries *kind + custodian + ceiling*; add a retention window. The owner pre-authorises expiry
+  **once, at enrolment**, and the server enforces it with no per-delete signature and no owner
+  presence. The policy lives in the owner's signed, genesis-fixed declaration, so it inherits B3
+  anti-rollback for free. **It also sharpens the kind itself:** `queue` becomes *the kind whose
+  contents expire by owner-declared policy*, which separates it from `file-sync` on a real axis
+  instead of an authorization footnote.
 
 ---
 
