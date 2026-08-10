@@ -1,0 +1,32 @@
+[package]
+name = "rapier-determinism"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+# rlib for the native test, cdylib for the raw wasm module Node instantiates.
+# No wasm-bindgen: the export is a single `() -> i64`, so the plain WebAssembly
+# JS API is enough and the spike stays free of extra toolchain.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Pinned exactly. The whole claim under test is "same code, same bits, two
+# targets" — a floating version would be testing two different claims.
+#
+# `enhanced-determinism` expands to [simba/libm_force, parry2d/enhanced-determinism].
+# `libm_force` is the load-bearing half: it routes transcendental math through
+# the libm crate instead of the platform's own, which is why the same sin/cos
+# lands on aarch64 and on wasm.
+#
+# Default features are [dim2, f32, std, block-solver] — note `parallel` and the
+# `simd*` family are NOT default, so enhanced-determinism composes with the
+# defaults here and the documented incompatibility is not triggered.
+rapier2d = { version = "=0.35.1", features = ["enhanced-determinism"] }
+
+[profile.release]
+# Determinism must not depend on the optimizer's mood; keep the two builds as
+# close as the targets allow.
+opt-level = 2
+lto = false
+codegen-units = 1
