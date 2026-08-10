@@ -241,6 +241,62 @@ real contribution is the measurement**, not a new assertion.
 
 ---
 
+## S3b — Is a duplicate distinguishable from genuine loss?
+
+**Why this exists.** S3 found that openmls errors on a duplicate rather than applying it
+idempotently. That leaves two candidate designs: the client **keeps state** (a set of delivered
+content hashes) and dedups before processing, or the client **treats the error as a benign
+duplicate signal** — a no-op costing only bandwidth and an error branch.
+
+The second is safe **only if** the duplicate error is distinguishable from the error a genuinely
+lost message produces. Forward secrecy deletes a message key after use *and* as the ratchet advances
+past it, so "I already read this" and "I can never read this" could plausibly surface identically.
+If they did, treating the error as benign would silently swallow unrecoverable loss — exactly what
+the no-invisible-loss rule (Part 1 §2.2) forbids and the watermark exists to prevent.
+
+**Rung: A (real-lib).** **Code.** `tests/s3b_duplicate_vs_loss.rs`.
+
+**Raw output.**
+```
+S3b MEASURED (real-lib):
+  duplicate (already read)   -> process_message refused: The requested secret was deleted to
+                                preserve forward secrecy.
+  lost (ratchet moved past)  -> process_message refused: Generation is too old to be processed.
+  DISTINGUISHABLE BY ERROR: true
+```
+
+**Verdict: `S3b MEASURED (real-lib): the two conditions are DISTINGUISHABLE`.**
+
+They are distinct variants of `SecretTreeError` (`openmls-0.8.1/src/tree/secret_tree.rs:14–40`):
+
+| condition | variant | meaning |
+|---|---|---|
+| already read | `SecretReuseError` | benign — a duplicate delivery |
+| ratchet moved past | `TooDistantInThePast` | **unrecoverable loss** — this message is gone |
+| too far ahead | `TooDistantInTheFuture` | out-of-order beyond the window |
+
+**Design consequence — both designs are viable, and the choice is now informed rather than
+forced.** A client may treat `SecretReuseError` as a no-op without hiding loss. Dedup-before-process
+remains the tidier option (no error path at all, and it saves the decrypt attempt), but it is no
+longer *required for correctness* — which was the open question S3 left.
+
+**Two conditions on taking the error-driven route**, both concrete:
+
+1. **Match on the variant, never on "any processing failure."** `TooDistantInThePast` sitting one
+   variant away is precisely the loss the no-invisible-loss rule requires be surfaced. A catch-all
+   `Err(_) => ignore` would swallow it.
+2. **Preserve the typed error to the point of decision.** This spike's `MlsError::Process(String)`
+   flattens the variant into a message, which is fine for a result log and **wrong for a client** —
+   string-matching on an upstream error message is a silent breakage waiting for a library bump. A
+   production client should carry the `SecretTreeError` variant through.
+
+**A third thing this buys, unprompted:** `TooDistantInThePast` is a *detector for the gap the
+watermark describes*. A client can tell "the meer swept this before I drained it" from "I already
+have it" without asking the meer anything — which is the same have/want reasoning applied to the
+ratchet rather than to the queue.
+
+---
+
 ## S1, S4–S8
 
 Not yet run. S4 (multi-device) Phase 8; S5/S6 Phase 9; S7 Phase 10; S8 Phase 11; S1 (enrollment,

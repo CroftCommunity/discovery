@@ -309,8 +309,11 @@ Read from pinned source. Anything not listed is unverified.
 
 **Explicitly unverified, and named as such**
 
-- **Holepunch failure rate ≈ 10%** — owner-supplied, recalled from prevailing figures, not measured by
-  us. Accepted as a working assumption. Our own users' NAT distribution may differ.
+- **Holepunch failure rate ≈ 10–15%** — owner-supplied (2026-08-09: "ten to fifteen, maybe twenty…
+  we think it's around ten to twelve"), recalled from prevailing figures, not measured by us. Accepted
+  as a working assumption, and recorded as a **range** rather than a point because that is how it was
+  given. Our own users' NAT distribution may differ. Note the budget mechanism is insensitive to this
+  number — it decides how *often* the budget path is exercised, never whether it is correct.
 - **Whether `Endpoint::insert_relay` with a changed auth token forces a relay reconnect.** The budget
   boundary depends on it (see Phase 4). Verify before designing around either answer.
 - **Introduction byte cost across real NATs.** Phase 0.
@@ -381,7 +384,16 @@ Scheduled into the phase that makes each reference stale.
 - `alpha/experiments/EXPERIMENT-BACKLOG.md` §6j, `alpha/COHESION.md`, `alpha/seeds/transcripts/RAW-ARTIFACTS-MANIFEST.md`. Phase 1.
 - `alpha/ROADMAP_TODO.md` + `alpha/plans/croft-stack/06-iroh-relay.md` — own musl artifact replaces the prebuilt tarball; 1.0.0 → 1.0.3. Phase 5.
 - **`CroftCommunity/connect` `docs/contract.md`** — lexicon moves to per-device records; `getRecord` → `listRecords`; adds the request-policy record. Cross-repo. Phase 10.
-- `.claude/CI-PATTERN.md` — grepped: no change needed; `croft-relay` is already in the smoke matrix.
+- ~~`.claude/CI-PATTERN.md` — grepped: no change needed; `croft-relay` is already in the smoke
+  matrix.~~ **(Pass 3: retired by the relocation.)** Superseded by the two CI items below.
+- **(Pass 3)** `discovery/.github/workflows/smoke.yml` — **remove** the `croft-relay` matrix entry; the
+  directory no longer exists there after the Phase 1 move. Phase 1.
+- **(Pass 3)** `croft-stack/.github/workflows/` — **add a gate workflow** (build + test on
+  `pull_request` and on push to `main`). croft-stack today has only `deploy-service.yml`, a
+  `workflow_call` reusable deploy with no `pull_request` trigger — a notification, not a gate
+  (`.claude/CI-PATTERN.md`). The gate must exist **before** the crates arrive, not after. Phase 1.
+- **(Pass 3)** `croft-stack/README.md` + `CONTRACT.md` — record that `relay/source/` now holds the
+  service's code alongside its existing `deploy/` and `tests/`. Phase 1.
 - **(Pass 3)** `experiments/croft-relay/README.md` also gains the note that `phaseN_*.rs` test names
   refer to the superseded numbering (§8.2). Phase 1.
 - **(Pass 3)** `croft-relay-bin`'s config doc records the log-level knob and the two operator greps;
@@ -495,7 +507,52 @@ naming both parties to a call is a call-detail record — the exact artifact §3
 holding, and it would arrive through the back door of a debugging convenience. Phase 12's deny-path
 work re-checks this under load.
 
-### 8.4 Checkpoints: which phase broke?
+### 8.4 The relocation, and how to read every path in this plan
+
+**Owner's ruling (2026-08-09): `croft-relay` moves out of `discovery/alpha/experiments/` and into
+`croft-stack`, under the existing `relay/` directory.**
+
+```
+  croft-stack/
+    ansible/roles/relay/     ← already there; stays put
+    relay/
+      deploy/                ← already there: systemd units, relay.toml, Caddy site
+      tests/                 ← already there: bats deploy tests
+      source/                ← NEW: the Rust workspace lands here
+        croft-admit/
+        croft-relay-embed/
+        croft-relay-bin/
+```
+
+The bundle is the service plus what deploys it. A standalone repo was the other candidate; it splits
+those two apart again, which is the thing that is currently working.
+
+**Move in Phase 1, not Phase 5 or 11.** Only two crates exist today and no production artifact ships
+until Phase 5, so the move is at its cheapest now and gets monotonically more expensive as Milestones B
+and C add crates. Moving later would also mean every phase writes to paths that are known in advance to
+be wrong.
+
+**Histories get mixed.** Accepted by the owner as unlikely to ever matter. Worth one line in the move
+commit recording where the code came from, so the mixing is legible rather than mysterious.
+
+**How to read this document's paths.** Every Read-set and Write-set below is written against the
+*current* location (`experiments/croft-relay/…`). After the Phase 1 move, read them relative to
+`croft-stack/relay/source/`. They were deliberately **not** rewritten in place: the paths as written
+match the tree Pass 2 verified against, and rewriting them would have made every source citation in §4
+unverifiable against anything.
+
+**Two CI consequences, and the second invalidates a Pass-2 conclusion:**
+
+1. `discovery`'s smoke matrix currently includes `croft-relay` (`smoke.yml:41`). After the move that
+   entry is stale and must be removed, or CI builds a directory that no longer exists.
+2. **`croft-stack` has no gate workflow** — its only workflow is `deploy-service.yml`, a
+   `workflow_call` reusable deploy with no `pull_request` trigger. Per `.claude/CI-PATTERN.md` that is a
+   notification, not a gate. Moving Rust source there **requires adding a gate** (build + test on
+   `pull_request` and on push to `main`) before the code arrives, or these crates land somewhere with
+   no PR checks at all. §6's earlier "CI-PATTERN: no change needed" was correct only while the code
+   stayed in `discovery`; the move retires it.
+
+### 8.5 Checkpoints: which phase broke?
 
 Each phase's **Verification** command is its checkpoint, and they are cumulative — every phase re-runs
 the suite that precedes it. Three are the load-bearing ones, in the sense that if the system is healthy
@@ -1119,6 +1176,12 @@ carrying tier and budget.
       holds a grant record naming **only** the opaque id.
 - [ ] Verification: fetch the issuer's grant records (Phase 7, cached), confirm the presented cap
       matches a live record.
+- [ ] **(Pass 3 — owner, 2026-08-09) Mint the device scope into the token.** The grant record carries
+      the set of endpoint ids the cap reaches; `croft-admit` reads it and mints a token scoped to those
+      endpoints. A caller-supplied device hint is checked **against** that scope, never trusted as it:
+      a hint inside scope is honoured, a hint outside it is refused. This is the same discipline as the
+      policy record — the caller-held artifact expresses preference, the callee's repo expresses
+      authority.
 - [ ] **Revocation is both** — short expiry on the minted relay token, *and* deletion of the grant
       record to stop re-issue. Expiry alone would let a revoked cap keep minting until it lapsed;
       record-deletion alone would leave already-minted tokens live. Together, revocation takes effect
@@ -1234,7 +1297,33 @@ cap-gated calling work, and the client affordances that issue and redeem a cap.
 - [ ] `docs/contract.md` first, then both halves' tests, then the implementations — the repo's own rule.
       The contract now covers **three** record shapes (device, grant, policy) plus the deep link.
 - [ ] Update `web/resolver.js`, `web-tests/`, and `android/.../DeepLink.kt` accordingly.
-- [ ] Deep link gains a device selector or the client tries devices in order — decide in the contract.
+- [ ] **(Pass 3 — owner's ruling, 2026-08-09) One cap per callee, and the cap carries its own device
+      scope. The link's device hint is not authoritative.**
+
+      The insight that settles it: **a device is just an endpoint id.** Scope needs no new concept — it
+      is a set of endpoint ids the cap reaches, and adding a device is adding another id.
+
+      ```
+        grant record (callee's repo, authoritative — signed by the repo commit)
+            cap id: a3f9…                    ← opaque, names no grantee
+            scope:  [endpoint_work]          ← which of my endpoints this cap reaches
+
+        the cap (handed out, caller-held)     ← proves possession, carries no authority of its own
+        the link's ?device= hint (caller-held) ← preference only; refused if outside scope
+      ```
+
+      "When I give you this thing, it is up to me where you can reach me" — the scope is chosen by the
+      callee **at issuance**, which is the moment they already have the decision in mind. A caller
+      cannot widen it, because the authoritative copy lives in the callee's repo and the caller's copies
+      (cap, link) are just claims.
+
+      **Why this does not re-introduce an allowlist.** The callee maintains no per-person state: they
+      issue a cap with a scope and are done. The grant record still carries an **opaque cap id and no
+      grantee**, so the call graph stays unpublished (§3.5). It now also names endpoint ids — which are
+      **already public** via `listRecords`, so this discloses nothing new.
+- [ ] Deep link's `?device=` is therefore **UI preference, not authorization** — the same relationship
+      the policy record has to the cap. Client tries scoped devices in order when no hint is given.
+      Settle the wire shape in `docs/contract.md` first, per that repo's rule.
 
 **Call chain:** page → `resolveHandle` → PDS → `listRecords` (devices + policy) → render → deep link →
 app. Separately: callee's client → write grant record → share cap out-of-band → caller's client stores
@@ -1393,13 +1482,20 @@ measure its overhead rather than assuming it is free.
   and any single-repo clone could not build. Vendoring is the one option where a CISS **security** fix
   silently fails to reach an authentication path. The residual cost — someone must do the bumping — is
   the same standing obligation as watching upstream iroh releases.
-- **[RECOMMENDED: PHASE-GATED — Phase 10]** Deep link with a device selector, or client tries devices in
-  order? *Rationale: it is a contract change, and the contract is the source of truth for two
-  codebases.*
-- **[RECOMMENDED: PHASE-GATED — Phase 11]** Repo shape (OPEN-QUESTIONS Q2), now unavoidable because a
-  client crate needs a home: does croft-relay graduate to a standalone repo, or stay under
-  `discovery/alpha/experiments/`? *Rationale: the experiment tree is the wrong long-term home for a
-  deployed production binary.*
+- ~~**[Phase 10]** Deep link with a device selector, or client tries devices in order?~~ **(RESOLVED
+  2026-08-09 — owner.)** **One cap per callee, carrying its own device scope**, because a device is just
+  an endpoint id — scope needs no new concept. The callee chooses at issuance where a given cap may
+  reach them; the scope lives in the grant record (authoritative) and is minted into the token; the
+  link's `?device=` is a non-authoritative hint, honoured inside scope and refused outside it. No
+  per-person state on the callee's side, and the grant record still names no grantee. Remaining for
+  Phase 10: the wire shape, settled in `docs/contract.md` before either half is built.
+- ~~**[Phase 11]** Repo shape (OPEN-QUESTIONS Q2).~~ **(RESOLVED 2026-08-09 — owner.)** **Moves into
+  `croft-stack`, under the existing `relay/` directory, as `relay/source/`.** Not a standalone repo:
+  the cohesive bundle is the service together with what deploys it, and `croft-stack/relay/` already
+  holds `deploy/` (systemd units, `relay.toml`, the Caddy site) and `tests/` (bats) — the code is the
+  missing third. Root `ansible/roles/relay/` stays where it is. Histories get mixed by the move;
+  accepted as unlikely to matter. **Move in Phase 1**, before any code is written against the old
+  paths — see §9.
 - **[RECOMMENDED: PHASE-GATED — Phase 12]** OPEN-QUESTIONS Q5: tier-level aggregates only, or
   endpoint-level labels authorized? *Rationale: currently defaulted to tier-level; Phase 12 is where the
   default becomes a shipped choice.*
