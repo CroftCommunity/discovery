@@ -136,6 +136,25 @@ preserve raw verbatim → distill → update connective tissue). The standing in
 - **Provenance is non-negotiable:** keep raw artifacts verbatim; redact only secrets; mark
   volatile facts `[UNVERIFIED]`; distinguish modeled-vs-real for proofs; don't over-claim.
 
+- **A prior measurement carries its configuration — check it before reusing the number.** Citing a
+  measured figure instead of re-deriving it is right (that is what the FACTCHECK files are for), but
+  a number is only evidence about the configuration it was taken under. Worked example, 2026-08-08:
+  the corpus's Welcome-size figure (~152–155 B/member, E12.1) was cited as bounding the `Welcome`
+  vs 2 MiB risk. It does not — `mls-replant` builds every group with
+  `MlsGroupCreateConfig::default()`, whose `use_ratchet_tree_extension` is `false`, so **every
+  Welcome measurement in the corpus was the without-tree case: the safe case, not the risk case.**
+  The O(N) object the question was actually about had never been measured here at all (first data:
+  `experiments/meer-queue/PHASE-0-FINDINGS.md` D7, where the extension roughly doubles per-member
+  cost). Before reusing a measurement, name the configuration it was taken under and confirm it is
+  the one you are reasoning about.
+
+- **Before inventing a seam, grep the substrate for one.** Same session: a spike planned its own
+  `Clock` trait for deterministic time, when `CISS/src/clock.rs` already had a public, tested
+  `SimClock` built for exactly that ("no wall-clock reads", day granularity). A parallel seam beside
+  an existing one is a divergence nobody declared. The find was forced by treating an "obvious"
+  stand-in as a decision requiring a probe rather than an acknowledgement — which is the general
+  rule: **a stand-in the agent finds convenient is the kind that should need a decision.**
+
 - **Don't resolve the user's decisions** (license gates, recovery-anchor choice, etc.) —
   surface them.
 

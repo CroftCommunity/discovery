@@ -513,7 +513,7 @@ tests, no commit-per-item. Each task honors its declared Disposition.
 
 ---
 
-### Phase 1: CISS harness — ✅ GREEN 2026-08-09
+### Phase 1: CISS harness — GREEN 2026-08-09
 
 > **Executed.** RED first (`w0_ciss_roundtrip` failed to compile against a non-existent
 > `ciss_harness`), then GREEN: 3 tests passing, clippy clean. Both load-bearing assertions were
@@ -570,7 +570,7 @@ boundary is real HTTP and not an in-process shortcut.
 
 ---
 
-### Phase 2: MLS layer — ✅ GREEN 2026-08-09
+### Phase 2: MLS layer — GREEN 2026-08-09
 
 > **Executed.** RED first (unresolved import `meer_queue::mls`), then GREEN: 3 tests, clippy clean.
 > Three mutations run, all killed:
@@ -619,7 +619,7 @@ degenerate seal.
 
 ---
 
-### Phase 3: Meer core and queue — ✅ GREEN 2026-08-09
+### Phase 3: Meer core and queue — GREEN 2026-08-09
 
 > **Executed.** RED first, then GREEN: 7 tests, clippy clean. Five mutations run; **one survived
 > and exposed a vacuous assertion.**
@@ -693,7 +693,7 @@ blob directory that the in-memory backend would not have had.)
 
 ---
 
-### Phase 4: iroh transport — ✅ GREEN 2026-08-09
+### Phase 4: iroh transport — GREEN 2026-08-09
 
 > **Executed.** RED first, then GREEN on the first run: 2 tests. Four mutations, all killed —
 > including the one that matters, **a drain that ignores the caller and serves every queue**

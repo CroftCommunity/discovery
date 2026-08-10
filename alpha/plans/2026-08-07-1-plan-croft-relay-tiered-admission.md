@@ -895,10 +895,36 @@ legitimately ours.
       alone. So the key is `HMAC(k, member_did)`, and the surviving value is narrower but real: a leaked
       accounting store does not reveal our **member roster**, which is a customer list. If that is not
       worth a seam, the honest move is to drop `IdIndex` rather than keep it for a reason that no longer
-      applies. **The ADR must state the security property is not claimed** in either mode
-      until key custody is answered — otherwise "we hash the DIDs" gets read a year later as "they are
-      protected" by someone who does not know the key sits in the same backup. In keyed mode an absent
-      key is a hard error, never a default.
+      applies.
+- [ ] **(Pass 3 — owner's ruling, 2026-08-09) `IdIndex` is kept, and key custody becomes its own dial.**
+      The seam survives not because the old rationale was rescued but because the property it protects
+      is worth having *once the key is treated as a credential rather than a config value*. A DID is
+      such a strong identity proxy that the key guarding its digest deserves the handling a password
+      gets. So: **settle a simple default now, and preserve the shape of the harder options while that
+      is still cheap.**
+
+      | Rung | Where the key lives | When |
+      |---|---|---|
+      | L0 `Transparent` | no key | dev and test only; never a production default |
+      | **L1 `Keyed`, operator-supplied at startup** | a file or env var **outside the store's backup path** | **the default this plan ships** |
+      | L2 `Keyed`, fetched at startup | a remote the host authenticates to; never at rest locally | later, if warranted |
+      | L3 `Keyed`, external custody | KMS/HSM, key never in our process | later, if warranted |
+
+      **L1 is the whole point and the one constraint that must not be fudged:** the key living outside
+      the backup path is precisely what buys the leaked-backup property. A key sitting next to the store
+      it protects is ceremony, and it is the default someone will reach for unless the plan says
+      otherwise.
+
+      **Preserving the shape cheaply** means one thing concretely: the key arrives through a narrow
+      `KeySource` seam, so L2 and L3 are new implementations rather than a refactor of everything that
+      touches the store. That is a small interface written once, not speculative machinery — it is the
+      "cheap but clear" line, and anything beyond it (rotation orchestration, envelope encryption,
+      multi-key eras) waits until a rung above L1 is actually chosen.
+- [ ] **The ADR states what is and is not claimed at each rung.** At L1 the property is "a leaked store
+      or backup does not reveal the member roster" — **not** "the roster is protected from someone with
+      the host." Without that sentence, "we hash the DIDs" gets read a year later as the stronger claim
+      by someone who does not know which rung is in force. In keyed mode an absent key is a hard error,
+      never a silent fall back to `Transparent`.
 
 **Call chain:** `main()` → config → store open → router → bind → serve.
 **Wiring test:** Start the binary against a tmp store, record a membership over HTTP, **restart the
@@ -1249,10 +1275,12 @@ measure its overhead rather than assuming it is free.
   distribution only.)** With no in-band request there is nothing to deliver, so nothing in this plan
   needs to reach a user who isn't watching. Foreground reachability remains real per-platform work
   (§1.1) but gates none of this. Phase 9 was removed and its content folded into Phase 10.
-- **[RECOMMENDED: PHASE-GATED — Phase 6] (Pass 2 — new)** Does `IdIndex` still earn its place? Its
-  original rationale (breaking cross-list correlation) died with the lists. The surviving value is that
-  a leaked accounting store doesn't expose the member roster. *Rationale: keep it for that reason, or
-  drop it — but do not keep it for the reason written in Pass 1.*
+- ~~**[Phase 6]** Does `IdIndex` still earn its place?~~ **(RESOLVED 2026-08-09 — owner.)** Kept, with
+  key custody reframed as its own dial rather than an unanswered prerequisite. A DID is a strong enough
+  identity proxy that the key deserves password-grade handling; ship **L1** (operator-supplied key,
+  stored outside the store's backup path) as the simple default, and keep the shape of L2/L3 alive
+  through a narrow `KeySource` seam while that is still cheap. The ADR must name which rung is in force
+  and what it does *not* claim. See Phase 6.
 - **[RECOMMENDED: PHASE-GATED — Phase 4]** Does `Endpoint::insert_relay` with a changed auth token force
   a relay reconnect? *Rationale: it determines whether a sponsored upgrade starts a fresh budget
   naturally or the supervisor must re-read budgets on live connections. Settle by probe before
