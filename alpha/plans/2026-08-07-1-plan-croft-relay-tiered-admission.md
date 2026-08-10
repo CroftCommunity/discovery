@@ -2216,3 +2216,20 @@ budget re-reader exists or is needed.
 - **DESIGN.md** tier-enforcement section rewritten to budgets (the phase's doc-impact item).
 - **Validation:** 14 suites green, clippy zero warnings, fmt clean, mutation clean on `tier.rs`.
   Remaining from the phase's list: nothing.
+
+### Phase 6 in execution — chunk 1 done, 2026-08-10
+
+Cross-repo pin semantics noted on **both sides** first (owner's ask): CISS's README carries a
+"downstream consumers" table (who pins what, drift needs a deliberate bump, CHANGELOG the surfaces
+consumers use); `relay/source`'s README carries the mirror. Both pushed.
+
+**Chunk 1 (`61d6ff9`): `IdIndex` at L1 + the narrow store.** RED-first; mutation run on the two new
+files: 13 caught, 5 unviable, **zero missed** — the two initial survivors (Pepper's Debug-redaction
+body; a `> 0` micro-guard in `migrate`) were killed by a redaction pin and by deleting the guard,
+not explained away. Keyed mode's absent-key path is a hard error naming the source; the migration is
+tested at birth including plaintext-is-gone; the store trait cannot express a pair.
+
+**Chunk 2 (next):** the `ciss` git pin (lib for Model-A assertion signing, binary for tests), the
+`CissStore` impl over `/{did}/assertion/{kind}/{subkey}` with croft-relay-admit as a CISS tenant
+(`kind=member|usage`, `subkey=digest`), the `[[bin]]` + router + §8.3 logging, and the
+both-processes-restart persistence wiring test (fails, never skips, without the binary).
