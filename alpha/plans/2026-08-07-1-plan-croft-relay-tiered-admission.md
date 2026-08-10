@@ -1070,11 +1070,11 @@ changing how the binary arrives.
 legitimately ours.
 
 **Changes:**
-- [ ] `[[bin]]` target: bind, serve the router, config for keys and the store backend (post-relocation:
+- [x] `[[bin]]` target: bind, serve the router, config for keys and the store backend (post-relocation:
       the private CISS instance's localhost URL and credentials — see below).
-- [ ] Durable store behind a narrow interface, holding **only**: membership, and accounting/quota
+- [x] Durable store behind a narrow interface, holding **only**: membership, and accounting/quota
       counters. Explicitly **not**: allowlists, call policies, or any pair.
-- [ ] **(Pass 3 — owner's direction, 2026-08-09) The store is a CISS instance of our own, reached over
+- [x] **(Pass 3 — owner's direction, 2026-08-09) The store is a CISS instance of our own, reached over
       localhost.** Not the customer-facing deployment: **our own private instance, on our host, exposed
       to nothing but this process.**
 
@@ -1111,7 +1111,7 @@ legitimately ours.
       design must be located before depending on it (the point is that whatever it becomes, it becomes
       it once, for both). **If a shared instance is ever proposed, all three return.** One line in
       ADR-0006 to that effect; not a Phase 6 gate.
-- [ ] Keep the in-memory implementation for tests, and keep the narrow interface **even though the
+- [x] Keep the in-memory implementation for tests, and keep the narrow interface **even though the
       engine is now decided** — its job was never engine-portability, it was to make "add an allowlist"
       awkward. CISS being a general store makes that discipline *more* necessary, not less: the engine
       will happily hold a graph if we ask it to.
@@ -1120,21 +1120,21 @@ legitimately ours.
       the backend, the failure is a localhost connection or auth refusal, not a filesystem error. The
       principle is unchanged: a croft-admit that starts without durable storage is lying about every
       acknowledgment it sends.)**
-- [ ] **(Free-form pass) The persistence test needs a CISS binary, which is a cross-repo test
+- [x] **(Free-form pass) The persistence test needs a CISS binary, which is a cross-repo test
       dependency.** The wiring test below restarts the store, so it must run a real CISS process against
       a tmp SQLite file — the in-memory store impl proves nothing about survival. Source it by the
       owner's standing dependency rule (ours → git pin): a pinned CISS release artifact or a build from
       the pinned commit, fetched in CI the same way `ciss-auth` is. Settle the mechanics at phase start;
       what is not acceptable is the test silently downgrading to the in-memory impl when no CISS binary
       is present — absent binary, the test **fails**, not skips.
-- [ ] **(Pass 3) Logging:** `INFO` on startup naming the resolved store backend (the CISS URL, never
+- [x] **(Pass 3) Logging:** `INFO` on startup naming the resolved store backend (the CISS URL, never
       its credentials) and the `IdIndex` mode in force — **the mode especially**, because `Transparent`
       in production is the failure this seam exists to prevent and it is otherwise indistinguishable
       from `Keyed` at runtime. `ERROR` on store-unreachable with the URL and the error class. `DEBUG`
       per admission decision with its outcome. Never log a stored identifier's pre-image in `Keyed`
       mode — logging the DID next to its digest defeats the seam entirely, and it is exactly what
       someone debugging a lookup mismatch will reach for.
-- [ ] `IdIndex` seam over stored identifiers: `Transparent` (dev/test) and `Keyed`, both behaviourally
+- [x] `IdIndex` seam over stored identifiers: `Transparent` (dev/test) and `Keyed`, both behaviourally
       tested, with the migration written now while the store is small.
       **(Pass 2 — the rationale was stale.)** The Pass-1 form was `HMAC(k, member ‖ counterpart)`,
       justified by stopping one person recurring as the same digest across many members' lists. **The
@@ -1143,7 +1143,7 @@ legitimately ours.
       accounting store does not reveal our **member roster**, which is a customer list. If that is not
       worth a seam, the honest move is to drop `IdIndex` rather than keep it for a reason that no longer
       applies.
-- [ ] **(Pass 3 — owner's ruling, 2026-08-09) `IdIndex` is kept, and key custody becomes its own dial.**
+- [x] **(Pass 3 — owner's ruling, 2026-08-09) `IdIndex` is kept, and key custody becomes its own dial.**
       The seam survives not because the old rationale was rescued but because the property it protects
       is worth having *once the key is treated as a credential rather than a config value*. A DID is
       such a strong identity proxy that the key guarding its digest deserves the handling a password
@@ -1167,7 +1167,7 @@ legitimately ours.
       touches the store. That is a small interface written once, not speculative machinery — it is the
       "cheap but clear" line, and anything beyond it (rotation orchestration, envelope encryption,
       multi-key eras) waits until a rung above L1 is actually chosen.
-- [ ] **(Pass 3) What the hashing actually buys, stated without inflation.** We store the digest and
+- [x] **(Pass 3) What the hashing actually buys, stated without inflation.** We store the digest and
       compare by digest: the caller's DID arrives in hand at call time, so the pre-image never needs to
       be stored. Two properties follow, and the second is the one that is easy to get wrong.
       - **The salt does nothing; the pepper does all the work.** atproto DIDs are enumerable from the
@@ -2233,3 +2233,38 @@ tested at birth including plaintext-is-gone; the store trait cannot express a pa
 `CissStore` impl over `/{did}/assertion/{kind}/{subkey}` with croft-relay-admit as a CISS tenant
 (`kind=member|usage`, `subkey=digest`), the `[[bin]]` + router + §8.3 logging, and the
 both-processes-restart persistence wiring test (fails, never skips, without the binary).
+
+### Phase 6 executed — 2026-08-10
+
+Chunks 1 (`61d6ff9`) + 2 (`59319c4`) on `relay-bin`, plus **CISS PR #35** (merged, `e98a5c1`) — the
+phase reached into the dependency, deliberately:
+
+- **CISS's kind registry is closed by design** ("kinds are code, not data"), so the store could not
+  invent kinds over the wire. The sanctioned move was registering them *as code*, and the right shape
+  was vocabulary-free: **`kv.flag`** and **`kv.counter`** — generic per-subkey boolean/counter any
+  tenant can use, subkey required + bounded + charset-checked, unregistered kinds still refused
+  (asserted as a control). RED-first in CISS's own workflow tier; 72 suites green there; CHANGELOG
+  Unreleased entry names the first consumer per the pin discipline.
+- **The pin is one source of truth:** `ciss` + `ciss-cli` git-pinned to `e98a5c1` in Cargo.toml; the
+  gate's new step reads the rev from Cargo.toml and builds the ciss **binary** from the same commit
+  for the persistence test. `.cargo/config.toml` sets git-fetch-with-cli so the workspace's
+  identity-by-path SSH rewrites (dev) and anonymous https (CI) both fetch.
+- **The service:** `croft-relay-admit --config admit.toml` — store surface over HTTP
+  (`/member/{id}`, `/usage/{id}`, `/healthz`), §8.3 logging, fail-loud everywhere (unreachable store,
+  missing seed, keyed-without-pepper each abort naming the problem; no fallback paths exist).
+- **The store:** `CissStore` = one tenant `id:` keypair, Model-A signed assertions, read-modify-write
+  under the substrate's monotonic seq with one re-read retry. Signing reused from the pinned crate,
+  never reimplemented. Store trait went async (AFIT + enum dispatch); runtime store failure is a 503,
+  never a silent not-a-member — deny-closed applies to storage.
+- **The wiring test is the phase's Done-when:** real ciss process on tmp SQLite + the admit service,
+  membership + usage over HTTP, **both processes killed and respawned**, data intact (counter with
+  its value; stranger still a stranger). Binary via CROFT_CISS_BIN or sibling checkout; absent →
+  the test **fails**, never skips.
+- **Deliberate gap, recorded:** `keys`/`remove` on the CISS backend return `Unavailable` — no
+  assertion-enumeration endpoint exists, so Transparent→Keyed migration is unsupported there.
+  Production starts Keyed from birth (L1 is the shipped default), so that path is never taken in
+  production; the enumeration endpoint is a named follow-on if that changes. The migration itself is
+  fully tested on `MemoryStore` (chunk 1, zero mutation survivors).
+- **Validation:** relay workspace 17 suites green, clippy zero, fmt clean; CISS workspace 72 suites
+  green, clippy clean. Remaining from the phase's list: nothing — Phase 7 (real atproto resolution)
+  is next.
