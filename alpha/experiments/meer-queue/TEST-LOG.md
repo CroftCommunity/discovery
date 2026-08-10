@@ -290,6 +290,43 @@ longer *required for correctness* — which was the open question S3 left.
    string-matching on an upstream error message is a silent breakage waiting for a library bump. A
    production client should carry the `SecretTreeError` variant through.
 
+### Decision (owner, 2026-08-10): keep both, and let them compose
+
+Not "pick one." The two mechanisms have different jobs and the second repairs the first:
+
+- **In-memory cache of delivered content hashes** — the fast path. Dedup before processing, so
+  the ordinary duplicate costs nothing: no decrypt attempt, no error branch.
+- **`SecretReuseError`** — the *repair* path. It is what tells a client "already read" when the
+  cache is gone.
+
+**The cache is memory-only and deliberately not persisted.** It does not need to be, because it
+rebuilds lazily through use: start empty, and each duplicate that arrives identifies itself via
+`SecretReuseError`, which re-populates the entry. Nothing has to be reconstructed eagerly at
+startup, and there is no on-disk structure to keep consistent, migrate, or corrupt.
+
+**What this buys concretely — the crash window closes for free.** There is a gap between
+*processed* and *acked*: a client that reads a message and dies before acking leaves the meer still
+holding it. On restart the meer re-serves it, the client re-processes, and:
+
+```
+  cache empty (restarted)
+        │
+        ├── process duplicate ──► SecretReuseError
+        │                            │
+        │                            └── "already read" ──► ack ──► meer prunes
+        │                                     │
+        └────────────────── cache repopulated ┘
+```
+
+Without the error the client would need **persistent** delivered-hash state purely to survive that
+window. With it, the window is closed by a condition MLS already reports. This is why both are kept:
+the cache makes the common case free, and the error makes the cache disposable.
+
+**Safety of acking on `SecretReuseError`.** Sound, and worth stating explicitly: the secret tree is
+local per-member-per-generation state, so the variant means *this member consumed this generation*.
+It cannot be induced by a third party — forging a message at that generation requires the group key.
+So "I saw this error, therefore I have read it, therefore acking is correct" holds.
+
 **A third thing this buys, unprompted:** `TooDistantInThePast` is a *detector for the gap the
 watermark describes*. A client can tell "the meer swept this before I drained it" from "I already
 have it" without asking the meer anything — which is the same have/want reasoning applied to the
