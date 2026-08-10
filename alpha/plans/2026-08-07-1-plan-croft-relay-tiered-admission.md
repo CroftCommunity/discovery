@@ -369,6 +369,13 @@ Scheduled into the phase that makes each reference stale.
 - `alpha/ROADMAP_TODO.md` + `alpha/plans/croft-stack/06-iroh-relay.md` — own musl artifact replaces the prebuilt tarball; 1.0.0 → 1.0.3. Phase 5.
 - **`CroftCommunity/connect` `docs/contract.md`** — lexicon moves to per-device records; `getRecord` → `listRecords`; adds the request-policy record. Cross-repo. Phase 10.
 - `.claude/CI-PATTERN.md` — grepped: no change needed; `croft-relay` is already in the smoke matrix.
+- **(Pass 3)** `experiments/croft-relay/README.md` also gains the note that `phaseN_*.rs` test names
+  refer to the superseded numbering (§8.2). Phase 1.
+- **(Pass 3)** `croft-relay-bin`'s config doc records the log-level knob and the two operator greps;
+  `06-iroh-relay.md` records the rollback procedure. Phases 2 and 5 respectively.
+- **(Pass 3)** `CroftCommunity/connect` `docs/contract.md` also carries the client-side logging
+  constraint (the page logs nothing about lookups; a cap secret never reaches a log or crash report),
+  because it binds two codebases and neither will infer it. Phase 10.
 
 ## 7. Concurrency Map
 
@@ -1415,3 +1422,110 @@ names nobody, the policy record is an enum rather than a list, and the page refu
 
 **Next:** Pass 3 (quality gates — TDD ordering, diagnostic logging, validation calibration). No
 outstanding blocking questions.
+
+### Pass 3: Quality Gates — 2026-08-09
+
+Applied additively; no phase restructured, no reasoning rewritten. The plan's shape is unchanged from
+the post-rewrite version.
+
+**TDD ordering:**
+- Added **§8.1**: the Changes lists read implementation-first but are executed test-first, with Phases 0
+  and 1 named as the only exemptions. Previously this was implied by the per-phase Wiring test and
+  nowhere stated.
+- Added **named behaviours, RED-first** to Phases 2, 3, 6, 7, 8, and 10. Pass 2 left several phases with
+  a wiring test and no unit-level specificity, which is how a phase ships a stub that satisfies one
+  end-to-end assertion.
+- **Mutation resistance — the largest single finding.** Phase 4's `budget_for` and Phase 8's
+  `sponsorship_for` both implement "either party is a member," an `||` that a neither/both test pair
+  passes against `&&`. That mutation ships a product silently requiring *both* parties to pay. Both
+  phases now carry the full four-row membership matrix, plus budget boundary rows (under / at / over)
+  and Phase 8's six-row refusal-reason surface.
+- Phase 8 gained the **revocation-timing pair**: a token minted before deletion stays valid until
+  expiry (the designed behaviour), *and* no new token issues after. Asserting only one of these asserts
+  a property the design deliberately does not have.
+- Phase 3's byte assertion re-specified as a **ratio**, which survives framing overhead while still
+  failing on the wrong stream, one-direction counting, or double counting.
+- Added **§8.2**: the existing `phaseN_*.rs` tests are numbered against the superseded plan —
+  `phase3_tier.rs` tests the old Phase 3 while this plan's Phase 3 is the counting decorator. New tests
+  use topic names; existing files are not renamed (they are cited in evidence), and Phase 1 records why.
+
+**Observability:**
+- **Spot-check finding: the tree has no `tracing` or `log` dependency and no logging call anywhere.**
+  Acceptable for a library spike; not for two long-running daemons whose central product behaviour is
+  silently dropping a connection. Every phase in Milestones B and C was going to build on a convention
+  that did not exist.
+- Added **§8.3**: the convention (crate, level semantics, and an explicit "`TRACE` unused" so nobody
+  logs in the byte path), established in **Phase 2** rather than deferred — metrics still land in Phase
+  12, logging does not wait for it. All-observability-at-the-end is the same anti-pattern as a docs
+  phase at the end.
+- Added the **log privacy rule** and routed it into ADR-0006 (Phase 1) and a mechanical CI check (Phase
+  12): never a token, a cap secret, or a **DID pair**. Phase 8's mint is the one component that
+  legitimately sees both parties, which makes it the one place a call-detail record could be written by
+  a debugging convenience — destroying §3.5's guarantee through the back door.
+- Per-phase logging added where a failure would otherwise be undiagnosable: Phase 3's unattributed-
+  connection `WARN` (the three-way join failing silently), Phase 4's drop lines with a stable `reason`
+  discriminant **plus a near-miss `DEBUG`** (the only signal that Phase 0's number was wrong), Phase 6's
+  `IdIndex`-mode-at-startup (`Transparent` in production is otherwise invisible), Phase 7's
+  which-of-five-lookups-failed, Phase 8's six refusal reasons.
+- Phase 5 makes the logging **operable**: journal-only, level in the unit file, and the two greps an
+  operator runs first recorded in `06-iroh-relay.md`.
+
+**Debugging readiness:**
+- Added **§8.4**: three load-bearing checkpoints (after P2, P4, P8), so a later failure is localized by
+  re-running the checkpoint above it rather than bisecting a milestone.
+- Phase 5 gained a **written rollback procedure** — which variable reverts, how long, and what
+  capability is lost while reverted. The stock-binary fallback was named but its steps were not.
+- Phase 2 gained fail-loud config validation, so a relay that cannot verify anything aborts rather than
+  starting and denying every connection in a way that reads as a network fault.
+
+**Validation calibration:**
+- **Phase 3: Moderate → Broad.** Rated as measurement-only, but it settles the plan's one load-bearing
+  unverified assumption (post-upgrade bytes traversing `CountingStream`) and everything Phase 4 enforces
+  depends on its attribution being right. A subtly wrong join makes Phase 4 enforce against the wrong
+  person while Phase 4's own tests pass.
+- **Verification commands re-pointed through entry points.** Phase 6's persistence test must start the
+  binary (restart is meaningless in-process); Phase 8's must drive HTTP against the running service;
+  Phase 3's must not construct `CountingStream` directly, or it proves the type works while the binary
+  never calls it.
+- All other phase validations confirmed proportionate. Phase 1 stays Narrow (docs plus one toolchain
+  edit); Phase 5 stays Broad with staging-before-production.
+
+**Concurrency honesty:**
+- Map accounts for all 12 phases. Write-sets re-checked after Pass 3's edits: Phase 2 now also writes
+  the workspace root `Cargo.toml` (new member plus the tracing deps) and Phase 8 now also writes
+  ADR-0003 — **neither creates a new collision**, since B and C are already sequential.
+- **Shared-state contracts converted from mechanisms to invariants** in Phases 2, 3, 4, 6, 7, 8, and 10.
+  "Tests use `:0`" is a mechanism; "binds only ports obtained from `:0`, never a fixed port; leaves no
+  process running after the test binary exits" is an invariant. Phase 7's is the one that mattered most:
+  "CI must have no egress expectation" became "no test resolves a hostname outside `127.0.0.1`, base
+  URLs are injected by config," which is checkable rather than aspirational.
+- **New parallel candidate flagged, not adopted:** Phase 10 could run alongside Milestone B — different
+  repo, disjoint write-set, and only its verification half needs Phase 8. Left sequential because it is
+  a resourcing decision; surfaced with its own re-entry checks so it is a choice, not an oversight.
+
+**Discovery (Phase 0):**
+- **Dispositions were missing entirely** — a plan defect, since the Discovery Exemption exists precisely
+  to bound what unTDD'd code may become. Now declared per task: harness `keep-as-fixture` (Phase 4's
+  forced-failure test needs the same rig), byte instrumentation **`promote`** with Phase 3 named as the
+  phase that re-implements it test-first, everything else `throwaway`. No Phase 0 code reaches `crates/`
+  without a RED-first cycle.
+- Checked whether any Phase 0 task could be resolved during planning: no. Every one needs two hosts on
+  separate networks — the resource this phase is gated on.
+
+**Coherence:**
+- The plan still solves §2's four problems and no scope crept in; Pass 3 added no new capability, only
+  tests, logging, and checkpoints around existing ones.
+- One consistency fix: Phase 1's ADR-0006 bullet still said "the request-policy flow," which the
+  out-of-band decision replaced. Now "out-of-band cap distribution."
+
+**Documentation impact:**
+- ADR-0003 was scheduled in §6 for Phase 8 but **absent from Phase 8's write-set** — exactly how a
+  scheduled doc update becomes an end-of-plan docs phase. Added.
+- Four Pass-3 doc updates added, each in the phase that triggers it: the README test-naming note (P1),
+  the config doc's log knob (P2), the rollback procedure (P5), and `contract.md`'s client-side logging
+  constraint (P10).
+
+**Confirmed ready:** Yes, with one caveat that is procedural rather than technical — **nine open
+questions carry agent-recommended severities that the owner has not yet confirmed.** None is BLOCKING;
+seven are PHASE-GATED and two ADVISORY. Execution of Phase 0 and Phase 1 is unblocked regardless, since
+no open question touches either.
