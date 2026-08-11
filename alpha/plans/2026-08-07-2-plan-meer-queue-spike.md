@@ -1,8 +1,8 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–11 GREEN 2026-08-10. **All eight scenarios and both must-pass claims are run.**
-All three planning passes complete, all 5 open questions resolved. Phases 12–14 (register, fold-back, close-out) remain.
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–12 GREEN 2026-08-10/11. **All eight scenarios and both must-pass claims are run.**
+All three planning passes complete, all 5 open questions resolved. Phases 13–14 (fold-back, close-out) remain.
 **Both must-pass claims are settled: M1 CONFIRMED (real-lib); M2's positive arm CONFIRMED and its
 negative-arm hypothesis FALSIFIED (real-lib), with the `MUST` upheld on stronger grounds.**
 Verdicts in `alpha/experiments/meer-queue/TEST-LOG.md`. Phase 0 falsified one hypothesis inside M2 and forced
@@ -1185,7 +1185,23 @@ crossover. Note in `S8-RESULTS.md` that the with-extension rows had no prior bef
 
 ---
 
-### Phase 12: S1 inspection and the divergence register
+### Phase 12: S1 inspection and the divergence register — GREEN 2026-08-11
+
+> **Register correspondence verified:** five tagged ids in code, exactly five rows in the register,
+> no orphans either way.
+>
+> **S1 recorded at Rung C (static)** — an inspection, not a run, and labelled as one. Three findings,
+> the first two unnamed in the design:
+> - **Enrollment is not two-party.** The doc's "one line in your inventory" is accurate for the
+>   *grant* but **Alice has to know which meer to deposit at**, and nothing says how she finds out.
+>   The spike could not see this because the test handed Alice the address. **Filed as E97.**
+> - **Revocation is two-sided and only one side is designed.** Clearing the custodian field stops the
+>   meer *writing*; it does nothing about senders still *depositing* on a stale announcement. S6
+>   tested re-pointing and **could not** test revocation propagation — there is no channel to
+>   propagate through.
+> - **"One line" is true of the grant and understates the enrollment** — a slot declaration, two meer
+>   identifiers, a published pointer, and a device-group assertion. The user-facing story survives;
+>   the implementation has an unbuilt component.
 
 **Goal:** Record what enrollment actually requires, and make every stand-in visible.
 **Changes:**

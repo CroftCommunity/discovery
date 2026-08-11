@@ -644,7 +644,96 @@ close this, at the cost the history store already pays. **Filed as E96.**
 
 ---
 
-## S1, S8
+## S8 — Object sizes against the 2 MiB cap
+
+Full table, extrapolations, and the design decision in **`S8-RESULTS.md`** (kept separate because
+the measurement table would crowd this log). Summary:
+
+**Verdict: `S8 MEASURED (real-lib)`. `S8 FALSIFIES "commit ~log N" (real-lib)`. The pre-registered
+catastrophic branch is HALF closed.**
+
+- **Application messages are flat at 181 bytes**, N = 2 → 8000. The object the meer carries in
+  steady state never approaches the cap.
+- **All three commit types are linear**, not logarithmic — 82 B/member (self-update, remove),
+  282 B/member (add-all). The spec's "~log N" row is wrong.
+- **Crossover order:** `Welcome`-with-tree ≈ 6 350 → add-all commit ≈ 7 440 → `GroupInfo` ≈ 11 780 →
+  `Welcome`-without-tree ≈ 13 790 → ordinary commits ≈ 25 500.
+- **Half the catastrophic branch fires.** Application messages never cross, so CISS needs no
+  streaming rewrite for conversational groups. **Ordinary commits do cross**, at ≈ 25 500 — so the
+  concern is real at broadcast scale, the tier §6.9.1 already treats separately.
+- **Shipping the ratchet tree out of band is already the corpus's de-facto behaviour** and buys ~2×
+  headroom. It was arrived at incidentally, not decided, and is currently undocumented.
+
+**Best-case caveat, stated because the numbers invite over-reading:** one ciphersuite,
+`BasicCredential` only. Real credentials are larger per leaf, so **every crossover moves down**. The
+*shape* is the finding; the figures are an upper bound.
+
+---
+
+## S1 — Enrollment: what does pointing a meer at your queue actually require?
+
+**Rung: C (static).** Inspection and enumeration, **not** a run. Custodian mode does not exist, so
+there is nothing to execute; writing code that *simulated* enrollment would produce a green test
+proving nothing and would retire a question that is still open. Recorded as an inspection and
+labelled as one.
+
+**Learning goal.** Whether the *"one line in your inventory"* story survives contact, and whether
+enrollment needs anything the hypothesis doc does not mention.
+
+### The sequence, walked
+
+| # | step | state it implies | in the doc? |
+|---|---|---|---|
+| 1 | Bob has a CISS namespace | an account — already true for a Croft user | yes |
+| 2 | Bob learns the meer's identity | which identity? CISS account (for the custodian field) **and** iroh `EndpointId` (to reach it) — **two** identifiers, bound together by nothing | partly |
+| 3 | Bob declares a queue slot | `kind = queue`, `custodian = <meer>`, owner-declared `ceiling`, and (per E95-B) `retention` | yes |
+| 4 | Bob signs the manifest at `seq + 1` | one signed write, inheriting B3 anti-rollback | yes |
+| 5 | The meer learns it has a grant | push or pull? unspecified — the meer must discover it can write | **no** |
+| 6 | **Senders learn where to deposit for Bob** | an announcement Alice can resolve | **NO — see below** |
+| 7 | Device-group presence is asserted | required by S4, and only assertable here | **no** |
+
+### Finding 1 — enrollment is not two-party, and the missing party is the interesting one
+
+The doc frames enrollment as Bob ↔ meer: *"a one-line, revocable permission to add to one pigeonhole
+on your own plot."* That is accurate for the **grant**. It is not the whole enrollment, because
+**Alice has to know which meer to deposit at**, and nothing in the design says how she finds out.
+
+In this spike the question was invisible: the test handed Alice the meer's address directly. In
+reality that is a **discovery problem** with at least three candidate homes — a service endpoint in
+Bob's DID document (atproto-native, and the natural fit), a KeyPackage extension inside MLS, or out
+of band. Each has different revocation and privacy properties. **The doc addresses none of them.**
+
+### Finding 2 — revocation is two-sided, and only one side is designed
+
+Revocation is described as *"clearing the custodian field and bumping `seq`"* — an ordinary owner
+write inheriting B3 for free. That correctly stops **the meer writing**. It does nothing about
+**senders still depositing**, because they hold the old announcement.
+
+So a revoked meer keeps receiving deposits it can no longer act on, and Alice's messages go nowhere
+until she re-resolves. The window is however long announcement propagation takes — which is
+unspecified, because announcement is unspecified. **S6 tested re-pointing; it did not and could not
+test revocation propagation**, because there is no announcement channel to propagate through.
+
+### Finding 3 — "one line" is true of the grant and understates the enrollment
+
+Counting what Bob must hold or publish: a queue slot declaration (four fields), the meer's two
+identifiers, an announcement senders can resolve, and a device-group assertion. The *grant* is one
+line. The **enrollment** is a small record plus a published pointer, and the published pointer is the
+part with the interesting failure modes.
+
+This does not damage the user-facing story — *"a revocable permission to add to one pigeonhole"*
+remains true and is the part a user would care about. It does mean the **implementation** has an
+unbuilt component the design has not named. **Filed as E97.**
+
+---
+
+## Stand-in register correspondence (Phase 12 check)
+
+`grep -rn "SPEC-DELTA\[" src tests Cargo.toml` yields exactly five tagged ids —
+`meer-spike-ciss-inproc`, `meer-spike-clock`, `meer-spike-drain-auth`, `meer-spike-kind-gate`,
+`meer-spike-namespace` — and `../SPEC-DIVERGENCE-REGISTER.md` carries exactly those five rows.
+**Every tag has a row; every row has a tag.** (One further mention, `SPEC-DELTA[...]` in
+`src/lib.rs`, is the convention being referenced in prose, not a tagged site.)
 
 Not yet run. S7 Phase 10; S8 Phase 11; S1 (enrollment,
 Rung C static) Phase 12.
