@@ -126,14 +126,17 @@ A blind forwarder therefore has **no route** to a semantically-equivalent-but-by
 The spec's stated hazard (ratchet-key / nonce reuse) is real but arises from re-sealing, not from
 re-framing.
 
-### Normative-text flags
+### Normative-text flags (consolidated — all scenarios)
 
-Raised here, **not** applied — spec edits are not a spike's call.
+Raised here, **not** applied. Spec edits are not a spike's call; each is tracked in the backlog.
 
-- **Part 2 §6.6.2** — the reasoning offered for the byte-identical `MUST` attributes the hazard to
-  re-framing. The requirement should stand; the rationale should be corrected to name re-sealing,
-  and may note that OpenMLS makes re-framing unavailable in a production build.
-- No other normative text is implicated by M1 or M2.
+| spec text | what the measurement says | tracked |
+|---|---|---|
+| **Part 2 §6.6.2** — rationale for the byte-identical `MUST` | The hazard is named as re-framing. A re-frame is **byte-identical**; the hazard is **re-sealing**, which needs a key a blind forwarder lacks. Requirement stands, rationale is wrong. OpenMLS also makes re-framing unavailable in a production build, so the `MUST` is *stronger* than stated. | **E93** |
+| **Part 2 §6.6.2** — "a duplicate … is dropped" | Holds for **commits**. **False for application messages** — openmls errors (`SecretReuseError`), because the per-message secret is destroyed after first use. Dedup must precede MLS processing. | **E93** |
+| **Part 2 §6.4** — the leak profile | Must be grounded in the measured set, which includes **cleartext `group_id`, `epoch`, `content_type`** and the `(depositor → recipients)` graph. "Learns nothing" is false; "learns nothing about the content" is true. | **E96**, **E94** |
+| **Part 2 §6.6.5** — device-group fan-out as the justification for deliver-once | Not built, therefore **not tested**. The without-arm falsifies naive deliver-once. The measured cost of the alternative (racing) makes the dependency look weaker than the framing implies. | **E92** |
+| **Part 2 §6.9.1** — broadcast tier must disable the embedded ratchet tree | **Corroborated from the storage side.** S8 reaches the same boundary independently; the mandate is well-founded, and the tree is already shipped out of band in practice. | — (no change needed) |
 
 ### A limitation stated rather than implied
 

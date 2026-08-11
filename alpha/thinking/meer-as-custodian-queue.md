@@ -1,7 +1,11 @@
 # The meer as a custodian queue over CISS — conceptual alignment
 
 date: 2026-08-07
-status: thinking (hypothesis). Problem / Approach / Reasoning. Supersedes the storage half of
+status: **hypothesis, SPIKED 2026-08-08/11.** Phase 0 of the meer lane ran every claim below against
+real OpenMLS, real CISS and real iroh. **The central claim held; six subsidiary claims did not.** Each
+correction is marked inline as `[SPIKE 2026-08-11: …]` with the scenario that found it; the full
+record is `alpha/experiments/meer-queue/TEST-LOG.md`. Problem / Approach / Reasoning. Supersedes the
+storage half of
 `meer-superpeer-design.md` (2026-06-16), which assumed the meer owned its own store; the roles,
 tiers, and anti-entrenchment analysis there still stand. Gates the spike (see "What we test next").
 
@@ -67,10 +71,18 @@ without any power over the rest of it.
 Five operations, and nothing else:
 
 1. accept a publish (sealed blob + recipient set)
-2. `PUT` the blob once to CISS (content-addressed, so a message to fifty recipients is stored once)
+2. `PUT` the blob once to CISS (content-addressed) — **[SPIKE 2026-08-11 (S2): the deposit-once
+   claim holds; "stored once" is conditional.** Dedup is **per-namespace** (`blocks/{did}/{cid}`), so
+   fifty recipients is one stored object under a meer-owned pool and **fifty under per-DID queues,
+   the stated default below.** The saving that is unconditional is **transit**, which is also the
+   metered quantity.]
 3. append an entry to each recipient's queue chain
 4. serve a drain — have/want diff, hand back blobs, ack, prune
-5. sweep expired, leave a watermark
+5. sweep expired, leave a watermark — **[SPIKE 2026-08-11 (S5): sweeping ends *serving*, not
+   *holding*.** CISS's object plane is `PUT`/`GET` with **no `DELETE`**, so swept bytes remain in the
+   namespace indefinitely. "Here is what is gone" is false as written against today's substrate;
+   "we stopped serving it" is true. Fix designed in **E95** (owner lean: retention declared on the
+   `queue` chain kind).]
 
 No ordering, no group state, no key handling, no storage layer, no backup story.
 
@@ -85,7 +97,12 @@ answers with the difference. Content-addressing is what removes the cursor; mono
 the diff cheap enough to range rather than enumerate. This is §6.8.1 arriving from the storage side —
 "the cursor and the gap-detector are the same object, not two."
 
-**Deliver-once is correct, not a compromise.** §6.6.5 guarantees that if any one of a persona's
+**[SPIKE 2026-08-11 (S4): FALSIFIED as stated — without a device group the second device starves
+(measured: it drains its own queue and receives zero). And the framing overstates the trade: racing
+across two devices costs **1 deposit, 1 stored object, 2 queue entries** — nearly free at the meer.
+The real trade is metadata (racing reveals device count) and retention, versus a dependency on a
+§6.6.5 fan-out that is not built. Tracked as **E92**.]** ~~Deliver-once is correct, not a
+compromise.~~ **Deliver-once is one side of a dial whose cost was mis-stated.** §6.6.5 guarantees that if any one of a persona's
 enrolled devices receives a message, every enrolled device eventually sees it, so the device-Group is
 the fan-out and the meer must not duplicate it. Prune on ack. The dial: deliver-once when a device
 group is present, race across enrolled devices when it is not — a detectable condition, not a
@@ -177,7 +194,13 @@ That is a materially different claim from every self-hosted or federated messeng
 live in the server's database and "you can export them" is the mitigation.
 
 **Why drain authorizes on account identity, never MLS identity.** Presenting group credentials to a
-blind store would tell it which groups you are in — metadata the blindness exists to prevent. MLS
+blind store would tell it which groups you are in — metadata the blindness exists to prevent.
+**[SPIKE 2026-08-11 (S7): the gate is right, this rationale is not.** `group_id`, `epoch` and
+`content_type` are **cleartext** in the MLS `PrivateMessage` framing, so the meer already learns
+which groups you are in from every message it stores — measured: two messages to one group are
+linkable with no key. Refusing MLS identity avoids **adding** a credential-based disclosure; it does
+not prevent group-linkability. The corpus owns the fix (nested double-sealing, specified for the
+history store) and has not applied it here. Tracked as **E96**.]** MLS
 identity is also the wrong granularity (one mailbox holds mail from all groups) and epoch-bound (a
 rekey would lock a persona out of their own mailbox). Entitlement is enforced by the seal, not by the
 drain gate: a meer holding mail for someone who cannot decrypt it has wasted bytes, not leaked
@@ -193,9 +216,23 @@ untrusted-by-assumption posture are for.
 
 ## What we test next (the spike)
 
+**[SPIKE 2026-08-11: RUN. This section is kept as written for the record; the corrections are below.]**
+
 Against **plain CISS as it exists today** — no custodian mode, no chain kinds. The meer owns one
-namespace, mail goes in slots, two OpenMLS clients (the MIT `cli` PoC), one offline; prove the drain
-and the decrypt.
+namespace, mail goes in slots, ~~two OpenMLS clients (the MIT `cli` PoC)~~ **two real OpenMLS clients
+built in-process from `mls-replant` and `mls-welcome-over-iroh`** (the PoC line was stale — those
+ancestors are ours, already Rung A, and adding a third-party delivery service to test a design whose
+premise is that everyone else's DS is their product would have been backwards), one offline; prove
+the drain and the decrypt.
+
+**Result: the central claim HELD.** M1 CONFIRMED (real-lib) — a member offline for a message's entire
+live window drained it from the meer and decrypted it through real `process_message`, with the meer
+holding zero group keys. M2's positive arm CONFIRMED — bytes are byte-identical across store and
+serve. **A store-and-forward node that does no ordering, holds no group state and holds no key is
+sufficient to carry a real MLS conversation across an absence.**
+
+Six subsidiary claims were corrected (S2, S3, S4, S5, S7, S1) and are marked inline above and below.
+None of them threatens the shape; all of them were assumptions the design had not measured.
 
 This tests the thing we are actually unsure about — whether the pub/sub-in, mailbox-out shape holds up
 against real MLS traffic — without paying for the substrate first. The substrate carries the security
@@ -207,10 +244,31 @@ review cost, so it should be informed by the spike rather than guessed at ahead 
   persona's *use* of a meer is a per-persona decision") versus riding Group governance so a Group can
   point its members at a meer collectively.
 - **Meter retention policy** — aggregate shape and window.
-- **Welcome and GroupInfo versus the 2 MiB object cap** (`MAX_OBJECT_BYTES`, refused on put *and*
-  get). Application messages are far below it; large-group Welcome and GroupInfo are the stated risk,
-  and RFC 9750 leaves serving them to the deployer. Chunk (reuse `ciss-sync`'s FastCDC) or declare out
-  of scope for v0.
+- ~~**Welcome and GroupInfo versus the 2 MiB object cap**~~ — **[SPIKE 2026-08-11 (S8): MEASURED,
+  this item is closed.** Application messages are **flat at 181 bytes** at every group size and never
+  approach the cap. Everything that grows is **linear**, not `~log N` as assumed. Crossover order:
+  `Welcome`-with-tree ≈ 6 350 members → add-all commit ≈ 7 440 → `GroupInfo` ≈ 11 780 →
+  `Welcome`-without-tree ≈ 13 790 → ordinary commits ≈ 25 500. **The cap binds in the thousands, not
+  at conversational sizes**, so CISS needs no streaming rewrite to be the meer's substrate — though
+  ordinary commits *do* cross at broadcast scale, which is the tier §6.9.1 already treats separately.
+  Chunking is not needed below ~6 000 members. **Shipping the ratchet tree out of band is already the
+  corpus's de-facto behaviour** (`mls_replant::stamp` returns it separately) and buys ~2× headroom —
+  arrived at incidentally rather than decided, and currently undocumented. **Best case only:** one
+  ciphersuite, `BasicCredential`; real credentials move every crossover down. Full table:
+  `alpha/experiments/meer-queue/S8-RESULTS.md`.]**
+
+- **[SPIKE 2026-08-11 (S1, S3b, S5): new open items the spike surfaced.]**
+  - **How do senders learn which meer to deposit at?** Enrollment is framed as Bob ↔ meer, but Alice
+    needs a resolvable announcement and none is specified. Revocation is consequently one-sided —
+    clearing the custodian field stops the meer *writing*, not senders *depositing*. **E97.**
+  - **Duplicate handling is settled** (owner, 2026-08-10): keep an in-memory delivered-hash cache as
+    the fast path and `SecretReuseError` as its repair path, so the cache needs no persistence and the
+    processed-but-not-acked crash window closes for free. Safe because `SecretReuseError` (benign
+    duplicate) and `TooDistantInThePast` (unrecoverable loss) are **distinct variants** — a client
+    must match the variant, never "any processing failure."
+  - **Object lifecycle in CISS.** No `DELETE` exists, so retention cannot be honoured at the storage
+    layer. Two designs in **E95**; owner lean is **B**, retention declared on the `queue` chain kind
+    and enforced without the owner online.
 - **Custody-dial default per Group**, and whether bootstrap always implies the pooled mode.
 
 ## References
