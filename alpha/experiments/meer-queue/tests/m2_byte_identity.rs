@@ -183,10 +183,9 @@ fn a_forced_reframe_is_byte_identical_falsifying_the_spec_hypothesis() {
 #[cfg(not(feature = "reframe"))]
 #[test]
 fn the_reframe_path_is_absent_from_a_default_build() {
-    assert!(
-        !cfg!(feature = "reframe"),
-        "the default build must not enable the reframe feature"
-    );
+    // Constant by construction — this test only compiles when the feature is off, which is the
+    // assertion. Stated as a compile-time fact rather than a runtime one clippy will call vacuous.
+    const _: () = assert!(!cfg!(feature = "reframe"));
     // The conversions this would need are `#[cfg(any(feature = \"test-utils\", test))]` in
     // openmls 0.8.1 (framing/message_out.rs:195-211, framing/private_message_in.rs:263-277),
     // each carrying: "break abstraction layers and MUST NOT be made available outside of tests".

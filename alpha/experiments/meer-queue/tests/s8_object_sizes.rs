@@ -125,17 +125,16 @@ fn object_sizes_against_the_two_mib_cap() {
 fn welcome_grows_with_both_group_size_and_joiner_count() {
     println!("S8 — Welcome vs joiner count (tree extension ON)");
     println!("{:>6} {:>8} {:>12} {:>12}", "N", "joiners", "welcome B", "B/joiner");
-    for (n, _label) in [(200usize, "k=N-1")] {
-        let o = measure_group(n, true);
-        let k = n - 1;
-        println!(
-            "{:>6} {:>8} {:>12} {:>12.1}",
-            n,
-            k,
-            o.welcome,
-            o.welcome as f64 / k as f64
-        );
-    }
+    let n = 200usize;
+    let o = measure_group(n, true);
+    let k = n - 1;
+    println!(
+        "{:>6} {:>8} {:>12} {:>12.1}",
+        n,
+        k,
+        o.welcome,
+        o.welcome as f64 / k as f64
+    );
     println!(
         "S8 NOTE: in this harness every non-planter is a joiner, so k = N-1 and the two dimensions \
          are not independently varied. Separating them needs incremental adds and is left to the \

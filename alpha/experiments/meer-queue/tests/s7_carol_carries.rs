@@ -108,8 +108,7 @@ fn two_messages_to_the_same_group_are_linkable_by_a_carrier() {
                 .try_into_protocol_message()
                 .expect("protocol")
                 .group_id()
-                .as_slice()
-                .to_vec(),
+                .as_slice(),
         )
     };
 
