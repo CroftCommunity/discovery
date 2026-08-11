@@ -1,8 +1,9 @@
 # Meer queue Phase-0 spike — execution plan
 
 date: 2026-08-07 (open questions walked, and Pass 3 run, 2026-08-08)
-status: **Phase 0 (Discovery) EXECUTED 2026-08-08. Phases 1–12 GREEN 2026-08-10/11. **All eight scenarios and both must-pass claims are run.**
-All three planning passes complete, all 5 open questions resolved. Phases 13–14 (fold-back, close-out) remain.
+status: **Phase 0 (Discovery) EXECUTED 2026-08-08. **ALL PHASES COMPLETE 2026-08-11.**
+All three planning passes complete, all 5 open questions resolved. Falsifications folded back into the
+hypothesis doc; followups filed as E92–E97 with lane findings on E91. Summary: `meer-queue/README.md`.
 **Both must-pass claims are settled: M1 CONFIRMED (real-lib); M2's positive arm CONFIRMED and its
 negative-arm hypothesis FALSIFIED (real-lib), with the `MUST` upheld on stronger grounds.**
 Verdicts in `alpha/experiments/meer-queue/TEST-LOG.md`. Phase 0 falsified one hypothesis inside M2 and forced

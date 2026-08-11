@@ -16,6 +16,16 @@ Sources are the plan/roadmap/spec/next-session/TEST-LOG docs inside each experim
 
 ---
 
+## 0a. Recently retired (2026-08-11)
+
+- **Meer Phase-0 spike (`meer-queue/`)** — was *Specified*; now **RUN and COMPLETE** (2026-08-08/11).
+  M1 CONFIRMED (real-lib), M2 positive arm CONFIRMED, M2's negative-arm *hypothesis* falsified (a
+  re-frame is byte-identical — the `MUST` survives on stronger grounds). All eight scenarios run;
+  six subsidiary design claims corrected; S8 closes the 2 MiB question. Results in
+  `meer-queue/{README,TEST-LOG,S8-RESULTS,PHASE-0-FINDINGS}.md`. **What it unblocks:** meer lane
+  Phase 1 (the CISS typed-chain substrate) is now informed rather than speculative. **What it
+  opened:** E92–E97, plus lane-scoped findings appended to E91.
+
 ## 0. Doc hygiene
 
 - ✅ **Done (2026-07-13).** Both manifests reconciled to all 12 experiments: the root
