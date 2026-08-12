@@ -1,7 +1,10 @@
 # The meer as a custodian queue over CISS — conceptual alignment
 
 date: 2026-08-07
-status: **hypothesis, SPIKED 2026-08-08/11.** Phase 0 of the meer lane ran every claim below against
+status: **hypothesis, SPIKED 2026-08-08/11. DELIVERY SHAPE SUPERSEDED 2026-08-12 by
+`meer-two-target-delivery.md`** — the meer here is *addressed*; the spec (Part 2 §5.4) has it observe
+the fabric, and delivery turns out to have **two targets** (group queue + personal inbox), not one.
+The custody-dial, metering and anti-entrenchment reasoning below still stands. Phase 0 of the meer lane ran every claim below against
 real OpenMLS, real CISS and real iroh. **The central claim held; six subsidiary claims did not.** Each
 correction is marked inline as `[SPIKE 2026-08-11: …]` with the scenario that found it; the full
 record is `alpha/experiments/meer-queue/TEST-LOG.md`. Problem / Approach / Reasoning. Supersedes the
