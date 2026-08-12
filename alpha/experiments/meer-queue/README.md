@@ -1,7 +1,8 @@
 # meer-queue — Phase-0 spike for the MLS store-and-forward meer
 
-`Status: RUN 2026-08-08/11. Both must-pass claims settled; all eight scenarios run.`
+`Status: RUN 2026-08-08/12. Both must-pass claims settled; S1–S14 run.`
 `Rung: A (real-lib) throughout, except S1 (Rung C, static inspection).`
+`The delivery SHAPE changed on 2026-08-12 — see `../../thinking/meer-two-target-delivery.md`.`
 
 Tests whether a mailbox that **does no ordering, holds no group state, and holds no key** is
 sufficient to carry a real MLS conversation across an absence — against real OpenMLS, a real CISS
@@ -25,8 +26,13 @@ window drained it from the meer and decrypted it through real `process_message`,
 holding zero group keys. M2's positive arm CONFIRMED: bytes are byte-identical across store and
 serve.
 
-**Six subsidiary claims did not**, and each is now measured rather than assumed. In rough order of
-consequence:
+**But the spike tested an ADDRESSED meer, and Part 2 §5.4 describes a fabric one** — registered late
+as `meer-spike-addressed-deposit`, and the largest divergence in the run. The reshape that followed
+(S9–S14) produced the **two-target** design: a group queue keyed by a shared secret, and a personal
+inbox keyed by identity. **Read the design doc, not this file, for the current shape.**
+
+**Six subsidiary claims did not hold**, and each is now measured rather than assumed. In rough order
+of consequence:
 
 - **S7** — "the meer learns nothing" is false. `group_id`, `epoch` and `content_type` are cleartext
   in MLS framing, so a carrier can link messages by conversation with no key. (E96)
@@ -40,8 +46,15 @@ consequence:
   per-DID default. The unconditional saving is transit. (E91)
 - **S3** — MLS does **not** apply a duplicate idempotently; it errors. Dedup must precede
   processing. (E93)
-- **S1** — enrollment is not two-party: senders need an announcement nobody has specified, and
-  revocation is one-sided as a result. (E97)
+- **S1** — enrollment is not two-party: senders need an announcement nobody has specified. **(E97 —
+  later RESOLVED: in the fabric model groups are self-locating, so there is no discovery problem.)**
+
+**After the reshape (S9–S14):** the queue name is derived from the group's exporter secret and *is*
+the drain capability (S9); catch-up is ~12 ms/hop and N counts governance events, not messages (S10);
+the KeyPackage fails as a write token (S11); the personal inbox is necessary, read-gated, and its
+handshake works end to end (S12); the handover and the watermark behave under composition (S13); and
+the design fits §11.6/§11.7 — the queue name is a liveness indicator, and cold migration severs
+access with no mechanism (S14).
 
 **M2's negative arm was falsified before it was written** (Phase 0, D3): a re-frame is
 *byte-identical*, so the spec's stated hazard was wrong. The `MUST` survives on stronger grounds —
@@ -51,7 +64,7 @@ re-framing unavailable in a production build anyway.
 ## Running it
 
 ```sh
-cargo test                      # 34 tests, seconds
+cargo test                      # 53 tests, seconds
 cargo clippy --all-targets      # clean
 
 # M2's negative arm — deliberately enables openmls `test-utils` to construct the forbidden
@@ -81,15 +94,19 @@ cargo run --release --bin d6_scale d7_tree_ext
 | `src/relay.rs`, `src/node.rs` | copied from `../iroh/crates/mls-welcome-over-iroh`, ports made ephemeral |
 | `tests/w0–w3` | wiring tests, one per layer |
 | `tests/m1, m2` | the must-pass claims |
-| `tests/s2–s8` | the shape-learning scenarios |
+| `tests/s2–s8` | the original shape-learning scenarios |
+| `tests/s9–s14` | the post-reshape scenarios: queue-name capability, catch-up cost, write token, personal inbox, interactions, liveness/re-entry |
 
 ## Stand-ins
 
-Five, all tagged in code and enumerated in `../SPEC-DIVERGENCE-REGISTER.md`. Correspondence is
+**Seven**, all tagged in code and enumerated in `../SPEC-DIVERGENCE-REGISTER.md`. Correspondence is
 checked: every tag has a row, every row has a tag. **Nothing about the seal is stood in.**
 
 `meer-spike-namespace` · `meer-spike-kind-gate` · `meer-spike-drain-auth` · `meer-spike-clock` ·
-`meer-spike-ciss-inproc`
+`meer-spike-ciss-inproc` · **`meer-spike-addressed-deposit`** (the spike's meer is addressed; the
+spec's observes the fabric — the largest divergence, registered late) ·
+**`meer-spike-owner-write-standin`** (the inbox deposit is owner-performed, because a stranger's is
+refused 403)
 
 ## Reading the results honestly
 
@@ -103,7 +120,10 @@ checked: every tag has a row, every row has a tag. **Nothing about the seal is s
 
 ## Followups
 
-`ROADMAP_TODO.md` **E92** (device-group arm) · **E93** (Part 2 §6.6.2 corrections) · **E94**
-(unlinkable deposit) · **E95** (CISS object lifecycle) · **E96** (nested sealing / group-linkability)
-· **E97** (enrollment announcement + two-sided revocation). Lane-scoped findings are appended to
-**E91**.
+`ROADMAP_TODO.md` **E92** (device-group arm — likely dissolved by the fabric model) · **E93**
+(Part 2 §6.6.2 rationale corrections) · **E94** (graph leak — an artifact of the addressed model)
+· **E95** (CISS object lifecycle) · **E96** (nested sealing — **unblocked** by the queue name) ·
+**E97** (announcement — **resolved**). Lane findings on **E91**.
+
+**What to build next:** `../../plans/2026-08-12-1-plan-two-target-delivery-blockers.md`.
+**Resuming:** `STATE-AND-NEXT.md`.
