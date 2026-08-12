@@ -51,7 +51,7 @@ fn a_silent_reader_who_processes_stays_current_and_keeps_its_queue_name() {
     a.merge_pending_commit(&alice.provider).expect("merge");
     let tree = a.export_ratchet_tree().into();
     let welcome = match MlsMessageIn::tls_deserialize_exact(
-        &welcome_out.tls_serialize_detached().expect("ser"),
+        welcome_out.tls_serialize_detached().expect("ser"),
     )
     .expect("de")
     .extract()
@@ -96,7 +96,7 @@ fn migration_to_cold_severs_queue_access_with_no_extra_mechanism() {
     a.merge_pending_commit(&alice.provider).expect("merge");
     let tree = a.export_ratchet_tree().into();
     let welcome = match MlsMessageIn::tls_deserialize_exact(
-        &welcome_out.tls_serialize_detached().expect("ser"),
+        welcome_out.tls_serialize_detached().expect("ser"),
     )
     .expect("de")
     .extract()
@@ -147,7 +147,7 @@ fn a_cold_member_can_rejoin_by_external_commit_without_a_welcome() {
     a.merge_pending_commit(&alice.provider).expect("merge");
     let tree = a.export_ratchet_tree().into();
     let welcome = match MlsMessageIn::tls_deserialize_exact(
-        &welcome_out.tls_serialize_detached().expect("ser"),
+        welcome_out.tls_serialize_detached().expect("ser"),
     )
     .expect("de")
     .extract()
@@ -187,6 +187,9 @@ fn a_cold_member_can_rejoin_by_external_commit_without_a_welcome() {
         _ => panic!("expected GroupInfo"),
     };
 
+    // NOTE: deprecated in favour of MlsGroup::external_commit_builder. Kept because it is the
+    // shortest expression of 11.7 s claim; the builder is the path a real client should use.
+    #[allow(deprecated)]
     let rejoin = MlsGroup::join_by_external_commit(
         &bob.provider,
         &bob.signer,

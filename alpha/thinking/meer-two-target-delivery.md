@@ -9,6 +9,8 @@ else in both paths works today. Problem / Approach / Reasoning.
 *addressed* — a divergence the Phase-0 spike registered late as `meer-spike-addressed-deposit`. The
 custody-dial, metering and anti-entrenchment reasoning there still stands.
 
+**Handoff / resume point:** `alpha/experiments/meer-queue/STATE-AND-NEXT.md`
+
 **Grounded in:** `alpha/experiments/meer-queue/TEST-LOG.md` (M1, M2, S1–S12, all Rung A except S1) ·
 `S8-RESULTS.md` · Part 2 §5.4, §5.9, §6.6.2 · `alpha/ROADMAP_TODO.md` E91–E97 ·
 `CISS/docs/plans/2026-08-11-object-lifecycle.md`

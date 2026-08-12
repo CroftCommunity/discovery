@@ -9,12 +9,14 @@ server, and a real iroh transport over a real relay.
 
 | | |
 |---|---|
-| Spec | `SPIKE-SPEC.md` (M1, M2, S1–S8) |
+| **Resuming?** | **`STATE-AND-NEXT.md` — read that first** |
+| Spec | `SPIKE-SPEC.md` (M1, M2, S1–S8; S9–S14 followed the 2026-08-12 reshape) |
 | Plan | `../../plans/2026-08-07-2-plan-meer-queue-spike.md` |
 | Hypothesis | `../../thinking/meer-as-custodian-queue.md` |
 | Lane | `../../plans/2026-08-07-meer-lane.md` (this is Phase 0) |
 | Bound by | `beta/impl/delivery-layer/08-experiment-methodology.md` (the fidelity ladder) |
 | **Results** | **`TEST-LOG.md`** — verdicts with rungs · **`S8-RESULTS.md`** — the size sweep · **`PHASE-0-FINDINGS.md`** — discovery |
+| **Current design** | `../../thinking/meer-two-target-delivery.md` — supersedes the delivery shape in the original hypothesis |
 
 ## The headline
 
