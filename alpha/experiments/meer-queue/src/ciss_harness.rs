@@ -50,6 +50,12 @@ impl Identity {
         &self.did
     }
 
+    /// This identity's signing keypair — needed to build Model-A self-signed assertions.
+    #[must_use]
+    pub fn keypair(&self) -> &ciss::crypto::Keypair {
+        &self.keypair
+    }
+
     /// The `(pubkey, session-signature)` header pair proving control of the key.
     fn session_headers(&self) -> (String, String) {
         let challenge = format!("ciss-session/v1/{}", self.did);
@@ -192,6 +198,58 @@ impl CissHarness {
                 .header("x-croft-session", session),
         )
         .await
+    }
+
+    /// `PUT /{did}/objects/{key}` performed by `who` against **someone else's** namespace.
+    /// Used to measure whether delegated write exists (it does not, today).
+    pub async fn put_object_as(
+        &self,
+        who: &Identity,
+        target_did: &str,
+        key: &str,
+        bytes: &[u8],
+    ) -> Outcome {
+        let (pubkey, session) = who.session_headers();
+        self.puts.fetch_add(1, Ordering::SeqCst);
+        let url = format!("{}/{target_did}/objects/{key}", self.base);
+        self.run(
+            self.client
+                .put(url)
+                .header("x-croft-pubkey", pubkey)
+                .header("x-croft-session", session)
+                .body(bytes.to_vec()),
+        )
+        .await
+    }
+
+    /// `GET /{did}/objects/{cid}` performed by `who` against **someone else's** namespace —
+    /// an authenticated non-owner, which is what a read gate must refuse.
+    pub async fn get_object_as(&self, who: &Identity, target_did: &str, cid: &str) -> Outcome {
+        let (pubkey, session) = who.session_headers();
+        let url = format!("{}/{target_did}/objects/{cid}", self.base);
+        self.run(
+            self.client
+                .get(url)
+                .header("x-croft-pubkey", pubkey)
+                .header("x-croft-session", session),
+        )
+        .await
+    }
+
+    /// `GET /{did}/objects/{cid}` with **no credentials at all**.
+    pub async fn get_object_anon(&self, target_did: &str, cid: &str) -> Outcome {
+        let url = format!("{}/{target_did}/objects/{cid}", self.base);
+        self.run(self.client.get(url)).await
+    }
+
+    /// `PUT /{did}/assertion/{kind}` with a Model-A self-signed record body.
+    ///
+    /// No bearer token: `assertion_write_auth` returns `None` for a tokenless request and the
+    /// record's own owner signature carries the authority (Model A, the `id:` plane).
+    pub async fn put_assertion(&self, who: &Identity, kind: &str, record_json: &str) -> Outcome {
+        let url = format!("{}/{}/assertion/{kind}", self.base, who.did());
+        self.run(self.client.put(url).body(record_json.to_owned()))
+            .await
     }
 
     /// `GET /{did}/du` — CISS's own accounting for a namespace: a per-object list of
