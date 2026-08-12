@@ -105,6 +105,25 @@ COMPANION_ALLOWLIST = {
         "points at COHESION.md §29, a companion doc outside the published set",
     ("thinking-app-helpers-register", "§0.2"):
         "points at ponds/build-order.md §0.2 (deep-link resolver), a companion doc outside the published set",
+    # Added 2026-08-11. Seven refs at COHESION §62/§63/§66/§67 that landed with the
+    # 2026-07-30 → 2026-08-07 work and were never allowlisted, so `pages` had been
+    # red across several commits and the site had stopped deploying. Same class as
+    # every entry above: a §-ref into COHESION, which is a companion doc outside
+    # the published set — not a broken link.
+    ("thinking-app-README", "§63"):
+        "points at COHESION.md §63 (behavior-scale ↔ the appview/forum work), a companion doc outside the published set",
+    ("thinking-app-README", "§66"):
+        "points at COHESION.md §66 (forum pad: bare-link discovery + subjective consensus), a companion doc outside the published set",
+    ("thinking-app-forum-subjective-consensus-and-reputation", "§63"):
+        "points at COHESION.md §63 (behavior-scale ↔ the appview/forum work), a companion doc outside the published set",
+    ("thinking-app-forum-subjective-consensus-and-reputation", "§66"):
+        "points at COHESION.md §66 (forum pad: bare-link discovery + subjective consensus), a companion doc outside the published set",
+    ("thinking-app-ponds-client-side-static-game-candidates", "§62"):
+        "points at COHESION.md §62 (static game candidates ↔ the as-built fun.croft shelf, two-tier charter), a companion doc outside the published set",
+    ("thinking-behavior-scale-README", "§63"):
+        "points at COHESION.md §63 (behavior-scale ↔ the appview/forum work), a companion doc outside the published set",
+    ("thinking-cost-ceilings-and-the-prepaid-meter", "§67"):
+        "points at COHESION.md §67 (cost ceilings + the prepaid meter as equity instrument), a companion doc outside the published set",
 }
 
 
