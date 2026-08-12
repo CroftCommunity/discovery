@@ -923,14 +923,54 @@ The nastier form: the member takes hop 1 successfully, earns the right to name h
 lands before she takes it. Measured: hop 2 is empty and **carries a watermark on that exact queue**,
 so she is demonstrably short rather than silently caught up.
 
-**The design question this raises, unresolved:** the walk is **serial**, so a returning member is
-racing the sweeper for its *whole length*, not for one request. A member far behind is most exposed
-precisely when she has most to lose.
+**Corrected framing (2026-08-12, after checking the corpus).** I first wrote this up as a *race* —
+the member racing the sweeper during the walk. That is the wrong shape and understates it in one way
+while overstating it in another.
 
-That argues the retention window may need to be measured from **the oldest unacked entry a member
-still needs**, rather than per-object — otherwise the guarantee degrades exactly for the members the
-meer exists to serve. **Recorded as a design question, not resolved.** It interacts with E95's
-declared-expiry axis, which is currently per-object.
+**The sharper statement:** the chain is walked oldest-first, and the oldest queue is the one closest
+to expiry. If **any** link expires, every queue after it becomes **unnameable** — so the loss is not
+proportional to what expired, it is **total from the break forward**, including messages from
+minutes ago. A 14-day window does not mean "you lose messages older than 14 days"; it means "if you
+are away past the window you may lose *everything*, because the chain is severed at the far end."
+
+**But this is not a new problem, and the corpus already has the mechanism.** Part 2 **§11.6**
+(hot/cold Groups, liveness-driven migration) defines exactly this boundary: **liveness is having
+processed an epoch within the liveness window** — explicitly *"processing epochs, not authoring
+messages"*, so a silent reader who syncs stays live. A client that misses the window is **migrated to
+cold**, which is a removal from the hot Group, batched into one commit. **§11.7** then defines
+re-entry: *"how a cold persona returns at its own cost."*
+
+So "I lost the epoch thread and need readmission" is the **designed** outcome, not a failure mode
+this spike discovered. And §11.6 already sets the windows, tightening with group size:
+
+| band | modest | aggressive |
+|---|---|---|
+| 250–1k | 90 days | 45 days |
+| 1–3k | 60 days | 30 days |
+| 3–7k | 45 days | 21 days |
+| 7–10k | 30 days | 14 days |
+
+### What IS new: the two windows must not disagree
+
+The meer's **retention window** and the Group's **liveness window** are different knobs that decide
+the same thing, and nothing currently constrains them to agree. If retention (say 14 days) is
+**shorter** than liveness (say 30 days), a member gone 20 days lands in a **limbo state**: still a
+live member of the hot Group, but unable to catch up from the meer, and not yet migrated to cold — so
+the designed recovery path (§11.7 re-entry) is not open to them either.
+
+**The constraint that removes the limbo:** *meer retention **≥** the Group's liveness window.* Then
+"I cannot catch up" and "I have been migrated to cold" coincide, and there is exactly **one**
+recovery path rather than a gap between two.
+
+**Consequence for E95:** the meer's retention is therefore not a free parameter — it is bounded below
+by a Group-governance policy that varies by group size (14–90 days). A fixed 14-day constant would be
+correct only for the 7–10k aggressive band and wrong everywhere else. **This should be a declared
+per-Group value, not a service default** — which fits E95's declared-expiry axis well, and argues the
+axis belongs to the *Group* rather than the service.
+
+**Owner's position (2026-08-12):** falling behind and needing readmission is *"a per-user choice and
+consequence"* — the risk a member accepts by being away. That is §11.6's live-experience versus
+return-experience trade, seen from the member's side rather than the community's.
 
 ---
 

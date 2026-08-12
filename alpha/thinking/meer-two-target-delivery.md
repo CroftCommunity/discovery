@@ -172,10 +172,27 @@ receiver path. The bare `From<KeyPackageIn> for KeyPackage` conversion is `test-
 consistent about putting the unsafe shortcut behind a feature flag, and a client that reached for the
 convenient conversion would be accepting unvalidated key material from a stranger.
 
-### Retention: 14 days, then expunge
+### Retention must be ≥ the Group's liveness window
 
-**Precedent (owner, 2026-08-12, `[UNVERIFIED]` — owner-checked, not re-verified here): Threema holds
-undelivered messages ~14 days and expunges.** Signal's posture is comparable. So a bounded hold with
+**The constraint (2026-08-12).** The meer's retention and Part 2 §11.6's **liveness window** are
+different knobs deciding the same thing, and nothing currently forces them to agree. If retention is
+**shorter** than liveness, a member in between lands in **limbo**: still live in the hot Group, unable
+to catch up from the meer, and not yet migrated to cold — so §11.7's re-entry path is not open either.
+
+**So: `meer retention ≥ liveness window`.** Then "cannot catch up" and "migrated to cold" coincide and
+there is exactly one recovery path.
+
+§11.6's windows tighten with group size — **90 days at 250–1k down to 14 days at 7–10k** — so
+retention is **bounded below by a per-Group governance policy**, not free. A fixed service-wide
+constant is correct only for the largest, most aggressive band. **This argues E95's declared-expiry
+axis belongs to the Group, not the service.**
+
+### Retention: 30 days as the working figure, then expunge
+
+**Working figure: 30 days** (owner, 2026-08-12) — which sits at §11.6's *modest* window for 1–3k and
+its *aggressive* window for 7–10k, so it satisfies the constraint above for most realistic bands.
+**Precedent (owner-checked, `[UNVERIFIED]` here): Threema holds undelivered messages ~14 days and
+expunges.** Signal's posture is comparable. So a bounded hold with
 real deletion is *industry-normal*, not an eccentric position — which matters, because the honest
 version of this design has to say "and then it is gone" and mean it.
 
@@ -258,11 +275,12 @@ compares delivery against non-delivery.
 - **The read gate's default is the wrong way round.** Unset, a namespace is **world-readable**
   (PDS-compat). An inbox is only private because someone remembered to set `read_class: owner`.
   Provisioning must enforce it; documentation will not.
-- **The walk races the sweeper for its whole length** (S13). Catch-up is serial, so a member N hops
-  behind is exposed to expiry for N hops, not one — and a member far behind is most exposed exactly
-  when she has most to lose. This may mean retention must be measured from **the oldest unacked
-  entry a member still needs** rather than per-object, which cuts against E95's per-object expiry
-  axis. **Open.**
+- **A gap anywhere in the chain orphans everything after it** (S13). The walk is oldest-first and the
+  oldest queue is closest to expiry, so if any link expires every later queue becomes **unnameable**.
+  Loss is **total from the break forward**, not proportional to what expired. **This is the designed
+  boundary, not a defect:** Part 2 §11.6 migrates a client that misses the **liveness window** to
+  cold, and §11.7 defines re-entry *"at its own cost"*. Losing the epoch thread and needing
+  readmission is the intended outcome.
 - **An unwanted invitation cannot be prevented, only bounded** (S11). A stranger can seat you in a
   group you never asked to join — MLS as specified.
 
