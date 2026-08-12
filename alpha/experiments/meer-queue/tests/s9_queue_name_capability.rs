@@ -43,7 +43,7 @@ fn queue_name(group: &MlsGroup, who: &Persona) -> String {
 fn members_agree_on_the_queue_name_and_non_members_cannot_derive_it() {
     let alice = Persona::new("alice");
     let bob = Persona::new("bob");
-    let mut stamped = stamp(&alice, &[&bob]);
+    let stamped = stamp(&alice, &[&bob]);
     let bob_group = join(
         &bob,
         stamped.welcome.clone().expect("welcome"),
