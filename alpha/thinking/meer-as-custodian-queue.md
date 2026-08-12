@@ -68,6 +68,45 @@ without any power over the rest of it.
 
 ### What the meer does
 
+**[SUPERSEDED 2026-08-12 — the operations below describe an *addressed* meer, and the spec does not.**
+Part 2 §5.4 has a meer *"participate in a Group's delivery scope **the way any swarm node does, in the
+gossip fabric**, carrying and seeing the sealed envelope and its routing metadata as it passes."* It
+**observes**; it is never told who the recipients are. The spike built the addressed model and
+registered it late as `meer-spike-addressed-deposit`. Two of its findings — the
+`(depositor → recipients)` graph leak (E94) and multi-device starvation (E92) — are artifacts of that
+shape, not properties of a meer. The corrected operations are below; the originals are kept because
+the spike's results are recorded against them.]**
+
+### The operations, corrected (2026-08-12)
+
+The meer is a **swarm participant**, so it is never addressed and holds a **group's** traffic, not a
+person's. **MLS forces this**: an application message is one ciphertext encrypted to the Group's epoch
+key, and every member decrypts the same bytes. There is no per-recipient copy to hold.
+
+1. **carry** — be in the Group's gossip topic, and keep the sealed envelopes that pass
+2. **store** — `PUT` each distinct envelope once to CISS (content-addressed)
+3. **serve a drain** — a member states the digests it holds; hand back the difference
+4. **expire** — drop what is past the Group's declared window, leaving a watermark
+
+**Four, not five, and the one that disappeared is the interesting one.** "Append an entry to each
+recipient's queue" is gone: there are no per-recipient queues. **The meer holds no per-device state at
+all** — the have-set lives on the device, so two devices of one persona get different answers from the
+same store simply by asking different questions. That is §6.8.1's "the cursor and the gap-detector are
+the same object", arriving for free rather than by design effort.
+
+**What this dissolves.** Deliver-once versus race (§6.6.5, E92) stops being a dial and becomes a
+non-question: with no per-recipient queue there is nothing to starve, no prune-on-ack race, and no
+dependency on device-group fan-out. The ack still exists but it is *local* — a device pruning its own
+have-set — not a signal the meer acts on.
+
+**The one genuine exception: `Welcome`.** It is encrypted to a specific joiner's KeyPackage and is the
+only object in the flow addressed to a *person*. It is also — per spike S8 — the largest object and the
+first to cross CISS's 2 MiB cap (≈6,350 members with the ratchet tree embedded). So the one thing
+needing per-recipient handling is the one thing with a size problem, which is an argument for keeping
+`Welcome` out of the meer's v0 scope: without it the meer needs no notion of "user" whatsoever.
+
+### The original (addressed) operations, retained for the record
+
 Five operations, and nothing else:
 
 1. accept a publish (sealed blob + recipient set)
