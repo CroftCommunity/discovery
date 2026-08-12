@@ -34,6 +34,13 @@ use crate::relay::{spawn as spawn_relay, RelayPorts};
 const OP_DEPOSIT: u8 = 0x01;
 const OP_DRAIN: u8 = 0x02;
 const OP_ACK: u8 = 0x03;
+/// Drain a queue **by name** — the capability model (S9). The name is derived from the group's
+/// exporter secret, so possessing it *is* the entitlement: members can compute it, non-members
+/// cannot, and the meer cannot either. This supersedes `OP_DRAIN`'s `EndpointId` scoping
+/// (`meer-spike-drain-auth`), which identified the *device* and would have let the meer build a
+/// device→groups map across every queue it serves. `EndpointId` remains available for **rate
+/// limiting**, which needs a handle to count against rather than an identity.
+const OP_DRAIN_QUEUE: u8 = 0x04;
 
 /// A meer listening on an iroh endpoint, homed on a loopback relay it also runs.
 pub struct MeerServer {
@@ -158,6 +165,19 @@ async fn serve(conn: Connection, meer: Arc<Mutex<Meer>>) -> Result<()> {
                 let acked: Vec<Digest> = read_strings(&mut recv).await?.into_iter().map(Digest::new).collect();
                 meer.lock().await.ack(&caller, &acked);
                 write_u32(&mut send, 0).await?;
+            }
+            OP_DRAIN_QUEUE => {
+                // The queue name IS the capability; the caller's identity is irrelevant here.
+                let name = RecipientId::new(String::from_utf8(read_bytes(&mut recv).await?)?);
+                let have: Vec<Digest> = read_strings(&mut recv).await?.into_iter().map(Digest::new).collect();
+                let blobs = {
+                    let m = meer.lock().await;
+                    m.drain(&name, &have).await?
+                };
+                write_u32(&mut send, u32::try_from(blobs.len()).unwrap_or(u32::MAX)).await?;
+                for blob in blobs {
+                    write_bytes(&mut send, &blob).await?;
+                }
             }
             other => anyhow::bail!("unknown opcode {other}"),
         }
@@ -316,6 +336,33 @@ impl MeerClient {
         let conn = self.endpoint.connect(server, ALPN).await?;
         let (mut send, mut recv) = conn.open_bi().await?;
         write_u8(&mut send, OP_DRAIN).await?;
+        let names: Vec<String> = have.iter().map(ToString::to_string).collect();
+        write_strings(&mut send, &names).await?;
+        send.finish()?;
+        let count = read_u32(&mut recv).await?;
+        let mut out = Vec::with_capacity(count as usize);
+        for _ in 0..count {
+            out.push(read_bytes(&mut recv).await?);
+        }
+        conn.close(0u32.into(), b"done");
+        Ok(out)
+    }
+
+    /// Drain a named queue — the S9 capability model. Anyone holding the name may drain it;
+    /// possessing it is the entitlement, and only group members can derive it.
+    ///
+    /// # Errors
+    /// If the connection fails.
+    pub async fn drain_queue(
+        &self,
+        server: EndpointAddr,
+        queue: &RecipientId,
+        have: &[Digest],
+    ) -> Result<Vec<Vec<u8>>> {
+        let conn = self.endpoint.connect(server, ALPN).await?;
+        let (mut send, mut recv) = conn.open_bi().await?;
+        write_u8(&mut send, OP_DRAIN_QUEUE).await?;
+        write_bytes(&mut send, queue.to_string().as_bytes()).await?;
         let names: Vec<String> = have.iter().map(ToString::to_string).collect();
         write_strings(&mut send, &names).await?;
         send.finish()?;

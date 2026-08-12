@@ -737,6 +737,73 @@ queue name carries routing*."
 
 ---
 
+## S10 — What catch-up actually costs (2026-08-12)
+
+S9 established that a returning member walks the epoch chain. This measures whether that is
+**expensive**, over real CISS and real iroh, and whether "skip ahead" is an alternative.
+
+**Rung: A (real-lib).** **Code:** `tests/s10_catchup_cost.rs`.
+
+```
+S10 MEASURED (real-lib): catch-up across 10 missed epochs over real CISS + real iroh
+= 124.085083ms total, 12.408508ms per hop, 10 message(s) recovered.
+
+S10 MEASURED (real-lib): skipping ahead is REFUSED outright — a member cannot apply a commit
+whose predecessors it has not seen: Message epoch differs from the group's epoch.
+```
+
+**Verdict: `S10 MEASURED (real-lib)` — the walk is cheap, and the alternative is not an
+alternative.**
+
+### 1. The walk costs ~12 ms per hop, and N is small
+
+**~124 ms for ten missed epochs**, end to end, through the real storage boundary and a real relay.
+Pipelined over one connection, with no user interaction.
+
+And **N is bounded twice over**:
+
+- **N counts governance events, not messages.** Measured: **50 application messages leave the epoch
+  unchanged**; only a commit advances it. Earlier framing here said "a group that rotates keys
+  aggressively makes returns slower" and implied chat drove it. **That was wrong** — chat volume is
+  irrelevant to N.
+- **The retention window caps it absolutely.** Past the window there is nothing to walk, so a member
+  back after six months pays the *same* walk as one back after two weeks (owner, 2026-08-12).
+
+So for a stable group the walk is a handful of hops at ~12 ms each. **The concern this test was
+written to investigate does not survive it.**
+
+### 2. "Skip ahead" is a category error, not a cheaper option
+
+A member cannot apply a commit whose predecessors it has not seen — openmls refuses with *"Message
+epoch differs from the group's epoch."* And even if it could, the missed plaintexts would remain
+unreadable, because their epoch secrets were never derived.
+
+**The walk and the skip are not two strategies for one goal.** The walk catches up **and delivers
+what was missed**; skipping abandons it. Comparing their costs compares a delivery mechanism against
+a non-delivery mechanism.
+
+### 3. A delivery-semantics rule this test learned the hard way
+
+**Dispatch on the cleartext `content_type` *before* processing. Never try-decrypt-then-fall-back.**
+
+`process_message` **consumes the message key**, so a client that attempts an application decrypt and
+falls back to commit handling destroys its own group state — the second call hits
+`SecretReuseError`. This test was written that way first and failed exactly so.
+
+S7 measured that `content_type` is readable with no key. **This is what that is for**: routing on the
+cleartext type rather than on a failed decrypt. It is a small rule with a sharp edge, and it belongs
+in the client contract rather than being rediscovered by whoever writes the next client.
+
+### Implementation landed alongside
+
+`OP_DRAIN_QUEUE` — **drain by name**, the S9 capability model. Possessing the name *is* the
+entitlement. This supersedes `OP_DRAIN`'s `EndpointId` scoping (`meer-spike-drain-auth`), which
+identified the *device* and would have let the meer build a device→groups map across every queue it
+serves. `EndpointId` remains for **rate limiting**, which needs a handle to count against, not an
+identity.
+
+---
+
 ## S1 — Enrollment: what does pointing a meer at your queue actually require?
 
 **Rung: C (static).** Inspection and enumeration, **not** a run. Custodian mode does not exist, so
