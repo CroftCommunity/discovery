@@ -56,6 +56,61 @@ than a group. Everything else is group-addressed and self-locating.
 - **This is what custodian mode is for.** A revocable grant letting a helper append to one slot in
   your namespace is over-engineering for group traffic and exactly right for invitations.
 
+### Inbox authorization: read is solved today, write is the real work
+
+The inbox address is **public by necessity** — a stranger must be able to find it. So the address
+must carry **no** authority, and read/write must be gated separately.
+
+**Read: `read_class: owner`. Shipped, configure it.** CISS's gated reads (v0.4.0, invariants Z4–Z8)
+authorize on verified DID ownership — `allow ⇔ caller == owner` — checked against the DID document's
+key via service-auth JWT, or an `id:` session. So a public address yields a **write** target and
+nothing else, and the harvest-now-decrypt-later concern collapses: an attacker cannot obtain the
+ciphertext at all, let alone hold it for a future break.
+
+**Write: genuinely open, and not yet possible.** The spec is explicit — *"Writes are unchanged —
+owner-only… delegated writes are a [PLANNED] extension, not v1."* So B cannot deposit into A's
+namespace today at all. That is the custodial-write gap (meer-lane Phase 1), and it is the piece that
+must be **designed**, not configured. Open writes into someone's own namespace also mean **spam costs
+the victim rent**, which is the concrete form of the abuse problem.
+
+#### The KeyPackage-as-write-token idea, and why it fails (S11, Rung A)
+
+MLS offers an appealing candidate: B cannot invite A without consuming one of A's published
+KeyPackages, and KeyPackages are single-use by design. Make consumption the write capability, and
+invitations are bounded by a supply the owner controls.
+
+**Measured, and it does not hold.** Two findings, and the second kills it:
+
+1. **The single-use property is real, but on the wrong side.** Alice could join the first group and
+   **not** the second — the private half is consumed on join. So one published package does seat her
+   at most once.
+2. **But anyone who can *read* a published KeyPackage can build a valid `Welcome` against it.** Two
+   independent parties each produced one from the same package, and nothing at the crypto layer
+   objected — a KeyPackage is *public key material*, and inviting a stranger is precisely what it is
+   for.
+
+Together those invert the intended effect. "Mark it spent on deposit" lets any passer-by **burn the
+owner's entire published supply** and deny legitimate invitations. **The bound lands on the wrong
+party: it limits the owner's reachability, not the attacker's effort.** Rejected.
+
+#### What the write gate can and cannot be
+
+Also measured: **a stranger can seat A in a group she never asked to join.** That is MLS working as
+specified. So an unwanted invitation is **not cryptographically preventable**, and the gate can only
+bound *volume* and make it *attributable* — never prevent the first one.
+
+Which leaves two mechanisms, neither novel:
+
+- **An authenticated depositor DID.** Not pre-authorized — any DID — but *verified*, so abuse is
+  attributable and rate-limitable per identity. This is CISS's existing identity plane.
+- **An owner-declared ceiling**, so total damage is bounded by a number the owner chose. Already in
+  the design; the hypothesis doc's *"the owner-declared ceiling does the defending and the meter only
+  watches"* is exactly this case.
+
+**Neither is a capability, and that is the honest position:** the inbox cannot be made
+unsolicited-free, only bounded and accountable — the same posture email settled on, for the same
+reason.
+
 ### And it closes the KeyPackage gap
 
 The corpus has **no KeyPackage distribution story** (searched 2026-08-12). But B needs A's KeyPackage

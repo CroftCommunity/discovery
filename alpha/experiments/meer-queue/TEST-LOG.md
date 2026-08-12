@@ -804,6 +804,39 @@ identity.
 
 ---
 
+## S11 — Is a KeyPackage a one-time write token? (2026-08-12)
+
+**Why.** The personal inbox must accept a deposit from a **stranger**, so its write side is open by
+necessity — and open writes into someone's own namespace mean **spam costs the victim rent**. The
+proposal: make consuming a published KeyPackage the write capability, bounding invitations by a
+supply the owner controls.
+
+**Rung: A (real-lib).** **Code:** `tests/s11_keypackage_write_token.rs`.
+
+**Verdict: `S11 REFUTED (real-lib)` — the KeyPackage fails as a write token.**
+
+| measured | result |
+|---|---|
+| one package seats the owner at most once | **yes** — Alice joined the first group, not the second; the private half is consumed on join |
+| only a legitimate user can produce a `Welcome` against it | **no** — two independent parties each built a valid one from the same package |
+| a stranger can seat the owner in an unasked-for group | **yes** — MLS working as specified |
+
+**Why it inverts.** The single-use property is real but sits on the **recipient's** side. Anyone who
+can *read* a published KeyPackage can build a valid `Welcome` against it, because a KeyPackage is
+public key material and inviting a stranger is what it is for. So "mark it spent on deposit" lets a
+passer-by **burn the owner's entire published supply and deny legitimate invitations.** The bound
+lands on the wrong party: it limits the owner's **reachability**, not the attacker's **effort**.
+
+**What survives.** An unwanted invitation is **not cryptographically preventable**, so the write gate
+can only bound *volume* and make it *attributable*: an authenticated depositor DID (any DID, but
+verified) plus an owner-declared ceiling. Neither is a capability — the inbox can be bounded and
+accountable, not unsolicited-free. Same posture email reached, for the same reason.
+
+**Read authorization, by contrast, needs no new work:** `read_class: owner` on CISS's shipped gated
+reads (v0.4.0, Z4–Z8) means a public address yields a write target and nothing else.
+
+---
+
 ## S1 — Enrollment: what does pointing a meer at your queue actually require?
 
 **Rung: C (static).** Inspection and enumeration, **not** a run. Custodian mode does not exist, so
