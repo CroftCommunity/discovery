@@ -395,10 +395,14 @@ Read from pinned source. Anything not listed is unverified.
   relay actor auto-reconnects reading the new token from the swapped map. No live-connection budget
   re-reader needed.
 - **Introduction byte cost across real NATs.** Phase 0.
-- **(Pass 2) `com.atproto.repo.listRecords`** — the corpus FACTCHECK docs do not cover it, and
-  `connect/docs/contract.md` evidences only `resolveHandle` and `getRecord` (which are working,
-  deployed code). `listRecords` is this plan's addition and is asserted from general knowledge. Confirm
-  against the atproto lexicon before Phase 10 builds the contract on it.
+- ~~**(Pass 2) `com.atproto.repo.listRecords`**~~ **VERIFIED against the atproto lexicon source of
+  truth (`bluesky-social/atproto/lexicons/com/atproto/repo/listRecords.json`), 2026-08-11.** It is a
+  real `query`, **requires no auth** (so the exchange page stays backendless), takes `repo`+`collection`
+  (required) with `limit`/`cursor`/`reverse` pagination, and returns `records`. A prior agent's claim
+  that it "was already there" was **half right**: the method is real and fit for purpose, but it is
+  **not yet in `connect/docs/contract.md`** (which evidences only `getRecord`/`resolveHandle`) — adding
+  it is Phase 10's own work, not a done thing. Verified from source, not general knowledge, per the
+  corpus rule.
 - ~~**(Pass 2) That post-upgrade bytes traverse our `CountingStream`.**~~ **REFUTED at source,
   Phase 3 start (2026-08-10) — and worse than "does not hold": the in-line decorator cannot exist at
   all.** After the websocket upgrade the relay **downcasts the IO to exactly
@@ -2357,3 +2361,14 @@ the production go). Both wait on the owner; neither blocks anything before it.
 **Merged/landed at this point:** croft-stack PR #5 (relocation) + PR #6 (Phases 2–4, 6) both on
 `main`; ADR 0005 accepted with its implementation plan in the CISS repo; this plan's Review Log is
 current through here.
+
+### Phase 10 green-lit as a parallel track; listRecords verified — 2026-08-11
+
+Owner: "if we can do parallel then great." Phase 10 (`CroftCommunity/connect` — the per-device
+lexicon, the exchange page, cap issue/redeem) is a **different public repo with a disjoint write-set**,
+so it is the one piece that runs concurrently with the CISS/relay work. Its gating prerequisite —
+`listRecords` — is now verified from the atproto lexicon source (above), so the contract can be
+settled without waiting. Sequencing: CISS Milestone A remains the primary backbone; the `connect`
+contract track (contract.md first → both halves' tests → implementations) opens in parallel. Phase 11
+(client integration) still needs both Phase 10 and Milestone C, so only Phase 10's callee-side surface
+parallelizes.
