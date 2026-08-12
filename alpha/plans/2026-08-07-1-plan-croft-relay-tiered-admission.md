@@ -2268,3 +2268,23 @@ phase reached into the dependency, deliberately:
 - **Validation:** relay workspace 17 suites green, clippy zero, fmt clean; CISS workspace 72 suites
   green, clippy clean. Remaining from the phase's list: nothing — Phase 7 (real atproto resolution)
   is next.
+
+### CISS ADR 0005 scoped: kind semantics + the accounting chain — 2026-08-11
+
+The Phase-6 deletion-semantics question ("is this a we-aren't-actually-deleting issue?") led to the
+owner's design call: **scope an accounting-chain kind into CISS's vocabulary** — each kind use case
+on the substrate is similar, with a few mutually exclusive needs, so declare them instead of
+hand-rolling per kind. `CISS/docs/adr/0005-kind-semantics-and-accounting-chain.md` (Proposed):
+
+- Kinds declare **retention** (`setting` latest-wins / `chain` append-only hash-linked), **erasure**
+  (`erasable` with a real DELETE / `permanent` with a reasoned refusal — chain implies permanent),
+  and **enumeration** (`listable` owner-only / `point-only`).
+- **`chain.counter`** brings the ledger's tamper-evidence to accounting: entries bind the previous
+  entry's hash, the server verifies `total = prev + delta` at set, the books are recomputable. A
+  compromised admission service can no longer silently shrink a usage history.
+- **Consequences here when accepted:** croft-relay-admit's usage moves `kv.counter` → `chain.counter`
+  (a pin bump, its own PR); membership stays `kv.flag`, declared *erasable* — which is the correct
+  true-removal story and retires the tombstone caveat; the enumeration axis retires the
+  migration/keys() gap for kinds that opt in.
+
+Design only; implementation is gated on the owner accepting the ADR (CISS TODO item 0).
