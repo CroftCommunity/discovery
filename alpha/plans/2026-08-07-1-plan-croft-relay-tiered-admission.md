@@ -2288,3 +2288,22 @@ hand-rolling per kind. `CISS/docs/adr/0005-kind-semantics-and-accounting-chain.m
   migration/keys() gap for kinds that opt in.
 
 Design only; implementation is gated on the owner accepting the ADR (CISS TODO item 0).
+
+### CISS ADR 0005 walked through and amended — 2026-08-11
+
+Walked section-by-section with the owner; folded in as agreed:
+
+- **Two new axes at the owner's direction**: **hashing** (posture × algorithm — fold-bound /
+  chain-linked / content-addressed; the deliberate BLAKE3-for-file-transfer vs SHA-256-in-CISS split
+  is now *declared per kind*, not assumed) and **sizing** (body ceilings everywhere; growth
+  `bounded`/`rolling`/`unbounded` — nothing assumed infinite, `unbounded` only as a visible choice).
+- **The checkpoint/compaction design** (the draft's one real defect, now fixed): checkpoints are
+  chain entries whose head-hash transitively commits to all history behind them; **compaction only
+  behind an acknowledged checkpoint** (no shredding before agreement — the substrate's ack is the
+  agreement, upgrading to bilateral co-signing for money-grade chains). Owner explicitly
+  acknowledged the trade: fine-grained history behind a checkpoint is gone, the aggregate survives.
+- **Classification calls settled**: `kv.flag` erasable + listable (true member removal; peppered
+  digests keep enumeration unreadable); **`kv.counter` is REMOVED when `chain.counter` lands** — no
+  deprecated 2am traps.
+- Consequence for this plan, unchanged in direction and now fully specified: usage → `chain.counter`
+  on a pin bump (implementation step 5 in the ADR), membership stays `kv.flag`.
