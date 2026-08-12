@@ -837,6 +837,56 @@ reads (v0.4.0, Z4–Z8) means a public address yields a write target and nothing
 
 ---
 
+## S12 — The personal inbox, walked out (2026-08-12)
+
+The group half of the two-target design was Rung A end to end; **the personal half was design only.**
+This closes that asymmetry. **Rung: A (real-lib)** — real OpenMLS, real CISS over loopback HTTP,
+real Model-A self-signed assertions. **Code:** `tests/s12_personal_inbox.rs`.
+
+| question | verdict |
+|---|---|
+| is the inbox necessary? | **yes** — a queue name derives only from group state |
+| does `read_class: owner` hold? | **yes** — owner 200, authenticated stranger 404, anonymous 404 |
+| is custodial write the gap? | **yes** — a stranger's deposit is refused **403** |
+| does the stranger handshake work? | **yes, end to end**, with only the deposit stood in |
+
+### 1. The inbox is necessary, not merely convenient
+
+A queue name derives **only from group state**. Holding the owner's public KeyPackage — everything a
+stranger can legitimately obtain — yields nothing. So a stranger has **no group-queue path at all**,
+and first contact must land somewhere else.
+
+### 2. Read gating holds, and the default does not
+
+With `read_class: owner`: owner `200`, authenticated stranger `404`, anonymous `404`.
+
+**Mutation-verified, and the mutation is the interesting part:** skip the policy write and the
+stranger reads with **`200`** — the world-readable PDS-compat default. So the gate is doing real
+work, and **an inbox that forgets to set it is world-readable.** That makes the policy write part of
+provisioning, not an optional hardening step.
+
+**This answers the harvest-now-decrypt-later concern completely:** the ciphertext is never
+obtainable, so there is nothing to hold against a future break.
+
+### 3. Custodial write is the one genuine blocker — measured, not cited
+
+A stranger's deposit into the owner's namespace is refused **HTTP 403** (Z2; delegated write is
+`[PLANNED]`, not v1). Registered as `meer-spike-owner-write-standin`. **Everything else in the
+handshake already works today.**
+
+### 4. The full stranger handshake, end to end
+
+KeyPackage published to the owner's namespace → fetched by a stranger → **`validate()`d** (the real
+receiver path; the bare `From<KeyPackageIn>` conversion is `test-utils`-gated precisely because it
+would skip that) → group created → `Welcome` deposited and retrieved **byte-identically** → joined →
+**both parties then derive the same group queue name.**
+
+**The handover happens exactly once, at first contact.** After it, the inbox is idle and the group
+queue carries everything — which is why the inbox can be low-volume, per-DID, and expensive-per-item
+without that costing anything at scale.
+
+---
+
 ## S1 — Enrollment: what does pointing a meer at your queue actually require?
 
 **Rung: C (static).** Inspection and enumeration, **not** a run. Custodian mode does not exist, so
