@@ -1835,9 +1835,29 @@ surfaces a finding (like V3's limitation), add a row here and backport it into t
 thinking doc so the synthesis never lags the code. This file is the seam-tracker; keep it
 current as fragments keep arriving.
 
-## 69. 2026-08-09 — the PWA install advice contradicts croft-pwa's hard relative-path standard
+## 69. 2026-08-09 — the PWA install advice vs croft-pwa's relative-path standard (and whose standard it is)
 
-**Status: DRIFT (resolved by choosing the house standard).**
+**Status: RESOLVED — but not the way this entry first said. See the correction below.**
+
+> **Correction (2026-08-11, same day).** This entry originally read *"the PWA install advice
+> contradicts croft-pwa's **hard house standard**"* and resolved in favour of relative paths. That
+> overstated the standard's reach, and checking `fun` directly refutes it:
+>
+> - croft-pwa's relative-path rule exists for **one stated reason** — the same build must run at a
+>   domain root *and* under a subpath, because croft-pwa really deploys both ways (a GitHub **project
+>   page** at `/croft-pwa/`, and **`/pr-preview/pr-N/`**).
+> - **`fun` has neither.** One workflow (`deploy.yml`), no preview workflow, `CNAME` = `fun.croft.ing`
+>   — it has only ever deployed at a domain root. Its pages already emit `base: "/"` (verified:
+>   `dist/solitaire/index.html` links `href="/styles.css"`, `src="/app.js"`), and **`fun` never claims
+>   the relative-path rule** in its own `CLAUDE.md` or docs.
+>
+> So this is **not `fun` violating a workspace standard**. It is a **croft-pwa-local** standard,
+> correctly justified there, that was never scoped to travel. For `fun`, absolute manifest paths
+> (`scope: "/"`, `/solitaire/`) are **consistent with the repo and correct**, and the dialogue's
+> advice stands as given.
+>
+> **What the correction does *not* touch:** the `id` residue below. That is about **spec resolution**,
+> not house style, and remains the load-bearing unverified gate either way.
 
 The 2026-08-09 nested-scope dialogue advises a root manifest with `id: "/"`, `scope: "/"` — absolute-root
 paths. `croft-pwa/docs/PRACTICES.md` §"Relative paths (subpath-portable)" names the manifest's
@@ -1845,10 +1865,13 @@ paths. `croft-pwa/docs/PRACTICES.md` §"Relative paths (subpath-portable)" names
 (`docs/PRACTICES.md:24-42`). It is a gate, not a preference: the same build must run at a domain root
 **and** under a subpath (GitHub project pages, `/pr-preview/pr-N/`).
 
-**Resolution:** the house standard wins, and it makes the nested design *cleaner* — a manifest at
-`/<game>/manifest.webmanifest` with `start_url: "./"`, `scope: "./"` yields scope `/<game>/` with no
-per-game absolute path baked in, and `fun/build.mjs` emits all 20 pages through a **single `page()`
-template**, so the injection point is one function.
+**Resolution (as corrected):** `fun` uses **absolute** manifest paths, matching every other path it
+emits — `id`/`scope` `"/"` for the shelf and `"/<game>/"` per game. Relative paths would have worked
+too (`start_url: "./"`, `scope: "./"` at `/<game>/manifest.webmanifest` yields scope `/<game>/`), and
+remain the right choice **if `fun` ever gains a subpath deploy** — at which point its existing
+absolute asset paths break first and the manifest is the least of it. Either way the mechanics are
+cheap: `fun/build.mjs` emits all 20 pages through a **single `page()` template**, so the injection
+point is one function.
 
 **The residue, and it is the interesting part:** `id` does **not** resolve like `start_url` and
 `scope`. Per the manifest spec it resolves against the **origin**, not the manifest's own path — so a
@@ -1858,12 +1881,16 @@ values keeping installs separate, this is **load-bearing and unverified**. Recor
 **gate** rather than an assumption: two manifests, install both, confirm separation before committing
 to 20 games. Fallback on record is the subdomain escape hatch.
 
-**Second seam, wider:** croft-pwa publishes PWA standards (chassis, brand tokens, mobile-fit, CSP/SRI,
-service worker) that have **not travelled to `fun`** — which ships a public, installable-*looking*
-site with **no manifest and no service worker at all**. `.claude/CI-PATTERN.md:114` already worries
-about exactly this conflation, in the opposite direction (croft-stack, where the CI convention applies
-and the PWA standards do not). **OPEN:** decide whether the PWA standards are a workspace standard
-that travels, or croft-pwa-local. See ROADMAP_TODO E98's sibling item and `fun/plans/`.
+**Second seam, wider — and the correction sharpens rather than removes it.** croft-pwa publishes PWA
+standards (chassis, brand tokens, mobile-fit, CSP/SRI, service worker) and `fun` follows none of them;
+it ships a public, installable-*looking* site with **no manifest and no service worker at all**. But
+the defect is not "`fun` is out of compliance" — it is that **the standards were never scoped**. Each
+one needs to declare whether it travels and on what justification, the way the CI convention does.
+`.claude/CI-PATTERN.md:114` already worries about this conflation from the other direction
+(croft-stack, where the CI convention applies and the PWA standards do not) — this is the same gap
+seen from `fun`'s side. **OPEN:** scope each croft-pwa standard as travelling or local. The
+relative-path rule is now settled as **local** (its justification is subpath deploys, which only
+croft-pwa has); the service-worker and CSP/SRI recipes are undecided.
 
 ## 70. 2026-08-09 — the croftcall origin contract is superseded by Phase 10, and the origin arrived after the repo
 
