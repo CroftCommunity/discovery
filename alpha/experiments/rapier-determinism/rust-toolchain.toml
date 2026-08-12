@@ -1,0 +1,8 @@
+# Pinned for the same reason fun/ pins: this spike's entire claim is that the
+# same code produces the same bits on two targets. Two compilers would be
+# validating two different claims.
+[toolchain]
+channel = "1.97.1"
+components = ["clippy", "rustfmt"]
+targets = ["wasm32-unknown-unknown"]
+profile = "minimal"
