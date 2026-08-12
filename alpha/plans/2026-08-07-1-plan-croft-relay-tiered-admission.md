@@ -2372,3 +2372,37 @@ settled without waiting. Sequencing: CISS Milestone A remains the primary backbo
 contract track (contract.md first → both halves' tests → implementations) opens in parallel. Phase 11
 (client integration) still needs both Phase 10 and Milestone C, so only Phase 10's callee-side surface
 parallelizes.
+
+### CISS kind semantics executed; the three workarounds retired — 2026-08-12
+
+ADR 0005 is now **built and merged**, and the Phase-6 gaps recorded above are
+closed. CISS Milestone A landed on `CroftCommunity/CISS` main (`2d1e685`, release
+0.8.0, PR #37): `KindSpec` + the six-axis model + body ceilings (A1); the generic
+declaration-gated **DELETE/LIST** (A2); **`chain.counter`**, the append-only
+hash-linked accounting chain, verified at set with the real values quoted (A3,
+mutation-clean 16/16); **checkpoints + compaction** with a configured policy —
+`on_ack` (default) or `deferred` to a billing-marker call — refusing to shred
+before an acknowledged checkpoint (A4, mutation-clean 35/35); and `kv.counter`
+**removed before release** (A5).
+
+The consumer bump (Milestone B / B1) landed on `croft-stack` main (`b882d8f`,
+PR #7), retiring all three `CissStore` workarounds this plan had recorded:
+
+- **usage `kv.counter` → `chain.counter`** — read-modify-write a latest-wins
+  total becomes read-head-then-append a signed `{delta, total, prev_entry_hash}`
+  entry; the once-retry survives. The total is now recomputable from a
+  tamper-evident chain (`verified_usage()`), not merely asserted.
+- **`remove()` `Unavailable` → the real DELETE** on the `kv.flag` — a removed
+  member leaves **no roster row** (the tombstone caveat retires). The member's
+  usage chain is permanent accounting and intentionally survives; the axes are
+  mutually exclusive per use case (a roster wants erasure, usage wants
+  permanence).
+- **`keys()` `Unavailable` → the real LIST** on `kv.flag` (the enumeration gap
+  retires; owner-only, digests enumerable-not-readable).
+
+Validation: the persistence wiring test extended to drive `CissStore` directly
+(the admit HTTP surface exposes no removal/listing) — usage is a verifiable
+chain (head total == recomputed), an erased member leaves no row. Both gates
+green (one CI re-run for the known-flaky `budget_drop` timing test in
+`croft-relay-bin`, unrelated to this change). GUIDE §7 updated to the two-shape
+store (erasable roster + permanent chain).
