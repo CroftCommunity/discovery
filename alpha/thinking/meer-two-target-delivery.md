@@ -81,6 +81,10 @@ than a group. Everything else is group-addressed and self-locating.
   one-per-person and rare.
 - **This is what custodian mode is for.** A revocable grant letting a helper append to one slot in
   your namespace is over-engineering for group traffic and exactly right for invitations.
+- **History before the join is unreachable *by addressing*, not just by decryption** (S13). A
+  joiner cannot name the queues of epochs she was not in, so she never requests them. **The MLS
+  privacy boundary and the queue-addressing boundary are the same boundary** — which is why
+  history-before-join needs no separate access rule.
 - **It is necessary, not merely convenient** (S12). A queue name derives **only from group state**,
   so holding the owner's public KeyPackage — everything a stranger can legitimately obtain — yields
   nothing. A stranger has *no group-queue path at all*.
@@ -254,6 +258,11 @@ compares delivery against non-delivery.
 - **The read gate's default is the wrong way round.** Unset, a namespace is **world-readable**
   (PDS-compat). An inbox is only private because someone remembered to set `read_class: owner`.
   Provisioning must enforce it; documentation will not.
+- **The walk races the sweeper for its whole length** (S13). Catch-up is serial, so a member N hops
+  behind is exposed to expiry for N hops, not one — and a member far behind is most exposed exactly
+  when she has most to lose. This may mean retention must be measured from **the oldest unacked
+  entry a member still needs** rather than per-object, which cuts against E95's per-object expiry
+  axis. **Open.**
 - **An unwanted invitation cannot be prevented, only bounded** (S11). A stranger can seat you in a
   group you never asked to join — MLS as specified.
 
@@ -270,6 +279,9 @@ compares delivery against non-delivery.
   which exists to skip exactly that check. It is unvalidated key material from a stranger.
 - **Set `read_class: owner` when creating an inbox, and treat it as part of creation.** The default
   is world-readable.
+- **Consult the watermark before concluding you are caught up.** A swept queue and an empty queue
+  return an identical empty drain (S13); only the watermark separates them. An empty drain alone is
+  evidence of nothing.
 - **Walk the epoch chain in order; do not attempt to skip.** OpenMLS refuses a commit whose
   predecessors were not seen, and the missed plaintexts would be unreadable anyway.
 

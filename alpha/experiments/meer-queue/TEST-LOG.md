@@ -887,6 +887,53 @@ without that costing anything at scale.
 
 ---
 
+## S13 — The two interactions (2026-08-12)
+
+Every piece of the two-target design was measured in isolation. These are the two places the pieces
+**meet**. **Rung: A (real-lib).** **Code:** `tests/s13_interactions.rs`.
+
+### 1. The handover lands exactly where MLS's privacy boundary is
+
+A joiner's first derivable queue is **the epoch her `Welcome` seated her in** — not the group's
+first, and not its current one. Measured: `alice_q == q1`, `alice_q != q0`.
+
+**The finding is why that is safe without any extra rule.** Messages sent before Alice joined are
+undecryptable to her — standard MLS. But she also **cannot name their queue**, because the name
+derives from an epoch secret she never held. So she never *requests* them.
+
+> **The MLS privacy boundary and the queue-addressing boundary are the same boundary.**
+
+That is not a coincidence to be relied on quietly — it is the reason no separate access rule is
+needed for history-before-join, and it should be stated in the design rather than rediscovered.
+
+### 2. A swept queue and an empty queue are indistinguishable — except for the watermark
+
+Measured: both return an **identical empty drain**. Only the watermark separates them (2 swept
+entries vs none), and mutation-verified — suppress the watermark and loss becomes invisible.
+
+**This is the S4 failure mode reappearing at the retention boundary.** There, a starving device
+looked like an idle one; here, a member who lost mail looks like one who is caught up.
+
+> **Client contract: a client MUST consult the watermark before concluding it is caught up. An empty
+> drain alone is evidence of nothing.**
+
+### 3. A sweep mid-walk strands a member — and the walk's exposure is N hops long
+
+The nastier form: the member takes hop 1 successfully, earns the right to name hop 2, and the sweep
+lands before she takes it. Measured: hop 2 is empty and **carries a watermark on that exact queue**,
+so she is demonstrably short rather than silently caught up.
+
+**The design question this raises, unresolved:** the walk is **serial**, so a returning member is
+racing the sweeper for its *whole length*, not for one request. A member far behind is most exposed
+precisely when she has most to lose.
+
+That argues the retention window may need to be measured from **the oldest unacked entry a member
+still needs**, rather than per-object — otherwise the guarantee degrades exactly for the members the
+meer exists to serve. **Recorded as a design question, not resolved.** It interacts with E95's
+declared-expiry axis, which is currently per-object.
+
+---
+
 ## S1 — Enrollment: what does pointing a meer at your queue actually require?
 
 **Rung: C (static).** Inspection and enumeration, **not** a run. Custodian mode does not exist, so
