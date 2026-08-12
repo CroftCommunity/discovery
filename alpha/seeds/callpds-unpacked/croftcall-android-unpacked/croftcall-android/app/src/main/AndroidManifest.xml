@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Everything iroh does (QUIC to peers/relays, DNS/pkarr lookups) is
+         covered by INTERNET; the reference app needs no other permissions. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:label="@string/app_name"
+        android:theme="@style/Theme.CroftCall"
+        android:allowBackup="false">
+
+        <!-- singleTask so a deep link while the app is open arrives via
+             onNewIntent instead of relaunching and rebinding the endpoint. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Deep link from the Croft Exchange page:
+                 croftcall://call?endpoint=...&relay=...&handle=...&did=... -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="croftcall" android:host="call" />
+            </intent-filter>
+
+            <!-- Production upgrade: Android App Links on https://call.croft.ing
+                 (verified via /.well-known/assetlinks.json) open the app without
+                 the scheme-picker prompt. Uncomment once assetlinks is hosted.
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="call.croft.ing" />
+            </intent-filter>
+            -->
+        </activity>
+    </application>
+</manifest>

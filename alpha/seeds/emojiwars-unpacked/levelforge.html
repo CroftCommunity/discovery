@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LEVELFORGE v0.12 · Emoji Wars · schema v0.8</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1722; --panel:#16212f; --line:#233348; --ink:#d8e2ef; --dim:#7d8ea3;
+    --accent:#ff8a3d; --accent-dn:#e06f24; --viewblue:#5aa2e6;
+    --wood:#b5824c; --stone:#8e939c; --metal:#a9b6c4; --ice:#9fd6ea; --rubber:#d94f5c; --target:#7bc86c;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%; overflow:hidden; overscroll-behavior:none;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    display:flex; flex-direction:column;
+    position:fixed; inset:0; touch-action:none;
+  }
+  button{
+    font-family:inherit; font-size:13px; color:var(--ink);
+    background:#1d2c40; border:1px solid var(--line); border-radius:8px;
+    padding:8px 9px; cursor:pointer; user-select:none; -webkit-user-select:none;
+  }
+  button:disabled{opacity:.35;}
+  button.accent{background:var(--accent); border-color:var(--accent-dn); color:#1a1005; font-weight:700;}
+  button.viewon{background:#16283c; border-color:var(--viewblue); color:#cfe4ff;}
+  button:active:not(:disabled){transform:translateY(1px);}
+  input[type=text]{
+    font-family:inherit; font-size:13px; color:var(--ink);
+    background:#0b1119; border:1px solid var(--line); border-radius:8px; padding:9px 10px;
+  }
+  #topbar{
+    display:flex; align-items:center; gap:4px; padding:6px 6px;
+    background:var(--panel); border-bottom:1px solid var(--line); flex:none;
+  }
+  #topbar .brand{font-size:9px; letter-spacing:.08em; color:var(--dim); line-height:1.2; margin:0 auto 0 2px;}
+  #topbar .brand b{color:var(--ink); font-weight:600; font-size:10px;}
+  @media (max-width:430px){ #topbar .brand span{display:none;} }
+  #main{flex:1; display:flex; flex-direction:column; min-height:0; min-width:0;}
+  #stage{flex:1; position:relative; min-height:0; min-width:0; order:1;}
+  #tray{order:2;}
+  #inspector{order:3;}
+  canvas#cv{position:absolute; inset:0; width:100%; height:100%; touch-action:none;}
+  #banner{
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    background:var(--accent); color:#1a1005; font-weight:700; font-size:15px;
+    padding:8px 18px; border-radius:10px; display:none; pointer-events:none; letter-spacing:.08em;
+  }
+  #playhint{
+    position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+    color:var(--dim); font-size:12px; display:none; pointer-events:none;
+    background:rgba(15,23,34,.7); padding:4px 10px; border-radius:6px; white-space:nowrap;
+  }
+  #nudge{
+    position:absolute; right:10px; bottom:10px; display:none;
+    grid-template-columns:repeat(3,44px); grid-template-rows:repeat(3,44px); gap:4px;
+    z-index:5;
+  }
+  #nudge button{font-size:17px; padding:0; opacity:.82; background:rgba(29,44,64,.9);}
+  #nudge .blank{visibility:hidden;}
+  /* ---------- tray ---------- */
+  #tray{
+    display:flex; gap:7px; padding:6px 8px; overflow-x:auto;
+    background:var(--panel); border-top:1px solid var(--line); scrollbar-width:none; flex:none;
+    align-items:stretch; justify-content:center;
+  }
+  #tray::-webkit-scrollbar{display:none;}
+  .preset{
+    flex:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    background:#1d2c40; border:1px solid var(--line); border-radius:10px;
+    padding:6px 10px; font-size:10px; color:var(--dim); cursor:pointer;
+    user-select:none; -webkit-user-select:none; min-width:56px;
+  }
+  .preset.on{border-color:var(--accent); background:#33261a; color:var(--ink);}
+  .preset:active{transform:translateY(1px);}
+  .preset .ico{height:24px; display:flex; align-items:center; justify-content:center; font-size:18px;}
+  .preset .shp{border:1px solid rgba(0,0,0,.4);}
+  /* ---------- inspector ---------- */
+  #inspector{
+    background:var(--panel); border-top:1px solid var(--line);
+    padding:6px 8px 8px; display:flex; flex-direction:column; gap:6px; flex:none;
+  }
+  .row{display:flex; gap:7px; flex-wrap:wrap; align-items:center; justify-content:center;}
+  .swwrap{display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer;}
+  .sw{width:34px; height:28px; border-radius:8px; flex:none; border:2px solid rgba(0,0,0,.4);}
+  .swwrap span{font-size:8.5px; color:var(--dim); letter-spacing:.04em;}
+  .swwrap.on .sw{border-color:var(--accent); box-shadow:0 0 0 2px rgba(255,138,61,.35);}
+  .swwrap.on span{color:var(--ink);}
+  .bgw{width:30px; height:22px; border-radius:6px; flex:none; border:2px solid rgba(0,0,0,.45); cursor:pointer; background-size:cover; background-position:center;}
+  .bgw.on{border-color:var(--viewblue); box-shadow:0 0 0 2px rgba(90,162,230,.35);}
+  #bg-upload,#bg-brief{padding:3px 8px; font-size:13px;}
+  .chip{
+    display:flex; align-items:center; gap:5px;
+    font-size:12px; padding:8px 10px; border-radius:8px;
+    background:#1d2c40; border:1px solid var(--line); cursor:pointer;
+    user-select:none; -webkit-user-select:none;
+  }
+  .chip.tgl.on{border-color:#6fa9e6; background:#1b2c42; color:#cfe4ff;}
+  #tg-goal.on{border-color:#7bc86c; background:#1b3020; color:#c9f0bb;}
+  #del{color:#ff9d9d; border-color:#5a2c34; background:#2b1a20; padding:8px 11px;}
+  #readout{font-size:10.5px; color:var(--dim);}
+  .lbl2{font-size:8.5px; letter-spacing:.13em; color:var(--dim);}
+  /* ---------- landscape rails ---------- */
+  body.land #main{flex-direction:row;}
+  body.land #tray{
+    order:0; flex-direction:column; overflow-y:auto; overflow-x:hidden;
+    width:84px; border-top:none; border-right:1px solid var(--line); padding:6px 5px;
+    justify-content:flex-start;
+  }
+  body.land #stage{order:1;}
+  body.land #inspector{
+    order:2; width:132px; border-top:none; border-left:1px solid var(--line); overflow-y:auto;
+    justify-content:flex-start;
+  }
+  body.land .preset{width:100%; min-width:0;}
+  body.land .chip{width:100%; justify-content:center;}
+  body.land #readout{width:100%; text-align:center;}
+  /* ---------- modals ---------- */
+  .modal{
+    position:fixed; inset:0; background:rgba(8,12,18,.93); z-index:20;
+    display:none; flex-direction:column; padding:14px; gap:10px; overflow-y:auto;
+  }
+  .modal h2{font-size:11px; letter-spacing:.13em; color:var(--dim); font-weight:600; line-height:1.6; flex:none;}
+  .modal textarea{
+    flex:1; background:#0b1119; color:#bfe0a8; border:1px solid var(--line);
+    border-radius:10px; padding:12px; font-family:inherit; font-size:12px;
+    resize:none; line-height:1.5; min-height:120px;
+  }
+  #json{white-space:pre;}
+  #notetext,#brieftext{white-space:pre-wrap; color:var(--ink); font-size:13px;}
+  .modal .row{justify-content:flex-end; flex:none;}
+  #n-mic.rec{background:#5a1f28; border-color:#a33; color:#ffb0b0;}
+  #helpbody{color:var(--ink); font-size:13px; line-height:1.7; flex:1; overflow-y:auto;}
+  #helpbody b{color:var(--accent);}
+  #helpbody .sect{margin-bottom:12px;}
+  .setrow{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:8px 0; border-bottom:1px solid var(--line);}
+  .setrow .setlbl{font-size:12px; color:var(--ink); flex:1; min-width:140px; line-height:1.5;}
+  .setrow .setlbl small{display:block; color:var(--dim); font-size:10.5px;}
+  #herobtn{font-size:22px; padding:6px 12px;}
+  #erecents,#epicks{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; flex:none;}
+  #epicks{overflow-y:auto; max-height:36vh; flex:1;}
+  #erecents button,#epicks button{font-size:21px; padding:7px 9px;}
+  #erow{justify-content:center; align-items:center;}
+  #einput{font-size:22px; width:110px; text-align:center;}
+  .elbl{font-size:10px; letter-spacing:.13em; color:var(--dim); width:100%; text-align:center; flex:none;}
+  #lib-save{justify-content:flex-start;}
+  #lib-save input{flex:1; min-width:90px;}
+  #lib-list{flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px;}
+  .scene h3{font-size:10px; letter-spacing:.14em; color:var(--dim); margin-bottom:6px;}
+  .cards{display:flex; gap:10px; overflow-x:auto; padding-bottom:4px;}
+  .card{
+    flex:none; width:150px; background:#121c29; border:1px solid var(--line);
+    border-radius:10px; overflow:hidden; cursor:pointer; position:relative;
+  }
+  .card canvas{display:block; width:100%; height:84px; background:#101a27;}
+  .card .nm{font-size:11px; padding:6px 8px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .card .rm{
+    position:absolute; top:4px; right:4px; background:rgba(20,10,12,.8);
+    color:#ff9d9d; border:1px solid #5a2c34; border-radius:6px;
+    font-size:11px; padding:2px 7px;
+  }
+  #toast{
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+    background:#2c4460; color:#fff; font-size:12px; padding:8px 14px;
+    border-radius:8px; display:none; z-index:40; text-align:center; max-width:86vw;
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <button id="undo" title="undo">↶</button>
+  <div class="brand"><b>EMOJI WARS</b><span><br>forge v0.12 · schema v0.8</span></div>
+  <button id="b-rot" title="rotate selection / flip stamp">⟳</button>
+  <button id="b-view" title="pan & zoom">🔍</button>
+  <button id="b-help" title="how it works">💡</button>
+  <button id="b-set" title="settings">⚙</button>
+  <button id="b-schema" title="schema">{ }</button>
+  <button id="b-lib" title="library">💾</button>
+  <button id="b-play" class="accent" title="test">▶</button>
+  <button id="redo" title="redo">↷</button>
+</div>
+
+<div id="main">
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <div id="banner">LEVEL CLEAR</div>
+    <div id="playhint">drag your hero back · release to launch</div>
+    <div id="nudge">
+      <button class="blank"></button>
+      <button data-n="0,-1">▲</button>
+      <button class="blank"></button>
+      <button data-n="-1,0">◀</button>
+      <button class="blank"></button>
+      <button data-n="1,0">▶</button>
+      <button class="blank"></button>
+      <button data-n="0,1">▼</button>
+      <button class="blank"></button>
+    </div>
+  </div>
+
+  <div id="tray"></div>
+
+  <div id="inspector">
+    <div class="row" id="matrow">
+      <span class="swwrap" data-m="wood"><span class="sw" style="background:var(--wood)"></span><span>wood</span></span>
+      <span class="swwrap" data-m="stone"><span class="sw" style="background:var(--stone)"></span><span>stone</span></span>
+      <span class="swwrap" data-m="metal"><span class="sw" style="background:var(--metal)"></span><span>metal</span></span>
+      <span class="swwrap" data-m="ice"><span class="sw" style="background:var(--ice)"></span><span>ice</span></span>
+      <span class="swwrap" data-m="rubber"><span class="sw" style="background:var(--rubber)"></span><span>rubber</span></span>
+      <span class="swwrap" data-m="target"><span class="sw" style="background:var(--target)"></span><span>target</span></span>
+    </div>
+    <div class="row" id="bgrow">
+      <span class="lbl2">BACKDROP</span>
+      <span class="bgw" data-bg="grid"   title="drafting grid" style="background:#101a27"></span>
+      <span class="bgw" data-bg="grass"  title="grass"  style="background:linear-gradient(#8ec9ef 55%,#79b356 55%)"></span>
+      <span class="bgw" data-bg="cave"   title="cave"   style="background:linear-gradient(#241c15,#33281e)"></span>
+      <span class="bgw" data-bg="desert" title="desert" style="background:linear-gradient(#f5cf8e 55%,#dba55e 55%)"></span>
+      <span class="bgw" data-bg="night"  title="night"  style="background:linear-gradient(#0a0e22,#1b2344)"></span>
+      <span class="bgw" data-bg="sky"    title="sky"    style="background:linear-gradient(#8fc3ec,#dceefb)"></span>
+      <span class="bgw" data-bg="custom" id="bg-custom" title="your image" style="display:none"></span>
+      <button id="bg-upload" title="upload backdrop image">🖼</button>
+      <button id="bg-brief" title="copyable brief for an image agent">📋</button>
+      <input type="file" id="bg-file" accept="image/*" style="display:none">
+    </div>
+    <div id="selwrap" style="display:none">
+      <div class="row">
+        <span class="chip tgl" id="tg-rot" title="rotate 90°">⟳</span>
+        <span class="chip tgl" id="tg-anchor" title="fixed in place">⚓</span>
+        <span class="chip tgl" id="tg-move" title="moving platform">↔</span>
+        <span class="chip tgl" id="tg-goal" title="goal zone (drop mode)">🏁</span>
+        <span class="chip tgl" id="tg-note" title="attach intent note">✎</span>
+        <button id="del" title="delete">✕</button>
+        <span id="readout"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="hmodal">
+  <h2>EMOJI WARS — HOW IT WORKS</h2>
+  <div id="helpbody">
+    <div class="sect"><b>Two modes (⚙).</b> <b>Sling</b>: fling your hero at the villains; break every target-material emoji to clear. <b>Drop</b>: the hero spawns at the start pad and rolls with gravity; tap to hop while touching a surface; reach the 🏁 goal without touching a villain. Tall levels (⚙ level shape) suit drop mode.</div>
+    <div class="sect"><b>Placing.</b> Arm a shape in the tray, tap the board to stamp it in the current material. 🖌 paint is different: drag to color in a freeform blob.</div>
+    <div class="sect"><b>Adjusting (✋).</b> Tap a piece to select. Drag to move — it lifts above your finger and edges magnet-snap flush (blobs skip the magnet). Pinch resizes. Twist or ⟳ rotates. The arrow pad nudges one grid square per tap and appears away from the piece.</div>
+    <div class="sect"><b>Looking (🔍).</b> Toggle 🔍, then pinch to zoom up to 4×, drag to pan, double-tap to reset.</div>
+    <div class="sect"><b>Materials.</b> wood breaks, stone barely breaks, metal never breaks, ice is slippery and <i>melts during Test</i>, rubber bounces, target marks villains.</div>
+    <div class="sect"><b>Behaviors.</b> ⚓ anchors. ↔ patrol path. 🏁 marks the goal zone for drop mode. ✎ attaches a note — your intent in words, riding in the schema.</div>
+    <div class="sect"><b>Backdrops.</b> Pick scenery, or 🖼 upload your own image. 📋 copies a brief for an image agent sized to this level's shape.</div>
+    <div class="sect"><b>Test (▶).</b> Gravity exists only here. ■ returns to editing, level untouched.</div>
+    <div class="sect"><b>The schema ({ }).</b> The level is JSON. Copy it into a Claude chat; paste Claude's levels back and Load. 💾 saves named versions grouped into scenes.</div>
+  </div>
+  <div class="row"><button id="h-close" class="accent">Close</button></div>
+</div>
+
+<div class="modal" id="bmodal">
+  <h2>BACKDROP BRIEF — copy this to any image agent, add your style notes at the bottom, then 🖼 import the result.</h2>
+  <textarea id="brieftext" spellcheck="false"></textarea>
+  <div class="row">
+    <button id="br-copy" class="accent">Copy brief</button>
+    <button id="br-close">Close</button>
+  </div>
+</div>
+
+<div class="modal" id="smodal">
+  <h2>SETTINGS</h2>
+  <div class="setrow">
+    <div class="setlbl">Game mode (this level)<small>sling: break the villains · drop: roll down, tap to hop, reach 🏁, avoid villains</small></div>
+    <button id="set-mode"></button>
+  </div>
+  <div class="setrow">
+    <div class="setlbl">Level shape (this level)<small>wide 1600×900 or tall 900×1600 — tall suits drop mode and portrait play. Pieces keep their coordinates.</small></div>
+    <button id="set-shape"></button>
+  </div>
+  <div class="setrow">
+    <div class="setlbl">After stamping a piece<small>jump to ✋ with the new piece selected, or stay armed and keep stamping</small></div>
+    <button id="set-after"></button>
+  </div>
+  <div class="setrow">
+    <div class="setlbl">Hero<small>the emoji you fling or roll — set here (or in meta.hero)</small></div>
+    <button id="herobtn">🙂</button>
+  </div>
+  <div class="row"><button id="s-close" class="accent">Close</button></div>
+</div>
+
+<div class="modal" id="modal">
+  <h2>LEVEL SCHEMA — the contract between you and Claude.<br>
+  <b>Copy</b> → clipboard → paste into chat. <b>Paste &amp; Load</b> replaces this level with JSON pasted in.</h2>
+  <textarea id="json" spellcheck="false"></textarea>
+  <div class="row">
+    <button id="m-demo">Sling demo</button>
+    <button id="m-demo2">Drop demo</button>
+    <button id="m-clear">Clear level</button>
+    <button id="m-copy">Copy</button>
+    <button id="m-load">Paste &amp; Load</button>
+    <button id="m-close" class="accent">Close</button>
+  </div>
+</div>
+
+<div class="modal" id="nmodal">
+  <h2>NOTE — intent, in your words. 🎤 tries in-browser transcription. Text rides in the schema.</h2>
+  <textarea id="notetext" placeholder="e.g. the hop over the cactus row should feel just barely possible…"></textarea>
+  <div class="row">
+    <button id="n-mic">🎤 dictate</button>
+    <button id="n-cancel">Cancel</button>
+    <button id="n-save" class="accent">Save note</button>
+  </div>
+</div>
+
+<div class="modal" id="emodal">
+  <h2 id="etitle">EMOJI STAMP</h2>
+  <span class="elbl">RECENT</span>
+  <div id="erecents"></div>
+  <span class="elbl">QUICK PALETTE</span>
+  <div id="epicks"></div>
+  <span class="elbl">ANY EMOJI — tap the box &amp; use your keyboard's emoji picker</span>
+  <div class="row" id="erow">
+    <input type="text" id="einput" placeholder="⌨️ → 😀">
+    <button id="e-set" class="accent">Use</button>
+    <button id="e-close">Close</button>
+  </div>
+</div>
+
+<div class="modal" id="lmodal">
+  <h2>LIBRARY — named commit points, grouped by scene. Tap a card to load it.</h2>
+  <div class="row" id="lib-save">
+    <input type="text" id="sv-name" placeholder="level name">
+    <input type="text" id="sv-scene" placeholder="scene (optional)">
+    <button id="sv-go" class="accent">Save current</button>
+  </div>
+  <div id="lib-list"></div>
+  <div class="row"><button id="l-close" class="accent">Close</button></div>
+</div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   EMOJI WARS forge v0.12 · schema v0.8
+   + world dimensions are level data (wide 1600x900 / tall 900x1600),
+   + drop mode: spawn at start, gravity rolls, tap to hop while grounded,
+     villains are hazards, reach the 🏁 goal sensor. Hero renders as a
+     plain yellow disc while rolling; the face shows at rest and on clear.
+===================================================================== */
+
+const SNAP = 10;
+const MAGNET = 14;
+const DEG = 180/Math.PI;
+const MAXZOOM = 4;
+const SETTLE_MS = 500;
+const MELT_K = 0.9985;
+const BRUSH = 26;
+const HOP = 13;            // drop-mode jump speed; tune on a phone
+const COYOTE_MS = 130;     // grace after last ground contact
+const WIDE = {w:1600, h:900};
+const TALL = {w:900,  h:1600};
+
+const W  = ()=> level.world?.w ?? WIDE.w;
+const H  = ()=> level.world?.h ?? WIDE.h;
+const FY = ()=> level.world?.floorY ?? (H()-40);
+
+const MATERIALS = {
+  wood:   {color:'#b5824c', density:0.0010, friction:0.40, restitution:0.20, breakAt:9   },
+  stone:  {color:'#8e939c', density:0.0025, friction:0.60, restitution:0.10, breakAt:20  },
+  metal:  {color:'#a9b6c4', density:0.0040, friction:0.30, restitution:0.05, breakAt:null},
+  ice:    {color:'#9fd6ea', density:0.0009, friction:0.05, restitution:0.10, breakAt:6.5 },
+  rubber: {color:'#d94f5c', density:0.0012, friction:0.90, restitution:0.85, breakAt:null},
+  target: {color:'#7bc86c', density:0.0008, friction:0.50, restitution:0.30, breakAt:3.2 },
+};
+
+const SHAPES = [
+  {name:'plank', shape:'box',    w:170, h:24, rotatable:true},
+  {name:'block', shape:'box',    w:72,  h:72},
+  {name:'ball',  shape:'circle', r:30},
+  {name:'tri',   shape:'tri',    w:90,  h:70},
+  {name:'emoji', shape:'emoji',  r:30},
+  {name:'paint', shape:'blob'},
+];
+
+const EMOJI_PALETTE = [
+  '😀','😎','🥸','🤠','🥶','🤡','👻','💀','👽','🤖','👿','😈',
+  '🎃','🐶','🐱','🦊','🐻','🐼','🐸','🦆','🐟','🐙','🦀','🐢',
+  '🦖','🐉','🕷️','🐝','🌵','🌲','🍄','🌸','🍉','🍕','🍩','🎂',
+  '⚽','🏀','🎳','🎯','🎲','🧨','💣','🧱','🪵','🪨','⭐','🌙',
+  '☄️','⚡','🔥','❄️','💧','🌈','💎','🔔','🎁','🏆','🚗','🚀',
+  '⚓','🛸','🎈','🪁','🧊','🫧','🥊','🛡️','⚔️','🔮','🧲','💰',
+];
+let emojiRecents=['🎃','💣','⭐','🦆','👿'];
+let curEmoji='🎃';
+let settings={afterPlace:'adjust'};
+let emojiFor='stamp';
+
+function agentBrief(){
+  const w=W(), h=H(), pct=Math.round(FY()/h*100);
+  return `Create ONE game-backdrop image with these exact requirements:
+
+FORM
+- Dimensions: ${w} x ${h} pixels (${w>h?'landscape':'portrait'}). Deliver PNG or JPG.
+- No text, no logos, no watermarks, no UI elements, no borders or frames.
+
+FUNCTION (this sits BEHIND a 2D physics game; pieces render on top)
+- Ground line: the playfield floor is at ${pct}% of image height (y=${FY()} of ${h}).
+  The bottom sliver below that should read as ground surface.
+- The central band (roughly 20%-90% of height) is where gameplay happens:
+  keep it low-contrast and low-detail so game pieces stay readable.
+  Put the strongest detail near the top and the far edges.
+- Flat, even lighting. No heavy vignette (max ~15% darkening at corners).
+- Avoid saturated greens near #7bc86c and oranges near #ff8a3d
+  (reserved for game targets and UI); earth tones, blues, and muted
+  palettes work best.
+- A consistent implied horizon; no tilted or fisheye perspective.
+
+STYLE (from the level designer)
+- [PASTE YOUR STYLE NOTES HERE — e.g. "misty bamboo forest at dawn,
+  woodblock print, soft teal and cream palette"]`;
+}
+
+let idSeq = 1;
+const nid = ()=> 'o' + (idSeq++);
+let curMat = 'wood';
+
+function emptyLevel(shape){
+  const d = shape==='tall' ? TALL : WIDE;
+  const fy = d.h-40;
+  return {
+    schemaVersion:'0.8',
+    meta:{name:'untitled', scene:'', gravity:1, note:'', hero:'🙂',
+          mode:'sling', background:'grid', backgroundImage:null},
+    world:{w:d.w, h:d.h, floorY:fy},
+    slingshot:{x:230, y:fy-90},
+    objects:[],
+  };
+}
+function demoObjects(fy){
+  return [
+    {id:nid(), shape:'box', x:1100, y:fy-40,  w:30,  h:80,  angle:0, material:'wood',  anchored:false, path:null, note:''},
+    {id:nid(), shape:'box', x:1240, y:fy-40,  w:30,  h:80,  angle:0, material:'wood',  anchored:false, path:null, note:''},
+    {id:nid(), shape:'box', x:1170, y:fy-95,  w:220, h:26,  angle:0, material:'wood',  anchored:false, path:null, note:''},
+    {id:nid(), shape:'blob', x:960, y:fy-120, angle:0, material:'stone', anchored:true, path:null,
+     brushR:26, pts:[[-60,110],[-40,40],[-10,-30],[20,-90],[45,-110]], note:'painted stone spire'},
+    {id:nid(), shape:'emoji', x:1170, y:fy-133, r:26, angle:0, material:'target', emoji:'👿', anchored:false, path:null, note:'villain on the roof'},
+    {id:nid(), shape:'emoji', x:1170, y:fy-38,  r:26, angle:0, material:'target', emoji:'🎃', anchored:false, path:null, note:'villain in the house'},
+    {id:nid(), shape:'box', x:560, y:fy-260, w:180, h:22, angle:0, material:'metal', anchored:true,
+     path:{x:820, y:fy-260, speed:90}, note:'moving platform'},
+  ];
+}
+function dropDemo(){
+  const l = emptyLevel('tall');
+  l.meta.name='first-descent'; l.meta.mode='drop'; l.meta.background='night';
+  l.slingshot={x:140, y:110};
+  const fy=l.world.floorY;
+  const P=(x,y,w,ang,extra={})=>({id:nid(), shape:'box', x, y, w, h:22, angle:ang,
+    material:'wood', anchored:true, path:null, note:'', ...extra});
+  l.objects=[
+    P(260, 300, 420, 12),
+    {id:nid(), shape:'emoji', x:430, y:266, r:22, angle:0, material:'target', emoji:'🌵',
+     anchored:true, path:null, note:'hop this'},
+    P(620, 520, 440, -14),
+    {id:nid(), shape:'emoji', x:470, y:478, r:22, angle:0, material:'target', emoji:'👿',
+     anchored:true, path:null, note:''},
+    P(280, 760, 440, 12),
+    {id:nid(), shape:'emoji', x:410, y:722, r:22, angle:0, material:'target', emoji:'🎃',
+     anchored:true, path:null, note:''},
+    P(600, 1000, 420, -12),
+    {id:nid(), shape:'box', x:450, y:1180, w:200, h:22, angle:0, material:'metal', anchored:true,
+     path:{x:700, y:1180, speed:80}, note:'moving step'},
+    {id:nid(), shape:'box', x:450, y:fy-12, w:240, h:24, angle:0, material:'stone', anchored:true,
+     path:null, note:'catch tray', role:'goal'},
+  ];
+  return l;
+}
+let level = emptyLevel('wide');
+
+/* ---------- undo / redo ---------- */
+const undoStack=[], redoStack=[];
+function snap(){
+  undoStack.push(JSON.stringify(level));
+  if(undoStack.length>40) undoStack.shift();
+  redoStack.length=0; syncHistoryBtns();
+}
+function doUndo(){
+  if(!undoStack.length) return;
+  redoStack.push(JSON.stringify(level));
+  level = JSON.parse(undoStack.pop()); afterHistory();
+}
+function doRedo(){
+  if(!redoStack.length) return;
+  undoStack.push(JSON.stringify(level));
+  level = JSON.parse(redoStack.pop()); afterHistory();
+}
+function afterHistory(){ selId=null; gesture=null; resize(); syncInspector(); syncHistoryBtns(); syncHero(); syncBg(); }
+function syncHistoryBtns(){
+  document.getElementById('undo').disabled = !undoStack.length;
+  document.getElementById('redo').disabled = !redoStack.length;
+}
+
+/* ---------- canvas + view ---------- */
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let view = {scale:1, ox:0, oy:0, fit:1, zoom:1};
+let cw=1, chh=1;
+
+function orient(){
+  document.body.classList.toggle('land', window.innerWidth > window.innerHeight*1.15);
+}
+function clampView(){
+  view.zoom = Math.min(Math.max(view.zoom,1), MAXZOOM);
+  view.scale = view.fit*view.zoom;
+  const Wp=W()*view.scale, Hp=H()*view.scale;
+  if(Wp<=cw) view.ox=(cw-Wp)/2; else view.ox=Math.min(0, Math.max(cw-Wp, view.ox));
+  if(Hp<=chh) view.oy=(chh-Hp)/2; else view.oy=Math.min(0, Math.max(chh-Hp, view.oy));
+}
+function resize(){
+  orient();
+  const r = cv.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.max(1,r.width*dpr); cv.height = Math.max(1,r.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  cw=r.width; chh=r.height;
+  view.fit = Math.min(cw/W(), chh/H());
+  clampView();
+}
+function resetView(){ view.zoom=1; clampView(); }
+window.addEventListener('resize', ()=>setTimeout(resize,80));
+
+const s2w = (sx,sy)=>{
+  const r = cv.getBoundingClientRect();
+  return {x:(sx-r.left-view.ox)/view.scale, y:(sy-r.top-view.oy)/view.scale};
+};
+const scr = e=>{
+  const r=cv.getBoundingClientRect();
+  return {sx:e.clientX-r.left, sy:e.clientY-r.top};
+};
+
+/* ---------- geometry ---------- */
+function triVerts(o){
+  return [{x:-o.w/2,y:o.h/3},{x:o.w/2,y:o.h/3},{x:0,y:-2*o.h/3}];
+}
+function pointInTri(px,py,v){
+  const s=(a,b)=> (px-b.x)*(a.y-b.y)-(a.x-b.x)*(py-b.y);
+  const d1=s(v[0],v[1]), d2=s(v[1],v[2]), d3=s(v[2],v[0]);
+  const neg=(d1<0)||(d2<0)||(d3<0), pos=(d1>0)||(d2>0)||(d3>0);
+  return !(neg&&pos);
+}
+function distToSeg(px,py, ax,ay, bx,by){
+  const dx=bx-ax, dy=by-ay;
+  const L2=dx*dx+dy*dy;
+  let t = L2 ? ((px-ax)*dx+(py-ay)*dy)/L2 : 0;
+  t=Math.max(0,Math.min(1,t));
+  const cx=ax+dx*t, cy=ay+dy*t;
+  return Math.hypot(px-cx,py-cy);
+}
+
+/* ---------- backdrops ---------- */
+function hash(n){ const x = Math.sin(n*127.1)*43758.5453; return x-Math.floor(x); }
+
+let bgImgCache={src:null, img:null, ready:false};
+function getBgImg(src){
+  if(bgImgCache.src===src) return bgImgCache.ready ? bgImgCache.img : null;
+  bgImgCache={src, img:new Image(), ready:false};
+  bgImgCache.img.onload=()=>{ bgImgCache.ready=true; };
+  bgImgCache.img.src=src;
+  return null;
+}
+
+const BACKGROUNDS={
+  grid(c,fy,w,h){
+    c.fillStyle='#101a27'; c.fillRect(0,0,w,h);
+    c.strokeStyle='rgba(60,90,130,.16)'; c.lineWidth=1;
+    for(let x=0;x<=w;x+=40){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke();}
+    for(let y=0;y<=h;y+=40){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke();}
+    c.fillStyle='#22314a'; c.fillRect(0,fy,w,h-fy);
+    c.strokeStyle='#31486b'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(0,fy); c.lineTo(w,fy); c.stroke();
+  },
+  grass(c,fy,w,h){
+    const g=c.createLinearGradient(0,0,0,fy);
+    g.addColorStop(0,'#8ec9ef'); g.addColorStop(1,'#d6ecf9');
+    c.fillStyle=g; c.fillRect(0,0,w,fy);
+    c.fillStyle='rgba(255,255,255,.75)';
+    const nc=Math.max(3, Math.round(w/330));
+    for(let i=0;i<nc;i++){
+      const cxx=140+i*(w/nc)+hash(i)*80, cy=90+hash(i+9)*Math.min(160,fy*.2);
+      c.beginPath();
+      c.ellipse(cxx,cy,80+hash(i+3)*40,26,0,0,7);
+      c.ellipse(cxx+60,cy+8,55,20,0,0,7);
+      c.fill();
+    }
+    c.fillStyle='#9ac97a';
+    c.beginPath(); c.moveTo(0,fy);
+    c.quadraticCurveTo(w*.25, fy-Math.min(130,fy*.15), w*.5, fy);
+    c.quadraticCurveTo(w*.75, fy-Math.min(90,fy*.1), w, fy);
+    c.closePath(); c.fill();
+    c.fillStyle='#79b356'; c.fillRect(0,fy,w,h-fy);
+    c.strokeStyle='#5f9440'; c.lineWidth=2;
+    for(let x=8;x<w;x+=22){
+      c.beginPath(); c.moveTo(x,fy); c.lineTo(x+(hash(x)*8-4), fy-9-hash(x+1)*8); c.stroke();
+    }
+  },
+  cave(c,fy,w,h){
+    const g=c.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'#1c1510'); g.addColorStop(1,'#3a2d21');
+    c.fillStyle=g; c.fillRect(0,0,w,h);
+    c.fillStyle='#141009';
+    const ns=Math.max(6, Math.round(w/150));
+    for(let i=0;i<ns;i++){
+      const x=i*(w/ns)+hash(i)*70, sw=45+hash(i+5)*55, sh=70+hash(i+2)*150;
+      c.beginPath(); c.moveTo(x,0); c.lineTo(x+sw/2,sh); c.lineTo(x+sw,0); c.closePath(); c.fill();
+    }
+    c.fillStyle='rgba(255,220,150,.05)';
+    for(let i=0;i<40;i++){
+      c.beginPath(); c.arc(hash(i*7)*w, hash(i*7+1)*h, 2+hash(i)*3, 0, 7); c.fill();
+    }
+    c.fillStyle='#241a10'; c.fillRect(0,fy,w,h-fy);
+    c.strokeStyle='#4a3826'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(0,fy); c.lineTo(w,fy); c.stroke();
+  },
+  desert(c,fy,w,h){
+    const g=c.createLinearGradient(0,0,0,fy);
+    g.addColorStop(0,'#f7d99b'); g.addColorStop(1,'#f2be6e');
+    c.fillStyle=g; c.fillRect(0,0,w,fy);
+    c.fillStyle='#ffe9b0';
+    c.beginPath(); c.arc(w-220,130,64,0,7); c.fill();
+    c.fillStyle='#e0a95f';
+    c.beginPath(); c.moveTo(0,fy);
+    c.quadraticCurveTo(w*.3, fy-Math.min(110,fy*.12), w*.62, fy-10);
+    c.quadraticCurveTo(w*.85, fy-Math.min(70,fy*.08), w, fy);
+    c.closePath(); c.fill();
+    c.fillStyle='#dba55e'; c.fillRect(0,fy,w,h-fy);
+    c.strokeStyle='#b9813f'; c.lineWidth=2;
+    const nd=Math.max(5, Math.round(w/170));
+    for(let i=0;i<nd;i++){
+      const x=60+i*(w/nd), y=fy+18+hash(i)*Math.max(6,(h-fy)*.25);
+      c.beginPath(); c.moveTo(x,y); c.quadraticCurveTo(x+38,y-9,x+76,y); c.stroke();
+    }
+  },
+  night(c,fy,w,h){
+    const g=c.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'#080b1e'); g.addColorStop(1,'#1c2447');
+    c.fillStyle=g; c.fillRect(0,0,w,h);
+    c.fillStyle='#fff';
+    for(let i=0;i<90;i++){
+      c.globalAlpha=.3+hash(i)*.7;
+      c.beginPath(); c.arc(hash(i*3)*w, hash(i*3+1)*fy*.9, .8+hash(i)*1.6, 0, 7); c.fill();
+    }
+    c.globalAlpha=1;
+    c.fillStyle='#f2ecd8';
+    c.beginPath(); c.arc(Math.min(260,w*.3),140,52,0,7); c.fill();
+    c.fillStyle='#1c2447';
+    c.beginPath(); c.arc(Math.min(260,w*.3)+22,126,44,0,7); c.fill();
+    c.fillStyle='#131a36'; c.fillRect(0,fy,w,h-fy);
+    c.strokeStyle='#2c3763'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(0,fy); c.lineTo(w,fy); c.stroke();
+  },
+  sky(c,fy,w,h){
+    const g=c.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'#7fb7e8'); g.addColorStop(1,'#e6f4fd');
+    c.fillStyle=g; c.fillRect(0,0,w,h);
+    c.fillStyle='rgba(255,255,255,.85)';
+    const nc=Math.max(4, Math.round((w*h)/220000));
+    for(let i=0;i<nc;i++){
+      const cxx=90+hash(i)*(w-180), cy=90+hash(i+4)*(fy*.75);
+      c.beginPath();
+      c.ellipse(cxx,cy,90+hash(i+2)*50,30,0,0,7);
+      c.ellipse(cxx+70,cy+10,60,22,0,0,7);
+      c.fill();
+    }
+    c.fillStyle='rgba(190,220,245,.9)'; c.fillRect(0,fy,w,h-fy);
+    c.strokeStyle='#9dc4e4'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(0,fy); c.lineTo(w,fy); c.stroke();
+  },
+};
+
+function drawBoardCtx(c, lvl, editGrid){
+  const w = lvl.world?.w ?? WIDE.w;
+  const h = lvl.world?.h ?? WIDE.h;
+  const fy = lvl.world?.floorY ?? (h-40);
+  const bgName = lvl.meta?.background || 'grid';
+  if(bgName==='custom' && lvl.meta?.backgroundImage){
+    const img = getBgImg(lvl.meta.backgroundImage);
+    if(img){
+      const s=Math.max(w/img.width, h/img.height);
+      const dw=img.width*s, dh=img.height*s;
+      c.drawImage(img, (w-dw)/2, (h-dh)/2, dw, dh);
+    }else{
+      BACKGROUNDS.grid(c,fy,w,h);
+    }
+    c.fillStyle='rgba(0,0,0,.22)'; c.fillRect(0,fy,w,h-fy);
+    c.strokeStyle='rgba(255,255,255,.4)'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(0,fy); c.lineTo(w,fy); c.stroke();
+  }else{
+    (BACKGROUNDS[bgName]||BACKGROUNDS.grid)(c, fy, w, h);
+  }
+  if(editGrid && bgName!=='grid'){
+    c.strokeStyle='rgba(255,255,255,.07)'; c.lineWidth=1;
+    for(let x=0;x<=w;x+=40){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke();}
+    for(let y=0;y<=h;y+=40){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke();}
+  }
+}
+
+/* ---------- object drawing ---------- */
+function drawMaterialCtx(c, o, ghost, melt=1){
+  const m = MATERIALS[o.material];
+  c.save();
+  c.translate(o.x, o.y);
+  c.rotate((o.angle||0)/DEG);
+  c.globalAlpha = ghost ? 0.45 : (o.material==='ice' ? 0.82 : 1);
+  c.fillStyle = m.color;
+  c.strokeStyle = 'rgba(0,0,0,.35)';
+  c.lineWidth = 2;
+
+  if(o.shape==='box'){
+    const w=o.w*melt, h=o.h*melt;
+    c.beginPath(); c.rect(-w/2,-h/2,w,h); c.fill(); c.stroke();
+    c.save(); c.beginPath(); c.rect(-w/2,-h/2,w,h); c.clip();
+    if(o.material==='wood'){
+      c.strokeStyle='rgba(90,55,20,.45)'; c.lineWidth=2;
+      const along = w>=h;
+      const len = along? w : h, across = along? h : w;
+      const nLines = Math.max(2, Math.floor(across/14));
+      for(let i=1;i<nLines;i++){
+        const t = -across/2 + i*(across/nLines);
+        c.beginPath();
+        if(along){c.moveTo(-len/2,t); c.lineTo(len/2,t);}
+        else{c.moveTo(t,-len/2); c.lineTo(t,len/2);}
+        c.stroke();
+      }
+    }else if(o.material==='stone'){
+      c.fillStyle='rgba(0,0,0,.18)';
+      const n = Math.max(4, (w*h)/900);
+      for(let i=0;i<n;i++){
+        const px=(hash(i*3+1)-.5)*w, py=(hash(i*3+2)-.5)*h;
+        c.beginPath(); c.arc(px,py, 1.5+hash(i)*2.5, 0, 7); c.fill();
+      }
+    }else if(o.material==='metal'){
+      c.strokeStyle='rgba(50,70,95,.5)'; c.lineWidth=3;
+      c.strokeRect(-w/2+4,-h/2+4,w-8,h-8);
+      c.fillStyle='rgba(50,70,95,.6)';
+      [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{
+        c.beginPath(); c.arc(a*(w/2-9), b*(h/2-9), 2.6, 0, 7); c.fill();
+      });
+    }else if(o.material==='ice'){
+      c.strokeStyle='rgba(255,255,255,.55)'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(-w/2+5,h/2-6); c.lineTo(w/2-8,-h/2+5); c.stroke();
+    }
+    c.restore();
+  }
+  else if(o.shape==='tri'){
+    const v=triVerts({w:o.w*melt, h:o.h*melt});
+    c.beginPath();
+    c.moveTo(v[0].x,v[0].y); c.lineTo(v[1].x,v[1].y); c.lineTo(v[2].x,v[2].y);
+    c.closePath(); c.fill(); c.stroke();
+  }
+  else if(o.shape==='blob'){
+    const r=(o.brushR||BRUSH)*melt;
+    const pts=o.pts.map(([px,py])=>[px*melt,py*melt]);
+    for(const [lw,st] of [[r*2+5,'rgba(0,0,0,.35)'],[r*2,m.color]]){
+      c.strokeStyle=st; c.lineWidth=lw; c.lineCap='round'; c.lineJoin='round';
+      c.beginPath();
+      if(pts.length===1){ c.arc(pts[0][0],pts[0][1], lw/2, 0, 7); c.fillStyle=st; c.fill(); }
+      else{
+        c.moveTo(pts[0][0],pts[0][1]);
+        for(let i=1;i<pts.length;i++) c.lineTo(pts[i][0],pts[i][1]);
+        c.stroke();
+      }
+    }
+    if(o.material==='stone'){
+      c.fillStyle='rgba(0,0,0,.18)';
+      for(let i=0;i<pts.length;i++){
+        c.beginPath(); c.arc(pts[i][0]+(hash(i)-.5)*r, pts[i][1]+(hash(i+3)-.5)*r, 1.5+hash(i)*2.5, 0, 7); c.fill();
+      }
+    }
+  }
+  else if(o.shape==='emoji'){
+    const r=o.r*melt;
+    c.globalAlpha = ghost?0.45:0.25;
+    c.beginPath(); c.arc(0,0,r,0,7); c.fill();
+    c.globalAlpha = ghost?0.6:1;
+    c.font = (r*1.9)+'px system-ui,sans-serif';
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(o.emoji||'🙂', 0, r*0.08);
+  }
+  else{
+    const r=o.r*melt;
+    c.beginPath(); c.arc(0,0,r,0,7); c.fill(); c.stroke();
+    if(o.material==='target'){
+      c.fillStyle='#173a12';
+      c.beginPath(); c.arc(-r*.32,-r*.18,r*.14,0,7); c.fill();
+      c.beginPath(); c.arc( r*.32,-r*.18,r*.14,0,7); c.fill();
+      c.strokeStyle='#173a12'; c.lineWidth=2.5;
+      c.beginPath(); c.arc(0,r*.15,r*.4,.25*Math.PI,.75*Math.PI); c.stroke();
+    }else if(o.material==='rubber'){
+      c.fillStyle='rgba(255,255,255,.35)';
+      c.beginPath(); c.arc(-r*.3,-r*.3,r*.22,0,7); c.fill();
+    }else{
+      c.strokeStyle='rgba(0,0,0,.25)';
+      c.beginPath(); c.arc(0,0,r*.62,0,7); c.stroke();
+    }
+  }
+  if(o.role==='goal'){
+    c.globalAlpha=1;
+    c.strokeStyle='#7bc86c'; c.lineWidth=3; c.setLineDash([7,5]);
+    if(o.shape==='box') c.strokeRect(-o.w/2-5,-o.h/2-5,o.w+10,o.h+10);
+    else{ c.beginPath(); c.arc(0,0,(o.r||30)+7,0,7); c.stroke(); }
+    c.setLineDash([]);
+    const gs = o.shape==='box' ? Math.min(o.w,o.h)*0.9+10 : (o.r||30)*1.4;
+    c.font = Math.max(18,gs)+'px system-ui,sans-serif';
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('🏁', 0, -((o.shape==='box'?o.h/2:o.r||30)+16));
+  }
+  if(o.anchored && !o.path){
+    c.globalAlpha=.85; c.fillStyle='rgba(15,23,34,.8)';
+    c.font='11px ui-monospace,monospace'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('⚓',0,0);
+  }
+  if(o.note){
+    c.globalAlpha=1; c.fillStyle='#ff8a3d';
+    const px = o.shape==='box' ? o.w/2 : (o.r||o.w/2||30)*0.8;
+    const py = o.shape==='box' ? -o.h/2 : -(o.r||o.h/2||30)*0.8;
+    c.beginPath(); c.arc(px,py,5,0,7); c.fill();
+  }
+  c.restore();
+}
+const drawMaterial = (o,g)=>drawMaterialCtx(ctx,o,g);
+
+function drawSlingshotCtx(c,x,y,label){
+  c.save(); c.translate(x,y);
+  c.strokeStyle='#6b4a2c'; c.lineWidth=10; c.lineCap='round';
+  c.beginPath(); c.moveTo(0,90); c.lineTo(0,10); c.stroke();
+  c.beginPath(); c.moveTo(0,10); c.lineTo(-22,-26); c.stroke();
+  c.beginPath(); c.moveTo(0,10); c.lineTo(22,-26); c.stroke();
+  if(label){
+    c.fillStyle='rgba(200,215,235,.9)';
+    c.font='15px ui-monospace,monospace'; c.textAlign='center';
+    c.fillText('launcher', 0, 118);
+  }
+  c.restore();
+}
+function drawStartPadCtx(c,x,y,hero,label){
+  c.save(); c.translate(x,y);
+  c.strokeStyle='rgba(255,217,61,.9)'; c.lineWidth=3; c.setLineDash([6,5]);
+  c.beginPath(); c.arc(0,0,30,0,7); c.stroke(); c.setLineDash([]);
+  c.font='34px system-ui,sans-serif'; c.textAlign='center'; c.textBaseline='middle';
+  c.globalAlpha=.85; c.fillText(hero||'🙂',0,2); c.globalAlpha=1;
+  c.fillStyle='rgba(255,217,61,.9)';
+  c.font='17px ui-monospace,monospace';
+  c.fillText('⬇',0,52);
+  if(label){
+    c.fillStyle='rgba(200,215,235,.9)';
+    c.font='15px ui-monospace,monospace';
+    c.fillText('drop start', 0, 78);
+  }
+  c.restore();
+}
+
+function drawWorldBase(editGrid){
+  ctx.clearRect(0,0,cw,chh);
+  ctx.fillStyle='#0a0f16'; ctx.fillRect(0,0,cw,chh);
+  ctx.save();
+  ctx.translate(view.ox,view.oy); ctx.scale(view.scale,view.scale);
+  drawBoardCtx(ctx, level, editGrid);
+}
+
+function renderThumb(canvasEl, lvl){
+  const c = canvasEl.getContext('2d');
+  const w = lvl.world?.w ?? WIDE.w, h = lvl.world?.h ?? WIDE.h;
+  const s = Math.min(canvasEl.width/w, canvasEl.height/h);
+  c.setTransform(1,0,0,1,0,0);
+  c.fillStyle='#0a0f16'; c.fillRect(0,0,canvasEl.width,canvasEl.height);
+  c.setTransform(s,0,0,s,(canvasEl.width-w*s)/2,(canvasEl.height-h*s)/2);
+  drawBoardCtx(c,lvl,false);
+  if((lvl.meta?.mode||'sling')==='drop') drawStartPadCtx(c,lvl.slingshot.x,lvl.slingshot.y,lvl.meta?.hero,false);
+  else drawSlingshotCtx(c,lvl.slingshot.x,lvl.slingshot.y,false);
+  for(const o of (lvl.objects||[])) drawMaterialCtx(c,{...o,note:''},false);
+}
+
+const isDrop = ()=> (level.meta.mode||'sling')==='drop';
+
+function drawEdit(){
+  drawWorldBase(true);
+  if(isDrop()){
+    drawStartPadCtx(ctx, level.slingshot.x, level.slingshot.y, level.meta.hero, true);
+  }else{
+    drawSlingshotCtx(ctx, level.slingshot.x, level.slingshot.y, true);
+    drawMaterialCtx(ctx, {shape:'emoji', x:level.slingshot.x, y:level.slingshot.y-30, r:22,
+                          angle:0, material:'rubber', emoji:level.meta.hero||'🙂'}, true);
+  }
+  if(level.objects.length===0 && !(gesture&&gesture.kind==='paint')){
+    ctx.fillStyle='rgba(200,212,228,.85)';
+    ctx.font='30px ui-monospace,monospace'; ctx.textAlign='center';
+    ctx.fillText(armed ? (armed.shape==='blob'?'drag to paint':'tap the board to stamp')
+                       : 'arm a shape, then tap the board · 💡 explains everything',
+                 W()/2, H()*0.42);
+  }
+  for(const o of level.objects){
+    if(o.path){
+      ctx.strokeStyle='rgba(120,170,230,.7)'; ctx.setLineDash([8,8]); ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(o.x,o.y); ctx.lineTo(o.path.x,o.path.y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='#6fa9e6';
+      ctx.beginPath(); ctx.arc(o.path.x,o.path.y,12,0,7); ctx.fill();
+      ctx.fillStyle='#0f1722'; ctx.font='12px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('↔',o.path.x,o.path.y);
+    }
+    drawMaterial(o,false);
+  }
+  if(gesture && gesture.kind==='paint' && gesture.pts.length){
+    drawMaterialCtx(ctx, {shape:'blob', x:0, y:0, angle:0, material:curMat,
+                          brushR:BRUSH, pts:gesture.pts.map(p=>[p.x,p.y])}, true);
+  }
+  const sel = selected();
+  if(sel){
+    ctx.save(); ctx.translate(sel.x,sel.y); ctx.rotate((sel.angle||0)/DEG);
+    ctx.strokeStyle='#ff8a3d'; ctx.setLineDash([6,5]);
+    ctx.lineWidth=2.5/view.zoom;
+    if(sel.shape==='box') ctx.strokeRect(-sel.w/2-6,-sel.h/2-6,sel.w+12,sel.h+12);
+    else if(sel.shape==='tri'){
+      const v=triVerts(sel);
+      ctx.beginPath(); ctx.moveTo(v[0].x,v[0].y); ctx.lineTo(v[1].x,v[1].y); ctx.lineTo(v[2].x,v[2].y);
+      ctx.closePath(); ctx.stroke();
+    }
+    else if(sel.shape==='blob'){
+      ctx.lineWidth=(sel.brushR||BRUSH)*2+12; ctx.globalAlpha=.5;
+      ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath();
+      const pts=sel.pts;
+      ctx.moveTo(pts[0][0],pts[0][1]);
+      for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+      if(pts.length===1) ctx.lineTo(pts[0][0]+.1,pts[0][1]);
+      ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+    else {ctx.beginPath(); ctx.arc(0,0,(sel.r)+7,0,7); ctx.stroke();}
+    ctx.restore(); ctx.setLineDash([]);
+  }
+  if(view.zoom>1.01){
+    ctx.restore();
+    ctx.fillStyle='rgba(90,162,230,.85)';
+    ctx.font='12px ui-monospace,monospace'; ctx.textAlign='right';
+    ctx.fillText('🔍 '+view.zoom.toFixed(1)+'×', cw-10, 20);
+    return;
+  }
+  ctx.restore();
+}
+
+/* ---------- magnet ---------- */
+function extents(o){
+  if(o.shape==='circle'||o.shape==='emoji') return {hw:o.r, hh:o.r};
+  if(o.shape==='tri'||o.shape==='blob') return null;
+  const a=Math.round(o.angle||0);
+  if(((a%180)+180)%180===90) return {hw:o.h/2, hh:o.w/2};
+  if(((a%90)+90)%90===0)     return {hw:o.w/2, hh:o.h/2};
+  return null;
+}
+function magnet(sel){
+  const e=extents(sel);
+  const out={sx:false, sy:false};
+  if(!e) return out;
+  const candX=[], candY=[FY() - e.hh];
+  for(const o of level.objects){
+    if(o.id===sel.id) continue;
+    const oe=extents(o); if(!oe) continue;
+    candX.push(o.x, o.x-oe.hw-e.hw, o.x+oe.hw+e.hw, o.x-oe.hw+e.hw, o.x+oe.hw-e.hw);
+    candY.push(o.y, o.y-oe.hh-e.hh, o.y+oe.hh+e.hh, o.y-oe.hh+e.hh, o.y+oe.hh-e.hh);
+  }
+  const th = MAGNET/view.zoom + 4;
+  let bx=null, bdx=th;
+  for(const c of candX){const d=Math.abs(sel.x-c); if(d<bdx){bdx=d; bx=c;}}
+  let by=null, bdy=th;
+  for(const c of candY){const d=Math.abs(sel.y-c); if(d<bdy){bdy=d; by=c;}}
+  if(bx!==null){sel.x=bx; out.sx=true;}
+  if(by!==null){sel.y=by; out.sy=true;}
+  return out;
+}
+
+/* ---------- edit input ---------- */
+let selId=null, armed=null, armedRot=false;
+let handMode='adjust';
+const selected = ()=> level.objects.find(o=>o.id===selId) || null;
+const pointers = new Map();
+const spointers = new Map();
+let gesture=null;
+let lastTapT=0;
+
+function hitObject(p){
+  for(let i=level.objects.length-1;i>=0;i--){
+    const o=level.objects[i];
+    const dx=p.x-o.x, dy=p.y-o.y;
+    const a=-(o.angle||0)/DEG, c=Math.cos(a), s=Math.sin(a);
+    const lx=dx*c-dy*s, ly=dx*s+dy*c;
+    const pad=12/view.zoom+4;
+    if(o.shape==='box'){ if(Math.abs(lx)<=o.w/2+pad && Math.abs(ly)<=o.h/2+pad) return o; }
+    else if(o.shape==='tri'){
+      if(pointInTri(lx,ly,triVerts({w:o.w+pad*2, h:o.h+pad*2}))) return o;
+    }
+    else if(o.shape==='blob'){
+      const r=(o.brushR||BRUSH)+pad;
+      const pts=o.pts;
+      if(pts.length===1){ if(Math.hypot(lx-pts[0][0],ly-pts[0][1])<=r) return o; }
+      else for(let j=0;j<pts.length-1;j++){
+        if(distToSeg(lx,ly, pts[j][0],pts[j][1], pts[j+1][0],pts[j+1][1])<=r) return o;
+      }
+    }
+    else { if(lx*lx+ly*ly <= (o.r+pad)*(o.r+pad)) return o; }
+  }
+  return null;
+}
+const near=(p,x,y,r)=> (p.x-x)**2+(p.y-y)**2 <= r*r;
+const snapN=v=> Math.round(v/SNAP)*SNAP;
+
+function placeArmed(p, sp){
+  snap();
+  const pr=armed;
+  const o={id:nid(), shape:pr.shape, angle:0, material:curMat, anchored:false, path:null, note:''};
+  if(pr.shape==='box'){
+    o.w = (pr.rotatable && armedRot) ? pr.h : pr.w;
+    o.h = (pr.rotatable && armedRot) ? pr.w : pr.h;
+  }else if(pr.shape==='tri'){ o.w=pr.w; o.h=pr.h; }
+  else { o.r=pr.r; if(pr.shape==='emoji') o.emoji=curEmoji; }
+  o.x=p.x; o.y=p.y;
+  const m=magnet(o);
+  if(!m.sx) o.x=snapN(o.x);
+  if(!m.sy) o.y=snapN(o.y);
+  level.objects.push(o);
+  selId=o.id;
+  if(settings.afterPlace==='adjust'){
+    setArmed(null, true);
+    gesture={kind:'move', dx:o.x-p.x, dy:o.y-p.y, s0:sp, lifted:false};
+  }
+  syncInspector();
+}
+
+function finishPaint(){
+  const pts=gesture.pts;
+  if(!pts.length) return;
+  snap();
+  let cxx=0, cyy=0;
+  for(const p of pts){ cxx+=p.x; cyy+=p.y; }
+  cxx/=pts.length; cyy/=pts.length;
+  const o={id:nid(), shape:'blob', x:snapN(cxx), y:snapN(cyy), angle:0,
+           material:curMat, anchored:false, path:null, note:'',
+           brushR:BRUSH,
+           pts:pts.map(p=>[Math.round(p.x-cxx), Math.round(p.y-cyy)])};
+  level.objects.push(o);
+  selId=o.id;
+  if(settings.afterPlace==='adjust') setArmed(null, true);
+  syncInspector();
+}
+
+cv.addEventListener('pointerdown', e=>{
+  cv.setPointerCapture(e.pointerId);
+  const p = s2w(e.clientX, e.clientY);
+  const sp = scr(e);
+  pointers.set(e.pointerId, p);
+  spointers.set(e.pointerId, sp);
+
+  if(mode==='play'){ playPointerDown(p); return; }
+
+  if(handMode==='view' && !armed){
+    if(spointers.size===2){
+      const [a,b]=[...spointers.values()];
+      gesture={kind:'vzoom', d0:Math.hypot(a.sx-b.sx,a.sy-b.sy),
+               m0:{sx:(a.sx+b.sx)/2, sy:(a.sy+b.sy)/2},
+               z0:view.zoom, ox0:view.ox, oy0:view.oy};
+    }else{
+      const now=performance.now();
+      if(now-lastTapT<300){ resetView(); lastTapT=0; }
+      else lastTapT=now;
+      gesture={kind:'vpan', last:sp};
+    }
+    return;
+  }
+
+  if(pointers.size===2 && selected() && gesture && (gesture.kind==='move'||gesture.kind==='pinch')){
+    gesture={kind:'pinch',
+             d0:(()=>{const [a,b]=[...pointers.values()]; return Math.hypot(a.x-b.x,a.y-b.y);})(),
+             a0:(()=>{const [a,b]=[...pointers.values()]; return Math.atan2(b.y-a.y,b.x-a.x);})(),
+             o:JSON.parse(JSON.stringify(selected()))};
+    return;
+  }
+  if(pointers.size>1) return;
+
+  if(armed && armed.shape==='blob'){
+    gesture={kind:'paint', pts:[p]};
+    return;
+  }
+
+  const sel = selected();
+  if(sel && sel.path && near(p, sel.path.x, sel.path.y, 30/view.zoom+6)){
+    snap(); gesture={kind:'path'}; return;
+  }
+  if(near(p, level.slingshot.x, level.slingshot.y+(isDrop()?0:30), 60)){
+    snap(); gesture={kind:'sling'}; selId=null; syncInspector(); return;
+  }
+  const hit = hitObject(p);
+  if(hit){
+    selId=hit.id; syncInspector();
+    snap();
+    gesture={kind:'move', dx:hit.x-p.x, dy:hit.y-p.y, s0:sp, lifted:false};
+    return;
+  }
+  if(armed){ placeArmed(p, sp); return; }
+  selId=null; syncInspector();
+});
+
+cv.addEventListener('pointermove', e=>{
+  if(!pointers.has(e.pointerId)) return;
+  const p = s2w(e.clientX, e.clientY);
+  const sp = scr(e);
+  pointers.set(e.pointerId, p);
+  const prevS = spointers.get(e.pointerId);
+  spointers.set(e.pointerId, sp);
+  if(mode==='play'){ playPointerMove(p); return; }
+  if(!gesture) return;
+  const sel = selected();
+
+  if(gesture.kind==='paint'){
+    const last=gesture.pts[gesture.pts.length-1];
+    if(Math.hypot(p.x-last.x,p.y-last.y) > BRUSH*0.6 && gesture.pts.length<70)
+      gesture.pts.push(p);
+  }
+  else if(gesture.kind==='vpan'){
+    view.ox += sp.sx-prevS.sx;
+    view.oy += sp.sy-prevS.sy;
+    clampView();
+  }
+  else if(gesture.kind==='vzoom' && spointers.size>=2){
+    const [a,b]=[...spointers.values()];
+    const d=Math.hypot(a.sx-b.sx,a.sy-b.sy);
+    const mid={sx:(a.sx+b.sx)/2, sy:(a.sy+b.sy)/2};
+    const k=d/gesture.d0;
+    view.zoom = Math.min(Math.max(gesture.z0*k,1),MAXZOOM);
+    const sc = view.fit*view.zoom, sc0=view.fit*gesture.z0;
+    view.ox = mid.sx - (gesture.m0.sx-gesture.ox0)*(sc/sc0);
+    view.oy = mid.sy - (gesture.m0.sy-gesture.oy0)*(sc/sc0);
+    clampView();
+  }
+  else if(gesture.kind==='pinch' && pointers.size>=2 && sel){
+    const [a,b]=[...pointers.values()];
+    const d=Math.hypot(a.x-b.x,a.y-b.y);
+    const ang=Math.atan2(b.y-a.y,b.x-a.x);
+    const k=Math.max(.2, d/gesture.d0);
+    if(sel.shape==='box'||sel.shape==='tri'){ sel.w=Math.max(24,gesture.o.w*k); sel.h=Math.max(24,gesture.o.h*k); }
+    else if(sel.shape==='blob'){
+      sel.brushR=Math.max(10, gesture.o.brushR*k);
+      sel.pts=gesture.o.pts.map(([px,py])=>[px*k,py*k]);
+    }
+    else sel.r=Math.max(14,gesture.o.r*k);
+    sel.angle=Math.round(gesture.o.angle + (ang-gesture.a0)*DEG);
+  }
+  else if(gesture.kind==='move' && sel){
+    if(!gesture.lifted){
+      const ds=Math.hypot(sp.sx-gesture.s0.sx, sp.sy-gesture.s0.sy);
+      if(ds>10 && e.pointerType!=='mouse'){
+        gesture.dy -= 80/view.zoom;
+        gesture.lifted=true;
+      }else if(ds>10) gesture.lifted=true;
+    }
+    sel.x=p.x+gesture.dx; sel.y=p.y+gesture.dy;
+    magnet(sel);
+  }
+  else if(gesture.kind==='path' && sel && sel.path){ sel.path.x=p.x; sel.path.y=p.y; }
+  else if(gesture.kind==='sling'){
+    level.slingshot.x=p.x;
+    level.slingshot.y = isDrop() ? Math.max(60, Math.min(p.y, FY()-120)) : Math.min(p.y, FY()-60);
+  }
+});
+
+function endPointer(e){
+  pointers.delete(e.pointerId);
+  spointers.delete(e.pointerId);
+  if(mode==='play'){ if(pointers.size===0) playPointerUp(); return; }
+  if(pointers.size>0) return;
+  const sel=selected();
+  if(gesture){
+    if(gesture.kind==='paint'){ finishPaint(); }
+    if(gesture.kind==='move' && sel){
+      const m=magnet(sel);
+      if(!m.sx) sel.x=snapN(sel.x);
+      if(!m.sy) sel.y=snapN(sel.y);
+    }
+    if(gesture.kind==='pinch' && sel){
+      if(sel.shape==='box'||sel.shape==='tri'){sel.w=snapN(sel.w);sel.h=snapN(sel.h);}
+      else if(sel.shape!=='blob') sel.r=snapN(sel.r);
+      const m=magnet(sel);
+      if(!m.sx) sel.x=snapN(sel.x);
+      if(!m.sy) sel.y=snapN(sel.y);
+    }
+    if(gesture.kind==='path' && sel && sel.path){ sel.path.x=snapN(sel.path.x); sel.path.y=snapN(sel.path.y); }
+    if(gesture.kind==='sling'){ level.slingshot.x=snapN(level.slingshot.x); level.slingshot.y=snapN(level.slingshot.y); }
+  }
+  gesture=null;
+  syncInspector();
+}
+cv.addEventListener('pointerup', endPointer);
+cv.addEventListener('pointercancel', endPointer);
+
+/* ---------- nudge pad ---------- */
+const $=id=>document.getElementById(id);
+let nudgeLast={id:null, t:0};
+document.querySelectorAll('#nudge button[data-n]').forEach(b=>{
+  b.addEventListener('pointerdown', e=>{
+    e.preventDefault(); e.stopPropagation();
+    const s=selected(); if(!s || mode!=='edit') return;
+    const [dx,dy]=b.dataset.n.split(',').map(Number);
+    const now=performance.now();
+    if(!(nudgeLast.id===s.id && now-nudgeLast.t<1500)) snap();
+    nudgeLast={id:s.id, t:now};
+    s.x += dx*SNAP; s.y += dy*SNAP;
+    syncReadout();
+  });
+});
+function syncNudge(){
+  const s=selected();
+  const el=$('nudge');
+  if(!s || mode!=='edit'){ el.style.display='none'; return; }
+  el.style.display='grid';
+  const sx=s.x*view.scale+view.ox, sy=s.y*view.scale+view.oy;
+  if(sx > cw/2){ el.style.left='10px'; el.style.right='auto'; }
+  else{ el.style.right='10px'; el.style.left='auto'; }
+  if(sy > chh/2){ el.style.top='10px'; el.style.bottom='auto'; }
+  else{ el.style.bottom='10px'; el.style.top='auto'; }
+}
+
+/* ---------- tray ---------- */
+const tray = document.getElementById('tray');
+const trayEls=[];
+
+const adjEl=document.createElement('div');
+adjEl.className='preset on';
+adjEl.innerHTML='<span class="ico">✋</span>adjust';
+adjEl.addEventListener('click', ()=>{ handMode='adjust'; setArmed(null); });
+tray.appendChild(adjEl);
+
+for(const pr of SHAPES){
+  const el=document.createElement('div');
+  el.className='preset';
+  el.innerHTML=`<span class="ico"></span>${pr.name}`;
+  el.addEventListener('click', ()=>{
+    if(mode==='play') return;
+    if(armed===pr && pr.shape==='emoji'){ openEmoji('stamp'); return; }
+    if(armed===pr){ setArmed(null); return; }
+    armedRot=false;
+    setArmed(pr);
+  });
+  trayEls.push({el, pr});
+  tray.appendChild(el);
+}
+function drawIco(){
+  const col = MATERIALS[curMat].color;
+  for(const {el,pr} of trayEls){
+    const ico=el.querySelector('.ico');
+    if(pr.shape==='box'){
+      let w=pr.w, h=pr.h;
+      if(pr.rotatable && armed===pr && armedRot){ [w,h]=[h,w]; }
+      const iw=Math.min(40, w*0.22), ih=Math.min(22, Math.max(6, h*0.22));
+      ico.innerHTML=`<span class="shp" style="width:${iw}px;height:${ih}px;border-radius:3px;background:${col}"></span>`;
+    }else if(pr.shape==='tri'){
+      ico.innerHTML=`<span class="shp" style="width:0;height:0;border:none;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:19px solid ${col}"></span>`;
+    }else if(pr.shape==='emoji'){
+      ico.textContent=curEmoji;
+    }else if(pr.shape==='blob'){
+      ico.textContent='🖌';
+    }else{
+      ico.innerHTML=`<span class="shp" style="width:20px;height:20px;border-radius:50%;background:${col}"></span>`;
+    }
+  }
+}
+function setArmed(pr, keepSel){
+  armed=pr;
+  if(!armed) armedRot=false;
+  trayEls.forEach(x=>x.el.classList.toggle('on', x.pr===armed));
+  if(armed){ selId=null; handMode='adjust'; }
+  adjEl.classList.toggle('on', !armed && handMode==='adjust');
+  syncViewBtn(); drawIco(); syncInspector();
+}
+
+/* ---------- topbar rotate / view ---------- */
+function rotateSelected(){
+  const s=selected();
+  if(s){ snap(); s.angle=((s.angle||0)+90)%360; syncInspector(); return true; }
+  return false;
+}
+$('b-rot').onclick=()=>{
+  if(mode==='play') return;
+  if(rotateSelected()) return;
+  if(armed && armed.rotatable){ armedRot=!armedRot; drawIco(); }
+};
+$('b-view').onclick=()=>{
+  if(mode==='play') return;
+  if(armed) setArmed(null);
+  handMode = handMode==='view' ? 'adjust' : 'view';
+  adjEl.classList.toggle('on', !armed && handMode==='adjust');
+  syncViewBtn();
+};
+function syncViewBtn(){
+  $('b-view').classList.toggle('viewon', handMode==='view' && !armed);
+}
+
+/* ---------- emoji picker ---------- */
+function renderEmojiPicker(){
+  const rec=$('erecents'); rec.innerHTML='';
+  for(const em of emojiRecents){
+    const b=document.createElement('button');
+    b.textContent=em;
+    b.addEventListener('click', ()=>pickEmoji(em));
+    rec.appendChild(b);
+  }
+  const pal=$('epicks');
+  if(!pal.childElementCount){
+    for(const em of EMOJI_PALETTE){
+      const b=document.createElement('button');
+      b.textContent=em;
+      b.addEventListener('click', ()=>pickEmoji(em));
+      pal.appendChild(b);
+    }
+  }
+}
+function openEmoji(mode2){
+  emojiFor=mode2;
+  $('etitle').textContent = mode2==='hero'
+    ? 'PICK YOUR HERO — the emoji you fling or roll.'
+    : 'EMOJI STAMP — a round physics body in the current material. Stamp villains with target material.';
+  $('einput').value='';
+  renderEmojiPicker();
+  $('emodal').style.display='flex';
+}
+function pickEmoji(em){
+  emojiRecents = [em, ...emojiRecents.filter(x=>x!==em)].slice(0,10);
+  if(emojiFor==='hero'){ level.meta.hero=em; syncHero(); }
+  else { curEmoji=em; drawIco(); }
+  $('emodal').style.display='none';
+}
+$('e-set').onclick=()=>{
+  const v=$('einput').value.trim();
+  if(v) pickEmoji(v);
+  else $('emodal').style.display='none';
+};
+$('e-close').onclick=()=>$('emodal').style.display='none';
+function syncHero(){ $('herobtn').textContent = level.meta.hero||'🙂'; }
+
+/* ---------- help & settings ---------- */
+$('b-help').onclick=()=>$('hmodal').style.display='flex';
+$('h-close').onclick=()=>$('hmodal').style.display='none';
+$('b-set').onclick=()=>{ syncSettings(); $('smodal').style.display='flex'; };
+$('s-close').onclick=()=>$('smodal').style.display='none';
+$('set-after').onclick=()=>{
+  settings.afterPlace = settings.afterPlace==='adjust' ? 'stamp' : 'adjust';
+  syncSettings();
+};
+$('set-mode').onclick=()=>{
+  snap();
+  level.meta.mode = isDrop() ? 'sling' : 'drop';
+  if(isDrop() && level.slingshot.y > H()*0.4){
+    level.slingshot={x:Math.round(W()/2), y:120};
+  }
+  syncSettings();
+  toast(isDrop() ? 'drop mode: tap to hop, reach 🏁, avoid villains' : 'sling mode: break the villains');
+};
+$('set-shape').onclick=()=>{
+  snap();
+  const tall = W()<H();
+  const d = tall ? WIDE : TALL;
+  level.world={w:d.w, h:d.h, floorY:d.h-40};
+  level.slingshot.x=Math.min(level.slingshot.x, W()-60);
+  level.slingshot.y=Math.min(level.slingshot.y, FY()-90);
+  const out=level.objects.filter(o=>o.x<0||o.x>W()||o.y<0||o.y>H()).length;
+  resize(); syncSettings();
+  toast(out ? out+' piece(s) now sit outside the board — drag them back' : 'level reshaped');
+};
+function syncSettings(){
+  $('set-after').textContent = settings.afterPlace==='adjust' ? '→ ✋ adjust new piece' : 'keep stamping';
+  $('set-mode').textContent = isDrop() ? '🪂 drop' : '🎯 sling';
+  $('set-shape').textContent = W()>H() ? 'wide 1600×900' : 'tall 900×1600';
+  syncHero();
+}
+$('herobtn').onclick=()=>{ $('smodal').style.display='none'; openEmoji('hero'); };
+
+/* ---------- backdrops: picker, upload, agent brief ---------- */
+document.querySelectorAll('.bgw[data-bg]').forEach(b=>
+  b.addEventListener('click', ()=>{
+    const bg=b.dataset.bg;
+    if(bg==='custom' && !level.meta.backgroundImage) return;
+    if(level.meta.background===bg) return;
+    snap();
+    level.meta.background=bg;
+    syncBg();
+  }));
+function syncBg(){
+  const cur=level.meta.background||'grid';
+  document.querySelectorAll('.bgw[data-bg]').forEach(b=>
+    b.classList.toggle('on', b.dataset.bg===cur));
+  const cs=$('bg-custom');
+  if(level.meta.backgroundImage){
+    cs.style.display='inline-block';
+    cs.style.backgroundImage=`url(${level.meta.backgroundImage})`;
+  }else{
+    cs.style.display='none';
+  }
+}
+$('bg-upload').onclick=()=>$('bg-file').click();
+$('bg-file').addEventListener('change', e=>{
+  const f=e.target.files && e.target.files[0];
+  e.target.value='';
+  if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const url=rd.result;
+    snap();
+    level.meta.backgroundImage=url;
+    level.meta.background='custom';
+    syncBg();
+    if(url.length>2500000)
+      toast('backdrop imported — heads up: it makes the schema JSON heavy; the real build stores it as a file');
+    else
+      toast('backdrop imported');
+  };
+  rd.onerror=()=>toast('could not read that image');
+  rd.readAsDataURL(f);
+});
+$('bg-brief').onclick=()=>{
+  $('brieftext').value=agentBrief();
+  $('bmodal').style.display='flex';
+};
+$('br-close').onclick=()=>$('bmodal').style.display='none';
+$('br-copy').onclick=async()=>{
+  try{ await navigator.clipboard.writeText($('brieftext').value); toast('brief copied — add your style notes'); }
+  catch{ $('brieftext').select(); document.execCommand('copy'); toast('brief copied — add your style notes'); }
+};
+
+/* ---------- inspector ---------- */
+function syncInspector(){
+  const sel=selected();
+  $('selwrap').style.display = sel?'block':'none';
+  const shown = sel ? sel.material : curMat;
+  document.querySelectorAll('.swwrap[data-m]').forEach(c=>
+    c.classList.toggle('on', c.dataset.m===shown));
+  syncNudge();
+  if(!sel) return;
+  $('tg-anchor').classList.toggle('on', !!sel.anchored);
+  $('tg-move').classList.toggle('on', !!sel.path);
+  $('tg-goal').classList.toggle('on', sel.role==='goal');
+  $('tg-note').classList.toggle('on', !!sel.note);
+  syncReadout();
+}
+function syncReadout(){
+  const sel=selected(); if(!sel) return;
+  let size;
+  if(sel.shape==='box'||sel.shape==='tri') size=`${Math.round(sel.w)}×${Math.round(sel.h)}`;
+  else if(sel.shape==='blob') size=`~${sel.pts.length}pt brush ${Math.round(sel.brushR)}`;
+  else size=`r${Math.round(sel.r)}`;
+  $('readout').textContent = `${Math.round(sel.x)},${Math.round(sel.y)} · ${size} · ${Math.round(sel.angle||0)}°`;
+}
+document.querySelectorAll('.swwrap[data-m]').forEach(c=>
+  c.addEventListener('click',()=>{
+    curMat = c.dataset.m;
+    drawIco();
+    const s=selected();
+    if(s){ snap(); s.material=curMat; }
+    syncInspector();
+  }));
+$('tg-rot').onclick=rotateSelected;
+$('tg-anchor').onclick=()=>{const s=selected(); if(s){snap(); s.anchored=!s.anchored; syncInspector();}};
+$('tg-move').onclick=()=>{
+  const s=selected(); if(!s) return;
+  snap();
+  s.path = s.path ? null : {x:Math.min(s.x+200,W()-40), y:s.y, speed:90};
+  syncInspector();
+};
+$('tg-goal').onclick=()=>{
+  const s=selected(); if(!s) return;
+  snap();
+  if(s.role==='goal') delete s.role; else s.role='goal';
+  syncInspector();
+};
+$('del').onclick=()=>{
+  if(!selId) return;
+  snap();
+  level.objects=level.objects.filter(o=>o.id!==selId); selId=null; syncInspector();
+};
+$('undo').onclick=doUndo;
+$('redo').onclick=doRedo;
+
+/* ---------- note editor + dictation ---------- */
+let recog=null, recActive=false;
+$('tg-note').onclick=()=>{
+  const s=selected(); if(!s) return;
+  $('notetext').value = s.note||'';
+  $('nmodal').style.display='flex';
+};
+$('n-cancel').onclick=()=>{ stopDictation(); $('nmodal').style.display='none'; };
+$('n-save').onclick=()=>{
+  stopDictation();
+  const s=selected();
+  if(s){ snap(); s.note=$('notetext').value.trim(); syncInspector(); }
+  $('nmodal').style.display='none';
+};
+function stopDictation(){
+  if(recog){ try{recog.stop();}catch{} }
+  recActive=false; $('n-mic').classList.remove('rec');
+  $('n-mic').textContent='🎤 dictate';
+}
+$('n-mic').onclick=()=>{
+  if(recActive){ stopDictation(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ toast('no speech engine here — dictation will work in the deployed PWA'); return; }
+  try{
+    recog = new SR();
+    recog.continuous = true;
+    recog.interimResults = false;
+    recog.onresult = ev=>{
+      let add='';
+      for(let i=ev.resultIndex;i<ev.results.length;i++)
+        if(ev.results[i].isFinal) add += ev.results[i][0].transcript + ' ';
+      if(add){
+        const t=$('notetext');
+        t.value = (t.value ? t.value.replace(/\s+$/,'')+' ' : '') + add.trim();
+      }
+    };
+    recog.onerror = e=>{
+      stopDictation();
+      toast(e.error==='not-allowed'
+        ? 'mic blocked in this preview — works in the PWA build'
+        : 'dictation error: '+e.error);
+    };
+    recog.onend = ()=>{ if(recActive) stopDictation(); };
+    recog.start();
+    recActive=true;
+    $('n-mic').classList.add('rec');
+    $('n-mic').textContent='■ stop';
+  }catch{
+    toast('mic unavailable in this preview — works in the PWA build');
+  }
+};
+
+/* ---------- schema modal ---------- */
+function migrate(l){
+  if(!l.meta) l.meta={};
+  if(!l.meta.hero) l.meta.hero='🙂';
+  if(!l.meta.mode) l.meta.mode='sling';
+  if(!l.meta.background) l.meta.background='grid';
+  if(l.meta.backgroundImage===undefined) l.meta.backgroundImage=null;
+  if(l.meta.background==='custom' && !l.meta.backgroundImage) l.meta.background='grid';
+  if(!l.world) l.world={w:WIDE.w, h:WIDE.h, floorY:WIDE.h-40};
+  if(!l.world.floorY) l.world.floorY=l.world.h-40;
+  return l;
+}
+$('b-schema').onclick=()=>{
+  $('json').value = JSON.stringify(level,null,2);
+  $('modal').style.display='flex';
+};
+$('m-close').onclick=()=>$('modal').style.display='none';
+$('m-copy').onclick=async()=>{
+  try{ await navigator.clipboard.writeText($('json').value); toast('copied — paste it to Claude'); }
+  catch{ $('json').select(); document.execCommand('copy'); toast('copied — paste it to Claude'); }
+};
+$('m-load').onclick=()=>{
+  try{
+    const l=JSON.parse($('json').value);
+    if(!l.objects || !l.schemaVersion) throw 0;
+    snap();
+    level=migrate(l);
+    let mx=0; for(const o of level.objects){const n=parseInt(String(o.id).slice(1)); if(n>mx)mx=n;}
+    idSeq=mx+1; selId=null; resize(); syncInspector(); syncHero(); syncBg(); syncSettings();
+    $('modal').style.display='none'; toast('level loaded');
+  }catch{ toast('could not parse that JSON'); }
+};
+$('m-clear').onclick=()=>{
+  snap();
+  const keep={hero:level.meta.hero, background:level.meta.background,
+              backgroundImage:level.meta.backgroundImage, mode:level.meta.mode};
+  level=emptyLevel(W()>H()?'wide':'tall');
+  Object.assign(level.meta, keep);
+  if(isDrop()) level.slingshot={x:Math.round(W()/2), y:120};
+  selId=null; resize(); syncInspector(); syncBg(); syncSettings();
+  $('json').value = JSON.stringify(level,null,2);
+  toast('cleared — undo brings it back');
+};
+$('m-demo').onclick=()=>{
+  snap();
+  const hero=level.meta.hero;
+  level=emptyLevel('wide'); level.meta.name='villain-house'; level.meta.hero=hero;
+  level.meta.background='grass';
+  level.objects=demoObjects(level.world.floorY);
+  selId=null; resize(); syncInspector(); syncBg(); syncSettings();
+  $('modal').style.display='none'; toast('sling demo loaded — hit ▶');
+};
+$('m-demo2').onclick=()=>{
+  snap();
+  const hero=level.meta.hero;
+  level=dropDemo(); level.meta.hero=hero;
+  selId=null; resize(); syncInspector(); syncBg(); syncSettings();
+  $('modal').style.display='none'; toast('drop demo loaded — hit ▶ and tap to hop');
+};
+let toastT;
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.style.display='block';
+  clearTimeout(toastT); toastT=setTimeout(()=>t.style.display='none',2600);
+}
+
+/* ---------- library ---------- */
+const hasStore = typeof window.storage?.set === 'function';
+const memStore = new Map();
+const keyOf = name => 'lvl:'+encodeURIComponent(name);
+
+async function libSave(name, scene){
+  const rec = {name, scene: scene||'', savedAt: Date.now(), level};
+  if(hasStore){
+    try{ await window.storage.set(keyOf(name), JSON.stringify(rec)); return true; }
+    catch{ toast('save failed (custom backdrops can exceed storage limits)'); return false; }
+  }
+  memStore.set(keyOf(name), JSON.stringify(rec)); return true;
+}
+async function libAll(){
+  const out=[];
+  if(hasStore){
+    try{
+      const res = await window.storage.list('lvl:');
+      for(const k of (res?.keys||[])){
+        try{ const g=await window.storage.get(k); if(g) out.push(JSON.parse(g.value)); }catch{}
+      }
+    }catch{}
+  }else{
+    for(const v of memStore.values()) out.push(JSON.parse(v));
+  }
+  out.sort((a,b)=>b.savedAt-a.savedAt);
+  return out;
+}
+async function libDelete(name){
+  if(hasStore){ try{ await window.storage.delete(keyOf(name)); }catch{} }
+  else memStore.delete(keyOf(name));
+}
+$('b-lib').onclick=async()=>{
+  $('sv-name').value = level.meta.name!=='untitled' ? level.meta.name : '';
+  $('sv-scene').value = level.meta.scene||'';
+  $('lmodal').style.display='flex';
+  await renderLib();
+  if(!hasStore) toast('no persistent storage in this preview — saves last for this session only');
+};
+$('l-close').onclick=()=>$('lmodal').style.display='none';
+$('sv-go').onclick=async()=>{
+  const name=$('sv-name').value.trim();
+  if(!name){ toast('give it a name'); return; }
+  level.meta.name=name;
+  level.meta.scene=$('sv-scene').value.trim();
+  if(await libSave(name, level.meta.scene)){ toast('saved: '+name); await renderLib(); }
+};
+async function renderLib(){
+  const list=$('lib-list');
+  list.innerHTML='';
+  const all=await libAll();
+  if(!all.length){
+    list.innerHTML='<div style="color:var(--dim);font-size:12px">nothing saved yet — name the current level above and Save.</div>';
+    return;
+  }
+  const scenes=new Map();
+  for(const r of all){
+    const s=r.scene||'(no scene)';
+    if(!scenes.has(s)) scenes.set(s,[]);
+    scenes.get(s).push(r);
+  }
+  for(const [scene,recs] of scenes){
+    const wrap=document.createElement('div'); wrap.className='scene';
+    wrap.innerHTML=`<h3>${scene.toUpperCase()}</h3>`;
+    const cards=document.createElement('div'); cards.className='cards';
+    for(const r of recs){
+      const card=document.createElement('div'); card.className='card';
+      const th=document.createElement('canvas'); th.width=300; th.height=169;
+      card.appendChild(th);
+      const nm=document.createElement('div'); nm.className='nm'; nm.textContent=r.name;
+      card.appendChild(nm);
+      const rm=document.createElement('button'); rm.className='rm'; rm.textContent='✕';
+      rm.addEventListener('click', async ev=>{
+        ev.stopPropagation();
+        await libDelete(r.name); await renderLib(); toast('deleted: '+r.name);
+      });
+      card.appendChild(rm);
+      try{ renderThumb(th, migrate(JSON.parse(JSON.stringify(r.level)))); }catch{}
+      card.addEventListener('click', ()=>{
+        snap();
+        level=migrate(JSON.parse(JSON.stringify(r.level)));
+        let mx=0; for(const o of level.objects){const n=parseInt(String(o.id).slice(1)); if(n>mx)mx=n;}
+        idSeq=mx+1; selId=null; resize(); syncInspector(); syncHero(); syncBg(); syncSettings();
+        $('lmodal').style.display='none'; toast('loaded: '+r.name);
+      });
+      cards.appendChild(card);
+    }
+    wrap.appendChild(cards);
+    list.appendChild(wrap);
+  }
+}
+
+/* ---------- play mode ---------- */
+const {Engine, Bodies, Body, Composite, Events, Sleeping} = Matter;
+let mode='edit', engine=null, bodyOf=new Map(), movers=[], broken=new Set();
+let ball=null, ballState='loaded', pull=null, targetsLeft=0, playT=0;
+let lastGround=-9999, attempts=1, cleared=false, hitFlash=0;
+
+function buildBody(o, opts){
+  if(o.shape==='box') return Bodies.rectangle(o.x,o.y,o.w,o.h,opts);
+  if(o.shape==='tri') return Bodies.fromVertices(o.x,o.y,[triVerts(o)],opts);
+  if(o.shape==='blob'){
+    const r=o.brushR||BRUSH;
+    const parts=o.pts.map(([rx,ry])=>Bodies.circle(o.x+rx, o.y+ry, r, {...opts, isStatic:false}));
+    const b = parts.length===1 ? parts[0] : Body.create({parts});
+    Body.setPosition(b, {x:o.x, y:o.y});
+    if(o.angle) Body.setAngle(b, o.angle/DEG);
+    Body.setStatic(b, !!opts.isStatic);
+    return b;
+  }
+  return Bodies.circle(o.x,o.y,o.r,opts);
+}
+
+function startPlay(){
+  mode='play'; selId=null; setArmed(null);
+  resetView();
+  syncInspector();
+  $('b-play').textContent='■';
+  $('playhint').textContent = isDrop()
+    ? 'tap to hop · reach 🏁 · avoid villains'
+    : 'drag your hero back · release to launch';
+  $('playhint').style.display='block';
+  $('banner').style.display='none';
+  $('tray').style.display='none'; $('inspector').style.display='none';
+  $('nudge').style.display='none';
+  setTimeout(resize,80);
+
+  engine = Engine.create({enableSleeping: !isDrop()});
+  engine.gravity.y = level.meta.gravity ?? 1;
+  bodyOf.clear(); movers=[]; broken=new Set(); playT=0;
+  lastGround=-9999; attempts=1; cleared=false; hitFlash=0;
+
+  Composite.add(engine.world,[
+    Bodies.rectangle(W()/2, FY()+(H()-FY())/2+40, W()+400, H()-FY()+80, {isStatic:true}),
+    Bodies.rectangle(-40, H()/2, 80, H()*3, {isStatic:true}),
+    Bodies.rectangle(W()+40, H()/2, 80, H()*3, {isStatic:true}),
+  ]);
+
+  targetsLeft=0;
+  for(const o of level.objects){
+    const m=MATERIALS[o.material];
+    const goal = o.role==='goal';
+    const opts={density:m.density, friction:m.friction, restitution:m.restitution,
+                angle:(o.angle||0)/DEG, isStatic: goal || !!o.anchored || !!o.path};
+    const b = buildBody(o, opts);
+    b.plugin={lvlId:o.id, material:o.material, breakAt:m.breakAt, melt:1, goal};
+    if(goal) b.isSensor=true;
+    bodyOf.set(o.id,b);
+    Composite.add(engine.world,b);
+    if(o.path && !goal) movers.push({b, o, len:Math.hypot(o.path.x-o.x,o.path.y-o.y)});
+    if(o.material==='target' && !goal) targetsLeft++;
+  }
+
+  if(isDrop()){
+    Events.on(engine,'collisionStart', dropCollide);
+    Events.on(engine,'collisionActive', dropGroundCheck);
+    spawnDropHero();
+  }else{
+    Events.on(engine,'collisionStart', ev=>{
+      if(playT<SETTLE_MS) return;
+      for(const pair of ev.pairs){
+        const A = (pair.bodyA.parent && pair.bodyA.parent!==pair.bodyA) ? pair.bodyA.parent : pair.bodyA;
+        const B = (pair.bodyB.parent && pair.bodyB.parent!==pair.bodyB) ? pair.bodyB.parent : pair.bodyB;
+        const speed = Math.hypot(A.velocity.x-B.velocity.x, A.velocity.y-B.velocity.y);
+        tryBreak(A, B, speed);
+        tryBreak(B, A, speed);
+      }
+    });
+    loadBall();
+  }
+}
+function tryBreak(b, other, speed){
+  if(!b.plugin || b.plugin.breakAt==null || broken.has(b.plugin.lvlId)) return;
+  const impact = other.isStatic
+    ? speed * 0.55
+    : speed * Math.min(other.mass,10) * 0.3;
+  if(impact > b.plugin.breakAt) breakBody(b);
+}
+function breakBody(b){
+  broken.add(b.plugin.lvlId);
+  Composite.remove(engine.world, b);
+  if(b.plugin.material==='target'){
+    targetsLeft--;
+    if(targetsLeft<=0){$('banner').textContent='LEVEL CLEAR'; $('banner').style.display='block';}
+  }
+}
+function loadBall(){
+  ball = Bodies.circle(level.slingshot.x, level.slingshot.y-30, 22,
+    {density:0.0016, friction:0.6, restitution:0.5});
+  Body.setStatic(ball,true);
+  Composite.add(engine.world,ball);
+  ballState='loaded'; pull=null;
+}
+/* ----- drop mode ----- */
+function spawnDropHero(){
+  if(ball) Composite.remove(engine.world, ball);
+  ball = Bodies.circle(level.slingshot.x, level.slingshot.y, 22,
+    {density:0.0016, friction:0.35, restitution:0.15});
+  Composite.add(engine.world,ball);
+  lastGround=-9999;
+}
+function heroIn(pair){
+  const A=(pair.bodyA.parent&&pair.bodyA.parent!==pair.bodyA)?pair.bodyA.parent:pair.bodyA;
+  const B=(pair.bodyB.parent&&pair.bodyB.parent!==pair.bodyB)?pair.bodyB.parent:pair.bodyB;
+  if(A===ball) return B;
+  if(B===ball) return A;
+  return null;
+}
+function dropCollide(ev){
+  if(cleared) return;
+  for(const pair of ev.pairs){
+    const other=heroIn(pair); if(!other) continue;
+    if(other.plugin?.goal){
+      cleared=true;
+      $('banner').textContent='LEVEL CLEAR'; $('banner').style.display='block';
+      return;
+    }
+    if(other.plugin?.material==='target'){
+      hitFlash=performance.now();
+      attempts++;
+      Body.setPosition(ball,{x:level.slingshot.x, y:level.slingshot.y});
+      Body.setVelocity(ball,{x:0,y:0});
+      Body.setAngularVelocity(ball,0);
+      lastGround=-9999;
+      return;
+    }
+  }
+  dropGroundCheck(ev);
+}
+function dropGroundCheck(ev){
+  for(const pair of ev.pairs){
+    const other=heroIn(pair); if(!other || other.isSensor) continue;
+    const sup = pair.collision?.supports||[];
+    for(const s of sup){
+      if(s && s.y > ball.position.y + 22*0.35){ lastGround=playT; break; }
+    }
+  }
+}
+function playPointerDown(p){
+  if(isDrop()){
+    if(cleared || !ball) return;
+    if(playT-lastGround < COYOTE_MS){
+      Body.setVelocity(ball,{x:ball.velocity.x, y:-HOP});
+      Sleeping.set(ball,false);
+      lastGround=-9999;
+    }
+    return;
+  }
+  if(ballState==='loaded' && near(p, ball.position.x, ball.position.y, 140)) pull=p;
+}
+function playPointerMove(p){ if(!isDrop() && pull) pull=p; }
+function playPointerUp(){
+  if(isDrop()) return;
+  if(!pull || ballState!=='loaded'){pull=null; return;}
+  const ax=level.slingshot.x, ay=level.slingshot.y-30;
+  let dx=ax-pull.x, dy=ay-pull.y;
+  const d=Math.hypot(dx,dy);
+  if(d<12){pull=null; return;}
+  const cap=Math.min(d,200)/d;
+  Body.setStatic(ball,false);
+  Sleeping.set(ball,false);
+  Body.setVelocity(ball,{x:dx*cap*0.16, y:dy*cap*0.16});
+  ballState='flying'; pull=null;
+  setTimeout(()=>{ if(mode==='play' && !isDrop()) loadBall(); }, 3800);
+}
+function stopPlay(){
+  mode='edit'; engine=null; ball=null;
+  $('b-play').textContent='▶'; $('playhint').style.display='none';
+  $('banner').style.display='none';
+  $('tray').style.display='flex'; $('inspector').style.display='flex';
+  setTimeout(resize,80);
+  syncInspector();
+}
+$('b-play').onclick=()=> mode==='edit' ? startPlay() : stopPlay();
+
+function drawPlay(dt){
+  playT+=dt;
+  for(const mv of movers){
+    if(mv.len<2) continue;
+    const period = (mv.len*2)/(mv.o.path.speed||90);
+    const t=(playT/1000)%period, half=period/2;
+    const k = t<half ? t/half : 1-(t-half)/half;
+    const nx=mv.o.x+(mv.o.path.x-mv.o.x)*k, ny=mv.o.y+(mv.o.path.y-mv.o.y)*k;
+    Body.setVelocity(mv.b,{x:(nx-mv.b.position.x)/(dt/1000||1), y:(ny-mv.b.position.y)/(dt/1000||1)});
+    Body.setPosition(mv.b,{x:nx,y:ny});
+  }
+  for(const [id,b] of bodyOf){
+    if(broken.has(id) || b.plugin.material!=='ice' || b.plugin.goal) continue;
+    Body.scale(b, MELT_K, MELT_K);
+    b.plugin.melt *= MELT_K;
+    if(b.plugin.melt < 0.3) breakBody(b);
+  }
+  Engine.update(engine, Math.min(dt,33));
+
+  if(isDrop() && ball && ball.position.y > H()+200 && !cleared){
+    hitFlash=performance.now(); attempts++;
+    Body.setPosition(ball,{x:level.slingshot.x, y:level.slingshot.y});
+    Body.setVelocity(ball,{x:0,y:0});
+  }
+
+  drawWorldBase(false);
+  if(isDrop()) drawStartPadCtx(ctx, level.slingshot.x, level.slingshot.y, null, false);
+  else drawSlingshotCtx(ctx, level.slingshot.x, level.slingshot.y, false);
+  for(const o of level.objects){
+    if(broken.has(o.id)) continue;
+    const b=bodyOf.get(o.id);
+    drawMaterialCtx(ctx, {...o, x:b.position.x, y:b.position.y, angle:b.angle*DEG, note:''}, false, b.plugin.melt);
+  }
+  if(ball){
+    if(isDrop()){
+      const speed=Math.hypot(ball.velocity.x, ball.velocity.y);
+      if(cleared || speed<1.2){
+        drawMaterialCtx(ctx, {shape:'emoji', x:ball.position.x, y:ball.position.y, r:22, angle:0,
+                              material:'rubber', emoji:level.meta.hero||'🙂', note:''}, false);
+      }else{
+        ctx.save();
+        ctx.translate(ball.position.x, ball.position.y);
+        ctx.fillStyle='#ffd93d'; ctx.strokeStyle='rgba(0,0,0,.4)'; ctx.lineWidth=2.5;
+        ctx.beginPath(); ctx.arc(0,0,22,0,7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='rgba(255,255,255,.5)';
+        ctx.beginPath(); ctx.arc(-7,-7,6,0,7); ctx.fill();
+        ctx.restore();
+      }
+    }else{
+      const ax=level.slingshot.x, ay=level.slingshot.y-26;
+      let bx=ball.position.x, by=ball.position.y;
+      if(pull && ballState==='loaded'){
+        const d=Math.hypot(ax-pull.x, ay-pull.y), cap=Math.min(d,200)/(d||1);
+        bx=ax-(ax-pull.x)*cap; by=ay-(ay-pull.y)*cap;
+        Body.setPosition(ball,{x:bx,y:by});
+        ctx.strokeStyle='#5a3a22'; ctx.lineWidth=6;
+        ctx.beginPath(); ctx.moveTo(ax-22,ay); ctx.lineTo(bx,by); ctx.lineTo(ax+22,ay); ctx.stroke();
+        const vx=(ax-bx)*0.16, vy=(ay-by)*0.16;
+        ctx.fillStyle='rgba(255,138,61,.75)';
+        for(let i=1;i<=9;i++){
+          const t=i*0.09;
+          ctx.beginPath();
+          ctx.arc(bx+vx*t*60, by+vy*t*60+0.5*(engine.gravity.y*0.001*Math.pow(t*60,2))*16.66, 4,0,7);
+          ctx.fill();
+        }
+      }
+      drawMaterialCtx(ctx, {shape:'emoji', x:bx, y:by, r:22, angle:ball.angle*DEG,
+                            material:'rubber', emoji:level.meta.hero||'🙂', note:''}, false);
+    }
+  }
+  ctx.fillStyle='rgba(20,28,40,.65)';
+  ctx.fillRect(10,12,170,30);
+  ctx.fillStyle='#d8e2ef'; ctx.font='16px ui-monospace,monospace'; ctx.textAlign='left';
+  ctx.fillText(isDrop() ? 'attempt '+attempts : 'villains: '+Math.max(0,targetsLeft), 20, 33);
+  ctx.restore();
+  const hf=performance.now()-hitFlash;
+  if(hitFlash && hf<220){
+    ctx.fillStyle=`rgba(217,79,92,${0.35*(1-hf/220)})`;
+    ctx.fillRect(0,0,cw,chh);
+  }
+}
+
+/* ---------- main loop ---------- */
+let last=performance.now();
+function frame(now){
+  const dt=now-last; last=now;
+  if(mode==='edit'){ drawEdit(); if(gesture) syncReadout(); }
+  else drawPlay(dt);
+  requestAnimationFrame(frame);
+}
+resize();
+syncHistoryBtns();
+syncInspector();
+syncHero();
+syncSettings();
+syncBg();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

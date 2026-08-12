@@ -1834,3 +1834,92 @@ thing may already be walked out in a proof, a spike, or a later transcript. When
 surfaces a finding (like V3's limitation), add a row here and backport it into the relevant
 thinking doc so the synthesis never lags the code. This file is the seam-tracker; keep it
 current as fragments keep arriving.
+
+## 69. 2026-08-09 — the PWA install advice contradicts croft-pwa's hard relative-path standard
+
+**Status: DRIFT (resolved by choosing the house standard).**
+
+The 2026-08-09 nested-scope dialogue advises a root manifest with `id: "/"`, `scope: "/"` — absolute-root
+paths. `croft-pwa/docs/PRACTICES.md` §"Relative paths (subpath-portable)" names the manifest's
+`start_url`/`scope`/icons **explicitly**, and the croft-pwa **build fails** on an absolute-root path
+(`docs/PRACTICES.md:24-42`). It is a gate, not a preference: the same build must run at a domain root
+**and** under a subpath (GitHub project pages, `/pr-preview/pr-N/`).
+
+**Resolution:** the house standard wins, and it makes the nested design *cleaner* — a manifest at
+`/<game>/manifest.webmanifest` with `start_url: "./"`, `scope: "./"` yields scope `/<game>/` with no
+per-game absolute path baked in, and `fun/build.mjs` emits all 20 pages through a **single `page()`
+template**, so the injection point is one function.
+
+**The residue, and it is the interesting part:** `id` does **not** resolve like `start_url` and
+`scope`. Per the manifest spec it resolves against the **origin**, not the manifest's own path — so a
+relative `id: "./"` may not track the directory the way the other two do. Since the owner's whole
+requirement ("separate when installed isolated, together at the top level") rests on distinct `id`
+values keeping installs separate, this is **load-bearing and unverified**. Recorded as a build-plan
+**gate** rather than an assumption: two manifests, install both, confirm separation before committing
+to 20 games. Fallback on record is the subdomain escape hatch.
+
+**Second seam, wider:** croft-pwa publishes PWA standards (chassis, brand tokens, mobile-fit, CSP/SRI,
+service worker) that have **not travelled to `fun`** — which ships a public, installable-*looking*
+site with **no manifest and no service worker at all**. `.claude/CI-PATTERN.md:114` already worries
+about exactly this conflation, in the opposite direction (croft-stack, where the CI convention applies
+and the PWA standards do not). **OPEN:** decide whether the PWA standards are a workspace standard
+that travels, or croft-pwa-local. See ROADMAP_TODO E98's sibling item and `fun/plans/`.
+
+## 70. 2026-08-09 — the croftcall origin contract is superseded by Phase 10, and the origin arrived after the repo
+
+**Status: CLOSED (superseded), with a provenance correction.**
+
+The 2026-08-09 BookHive/iroh paste is the **origin** dialogue for croft-relay, the croftcall exchange
+page, and the Android client — and it arrived **after** the repo it produced. `CroftCommunity/connect`
+already exists and is the corpus's ground truth (`plans/2026-08-07-1-plan-croft-relay-tiered-admission.md`
+cites its `docs/contract.md` §1–§2).
+
+Two things follow. **(1) The origin contract is superseded**: it uses a single record at rkey `self`
+read via `getRecord`; the tiered-admission plan's **Phase 10** moves to **per-device records via
+`listRecords`** plus a request-policy record, verified from lexicon source and green-lit as of `main`
+@ `cc94b26`. Filed as a frozen historical seed, explicitly labelled — an unlabelled copy would put a
+stale contract beside a live one.
+
+**(2) A provenance correction to committed record.** `raw/croft-relay-tiered-admission-fork-vs-embed-2026-08-07.md`
+§B was headed *"never previously filed — captured here in full."* The "in full" was overstated: a
+standalone copy now sits at `seeds/callpds-unpacked/croft-relay-plan.md` (byte-verified), and while
+**all seven sections are present** in the filed rendering, it is **condensed** (~248 lines against 340).
+Header corrected in place; cite the unpacked file when exact wording matters.
+
+**Carried forward, unresolved:** the croftcall Android client **crashes immediately** on launch
+(owner-reported 2026-08-09). The seven unresolved `VERIFY` markers on inferred iroh Kotlin API names in
+`CallPeer.kt` are the leading suspicion, and the JNA `@aar` / Kotlin 2.2 / ABI packaging landmines named
+in the build instructions are the second — but **neither has been checked against the actual crash**, so
+no cause is recorded. Deliberately left as a suspicion.
+
+## 71. 2026-08-11 — Emoji Wars needed a tier the shelf did not have, and the determinism objection was removed by measurement
+
+**Status: CLOSED (Tier-3 ratified).**
+
+Emoji Wars fits **neither** shelf tier: not Tier-2 (an existing game taken as-is — this one is ours)
+and not Tier-1 (matter-js is float JS physics and cannot carry §3's verifiable outcome, which
+`docs/BUILDING-GAMES.md:54` forbids faking). The shelf bar is "determinism-first, local-first,
+verifiable," so the honest options were: make it deterministic, admit a tier, or keep it off the shelf.
+
+**The objection was removed by measurement, and the tier was chosen anyway.** The Rapier spike
+(`experiments/rapier-determinism`, commit `eb70cff`) established that `enhanced-determinism` gives
+**bit-identical native and wasm** results. Its control is the more useful half: wasm produces the same
+digest with the feature on *or* off — **only native moves** — because `wasm32-unknown-unknown` has no
+platform math library and was already using libm, so `libm_force`'s real job is dragging *native* onto
+it. **The divergence risk lives on the native side, which is exactly the axis `fun`'s Tier-1
+`native == wasm` cross-check tests.** The owner declined the port on cost (re-deriving every
+phone-tuned constant in ~1,700 lines against a different solver, to buy a replay proof a hand-authored
+physics level does not want), which is why §11 reads as a decision rather than a default.
+
+**Ratified:** `fun/docs/BUILDING-GAMES.md` **§11 — Tier-3, engine-backed originals** (commit
+`10df5fe`), with a three-tier framing on two axes (*who built it* × *can the outcome be re-proved*).
+Two rules carry it: **share inputs, never outcomes**, and **the data/sim line must be visible in the
+directory structure** — Tier-3 is Tier-1 discipline applied to the half that can carry it, with
+**tolerance probes** replacing golden vectors on the sim side. Tier-3 is *stricter* than Tier-2 where
+Tier-2 is exempt (tap-first, settings, full-surface accessibility), because nothing foreign is executing.
+
+**Open edge recorded in §11 itself:** the code does not yet know Tier-3 exists (`src/contract.ts` is a
+union of `tier?: 1` and `tier: 2`; `wrapped-banner.ts` gates the honesty banner on `tier === 2`), so
+the first Tier-3 game must widen both **test-first** or ship an unmarked non-verifiable game. See
+ROADMAP_TODO E99.
+

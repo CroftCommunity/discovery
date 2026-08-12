@@ -365,6 +365,28 @@ Germ/MLS in §6; Standard.site in §5b. These are the net-new names. Verified ro
 | W3C WebAppSec / Google | **DBSC** (Device Bound Session Credentials) | TPM/Secure-Enclave-bound web-session credential, silent challenge-refresh; **GA Windows Chrome 146 (Apr 2026)**, macOS next; binds session↔device (user↔broker leg), not the DPoP↔PDS leg; can't stop a resident attacker | shipping (Chromium) [verified: web 2026-07-27] | learn↔ (E68 auth legs) |
 | — (Lightning/Nostr) | **NIP-57 zaps · NWC (NIP-47) · Primal/Strike · Damus · Amethyst · Wallet of Satoshi** | Community value-transfer rails: zaps = receipt-protocol on plain Lightning; NWC = client→wallet control; Primal (Strike custody, KYC-lite) vs Damus/Amethyst + separate wallet; Damus dropped post-zaps under Apple pressure (June 2023) | live [verified: web 2026-07-27] | candidate / watch (E67; custody+legal-gated, NOT-FINANCIAL-ADVICE) |
 
+## 5k. Book-review / reading-social projects and the open-data ladder (2026-08-09 — dialogue-sourced, pending verification)
+
+Distilled from `seeds/transcripts/raw/bookhive-open-data-and-iroh-endpoint-lookup-2026-08-09.md`
+(Part A). **Rows are dialogue-sourced and not independently verified this session** — treat
+capability and licensing claims as pending. The useful axis is that "open" is two properties that
+come apart: **openly licensed** (legal reuse right) vs **openly available** (technical access to the
+whole corpus). Nobody in this space has both. See ROADMAP_TODO **E98** — Croft has the same shape.
+
+| Org / project | Purpose | Protocol | Open by *license* | Open by *availability* | Relationship |
+|---|---|---|---|---|---|
+| **BookHive** | Goodreads alternative; sign in with Bluesky, records in your PDS | atproto (lexicon `buzz.bookhive.*`) | **No** — MIT covers the *code*; no CC0/CC-BY on review text | **Yes, by construction** — public records + firehose + weekly sanitized SQLite export | **learn↔ / closest analogue.** Thin-AppView pattern (Hono + SQLite/Kysely as a *rebuildable cache*, PDS as source of truth) is the shape a Croft pond takes |
+| **Skylights** | Smaller atproto book-review app | atproto | No | Yes — reads the **same records** as BookHive | **learn↔** — the multi-app-over-one-record property Croft claims, actually demonstrated |
+| **Open Library** | Book catalogue + Community Reviews | own (bulk dumps) | **Yes — CC0 1.0 required on all contributions** | Partial — bulk JSON dumps, but "reviews" are **aspect tags, not prose** | **homage / precedent.** The only settled reuse-rights model in the space |
+| **BookWyrm** | Federated book tracking, ad-free | ActivityPub | No | **Partial only** — you hold what federated to you; new instances start blind | **learn↔ (contrast).** The message-passing cold-start problem atproto's firehose avoids |
+| **NeoDB** | ActivityPub review site, books + other media | ActivityPub | No | Partial | **learn↔** — *placement UNVERIFIED; the dialogue pulled no source* |
+| **Goodreads / Amazon** | The incumbent 15-year review corpus | closed | No | **No** — public API closed years ago | **cautionary.** The owner's framing: another entry on the list of companies owning culture and then losing it "for profit, spite or indifference" |
+| **StoryGraph** | Goodreads alternative | closed | No | Export-only | **contextual** — named as an import source BookHive supports |
+
+**The structural caveat worth carrying:** BookHive's `hiveId` (its canonical-book identifier) is
+**BookHive's own layer**, not atproto's. A successor app inherits the reviews for free but must
+**re-resolve which book each one points at**. Any Croft-side canonical-entity id has the same trap.
+
 ## 6. P2P / decentralized messengers (the field)
 
 Detailed competitive analysis lives in `research/messaging-solutions-landscape.md`. Relational summary:

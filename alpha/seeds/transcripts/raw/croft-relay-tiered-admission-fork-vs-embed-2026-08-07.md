@@ -74,7 +74,14 @@ CI outcome, recorded honestly at merge time:
 
 Merged as commit `07dfb73`.
 
-### B. The original croft-relay build plan (never previously filed — captured here in full)
+### B. The original croft-relay build plan (condensed here; verbatim copy filed 2026-08-11)
+
+> **Provenance correction (2026-08-11).** This section was headed "captured here in full." That was
+> overstated. A **standalone verbatim copy** of the plan arrived in `callpds.zip` and is now filed at
+> `seeds/callpds-unpacked/croft-relay-plan.md` (byte-verified). All **seven** of its sections are
+> present below, so nothing was structurally omitted — but the rendering is **condensed** (~248 lines
+> against the original's 340), so prose is compressed within sections. **Cite the unpacked file, not
+> this section, when the exact wording matters.**
 
 > # croft-relay: iroh-relay extensions for atproto-gated calling
 >
