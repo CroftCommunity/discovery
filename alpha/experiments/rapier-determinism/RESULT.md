@@ -74,6 +74,21 @@ than cancel.
   comparison was run. For a phone game with modest body counts this is likely
   fine — likely, again, not measured.
 
+## Deliberately not in CI
+
+`discovery/.github/workflows/smoke.yml` runs an **explicit list** of crates, not a glob, and this one
+is not on it. That is on purpose:
+
+- The value here is the **recorded measurement**, not continuous verification. Nothing in the tree
+  depends on this crate, so there is no regression for CI to catch.
+- The cross-check needs a **Node step after the wasm build**; the smoke job is `cargo test` only, so
+  a naive addition would run the native half and silently prove nothing — worse than not running.
+- The smoke job pins `1.94.1` while this crate pins `1.97.1` (`rust-toolchain.toml`), which would
+  win. Two toolchains in one matrix is a trap the workspace has already been bitten by.
+
+**Re-running is manual** and documented under "Reproducing". If Rapier is ever adopted for real, the
+cross-check belongs in *that* project's gate, with the Node step, not bolted onto this smoke matrix.
+
 ## Provenance
 
 | | |
