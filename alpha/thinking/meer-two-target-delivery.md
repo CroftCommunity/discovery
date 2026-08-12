@@ -74,6 +74,13 @@ either** — so it needs nothing in advance and stores under an opaque name it i
 Only one thing lands here: a **`Welcome`** — the sole object in MLS addressed to a *person* rather
 than a group. Everything else is group-addressed and self-locating.
 
+> **Correction (S14).** This section originally implied *all* joins arrive via the inbox. They do
+> not. **First contact** needs it — a stranger must reach someone with whom they share no secret.
+> **Re-entry by a former member does not:** §11.7's self-service path is an **external commit** from
+> a current `GroupInfo`, measured working at Rung A (no `Welcome`, no active member's help). So the
+> inbox carries *introductions*, not *returns* — which narrows what third-party deposit has to
+> support.
+
 - **It works for a stranger.** B can message A having never interacted with A before: resolve A's
   DID → find A's storage → deposit. No prior shared secret, which is precisely what target 1 cannot
   offer.

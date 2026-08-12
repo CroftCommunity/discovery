@@ -974,6 +974,76 @@ return-experience trade, seen from the member's side rather than the community's
 
 ---
 
+## S14 — Does the delivery design match §11.6 / §11.7 as written? (2026-08-12)
+
+The corpus sketched the absence boundary far deeper than this spike had been treating it. **S13's
+"open design question" was largely already answered**; this walks the specified paths to find where
+recent thinking and historical planning actually agree.
+
+**Rung: A (real-lib).** **Code:** `tests/s14_liveness_and_reentry.rs`.
+
+**Verdict: three confirmations and one real gap.** The delivery design fits §11.6/§11.7 better than
+expected — in two places the spec's properties fall out of the queue-naming scheme for free.
+
+### 1. The queue name IS a liveness indicator
+
+§11.6: liveness is *"processing epochs, not authoring messages"* — a silent reader who syncs stays
+hot. Measured: a member who **never authors** but processes every epoch stays exactly current and
+derives the **same queue name** as the author.
+
+> **A client that can still derive the current queue name is, by definition, live.**
+
+So the delivery layer needs no separate liveness signal. The thing §11.6 measures is the same thing
+the queue name already encodes.
+
+### 2. Migration to cold severs queue access with no mechanism at all
+
+Measured: after a removal, the group's name moves on and the cold member cannot derive it.
+
+**Access control for cold members is a *consequence* of the naming scheme, not a feature.** Nothing
+in the meer enforces it; nothing can forget to. This is the same property S13 found for
+history-before-join — the privacy boundary and the addressing boundary coincide — appearing again at
+the other end of the membership lifecycle.
+
+### 3. §11.7's self-service re-entry works, at Rung A
+
+Measured: a cold member **rejoined by external commit** from a current `GroupInfo` — **no `Welcome`,
+no active member's help** — left at epoch 1, re-entered at epoch 7.
+
+This confirms §11.7's central claim, including its negative half: *"a pre-published KeyPackage does
+not enable self-service return… the returner cannot produce their own Welcome."* The library
+supports the specified path, and the cost falls on the returner as designed.
+
+**Correction to this spike's own design doc:** `meer-two-target-delivery.md` says the personal inbox
+carries `Welcome` because it is *"the sole object in MLS addressed to a person."* True — but it
+implied **all** re-entry flows through the inbox. It does not: **first contact** needs the inbox,
+while **re-entry by a former member** is self-service and needs only a `GroupInfo`. Two different
+paths, and only one of them needs third-party deposit.
+
+### 4. The gap: retention is below almost every liveness window
+
+Measured against §11.6's schedule, with the spike's current `RETENTION_DAYS = 14`:
+
+```
+S14 MEASURED: meer retention is 14 days. §11.6 liveness windows it is SHORTER than — i.e. bands
+where a member can be live-but-uncatchable — are: 250–1k/modest (90d), 250–1k/aggressive (45d),
+1–3k/modest (60d), 1–3k/aggressive (30d), 3–7k/modest (45d), 3–7k/aggressive (21d),
+7–10k/modest (30d).
+```
+
+**Seven of eight bands.** In each, a member absent longer than retention but shorter than the
+liveness window is **live in the hot Group, unable to catch up from the meer, and not yet migrated to
+cold** — so §11.7's re-entry is not open to them either. **Neither mechanism applies.**
+
+**The fix is ordering, not code: `meer retention ≥ the Group's liveness window`.** Then "cannot catch
+up" and "migrated to cold" coincide, and there is exactly one recovery path. Since §11.6's windows
+are per-band governance policy (14–90 days), **retention is not a service constant** — it is bounded
+below by a Group decision, which is where E95's declared-expiry axis should live.
+
+The check is written as an executable assertion so a later change to either default trips it.
+
+---
+
 ## S1 — Enrollment: what does pointing a meer at your queue actually require?
 
 **Rung: C (static).** Inspection and enumeration, **not** a run. Custodian mode does not exist, so
