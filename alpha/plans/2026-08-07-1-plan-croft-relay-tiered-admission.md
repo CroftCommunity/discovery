@@ -2322,3 +2322,14 @@ co-signed statement, and the seal tombstone tier is the erasure axis at its extr
 destroyed). `CISS/docs/ARCHITECTURE.md` §5a is now the stated storage model, replacing
 build-by-use-case; the ADR carries the inspection record. This is the vocabulary the meer/custodian
 queue work will slot into as well (`log`/`chain` rows).
+
+### CISS ADR 0005 accepted; implementation plan filed — 2026-08-11
+
+Owner accepted ("we need to go ahead and do the sys server plan ... implement one, then the other so
+that it's all in line — that's the advantage of it all being ours"). One plan, two milestones, two
+surfaces, strictly sequential: `CISS/docs/plans/2026-08-11-kind-semantics-implementation.md`
+(A1 KindSpec+ceilings → A2 DELETE/LIST → A3 chain.counter → A4 checkpoints → A5 remove kv.counter +
+release → B1 consumer pin bump). **B1 lands in this plan's tree** and retires the three recorded
+Phase-6 workarounds: usage moves to `chain.counter`, `remove()` becomes real member erasure (the
+tombstone caveat retires), `keys()` becomes the real LIST (the enumeration gap retires). Relay
+Phase 7 is sequenced after this work per the owner's ordering.
