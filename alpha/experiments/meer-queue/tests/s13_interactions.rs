@@ -73,7 +73,7 @@ async fn the_handover_from_inbox_to_group_queue_lands_at_the_right_epoch() {
     bobs.merge_pending_commit(&bob.provider).expect("merge");
     let tree = bobs.export_ratchet_tree().into();
     let welcome = match MlsMessageIn::tls_deserialize_exact(
-        &welcome_out.tls_serialize_detached().expect("ser"),
+        welcome_out.tls_serialize_detached().expect("ser"),
     )
     .expect("de")
     .extract()
@@ -174,7 +174,7 @@ async fn a_member_can_tell_a_swept_queue_from_an_empty_one() {
     bobs.merge_pending_commit(&bob.provider).expect("merge");
     let tree = bobs.export_ratchet_tree().into();
     let welcome = match MlsMessageIn::tls_deserialize_exact(
-        &welcome_out.tls_serialize_detached().expect("ser"),
+        welcome_out.tls_serialize_detached().expect("ser"),
     )
     .expect("de")
     .extract()
@@ -257,7 +257,7 @@ async fn a_sweep_mid_walk_strands_the_member_and_says_so() {
     bobs.merge_pending_commit(&bob.provider).expect("merge");
     let tree = bobs.export_ratchet_tree().into();
     let welcome = match MlsMessageIn::tls_deserialize_exact(
-        &welcome_out.tls_serialize_detached().expect("ser"),
+        welcome_out.tls_serialize_detached().expect("ser"),
     )
     .expect("de")
     .extract()
