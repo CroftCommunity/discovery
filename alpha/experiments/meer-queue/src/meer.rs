@@ -21,6 +21,17 @@
 //! gate do not exist; **nothing enforces them here**. The spike does not test the gate and
 //! must not be read as evidence about it.
 //! — Register: `alpha/experiments/SPEC-DIVERGENCE-REGISTER.md`
+//!
+//! SPEC-DELTA[meer-spike-addressed-deposit | prototype-mitigation]: **the largest divergence in
+//! this spike, registered late (2026-08-12) after the spec was re-read.** [`Meer::publish`] takes
+//! an explicit **recipient set** and appends to a per-recipient queue — the meer is *addressed*.
+//! Part 2 §5.4 describes the opposite: a meer *"participates in a Group's delivery scope the way
+//! any swarm node does, in the gossip fabric, carrying and seeing the sealed envelope and its
+//! routing metadata as it passes."* It **observes** the fabric; it is not told who the recipients
+//! are. Two spike findings are artifacts of this divergence rather than properties of the meer —
+//! the `(depositor → recipients)` graph leak (E94) and the multi-device starvation (E92), neither
+//! of which can arise when there is no recipient set and no per-recipient queue.
+//! — Register: `alpha/experiments/SPEC-DIVERGENCE-REGISTER.md`
 
 use std::collections::HashMap;
 use std::sync::Arc;
