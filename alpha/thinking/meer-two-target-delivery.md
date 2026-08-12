@@ -1,15 +1,35 @@
 # Two-target delivery: the group queue and the personal inbox
 
 date: 2026-08-12
-status: thinking (design synthesis). Problem / Approach / Reasoning.
+status: **design synthesis, WALKED OUT at Rung A (S9–S12).** Both targets are now measured against
+real OpenMLS, real CISS and real iroh — not proposed. **One capability is missing and it is named:
+custodial write** (a stranger's deposit into the owner's namespace is refused HTTP 403). Everything
+else in both paths works today. Problem / Approach / Reasoning.
 **Supersedes the delivery shape** in `meer-as-custodian-queue.md` (2026-08-07), whose meer was
 *addressed* — a divergence the Phase-0 spike registered late as `meer-spike-addressed-deposit`. The
 custody-dial, metering and anti-entrenchment reasoning there still stands.
 
-**Grounded in:** `alpha/experiments/meer-queue/TEST-LOG.md` (M1, M2, S1–S10, all Rung A) ·
-Part 2 §5.4, §5.9, §6.6.2 · `alpha/ROADMAP_TODO.md` E91–E97
+**Grounded in:** `alpha/experiments/meer-queue/TEST-LOG.md` (M1, M2, S1–S12, all Rung A except S1) ·
+`S8-RESULTS.md` · Part 2 §5.4, §5.9, §6.6.2 · `alpha/ROADMAP_TODO.md` E91–E97 ·
+`CISS/docs/plans/2026-08-11-object-lifecycle.md`
 
 ---
+
+## Where this stands (2026-08-12)
+
+| | mechanism | status |
+|---|---|---|
+| **group queue** — name | `export_secret("croft/meer-queue/v1")` | **measured** (S9) — members agree, non-members cannot derive, rotates per epoch |
+| **group queue** — drain | `OP_DRAIN_QUEUE`, name *is* the capability | **built + measured** (S10) over real iroh |
+| **group queue** — catch-up | serial chain, one hop per missed epoch | **measured** (S10) — 124 ms for 10 epochs, ~12 ms/hop |
+| **inbox** — necessity | no queue name without group state | **measured** (S12) |
+| **inbox** — read gate | `read_class: owner` | **measured** (S12) — owner 200, stranger 404, anon 404 |
+| **inbox** — handshake | publish → fetch → validate → invite → deposit → join → handover | **measured end to end** (S12) |
+| **inbox** — write | a stranger deposits under a custodial grant | **MISSING — HTTP 403** (S12). meer-lane Phase 1 |
+| **retention** — expunge | 14 days, then the bytes are gone | **MISSING** (S5) — CISS has no object `DELETE`. E95 |
+
+**Two blockers, both already scoped:** custodial write (meer-lane Phase 1) and object lifecycle
+(E95). Nothing else in this design is unbuilt.
 
 ## Problem
 
@@ -40,6 +60,12 @@ either** — so it needs nothing in advance and stores under an opaque name it i
   and the gap-detector are the same object"*, arriving for free.
 - **Storage is pooled**, not per-DID. S2 measured that dedup does not cross a CISS namespace, so
   per-DID queues cost storage linear in fan-out. Group traffic is exactly where that hurts.
+- **Built and measured over the real transport** (S10). `OP_DRAIN_QUEUE` drains **by name** —
+  possessing it *is* the entitlement, and the caller's identity never enters the decision. It
+  supersedes the spike's `EndpointId` scoping (`meer-spike-drain-auth`), which identified the
+  *device* and would have let the meer build a **device→groups map** across every queue it serves.
+  `EndpointId` survives only for **rate limiting**, which needs a handle to count against rather
+  than an identity.
 
 ### Target 2 — the personal inbox
 
@@ -55,21 +81,34 @@ than a group. Everything else is group-addressed and self-locating.
   one-per-person and rare.
 - **This is what custodian mode is for.** A revocable grant letting a helper append to one slot in
   your namespace is over-engineering for group traffic and exactly right for invitations.
+- **It is necessary, not merely convenient** (S12). A queue name derives **only from group state**,
+  so holding the owner's public KeyPackage — everything a stranger can legitimately obtain — yields
+  nothing. A stranger has *no group-queue path at all*.
+- **The handover happens exactly once, at first contact.** After the join, the inbox is idle and the
+  group queue carries everything. That is what makes the split cheap: the inbox can be per-DID,
+  low-volume and expensive-per-item **without any of that costing anything at scale**, because it is
+  touched once per *relationship* rather than once per *message*. S2's fan-out cost never arises.
 
 ### Inbox authorization: read is solved today, write is the real work
 
 The inbox address is **public by necessity** — a stranger must be able to find it. So the address
 must carry **no** authority, and read/write must be gated separately.
 
-**Read: `read_class: owner`. Shipped, configure it.** CISS's gated reads (v0.4.0, invariants Z4–Z8)
-authorize on verified DID ownership — `allow ⇔ caller == owner` — checked against the DID document's
-key via service-auth JWT, or an `id:` session. So a public address yields a **write** target and
-nothing else, and the harvest-now-decrypt-later concern collapses: an attacker cannot obtain the
-ciphertext at all, let alone hold it for a future break.
+**Read: `read_class: owner`. Shipped, and now measured (S12).** Owner `200`, authenticated stranger
+`404`, anonymous `404`, against real CISS. So a public address yields a **write** target and nothing
+else, and the harvest-now-decrypt-later concern collapses: an attacker cannot obtain the ciphertext
+at all, let alone hold it for a future break.
 
-**Write: genuinely open, and not yet possible.** The spec is explicit — *"Writes are unchanged —
+> **The mutation matters more than the result.** Skip the policy write and the stranger reads with
+> **`200`** — the world-readable PDS-compat default. **An inbox that forgets to set `read_class` is
+> world-readable, silently.** So the policy write is part of **provisioning**, not optional
+> hardening, and whatever creates an inbox should refuse to call it created until the policy is set.
+> This is the kind of default that ships wrong once and stays wrong.
+
+**Write: genuinely open, and not yet possible — measured, not cited (S12).** A stranger's deposit
+into the owner's namespace is refused **HTTP 403**. The spec matches: *"Writes are unchanged —
 owner-only… delegated writes are a [PLANNED] extension, not v1."* So B cannot deposit into A's
-namespace today at all. That is the custodial-write gap (meer-lane Phase 1), and it is the piece that
+namespace today at all, and **this is the design's one genuine blocker.** That is the custodial-write gap (meer-lane Phase 1), and it is the piece that
 must be **designed**, not configured. Open writes into someone's own namespace also mean **spam costs
 the victim rent**, which is the concrete form of the abuse problem.
 
@@ -118,6 +157,17 @@ to create the group at all, so B is already fetching something from A. If A publ
 the same namespace, **A's namespace becomes A's contact point: KeyPackages out, invitations in.** One
 location, one resolution step, two gaps closed.
 
+**Measured end to end (S12):** published → fetched by a stranger → **`validate()`d** → group created
+→ `Welcome` deposited and retrieved **byte-identically** → joined → both parties derive the same
+group queue name. Only the deposit is stood in
+(`SPEC-DELTA[meer-spike-owner-write-standin]`).
+
+**A note on `validate()`.** The fetched KeyPackage goes through `KeyPackageIn::validate()` — the real
+receiver path. The bare `From<KeyPackageIn> for KeyPackage` conversion is `test-utils`-gated
+*precisely because it skips that check*, the same shape as the M2 re-frame gating. OpenMLS is
+consistent about putting the unsafe shortcut behind a feature flag, and a client that reached for the
+convenient conversion would be accepting unvalidated key material from a stranger.
+
 ### Retention: 14 days, then expunge
 
 **Precedent (owner, 2026-08-12, `[UNVERIFIED]` — owner-checked, not re-verified here): Threema holds
@@ -154,15 +204,31 @@ both, and the two have opposite requirements: group traffic wants unguessable, r
 invitations must be reachable by someone who shares no secret with you and therefore *cannot* be
 unguessable. The split is the shape of the underlying protocol, not a design preference.
 
+**Why the write gate cannot be a capability (S11).** The appealing idea — make consuming a published
+KeyPackage the write token — **fails, and inverts.** The single-use property is real but sits on the
+*recipient's* side: Alice can join once per package. Anyone who can **read** a published KeyPackage
+can build a valid `Welcome` against it, because a KeyPackage is public key material and inviting a
+stranger is what it is *for*. So "mark it spent on deposit" lets a passer-by **burn the owner's whole
+published supply and deny legitimate invitations** — the bound lands on the owner's *reachability*,
+not the attacker's *effort*. Also measured: a stranger **can** seat you in a group you never asked to
+join, which is MLS working as specified. So an unwanted invitation is **not cryptographically
+preventable**, and the gate can only bound *volume* and make it *attributable*: a verified depositor
+DID plus an owner-declared ceiling. **The inbox can be bounded and accountable, not
+unsolicited-free** — where email landed, for the same reason.
+
 **Why `EndpointId` is for rate limiting, never authorization.** Authorizing on it would let the meer
 build a device→groups map across every queue it serves — re-introducing exactly the correlation the
 capability design avoids. Abuse control needs a handle to count against, not an identity.
 
 **Why the catch-up walk is acceptable.** S10 measured **124 ms for ten missed epochs** over real
 CISS and real iroh — ~12 ms per hop, pipelined, no user interaction. And N is bounded twice: it
-counts **governance events, not messages** (50 application messages leave the epoch unchanged), and
-the retention window caps it absolutely, so a member back after six months pays the same walk as one
-back after two weeks.
+counts **governance events, not messages** (measured: 50 application messages leave the epoch
+unchanged), and the retention window caps it absolutely, so a member back after six months pays the
+same walk as one back after two weeks.
+
+*Correcting an earlier claim in this line of work:* it was written here that "a group that rotates
+keys aggressively makes returns slower", implying chat drove the cost. **Chat volume is irrelevant to
+N.** Only commits advance the epoch.
 
 **Why "skip ahead" is not an alternative.** OpenMLS refuses a commit whose predecessors were not
 seen, and even if it did not, the missed plaintexts stay unreadable because their epoch secrets were
@@ -181,8 +247,15 @@ compares delivery against non-delivery.
 - **Retention beats absence, silently, for invitations.** Offline past the window and the invitation
   expires. A cannot be told about a gap in a group A does not know exists — the one place the
   "loud, visible gap" story cannot reach.
-- **Custodial write is required again.** The fabric model made it look unnecessary; the personal
-  inbox needs it. That is the security-review-heavy piece (meer-lane Phase 1).
+- **Custodial write is required again, and it is the single blocker.** The fabric model made it look
+  unnecessary; the personal inbox needs it. Measured as **HTTP 403** (S12). Security-review-heavy
+  (meer-lane Phase 1). **This design does not reduce what CISS must build — it relocates it**, from
+  group queues where it was over-engineering to the inbox where it is load-bearing.
+- **The read gate's default is the wrong way round.** Unset, a namespace is **world-readable**
+  (PDS-compat). An inbox is only private because someone remembered to set `read_class: owner`.
+  Provisioning must enforce it; documentation will not.
+- **An unwanted invitation cannot be prevented, only bounded** (S11). A stranger can seat you in a
+  group you never asked to join — MLS as specified.
 
 ## Client contract (small rules with sharp edges)
 
@@ -193,6 +266,12 @@ compares delivery against non-delivery.
   (unrecoverable loss) are one variant apart and mean opposite things (S3b).
 - **Dedup on content hash before processing**, with `SecretReuseError` as the repair path when the
   in-memory cache is lost.
+- **Validate a fetched KeyPackage** — `KeyPackageIn::validate()`, never the `test-utils` conversion,
+  which exists to skip exactly that check. It is unvalidated key material from a stranger.
+- **Set `read_class: owner` when creating an inbox, and treat it as part of creation.** The default
+  is world-readable.
+- **Walk the epoch chain in order; do not attempt to skip.** OpenMLS refuses a commit whose
+  predecessors were not seen, and the missed plaintexts would be unreadable anyway.
 
 ## What this changes elsewhere
 
@@ -202,4 +281,30 @@ compares delivery against non-delivery.
 | E92 (deliver-once) | a dial needing §6.6.5 | **dissolved** — no per-recipient queue to starve |
 | E94 (graph leak) | an inherent leak | **artifact** of the addressed model |
 | E97 (announcement) | an unbuilt channel | **resolved** — groups are self-locating; the inbox is DID-resolvable |
-| custodian mode | for group queues | **for the personal inbox** |
+| custodian mode | for group queues | **for the personal inbox** — and it is the one blocker |
+| drain authorization | `EndpointId` (device-identifying) | **queue name as capability**; `EndpointId` demoted to rate limiting |
+| write gate | a KeyPackage capability | **refuted (S11)** — verified depositor DID + owner ceiling instead |
+| KeyPackage distribution | no story at all | **the owner's own namespace**, measured end to end |
+
+## What to build, in order
+
+Everything below is either measured-working or measured-missing; nothing here is a guess.
+
+1. **Custodial write** (meer-lane Phase 1) — the single blocker. A stranger deposits into the
+   owner's namespace under a revocable grant, gated by a **verified depositor DID** (any DID, but
+   authenticated, so abuse is attributable and rate-limitable) and bounded by the **owner-declared
+   ceiling**. Retires `meer-spike-owner-write-standin`.
+2. **Object lifecycle** (E95, `CISS/docs/plans/2026-08-11-object-lifecycle.md`) — so "14 days, then
+   expunge" is true rather than aspirational. A (manifest-driven reclamation, owed by atproto-compat
+   regardless) then B (declared expiry as a seventh `KindSpec` axis).
+3. **Inbox provisioning that sets `read_class: owner` as part of creation** — small, and the failure
+   mode is silent world-readability.
+4. **The group-context nomination** (E97) — an MLS `GroupContextExtensions` entry naming the meer a
+   Group relies on. An **endorsement, not a permission**: the meer sees the fabric regardless.
+5. **Nested sealing** (E96) — now *unblocked*, because the queue name gives the meer a routing handle
+   that is not the MLS framing. Closes the cleartext-`group_id` linkability that rotating queue names
+   do not.
+
+**Deliberately not on this list:** anything that would make an unwanted invitation impossible (S11
+shows it cannot be), and anything that reduces `N` in the catch-up walk (S10 shows it does not need
+reducing).
