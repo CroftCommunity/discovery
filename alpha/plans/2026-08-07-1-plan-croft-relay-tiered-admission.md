@@ -2333,3 +2333,27 @@ release → B1 consumer pin bump). **B1 lands in this plan's tree** and retires 
 Phase-6 workarounds: usage moves to `chain.counter`, `remove()` becomes real member erasure (the
 tombstone caveat retires), `keys()` becomes the real LIST (the enumeration gap retires). Relay
 Phase 7 is sequenced after this work per the owner's ordering.
+
+### Sequencing settled: CISS storage plan first, then relay deploy — 2026-08-11
+
+Owner's ordering (2026-08-11), consolidating the open-thread walk-through:
+
+1. **CISS kind-semantics work first** — Milestones A+B of
+   `CISS/docs/plans/2026-08-11-kind-semantics-implementation.md`, ending with B1 (the consumer pin
+   bump that moves usage to `chain.counter` and retires the three Phase-6 workarounds, in this tree).
+2. **Then Phase 0 + Phase 5 together** — "we'll do it after we build ciss and are ready for both."
+   The budget measurement (Phase 0, owner's second network) and the production deploy (Phase 5, owner
+   authorization at execution time) land as one push, against a relay already talking to the finished
+   store. Deploying the 256 KiB `SPEC-DELTA` placeholder is explicitly out — it is a reasoned guess,
+   safe to build/test against (assertions are relational) and unsafe to enforce against real users
+   (too-low silently drops successful introductions on bad NATs; the free tier's whole point).
+3. **Relay Phase 7+ (atproto resolution, caps, mint)** sequence after the CISS work per the same
+   ordering.
+
+**Parked, owner-triggered (durably recorded, not open decisions):** Phase 0 (resource gate — second
+network), Phase 5 (production gate — staging-first, `systemd-analyze security` ≤ 1.7 checked before
+the production go). Both wait on the owner; neither blocks anything before it.
+
+**Merged/landed at this point:** croft-stack PR #5 (relocation) + PR #6 (Phases 2–4, 6) both on
+`main`; ADR 0005 accepted with its implementation plan in the CISS repo; this plan's Review Log is
+current through here.
