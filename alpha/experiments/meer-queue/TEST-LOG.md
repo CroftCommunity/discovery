@@ -675,6 +675,68 @@ catastrophic branch is HALF closed.**
 
 ---
 
+## S9 — The queue name as a capability (2026-08-12, post-reshape)
+
+**Why this exists.** The fabric reshape (Part 2 §5.4) raised a question the addressed model never
+had to answer: **what entitles you to drain a group's queue?** Membership is the natural answer, but
+the meer is blind and cannot evaluate MLS membership.
+
+**The proposal:** derive the queue name from the group's exporter secret
+(`export_secret(label = "croft/meer-queue/v1")`). Every member derives the same name; a non-member
+cannot; the meer, holding no key, cannot either — so **it needs nothing in advance**.
+
+**Rung: A (real-lib).** **Code:** `tests/s9_queue_name_capability.rs`.
+
+**Verdict: `S9 CONFIRMED (real-lib)` — the scheme works, including the part that could have
+deadlocked.**
+
+| result | measured |
+|---|---|
+| members agree on the name | yes; a foreign group derives a different one |
+| rotates per epoch | yes — so rotation needs no coordination with the meer |
+| catch-up across N missed epochs | **N serial round trips, in order — does not deadlock** |
+| hides the group from the meer | **no** — see the limit below |
+
+### The finding that matters: catch-up chains, and why it does not deadlock
+
+The name is epoch-bound, so a member offline across N commits **cannot name the newest queue**. The
+scheme works only because of an ordering property worth confirming rather than assuming: **the commit
+closing epoch E is sent *during* epoch E**, so it lands in the queue the returning member can already
+name. Catch-up is: drain E → apply → derive E+1 → drain E+1 → …
+
+**Measured: 5 missed epochs = 5 serial round trips.** Verified by mutation — filing commits under the
+epoch they *open* rather than *close* breaks the chain on the first hop, which is exactly the
+deadlock the design would have had if the ordering ran the other way.
+
+**Cost:** a member returning after N commits pays **N sequential fetches** before it can read
+anything newer. That ties epoch churn directly to return latency, and connects to S8's O(N) commits
+and §11.11's liveness-window tuning: **a group that rotates keys aggressively makes returns slower.**
+
+### The limit: access control, not privacy
+
+The queue name is **not** the `group_id`. The name rotates and is unguessable; `group_id` is
+**cleartext in the envelope** (S7) and stable for the group's life, so the meer can still link across
+epochs via the payload. **The opaque name buys access control and nothing else** — recorded because
+the opacity invites the stronger reading.
+
+### The unlooked-for consequence: this unblocks E96
+
+Nested sealing was blocked by an unstated dependency — an outer seal blinds the meer completely,
+leaving nothing to route on. **The queue name gives the meer a routing handle that is not the MLS
+framing**, so a nested-sealed envelope stays deliverable. E96 becomes "add an outer seal *once the
+queue name carries routing*."
+
+### Decisions recorded alongside
+
+- **Routing metadata carries the name in the clear.** The meer cannot compute it, so the sender
+  attaches it; §5.4 already anticipates the slot. Consequence: visible to every swarm participant —
+  acceptable (the topic is Group-derived) but stated.
+- **`EndpointId` is for rate limiting, never authorization.** Authorizing on it would let the meer
+  build a device→groups map across every queue it serves — re-introducing the correlation the
+  capability design avoids. Abuse control needs a handle to count against, not an identity.
+
+---
+
 ## S1 — Enrollment: what does pointing a meer at your queue actually require?
 
 **Rung: C (static).** Inspection and enumeration, **not** a run. Custodian mode does not exist, so
