@@ -2307,3 +2307,18 @@ Walked section-by-section with the owner; folded in as agreed:
   deprecated 2am traps.
 - Consequence for this plan, unchanged in direction and now fully specified: usage → `chain.counter`
   on a pin bump (implementation step 5 in the ADR), membership stays `kv.flag`.
+
+### CISS storage model borne out by cross-inspection — 2026-08-11
+
+Owner-directed sweep of **every** CISS storage surface (blobs, manifest, receipts, statements,
+ledger entries, `did_total`, `meta`, assertions, seal tiers) against the ADR 0005 axes. **The
+framing held — nothing resisted classification — and the sweep refined it:** retention widened to
+`setting | immutable | log | chain` (blobs are immutable; receipts are a root-anchored log);
+**authorship** surfaced as a sixth axis (`derived | owner-signed | provider-signed | co-signed` —
+the two unsigned tables are rebuildable caches, never authoritative); `merkle-rooted` joined the
+hashing postures (the manifest); and the chain-checkpoint design turned out to be a **port of
+shipped practice** — `purge_receipts_settled_through` already compacts receipts behind a settled
+co-signed statement, and the seal tombstone tier is the erasure axis at its extreme (capability
+destroyed). `CISS/docs/ARCHITECTURE.md` §5a is now the stated storage model, replacing
+build-by-use-case; the ADR carries the inspection record. This is the vocabulary the meer/custodian
+queue work will slot into as well (`log`/`chain` rows).
