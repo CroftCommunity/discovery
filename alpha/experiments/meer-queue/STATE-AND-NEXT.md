@@ -130,11 +130,11 @@ Each of these was learned the hard way in this session and is cheap to re-break:
 ```
 alpha/experiments/meer-queue/
   src/    ciss_harness · mls · meer · queue · transport · relay · node · outer_seal
-  tests/  w0–w3 (wiring) · m1, m2 (must-pass) · s2–s21 (scenarios)
+  tests/  w0–w3 (wiring) · m1, m2 (must-pass) · s2–s22 (scenarios)
   src/bin/ d1–d7 (Phase-0 discovery probes, still runnable)
 ```
 
-`cargo test` → **79 tests**, seconds. `cargo clippy --all-targets` → clean.
+`cargo test` → **85 tests**, seconds. `cargo clippy --all-targets` → clean.
 S8's sweep is `#[ignore]`d (release-only, ~50 s):
 `cargo test --release --test s8_object_sizes -- --ignored --nocapture --test-threads=1`
 M2's negative arm needs `--features reframe`.

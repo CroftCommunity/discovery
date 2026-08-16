@@ -307,7 +307,7 @@ Nothing below is new machinery. Each row is something already measured working, 
 | Cold members cannot read hot traffic | removal commit re-keys the path | **S20** — 9 agree, 1 excluded, AEAD-grade | none |
 | Cold ≠ banned (a distinction that means something) | **standing at head** on the governance chain (§11.8) | resolution order is ***Design*** in §7.3.1 | **not wired to any admission point** |
 | A returner re-establishes current keys "at its own cost" | external commit | **S15, S18, S19** — works, incl. from a fresh provider | needs a `GroupInfo` |
-| Something serves the returner a `GroupInfo` | **history-convergence node** (§11.6, §11.11 item 6) | exists in spec; **unwired** in the delivery design | must resolve standing before serving |
+| Something serves the returner a `GroupInfo` | **any member** — a meer/HCS may help but cannot be depended on (Part 1 §2.4) | **measured** (S22): every peer is a serving peer | the policy must be group-context, and a *positive* credential is what survives staleness |
 | Prove prior membership on return | resumption PSK | **S16 — unreachable API** | **replace** with governance-issued external PSK |
 | Prove present standing on return | governance attestation | **S16** — AAD carries it, pre-merge, byte-exact | self-asserted; needs a governance-issued token |
 | A member can refuse a returner | decline to merge | **S18** — holds at keys *and* addressing | refusal forks (§1.7) |
@@ -488,6 +488,54 @@ governance participation while dormant) is a live question this dossier does not
 
 ---
 
+## Part 3.5 — CORRECTION (owner, 2026-08-16): there is no server, and it inverts the recommendation
+
+**This dossier's Part 3 concluded that the gate lives at "the `GroupInfo` server", identified with
+§11.6/§11.11's history-convergence node, and that Croft should default to position 1.** That reading
+is **wrong at the architecture level.**
+
+> **Part 1 §2.4 (P-Durable-Enablement):** *"a Group **MUST NOT** structurally depend on any single
+> persona's presence to act"*, and the no-helper path **MUST** stay exercised and real. A meer is
+> **optional**; everything else is distributed.
+
+**There is no chokepoint to gate, by principle.** Every member holds live group state and can export
+a `GroupInfo` — that is simply what membership is. So the serving decision is **a policy every peer
+applies**, exactly like the merge-time policy, and for the same reason (§1.7) it must be a
+group-context rule rather than a local judgement.
+
+### What this changes, measured (S22)
+
+**Position 1's residual is the whole membership, not a watchable tier.** Measured with ten members
+all holding current group state and the ban reached nine of them: **nine refused correctly, one stale
+peer served, and she needed exactly one yes.**
+
+> **A negative check is only as good as the least-synced member.** The earlier claim that position 1
+> makes the residual *"a small enumerable set a community can watch"* is **withdrawn**. It was an
+> artifact of the server framing, and the server does not exist.
+
+**And it inverts which position is robust.** Under the *same* staleness, **position 2 refused at
+every peer** — because a positive check requires the verifier to hold a token, not to have heard
+about a ban.
+
+| | check | stale peer behaviour |
+|---|---|---|
+| **position 1** | *negative* — "refuse if I know she is banned" | **fails OPEN** |
+| **position 2** | *positive* — "serve only on a token I recognise" | **fails CLOSED** |
+
+**In an architecture with a chokepoint, position 1 is the cheap right answer. In this architecture,
+position 1's guarantee degrades to the worst-synced member and position 2 is the one that holds.**
+
+Position 1 is not discarded: it remains the right shape for the **default case** — dormancy, where
+failing open is the *desired* behaviour, because a dormant member in good standing should get back in
+even from a peer that knows little. **It is simply not adequate as the ban defence**, which is the
+job Part 3 assigned it.
+
+**This also re-reads §11.8's "eventual consistency is safe" more favourably than Part 2 of this
+dossier did.** The spec never claimed a chokepoint; it claimed re-keying backstops late propagation.
+S22 shows why a *positive* credential is the complement that claim needs.
+
+---
+
 ## Part 4 — What Croft does within the dial (a separate decision)
 
 **The spec says what is possible and enforceable. Croft decides what it ships.** Keeping these apart
@@ -498,6 +546,13 @@ choice should be defensible on its own terms rather than smuggled into the proto
 option would rest on.
 
 ### 4.1 The default position
+
+> **Superseded by Part 3.5.** The argument below was written under the server reading. **Position 1
+> alone is not a defensible ban posture in this architecture** — it fails open on any stale peer, and
+> there is no tier to keep synced. The defensible default is **position 1 for the dormancy path plus
+> position 2 for anything governance has acted on**: serve freely to standing-intact lineages, and
+> require a governance-issued token where a ban exists. Read the following as the argument for the
+> *dormancy half* only.
 
 The argument for **position 1 (standing-checked) as Croft's default**:
 

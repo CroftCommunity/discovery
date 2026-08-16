@@ -1,6 +1,6 @@
 # meer-queue — Phase-0 spike for the MLS store-and-forward meer
 
-`Status: RUN 2026-08-08/16. Both must-pass claims settled; S1–S21 run.`
+`Status: RUN 2026-08-08/16. Both must-pass claims settled; S1–S22 run.`
 `Rung: A (real-lib) throughout, except S1 (Rung C, static inspection).`
 `The delivery SHAPE changed on 2026-08-12 — see `../../thinking/meer-two-target-delivery.md`.`
 
@@ -81,7 +81,7 @@ re-framing unavailable in a production build anyway.
 ## Running it
 
 ```sh
-cargo test                      # 79 tests, seconds
+cargo test                      # 85 tests, seconds
 cargo clippy --all-targets      # clean
 
 # M2's negative arm — deliberately enables openmls `test-utils` to construct the forbidden

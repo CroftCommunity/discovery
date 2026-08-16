@@ -13,6 +13,7 @@
 //! `../SPEC-DIVERGENCE-REGISTER.md`. Every tag has a row; every row has a tag.
 
 pub mod ciss_harness;
+pub mod groupinfo_policy;
 pub mod meer;
 pub mod mls;
 pub mod node;

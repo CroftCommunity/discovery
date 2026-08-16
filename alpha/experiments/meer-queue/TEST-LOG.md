@@ -1481,6 +1481,74 @@ proposal phase. The external-join path is the one that needs the dial.
 
 ---
 
+## S22 — The readmission serving policy, when there is no server (2026-08-16)
+
+Built to make the dial's **position 1** a thing rather than a label. **Written twice**: the first
+version gated at a history-convergence *server*, which the owner corrected mid-build against Part 1.
+
+> **Part 1 §2.4 (P-Durable-Enablement):** *"a Group MUST NOT structurally depend on any single
+> persona's presence to act"*; the no-helper path MUST stay real. **A meer is optional; everything
+> else is distributed.**
+
+**Rung: A (real-lib)** for every MLS operation. Standing is
+`SPEC-DELTA[groupinfo-serving-standing-stub]` — §7.3.1's fold is **not** reimplemented, and nothing
+here is evidence about it or about gap-completeness. **Code:** `src/groupinfo_policy.rs`,
+`tests/s22_serving_policy_when_there_is_no_server.rs`.
+
+**Verdict: position 1 works, and is not sufficient — and the reason inverts the earlier
+recommendation.**
+
+### 1. Refusing to serve is the whole gate
+
+A standing-checked peer **refused** a banned lineage. **The control proves it is the gate:** handed
+the same `GroupInfo` it withheld, she re-enters immediately. So S18's *"a removal is only as durable
+as `GroupInfo` distribution"* is not a defect to fix elsewhere — **it is a specification of where the
+fix goes.**
+
+### 2. The graceful path survives it
+
+The **same peer, same chain, same epoch** that refused the banned lineage **served** a dormant member
+in good standing, who returned immediately by external commit. **The key layer cannot make this
+distinction** (§11.6/§11.8 use the identical removal commit); the standing chain can.
+
+### 3. The tree is a second, independent gate
+
+Same requester, same standing: served **bare** he is refused; served **with the tree** he is in. So a
+peer has two dials — **who** it serves and **what** it releases. **The bare form recovers the one
+property S19 said a `GroupInfo` cannot have:** proving current group state (for §7.4.2 corroboration)
+*without* admitting its holder.
+
+### 4. **The correction: every member is a serving peer**
+
+Measured with **ten members** all holding current group state, ban reached nine: **nine refused
+correctly, one stale peer served, and she needed exactly one yes.**
+
+> **A negative check is only as good as the LEAST-synced member**, and Part 1 §2.4 guarantees there
+> is no serving tier to shrink that set to.
+
+**An earlier draft of this file claimed position 1 makes the residual "a small enumerable set a
+community can watch". WITHDRAWN — an artifact of the server framing, and the server does not exist.**
+
+### 5. And it inverts which position is robust
+
+Under the **same** staleness, **position 2 refused at every peer.**
+
+| | check | stale peer |
+|---|---|---|
+| position 1 | *negative* — "refuse if I know she is banned" | **fails OPEN** |
+| position 2 | *positive* — "serve only on a token I recognise" | **fails CLOSED** |
+
+**With a chokepoint, position 1 is the cheap right answer. Without one — by principle — position 1
+degrades to the worst-synced member and position 2 is what holds.** Position 1 is not discarded: it
+is the right shape for the **dormancy** path, where failing open is the *desired* behaviour. It is
+simply not the ban defence.
+
+**This also re-reads §11.8's eventual-consistency argument more favourably:** the spec never claimed
+a chokepoint, it claimed re-keying backstops late propagation. **A positive credential is the
+complement that claim needs.**
+
+---
+
 ## S1 — Enrollment: what does pointing a meer at your queue actually require?
 
 **Rung: C (static).** Inspection and enumeration, **not** a run. Custodian mode does not exist, so
