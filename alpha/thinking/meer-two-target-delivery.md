@@ -1,10 +1,13 @@
 # Two-target delivery: the group queue and the personal inbox
 
 date: 2026-08-12
-status: **design synthesis, WALKED OUT at Rung A (S9–S12).** Both targets are now measured against
+status: **design synthesis, WALKED OUT at Rung A (S9–S17).** Both targets are now measured against
 real OpenMLS, real CISS and real iroh — not proposed. **One capability is missing and it is named:
 custodial write** (a stranger's deposit into the owner's namespace is refused HTTP 403). Everything
 else in both paths works today. Problem / Approach / Reasoning.
+**Amended 2026-08-13 by S15–S17** — three changes, marked inline: a **third gap** (nothing serves
+`GroupInfo` to a returner, E105), a **correction** to the limbo claim, and **E96 moved from proposed
+to measured**.
 **Supersedes the delivery shape** in `meer-as-custodian-queue.md` (2026-08-07), whose meer was
 *addressed* — a divergence the Phase-0 spike registered late as `meer-spike-addressed-deposit`. The
 custody-dial, metering and anti-entrenchment reasoning there still stands.
@@ -29,9 +32,13 @@ custody-dial, metering and anti-entrenchment reasoning there still stands.
 | **inbox** — handshake | publish → fetch → validate → invite → deposit → join → handover | **measured end to end** (S12) |
 | **inbox** — write | a stranger deposits under a custodial grant | **MISSING — HTTP 403** (S12). meer-lane Phase 1 |
 | **retention** — expunge | 14 days, then the bytes are gone | **MISSING** (S5) — CISS has no object `DELETE`. E95 |
+| **re-entry** — `GroupInfo` | a returner fetches current group state | **UNWIRED SEAM, not missing** — Part 2 §11.6/§11.11 already names the **history-convergence node**. E105 |
+| **re-entry** — credential | §11.7's attestation + resumption PSK | **NOT IMPLEMENTABLE AS WRITTEN** (S16) — an external PSK replaces both halves. E106 |
+| **linkability** — `group_id` | outer seal over the MLS envelope | **BUILT + MEASURED** (S17) — 28 flat bytes, breaks nothing. E96 |
+| **removal** — durability | a removed member stays removed | **ONLY AS DURABLE AS `GroupInfo` DISTRIBUTION** (S18) — but refusal holds at two layers. E107 |
 
-**Two blockers, both already scoped:** custodial write (meer-lane Phase 1) and object lifecycle
-(E95). Nothing else in this design is unbuilt.
+**Three blockers, all scoped:** custodial write (meer-lane Phase 1), object lifecycle (E95), and the
+**`GroupInfo` channel** (E105 — new, and the only one this design did not previously know about).
 
 ## Problem
 
@@ -186,10 +193,32 @@ convenient conversion would be accepting unvalidated key material from a strange
 **The constraint (2026-08-12).** The meer's retention and Part 2 §11.6's **liveness window** are
 different knobs deciding the same thing, and nothing currently forces them to agree. If retention is
 **shorter** than liveness, a member in between lands in **limbo**: still live in the hot Group, unable
-to catch up from the meer, and not yet migrated to cold — so §11.7's re-entry path is not open either.
+to catch up from the meer, and not yet migrated to cold.
+
+> **Correction (S15, 2026-08-13).** This section originally continued *"so §11.7's re-entry path is
+> not open either"*. **That is too strong, and S14 said it too.** Walked at Rung A: a
+> stranded-but-live member **did** re-enter by external commit — openmls does not distinguish "cold"
+> from "stranded", so §11.7's path is open to anyone holding a current `GroupInfo`.
+>
+> **But the escape needs a `GroupInfo`, and neither delivery target carries one** — the group queue
+> is unnameable to her by construction, the inbox carries `Welcome`s, and a `GroupInfo` is not a
+> queued object at all. So §11.7's return is self-service in COST only: it needs a live party to
+> answer.
+>
+> **Corrected 2026-08-14 after reading Part 2 §11.6–§11.11:** *this design* has no such channel, but
+> **the spec does** — the **history-convergence node** supplies `GroupInfo` and ratchet-tree
+> conveyance (§11.11 item 6), and §11.6 already names history-convergence nodes as community
+> infrastructure. **E105 is an unwired seam between this doc and §11, not a missing capability.** It
+> also dissolves limbo without a new component: an always-on HCS in the returner's **own device
+> pool** never falls out of the liveness window, so it can always answer.
+>
+> Net effect: limbo is *recoverable*, not *terminal* — but only once E105 exists. Until then the
+> ordering constraint below is doing all the work.
 
 **So: `meer retention ≥ liveness window`.** Then "cannot catch up" and "migrated to cold" coincide and
-there is exactly one recovery path.
+there is exactly one recovery path. **Now enforced in code**, not prose: `Meer::sweep_with_retention`
+takes the window as an argument and `sweep()` merely defaults it, because §11.6's windows are set per
+Group and a service constant can only ever suit the most aggressive band (S15).
 
 §11.6's windows tighten with group size — **90 days at 250–1k down to 14 days at 7–10k** — so
 retention is **bounded below by a per-Group governance policy**, not free. A fixed service-wide
@@ -273,7 +302,10 @@ compares delivery against non-delivery.
 - **`group_id` is cleartext** in every MLS envelope (S7), so the meer can link a group's traffic
   across epochs despite rotating queue names. **The opaque name buys access control, not privacy.**
   E96 (nested sealing) is the fix — and the queue name is what makes it *possible*, by giving the
-  meer something to route on that is not the MLS framing.
+  meer something to route on that is not the MLS framing. **Built and measured (S17, 2026-08-13):**
+  `group_id` is absent under the outer seal, the object no longer parses as MLS, the cost is **28
+  flat bytes**, and routing, dedup, byte-identity and the catch-up walk are all unaffected. Adoption
+  is still the owner's call; the estimate is now a measurement.
 - **Retention beats absence, silently, for invitations.** Offline past the window and the invitation
   expires. A cannot be told about a gap in a group A does not know exists — the one place the
   "loud, visible gap" story cannot reach.
@@ -292,6 +324,14 @@ compares delivery against non-delivery.
   readmission is the intended outcome.
 - **An unwanted invitation cannot be prevented, only bounded** (S11). A stranger can seat you in a
   group you never asked to join — MLS as specified.
+- **A removal is only as durable as `GroupInfo` distribution** (S18). A deliberately removed member
+  re-seated herself on a current `GroupInfo` alone. **Refusal does hold** — a refuser's traffic is
+  both undecryptable and unaddressable to her — but that is a per-member act, and its cost is a
+  fork. **The admission surface is the ratchet tree**, so withholding the tree is the real dial.
+- **A fork is invisible in the epoch counter** (S18). Two branches that each advanced once agree on
+  the epoch number and share no secrets. Nothing in the delivery layer surfaces this; the only
+  symptom is peers silently failing to read each other. **A client needs a fork signal that is not
+  the epoch number.**
 
 ## Client contract (small rules with sharp edges)
 
@@ -311,6 +351,15 @@ compares delivery against non-delivery.
   evidence of nothing.
 - **Walk the epoch chain in order; do not attempt to skip.** OpenMLS refuses a commit whose
   predecessors were not seen, and the missed plaintexts would be unreadable anyway.
+- **If nested sealing is adopted: wrap at the epoch of the QUEUE, not the epoch you are at** (S17).
+  The commit that *closes* an epoch is wrapped with that epoch's key — derive it **before**
+  committing and hold it across, because OpenMLS exports the current epoch only. Get it backwards and
+  the walk deadlocks silently, indistinguishably from a corrupt object.
+- **Refuse an external commit that carries no PSK you recognise** (S16). MLS admits a total stranger
+  on a `GroupInfo` alone. Check `psk_proposals()`, the AAD attestation and the joiner's credential on
+  the `ProcessedMessage` *before* `merge_staged_commit` — all three are available there.
+- **Make that refusal a group-wide rule, not a local one** (S16). Declining moves only you; a member
+  who merged is at a different epoch. **A policy each member evaluates differently is a partition.**
 
 ## What this changes elsewhere
 
@@ -340,9 +389,24 @@ Everything below is either measured-working or measured-missing; nothing here is
    mode is silent world-readability.
 4. **The group-context nomination** (E97) — an MLS `GroupContextExtensions` entry naming the meer a
    Group relies on. An **endorsement, not a permission**: the meer sees the fabric regardless.
-5. **Nested sealing** (E96) — now *unblocked*, because the queue name gives the meer a routing handle
-   that is not the MLS framing. Closes the cleartext-`group_id` linkability that rotating queue names
-   do not.
+5. **Nested sealing** (E96) — no longer merely unblocked: **built and measured (S17)**. Closes the
+   cleartext-`group_id` linkability for **28 flat bytes**, with routing, dedup, byte-identity and the
+   catch-up walk all measured unaffected. What remains is an adoption decision plus the wrapping rule
+   in the client contract above.
+6. **Wire the history-convergence node in as the `GroupInfo` server** (E105), **which is the same
+   decision as removal durability** (E107, S18): whatever serves `GroupInfo` decides both who can come
+   back and whether a removal sticks. Serve it **without the ratchet tree by default** — S18 measured
+   the tree as the actual admission surface, and the export flag is per call, not per group config.
+   **Record the trust asymmetry:** a meer holds no keys; an HCS in your pool holds group secrets, so
+   one operator running both is a deliberate choice rather than a convenience.
+7. **Readmission as a group-context policy** (E107) — never a per-member prompt, because S18 measured
+   that disagreement forks the group and **the fork is invisible in the epoch counter**. Without it §11.7's self-service re-entry
+   cannot execute, so a stranded member has no path at all. **Decide who serves it and whether serving
+   it is a membership disclosure** — S16 measured that a `GroupInfo` alone admits a total stranger, so
+   this channel is an admission surface, not a convenience.
+8. **Rewrite §11.7's credential** (E106 — new, S16) around a **governance-issued external PSK** plus a
+   group-context-extension policy. The resumption PSK the section names **cannot be attached to an
+   external commit** on openmls 0.8.1; the external PSK carries both halves and works today.
 
 **Deliberately not on this list:** anything that would make an unwanted invitation impossible (S11
 shows it cannot be), and anything that reduces `N` in the catch-up walk (S10 shows it does not need
