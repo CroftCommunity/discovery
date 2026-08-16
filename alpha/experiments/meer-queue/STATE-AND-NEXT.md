@@ -1,6 +1,6 @@
 # Meer delivery — where we are, and what to pick up next
 
-`Written 2026-08-12; amended 2026-08-14 after S15-S18. The handoff artifact.`
+`Written 2026-08-12; amended through 2026-08-16 (S15-S22, G1, the scenario walk). The handoff artifact.`
 `Read this first; it points at everything else.`
 
 ---
@@ -14,22 +14,43 @@ describes a **fabric** one, which reshaped the design into **two delivery target
 keyed by a shared secret, and a personal inbox keyed by identity. Both are now measured at Rung A.
 **Two capabilities are missing, both in CISS**, and both are planned.
 
-**Then S15-S17 (2026-08-13) ran the three remaining experiments and found a third gap.** S15 walked
-the limbo state and **corrected S14** — limbo is escapable, but only via a `GroupInfo` **nothing
-serves** (E105). S16 found **§11.7's two-part credential is not implementable as written** (E106),
-with a governance-issued external PSK replacing both halves. S17 **built nested sealing** (E96) and
-measured it at **28 flat bytes**, breaking nothing.
+**Then S15-S22 + G1 (2026-08-13 → 16) interrogated exclusion and readmission end to end**, produced
+the **readmission dial**, and corrected several of our own conclusions along the way. The current
+synthesis is NOT in this file — read, in order:
+
+1. `beta/drystone-spec/DOSSIER-exclusion-and-readmission-2026-08-16.md` — the findings, as a dial
+2. `beta/drystone-spec/SCENARIO-WALK-2026-08-16.md` — Appendix E's L1–L6 walked, the 44-row matrix,
+   and G1 (the §7.3.1 fold checked against its own keys)
+3. `beta/drystone-spec/part-2-certifiable-design-WORKING-2026-08-16.md` — the candidate spec-2
+   revisions, 13 `[REV 2026-08-16]` blocks. **Canonical part-2 is untouched by design.**
+
+Headlines: S15 walked limbo (escapable; corrected S14). S16: **§11.7's credential is not
+implementable as written** — a governance-issued **external PSK** replaces both halves (E106). S17
+built nested sealing at **28 flat bytes** (E96). S18: a removal is only as durable as `GroupInfo`
+distribution, refusal holds at two layers, **a fork is invisible in the epoch counter** (E107). S19:
+the epoch roll locks **derivation**; external join **never derives** — two doors, and no "safe"
+`GroupInfo` exists. S20: the owner's N=10 ban scenario **confirmed** at AEAD grade; re-entry is
+**self-admission** and the window is exactly the not-yet-synced. S21: one shared secret per epoch —
+the invite path is gateable in MLS's own **proposal phase**; the external-join path has no such
+phase. S22: **every member is a serving peer** (Part 1 §2.4 — no chokepoint), so a **negative**
+standing check fails open at the least-synced peer while a **positive** credential fails closed —
+**dial position 2 is the ban posture that holds**. G1: the §7.3.1 fold **hard-stops the realistic
+ban-vs-rejoin race order-independently** (confirmed), the comparator was **aligned to key 3**
+(v2, versioned, rebuild-tested), and the one open item is **what a contradicted group projects**
+(E108).
 
 ## Read in this order
 
 | doc | what it is |
 |---|---|
 | `../../thinking/meer-two-target-delivery.md` | **the current design.** Supersedes the delivery shape in `meer-as-custodian-queue.md` |
-| `TEST-LOG.md` | every result, with fidelity rungs. M1, M2, S1–S14 |
+| `TEST-LOG.md` | every result, with fidelity rungs. M1, M2, S1–S22 |
 | `S8-RESULTS.md` | the object-size sweep vs the 2 MiB cap |
 | `PHASE-0-FINDINGS.md` | the seven discovery probes that preceded the build |
 | `../../plans/2026-08-12-1-plan-two-target-delivery-blockers.md` | **what to build next** |
-| `TEST-LOG.md` → S15, S16, S17 | the 2026-08-13 follow-on experiments, and the two corrections they forced |
+| `TEST-LOG.md` → S15–S22 | the 2026-08-13→16 exclusion/readmission arc, and the corrections it forced |
+| `../../../beta/drystone-spec/SCENARIO-WALK-2026-08-16.md` | L1–L6 walked · the 44-row matrix · G1 (the §7.3.1 fold) |
+| `../../../beta/drystone-spec/DOSSIER-exclusion-and-readmission-2026-08-16.md` | the readmission dial |
 | `CISS/docs/plans/2026-08-11-object-lifecycle.md` | the other blocker's plan |
 | `CISS/docs/notes/2026-08-11-reachability-audit.md` | why five CISS modules are unreachable |
 
@@ -160,12 +181,19 @@ durability + the invisible fork — new, S18).
 3. **Then build** third-party deposit → bound it → retire the stand-in → object lifecycle → the
    holistic workflow test in Phase 6 of the blockers plan.
 
-**All three experiments this file previously listed have now been run** (S15, S16, S17 — see
-`TEST-LOG.md`). What they surfaced is design work, not more measurement:
+**The readmission/exclusion arc (S15-S22, G1) is measured and documented; what remains there is
+decision work, tracked in the dossier and backlog:**
 
-- **E105 — who serves `GroupInfo`?** Any member, the meer, or a Group-nominated endpoint. Treat it as
-  an admission surface (S16), so the answer needs rate limiting and a disclosure decision.
-- **E106 — rewrite §11.7** around a governance-issued external PSK plus a group-context-extension
-  policy, since the resumption PSK it names cannot be attached to an external commit.
-- **E96 — adopt nested sealing, or don't.** The cost is now measured (28 flat bytes, nothing else
-  affected), so this is a decision rather than an experiment.
+- **E105 — who serves `GroupInfo`?** Answered structurally: **any member** (Part 1 §2.4 — no
+  chokepoint; S22). What remains is the group-context serving policy and the tree-withholding
+  default.
+- **E106 — rewrite §11.7** around the governance-issued external PSK (drafted as a `[REV]` in the
+  WORKING copy; ratification is the owner's).
+- **E107 — the readmission dial's open thirds:** position 2 as an end-to-end admission decision, and
+  the propagation window quantified.
+- **E108 — what a contradicted group projects** (G1's surviving finding; two candidate rules in the
+  WORKING copy §7.3.2 REV).
+- **E96 — adopt nested sealing, or don't.** Cost measured (28 flat bytes); a decision, not an
+  experiment.
+- **Spec-2 candidate review:** the WORKING copy's 13 `[REV]` blocks await the owner's merge-back
+  pass. **Canonical part-2 remains untouched until then.**

@@ -57,7 +57,8 @@ handshake works end to end (S12); the handover and the watermark behave under co
 the design fits §11.6/§11.7 — the queue name is a liveness indicator, and cold migration severs
 access with no mechanism (S14).
 
-**The follow-on experiments (S15–S17, 2026-08-13)** took the three questions S14 left open:
+**The follow-on experiments (S15–S22, 2026-08-13 → 16)** took the three questions S14 left open and
+kept pulling until the readmission model was measured end to end:
 
 - **S15** walked the **limbo state** instead of asserting it — and **corrected S14**: limbo *is*
   escapable by external commit, because the library does not distinguish "cold" from "stranded".
@@ -72,6 +73,26 @@ access with no mechanism (S14).
   `GroupInfo` — so a removal is exactly as durable as `GroupInfo` distribution. **But refusal holds
   at two layers** (keys and addressing), the **admission surface is the ratchet tree** rather than
   the `GroupInfo`, and **a fork is invisible in the epoch counter**. (E107)
+- **S19** separated the two doors: an epoch roll locks **derivation** (confirmed at AEAD grade, not
+  a counter check), while external join **never derives** — it KEMs against the `external_pub`
+  published in every `GroupInfo`, so **no "safe" `GroupInfo` exists** and the ratchet tree is the
+  only withholdable artifact.
+- **S20** ran the owner's scenario literally: **N = 10, one banned by governance, one epoch roll** —
+  nine survivors share the new key material, the banned member derives none of it. Three post-ban
+  states (the client that *syncs* gets a dead object); re-entry is **self-admission**, and the
+  window is exactly the members whose view predates the ban.
+- **S21** pinned the keying model: **one shared secret per epoch**, no per-member keying. The invite
+  path is gateable in MLS's own **proposal phase** (propose → govern → commit); the external-join
+  path has **no proposal phase to gate** — two different problems needing different gates.
+- **S22** built the serving policy — **corrected mid-build against Part 1 §2.4: there is no server;
+  every member is a serving peer.** A **negative** standing check fails OPEN at the least-synced
+  member; a **positive** governance-issued credential fails CLOSED under the same staleness. **Dial
+  position 2 is the ban posture that holds.** (`src/groupinfo_policy.rs`)
+
+**And G1** (in `croft-chat`, not this crate) checked the §7.3.1 governance fold against its own
+keys: the realistic ban-vs-rejoin race **hard-stops order-independently** (confirmed), the
+comparator was **aligned to key 3** (v2, versioned, rebuild-tested), and the surviving open item is
+**what a contradicted group projects** (E108).
 
 **M2's negative arm was falsified before it was written** (Phase 0, D3): a re-frame is
 *byte-identical*, so the spec's stated hazard was wrong. The `MUST` survives on stronger grounds —

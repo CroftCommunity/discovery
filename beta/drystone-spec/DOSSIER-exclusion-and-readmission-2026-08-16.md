@@ -4,7 +4,7 @@ date: 2026-08-16
 status: **findings + rework scope. Not normative.** The spec is
 `part-2-certifiable-design.md`; the revision surface is
 `part-2-certifiable-design-WORKING-2026-08-16.md`.
-evidence: `alpha/experiments/meer-queue/tests/s15_*.rs` … `s20_*.rs` (22 tests, Rung A) ·
+evidence: `alpha/experiments/meer-queue/tests/s15_*.rs` … `s22_*.rs` (32 tests, Rung A) · G1 (`croft-chat/tests/fold_ordering_keys.rs`, Modeled) ·
 `alpha/experiments/meer-queue/TEST-LOG.md`
 provenance: `alpha/seeds/transcripts/raw/mls-exclusion-readmission-experiments-2026-08-12.md`
 backlog: `alpha/ROADMAP_TODO.md` **E96, E105, E106, E107**

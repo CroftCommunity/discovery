@@ -433,6 +433,26 @@ correctness: a store folded under the old comparator can re-fold differently for
 cross-device same-lamport pairs, so the change should land as a **versioned comparator with a
 rebuild**, not a silent edit. Key 3 is now a decision, not a guess.
 
+**RESOLVED (2026-08-16, same day): the code moved to the spec.** `merge_cmp` is now
+`lamport → envelope_hash` (**v2**, `types::MERGE_CMP_VERSION`), landed exactly as the migration note
+required rather than as a silent edit:
+
+- **Stamped per store** — a new `meta_v1` table records the comparator version the derived tables
+  were last folded under; `rebuild` stamps it on success.
+- **`needs_rebuild(db)`** — true iff the store is non-empty and its stamp is not current.
+  *Deliberately conservative:* an ingest-built store is unstamped, because ingest applies in
+  **arrival** order (the projection-divergence finding, §3.1a), so its resolution provenance is
+  unknown until a rebuild canonicalizes it.
+- **The migration property is tested, not asserted** — two stores fed the same genuinely concurrent
+  pair (same lamport, different devices, hash- and device-order **verified to disagree** by a
+  deterministic seed search) in opposite arrival orders re-fold to **byte-identical** derived state.
+- **The characterization tests flipped to conformance guards** — the test that pinned
+  "device decides" now pins "hash decides", and the 43-of-75 divergence sweep now pins **zero**
+  disagreements between `merge_cmp` and `lamport → hash`.
+
+**The spec did not move; the code did.** §7.3.1 key 3 stands as written and now has a conforming
+implementation. No change to the WORKING spec copy was needed for this item.
+
 ### 3.3 Order independence HOLDS — over a complete set
 
 **Measured:** six arrival permutations of three genuinely concurrent facts (two removals, one

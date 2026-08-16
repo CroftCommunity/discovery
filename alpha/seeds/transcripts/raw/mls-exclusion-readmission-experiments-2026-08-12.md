@@ -1,6 +1,6 @@
 # MLS exclusion, readmission, and the epoch-roll model — experiment session
 
-`Source: Claude Code live session (CroftC workspace), 2026-08-12 → 2026-08-16.`
+`Source: Claude Code live session (CroftC workspace), 2026-08-12 → 2026-08-16 (updated in-session per owner instruction).`
 `Status: **preserved-condensed** — user turns preserved VERBATIM (voice-dictation artifacts kept`
 `as-is); assistant turns preserved content-faithful, NOT byte-pristine (verdicts, tables and`
 `corrections retained, connective prose tightened); tool invocations summarized as bracketed notes.`
@@ -182,3 +182,45 @@ Normative changes were surfaced for the owner rather than applied as a side effe
   the owner (evicting must stay).
 - `[UNVERIFIED]` and untested: whether a **CISS assertion-plane payload size limit** exists (searched,
   none found) — bears on the inbox-plane decision, which remains open.
+
+---
+
+## Update — 2026-08-16, later in the same session
+
+The session continued past the first filing. Appended per the owner's instruction to keep this
+provenance row current.
+
+**S21, S22, G1, and the comparator change:**
+
+- **S21** — one shared secret per epoch, not per-member keying; the invite path is gateable in MLS's
+  own proposal phase, the external-join path has no proposal phase to gate.
+- **S22** — built the readmission serving policy. **Corrected mid-build by the owner against Part 1
+  §2.4** ("there is no server needed in our case, a meer is optional, everything else is
+  distributed"): renamed `GroupInfoServer` → `ServingPeer`, and the finding inverted — a negative
+  standing check fails OPEN at the least-synced member (no chokepoint exists to shrink that set),
+  a positive credential fails CLOSED. **A prior claim ("the residual becomes a small enumerable set
+  a community can watch") was withdrawn.**
+- **Scenario walk** — Appendix E L1–L6 walked against the measurements; 44-row matrix filed
+  (`beta/drystone-spec/SCENARIO-WALK-2026-08-16.md`).
+- **G1** — the §7.3.1 fold checked against its own three keys. **The matrix's own row 39 ("the fold
+  is not implemented") was wrong and corrected** — it is implemented in
+  `local_storage_projection::fold_derived`. **A key-1 "fails open" finding was made and then
+  WITHDRAWN after two owner challenges** ("how can a moderator not yet synced with the removal
+  readmit someone they don't see removed?"): the realistic races either resolve restrictively
+  (effective-roles projection) or **hard-stop with an order-independent contradiction byte-head**.
+  What survived: the membership **projection** diverges by arrival order while hard-stopped (E108).
+- **Key 3 aligned** — `merge_cmp` consulted `author_device` before the content address; measured
+  non-load-bearing (0 Equal pairs without it; per-device order preserved; 43/75 divergences confined
+  to genuine concurrents); **comparator moved to v2** (`lamport → hash`, `MERGE_CMP_VERSION`,
+  per-store stamp, `needs_rebuild`, migration test: opposite arrival orders re-fold byte-identical).
+  **The spec did not move; the code did.**
+
+**Further in-session corrections recorded (methodology):** a fabricated user story (backwards from a
+test) was caught by the owner and replaced with the reachable scenario; two harness artifacts
+(same-device "concurrency"; permuting causally-dependent facts) nearly read as fold defects and were
+caught only because ingest results stopped being swallowed with `let _ =`.
+
+**Final counts at second filing:** meer-queue 85 tests · croft-chat 55 tests (incl. G1's 7) ·
+local_storage_projection 91 tests. All green, clippy clean on touched crates. WORKING spec copy
+carries 13 `[REV 2026-08-16]` blocks; **canonical part-2 untouched throughout.**
+
