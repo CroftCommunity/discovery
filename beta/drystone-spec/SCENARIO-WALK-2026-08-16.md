@@ -412,8 +412,26 @@ concurrents the author's device decides and the hash never runs.
 **A divergence to adjudicate, not a bug.** The ordering is still deterministic and identical on every
 node, so **convergence is not at risk and nothing here shows divergence.** What is at risk is the
 *reason* §7.3.1 gives: a party-derived key lets a participant who chooses device identifiers bias
-every concurrent tie they are party to. **Two honest readings:** the spec should say the tiebreak is
-`(device, hash)`, or the code should drop to the hash. **The spec and the code currently disagree.**
+every concurrent tie they are party to.
+
+**The load-bearing check (2026-08-16): `author_device` is doing no other work.** Measured over a
+6-device × 5-lamport envelope spread with colliding payloads:
+
+- **Totality survives without it** — `lamport → hash` produced 0 Equal pairs among distinct
+  envelopes, because the envelope hash already covers the device.
+- **Per-device order needs no middle key** — ingest enforces strictly increasing lamports per
+  device, so the lamport key alone fixes each device's internal order (every device's facts stayed
+  ordered under the alternative comparator).
+- **The divergence surface is exactly the disputed semantics** — the two comparators disagreed on
+  43 of 75 cross-device same-lamport pairs **and nowhere else**: only genuine concurrents, which is
+  precisely the tiebreak §7.3.1 key 3 governs.
+- **Both production call sites enumerated** — `resolve_contradiction` and `rebuild`, both full-log
+  replays that read envelopes one at a time and never assume a device's facts sort contiguously.
+
+**Verdict: the code can move to the spec.** One real cost, and it is migration rather than
+correctness: a store folded under the old comparator can re-fold differently for any group containing
+cross-device same-lamport pairs, so the change should land as a **versioned comparator with a
+rebuild**, not a silent edit. Key 3 is now a decision, not a guess.
 
 ### 3.3 Order independence HOLDS — over a complete set
 

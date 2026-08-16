@@ -631,3 +631,128 @@ async fn approving_a_rejoin_concurrently_with_enacting_a_ban_must_resolve_restri
         );
     }
 }
+
+/// **Key 3, the load-bearing check: is `author_device` doing any work in `merge_cmp` that the
+/// content address does not already do?**
+///
+/// Before recommending the comparator drop to `lamport → hash` (the §7.3.1-conformant order), the
+/// question is whether the device key carries anything besides the party-privileging tiebreak. Two
+/// candidate jobs it could be doing, both checked here; the third (consumers of device-contiguous
+/// sort order) is settled by enumeration — `merge_cmp` has exactly two production call sites, both
+/// full-log replays in `fold_derived.rs` (`resolve_contradiction`, `rebuild`), and the replay engine
+/// reads envelopes one at a time without assuming a device's facts are adjacent.
+#[tokio::test]
+async fn dropping_author_device_from_the_comparator_loses_nothing_but_the_bias() {
+    use std::cmp::Ordering;
+
+    // A spread of envelopes: several devices, colliding lamports, duplicated payloads — the shapes
+    // that could expose a totality hole.
+    let ids: Vec<Identity> = (0u8..6).map(|i| Identity::from_seed([0x90 + i; 32])).collect();
+    let group = GroupId::new([0xC9; 32]);
+    let mut envs: Vec<AssertionEnvelope> = Vec::new();
+    for (i, id) in ids.iter().enumerate() {
+        for lamport in 1..=5u64 {
+            envs.push(sign(
+                id,
+                base(
+                    id,
+                    group,
+                    AssertionType::MembershipAdd,
+                    lamport,
+                    vec![],
+                    // Same payload on purpose across devices: only the author differs.
+                    membership_add_payload(PrincipalId::new([(i % 3) as u8; 32]), 2),
+                ),
+            ));
+        }
+    }
+
+    // JOB 1 — totality. Distinct envelopes must never compare Equal under `lamport → hash` alone,
+    // or a sort becomes nondeterministic. The envelope hash covers author_device, so two facts
+    // differing only in device still hash apart.
+    let alt_cmp = |a: &AssertionEnvelope, b: &AssertionEnvelope| {
+        a.lamport
+            .cmp(&b.lamport)
+            .then_with(|| envelope_hash(a).as_bytes().cmp(envelope_hash(b).as_bytes()))
+    };
+    let mut equal_pairs = 0;
+    for i in 0..envs.len() {
+        for j in (i + 1)..envs.len() {
+            if alt_cmp(&envs[i], &envs[j]) == Ordering::Equal {
+                equal_pairs += 1;
+            }
+        }
+    }
+    assert_eq!(
+        equal_pairs, 0,
+        "lamport → hash must totally order distinct envelopes"
+    );
+
+    // JOB 2 — per-device internal order. Ingest enforces strictly increasing lamports per device
+    // (measured earlier in this file: "lamport violation … expected > 2, got 2"), so the lamport
+    // key ALONE fixes each device's internal order; no middle key is needed for it.
+    let mut sorted = envs.clone();
+    sorted.sort_by(alt_cmp);
+    for id in &ids {
+        let dev = DeviceId::new(id.device_id().0);
+        let device_lamports: Vec<u64> = sorted
+            .iter()
+            .filter(|e| e.author_device == dev)
+            .map(|e| e.lamport)
+            .collect();
+        let mut expected = device_lamports.clone();
+        expected.sort_unstable();
+        assert_eq!(
+            device_lamports, expected,
+            "a device's own facts must stay in lamport order under lamport → hash"
+        );
+    }
+
+    // JOB 3 — divergence surface. Where do the two comparators actually disagree? Only among
+    // cross-device same-lamport pairs — i.e., exactly the genuine concurrents whose tiebreak
+    // semantics are the thing under dispute.
+    let mut disagreements = 0;
+    let mut cross_device_same_lamport = 0;
+    for i in 0..envs.len() {
+        for j in (i + 1)..envs.len() {
+            let (a, b) = (&envs[i], &envs[j]);
+            if a.lamport == b.lamport && a.author_device != b.author_device {
+                cross_device_same_lamport += 1;
+            }
+            if local_storage_projection::types::merge_cmp(a, b) != alt_cmp(a, b) {
+                disagreements += 1;
+                assert_eq!(
+                    a.lamport, b.lamport,
+                    "the comparators may only disagree at equal lamport"
+                );
+                assert_ne!(
+                    a.author_device, b.author_device,
+                    "…and only across devices — i.e., only on genuine concurrents"
+                );
+            }
+        }
+    }
+
+    println!(
+        "G1 MEASURED (modeled): over {} envelopes (6 devices × 5 lamports, colliding payloads): \
+         `lamport → hash` produced **0 Equal pairs** among distinct envelopes (totality holds \
+         without the device key — the hash already covers the device); every device's own facts \
+         stayed in lamport order (per-device order needs no middle key, since ingest enforces \
+         per-device monotonic lamports); and the two comparators disagreed on **{} of {} \
+         cross-device same-lamport pairs and nowhere else**.",
+        envs.len(),
+        disagreements,
+        cross_device_same_lamport,
+    );
+    println!(
+        "G1 CONSEQUENCE: **`author_device` is not load-bearing.** Its only observable effect is \
+         choosing the winner among genuine concurrents — precisely the party-privileging bias §7.3.1 \
+         key 3 forbids as a silent default. Dropping to `lamport → hash` preserves totality, \
+         per-device order, and both replay call sites (enumerated: `resolve_contradiction` and \
+         `rebuild`, neither of which assumes device-contiguous order). **One real cost, and it is \
+         migration, not correctness:** a store folded under the old comparator can re-fold \
+         differently for any group containing cross-device same-lamport pairs, so the change should \
+         land as a versioned comparator with a rebuild, not a silent edit. Key 3 is now a decision, \
+         not a guess: the code can move to the spec."
+    );
+}
