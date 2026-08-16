@@ -9,6 +9,8 @@ evidence: `alpha/experiments/meer-queue/tests/s15_*.rs` … `s20_*.rs` (22 tests
 provenance: `alpha/seeds/transcripts/raw/mls-exclusion-readmission-experiments-2026-08-12.md`
 backlog: `alpha/ROADMAP_TODO.md` **E96, E105, E106, E107**
 plan: `alpha/plans/2026-08-14-1-plan-readmission-and-groupinfo.md`
+walk: `SCENARIO-WALK-2026-08-16.md` — Appendix E's L1–L6 against the measurements, plus the full
+44-row scenario matrix tagged MLS / Drystone / Croft / ungrounded
 
 ---
 
