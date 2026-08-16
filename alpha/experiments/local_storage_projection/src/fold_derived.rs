@@ -55,6 +55,17 @@ const STATE_GROUP: TableDefinition<'static, &'static [u8], &'static [u8]> =
     TableDefinition::new("state_group_v1");
 const STATE_BLOB_PRESENCE: TableDefinition<'static, &'static [u8], &'static [u8]> =
     TableDefinition::new("state_blob_presence_v1");
+/// META
+///
+/// Small key→value store for store-level facts that are not assertions. Currently holds one
+/// key, `b"comparator_version"` → `[u8; 1]`: the `merge_cmp` version the derived tables were
+/// last folded under (see `types::MERGE_CMP_VERSION`). Stamped by `rebuild`; absent on stores
+/// that predate comparator versioning, which `needs_rebuild` treats as v1.
+const META: TableDefinition<'static, &'static [u8], &'static [u8]> =
+    TableDefinition::new("meta_v1");
+
+const META_COMPARATOR_KEY: &[u8] = b"comparator_version";
+
 
 // ---------------------------------------------------------------------------
 // FoldError
@@ -1917,6 +1928,77 @@ fn resolve_contradiction(
 // Rebuild operation (I3)
 // ---------------------------------------------------------------------------
 
+/// The comparator version this store's derived tables were last folded under, or `None` if
+/// the store predates comparator versioning (i.e., was folded under v1).
+pub fn comparator_version(db: &Arc<Db>) -> Result<Option<u8>, FoldError> {
+    let read_txn = db
+        .inner()
+        .begin_read()
+        .map_err(|e| FoldError::StorageError(e.to_string()))?;
+    let table = match read_txn.open_table(META) {
+        Ok(t) => t,
+        // A store written before the META table existed has no stamp at all.
+        Err(redb::TableError::TableDoesNotExist(_)) => return Ok(None),
+        Err(e) => return Err(FoldError::StorageError(e.to_string())),
+    };
+    let stamped = table
+        .get(META_COMPARATOR_KEY)
+        .map_err(|e| FoldError::StorageError(e.to_string()))?
+        .map(|v| v.value().first().copied())
+        .flatten();
+    Ok(stamped)
+}
+
+/// Does this store need a rebuild before its derived state can be trusted?
+///
+/// True iff the store holds at least one assertion **and** its stamped comparator version is
+/// not the current [`crate::types::MERGE_CMP_VERSION`]. A store folded under an older
+/// comparator can project a different resolved state for any group containing cross-device
+/// same-lamport (genuinely concurrent) facts, so it must be re-folded — silently reading it
+/// would present a v1 resolution as if it were v2. A fresh/empty store needs nothing.
+pub fn needs_rebuild(db: &Arc<Db>) -> Result<bool, FoldError> {
+    // Empty store: nothing was ever folded, so no stale resolution can exist.
+    let non_empty = {
+        let read_txn = db
+            .inner()
+            .begin_read()
+            .map_err(|e| FoldError::StorageError(e.to_string()))?;
+        match read_txn.open_table(AUTH_ASSERTIONS) {
+            Ok(t) => t
+                .iter()
+                .map_err(|e| FoldError::StorageError(e.to_string()))?
+                .next()
+                .is_some(),
+            Err(redb::TableError::TableDoesNotExist(_)) => false,
+            Err(e) => return Err(FoldError::StorageError(e.to_string())),
+        }
+    };
+    if !non_empty {
+        return Ok(false);
+    }
+    Ok(comparator_version(db)? != Some(crate::types::MERGE_CMP_VERSION))
+}
+
+/// Stamp the current comparator version into the store's meta table.
+fn stamp_comparator_version(db: &Arc<Db>) -> Result<(), FoldError> {
+    let write_txn = db
+        .inner()
+        .begin_write()
+        .map_err(|e| FoldError::StorageError(e.to_string()))?;
+    {
+        let mut table = write_txn
+            .open_table(META)
+            .map_err(|e| FoldError::StorageError(e.to_string()))?;
+        table
+            .insert(META_COMPARATOR_KEY, &[crate::types::MERGE_CMP_VERSION][..])
+            .map_err(|e| FoldError::StorageError(e.to_string()))?;
+    }
+    write_txn
+        .commit()
+        .map_err(|e| FoldError::StorageError(e.to_string()))?;
+    Ok(())
+}
+
 /// Drop all derived tables and re-fold all assertions from `auth_assertions`
 /// in causal (merge_cmp) order to reproduce byte-identical derived state.
 pub fn rebuild(
@@ -1988,6 +2070,10 @@ pub fn rebuild(
     for env in &envs {
         fold.replay(env)?;
     }
+
+    // Step 5: stamp the comparator version the derived state was just folded under, so
+    // `needs_rebuild` can detect a store whose resolution predates a comparator change.
+    stamp_comparator_version(db)?;
 
     Ok(())
 }
@@ -3273,4 +3359,162 @@ mod tests {
             "tiebreak must be deterministic regardless of ingestion order"
         );
     }
+
+    // -----------------------------------------------------------------------
+    // Comparator versioning (merge_cmp v2) — stamp, needs_rebuild, migration
+    // -----------------------------------------------------------------------
+
+    /// A non-empty store with no comparator stamp cannot prove its derived state was resolved
+    /// under the current comparator, so it needs a rebuild; `rebuild` stamps it; an empty
+    /// store needs nothing.
+    #[test]
+    fn rebuild_stamps_the_comparator_version_and_unstamped_stores_need_rebuild() {
+        let signer = MockSigner::from_seed(0x31);
+        let principal = make_principal(0x31);
+        let db = Arc::new(Db::create_in_memory().unwrap());
+
+        // Empty store: nothing folded, nothing stale.
+        assert!(!needs_rebuild(&db).unwrap(), "an empty store needs no rebuild");
+        assert_eq!(comparator_version(&db).unwrap(), None);
+
+        // Ingest-built store: non-empty and unstamped. Conservative-true by design — an
+        // ingest-built store's derived state follows ARRIVAL order (the projection-divergence
+        // finding, G1), so its resolution provenance is unknown until a rebuild canonicalizes
+        // it under the stamped comparator.
+        let fold = make_fold(&signer, principal, Arc::clone(&db));
+        let genesis = make_genesis_envelope(&signer, 0x31, principal, 1);
+        fold.ingest(&genesis).unwrap();
+        assert!(
+            needs_rebuild(&db).unwrap(),
+            "non-empty + unstamped == cannot prove current-comparator resolution"
+        );
+
+        // Rebuild canonicalizes and stamps.
+        let verifier = MockSigner::new(signer.device_id().0);
+        let mut cred = MockCredentialResolver::new();
+        cred.register(
+            TraitsDeviceId(signer.device_id().0),
+            TraitsPrincipalId(principal.as_bytes().clone()),
+        );
+        rebuild(&db, &verifier, &cred).unwrap();
+        assert_eq!(
+            comparator_version(&db).unwrap(),
+            Some(crate::types::MERGE_CMP_VERSION),
+            "rebuild stamps the comparator it folded under"
+        );
+        assert!(!needs_rebuild(&db).unwrap(), "a stamped, current store needs nothing");
+    }
+
+    /// The migration property the v2 change rests on: after `rebuild`, derived state is a
+    /// function of the canonical (comparator) order, not of arrival order — measured on a pair
+    /// of genuinely concurrent facts (same lamport, different devices) whose v1 (device) and
+    /// v2 (hash) orders disagree, so the reorder is actually exercised.
+    #[test]
+    fn rebuild_canonicalizes_arrival_orders_under_the_v2_comparator() {
+        let signer_a = MockSigner::from_seed(0x41);
+        let signer_b = MockSigner::from_seed(0x42);
+        let principal_a = make_principal(0x41);
+        let principal_b = make_principal(0x42);
+        let group_seed = 0x40;
+
+        // O1 founds; O1 seats O2 as Owner; then the concurrent pair: O1 adds X while O2 adds Y,
+        // same lamport, different devices — genuinely concurrent, non-conflicting subjects.
+        let genesis = make_genesis_envelope(&signer_a, group_seed, principal_a, 1);
+        let device_a = TypesDeviceId::new(signer_a.device_id().0);
+        let device_b = TypesDeviceId::new(signer_b.device_id().0);
+        let mut seat_o2 = AssertionEnvelope {
+            version: 0x01,
+            assertion_type: AssertionType::MembershipAdd,
+            author_device: device_a,
+            author_principal: principal_a,
+            group: make_group(group_seed),
+            antecedents: vec![],
+            lamport: 2,
+            timestamp: 1_700_000_001,
+            payload: membership_add_payload(0x42, Role::Owner),
+            signature: vec![],
+        };
+        sign_envelope(&mut seat_o2, &signer_a);
+        let make_add = |device: TypesDeviceId,
+                        principal: TypesPrincipalId,
+                        signer: &MockSigner,
+                        subject_seed: u8|
+         -> AssertionEnvelope {
+            let mut env = AssertionEnvelope {
+                version: 0x01,
+                assertion_type: AssertionType::MembershipAdd,
+                author_device: device,
+                author_principal: principal,
+                group: make_group(group_seed),
+                antecedents: vec![],
+                lamport: 3,
+                timestamp: 1_700_000_002,
+                payload: membership_add_payload(subject_seed, Role::Member),
+                signature: vec![],
+            };
+            sign_envelope(&mut env, signer);
+            env
+        };
+        let add_y = make_add(device_b, principal_b, &signer_b, 0x52);
+
+        // The pair must exercise the v1→v2 reorder: device order and hash order must disagree,
+        // or this test degenerates into the commutative case and proves nothing about the
+        // comparator. The hash covers the payload, so search subject seeds deterministically
+        // for a pair the two comparators order oppositely — no hand-picked luck.
+        let device_dir = device_a.as_bytes().cmp(device_b.as_bytes());
+        let add_x = (0x51..0x80u8)
+            .map(|seed| make_add(device_a, principal_a, &signer_a, seed))
+            .find(|cand| {
+                envelope_hash(cand)
+                    .as_bytes()
+                    .cmp(envelope_hash(&add_y).as_bytes())
+                    != device_dir
+            })
+            .expect("some subject seed in 0x51..0x80 must flip the hash direction");
+
+        // Two stores, opposite arrival orders for the concurrent pair.
+        let build = |first: &AssertionEnvelope, second: &AssertionEnvelope| -> Arc<Db> {
+            let db = Arc::new(Db::create_in_memory().unwrap());
+            let fold_a = make_fold(&signer_a, principal_a, Arc::clone(&db));
+            let fold_b = make_fold(&signer_b, principal_b, Arc::clone(&db));
+            fold_a.ingest(&genesis).unwrap();
+            fold_a.ingest(&seat_o2).unwrap();
+            let route = |env: &AssertionEnvelope| {
+                if env.author_device == device_a {
+                    fold_a.ingest(env).unwrap();
+                } else {
+                    fold_b.ingest(env).unwrap();
+                }
+            };
+            route(first);
+            route(second);
+            db
+        };
+        let db_xy = build(&add_x, &add_y);
+        let db_yx = build(&add_y, &add_x);
+
+        // Rebuild both under the current comparator.
+        let verifier = MockSigner::new(signer_a.device_id().0);
+        let mut cred = MockCredentialResolver::new();
+        cred.register(
+            TraitsDeviceId(signer_a.device_id().0),
+            TraitsPrincipalId(principal_a.as_bytes().clone()),
+        );
+        cred.register(
+            TraitsDeviceId(signer_b.device_id().0),
+            TraitsPrincipalId(principal_b.as_bytes().clone()),
+        );
+        rebuild(&db_xy, &verifier, &cred).unwrap();
+        rebuild(&db_yx, &verifier, &cred).unwrap();
+
+        // The migration property: byte-identical derived state, arrival order erased.
+        assert_eq!(
+            snapshot_state(&db_xy, group_seed),
+            snapshot_state(&db_yx, group_seed),
+            "post-rebuild derived state must be a function of the canonical order alone"
+        );
+        assert_eq!(comparator_version(&db_xy).unwrap(), Some(crate::types::MERGE_CMP_VERSION));
+        assert_eq!(comparator_version(&db_yx).unwrap(), Some(crate::types::MERGE_CMP_VERSION));
+    }
 }
+

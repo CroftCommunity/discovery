@@ -335,10 +335,29 @@ pub fn envelope_hash(env: &AssertionEnvelope) -> Hash {
 /// Total order over assertion envelopes for deterministic stream merging.
 ///
 /// Precedence: `lamport` ASC → `author_device` bytes ASC → envelope hash bytes ASC.
+/// The canonical replay comparator's version. Stamped into a store's meta table by
+/// `fold_derived::rebuild`, and checked by `fold_derived::needs_rebuild`, so a store folded
+/// under an older comparator is detected rather than silently re-folded differently.
+///
+/// - **v1** (unstamped stores): `lamport → author_device → envelope_hash`.
+/// - **v2**: `lamport → envelope_hash`. The `author_device` key was removed after the G1
+///   experiment (`croft-chat/tests/fold_ordering_keys.rs`, 2026-08-16) measured that it was
+///   doing exactly one job — deciding the winner among genuine concurrents before the content
+///   address ever ran — which is the party-privileging silent default Part 2 §7.3.1 key 3
+///   forbids. Totality and per-device order both survive without it: the envelope hash covers
+///   the device, and ingest enforces strictly increasing lamports per device.
+pub const MERGE_CMP_VERSION: u8 = 2;
+
+/// Canonical replay order (v2): `lamport`, then the **content address**.
+///
+/// §7.3.1 key 3: among genuine concurrents the tiebreak is the content address — party-neutral,
+/// ungameable, identical everywhere. Any party-privileging key must be opt-in and governed,
+/// never a silent default; `author_device` was exactly such a key and was removed in v2
+/// (see [`MERGE_CMP_VERSION`]). The hash covers every envelope field including the device, so
+/// distinct envelopes never compare `Equal`.
 pub fn merge_cmp(a: &AssertionEnvelope, b: &AssertionEnvelope) -> std::cmp::Ordering {
     a.lamport
         .cmp(&b.lamport)
-        .then_with(|| a.author_device.as_bytes().cmp(b.author_device.as_bytes()))
         .then_with(|| envelope_hash(a).as_bytes().cmp(envelope_hash(b).as_bytes()))
 }
 
@@ -819,6 +838,41 @@ mod tests {
     // -----------------------------------------------------------------------
     // Enum discriminant values match spec
     // -----------------------------------------------------------------------
+
+
+    /// v2 regression guard: the comparator must never consult `author_device`. Two envelopes
+    /// identical except for the authoring device must order by hash — the party-neutral key —
+    /// and never `Equal`. (The v1 comparator ordered these by device; see MERGE_CMP_VERSION.)
+    #[test]
+    fn merge_cmp_is_blind_to_author_device() {
+        let mut a = rand_envelope(1);
+        let mut b = a.clone();
+        a.author_device = DeviceId::new([0x01; 32]);
+        b.author_device = DeviceId::new([0xFE; 32]);
+        // Same lamport by construction (b is a clone), devices maximally apart.
+        let ha = envelope_hash(&a);
+        let hb = envelope_hash(&b);
+        let by_hash = ha.as_bytes().cmp(hb.as_bytes());
+        assert_ne!(
+            by_hash,
+            std::cmp::Ordering::Equal,
+            "distinct devices must yield distinct hashes"
+        );
+        assert_eq!(
+            merge_cmp(&a, &b),
+            by_hash,
+            "at equal lamport the CONTENT ADDRESS must decide, not the device"
+        );
+        // And flipping which device is lex-smaller must not change the outcome.
+        std::mem::swap(&mut a.author_device, &mut b.author_device);
+        let ha2 = envelope_hash(&a);
+        let hb2 = envelope_hash(&b);
+        assert_eq!(
+            merge_cmp(&a, &b),
+            ha2.as_bytes().cmp(hb2.as_bytes()),
+            "still the hash after the swap"
+        );
+    }
 
     #[test]
     fn kind_tag_discriminants() {

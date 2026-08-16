@@ -7,22 +7,25 @@
 //! `local_storage_projection::fold_derived` and exercised by `competing_quorums.rs` (RUN-01/03).
 //!
 //! So the useful experiment is **not** to rebuild it. It is to check the implementation against the
-//! three keys §7.3.1 actually specifies, because the fold resolves by **sequential replay in
-//! `merge_cmp` order** (`lamport → author_device → envelope_hash`), and two of the three keys are
-//! not obviously in that comparator:
+//! three keys §7.3.1 actually specifies. The fold resolves by **sequential replay in `merge_cmp`
+//! order**. Outcomes, after two owner corrections and one comparator change:
 //!
-//! 1. **Operation-type precedence — "subtractions before additions."** §7.3.1 key 1 requires a
-//!    *layered* fold: threshold changes, then membership removals, then role/capability removals,
-//!    then grants, then membership additions, each tier resolved against the settled result of the
-//!    tiers above. A flat lamport sort does not do this. **Does the restrictive reading win?**
-//! 2. **Causal precedence within a tier.** Lamport ordering should deliver this.
-//! 3. **The concurrent tiebreak must be the CONTENT ADDRESS, and party-neutral.** §7.3.1: *"any
-//!    party-privileging key is opt-in and itself under k-of-n governance, and the content address
-//!    remains the total fallback."* `merge_cmp` puts **`author_device` ahead of the hash**. **Is a
-//!    concurrent conflict decided by whose device it was?**
+//! 1. **Operation-type precedence ("subtractions before additions") — the alarm was withdrawn.**
+//!    The realistic removal-vs-promotion race resolves restrictively via the effective-roles
+//!    projection, and the reachable remove-vs-add race (a rejoin approval vs a concurrently-enacted
+//!    ban) **hard-stops as a contradiction with an order-independent byte-head** — §7.3.2/§7.6
+//!    escalation working as specified. What survives is E108: the membership **projection** while
+//!    hard-stopped diverges by arrival order.
+//! 2. **Causal precedence within a tier.** Delivered by the lamport key; permutation-tested.
+//! 3. **The concurrent tiebreak is the CONTENT ADDRESS.** Originally `merge_cmp` consulted
+//!    `author_device` first — a party-privileging silent default. The load-bearing check measured
+//!    that key doing no other work, and the comparator moved to **v2** (`lamport → hash`,
+//!    `types::MERGE_CMP_VERSION`, stamped per store with a rebuild path). The tests here now pin
+//!    conformance so v1 cannot silently return.
 //!
-//! And the property all three serve: **order independence**. Same facts, any arrival order, same
-//! standing.
+//! And the property all three serve: **order independence** — held over a complete set (6
+//! permutations), and measured to fail over an incomplete one, which is §11.11's gap-completeness
+//! beam demonstrated, not discharged.
 //!
 //! **This file does NOT test gap-completeness** (§11.11's beam) and is not evidence about it.
 //! Fidelity: **Modeled** — a real fold over a real store, but governance facts are this
@@ -36,9 +39,7 @@ use common::{base, has_member, membership_add_payload, sign, signed_genesis};
 use local_storage_projection::fold_derived::DerivedFold;
 use local_storage_projection::tables::Db;
 use local_storage_projection::types::envelope_hash;
-use local_storage_projection::{
-    AssertionEnvelope, AssertionType, DeviceId, GroupId, Hash, PrincipalId,
-};
+use local_storage_projection::{AssertionEnvelope, AssertionType, GroupId, PrincipalId};
 use social_graph_core::{Ed25519Verifier, Identity, RegistryCredentialResolver, Session};
 
 fn remove_payload(subject: PrincipalId) -> Vec<u8> {
@@ -79,14 +80,20 @@ fn is_member(session: &Session, group: &GroupId, who: &PrincipalId) -> bool {
     has_member(session, group, who)
 }
 
-/// **Key 3 — is the concurrent tiebreak party-neutral?**
+/// **Key 3 — the concurrent tiebreak is party-neutral. (Conformance test; formerly a
+/// characterization of the v1 divergence.)**
 ///
-/// Two mutually-concurrent facts of the same type at the same lamport. §7.3.1 says the content
-/// address decides. `merge_cmp` consults `author_device` first.
+/// History, kept because the RED→GREEN arc is the documentation: the v1 comparator ordered
+/// `lamport → author_device → envelope_hash`, so among genuine concurrents the author's DEVICE
+/// decided before the content address ever ran — a party-privileging key as a silent default,
+/// which §7.3.1 key 3 forbids. The G1 load-bearing check then measured that the device key did
+/// no other work (totality and per-device order both survive on `lamport → hash`), and the
+/// comparator moved to v2 (`types::MERGE_CMP_VERSION`), stamped per store with a rebuild path.
+/// This test now pins the spec-conformant behaviour so it cannot silently regress to v1.
 #[tokio::test]
-async fn the_concurrent_tiebreak_consults_author_device_before_the_content_address() {
-    // Two envelopes identical in everything the spec's key 3 says should matter, differing only in
-    // author device — so if the outcome differs, the device decided it.
+async fn the_concurrent_tiebreak_is_the_content_address_never_the_device() {
+    // Two envelopes identical in everything key 3 says should matter, differing only in author
+    // device — if the outcome tracked the device, the party-privileging key would be back.
     let id_x = Identity::from_seed([0xB0; 32]);
     let id_y = Identity::from_seed([0xB1; 32]);
     let group = GroupId::new([0xC1; 32]);
@@ -117,54 +124,21 @@ async fn the_concurrent_tiebreak_consults_author_device_before_the_content_addre
 
     let ha = envelope_hash(&a);
     let hb = envelope_hash(&b);
-    let hash_says: DeviceId = if ha.as_bytes() <= hb.as_bytes() {
-        a.author_device
-    } else {
-        b.author_device
-    };
-    let device_says: DeviceId = if a.author_device.as_bytes() <= b.author_device.as_bytes() {
-        a.author_device
-    } else {
-        b.author_device
-    };
-
+    let hash_dir = ha.as_bytes().cmp(hb.as_bytes());
     let cmp = local_storage_projection::types::merge_cmp(&a, &b);
-    let comparator_says = if cmp == std::cmp::Ordering::Less {
-        a.author_device
-    } else {
-        b.author_device
-    };
 
-    println!(
-        "G1 MEASURED (modeled): two mutually-concurrent same-type facts at the same lamport. \
-         The CONTENT ADDRESS would order {}first; the AUTHOR DEVICE orders {}first; \
-         `merge_cmp` puts {}first.",
-        if hash_says == a.author_device { "A " } else { "B " },
-        if device_says == a.author_device { "A " } else { "B " },
-        if comparator_says == a.author_device { "A " } else { "B " },
-    );
     assert_eq!(
-        comparator_says, device_says,
-        "the comparator follows the DEVICE key, not the content address"
+        cmp, hash_dir,
+        "at equal lamport the CONTENT ADDRESS must decide — §7.3.1 key 3"
     );
 
     println!(
-        "G1 FINDING (modeled): **`merge_cmp` orders `lamport -> author_device -> envelope_hash`, so \
-         among genuine concurrents the AUTHOR'S DEVICE decides before the content address ever \
-         runs.** §7.3.1 key 3 specifies the opposite: the default key is the content address, \
-         *\"party-neutral, ungameable, and identical everywhere\"*, and *\"any party-privileging key \
-         is opt-in and itself under k-of-n governance\"*. **A device identifier is a \
-         party-privileging key applied as a silent default.**"
-    );
-    println!(
-        "G1 CONSEQUENCE: this is a DIVERGENCE to adjudicate, not a bug report — the ordering is still \
-         deterministic and identical on every node, so the fold's convergence property is NOT at \
-         risk, and no test here shows divergence. What is at risk is the *reason* §7.3.1 gives for \
-         choosing the content address: a party-derived key means a participant who can choose device \
-         identifiers can bias every concurrent tie they are party to. **Two honest readings:** \
-         (a) `author_device` is a stability aid and the spec should say the tiebreak is \
-         `(device, hash)`; or (b) the implementation should drop to the hash and let §7.3.1 stand. \
-         **Owner's call — the spec and the code currently disagree.**"
+        "G1 CONFIRMED (modeled): among genuine concurrents `merge_cmp` (v{}) now orders by the \
+         CONTENT ADDRESS — party-neutral, ungameable, identical everywhere — exactly as §7.3.1 \
+         key 3 specifies. The v1 comparator consulted `author_device` first; the load-bearing \
+         check measured that key doing no other work, and it was removed with a versioned \
+         comparator and a rebuild path. **The spec did not move; the code did.**",
+        local_storage_projection::types::MERGE_CMP_VERSION,
     );
 }
 
@@ -632,21 +606,21 @@ async fn approving_a_rejoin_concurrently_with_enacting_a_ban_must_resolve_restri
     }
 }
 
-/// **Key 3, the load-bearing check: is `author_device` doing any work in `merge_cmp` that the
-/// content address does not already do?**
+/// **Key 3, the load-bearing check — kept as the v2 regression guard.**
 ///
-/// Before recommending the comparator drop to `lamport → hash` (the §7.3.1-conformant order), the
-/// question is whether the device key carries anything besides the party-privileging tiebreak. Two
-/// candidate jobs it could be doing, both checked here; the third (consumers of device-contiguous
-/// sort order) is settled by enumeration — `merge_cmp` has exactly two production call sites, both
-/// full-log replays in `fold_derived.rs` (`resolve_contradiction`, `rebuild`), and the replay engine
-/// reads envelopes one at a time without assuming a device's facts are adjacent.
+/// This test originally ran BEFORE the comparator change, measuring whether `author_device` was
+/// doing any work the content address did not: totality held without it (0 Equal pairs — the hash
+/// covers the device), per-device order needed no middle key (ingest enforces monotonic lamports
+/// per device), and the two comparators disagreed on 43 of 75 cross-device same-lamport pairs
+/// **and nowhere else** — i.e., only on the disputed tiebreak itself. That measurement justified
+/// the v2 change. Post-change, the same sweep now guards the conformant behaviour: `merge_cmp`
+/// must agree with `lamport → hash` on EVERY pair, or the device key has crept back.
 #[tokio::test]
-async fn dropping_author_device_from_the_comparator_loses_nothing_but_the_bias() {
+async fn merge_cmp_agrees_with_lamport_then_hash_on_every_pair() {
     use std::cmp::Ordering;
 
-    // A spread of envelopes: several devices, colliding lamports, duplicated payloads — the shapes
-    // that could expose a totality hole.
+    // The same adversarial spread the pre-change check used: several devices, colliding
+    // lamports, duplicated payloads.
     let ids: Vec<Identity> = (0u8..6).map(|i| Identity::from_seed([0x90 + i; 32])).collect();
     let group = GroupId::new([0xC9; 32]);
     let mut envs: Vec<AssertionEnvelope> = Vec::new();
@@ -660,99 +634,47 @@ async fn dropping_author_device_from_the_comparator_loses_nothing_but_the_bias()
                     AssertionType::MembershipAdd,
                     lamport,
                     vec![],
-                    // Same payload on purpose across devices: only the author differs.
                     membership_add_payload(PrincipalId::new([(i % 3) as u8; 32]), 2),
                 ),
             ));
         }
     }
 
-    // JOB 1 — totality. Distinct envelopes must never compare Equal under `lamport → hash` alone,
-    // or a sort becomes nondeterministic. The envelope hash covers author_device, so two facts
-    // differing only in device still hash apart.
-    let alt_cmp = |a: &AssertionEnvelope, b: &AssertionEnvelope| {
+    let spec_cmp = |a: &AssertionEnvelope, b: &AssertionEnvelope| {
         a.lamport
             .cmp(&b.lamport)
             .then_with(|| envelope_hash(a).as_bytes().cmp(envelope_hash(b).as_bytes()))
     };
+
     let mut equal_pairs = 0;
+    let mut disagreements = 0;
     for i in 0..envs.len() {
         for j in (i + 1)..envs.len() {
-            if alt_cmp(&envs[i], &envs[j]) == Ordering::Equal {
+            if spec_cmp(&envs[i], &envs[j]) == Ordering::Equal {
                 equal_pairs += 1;
             }
-        }
-    }
-    assert_eq!(
-        equal_pairs, 0,
-        "lamport → hash must totally order distinct envelopes"
-    );
-
-    // JOB 2 — per-device internal order. Ingest enforces strictly increasing lamports per device
-    // (measured earlier in this file: "lamport violation … expected > 2, got 2"), so the lamport
-    // key ALONE fixes each device's internal order; no middle key is needed for it.
-    let mut sorted = envs.clone();
-    sorted.sort_by(alt_cmp);
-    for id in &ids {
-        let dev = DeviceId::new(id.device_id().0);
-        let device_lamports: Vec<u64> = sorted
-            .iter()
-            .filter(|e| e.author_device == dev)
-            .map(|e| e.lamport)
-            .collect();
-        let mut expected = device_lamports.clone();
-        expected.sort_unstable();
-        assert_eq!(
-            device_lamports, expected,
-            "a device's own facts must stay in lamport order under lamport → hash"
-        );
-    }
-
-    // JOB 3 — divergence surface. Where do the two comparators actually disagree? Only among
-    // cross-device same-lamport pairs — i.e., exactly the genuine concurrents whose tiebreak
-    // semantics are the thing under dispute.
-    let mut disagreements = 0;
-    let mut cross_device_same_lamport = 0;
-    for i in 0..envs.len() {
-        for j in (i + 1)..envs.len() {
-            let (a, b) = (&envs[i], &envs[j]);
-            if a.lamport == b.lamport && a.author_device != b.author_device {
-                cross_device_same_lamport += 1;
-            }
-            if local_storage_projection::types::merge_cmp(a, b) != alt_cmp(a, b) {
+            if local_storage_projection::types::merge_cmp(&envs[i], &envs[j])
+                != spec_cmp(&envs[i], &envs[j])
+            {
                 disagreements += 1;
-                assert_eq!(
-                    a.lamport, b.lamport,
-                    "the comparators may only disagree at equal lamport"
-                );
-                assert_ne!(
-                    a.author_device, b.author_device,
-                    "…and only across devices — i.e., only on genuine concurrents"
-                );
             }
         }
     }
 
-    println!(
-        "G1 MEASURED (modeled): over {} envelopes (6 devices × 5 lamports, colliding payloads): \
-         `lamport → hash` produced **0 Equal pairs** among distinct envelopes (totality holds \
-         without the device key — the hash already covers the device); every device's own facts \
-         stayed in lamport order (per-device order needs no middle key, since ingest enforces \
-         per-device monotonic lamports); and the two comparators disagreed on **{} of {} \
-         cross-device same-lamport pairs and nowhere else**.",
-        envs.len(),
-        disagreements,
-        cross_device_same_lamport,
+    assert_eq!(equal_pairs, 0, "lamport → hash must totally order distinct envelopes");
+    assert_eq!(
+        disagreements, 0,
+        "merge_cmp must BE lamport → hash — any disagreement means a party-derived key returned"
     );
+
     println!(
-        "G1 CONSEQUENCE: **`author_device` is not load-bearing.** Its only observable effect is \
-         choosing the winner among genuine concurrents — precisely the party-privileging bias §7.3.1 \
-         key 3 forbids as a silent default. Dropping to `lamport → hash` preserves totality, \
-         per-device order, and both replay call sites (enumerated: `resolve_contradiction` and \
-         `rebuild`, neither of which assumes device-contiguous order). **One real cost, and it is \
-         migration, not correctness:** a store folded under the old comparator can re-fold \
-         differently for any group containing cross-device same-lamport pairs, so the change should \
-         land as a versioned comparator with a rebuild, not a silent edit. Key 3 is now a decision, \
-         not a guess: the code can move to the spec."
+        "G1 CONFIRMED (modeled): over {} envelopes (6 devices × 5 lamports, colliding payloads), \
+         `merge_cmp` v{} agreed with `lamport → hash` on every one of the {} pairs, with 0 Equal \
+         pairs among distinct envelopes. The pre-change run of this sweep found 43 of 75 \
+         cross-device same-lamport pairs ordered by the DEVICE — that number is now pinned at \
+         zero, which is what §7.3.1 key 3 requires.",
+        envs.len(),
+        local_storage_projection::types::MERGE_CMP_VERSION,
+        envs.len() * (envs.len() - 1) / 2,
     );
 }
