@@ -244,11 +244,26 @@ impl Meer {
     /// gap between the design's "here is what is gone" and what the substrate can actually do is
     /// measured rather than assumed.
     pub fn sweep(&mut self) -> SweepReport {
+        self.sweep_with_retention(RETENTION_DAYS)
+    }
+
+    /// Sweep against an explicit retention window rather than the service default.
+    ///
+    /// **Why this seam exists.** S14 measured [`RETENTION_DAYS`] to be shorter than seven of Part 2
+    /// §11.6's eight liveness windows, and S15 walked what that produces: a member simultaneously
+    /// live in the hot Group and unable to name anything but a stale queue. The fix is ordering —
+    /// retention ≥ the Group's liveness window — and §11.6's windows are set **per Group**, tightening
+    /// with size (90 days at 250–1k down to 14 at 7–10k). A single service constant can therefore
+    /// only ever be correct for the most aggressive band. **Retention is a Group governance value
+    /// that the meer is told, not a property of the meer**, and this signature is that claim in code.
+    ///
+    /// [`RETENTION_DAYS`] survives as the default a Group gets when it has said nothing.
+    pub fn sweep_with_retention(&mut self, retention_days: u64) -> SweepReport {
         let now = self.clock.now();
         let mut swept = 0;
         let mut queues_marked = 0;
         for queue in self.queues.values_mut() {
-            let n = queue.sweep(now, RETENTION_DAYS);
+            let n = queue.sweep(now, retention_days);
             if n > 0 {
                 swept += n;
                 queues_marked += 1;

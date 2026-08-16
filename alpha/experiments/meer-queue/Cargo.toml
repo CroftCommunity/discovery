@@ -51,6 +51,10 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 iroh = { version = "=1.0.0", features = ["test-utils"] }
 iroh-relay = { version = "=1.0.0", features = ["server", "test-utils"] }
 anyhow = "1"
+# S17's outer seal holds one epoch's AEAD key as a first-class value across a commit
+# (see src/outer_seal.rs). Secret material in a named struct wants zeroize-on-drop and
+# no Debug impl; openmls already depends on this, so it costs nothing new in the tree.
+zeroize = { version = "1.9.0", features = ["zeroize_derive"] }
 
 [features]
 # D3 / M2 negative arm only: openmls gates the decode→re-encode conversions behind

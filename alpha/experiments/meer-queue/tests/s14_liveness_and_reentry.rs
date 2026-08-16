@@ -43,8 +43,13 @@ fn group_config() -> MlsGroupCreateConfig {
 fn a_silent_reader_who_processes_stays_current_and_keeps_its_queue_name() {
     let alice = Persona::new("alice");
     let bob = Persona::new("bob");
-    let mut a = MlsGroup::new(&alice.provider, &alice.signer, &group_config(), alice.cwk.clone())
-        .expect("group");
+    let mut a = MlsGroup::new(
+        &alice.provider,
+        &alice.signer,
+        &group_config(),
+        alice.cwk.clone(),
+    )
+    .expect("group");
     let (_c, welcome_out, _g) = a
         .add_members(&alice.provider, &alice.signer, &[bob.key_package()])
         .expect("add bob");
@@ -67,7 +72,11 @@ fn a_silent_reader_who_processes_stays_current_and_keeps_its_queue_name() {
         mls_replant::apply_commit(&mut b, &bob, &commit);
     }
 
-    assert_eq!(a.epoch(), b.epoch(), "the silent reader is at the current epoch");
+    assert_eq!(
+        a.epoch(),
+        b.epoch(),
+        "the silent reader is at the current epoch"
+    );
     assert_eq!(
         queue_name(&a, &alice),
         queue_name(&b, &bob),
@@ -88,8 +97,13 @@ fn a_silent_reader_who_processes_stays_current_and_keeps_its_queue_name() {
 fn migration_to_cold_severs_queue_access_with_no_extra_mechanism() {
     let alice = Persona::new("alice");
     let bob = Persona::new("bob");
-    let mut a = MlsGroup::new(&alice.provider, &alice.signer, &group_config(), alice.cwk.clone())
-        .expect("group");
+    let mut a = MlsGroup::new(
+        &alice.provider,
+        &alice.signer,
+        &group_config(),
+        alice.cwk.clone(),
+    )
+    .expect("group");
     let (_c, welcome_out, _g) = a
         .add_members(&alice.provider, &alice.signer, &[bob.key_package()])
         .expect("add");
@@ -139,8 +153,13 @@ fn migration_to_cold_severs_queue_access_with_no_extra_mechanism() {
 fn a_cold_member_can_rejoin_by_external_commit_without_a_welcome() {
     let alice = Persona::new("alice");
     let bob = Persona::new("bob");
-    let mut a = MlsGroup::new(&alice.provider, &alice.signer, &group_config(), alice.cwk.clone())
-        .expect("group");
+    let mut a = MlsGroup::new(
+        &alice.provider,
+        &alice.signer,
+        &group_config(),
+        alice.cwk.clone(),
+    )
+    .expect("group");
     let (_c, welcome_out, _g) = a
         .add_members(&alice.provider, &alice.signer, &[bob.key_package()])
         .expect("add");
@@ -158,7 +177,10 @@ fn a_cold_member_can_rejoin_by_external_commit_without_a_welcome() {
     let b = join(&bob, welcome, tree);
     let bobs_epoch = b.epoch();
     let had_resumption = b.resumption_psk_secret().as_slice().to_vec();
-    assert!(!had_resumption.is_empty(), "the returner stores a continuity token");
+    assert!(
+        !had_resumption.is_empty(),
+        "the returner stores a continuity token"
+    );
 
     // Bob goes cold; the group churns well past him.
     let bob_leaf = a
@@ -230,7 +252,7 @@ fn the_limbo_state_is_real_when_retention_is_shorter_than_liveness() {
     // limbo is a property of their ordering rather than of any code path. Stated as an
     // executable check so a later change to either default trips it.
     const MEER_RETENTION_DAYS: u64 = meer_queue::meer::RETENTION_DAYS; // 14 today
-    // §11.6's schedule, tightening with group size.
+                                                                       // §11.6's schedule, tightening with group size.
     let liveness_windows: [(&str, u64, u64); 4] = [
         ("250–1k", 90, 45),
         ("1–3k", 60, 30),
@@ -259,10 +281,12 @@ fn the_limbo_state_is_real_when_retention_is_shorter_than_liveness() {
     println!(
         "S14 CONSEQUENCE: in every band listed, a member absent longer than retention but shorter \
          than the liveness window is still a LIVE member of the hot Group, cannot catch up from the \
-         meer (the chain is severed at the oldest link), and has NOT been migrated to cold — so \
-         §11.7's re-entry path is not open to them either. Neither mechanism applies. The fix is \
-         ordering, not code: **meer retention ≥ the Group's liveness window**, which makes 'cannot \
-         catch up' and 'migrated to cold' coincide."
+         meer (the chain is severed at the oldest link), and has NOT been migrated to cold. The fix \
+         is ordering, not code: **meer retention ≥ the Group's liveness window**, which makes \
+         'cannot catch up' and 'migrated to cold' coincide. [CORRECTED by S15, 2026-08-13: this \
+         verdict originally added 'so §11.7's re-entry is not open to them either — neither \
+         mechanism applies'. Measured false. External commit IS open to a stranded-but-live member; \
+         what is missing is the GroupInfo it needs, which nothing serves. See E105.]"
     );
 
     assert!(

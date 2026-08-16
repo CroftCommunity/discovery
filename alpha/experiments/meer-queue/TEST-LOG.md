@@ -1035,12 +1035,449 @@ where a member can be live-but-uncatchable — are: 250–1k/modest (90d), 250�
 liveness window is **live in the hot Group, unable to catch up from the meer, and not yet migrated to
 cold** — so §11.7's re-entry is not open to them either. **Neither mechanism applies.**
 
+> **SUPERSEDED IN PART by S15 (2026-08-13).** The last clause is wrong: §11.7's re-entry **is** open
+> to a stranded-but-live member, because openmls does not distinguish "cold" from "stranded". What
+> is actually missing is the **`GroupInfo`** that path needs, which nothing serves (E105). The
+> ordering constraint below stands unchanged; only "neither mechanism applies" was too strong.
+
 **The fix is ordering, not code: `meer retention ≥ the Group's liveness window`.** Then "cannot catch
 up" and "migrated to cold" coincide, and there is exactly one recovery path. Since §11.6's windows
 are per-band governance policy (14–90 days), **retention is not a service constant** — it is bounded
 below by a Group decision, which is where E95's declared-expiry axis should live.
 
 The check is written as an executable assertion so a later change to either default trips it.
+
+---
+
+## S15 — The limbo state, walked end to end (2026-08-13)
+
+S14 asserted limbo as a **policy comparison** between two constants. Nobody had put a member in that
+state against the real library and asked what she can actually do.
+
+**Rung: A (real-lib).** **Code:** `tests/s15_limbo_walked.rs`.
+
+**Verdict: the state is real and reachable — and S14's characterisation of it was too strong.**
+
+### 1. What limbo looks like from inside
+
+Measured, at 15 days absent (past the 14-day retention, inside a 30-day liveness window), the member
+is in **all three states at once**:
+
+- **still seated in the hot Group** — the leaf is there, the group is still exactly two members, so
+  §11.6's migration to cold has not run;
+- **holding a watermark of 2 lost entries** — she knows she is short, which is S13's finding doing
+  its job at exactly the moment it matters;
+- **able to name exactly ONE queue**, the stale one — because the commit that would have named the
+  next was among the entries that were swept.
+
+### 2. **Correction to S14: limbo is escapable.** "Neither mechanism applies" is too strong
+
+S14 concluded that a stranded-but-live member has neither catch-up nor §11.7 re-entry available.
+Measured here: **she re-entered by external commit.** The library does not distinguish "cold" from
+"stranded" — §11.7's path is open to anyone holding a current `GroupInfo`, membership status
+irrelevant.
+
+### 3. **The new finding: nothing serves `GroupInfo`.**
+
+The escape needs a **current `GroupInfo`**, and **neither delivery target carries one**:
+
+- the **group queue** is unnameable to her by construction — that is what being stranded *means*;
+- the **personal inbox** carries `Welcome`s;
+- and a `GroupInfo` is **not a queued object at all** — it is produced on demand by a member holding
+  live group state.
+
+> **§11.7's "self-service" return is self-service in COST only.** It still requires a live member to
+> answer, over a channel this design does not have.
+
+**So the limbo fix is not only `retention ≥ liveness`. It is also: something must serve `GroupInfo`
+to a returner.** Filed as **E105**; not resolved here.
+
+### 4. The constructive half, and one production change
+
+Measured: with retention set to the Group's liveness window (30d), **the same 15-day absence costs
+nothing** — she drains her next hop and is current. The limbo band is empty by construction.
+
+This drove the spike's one production change in this round: **`Meer::sweep_with_retention(days)`**,
+with `sweep()` delegating to it at `RETENTION_DAYS`. The signature is the claim in code — §11.6's
+windows are set per Group (90 days at 250–1k down to 14 at 7–10k), so **a single service constant
+can only ever be correct for the most aggressive band. Retention is a Group governance value the meer
+is told, not a property of the meer.**
+
+---
+
+## S16 — The governance-attestation half of §11.7's two-part credential (2026-08-13)
+
+§11.7 defines re-entry as **governance attestation** (standing) + **resumption PSK** (keys). S14
+measured the key half "working" — but that rejoin supplied **no PSK at all**, which means whatever
+admitted her was not the credential §11.7 describes. This tests the halves properly.
+
+**Rung: A (real-lib).** **Code:** `tests/s16_governance_attestation.rs`. No CISS — nothing here
+touches storage.
+
+**Verdict: §11.7's two-part credential is not implementable on openmls 0.8.1 as written. Both halves
+fail, for different reasons, and a third mechanism carries both.**
+
+### 1. MLS checks no standing whatsoever
+
+Measured: a party who was **never a member**, never invited, holding **no group secret of any
+epoch**, joined a live group by external commit using only a current `GroupInfo` — and the incumbent
+**processed and merged it without objection**. 2 members → 3.
+
+**This generalises S11 from the inbox to the group.** S11: a stranger can seat **you** in a group you
+never asked to join. S16: a stranger can seat **herself** in a group that never asked for her. Both
+are MLS working as specified; both say the same thing — **admission control is entirely
+application-layer.**
+
+### 2. The resumption PSK cannot be attached to an external commit at all
+
+This arm was written expecting "it works but is optional". **It refuted that.** Attaching a
+resumption PSK fails with `PskError(KeyNotFound)` even when the returner genuinely holds that epoch's
+secret and has written it to her provider PSK store. The cause is structural:
+
+- resumption PSKs resolve from the **group's own** `ResumptionPskStore`, never from provider storage
+  — `schedule/psk.rs:530-537` sends the `Psk::Resumption` branch straight to
+  `resumption_psk_store.get()`;
+- a group built by external commit initialises that store **empty** — `ResumptionPskStore::new(32)`
+  at `group/mls_group/commit_builder/external_commits.rs:290`;
+- and the store's `add` is `pub(crate)`, so there is no public API to seed it.
+
+**This is not a gap in our code. It is a gap between the spec text and the library, and the spec is
+the thing that has to move.**
+
+### 3. What does work: a governance-issued **external** PSK — and it carries both halves
+
+Measured end to end: an external PSK resolves from provider storage (the `Psk::External` branch of
+the same resolver), attaches to the external commit, is visible to the incumbent as a **countable
+`psk_proposals()` entry before merging**, and the merge seats the returner.
+
+> **One mechanism, both halves.** Possessing the token proves the governance issued it (**standing**);
+> it binds into the commit's key schedule so it cannot be claimed without being held (**keys**).
+
+Its one difference from a resumption PSK is the honest one: it proves **the governance vouched for
+you**, not **that you were there**.
+
+### 4. The policy hook exists, and it is pre-merge
+
+Measured available on the `ProcessedMessage` **before** `merge_staged_commit`:
+
+- **AAD survives to the incumbent**, byte-exact (60 bytes round-tripped) — the attestation's carrier;
+- the sender is distinguishable as **`NewMemberCommit`** rather than a member's commit;
+- the joiner's **credential is readable**, so the attestation can be checked *against an identity*.
+
+Dropping the staged commit instead of merging left the group **unchanged** at its prior epoch and
+member count. So the full check is expressible today: **read the token, read the AAD attestation,
+verify both against the joiner's credential, then merge or drop.**
+
+### Two honest limits, the second sharper
+
+1. **The AAD is signed by the joiner's own new leaf key** — self-asserted. It authenticates the
+   carrier, never the claim. The attestation must be a token *governance* issued and the member
+   verifies; MLS supplies the envelope and nothing else.
+2. **Refusal is not consensus.** One member declining moves only that member — anyone who merged is
+   now at a different epoch, and **the group has forked.** So the attestation policy must be a
+   **group-wide rule agreed in advance** (a group-context extension is the natural home), not a
+   per-member judgement call. *A policy every member evaluates differently is a partition.*
+
+---
+
+## S17 — Nested sealing: does an outer seal still route? (2026-08-13)
+
+E96 was parked on one blocking objection: an outer seal hides the routing metadata, so how would the
+carrier route? **That objection died with the addressed model** — the queue name comes from
+`export_secret`, which was never inside the envelope.
+
+**Rung: A (real-lib)** — the group ciphersuite's own AEAD via the provider's crypto, real MLS
+exporter output for the key, real CISS, real queue. **Code:** `tests/s17_nested_sealing.rs`,
+`src/outer_seal.rs`.
+
+**Verdict: E96's fix works, costs 28 flat bytes, and breaks nothing. It is unblocked in practice, not
+just in principle.**
+
+### 1. The leak closes, measured in bytes
+
+`group_id` (16 bytes) appears **verbatim** in the bare MLS envelope — S7 reproduced by grepping the
+bytes, not by citing it — and is **absent** from the outer-sealed object, which does not parse as MLS
+at all.
+
+**Cost: 188 → 216 bytes, `28 bytes` overhead** (12-byte nonce + 16-byte AEAD tag). **Measured flat:**
+a 64 KiB payload pays the same 28 bytes.
+
+### 2. Routing, dedup and byte-identity all survive
+
+Measured end to end over the real queue: published under an `export_secret`-derived name, forwarded
+**byte-identically**, drained, unwrapped, opened. The same wrapped object queued twice is still one
+entry.
+
+**The E96 objection is answered:** the meer never needed anything inside the envelope to route.
+Dedup and M2's byte-identity are properties of the *outermost* bytes, so an extra layer is invisible
+to both.
+
+### 3. A stronger negative than S7's
+
+A non-member holding the wrapped bytes is refused at the outer layer with an
+**`AeadDecryptionError`** — a *decryption* failure, not a routing check. S7's refusal was a `group_id`
+mismatch raised *before* decryption was attempted, so confidentiality held but was never exercised.
+**Here the AEAD tag is what says no.**
+
+### 4. The catch-up walk still inducts — and the wrapping rule that makes it work
+
+Measured across 3 hops: she read every message and landed exactly current. The induction holds
+because the outer key for hop N is derived from the epoch she is **already at** when she arrives.
+**No deadlock, no extra round trip** — the two-step per hop is unwrap-then-process, both local.
+
+> **The wrapping rule:** an object must be wrapped with the key of the epoch whose **queue** carries
+> it. For the commit that **closes** an epoch, that is the epoch it closes, **not** the one it opens.
+
+**Verified from the failing side**, because a rule is only worth stating if breaking it breaks
+something: a commit wrapped at the epoch it *opens* is unopenable by the member who needs it
+(`AeadDecryptionError`). She holds epoch N; the object wants N+1; the only route to N+1 is the object
+she cannot open. **The deadlock is real, silent, and indistinguishable from a corrupt object.**
+
+OpenMLS exports the **current epoch only**, so this is not a mistake the API can prevent — which is
+why `outer_seal::OuterKey` is a first-class value a caller derives *before* committing and holds
+across the commit, rather than something `wrap()` reaches for implicitly.
+
+---
+
+## S18 — How durable is a removal? (2026-08-14)
+
+S16 measured that a party who was *never* a member can join on a `GroupInfo` alone. A **deliberately
+removed** member is the same mechanism pointed at the case where getting it wrong hurts a real
+person — a death, a divorce, a falling-out. The owner's framing, which this was built to check
+rather than illustrate: *"being in the group is a multi-tiered constraint, and who you key your
+responses for is the truest sense of your group — you can't be forced to do it."*
+
+**Rung: A (real-lib).** **Code:** `tests/s18_removal_durability.rs`.
+
+**Verdict: the side door is real, the refusal is real and stronger than expected, and the mitigation
+is a different artifact than assumed.**
+
+### 1. A removed member re-seated herself
+
+Measured: removed at epoch 1 (3 members → 2), then **back at epoch 3 with 3 members** — using a
+current `GroupInfo` alone. **No `Welcome`, no invitation, no PSK, and no member acting on her
+behalf.** The member who performed the removal processed the re-entry without the library objecting.
+
+> **A removal is exactly as durable as `GroupInfo` distribution, and not one bit more.**
+
+**The re-entry channel and the removal side door are the same mechanism** — which means E105 cannot
+be designed without deciding this, and the two cannot be given different answers.
+
+### 2. But refusal holds, at two independent layers
+
+Bob declined to merge; Carol re-seated anyway via Alice. Then:
+
+- **Keys.** A message Bob sealed afterwards is unreadable to Carol — `An error occurred during AEAD
+  decryption.`
+- **Addressing.** Bob's queue name is not one Carol can derive, so his mail sits at an address she
+  **cannot even ask for**. Her drain returns empty.
+
+Neither layer needs the meer's cooperation, and neither needs Carol's. **The owner's framing is
+literally true and mechanically enforced: who you key for IS your group, and nobody can force you to
+key for someone.**
+
+> **Methodological note.** The first version of this measured `Generation is too old to be
+> processed` — a bookkeeping rejection, the same weakness S7's negative had. Corrected by having Bob
+> commit once on his own branch first, so both sides sit at the **same epoch number** with divergent
+> secrets. The failure is now a genuine AEAD decryption failure.
+
+### 3. **The fork is invisible in the epoch counter**
+
+The sharpest finding, and it came out of fixing the above. After Alice accepts and Bob declines and
+each advances once, they hold the **same epoch number** and **different secrets** — measured by
+deriving different queue names.
+
+**So a client cannot detect a fork by comparing epochs.** The only symptom is that peers silently
+stop being able to read each other.
+
+**Carol did not split the group; the DISAGREEMENT about Carol split the group.** The mechanism is
+sound and the **UX is the whole problem**: members must reach the same answer *in advance*, without
+a negotiation round. **A dialog box asking each member "allow Carol back?" is a partition generator,
+and one that hides its own damage.** This is why the readmission rule has to be a group-context
+policy.
+
+### 4. The mitigation is the ratchet tree, not the `GroupInfo`
+
+Measured with a proper control: the **same** member, **same** removal, **same** epoch is *refused* on
+a `GroupInfo` carrying no ratchet tree (`No ratchet tree available to build initial tree.`) and
+*admitted* the moment the tree is bundled.
+
+> **The admission surface is the ratchet tree.** Withhold it and re-entry needs two
+> separately-distributed artifacts instead of one.
+
+**An earlier version of this test measured nothing** and nearly recorded a false negative: it turned
+`use_ratchet_tree_extension` **off in the group config** and then exported the `GroupInfo` with
+`with_ratchet_tree: true`, handing the joiner the tree anyway. **The export flag is independent of
+the group config** — an exporter chooses per call. So this must be enforced at whatever serves
+`GroupInfo` (E105), *not* in the group's configuration.
+
+**Bandwidth and governance want the same thing here.** S8 measured the tree extension roughly
+doubling `Welcome` (330 vs 152 bytes/member) and crossing the 2 MiB cap first, at N ≈ 6,350. Ship the
+tree deliberately and narrowly rather than by default.
+
+---
+
+## S19 — What does an epoch roll actually do, and what does it prevent? (2026-08-16)
+
+The working model behind most of the planning, stated by the owner: *"an epoch roll is the literal
+changing of the group encryption material, so a user left out of an epoch roll would have no way in
+cryptographically."* S18's result appeared to contradict it. This separates the two claims.
+
+**Rung: A (real-lib).** **Code:** `tests/s19_what_an_epoch_roll_does.rs`.
+
+**Verdict: the working model is CORRECT about what it describes, and the two facts are consistent.
+They are two different doors.**
+
+### 1. The epoch roll really does lock her out — confirmed at the strong grade
+
+Measured **at two grades, because the weaker one proves nothing**:
+
+- While merely **behind**, she is refused on a **counter** check (`Message epoch differs from the
+  group's epoch`) — which a member who merely *lagged* would also hit. That is bookkeeping.
+- After advancing her own stale branch so both sides sit at the **same epoch number**, she is
+  refused **on the key**: `An error occurred during AEAD decryption.`
+
+She also cannot derive the new queue name, so she cannot even *find* post-roll mail.
+
+**Each commit mixes new path entropy with the prior epoch's secret, and she holds neither the entropy
+nor a leaf on the re-keyed path. Nothing she possesses computes the new epoch.**
+
+*Side observation:* she **can** process the commit that removes her — it is addressed to the epoch
+she still holds — so she learns she was removed.
+
+### 2. But external join never derives from prior state, so losing it prevents nothing
+
+Measured the sharpest available way: a returner on a **completely fresh provider** — no stored group
+state, no prior epoch secrets, nothing carried over — joined the live group and the incumbent merged
+it.
+
+**Prior membership contributes nothing to the external-join path.** The joiner performs a KEM against
+the **`external_pub`** key published *in the `GroupInfo`* to obtain the current epoch's `init_secret`,
+then commits itself in.
+
+> **The epoch roll's lock is on DERIVATION. The external-join path never derives.** Exclusion is
+> *passive-reading* exclusion; re-entry is an *active protocol operation* gated on a published key,
+> not on anything the roll destroyed.
+
+Any planning that reads "locked out of the epoch" as implying "cannot get back in" is reading a
+guarantee the protocol does not make — which is exactly why Part 2 §11.8 puts ban enforcement in an
+**application-layer admission gate** rather than relying on the key layer.
+
+### 3. There is no such thing as a "safe" `GroupInfo`
+
+`export_group_info` offers **exactly one** option, `with_ratchet_tree`. Measured across both
+settings: with the tree, a stranger gets in; without it, the refusal is specifically about the
+missing **tree**, never a missing `external_pub`. And
+`export_group_info_with_additional_extensions` documents that it *errors* if a `RatchetTreeExtension`
+or `ExternalPubExtension` is supplied directly, so neither can be hand-managed.
+
+> **Every `GroupInfo` a member can produce carries the external-join key.** There is no way to prove
+> current group state without also admitting the holder.
+
+**This closes the question S18 left open about which dial to reach for.** The admission surface
+cannot be narrowed by exporting a weaker `GroupInfo` — only by **withholding the ratchet tree** and
+by **controlling who is handed a `GroupInfo` at all**. Both are policies at the serving node, which
+is why E105's channel and E107's removal durability are one decision.
+
+---
+
+## S20 — A governance ban at group scale (2026-08-16)
+
+The owner's methodological challenge, and the right one to raise: *"I worry our testing right now is
+'roll epoch and equally include all existing users including the ban prospect'… we need a way to say
+10 people, 1 is banned by legit group governance, epoch roll, only include non-banned folks in new
+group."*
+
+S19 used a **two-person** group, which cannot distinguish "the removal excluded her" from "the group
+is now one person and trivially disagrees with her". **At N = 10 the distinction is visible.**
+
+**Rung: A (real-lib).** **Code:** `tests/s20_governance_removal_at_scale.rs`.
+
+**Verdict: the base-layer model is confirmed, and two things nobody asked about turned up.**
+
+### 1. The exclusion is genuine — nine agree, one is alone
+
+All ten agreed on the derived queue name **before** the ban. After one governance removal commit the
+**nine survivors all derive the same new key material**, the **banned member derives none of it** and
+is stranded on the pre-ban key unchanged, and the roster goes to nine.
+
+Measured at the strong grade: with her own branch advanced to the **same epoch number**, she is
+refused on the **key** (`An error occurred during AEAD decryption`), not on a counter.
+
+### 2. Three post-ban states, not two
+
+| state | what she holds |
+|---|---|
+| never sees the removal | live object, stale key |
+| **processes the removal** | **dead object — `UseAfterEviction`, no derivation at all** |
+| rebuilds from a `GroupInfo` | fresh object, current keys |
+
+**Nothing carries between them.** And note: **the well-behaved client gets the worst outcome** —
+syncing and processing the commit is what marks the group inactive. Correct for a ban; a **defect for
+a dormancy migration.**
+
+### 3. Re-entry is self-admission, and the window is exactly the lagging member
+
+She asks nobody for anything: she takes a `GroupInfo` from a member who has not synced the ban and
+constructs a commit seating herself. **There is no request, so there is nothing to deny** — the gate
+cannot be a permission prompt.
+
+Measured: admitted by the lagging member; **not applicable** at a member already past the ban, whose
+superseded epoch refuses it with no policy consulted.
+
+> **The exposure window is not "anyone can let her back in". It is precisely the set of members whose
+> view predates the ban.**
+
+**So the gate is not at the ban and not at the re-entry — it is at the moment a `GroupInfo` is
+served.** Enactment is instantaneous; *enforcement* is only as fast as the ban reaches whoever will
+hand one out. This is why E105 and E107 are one decision, and it argues the `GroupInfo` server must
+**resolve standing at head (§11.8) before serving**, not merely relay.
+
+---
+
+## S21 — The group shared secret, and where a governance gate can actually sit (2026-08-16)
+
+The owner's model: *"C can invite D through a crypto package… but A and B still need to accept the
+invite from a group governance perspective and agree to key for D — right?"*
+
+**Rung: A (real-lib).** **Code:** `tests/s21_shared_secret_and_the_proposal_gate.rs`.
+
+**Verdict: correct about the decision, wrong about the mechanism — and the difference decides where a
+gate can live.**
+
+### 1. One shared secret per epoch, not per-member keying
+
+A, B and C derive the **identical** epoch secret. There is no operation that encrypts to A and B but
+not C. **So "agreeing to key for D" is not a per-member act** — the only decision available is
+whether to be in an epoch that contains D.
+
+Measured downstream: after B merged the commit seating D, a message B sealed *for the group* was read
+by **D** in cleartext. **To exclude D after merging requires a new commit removing D. There is no
+lesser move.**
+
+### 2. But the decision is real, and MLS already has the phase for it
+
+C's Add **proposal** for D left the roster at 3 members **at every recipient**. A proposal seats
+nobody, rolls no epoch, grants no keys. Only when A **committed** it did D get anything — and at that
+moment A, B, C and D all held one secret.
+
+> **propose → (governance decides) → commit.** The protocol-level form of the spec's decide-then-enact
+> split (§7.3.6), available today. **This is where the invite gate belongs.**
+
+### 3. And this is exactly what an external join lacks
+
+An external join arrives as a `StagedCommit` from `NewMemberCommit` — a **commit, never a proposal**.
+The joiner performed both halves itself, so **there is no pending-proposal phase to gate.**
+
+| path | gate available | where |
+|---|---|---|
+| **C invites D** | **yes — the proposal phase** | in-protocol, before anything changes |
+| **outsider seats herself** | **none exists** | only: who is served a `GroupInfo`, + a merge-time policy every member evaluates identically |
+
+**Conflating these is what made the readmission discussion confusing.** "Members must agree" is
+straightforwardly available for invites and structurally unavailable, *as a request*, for external
+joins. **All-members-can-invite is a feature to manage, not a hole to prevent** — managed in the
+proposal phase. The external-join path is the one that needs the dial.
 
 ---
 

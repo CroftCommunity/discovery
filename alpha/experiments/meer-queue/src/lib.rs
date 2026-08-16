@@ -16,6 +16,7 @@ pub mod ciss_harness;
 pub mod meer;
 pub mod mls;
 pub mod node;
+pub mod outer_seal;
 pub mod queue;
 pub mod relay;
 pub mod transport;
