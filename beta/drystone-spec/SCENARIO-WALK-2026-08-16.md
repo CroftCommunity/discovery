@@ -297,8 +297,8 @@ somewhere, grounded nowhere.
 
 | # | scenario | MLS | DRY | CRO | status | evidence / gap |
 |---|---|---|---|---|---|---|
-| 39 | k-of-n quorum bans a lineage | — | §7.3.1 fold | quorum UX | **∅** | **the fold is not implemented anywhere** — S22 stubs it |
-| 40 | Two nodes resolve standing identically | — | order-independent fold | — | **∅** | §11.11 item 3 — **gap-completeness beam** |
+| 39 | k-of-n quorum bans a lineage | — | §7.3.1 fold | quorum UX | ~ | **CORRECTED: the fold IS implemented** (`local_storage_projection::fold_derived`, RUN-01/03). G1 measures it against its own keys |
+| 40 | Two nodes resolve standing identically | — | order-independent fold | — | ✓ / ✗ | **G1: holds over a COMPLETE set (6 permutations); diverges over an incomplete one** — §11.11's beam, now demonstrated |
 | 41 | Moderator role grants ban authority | — | Group Role Set | role UX | **∅** | not touched by any experiment |
 | 42 | A member exits voluntarily | — | fork primitive | export UX | **∅** | §7.6.4 — same primitive as a ban, untested |
 | 43 | Group forks and both sides continue | — | fork, no verdict | — | ~ | S18 measured an *accidental* fork; **a deliberate one ∅** |
@@ -308,10 +308,11 @@ somewhere, grounded nowhere.
 
 **Three clusters of `∅`, and they are not equally worrying.**
 
-1. **Croft governance (§2.6) is almost entirely ungrounded.** Six of six rows are `∅` or partial. The
-   §7.3.1 fold — which *every* standing decision depends on, including S22's gate — exists in prose
-   and in a stub. **This is the largest single gap the matrix exposes**, and §11.11 already carries
-   its hardest part (gap-completeness) as a named beam.
+1. **Croft governance (§2.6) is thinly grounded — and this bullet was WRONG when written.** It said
+   the §7.3.1 fold "exists in prose and in a stub". **It does not: it is implemented** in
+   `local_storage_projection::fold_derived` (3,276 lines) and exercised by `competing_quorums.rs`
+   (RUN-01/03). **G1 corrects that and measures the real thing** — see Part 3. Four of six rows here
+   remain `∅` (roles, voluntary exit, deliberate fork, re-composition).
 2. **Scale is unmeasured (§2.4, rows 31–32).** The corpus has object *sizes* at scale (S8) and commit
    *cost* shape (M1), but **no timing at 50, let alone at §11.6's bands.** §11.11's first unearned
    measurement is exactly this and it is still unearned.
@@ -328,3 +329,95 @@ somewhere, grounded nowhere.
 §7.3.1's fold that two peers provably resolve the same standing.** It is the dependency under S22's
 gate, under L5's admission gate, and under every Croft governance row. Everything in §2.3 is sound
 *given* it and unproven without it.
+
+
+---
+
+## Part 3 — G1: the §7.3.1 fold against its own three ordering keys
+
+**Written after the matrix, and it corrects the matrix.** Row 39 claimed the fold was unimplemented.
+**It is implemented** — `local_storage_projection::fold_derived`, exercised by `competing_quorums.rs`
+(RUN-01/03). So the useful experiment was never "build the fold" but "check it against the three keys
+§7.3.1 specifies."
+
+**Fidelity: Modeled** — a real fold over a real store, with this experiment's envelope type rather
+than a wire-format-final Drystone encoding. **Code:** `croft-chat/tests/fold_ordering_keys.rs`.
+**This file does not test gap-completeness and is not evidence about it.**
+
+The fold resolves by **sequential replay in `merge_cmp` order** — `lamport → author_device →
+envelope_hash`.
+
+### 3.1 Key 1 — "subtractions before additions" is NOT implemented
+
+§7.3.1 key 1 requires a **layered** fold with membership removals in a strictly higher tier than
+additions, *"biasing every intermediate state toward the more restrictive reading (the fail-safe
+direction)"*.
+
+**Measured:** a genuinely concurrent `RemoveMember(m)` and `AddMember(m)` — two authorized devices,
+equal lamport, same observed frontier — resolves to **MEMBER in both arrival orders**.
+
+> The fold **converged** (which is the property that must never break) but resolved **permissively**.
+> The addition won. Resolution is a flat replay, so **the later-sorted fact wins whatever its type.**
+
+**This touches the ban work directly.** Key 1 *is* the fail-safe direction, so its absence **fails
+open** in exactly the case readmission cares about. **It is the governance-layer instance of the shape
+S22 found at the delivery layer: a restrictive rule that is not actually applied fails open.**
+
+### 3.2 Key 3 — the concurrent tiebreak is not party-neutral
+
+§7.3.1 key 3: the default key is the **content address**, *"party-neutral, ungameable"*, and *"any
+party-privileging key is opt-in and itself under k-of-n governance"*.
+
+**Measured:** `merge_cmp` consults **`author_device` before the content address**, so among genuine
+concurrents the author's device decides and the hash never runs.
+
+**A divergence to adjudicate, not a bug.** The ordering is still deterministic and identical on every
+node, so **convergence is not at risk and nothing here shows divergence.** What is at risk is the
+*reason* §7.3.1 gives: a party-derived key lets a participant who chooses device identifiers bias
+every concurrent tie they are party to. **Two honest readings:** the spec should say the tiebreak is
+`(device, hash)`, or the code should drop to the hash. **The spec and the code currently disagree.**
+
+### 3.3 Order independence HOLDS — over a complete set
+
+**Measured:** six arrival permutations of three genuinely concurrent facts (two removals, one
+addition, three distinct devices, one shared frontier) resolved to the **identical** membership state.
+
+**The fold's central property holds.** And the qualifier is the whole point: this is order
+independence over a **complete** set.
+
+### 3.4 And over an incomplete set it diverges — which is the beam, and it explains S22
+
+**Measured:** peer A (complete set) resolves the subject as **not a member**; peer B, which never
+received the ban, resolves it as **a member**. **Neither peer is wrong over the set it holds.**
+
+> **This is the governance-layer source of the delivery-layer behaviour S22 measured.** The stale peer
+> that served a banned lineage a `GroupInfo` was not malfunctioning — it was folding an incomplete set
+> correctly.
+
+**The two experiments meet here, and the conclusion is stronger than either alone.** S22 measured that
+a **negative** standing check fails open at the least-synced peer; G1 shows *why* that peer answers as
+it does. So **"keep everyone synced" is not a mitigation at either layer — it is a restatement of the
+beam.** The available mitigation is the one S22 measured: **a positive credential, which a peer
+verifies from what it already holds and which therefore does not depend on its set being complete.**
+
+**This is now the strongest argument in the corpus for dial position 2.**
+
+### 3.5 Two harness artifacts, recorded because they nearly became findings
+
+Both would have read as "the fold is order-dependent", and both were mine:
+
+1. **Same-device concurrency is not concurrency.** A first draft authored both conflicting facts from
+   one device at one lamport; the fold **rejected** the second (`lamport violation… expected > 2, got
+   2`) because a device's own clock must be monotonic. Different facts were accepted in different
+   orders — an apparent divergence that was pure harness error. **Genuine concurrency requires two
+   devices.**
+2. **Causally-dependent facts cannot be permuted.** A second draft permuted a removal against the
+   addition it referenced; arriving first it was rejected (`missing antecedents: have 0 of 1`) and
+   **not retried on this path**, silently losing a removal in three of six permutations.
+   `DerivedFold::ingest` is the raw seam and the buffering the module documents lives above it — a
+   **harness boundary, not a fold defect**, but only visible because ingest outcomes were surfaced
+   rather than swallowed.
+
+**The methodological point:** the first version of this file swallowed ingest results with `let _ =`.
+Both artifacts were invisible until that changed. **An experiment that discards error returns cannot
+tell "the system resolved differently" from "the system never saw the fact."**
