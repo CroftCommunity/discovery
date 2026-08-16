@@ -347,21 +347,59 @@ than a wire-format-final Drystone encoding. **Code:** `croft-chat/tests/fold_ord
 The fold resolves by **sequential replay in `merge_cmp` order** — `lamport → author_device →
 envelope_hash`.
 
-### 3.1 Key 1 — "subtractions before additions" is NOT implemented
+### 3.1 Key 1 — the fold ESCALATES rather than failing open *(a finding withdrawn, then replaced)*
 
-§7.3.1 key 1 requires a **layered** fold with membership removals in a strictly higher tier than
-additions, *"biasing every intermediate state toward the more restrictive reading (the fail-safe
-direction)"*.
+**This subsection originally read "key 1 is not implemented and the fold fails open." That was wrong
+and is withdrawn.** It came from reading a `MEMBER` projection as a resolved verdict. Two owner
+challenges and two more measurements corrected it.
 
-**Measured:** a genuinely concurrent `RemoveMember(m)` and `AddMember(m)` — two authorized devices,
-equal lamport, same observed frontier — resolves to **MEMBER in both arrival orders**.
+**Correction 1 — the scenario was fabricated.** The first test paired a concurrent `Remove(m)` with
+an `Add(m)`. The owner's objection: *"how can a moderator not yet synced with the removal readmit
+someone they don't see removed?"* Exactly right — a moderator who hasn't seen the removal still sees
+`m` as a member and has no reason to *add* one. **The pairing is socially unreachable.**
 
-> The fold **converged** (which is the property that must never break) but resolved **permissively**.
-> The addition won. Resolution is a flat replay, so **the later-sorted fact wins whatever its type.**
+**Correction 2 — the case §7.3.2 actually emphasises resolves CORRECTLY.** The realistic collision is
+a removal racing a *promotion*: A removes `m` for cause while B, unsynced, promotes `m` — an entirely
+ordinary act toward someone you still see as a member. **Measured: `m` is not a member and holds no
+effective role, in both arrival orders.** §7.3.2's effective-roles projection does its job.
 
-**This touches the ban work directly.** Key 1 *is* the fail-safe direction, so its absence **fails
-open** in exactly the case readmission cares about. **It is the governance-layer instance of the shape
-S22 found at the delivery layer: a restrictive rule that is not actually applied fails open.**
+**Correction 3 — and where a reachable remove-vs-add *does* exist, the fold HARD-STOPS.** The
+reachable shape is the readmission one: `m` is **not** a member, has applied to rejoin; A approves
+the application while B concurrently enacts a standing ban. Both acts natural, neither moderator
+mistaken. **Measured: both peers surface the identical contradiction byte-head, in both arrival
+orders**, and hard-stop.
+
+> **That is §7.3.2/§7.6 working exactly as specified** — where a contradiction cannot be resolved
+> without manufacturing a utility verdict, escalate rather than fold, and name the conflicting pair
+> order-independently. **The fold does not silently pick the permissive answer. It refuses to pick.**
+
+**So key 1's absence from `merge_cmp` is not the hazard it looked like**, because the contradiction
+detector catches the membership collisions that matter before any ordering rule would decide them.
+
+### 3.1a The finding that replaced it: the projection diverges while hard-stopped
+
+**Same four facts, every ingest `ok`, identical contradiction — and different member lists.**
+Approve-then-ban projects the applicant as **a member**; ban-then-approve projects them as **not a
+member**.
+
+> **Two moderators looking at the same contradicted group see different member lists, and nothing on
+> screen distinguishes which projection they are looking at.**
+
+**Narrower than a convergence failure** — the *resolution* converges, only the *projection* does not —
+**but it is the one a human reads.** §7.6 requires a contradiction to be presented as *"an
+unambiguous, grounded statement of the two conflicting facts"*; it says nothing about what the
+membership view should show meanwhile.
+
+**Two candidate rules, both spec work rather than code work:**
+
+1. **Project the restrictive reading while contradicted** — the applicant is out until humans decide.
+   Matches key 1's fail-safe direction without needing the tier machinery.
+2. **Project no membership answer for the contested subject** and force the UI to show the
+   contradiction instead of a member list.
+
+**Not decided here.** Note also that the unreachable remove-vs-re-add shape projects `MEMBER` in both
+orders while hard-stopped — consistent, so not a convergence problem, but it does mean a group can
+display "hard-stopped" and "currently a member" simultaneously.
 
 ### 3.2 Key 3 — the concurrent tiebreak is not party-neutral
 
