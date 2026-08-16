@@ -1,12 +1,35 @@
 # Plan — connect cap issue/redeem: one grant, two matchers
 
 - **Repo:** `CroftCommunity/connect` (public, disjoint write-set — the Phase 10 parallel track)
-- **Status:** proposed 2026-08-14; not started
+- **Status:** **EXECUTED 2026-08-16** — M0–M5 landed on connect `main`, released as
+  **v0.2.0** (contract v2, `app-debug.apk` served from GitHub Releases). See "Execution status" below.
 - **Relates to:** `discovery/alpha/plans/2026-08-07-1-plan-croft-relay-tiered-admission.md`
   → "Phase 10 green-lit as a parallel track; listRecords verified — 2026-08-11".
   This plan is Phase 10's detailed design.
 - **Prerequisite (settled):** `com.atproto.repo.listRecords` verified against the atproto lexicon
   source (no-auth query, `repo`+`collection`, `limit`/`cursor`/`reverse`, returns `records`).
+
+## Execution status (2026-08-16)
+
+All milestones landed on connect `main` and released as **v0.2.0**. TDD RED→GREEN
+throughout; the security-shaped paths mutation-audited (`npm run mutate`, stryker).
+
+| Milestone | Status | Notes |
+|---|---|---|
+| M0 contract v2 | ✅ | grants/matchers/policies + per-device; ownership note + `CLAUDE.md` added |
+| M1 ticket path | ✅ | web redeem (secret-in-fragment, verify, expires-only); android device+grant capture (9/9 green locally) |
+| M2 listEndpoints | ✅ | per-device enumeration via `listRecords` |
+| M3+M4 matcher engine | ✅ | `areMutuals` (getRelationships), `evaluateMatcher` — ticket/mutuals/registeredCallers, fails closed |
+| M5 call-time evaluator | ✅ | `evaluateRules`/`evaluateGrant` — §7 reference impl (relay mirrors in Phase 11) |
+
+- **71 web tests**; resolver.js mutation score 93.3% (remaining survivors equivalent/boundary, triaged).
+- **Decisions settled** (see "Open decisions" below): tiered confidentiality, one-use-as-revocation-rule,
+  separate policy record, open tagged unions.
+- **Not in scope (Phase 11):** identity-proof *acquisition* (OAuth to obtain `provenDid`), the relay's
+  call-time wiring of `evaluateGrant`, and the real client — which lives in `croft/android`, not the
+  `connect/android` stopgap.
+- **Release:** `Croft Connect v0.2.0`, `app-debug.apk` (debug-signed) served from GitHub Releases.
+  Versioning/process: `connect/docs/RELEASING.md`.
 
 ## Problem Statement
 
