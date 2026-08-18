@@ -12,6 +12,7 @@
 //! Stand-ins are tagged `SPEC-DELTA[...]` at their site and enumerated in
 //! `../SPEC-DIVERGENCE-REGISTER.md`. Every tag has a row; every row has a tag.
 
+pub mod admission;
 pub mod ciss_harness;
 pub mod groupinfo_policy;
 pub mod meer;

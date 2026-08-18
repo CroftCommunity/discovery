@@ -181,19 +181,99 @@ durability + the invisible fork — new, S18).
 3. **Then build** third-party deposit → bound it → retire the stand-in → object lifecycle → the
    holistic workflow test in Phase 6 of the blockers plan.
 
-**The readmission/exclusion arc (S15-S22, G1) is measured and documented; what remains there is
-decision work, tracked in the dossier and backlog:**
+**The readmission/exclusion arc (S15-S22, G1) is measured and documented. The decision
+talk-through ran 2026-08-16 (decisions 1–2 of five); current status:**
 
-- **E105 — who serves `GroupInfo`?** Answered structurally: **any member** (Part 1 §2.4 — no
-  chokepoint; S22). What remains is the group-context serving policy and the tree-withholding
-  default.
-- **E106 — rewrite §11.7** around the governance-issued external PSK (drafted as a `[REV]` in the
-  WORKING copy; ratification is the owner's).
-- **E107 — the readmission dial's open thirds:** position 2 as an end-to-end admission decision, and
-  the propagation window quantified.
-- **E108 — what a contradicted group projects** (G1's surviving finding; two candidate rules in the
-  WORKING copy §7.3.2 REV).
-- **E96 — adopt nested sealing, or don't.** Cost measured (28 flat bytes); a decision, not an
-  experiment.
-- **Spec-2 candidate review:** the WORKING copy's 13 `[REV]` blocks await the owner's merge-back
-  pass. **Canonical part-2 remains untouched until then.**
+- **E106 — RATIFIED (owner, 2026-08-16).** The governance-issued external PSK is §11.7's
+  re-entry credential, with four scoping conditions recorded in the WORKING copy's §11.7 REV
+  (scoped to the external-commit path; "I was there" homed on the governance chain; lineage
+  binding by three-way cross-check, design/untested; conditional on the end-to-end proof).
+- **E105 + E107 — DECIDED IN SHAPE, PRELIMINARY pending build.** Two issuance mechanisms
+  (at-join canonical; at-need-with-deposit where meer + CISS exist), the token-ledger
+  obligation, three serving doors as a charter attribute, strict-merge finality floor,
+  serve-protects-roster / merge-protects-membership, admission evaluated at-position. All in
+  the WORKING copy's §11.6/§11.7 DECISION-2 blocks. **Nothing merges until S23–S26 run green:**
+  `../../plans/2026-08-16-1-plan-token-reentry-proveout.md` (S23 token ledger · S24 end-to-end
+  admission decision + serve protocol · S25 stale-peer matrix ± finality gate · S26 catch-up
+  replay determinism). **This build is the next go.**
+- **E108 — RATIFIED (owner, 2026-08-17): rule (c) — `CONTESTED` as a first-class membership
+  state, visible by default** (not a dial). Closes G1's projection divergence by construction;
+  outstanding: the member-view schema change in `fold_derived` + the arrival-order pinning test
+  (croft-chat, separate from the meer-queue build).
+- **E96 — RATIFIED (owner, 2026-08-17): nested sealing as an attribute-conditioned MUST.**
+  Mechanism + wrapping rule MUST when in effect; charter attribute defaults ON for
+  confidential-on-fabric, OFF for LAN/public-regime; the deviation is the declared
+  `carrier-visible` attribute (E94 transparency guard), never a silent exception. **Adopted
+  generally as Drystone normative style: attribute-conditioned MUST over SHOULD.**
+- **New rows from the talk-through:** E109 (confidentiality regime as a charter attribute;
+  transitions are re-plant-shaped), E110 (admission interface as an A-series requirement set),
+  E111 (the implementation-profile dial sheet; Croft as reference profile).
+- **2026-08-17 — the independent review ran, and amended the build.** Verdict: the decisions are
+  sound; findings + missed-issues register in
+  `../../../beta/drystone-spec/REVIEW-decision-talkthrough-2026-08-17.md`. Out of it (owner
+  talk-through, same day): the **admission fact** (every external-commit admission deposits an
+  R6-shaped, span-opening acceptance record — typed to never compete on the membership slot), the
+  **HeadAck head-currency primitive**, S24/S25 amendments (forged-ledger arm; banned-holder
+  population arm — "fails CLOSED at a stale peer" is population-dependent), and the gate aligned
+  to **S23–S26 + C2–C4**. Plan: `../../plans/2026-08-17-1-plan-head-currency-and-admission-fact.md`;
+  row **E112**; handoff prompt for the build session:
+  `../../seeds/generated-prompts/c-series-proveout-prompt.md`. **This build is the next go**
+  (supersedes the bare S23–S26 framing above).
+- **Spec-2 merge (step 5): all four decisions are now in; merge scope is the open question.**
+  Ratified and evidence-complete: the corrections (§11.8 + App E L6 strike, §11.6 three states,
+  §11.7 recovery bounds, §11.11 sharpenings), E106, E108, E96, cold-is-a-state. Decision-2
+  mechanism text is agreed-in-shape but build-gated (S23–S26). Options: merge ratified-only now
+  with decision-2 in a second pass post-build, or one clean merge now with decision-2 text
+  carried at ***Design, preliminary — gated on S23–S26*** (house style precedent: §11.9.3's
+  "Design, experimental — prototype before relying"). **Canonical part-2 remains untouched
+  until the merge pass runs.**
+
+---
+
+## 2026-08-17 (evening) — E112 built and run: the C-series + amended S-series are GREEN
+
+The build session for `../../plans/2026-08-17-1-plan-head-currency-and-admission-fact.md` ran. All
+of the gate (**S23–S26 + C2–C4**, C5 informative) is green, RED-first where the plans designate it
+(S23 arm 1, C2 arm 1). Work is on the `c-series-proveout` worktree branch, not merged.
+
+**Fold side** — `local_storage_projection` (`../local_storage_projection/C-SERIES-RESULTS.md`),
+Modeled/loopback grade:
+- **C2** (behind-detection) — 2 arms. New `src/head_currency.rs`. Arm 1 (RED-first) wires the §7.4
+  fail-closed gate to the fold's real `MissingAntecedents` signal. Arm 2 proves the ack primitive
+  is *needed* (governance-only detection is silent under ordinary traffic).
+- **C3** (HeadAck) — 4 arms. New `src/head_ack.rs`: a §7.3.4 sign-the-state object; union counts
+  distinct **lineages** (§5.7); forged fails (typestate); unknown head is a gap not authority.
+- **C5** (ack cost, informative) — the scoped/lazy-piggyback dial is a constant ops/finality volume
+  reduction, N-independent; a volume lever, not a safety one.
+
+**Meer side** — `meer-queue` (`TEST-LOG.md`), Rung A for the MLS half / Modeled governance plane:
+- **S23** (token ledger) — 3 arms. Missing ledger = clean loud `process_message` refusal (not a
+  silent drop); ledger must reach late-joiners; revocation is a chain fact (no key-deletion race).
+- **S24** (position-2 end-to-end + admission fact) — 8 arms. New `src/admission.rs`: the admission
+  fact mints or the merge does not happen; arm (d) severs fact-from-bytes (REVIEW gap 1); serve
+  s-i/s-ii; perishability (real MLS).
+- **C4** (Bob/Dana end-to-end) — 4 arms. Real MLS seat + counted exposure window + re-key exclusion;
+  arm 1a pins the comparator placement (admission fact opens a span, never competes on the standing
+  slot — byte-identical in both arrival orders); arm 3 holds the routine/genuine boundary.
+- **S25** (stale-peer matrix, amended) — 5 arms. Consumes C3's HeadAck as the strict-gate freshness
+  (new dev-dep on `local_storage_projection`); banned-holder population arm retires the unqualified
+  "fails CLOSED at a stale peer" (REVIEW verdict item 1).
+- **S26** (catch-up at-position) — 3 arms. At-position evaluation; the head-anchored mutation is
+  caught; stale-majority invalid joins are corrected governance-forward.
+
+**Review coverage gaps closed (section H / item 24):** gap 1 (positive chain-fact leg / fact-from-
+bytes) — S24 arm (d); verdict item 1 (population-dependent fails-closed) — S25 banned-holder arm;
+verdict item 2 residual (the routine admission-vs-ban never CONTESTS) — C4 arm 1a + arm 3; the
+orphaned §11.8 positioning MUST (item 23.3) — the admission fact's span-opening + C4/S26 forward
+correction; add-commit-as-mint-point (gap 6) — S24 makes it an asserted property.
+
+**What is explicitly NOT discharged (honest rungs):** the Appendix-B completeness beam's *proof*
+statements (these runs earn evidence, mapped to obligations 1–4, not the theorem); real transport
+(C3's iroh-bus arm is a named, un-run upgrade); real crypto on the fold path (mock digest-binding);
+the governance plane on the meer side (issuance ledger, acceptance chain, serve challenge-response
+are Modeled). Loopback is **Modeled**, never **Verified**.
+
+**STOP LINE (this session does not cross it):** the WORKING §11.7/§11.6 REV blocks stay
+PRELIMINARY, canonical part-2 is untouched, and the six-artifact gate-wording alignment
+(S23–S25 vs S23–S26; review item 25) is left for the owner. Graduation of decision-2's REV and the
+step-5 merge are the owner's next conversation.

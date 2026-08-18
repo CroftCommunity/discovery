@@ -56,6 +56,11 @@ anyhow = "1"
 # no Debug impl; openmls already depends on this, so it costs nothing new in the tree.
 zeroize = { version = "1.9.0", features = ["zeroize_derive"] }
 
+[dev-dependencies]
+# S25 (E112) consumes C3's HeadAck freshness primitive as the strict-merge corroboration source,
+# rather than a harness oracle. The fold crate lives beside this one in the experiments tree.
+local_storage_projection = { path = "../local_storage_projection" }
+
 [features]
 # D3 / M2 negative arm only: openmls gates the decode→re-encode conversions behind
 # `test-utils`, with a source comment saying they "MUST NOT be made available outside

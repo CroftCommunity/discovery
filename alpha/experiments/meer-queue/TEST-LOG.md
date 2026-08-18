@@ -1616,3 +1616,192 @@ unbuilt component the design has not named. **Filed as E97.**
 
 Not yet run. S7 Phase 10; S8 Phase 11; S1 (enrollment,
 Rung C static) Phase 12.
+
+---
+
+## S23 — the token ledger: PSK resolvability across membership change (2026-08-17)
+
+`tests/s23_token_ledger.rs` · **Rung A (real-lib)**, real OpenMLS 0.8.1, no CISS (nothing here
+touches storage). Part of E112 (the C-series + amended S-series). Plan:
+`../../plans/2026-08-16-1-plan-token-reentry-proveout.md` (S23), amended by
+`../../plans/2026-08-17-1-plan-head-currency-and-admission-fact.md`.
+
+The constraint the readmission walk *derived* from RFC/S16 reading but never measured: because a
+PSK secret is mixed into the commit's key schedule, **every incumbent that may process the return
+commit must resolve the PSK from its own provider storage.** The token is therefore group state —
+a "token ledger" — that must reach members who join after issuance and survive membership change.
+Three arms, RED-first on arm 1.
+
+### Arm 1 — the ledger constraint is real, and the failure mode is LOUD (RED-first)
+
+RED step (watched fail): the optimistic no-ledger hypothesis — incumbent Bob, holding group state
+but **not** R's PSK bytes, seats R anyway — was asserted and failed. So the constraint holds:
+decision-2's ledger obligation does not dissolve. The durable test then characterizes the mode,
+which the review (group D missed-issue 4) flagged as load-bearing for the strict-merge premise:
+
+**Verdict: `S23 arm 1 MEASURED (real-lib)`: a missing ledger entry produces a clean, named
+`process_message` error — `"The PSK could not be found in the store."` — at PSK resolution. Not a
+silent drop, not a partial state change (Bob's epoch and member count are unmoved). A missing
+ledger is therefore a loud production failure, which is what makes the strict-merge floor
+enforceable.**
+
+### Arm 2 — the ledger must reach members who join after issuance
+
+R's token is issued while the group is {alice, bob}. Carol and Dave then join *after* issuance;
+the ledger entry is transferred to Carol only (modeled as sealed app-layer state synced in-band,
+deliberately **not** `GroupContextExtensions`, which leak into a served `GroupInfo`). R returns.
+
+**Verdict: `S23 arm 2 MEASURED (real-lib)`: Carol (ledger transferred) resolves the PSK and seats
+R; Dave (not transferred) fails at PSK resolution with the same `"PSK could not be found"` error.
+The *transfer* is the load-bearing thing — the token cannot live only with the members present at
+issue time.**
+
+### Arm 3 — revocation is a chain fact, not a key-deletion race
+
+Bob still *holds* the PSK bytes (the crypto would resolve — staging succeeds). But the issuance
+fact, named in the returner's AAD attestation, is revoked in Bob's governance fold. Bob's policy
+layer reads the attestation *before* `merge_staged_commit` and refuses.
+
+**Verdict: `S23 arm 3 MEASURED (real-lib)`: with the PSK bytes present and staging SUCCEEDED, the
+incumbent still refused the return because the AAD-named issuance fact is revoked. Revocation is a
+policy decision over a chain fact, decided before merge — no key material is deleted and nothing
+races. This is exactly the property decision-2 asserts.**
+
+### What S23 does NOT discharge
+
+Rung A / real-lib for the MLS mechanics only. The ledger *transport* (sealed app-layer sync to
+late-joiners) is **modeled** by depositing bytes into a provider store — the real in-band sync
+channel is unbuilt. Revocation's governance-fold source is modeled by an in-test `HashSet`; the
+fold-to-position read that populates it is the fold side's job (croft-chat), not measured here.
+
+---
+
+## S24 — position 2 end-to-end, with the admission fact (2026-08-17)
+
+`tests/s24_admission_decision.rs` + `src/admission.rs` + `tests/common/mod.rs` · **Rung A** for the
+MLS half (real openmls 0.8.1); **Modeled** for the governance plane (issuance ledger, acceptance
+chain, serve challenge-response — in-memory stand-ins). E112. Amends the base S24 (2026-08-16 plan)
+with the **admission fact** and refusal arm **(d)**. 8 arms, all green.
+
+The centerpiece: DECISION-2's amendment — *recognition is the merge, and the merge deposits the
+admission fact*. `src/admission.rs` carries it: an `AdmissionFact` (R6-shaped acceptance record,
+event = the merged commit's content address, chained at the acceptor's frontier F), an
+`IssuanceLedger`, and `mint_or_refuse` — the merge-rule clause in one place (a merge that cannot
+mint its fact does not happen).
+
+- **Graceful** — `S24 graceful MEASURED (Rung A MLS / Modeled governance)`: serve released the
+  tree to a recognised lineage; the returner redeemed and was **seated at a new epoch** (real MLS);
+  and the merge **deposited the admission fact** — event = the commit's content address, chained,
+  carrying frontier F. One fact, indexed by the event.
+- **Refused-if-absent** — `MEASURED (Modeled)`: `mint_or_refuse` with no issuance returns
+  `NoIssuanceFact` and deposits nothing; a caller that merges only on `Ok` seats no one. The
+  merge-rule clause holds.
+- **Arm (d) — the severed-fact arm (REVIEW gap 1)** — `MEASURED (Rung A MLS / Modeled)`: the
+  incumbent HOLDS the PSK bytes (crypto would resolve, MLS would seat), but with **no issuance
+  fact** the admission gate refuses (`NoIssuanceFact`) upstream of the merge. Holding bytes is not
+  holding a fact.
+- **Arm (a)** — `MEASURED (Modeled)`: a genuine token presented by a bearer whose credential is a
+  different lineage than the issued-to one → `LineageMismatch` (the §11.7 credential half).
+- **Arm (c)** — `MEASURED (Modeled)`: valid token + lineage but standing revoked refuses at BOTH
+  gates — serve (`BannedAtHead`) and merge (`Revoked` issuance).
+- **Serve s-i** — `MEASURED (Modeled)`: a replayed challenge-response is rejected — the P-generated
+  nonce is single-use.
+- **Serve s-ii** — `MEASURED (Modeled)`: a valid `psk_id` presented by a requester who cannot sign
+  for the issued-to lineage is refused **at serve** (not only at merge).
+- **Perishability** — `MEASURED (Rung A)`: a `GroupInfo` served at epoch E builds a commit the
+  group **refuses** once it has rolled to E+1 (real MLS). Leaked serve artifacts decay per roll;
+  the token is the only durable thing.
+
+**What S24 does NOT discharge:** the governance plane is Modeled (issuance ledger + acceptance chain
++ serve challenge-response are in-memory; the serve signature is a keyed digest, not a real
+lineage-rooted signature). The arrival-order / comparator-placement property of the admission fact
+(never slot-competing) is **C4 arm 1a**, not here. Artifact-isolation (tree without a current
+`GroupInfo`) is structural — `external_commit_builder().build_group` requires a `VerifiableGroupInfo`,
+so a tree alone constructs no join; not separately measured.
+
+---
+
+## C4 — the Bob/Dana stale-admission end-to-end (2026-08-17)
+
+`tests/c4_bob_dana_end_to_end.rs` (+ `src/admission.rs` projection). **Rung A** for the MLS half
+(real openmls 0.8.1 — seat, exposure reads, re-key exclusion); **Modeled** for the governance
+projection (standing-over-spans in `src/admission.rs`). E112. The review's Bob/Dana story run whole,
+with the admission fact as the detection trigger. 4 arms, all green.
+
+- **Arm 1 (same-branch, whole group stale)** — `MEASURED (Rung A MLS / Modeled projection)`: a
+  stale group served + merged the returner (own valid token + lineage key; only standing stale);
+  the merge minted the admission fact so the collision was **chain-visible at merge**, before any
+  read failure. The exposure window was **counted** — the returner read all 3 messages sealed
+  during her open span. Sync arrived; the projection read **standing over the span** → `Excluded`,
+  span recorded, **no hard-stop**. The §11.8 re-fire (real MLS `remove_members`) re-keyed her out:
+  a message sealed after the re-fire no longer opens for her (AEAD). The window was real, the record
+  says so, nothing retroactively unmade.
+- **Arm 1a (arrival-order permutation)** — `MEASURED (Modeled)`: admission-fact-then-ban and
+  ban-then-admission-fact project **byte-identically** — span recorded, subject `Excluded`, never
+  `CONTESTED`. This pins the comparator placement (the fact opens a span, it does not compete on the
+  standing slot). Mutation target: an impl that treats the fact as a standing decision would contest
+  or become order-dependent here — the arm would go red.
+- **Arm 2 (diverged branch)** — `MEASURED (Rung A commit / Modeled governance)`: stale Bob mints +
+  merges; synced Carol (issuance revoked in her fold) refuses and mints nothing. The two branches
+  differ by a **chain-readable admission fact** (its event/content-address), not by a queue name
+  only cross-fork traffic would ever reveal (S18's silent case). The admission fact names the fork.
+- **Arm 3 (genuine-contradiction control)** — `MEASURED (Modeled)`: a readmission **quorum** racing
+  the ban is two decisions on the standing slot → `CONTESTED` (order-independent hard-stop); an
+  admission **fact** racing the same ban is enactment vs decision → `Excluded`, never contested.
+  The routine/genuine line is pinned from both sides. (CONTESTED's own pinning stays croft-chat's,
+  per E108.)
+
+**What C4 does NOT discharge:** the projection and the fork-naming are Modeled (the real fold's
+CONTESTED/contradiction machinery lives in croft-chat's `local_storage_projection`, E108). The
+continuity carry-over (B1 / RUN-12 shapes) referenced in the diverged-branch story is not exercised
+here. Bears on Appendix-B obligation (3) (a late pre-checkpoint fact cannot silently reverse
+enforcement — the void-and-refire path) and (4) (fork composition: explicit heal), as evidence, not
+proof.
+
+---
+
+## S25 — the stale-peer matrix, amended (2026-08-17)
+
+`tests/s25_stale_peer_matrix.rs`. **Rung A** for the MLS mechanics reused from S24; **Modeled** for
+the serve/merge posture and the HeadAck freshness (which arms 2–3 genuinely consume from C3, via a
+`[dev-dependencies]` path to `local_storage_projection`). E112. 5 arms, all green.
+
+- **Arm 1 (liberal serve / best-known merge)** — `MEASURED (Modeled)`: a lagging incumbent seats X
+  while a synced one refuses (revoked issuance) — the S18 invisible fork made concrete, named by
+  the admission fact's presence/absence.
+- **Arm 2 (liberal serve / STRICT merge)** — `MEASURED (Rung-A merge / Modeled freshness via C3
+  HeadAck)`: below k the strict gate STALLS (X not seated); at k the incumbent is corroborated-
+  current, which means it has folded the ban, so it refuses. X is never seated — the
+  strict-merge/liberal-serve middle holds.
+- **Arm 3 (strict serve / strict merge)** — `MEASURED (Modeled freshness via C3 HeadAck)`: a stale
+  P stalls the serve for X *and* for a dormant good returner alike — that indiscriminate stall is
+  the liveness price of strict-serve; it lifts once P reaches k HeadAcks.
+- **Arm 4 (no serve check, strict merge)** — `MEASURED (Modeled)`: a tokenless party is handed
+  GroupInfo+tree, but the strict merge refuses (`NoIssuanceFact`). Net gain is **roster knowledge
+  only, never admission** — the serve check protects the roster, the merge check protects the
+  membership.
+- **Banned-holder population arm (the amendment)** — `MEASURED (Modeled)`: "fails CLOSED at a stale
+  peer" is **population-dependent**. A stranger fails closed at serve (S22); a **banned holder's own
+  token** is *served* at a stale peer, and its admission dies later — at the strict merge / at fold
+  (per C4), not at the serve. REVIEW verdict item 1's unqualified wording is retired.
+
+**Does NOT discharge:** the freshness is C3's HeadAck at Modeled/loopback grade; the propagation
+window is expressed as the k-of-N corroboration threshold, not a wall-clock number (no clocks —
+horizons in generations).
+
+## S26 — catch-up replay determinism: admission at-position (2026-08-17)
+
+`tests/s26_catchup_at_position.rs`. **Modeled** (positioned governance history + the C4/admission
+projection). E112. 3 arms, all green.
+
+- **Arm 1 (convergence)** — `MEASURED (Modeled)`: a member replaying {join@X, ban@Y>X} from behind
+  lands **byte-identical** with the live edge (the admission projection is order-independent). The
+  join is applied at its position X; the span is recorded; standing at head excludes. A
+  head-anchored evaluation could not reach this.
+- **Arm 2 (position-anchoring pinned)** — `MEASURED (Modeled)`: at-position and at-head evaluation
+  **disagree** for a join at X < ban-position; the rule must consult fold-at-position. A
+  head-anchored mutation refuses the historically-valid join and self-exiles — this test catches it.
+- **Arm 3 (stale-majority)** — `MEASURED (Modeled)`: a stale-majority at-position-**invalid** join
+  is corrected **governance-forward** — M processes it structurally, reads `Excluded` from the fold
+  (§7.6.12 phase 1), and converges via the §11.8 re-fire. No chain-refusal during catch-up (that is
+  reserved for a deliberate fork).
