@@ -2722,3 +2722,43 @@ instance", which is not the public `ciss` tenant — provisioning it is part
 of the deploy decision; and `did:web:admit.croft.ing` implies a
 `/.well-known/did.json` at the edge (the PDS mints for arbitrary aud today,
 so M4 does not block on it, but it should exist).
+
+### Phase 8 chunk E — the mint is a service; the deploy is declared — 2026-08-20
+
+croft-stack `273f820` (binary) + `76a2cbd`/`a7fb31e` (manifests). Two moves:
+
+**`/grantCall` wired into the running binary** behind an optional `[mint]`
+config section (resolver bases, aud/lxm, token issuer + TTL,
+`signing_key_env` — hex PKCS#8 read once, validated by constructing the
+keypair, never logged). Absent `[mint]` = the Phase-6 store surface only
+(`/grantCall` is 404, never half-configured); a mint that cannot sign
+refuses to start naming the variable. Wiring test at the plan's own bar,
+over HTTP against the RUNNING binary: ticket → token (verifies against the
+configured public key), then grant deletion → the next mint refuses
+`cap_revoked`. `Backend` now implements the `Store` trait so one
+`Arc<Backend>` feeds both the store handlers and the mint's membership
+checks. SPEC-DELTA(phase-8-use-and-quota-feeds): UseLedger/QuotaCheck run
+in-memory — mapping usage records to grants ("a call succeeded") is
+M4-adjacent design still open.
+
+**The deploy, declared but not activated:** `services/croft-admit.toml`
+(public, `admit.croft.ing:8401`, runs `croft-relay-admit --config …`,
+secrets env-named in a box-provisioned file) and `services/ciss-admit.toml`
+(the plan Phase 6 **private CISS instance**, loopback-only :8302,
+croft-admit its only client — deliberately not the public metered `ciss`
+tenant). The services generator learned four shapes, TDD in `render.bats`:
+`exec_args` (config-file CLIs), `binary` (executable ≠ tenant name),
+`environment_file` → `EnvironmentFile=`, `public = false` (unit without
+vhost/fqdn; backups unaffected). Activation prerequisites are named in
+croft-stack `TODO.md`: the musl release artifact for the admit binary,
+on-box provisioning (config + env + provider-seed .cred +
+`active_tenants`), the `admit.croft.ing` DNS record, and optionally a
+static did:web document. Pre-existing repo drift fixed in passing: DNS.md's
+api.* literals, link-check now excluding vendored `.terraform` trees.
+
+**Phase 8 build surface is now complete**: caps (§7 mirror, mutation-clean),
+service-auth (proven live), the mint + `/grantCall` (running-binary test,
+mutation-clean), the usage transport (two-process test), and the declared
+deploy. Open to close the phase's Done-when in production: activation
+(operator-gated) and the use/quota feeds (M4-adjacent). Next: croft client
+M4 — present cap → `/grantCall` → `RelayConfig.authToken`.
