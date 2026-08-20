@@ -1782,6 +1782,58 @@ The whole set reduces to one posture, applied case by case: **MLS supplies a loc
 
 *Table sourced from the MLS-hard-cases analysis; each row's mechanism is developed in the cited section. The RFC citations behind the "what MLS assumes" column are verified against RFC 9420 and RFC 9750 this round; the Drystone-posture cells are design, with the load-bearing residuals (external-join far-behind node, in-place secret restore, re-plant intent ordering) carried as `[confirm]` in Appendix B.*
 
+#### 10.2.2. The admission interface: requirement versus realization
+
+Cross-references: §5.7 (membership, standing, and revocation authority), §7.3.6 (decision versus enactment), §7.3.8 (the finality gate), §7.5.1 (attributable acceptance), §11.7 (the re-entry machinery: token, ledger, serving doors, the admission fact), §11.8 (bans and standing-at-head), and Appendix E (the L-arc, where the interface is walked on the running example).
+
+**(R) Requirement.** The K-series above bounds what the group-key mechanism must provide; it deliberately does not cover **admission** — the decision of who becomes a member — because the key layer cannot carry it: MLS's own architecture **delegates access control to the application** (RFC 9750 §6.4, confirmed), and the measured failure mode of leaving that delegation undischarged is that **bare MLS treats cryptographic validity as admission** — an incumbent handed a structurally valid `NewMemberCommit` merged a total stranger, there being no protocol rule to object with (`Measured`, S16). Drystone's merge rule is precisely that delegated layer, made normative. This section consolidates it in the same requirement-versus-realization form as the rest of §10: the A-series is the bar any admission interface must meet, the §11.7/§11.8 machinery over MLS's artifacts is the current realization, and the two are separated so that **a group-key substitution (any candidate meeting K1 through K8) is also a substitution at this interface, not a redesign** — the replacement must supply artifacts filling the same A-series roles, and the bar tells an implementer exactly which roles those are.
+
+**Compliance table, an admission interface MUST:**
+
+| # | Requirement | Why it is required |
+|---|---|---|
+| A1 | Provide a **key-bound, single-use invitation artifact** for new-member admission | the push artifact must be safe in untrusted storage and dead after one use; possession of bytes must never equal admission (`P-Knowable-Truth`) |
+| A2 | Provide **self-service return**: current group state fetchable at the moment of use, plus a **durable member-held credential**, with the cost falling on the returner | a member's right to return must not depend on an active member paying for it, or dormancy at scale becomes a standing tax on the live set (§11.4, `P-Durable-Enablement`) |
+| A3 | Make admission a **policy decision distinct from cryptographic validity** — a group-context rule evaluated identically by every member; validity **MUST NOT** imply admission | the S16 failure is the counterexample: without this rule the key layer silently *is* the membership policy, and it checks no standing whatsoever |
+| A4 | Keep **served state artifacts perishable** (epoch-bound) and **credentials durable and chain-revocable**, and never conflate the two | perishability bounds any leak of the pull artifacts to one epoch interval; durability with chain revocation is what makes the credential governable rather than a bearer instrument (§11.7) |
+| A5 | Pass **member-initiated admission through a governable proposal phase** before anything changes | the decision is real and needs a place to live before enactment — the decide-then-enact split (§7.3.6) at the admission surface (S21) |
+| A6 | Ensure **no admission path bypasses standing-at-head**, and subject the merge to the **§7.3.8 finality gate** | a returner controls what it presents, never what the chain says at head (§11.8); merging is irreversible, so it fails closed when standing cannot be corroborated fresh |
+| A7 | Make **refusal clean**: a refused joiner forks out alone, with no partial states; **per-member prompts are forbidden as mechanism** | refusal must not damage the group that refuses — a per-member dialog is a partition generator (S18), and the fork-alone property is what makes universal evaluation (A3) safe to run everywhere |
+| A8 | **Deposit an admission fact** on the governance chain for every admission; a merge that would not emit its fact **MUST** be refused | admission without a chain record is invisible to the fold — the fact is what makes admission-shaped forks chain-detectable, positions every admission against the ban ceiling, and restores the decision/enactment split on the one path with no proposal phase (§11.7, §11.8) |
+
+The A-series is one interface, not eight independent knobs: A3 is the load-bearing center (admission is a decision), A5 and A8 are where that decision lives on the two admission paths (the invited path has a proposal phase to gate; the self-service path has none — structurally, the joiner performed both halves itself (S21) — so its decision record is the admission fact), A6 is what the decision consults, A1, A2, and A4 are the artifact discipline that keeps the decision's inputs honest, and A7 is what makes running the decision everywhere safe. `Measured` as a set: the gate S23–S26 + C2–C4, green 2026-08-17, exercised every row (S16/S18/S21 established A3, A5, A7 earlier; S12 established A1; S24 the A2/A6/A8 composition end to end; C4 the A8 consequences under staleness).
+
+**The pull/push artifact split, folded in because it is A4's operational form** (normative detail at §11.7). The **pull** artifacts are the served pair — group state fetched fresh at the moment of use, deliberately perishable, refused by any member past their epoch, and **MUST NOT** be used as an invite ("not durable" is their feature). The **push** artifacts are the durable ones, held in the recipient's own store: the key-bound single-use invitation artifact for new members (A1), and the chain-revocable credential for returners (A2, A4). **Invite lifecycle unifies with liveness rather than adding an expiry system:** a committed-but-unredeemed invite is a never-active leaf, expired by the ordinary liveness-window machinery (§11.6); a charter wanting faster invite lapse applies a shorter window to never-active leaves; any lapse is denominated in epochs or governance generations, **never wall-clock** (Part 1 §2.0.1). `Design` (the unification is untested — E112 residual).
+
+**Disqualifiers, a candidate admission interface is non-compliant if it:**
+
+- Treats cryptographic validity as sufficient for admission — no group-context policy rule, or a rule any member may skip (breaks A3; the bare-MLS failure, S16).
+
+- Realizes the admission decision as **per-member prompts or per-member keying decisions** (breaks A7; there is no per-member act available — the only decision is whether to be in an epoch containing the joiner, S21 — so a per-member mechanism can only partition).
+
+- **Conflates the served state with the credential** — embeds the durable credential in a served artifact, or lets served state outlive its epoch (breaks A4; the concrete trap is carrying token material where it leaks into served `GroupInfo`, §11.7's ledger rule).
+
+- Resolves standing over a **returner-asserted range** rather than at head (breaks A6; a lineage banned late re-enters by attesting early, §11.8).
+
+- Admits **without depositing a chain fact**, or mints the fact from the joiner's own authority (breaks A8; a non-member authors no chain fact — the acceptance record is minted by the merging member, §7.5.1-shaped, per §11.7).
+
+- Denominates any admission-relevant lifetime in **wall-clock time** (Part 1 §2.0.1).
+
+**Reference realization: the §11.7/§11.8 machinery over MLS's artifacts, role by role.** The mapping is stated as roles so a substitute mechanism knows what it must supply:
+
+| A-series role | Current realization | Status |
+|---|---|---|
+| A1 invitation artifact | MLS KeyPackage + Welcome (key-bound, single-use, safe in untrusted storage) | `Verified-RFC` / `Measured` (S12) |
+| A2 fetchable state | `GroupInfo` + ratchet tree, served through the charter's door (§11.7's three doors) | `Measured` (S15, S22, S24) |
+| A2 durable credential | the governance-issued external PSK token, issuance a chain fact, lineage-bound by cross-check (§11.7) | `Measured` (S16, S23, S24) |
+| A2 cost-on-returner enactment | the external commit — the returner constructs its own commit; the enactment dial (§7.3.6, §11.7) | `Verified-RFC` / `Measured` (S14, S22) |
+| A3/A6 the decision | the merge rule: token cross-check + standing resolved at head, evaluated identically by every incumbent, under the §7.3.8 finality floor | `Measured` (S24, S25, S26) |
+| A5 proposal gate | MLS's native propose → commit split on the invited path — the proposal seats nobody, rolls no epoch, grants no keys | `Measured` (S21) |
+| A7 clean refusal | a refused `NewMemberCommit` extends nothing — the joiner has forked itself into a branch of one; one merge suffices to seat on that member's branch | `Measured` (S22, S25) |
+| A8 admission fact | the R6-shaped acceptance record minted by each merging member, indexed by the commit's content address (§11.7) | `Measured` (S24, C4) |
+
+Two honest notes on the realization, so the substitution claim is not oversold. First, the realization is **not MLS alone**: MLS supplies the artifacts (KeyPackage, Welcome, `GroupInfo`, tree, external commit, PSK binding) and Drystone supplies the decision layer MLS explicitly delegates (RFC 9750 §6.4) — a substitute group-key mechanism therefore replaces the artifact column, never the requirement column, and the governance machinery (§11.7, §11.8) carries over unchanged. Second, the credential realization is **shaped by a reference-implementation limit**, not only by the requirement: the governance-issued external PSK exists because the resumption-PSK path is unreachable through external commit on the reference stack (§11.6, S16) — a substitute without that limit could realize A2's credential differently and remain compliant, which is exactly the kind of freedom stating the requirement separately is meant to preserve.
+
 ### 10.3. Transport and overlay: point-to-point reachability, and the topology question
 
 Cross-references: §6 (transport and delivery), §6.9 (discovery), §6.5 (carriage), §6.6 (durability, including the meer), §6.10 (the gossip overlay), §6.11 (deployment modes), §6.12 (media datagrams), §3.1 (where adjudication lives), §8 (the relay and meer as blind forwarders), and Appendix C.
@@ -1851,6 +1903,7 @@ These are given more briefly because several are already requirement-first in th
 | Component | Requirement (the bar) | Reference realization | Why reference or divergence note |
 |---|---|---|---|
 | Group key agreement | K1 through K8 (§10.2), including FS-under-concurrency | **MLS** (RFC 9420 and RFC 9750) core | wins on standardization and `log(N)` PCS; **diverges** from MLS's Delivery-Service ordering (Drystone has no *ordering* DS; the blind store-and-forward role is kept as the meer, §5.4), so K7 met via FREEK-shaped, Send-Groups, or explicit-retention; AS role filled by user-principal-CA (§4.5.1) |
+| Admission interface | A1 through A8 (§10.2.2): admission as policy distinct from validity, artifact discipline, standing-at-head, the admission fact | **§11.7/§11.8 machinery over MLS artifacts** (KeyPackage+Welcome, `GroupInfo`+tree, external commit, external PSK, proposal phase) | admission is application-layer by MLS's own delegation (RFC 9750 §6.4); a K-bar substitute replaces the artifact column only — the decision layer carries over unchanged |
 | Transport and overlay | T1 through T7 (§10.3): point-to-point reachability, blind bypassable fallback | **iroh** (1.0) | wins on key-identity, blind stateless relay, and datagram mode; **pure mesh and other topologies are compliant divergences**, not required, avoided as reference because mesh is `O(N²)` and churn-intolerant |
 | Signature | unforgeable, deterministic, key-as-identity, no silent downgrade | **Ed25519** (RFC 8032) | maturity and a shared key type across transport, key, and governance |
 | Hash | collision-resistant, tagged pre-images, single agreed function | **BLAKE3** (committed suite) | SHA-256 (§4) is the legacy side, retired at the wire-freeze; proving §4 out end-to-end on BLAKE3 is an open thread (Appendix B) |
@@ -1913,7 +1966,7 @@ Linkage markers, not status: **Realizes: P-X** (a clause discharging a Part 1 pr
 
 - **§11.6 The hot Group and the cold state; liveness-driven migration**: the hot-tree/cold-state structure and the migration rule. *depends on:* §11.4. *orthogonal to:* §11.9.
 
-- **§11.7 Re-entry: the governance-issued token**: how a cold persona returns at its own cost — the token, the ledger, the serving doors, and the admission fact. *depends on:* §11.6, §11.8, Part 2 §5, Part 2 §6. *orthogonal to:* §11.9.
+- **§11.7 Re-entry: the governance-issued token**: how a cold persona returns at its own cost — the token, the ledger, the serving doors, and the admission fact. The requirement view (the A-series admission interface) is consolidated at Part 2 §10.2.2. *depends on:* §11.6, §11.8, Part 2 §5, Part 2 §6. *orthogonal to:* §11.9.
 
 - **§11.8 The governance chain, bans, and standing resolution**: the single ordered authority for standing, and the determinism it rests on. *depends on:* §11.1, Part 2 §5. *orthogonal to:* the key layer (that is the point).
 
@@ -2135,6 +2188,8 @@ A helper serving the hot Group or a cold member's artifacts **MUST NOT** be gran
 ### 11.7 Re-entry: the governance-issued token
 
 **Realizes: P (usability as a first-class constraint), P (local authority, the returner bears its own cost).**
+
+The requirement view of this section's machinery — the **A-series admission interface**, stated so a substrate replacement is a substitution — is consolidated at §10.2.2; this section is its realization and carries the normative detail.
 
 `Now suppose Boreas, dormant past the liveness window and migrated to cold, returns to the hot Group. (Beats L2–L4 of the chained arc, Appendix E continued.)`
 

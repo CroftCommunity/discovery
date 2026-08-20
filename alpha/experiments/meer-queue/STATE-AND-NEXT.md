@@ -299,3 +299,16 @@ serve-signature surface, ledger hygiene + pricing, door-A end-to-end, lapse/invi
 tests, rung upgrades, the croft-chat E108 implementation, and the Croft presentation obligations
 (riding E111). Next fronts: E110's A-series writing, E111's profile template, and — separate
 track — Phase 11 on the client side (`CroftCommunity/connect` `docs/PHASE11-HANDOFF.md`).
+
+## 2026-08-19 — E110 RETIRED: the A-series is written into canonical §10.2.2
+
+The admission-interface consolidation landed as canonical **§10.2.2** ("The admission interface:
+requirement versus realization"): the A1–A8 compliance table (A8 = every admission deposits its
+admission fact, per the step-5 merge), disqualifiers (each anchored to the measured failure it
+excludes), and a role-by-role realization mapping — MLS supplies the artifacts, §11.7/§11.8 the
+decision layer, so a K-bar substitute replaces the artifact column only. The pull/push split and
+invite-lifecycle unification are folded in under A4 (the unification stays `Design`/untested —
+E112 residual). §10.5 gained an admission-interface ledger row; §11.7 and the §11 §0 map point at
+the consolidation. Evidence basis unchanged: S12/S16/S18/S21 for the shapes, the S23–S26 + C2–C4
+gate (green 2026-08-17) for the composition. Next fronts: E111's profile template, then per the
+post-merge queue.
