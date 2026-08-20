@@ -2537,3 +2537,43 @@ dependency-PR automation), **chunk C** (ansible artifact swap, admission=open
 first, rollback = revert `relay_tarball_url`/`relay_version`, staging before
 production, owner authorization), **chunk D** (two-phone regression at open,
 enrolled-token staging test for enforce, `systemd-analyze security` ≤ 1.7).
+
+### Phase 5 chunks B–C executed — croft-relay v0.1.1 IS the production relay — 2026-08-20
+
+- **Chunk B (release engineering):** `release-relay.yml` — tag-triggered
+  (`croft-relay-vX.Y.Z`), full test suite on the tagged commit (pinned-CISS
+  persistence tests included), then the musl artifact with a published sha256;
+  binary at the tarball root, n0's layout, so the role unarchives either
+  publisher unchanged. Dependabot watches the cargo tree and workflows weekly
+  (the CISS git pins deliberately excluded — pin bumps stay deliberate acts).
+  First tag (v0.1.0) died on the known-flaky `budget_drop` race (re-run,
+  don't chase — the standing note); v0.1.1 released clean with both assets.
+  A late chunk-A addition rode along: `[token]` is optional — open mode
+  without a mint key admits everything unattributed and says so, enforce
+  without one refuses at load. The deploy config therefore ships **no
+  placeholder key** pretending the Phase-8 mint exists.
+- **Chunk C (the flip):** the deploy is a five-variable set in group_vars
+  (binary, config, exec args, URL, checksum) with the role parametrized, the
+  unit templated, and the stock set kept inline as the written rollback
+  (`relay/deploy/ROLLBACK.md` — honest loss statement: reverting loses
+  counting/budgets, keeps TLS/QUIC/QoS, and open-mode product behaviour is
+  identical to stock). Wrinkle: croft-stack is a **private repo**, so the box
+  cannot fetch release assets unauthenticated — the artifact stages over the
+  deploy's existing SSH channel and `get_url` verifies the staged file
+  against the pinned checksum (URL recorded as provenance). Gap caught live:
+  the unit set no `RUST_LOG`, silently filtering the usage records open mode
+  exists to produce — the log filter is now a unit-template variable
+  (`info,usage=debug`), the plan's "togglable without a rebuild" item.
+- **Verified in production (2026-08-20):** croft-relay v0.1.1 active in the
+  netns; TLS serving on 8443; `quic address discovery on [::]:7824` in the
+  journal; startup line says `mode=Open … no verifier configured`;
+  `systemd-analyze security` **1.5** (gate was ≤1.7); a shipped croft v0.4.0
+  client camps ("ready, camped on relay"); and its disconnect emitted a real
+  usage record — `endpoint_id=unattributed bytes_in=519 bytes_out=238
+  duration_ms=8419`. The counting airlock is live on real traffic.
+- **Remaining for Phase 5 close (chunk D):** the two-phone regression
+  (Samsung off-cable today; emulator validated the relay-mediated path), an
+  enforce-mode staging pass on a real token (naturally lands with Phase 8's
+  mint), and the `/healthz` path our binary does not serve yet (stock's index
+  page is gone — expected; a health endpoint is a small follow-up). The
+  netns Phase-0 forced-relay re-check rides the two-phone run.
