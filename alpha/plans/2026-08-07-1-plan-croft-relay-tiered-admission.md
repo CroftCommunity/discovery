@@ -2597,3 +2597,29 @@ the callee's endpoint record is found. The JWT-verifies-against-resolved-key
 half of Done-when rides Phase 8's ciss-auth integration, whose key material
 this run proves. Next: **Phase 8 — caps and the mint** (sponsorship + scope
 claims per D3, service-auth caller proof, fresh grant reads).
+
+### Phase 8 opened — claims reworked (D3), getServiceAuth probed — 2026-08-20
+
+- **Chunk A done (croft-stack `975144b`):** the token's `tier` claim is
+  replaced by `sponsorship` ("unlimited" | {"budget_bytes":N}) + device
+  `scope` minted from the callee's grant record; `tier.rs` deleted, Budget +
+  the placeholder introduction constant + the new `sponsorship_for` matrix
+  (either side's membership sponsors the pair) live in `sponsorship.rs`.
+  Wire form pinned by test; non-empty scope asserted through mint→verify.
+  EmbedDecision carries sponsorship+scope; the scope-consumer sub-decision
+  remains named and open. 108 workspace tests green.
+- **D3's probe done (croft-stack `ca95539`,
+  `evidence/phase8-getserviceauth-probe-2026-08-20.md`):** the PDS mints
+  audience- and method-bound service-auth proofs for arbitrary services
+  (`aud=did:web:admit.croft.ing`, `lxm=ing.croft.relay.grantCall`) with a
+  60-second lifetime and a `jti` for the ReplayGuard. **Finding that shapes
+  the verifier: the signature is ES256K** for this account's `zQ3s…` key
+  (P-256/ES256 for `zDn…` accounts) — the mint verifies both, keyed off the
+  did:key prefix, key material from Phase 7's resolver. The OAuth-scope half
+  (app session with scope `atproto` calling getServiceAuth) stays open for
+  the on-phone M4 check.
+- **Remaining in Phase 8:** the mint itself (cap evaluation against fresh
+  grant reads mirroring contract §7, sponsorship_for at mint, scope from the
+  grant's devices resolved to endpoint ids), service-auth verification
+  (ES256K+ES256), ReplayGuard, the usage transport across the process
+  boundary, the `/grantCall` HTTP surface, and the admit service manifest.
