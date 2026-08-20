@@ -2505,3 +2505,35 @@ documented per the Pass-3 item), staging first, admission=open; (D) validate —
 two-phone regression at open mode, enrolled-token staging test for enforce,
 `systemd-analyze security` no worse than 1.7. Chunk A is a fresh-session-sized
 piece of Rust work.
+
+### Phase 5 chunk A complete — the binary can replace the tarball — 2026-08-20
+
+All four gaps the recon named are closed, red-first, in croft-stack
+`d8c93c0` + `8ccd470` (23 tests green, clippy/fmt clean):
+
+1. **`admission = "open" | "enforce"`** — required config field, no default
+   (the posture is an operator's statement). Open admits everyone, verifies
+   and attributes tokens when present, counts every byte (a token-less close
+   emits an honest `unattributed` usage record), never spawns the supervisor,
+   never marks tokens spent. Enforce is Phase 4 unchanged. Wiring tests pin
+   the pair: open delivers 2× budget with no drop; enforce still refuses a
+   token-less handshake.
+2. **QoS ceiling passthrough (ADR-0007)** — `[limits.client.rx]` in exactly
+   upstream's TOML shape (the live stanza carries over verbatim), feeding
+   `RelayService::new`'s rate-limit argument; zero values refused at load.
+   The pacing test asserts a lower time bound only.
+3. **TLS at the public edge** — rustls around upstream's own
+   `reloading_resolver` (Caddy renewals land with no restart; certsync tmpfs
+   paths unchanged). Handshake precedes the counter, so counts stay
+   plaintext; the internal loopback hop keeps the downcast's exact type.
+4. **QUIC address discovery** — upstream's `Server` spawned quic-only on the
+   same certificates (`QuicServer` is crate-private; `ServerConfig{relay:
+   None, quic: Some}` is the unforked route). `[quic]` without `[tls]`
+   refuses at load. Discovery pings bypass the TCP airlock and go uncounted —
+   acceptable, stated here and in the test doc.
+
+Remaining: **chunk B** (musl release artifact + checksum in CI + the
+dependency-PR automation), **chunk C** (ansible artifact swap, admission=open
+first, rollback = revert `relay_tarball_url`/`relay_version`, staging before
+production, owner authorization), **chunk D** (two-phone regression at open,
+enrolled-token staging test for enforce, `systemd-analyze security` ≤ 1.7).
