@@ -2623,3 +2623,22 @@ claims per D3, service-auth caller proof, fresh grant reads).
   grant's devices resolved to endpoint ids), service-auth verification
   (ES256K+ES256), ReplayGuard, the usage transport across the process
   boundary, the `/grantCall` HTTP surface, and the admit service manifest.
+
+### Phase 8 chunk B — service-auth verification proven live — 2026-08-20
+
+croft-stack `97889d3`. `service_auth::verify`: both curves (ES256K/zQ3s…,
+ES256/zDn…) dispatched off the did:key prefix, key always from Phase 7's
+resolver; aud/lxm/temporal gates; alg=none/HS256 refused; bounded
+ReplayGuard that refuses-rather-than-forgets when full and whose jti is
+consumed only by an otherwise-valid proof. **Plan correction:** "service-auth
+JWT via ciss-auth" did not survive the probe — ciss-auth is Ed25519-only
+(CISS-member instructions keep it); the atproto caller proof needed its own
+verifier, now built. **Done-when landed live**
+(`evidence/phase8-live-service-auth-verify-2026-08-20.md`): a real
+getServiceAuth token from the caller test account's PDS verified against its
+DID-resolved key — proven DID == resolved DID — and its replay refused. This
+also closes Phase 7's outstanding "real JWT verifies against DID-resolved
+key" half. Remaining in Phase 8: the cap evaluation (§7 mirror over fresh
+grant reads), scope resolution (grant devices → endpoint ids), membership +
+sponsorship_for at mint, the /grantCall HTTP surface, the usage transport,
+and the admit service manifest.
