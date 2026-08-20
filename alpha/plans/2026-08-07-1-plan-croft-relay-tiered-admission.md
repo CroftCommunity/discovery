@@ -2459,3 +2459,49 @@ Three layers, each with its own knob: admission (token verify + denylist),
 economics (sponsorship in the token), QoS (flat ceiling in config). ADR-0003's
 update to the new claim set happens at Phase 8 execution as planned. The croft
 client treats the token as opaque throughout — claim changes never touch it.
+
+### Phase 5 execution opened — recon findings and the first production touch — 2026-08-20
+
+Owner authorized Phase 5 ("go"). Recon before touching anything found the
+phase is **bigger than an artifact swap**, and one piece landed immediately:
+
+- **D3 probe answered: upstream has the QoS limiter, and it shipped today.**
+  Stock iroh-relay 1.0.x parses `[limits.client.rx]` (per-client token-bucket,
+  rx-side) — verified in source and against upstream's own config test. The
+  flat ceiling (1 MB/s sustained / 4 MB burst) is **live on relay.croft.ing**
+  as of 2026-08-20 (croft-stack `ffcbffc`): unit active, HTTPS 200, a v0.4.0
+  client camps. D3's layer 3 exists in production ahead of the binary swap.
+- **Scope discovery 1: TLS is Phase 5 code, not just deploy.** The bin's
+  config module deliberately shipped without `[tls]` ("TLS serving arrives
+  with Phase 5"); the live relay terminates its own TLS (Reloading certs).
+  The swap therefore requires TLS termination in `croft-relay-bin` first —
+  plus **QUIC address discovery** (udp/7824, which the live config serves and
+  clients use; `iroh_relay::quic::QuicServer` is public, so the bin can spawn
+  it; UDP bypasses the TCP airlock — discovery pings go uncounted, which is
+  acceptable and should be stated in the ADR).
+- **Scope discovery 2: the bin needs an admission mode.** `DenyNoToken →
+  deny` with no open mode; deployed as-is it breaks every shipped v0.4.0
+  client (they present no token until croft M4). Phase 5 adds
+  `admission = "open" | "enforce"` — open admits token-less connections while
+  still counting and logging (the Phase-3 airlock stance as a runtime mode),
+  so the swap carries the shipped product unchanged; enforce is flipped when
+  M4 lands tokens.
+- **QoS in our bin is one argument:** `RelayService::new` takes
+  `Option<ClientRateLimit>` — the bin currently passes `None` with a comment
+  ("the budget replaces it") making exactly the conflation D3 untangled.
+  Wire the config knob through when the bin work happens.
+- **Deploy mechanics confirmed:** box reachable (ssh croft-vps, passwordless
+  sudo), stock 1.0.0 confirmed running, ansible relay role copies
+  `relay/deploy/relay.toml` verbatim (today's change went surgical
+  scp+install with identical content — the untagged site.yml makes a full
+  play the blunter tool).
+
+**Phase 5 execution chunks, in order:** (A) bin code under TDD — TLS
+termination with reloading certs, QUIC discovery spawn, `admission` mode
+knob, `[limits.client.rx]` passthrough; (B) release engineering — musl
+artifact CI + published checksum + the dependency-PR automation; (C) deploy —
+ansible artifact swap (rollback = revert `relay_tarball_url` + version vars,
+documented per the Pass-3 item), staging first, admission=open; (D) validate —
+two-phone regression at open mode, enrolled-token staging test for enforce,
+`systemd-analyze security` no worse than 1.7. Chunk A is a fresh-session-sized
+piece of Rust work.
