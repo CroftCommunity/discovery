@@ -72,6 +72,36 @@ discovery/alpha/experiments/   appview-validation · public-roundtrip · android
                   SPEC-DIVERGENCE-REGISTER · SPEC-ALIGNMENT-AND-ACTION-PLAN · SPEC2-OVERLAY)
 ```
 
+## Calling surfaces: connect · croft · relay (who owns what)
+
+`discovery` is the thinking repo; the **product** of Croft calling is built across
+three sibling repos under `CroftC/`. They are easy to confuse — keep the ownership
+straight (two concurrent sessions nearly forked the contract 2026-08-16):
+
+```
+CroftCommunity/connect   CONTRACT OWNER + directory/status web + stopgap android
+                         docs/contract.md = the canonical calling contract (lexicon,
+                         croftcall:// deep link, cap model). web/ = the exchange page
+                         (handle → DID → PDS → endpoint, callability, cap redeem;
+                         Pages at connect.croft.ing). android/ = a stopgap receiver
+                         (shipped v0.1.0 APK) — keep minimal. Has its own CLAUDE.md.
+
+croft                    THE CLIENT (new). Shared Rust core + web/android/apple
+                         shells. A declared CONSUMER of connect's contract — its
+                         docs/CONTRACT.md points at connect as canonical. The real
+                         calling client lives here.
+
+relay = croft-stack      MEMBERSHIP / admission backbone (CISS accounting, budgets,
+                         call-time). Not connect, not the client.
+```
+
+- **The two android apps are one app, converging:** `connect/android` (stopgap)
+  folds into `croft/android` (the real client). Client-side cap consumption belongs
+  in `croft/android`.
+- **The contract is connect's to own;** breaks are deliberate + coordinated, never
+  by drift. Consumers track it. Plan + milestones:
+  `alpha/plans/2026-08-14-1-plan-connect-cap-issue-redeem.md`.
+
 ## Start here (in this order)
 
 1. `discovery/alpha/README.md` — the corpus map (the root `README.md` covers only the stage layout).
