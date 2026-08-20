@@ -312,3 +312,17 @@ E112 residual). §10.5 gained an admission-interface ledger row; §11.7 and the 
 the consolidation. Evidence basis unchanged: S12/S16/S18/S21 for the shapes, the S23–S26 + C2–C4
 gate (green 2026-08-17) for the composition. Next fronts: E111's profile template, then per the
 post-merge queue.
+
+## 2026-08-19 — E111 RETIRED: the implementation profile is authored, Croft is the reference
+
+The dial sheet landed at `beta/drystone-spec/implementation-profile.md`: the template (§2 —
+admission/re-entry dials settled by the gate; regime and sealing attributes; sizing dials carrying
+provisional values marked `Load-bearing, unearned`; the wire-pin register with the honest
+no-interop-claim statement; the §7.6.9 temperament dials), the filled **Croft reference profile**
+(§3 — one declaration per dial, provisional cells say so), and the not-settled register (§4 —
+sizing values gated on §11.11 M1/M2, wire pins on `[gates-release]`, door-A/lapse/unification/
+ledger-hygiene as E112 residuals). The **Croft presentation obligations** graduated to the
+product backlog as **E116** (factual fork statement; exposure disclosure; three registers
+reachable; returner-side "admission voided" legibility). Part 2 §9 and the spec README point at
+the sheet; its engine is the attribute-conditioned MUST (E96/§6.4). Remaining fronts per the
+post-merge queue: croft-chat E108 (build), the E112 residuals, and — separate track — Phase 11.

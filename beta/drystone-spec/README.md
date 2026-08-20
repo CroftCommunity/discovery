@@ -61,6 +61,11 @@ application layer, no product surface):
   standing research task to quantify the three per-group operational rates from ancillary evidence, with
   its source-tiering and anti-fabrication guardrails). Its research *output* (the centered-platform survey)
   is distilled into `../fenced/`; the raw report is preserved as a transcript.
+- **Implementation profile**: `implementation-profile.md` (the conformance dial sheet Part 2 §9 points to:
+  every choice the spec deliberately leaves open — doors, issuance, token lifetime, serve posture, regime
+  and sealing attributes, sizing values, wire pins — such that a filled-in sheet *is* an implementation's
+  compliance declaration; Croft's settled defaults are the reference profile. Engine: the
+  attribute-conditioned MUST, E96/§6.4. Sizing cells gated on §11.11; wire pins on `[gates-release]`.)
 - **Changelogs**: `CHANGELOG.md` (filing-side revision log, document-pass-0..10, newest first) plus
   `part-1-changelog.md` and `part-2-changelog.md` (the consolidation's detailed per-part content-pass logs)
 

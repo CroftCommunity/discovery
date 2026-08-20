@@ -1680,6 +1680,8 @@ Two implementations are **Drystone-compatible** when they agree on every normati
 
 A conformant implementation **MUST** pass the conformance vectors and must-reject cases. The reference conformance suite is **built and passing (66/0)**, derived by running the real implementation: derivations (including the tagged wire forms), signed pre-images, the fold and lineage-counted thresholds, revocation mechanics and k-of-n revoke-authority, the reconcile corpus, the adversarial cases, and the visibility and freshness vectors. `Verified` (suite); note the suite covers the §4, §5, and §6 proven layer, while the §7.3 through §7.5 governance-resolution vectors depend on the `[gates-release]` encodings in Appendix B and are not yet in the suite.
 
+The declaration artifact for the choices this specification deliberately leaves open is the **implementation profile** (`implementation-profile.md`, a spec-set companion): one sheet enumerating every open dial — serving door, issuance timing, token lifetime, serve posture, regime and sealing attributes, sizing values, wire pins — such that a filled-in sheet *is* an implementation's compliance declaration, with Croft's settled defaults as the reference profile. Its engine is the attribute-conditioned MUST (§6.4): a legitimate deviation is a declared attribute on the sheet, never a silent exception, so a conformance claim is always the §9 vectors *plus* the declared sheet. `Design` (the sheet's sizing cells are gated on §11.11 and say so).
+
 ## 10. Substrate Requirements and Reference Realizations
 
 `Realizes: P-Local-Truth, P-Knowable-Truth, P-Peer-Equality, P-Durable-Enablement`
