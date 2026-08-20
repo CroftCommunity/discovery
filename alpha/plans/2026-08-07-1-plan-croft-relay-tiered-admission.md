@@ -2406,3 +2406,56 @@ chain (head total == recomputed), an erased member leaves no row. Both gates
 green (one CI re-run for the known-flaky `budget_drop` timing test in
 `croft-relay-bin`, unrelated to this change). GUIDE §7 updated to the two-shape
 store (erasable roster + permanent chain).
+
+### D3 (croft Phase 11) settled in a design talk-through — 2026-08-19
+
+The croft client shipped its side of Phase 11 (M1–M3: ticket redeem,
+callability resolver, atproto OAuth `provenDid` — croft v0.3.0/v0.4.0), which
+made the relay-token seam the next live question. The owner walked the two
+open points plus one they raised, and the decisions bind Phases 5/7/8:
+
+1. **Caller-DID proof at mint: atproto service auth.** The caller's phone asks
+   *its own PDS* for a short-lived, audience-bound token
+   (`com.atproto.server.getServiceAuth`, aud = croft-admit) and presents that;
+   croft-admit verifies the signature against the caller's DID document.
+   croft-admit never sees the caller's OAuth session tokens (least-power), no
+   new trust root, revocation rides atproto key rotation. Rejected: trusting
+   the client's claimed DID (fails the impersonation story outright);
+   caller-published endpoint records (requires app-side writes — out of scope
+   — and makes being a caller public metadata). **In-phase probe:** confirm on
+   live servers that an OAuth session with scope `atproto` alone may call
+   `getServiceAuth`, and capture the token's exact shape before any code.
+
+2. **Token claims: sponsorship + scope; the tier/RateBucket vocabulary dies.**
+   Claims become `sub` (caller EndpointId), `iss`/`iat`/`exp` (unchanged), a
+   **`sponsorship`** claim (`unlimited` for member-involved pairs, else a byte
+   budget from `sponsorship_for`), and **`scope`** (the callee endpoint ids the
+   grant reaches, minted from the callee's record per the 2026-08-09 ruling).
+   The system stays *tiered* — member vs introduced — but the tier is expressed
+   as what it buys, not as a pointer into the superseded rate-bucket machinery.
+   `Tier`/`RateBucket` and the phase3_tier tests are deleted at Phase 8.
+   **In-phase sub-decision:** who consumes `scope` — relay routing, the app's
+   §7 re-check, or both — decided inside Phase 8 because it touches the
+   never-log-a-pair rule.
+
+3. **Owner-raised, adopted: throughput management survives as flat QoS, not as
+   a tier.** A budget bounds *totals*, not instantaneous rate — without a
+   ceiling, an introduction budget can be burned at line rate by a data-mule
+   while degrading every live call. So: a **flat, identity-blind per-connection
+   rate ceiling** in relay ops config (same class as the unit's CPUQuota),
+   tuned generous-for-calls / hostile-to-tunnels, applying to members and
+   strangers alike. Deliberately never in the token: we manage throughput for
+   everyone equally; we do not sell it. **In-phase probe (Phase 5):** check
+   whether stock iroh-relay 1.0.x ships a per-client rate limiter in its
+   config — "theirs would be better than ours, no doubt" (owner); ours in the
+   counting airlock only if upstream has none.
+
+4. **Blocking is the denylist at two doors, not the rate limiter:** refuse to
+   mint (by DID — decision 1 makes person-level blocks possible — or
+   EndpointId) plus the deny-closed attach check. Within one token lifetime a
+   block is total. The Phase-11 do-not-disturb/blocklist item builds on this.
+
+Three layers, each with its own knob: admission (token verify + denylist),
+economics (sponsorship in the token), QoS (flat ceiling in config). ADR-0003's
+update to the new claim set happens at Phase 8 execution as planned. The croft
+client treats the token as opaque throughout — claim changes never touch it.
