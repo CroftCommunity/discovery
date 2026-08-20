@@ -277,3 +277,25 @@ are Modeled). Loopback is **Modeled**, never **Verified**.
 PRELIMINARY, canonical part-2 is untouched, and the six-artifact gate-wording alignment
 (S23–S25 vs S23–S26; review item 25) is left for the owner. Graduation of decision-2's REV and the
 step-5 merge are the owner's next conversation.
+
+---
+
+## 2026-08-19 — GRADUATED AND MERGED: step 5 is closed
+
+The graduation-and-merge session ran (owner-directed: one clean merge, plus the L7 beat).
+**Canonical part-2 now carries the whole readmission arc**: the corrections (§11.8
+zero-marginal-exposure strike + the two orphaned-paragraph rewrites, §11.6 three-states), E106
+(the governance-issued token + four scoping conditions), E96 (attribute-conditioned sealing MUST +
+wrap-once + the style principle), E108 (`CONTESTED`, with the set-valued pair-carrying schema
+requirement), cold-is-a-state (family dial qualified per the review), decision-2 (ledger, doors,
+walk-in mechanics with evidence tags, pull/push split, layered gates with the §7.3.8 qualifier,
+at-position ↔ at-head reconciliation), the **admission fact**, the E109 regime-transition bridge
+(§8 ↔ §11.9.3/§11.10), §11.11 items 4/6 rewritten to post-gate status, and Appendix E updated
+(L2/L3/L6 fixed; **L7** added — the stale admission and the one-directional roll). Gate wording
+aligned to **S23–S26 + C2–C4 (green 2026-08-17)** across the WORKING copy, ROADMAP
+E96/E105/E106/E107/E108/E110/E111/E112, both plans, and this file. The WORKING copy is marked
+MERGED/historical; canonical governs. **What remains** (E112 residuals, on the row): the
+serve-signature surface, ledger hygiene + pricing, door-A end-to-end, lapse/invite-unification
+tests, rung upgrades, the croft-chat E108 implementation, and the Croft presentation obligations
+(riding E111). Next fronts: E110's A-series writing, E111's profile template, and — separate
+track — Phase 11 on the client side (`CroftCommunity/connect` `docs/PHASE11-HANDOFF.md`).

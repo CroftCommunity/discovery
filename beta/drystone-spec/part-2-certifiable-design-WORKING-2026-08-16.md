@@ -6,6 +6,16 @@
      Canonical spec remains part-2-certifiable-design.md until changes are
      reviewed and merged back deliberately.
 
+     ============================ MERGED — 2026-08-19 ============================
+     The step-5 merge folded every ratified block below — the corrections, E106,
+     E108, E96, cold-is-a-state, the DECISION-2 content, and the admission-fact
+     amendment (E112) — into canonical part-2-certifiable-design.md. The gate was
+     S23–S26 + C2–C4 (C5 informative), run GREEN 2026-08-17 (branch
+     c-series-proveout; results: meer-queue/TEST-LOG.md, local_storage_projection/
+     C-SERIES-RESULTS.md). This WORKING copy is now the historical record of the
+     revision passes; CANONICAL GOVERNS wherever the two differ.
+     =============================================================================
+
      REVISION PASS 1 — 2026-08-16. Ten marked blocks, all tagged [REV 2026-08-16]:
        11.6   resumption linkage BLOCKED in the reference impl (S16)
        11.6   cold is a STATE, not a place — two-phase dormancy, eviction as the
@@ -19,8 +29,8 @@
               at-need-with-deposit), the token ledger obligation, the three serving
               doors as a charter attribute, perishable-serve vs durable-token,
               the §7.3.8 finality floor, confidentiality-as-attribute + E109
-              — PRELIMINARY, gated on the S23–S26 build
-              (alpha/plans/2026-08-16-1-plan-token-reentry-proveout.md)
+              — gate S23–S26 + C2–C4: GREEN 2026-08-17; GRADUATED, merged 2026-08-19
+              (plans 2026-08-16-1-token-reentry-proveout, 2026-08-17-1-head-currency-and-admission-fact)
 
        6.4    E96 RATIFIED (owner, 2026-08-17): nested sealing as an
               attribute-conditioned MUST (mechanism + wrapping rule MUST when in
@@ -39,8 +49,9 @@
      three serving doors, walk-in mechanics, tree confidentiality-by-
      distribution, pull/push artifact split, serve-protects-roster /
      merge-protects-membership, admission-at-position). ALL decision-2 content
-     is PRELIMINARY pending S23–S26. The pass-1 block count above is stale;
-     grep 'REV 2026-08-16' remains the authoritative diff. New backlog rows
+     was PRELIMINARY pending the gate (S23–S26 + C2–C4), which ran GREEN
+     2026-08-17; graduated and merged 2026-08-19. The pass-1 block count above
+     is stale; grep 'REV 2026-08-1' (both dates) for the full block set. New backlog rows
      from this pass: E109 (regime transitions), E110 (admission interface
      A-series), E111 (implementation profile).
        11.7   what the returner recovers — confirmed, sharpened both directions (S18)
@@ -59,7 +70,7 @@
               arrival-order pinning test outstanding
      Evidence: alpha/experiments/meer-queue tests s15-s22 (Rung A),
      croft-chat/tests/fold_ordering_keys.rs G1 (Modeled).
-     Nothing outside these blocks was touched. grep 'REV 2026-08-16' for the diff.
+     Nothing outside these blocks was touched. grep 'REV 2026-08-1' (both dates) for the diff.
      ============================================================================ -->
 
 # Drystone, Part 2: The Certifiable Design
@@ -2250,7 +2261,7 @@ Neither half suffices alone: the ticket admits to keys without proving standing;
 >
 > One product note recorded with the decision: this credential is also a **feature dial for small no-meer groups** (family/close groups) — proactive issuance gives easy self-service re-entry after arbitrarily long absence with no infrastructure beyond any live member serving on request, since every peer is a serving peer (S22). Issuance timing, token delivery to an absent member, and revocation semantics are the proactive-issuance decision (E105/E107), not settled here.
 >
-> **[REV 2026-08-16 — DECISION 2 (E105 + E107): the issuance and serving shape, agreed with the owner. STATUS: PRELIMINARY — nothing below merges into canonical text until the S23–S25 build proves it (plan: `alpha/plans/2026-08-16-1-plan-token-reentry-proveout.md`).]**
+> **[REV 2026-08-16 — DECISION 2 (E105 + E107): the issuance and serving shape, agreed with the owner. STATUS: GRADUATED — the gate (S23–S26 + C2–C4, per `alpha/plans/2026-08-16-1-plan-token-reentry-proveout.md` as amended by `2026-08-17-1-plan-head-currency-and-admission-fact.md`) ran GREEN 2026-08-17, and the content below (plus the admission-fact amendment) merged into canonical §11.6/§11.7/§11.8 on 2026-08-19. Canonical governs.]**
 >
 > **Two issuance mechanisms, not one — a group/deployment attribute:**
 > 1. **At-join (canonical).** A long-lived durable group mints each member's token at join; the member holds it in their own store from day one. No meer, no CISS, no delivery problem — the Part 1 §2.4-clean default. The long-lived credential is defused by redemption always re-resolving standing at head.

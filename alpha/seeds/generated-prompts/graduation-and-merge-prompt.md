@@ -1,5 +1,8 @@
 # Handoff prompt: graduate decision-2 and run the step-5 merge (the gate is now green)
 
+`EXECUTED 2026-08-19, in-session with the owner (one clean merge + the L7 beat; diff reviewed by`
+`the owner before commit). Kept for the record; see STATE-AND-NEXT §2026-08-19 for the outcome.`
+
 `Written 2026-08-18, at the close of the E112 build-and-run session. The C-series + amended`
 `S-series ran green on branch c-series-proveout (discovery worktree). Everything below the line`
 `is for a fresh session; copy it in.`
@@ -70,6 +73,34 @@ committed (spec/plan base + build). Note the worktree needs a symlink
   protocol dial): the §7.6.6 factual statement, the §7.6.12 + corrected-§11.8 exposure disclosure,
   the three response registers reachable, and returner-side legibility (E108's no-lying-by-omission).
   Flag them as downstream product work so they are not lost.
+
+## The reviewer's five-item merge checklist (added 2026-08-18 — corrections the merge must carry)
+
+From `REVIEW-decision-talkthrough-2026-08-17.md`; each has its evidence pointer there. These are
+merge-time prose obligations the gate's green runs did **not** retire:
+
+1. **Family-dial qualifiers (review item 6).** When cold-is-a-state merges into §11.6, qualify the
+   "effectively infinite liveness window" paragraph: §11.5's mandatory sub-250 heal cadence makes
+   missed-epoch count grow with absence; no-meer **phase-1** catch-up has no measured
+   commit-stream home (S22 measured GroupInfo serving, a phase-2 artifact).
+2. **Wrap-once-at-origin + §6.6.2 rewording (review group F missed-issue).** E96's merge must add
+   "an object is wrapped once, at origin; the wrapped bytes are the identity all paths carry"
+   (random-nonce sealing otherwise breaks §6.6.4 cross-path dedup), and reword §6.6.2's "identical
+   `PrivateMessage` bytes" → "the outermost sealed bytes."
+3. **The §7.3.8 qualifier on "never admission" (review item 13).** S25 arm 4 measured the refusal
+   half; "roster knowledge only" is structural. The corollary must read "…never admission, up to
+   §7.3.8's corroborated-not-proven completeness residual (the Appendix B beam)."
+4. **The at-position ↔ standing-at-head reconciling sentence (review group D missed-issue 1).**
+   S26's at-position rule and §11.8's "standing resolves at head" merge into one document; write
+   the sentence reconciling them (redemption-at-live-edge vs replay-evaluation) or they read as
+   contradictory.
+5. **E109/E108 citation fixes (review items 17, 22).** Attribute "confidentiality past a certain
+   group size is an illusion" to the owner (it is not in §11.9.3); bridge §8's genesis-immutability
+   to §11.9.3/§11.10's "enter the regime" wording (successor-Group form or cross-ref to E109); fix
+   E108's §7.6 pointer (the presentation sentence lives in §7.3.2).
+
+Also in scope from the review, smaller: evidence-grade tags on the untagged §11.7 talk-through
+addenda (group C missed-issue); the two orphaned §11.8 paragraphs (already in "What to produce").
 
 ## Decisions that are the owner's (surface, do not choose)
 

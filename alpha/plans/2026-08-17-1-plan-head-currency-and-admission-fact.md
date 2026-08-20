@@ -2,10 +2,10 @@
 
 `Written 2026-08-17, out of the independent review (beta/drystone-spec/`
 `REVIEW-decision-talkthrough-2026-08-17.md) and the owner talk-through of the same date.`
-`Status: agreed with owner. The admission-fact amendment and the C-series are PRELIMINARY design;`
-`nothing merges into canonical part-2 until the amended S24/S25 and C2–C4 run green. The gate for`
-`decision-2's graduation is aligned herein to S23–S26 + C2–C4 (resolving the S23–S25 vs S23–S26`
-`inconsistency the review found); the WORKING-copy REV recording this awaits owner ratification.`
+`Status: RUN GREEN (2026-08-17; branch c-series-proveout, merged to main). The gate — S23–S26 +`
+`C2–C4, C5 informative — is discharged, and the admission-fact amendment GRADUATED and MERGED into`
+`canonical part-2 on 2026-08-19 (step 5), together with decision-2 and the reviewer's five-item`
+`checklist. Kept as the experiment record; the E112 residuals live on the ROADMAP row.`
 
 ## Problem statement
 

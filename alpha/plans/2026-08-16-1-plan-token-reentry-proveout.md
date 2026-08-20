@@ -3,9 +3,9 @@
 `Written 2026-08-16, out of the readmission decision talk-through (decisions 1–2 of the
 five-decision conversation; see the WORKING spec copy's §11.7/§11.6 REV blocks and ROADMAP rows
 E105/E106/E107).`
-`Status: agreed with owner; decision 2 (proactive issuance + serving policy) is PRELIMINARY until
-this plan's experiments run green. Nothing from decision 2 merges into canonical part-2 before
-that.`
+`Status: RUN GREEN (2026-08-17, as amended by 2026-08-17-1-plan-head-currency-and-admission-fact.md
+— the gate for decision-2's graduation was S23–S26 + C2–C4, C5 informative). Decision 2 GRADUATED
+and MERGED into canonical part-2 on 2026-08-19 (step 5). Kept as the experiment record.`
 
 ## Problem statement
 
