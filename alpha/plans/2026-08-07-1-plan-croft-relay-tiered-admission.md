@@ -2642,3 +2642,53 @@ key" half. Remaining in Phase 8: the cap evaluation (§7 mirror over fresh
 grant reads), scope resolution (grant devices → endpoint ids), membership +
 sponsorship_for at mint, the /grantCall HTTP surface, the usage transport,
 and the admit service manifest.
+
+### Phase 8 chunk C — cap evaluation and the `/grantCall` mint — 2026-08-20
+
+croft-stack `2b3e76d` (caps) + `4d8be86` (mint). The contract-§7 mirror
+(`caps.rs`, 28 tests) and the mint surface (`mint.rs` + `/grantCall`, 16
+wiring tests over a local fixture PDS/directory/AppView). The core wiring
+row landed as specified: **delete the grant → the next mint refuses with NO
+clock advance** (`cap_revoked`) — the assertion a cached grant read would
+fail; `list_records` and the new `Resolver::mutuals` are both uncached.
+
+Decisions made in-phase, recorded here:
+
+- **Two refusal discriminants added to the plan's six** — `cap_mismatch`
+  (a LIVE grant the presented proof does not satisfy: wrong secret,
+  unlisted DID, not-mutual, or a device hint outside scope) and
+  `bad_request` (malformed endpoint id, HTTP 400). The plan's table folded
+  proof-mismatch into its six; a mismatch is not `cap_not_found` and
+  logging them identically would hide exactly the distinction §8.3 exists
+  for. Store/resolution outage is `unavailable` (503) — deny-closed, but
+  never disguised as an authorization answer.
+- **Rules-deny maps to `cap_revoked`** — expires/maxUses/burnOnSuccess ARE
+  the contract's "composable revocation rules"; a dangling `policyRef`
+  fails closed the same way (conditions we cannot read cannot be honoured).
+- **The widening hazard is refused, not smoothed over:** a grant that names
+  devices which all resolve to nothing refuses (`cap_revoked`) — an empty
+  token scope means "all devices" (D3), so falling through would hand out
+  more than the callee granted. A partially-vanished device list narrows.
+- **Deliberate divergence from the reference engine, asserted in tests:**
+  `resolver.js#evaluateRules` lets a malformed `expires.at` admit forever
+  (`Date.parse → NaN`, `now > NaN` → false). At the durable gate a rule
+  that cannot be evaluated denies. Worth porting back to connect.
+- **Rules are evaluated BEFORE the proof** so a revoked cap cannot burn a
+  caller's `jti` (same courtesy discipline as replay-consumed-last).
+- **`cap_revoked` vs `cap_not_found` is process-local memory** of grants
+  successfully minted from (bounded set): after a restart a deleted grant
+  reports `cap_not_found` — still a refusal, just a less precise log line.
+- **Seams for the remaining transport work:** `UseLedger` (uses-so-far
+  feeding maxUses/burnOnSuccess) and `QuotaCheck` (member quota), memory
+  implementations now; the usage-record transport wires them next.
+  `service_auth` grew `unverified_issuer` (the mint must know whose key to
+  resolve before verify can run — a lying `iss` just fails under the
+  honest key).
+
+Membership matrix asserted at the mint layer (callee-member,
+caller-member, neither → introduction), quota_exhausted row live against
+`MemoryQuota`. **Mutation runs (authorization path):** `caps.rs` — 49
+mutants, 42 caught, 7 unviable, **0 missed**; `mint.rs` run follows the
+same commit-before-mutate discipline (result recorded when complete).
+Remaining in Phase 8: the usage transport + quota decrement, ADR-0003
+update (scheduled in-phase), and the admit service manifest.
