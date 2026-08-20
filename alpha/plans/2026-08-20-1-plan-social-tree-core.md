@@ -1,7 +1,11 @@
 # social-tree-core: the portable substrate, the chat tenant on it, and the client on both
 
-- **Status:** Draft (2026-08-20), phases scoped, four open questions for the owner (§6). Not yet
-  started; Phase 1 is the already-queued E108 build, absorbed here unchanged.
+- **Status:** Draft (2026-08-20) + **Pass 2 against reality (2026-08-20, same day)** — claims
+  verified against the actual crates, the repo-home question worked (owner's call: **the core
+  lands in the croft repo — "this is no longer an experiment"** — Pass 2 confirms it and prices
+  the consequences), phases revised accordingly. **Pass 3 (quality gates + closing §6 with the
+  owner) still to run. Not ready for execution, and execution is deliberately not started.**
+  Phase 1 is the already-queued E108 build, absorbed here unchanged.
 - **Origin:** owner direction 2026-08-20 — *"build up a phased plan on the social-tree-core of this
   and then have chat built on top of it right after and then build out the current chat client as
   well"* — closing the loop the client-architecture ADR left open (COHESION §23: adoption is
@@ -98,18 +102,45 @@ test the current schema structurally fails. *Done when:* both pins green, corpus
 pass on the changed module, rung stated Modeled. *Evidence home:* croft-chat TEST-LOG +
 C-SERIES-RESULTS addendum.
 
-**Phase 2 — the re-cut: `social-tree-core` extracted pure.**
-New crate (incubated at `alpha/experiments/social-tree-core/`): the fold, projections, ordering
-keys, contradiction/resolution machinery, horizon, head-currency — no redb, no I/O, no clock;
-storage becomes a `Store` port; `local_storage_projection` becomes the redb adapter + the
-existing test harness, consuming the core. Module surface follows croft-group's `group-core`
-template (`model/intent/effect/update/wire/project/view`) so the crate is croft-core-shaped from
-day one; croft-group's workspace is marked superseded-for-behavior once the harvest is done. *Gate:* the **entire existing corpus green over the
-re-cut** (C2/C3/C5, the croft-chat fold tests, stage tests) — behavior-identical extraction,
-verified by the tests that already pin behavior, and a **`cargo check --target
-wasm32-unknown-unknown` CI gate** on the core crate from this phase forward (pinned toolchain,
-per CI-PATTERN). *Done when:* corpus green, wasm-check green, no `redb` in the core's
-dependency tree.
+**Phase 2 — the re-cut: `social-tree-core` extracted pure, landing in the croft repo.**
+New crate at **`croft/core/social-tree-core`** (owner's call, Pass 2 — the product repo, not the
+experiment corpus; "this is no longer an experiment"): the fold, projections, ordering keys,
+contradiction/resolution machinery, horizon, head-currency — no redb, no I/O, no clock; storage
+becomes a `Store` port; `local_storage_projection` becomes the redb adapter, consuming the core.
+One layering note so the ADR stays true: this crate is **not a pond** beside `call-core` and
+`feed-core` — it is the **substrate ponds consume**; `core/` gains that second layer
+deliberately. Module surface follows croft-group's `group-core` template
+(`model/intent/effect/update/wire/project/view`); croft-group's workspace is marked
+superseded-for-behavior once the harvest is done.
+
+Landing consequences, priced (Pass 2):
+
+- **croft's `core/`, `ports/`, `shell/` are `.gitkeep` placeholders today** — verified. This
+  phase therefore also scaffolds the croft root Cargo workspace and stands up **CI per
+  CI-PATTERN** (a gate with a `pull_request` trigger; the CI toolchain pinned to the same
+  1.97.1 the repo pins locally — the two rules most often missed). The toolchain file already
+  carries `wasm32-unknown-unknown` and the android targets, so the wasm gate is a target away,
+  not a toolchain change.
+- **The behavior-pinning tests migrate with the code** (fold ordering, contradiction/CONTESTED,
+  projection, horizon, head-currency — they are the core's tests, not the experiment's);
+  `local_storage_projection` keeps the redb adapter, the adapter-grade tests, and the C-series
+  arms that exercise storage specifics; TEST-LOG and the evidence ledgers stay in discovery
+  (records, not code).
+- **Dependency direction reverses:** discovery experiments consume `social-tree-core` as a
+  **git dep pinned to a commit** (the dependency-sourcing rule — never a cross-repo path dep),
+  bumped at phase gates when the corpus re-runs; the tight edit loop during extraction stays
+  intra-croft because the migrated tests travel with the crate.
+- **Vendor-neutrality unchanged:** the §9 conformance vectors and the Proofs crates stay the
+  neutral bar in discovery; croft's crate is the product realization measured against them.
+
+*Gate:* the **entire existing corpus green over the re-cut** — the migrated tests green in
+croft, the adapter + C-series arms green in discovery against the pinned crate — plus the
+**`cargo check --target wasm32-unknown-unknown` CI gate** on the core crate from this phase
+forward. *Done when:* corpus green on both sides, wasm-check green in croft CI, no `redb` in
+the core's dependency tree. *Sizing (Pass 2, measured):* the redb entanglement is localized —
+`fold_derived.rs` 21 references (mostly four `From<redb::*Error>` impls plus table reads),
+`governance.rs` 11, `surface.rs` 2, and `tables.rs` (18) staying adapter-side wholesale — a
+bounded extraction, not a spread.
 
 **Phase 3 — real signatures on the governance plane (the E112 rung residual, taken here).**
 Ed25519 signing/verification on the fold path through the existing `Verifier` boundary, reusing
@@ -133,10 +164,12 @@ stated (governance per Phase 3; MLS Rung A; transport loopback = Modeled, never 
 **Phase 5 — chat tenant v2: `group-chat-core` onto the core.**
 Move the tenant's dependency from social-graph-core/local_storage_projection to
 `social-tree-core` (+ adapters); social-graph-core's facade folds into the core's tenant-facing
-API module or retires. The pond contract is already spoken — this phase is dependency surgery
-plus whatever surface gaps the move exposes (each gap = a RED test on the core first). *Done
-when:* the croft-chat workspace is green on the new stack and social-graph-core no longer
-reaches around the core.
+API module or retires. With the core in croft, the tenant's natural landing is
+**`croft/core/chat-core`** — a pond beside `call-core` and `feed-core`, exactly the ADR's
+symmetry (§6 Q5; recommended). The pond contract is already spoken — this phase is dependency
+surgery plus whatever surface gaps the move exposes (each gap = a RED test on the core first).
+*Done when:* the chat stack is green on the new core and social-graph-core no longer reaches
+around it.
 
 **Phase 6 — the client build-out.**
 The croft-chat client grows from demo harness to usable client on core + tenant: ports wired
@@ -146,11 +179,12 @@ three registers reachable — mute is a client feature; "admission voided" legib
 feature list of §6 Q4. *Done when:* the Q4 MVP list demonstrably works over real iroh between
 two nodes (honest rung: LAN/loopback per run, stated).
 
-**Phase 7 — graduation seam (named, not committed).**
-When croft's group pond wants the core: pin `social-tree-core` as a git dep at a commit
-(dependency-sourcing rule) or relocate the crate to its long-term home; croft-repo adoption is
-its own plan against `croft/core`'s contract (E19's remaining half). Explicitly out of scope
-here.
+**Phase 7 — product-shell adoption (named, not committed).**
+With the core and pond born in croft (P2/P5), the remaining seam is the **product shells**
+consuming them — the android/apple/web shells rendering the chat pond, the uniffi surface, the
+rebuild of the inherited croftcall client onto the shared core. That is its own plan with its
+own constraints per platform. Explicitly out of scope here; this plan's client (P6) is the
+dev-harness chat client, not the product shells.
 
 ## 5. What this plan does NOT do
 
@@ -159,23 +193,65 @@ here.
 - Does not drain E112: serve-signature adversarial analysis, door-A end-to-end, lapse/invite
   tests, ledger pricing, HeadAck transport rung all stay on that row.
 - Does not touch the relay/M4 track (concurrent session).
-- Does not adopt into `croft/core` (Phase 7 names the seam only).
+- Does not touch the product shells (android/apple/web) — the core and pond land in
+  `croft/core`, but shell adoption is Phase 7's successor plan, not this one.
 - No SLA-grade sizing claims: the §11.11 measurements remain unearned; anything measured here is
   loopback-grade unless stated.
 
-## 6. Open questions for the owner
+## 6. Open questions for the owner (Pass 3 closes these)
 
-1. **Crate home + name.** Recommend incubating as `alpha/experiments/social-tree-core` (stays in
-   the evidence machinery), name `social-tree-core` (your backbone framing). Confirm or rename.
+1. **Landing details (home is decided — croft repo, owner 2026-08-20).** Confirm the specifics:
+   path `croft/core/social-tree-core`, the substrate-beside-ponds layering note recorded in the
+   croft repo (a short ADR there — croft carries its own architecture record), and that P2's
+   scope now includes the croft root workspace + CI-PATTERN gate scaffolding (Pass-2 finding:
+   `core/`/`ports/`/`shell/` are `.gitkeep`, no workflows exist).
 2. **Phase 4 port shape** gets its own design beat + ADR before code — flagging now that a beat
    sits mid-plan; the alternative (decide now) trades a cheap ADR for design-under-pressure.
 3. **Phase 3 scope confirmation:** pulling the real-signatures residual out of E112 into this
-   plan (recommended, reasons in §3); E112 keeps the rest.
-4. **Phase 6 MVP feature list** — what "built out" means for the chat client (e.g., persistent
-   multi-group chat, invite/join flows incl. token return, membership/standing panel with
-   CONTESTED, mute; anything more?). Needs your list before Phase 6 starts; does not gate
+   plan (recommended, reasons in §3; Pass 2 confirmed the machinery — real `ed25519-dalek` in
+   `lineage-core`, vectors in the conformance crate); E112 keeps the rest.
+4. **Phase 6 MVP feature list** — what "built out" means for the chat client (strawman:
+   persistent multi-group chat, invite/join flows incl. token return, membership/standing panel
+   with CONTESTED, mute; anything more?). Needs your list before Phase 6 starts; does not gate
    Phases 1–5.
+5. **Tenant and client homes (new, follows from the croft landing).** Recommended: the chat
+   tenant lands as `croft/core/chat-core` at P5 (a pond beside call/feed, the ADR's symmetry);
+   the TUI chat client stays discovery-side as the dev harness consuming pinned crates (the
+   product shells are Phase 7's successor plan). Confirm or redirect.
 
 ## 7. Review log
 
-- 2026-08-20 — drafted (this entry). Phases 1–7 scoped; four open questions posed.
+- 2026-08-20 — drafted. Phases 1–7 scoped; four open questions posed.
+
+### Pass 2 — against reality (2026-08-20)
+
+Owner input driving the pass: the core belongs in the **croft repo** ("this is no longer an
+experiment"), and the plan gets its Pass 2/Pass 3 before anything starts. Findings, each
+verified this pass, plan revised in place:
+
+1. **Repo home worked and adopted.** P2 now lands `croft/core/social-tree-core`; consequences
+   priced in P2 (workspace + CI scaffolding, test migration, dependency-direction reversal,
+   vendor-neutrality note). P7 rewritten from "graduation seam" to "product-shell adoption"
+   and the §5 croft-exclusion corrected — the draft's "does not adopt into croft/core"
+   contradicted the new landing and is struck.
+2. **croft skeleton verified**: `core/`/`ports/`/`shell/` are `.gitkeep` placeholders; no
+   `.github/workflows/`; no root Cargo workspace. New P2 work discovered and added
+   (scaffolding + CI-PATTERN gate). Toolchain verified ready: pinned 1.97.1 with
+   `wasm32-unknown-unknown` and android targets, clippy/rustfmt components.
+3. **Green baseline measured, not assumed** (fresh runs this pass): croft-chat workspace
+   **115 passed, 0 failed**; local_storage_projection suite **green (exit 0)** — the corpus
+   the P2 gate re-runs is real and passing today.
+4. **redb entanglement sized**: fold_derived.rs 21 refs (four `From<redb::*Error>` impls +
+   table reads), governance.rs 11, surface.rs 2, tables.rs 18 (stays adapter-side wholesale).
+   Bounded extraction.
+5. **P3 machinery confirmed**: real `ed25519-dalek` in `alpha/Proofs/lineage-groups/crates/
+   lineage-core`; conformance crate present beside it. The reuse claim is grounded.
+6. **openmls pin noted**: meer-queue pins `openmls =0.8.1` exactly (with rust-crypto and
+   basic-credential companions); the P4 adapter adapts that code at that pin; openmls-on-wasm
+   stays `[confirm]`.
+7. **New question posed** (§6 Q5): tenant home (`croft/core/chat-core` recommended) and client
+   home (TUI stays discovery dev harness) — a consequence of the croft landing the draft could
+   not have asked.
+
+**Status after Pass 2: revised, not started. Pass 3 (quality gates; §6 closed with the owner)
+is the remaining gate before execution.**
