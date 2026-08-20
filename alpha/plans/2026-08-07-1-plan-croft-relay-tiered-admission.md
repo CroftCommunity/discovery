@@ -2577,3 +2577,23 @@ enrolled-token staging test for enforce, `systemd-analyze security` ≤ 1.7).
   mint), and the `/healthz` path our binary does not serve yet (stock's index
   page is gone — expected; a health endpoint is a small follow-up). The
   netns Phase-0 forced-relay re-check rides the two-phone run.
+
+### Phase 7 executed — real atproto resolution — 2026-08-20
+
+croft-stack `da523ac`+`5451b8e`+`4ddf7a2`. The two-age cache
+(refresh-serves-stale-and-refreshes, max-stale refuses, bounded,
+single-flight, failures never cached, clock injected — plus a hand-run
+four-mutation pass, all killed); `did_doc::parse` (fail-closed, WrongDid
+refused so a poisoned directory answer can never bind one identity's key to
+another's DID); the resolver (injected bases/timeout, redirects refused,
+listRecords deliberately uncached for Phase 8's revocation claim, WARN per
+lookup naming subject+class, keys/JWTs never logged). All six deny rows have
+their own fixture-server test; CI makes no egress. Deviation: the HTTP
+client lives in resolver.rs, not a separate pds_client.rs (four functions
+around one agent). The manual live run is recorded in
+`evidence/phase7-live-resolution-2026-08-20.md`: both test accounts resolve
+handle→DID→PDS→did:key through the real AppView/plc.directory/PDS chain, and
+the callee's endpoint record is found. The JWT-verifies-against-resolved-key
+half of Done-when rides Phase 8's ciss-auth integration, whose key material
+this run proves. Next: **Phase 8 — caps and the mint** (sponsorship + scope
+claims per D3, service-auth caller proof, fresh grant reads).
