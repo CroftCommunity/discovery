@@ -2688,7 +2688,10 @@ Decisions made in-phase, recorded here:
 Membership matrix asserted at the mint layer (callee-member,
 caller-member, neither → introduction), quota_exhausted row live against
 `MemoryQuota`. **Mutation runs (authorization path):** `caps.rs` — 49
-mutants, 42 caught, 7 unviable, **0 missed**; `mint.rs` run follows the
-same commit-before-mutate discipline (result recorded when complete).
+mutants, 42 caught, 7 unviable, **0 missed**; `mint.rs` — first run 38
+mutants, 2 missed, both real gaps (no test pinned outage-as-503, and the
+seen-memory capacity boundary was unpinned); killing tests added
+(croft-stack `01037e4`) and the re-run confirms **0 missed** (32 caught,
+6 unviable).
 Remaining in Phase 8: the usage transport + quota decrement, ADR-0003
 update (scheduled in-phase), and the admit service manifest.
