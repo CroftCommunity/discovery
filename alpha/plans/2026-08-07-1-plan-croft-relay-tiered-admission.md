@@ -2695,3 +2695,30 @@ seen-memory capacity boundary was unpinned); killing tests added
 6 unviable).
 Remaining in Phase 8: the usage transport + quota decrement, ADR-0003
 update (scheduled in-phase), and the admit service manifest.
+
+### Phase 8 chunk D — the usage transport crosses the process boundary — 2026-08-20
+
+croft-stack `86b9893`. The transport the plan flagged as "never wired": the
+relay binary's pump close now also PUTs its volume record to croft-admit's
+existing `/usage/{id}` over localhost — `{bytes}` keyed by the FULL endpoint
+id (the journal keeps `fmt_short`), one endpoint per record, never a pair.
+New optional `[usage] admit_url` config section; absent = journal-only (the
+deployed Phase-5 posture, unchanged — production is NOT reconfigured by this
+commit). Both plan constraints are the design and are asserted by the wiring
+test, which runs BOTH real binaries (spawned croft-relay reporting to
+spawned croft-relay-admit) and reads the decrement back over HTTP — never a
+hand-delivered record: delivery is fire-and-forget off the close path, and
+an admit outage degrades quota freshness, not calling (dead-port row:
+connections still admit and carry traffic; the degradation is one WARN).
+
+Remaining in Phase 8, discovered while scoping the manifest: `/grantCall`
+is not yet wired into the croft-admit BINARY (main.rs serves only the
+Phase-6 store surface; the mint router, resolver config, issuer signing
+key, and aud/lxm need a `[mint]` config section), and the services
+generator's real-binary exec shape (`--data-dir/--listen`) does not match
+admit's `--config` CLI — both precede the `services/croft-admit.toml`
+manifest. Also noted for the manifest: the store is "the private CISS
+instance", which is not the public `ciss` tenant — provisioning it is part
+of the deploy decision; and `did:web:admit.croft.ing` implies a
+`/.well-known/did.json` at the edge (the PDS mints for arbitrary aud today,
+so M4 does not block on it, but it should exist).
