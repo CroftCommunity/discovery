@@ -1,11 +1,11 @@
 # social-tree-core: the portable substrate, the chat tenant on it, and the client on both
 
-- **Status:** Draft (2026-08-20) + **Pass 2 against reality (2026-08-20, same day)** — claims
-  verified against the actual crates, the repo-home question worked (owner's call: **the core
-  lands in the croft repo — "this is no longer an experiment"** — Pass 2 confirms it and prices
-  the consequences), phases revised accordingly. **Pass 3 (quality gates + closing §6 with the
-  owner) still to run. Not ready for execution, and execution is deliberately not started.**
-  Phase 1 is the already-queued E108 build, absorbed here unchanged.
+- **Status:** Draft (2026-08-20) → **Pass 2 against reality (same day)** — claims verified
+  against the actual crates, the repo-home question worked (owner's call: **the core lands in
+  the croft repo — "this is no longer an experiment"**), phases revised — → **Pass 3 complete
+  (2026-08-20): all five §6 questions closed with the owner, one at a time** (answers recorded
+  in §6 and the Review Log). **READY FOR EXECUTION; not started — execution begins on the
+  owner's go.** Phase 1 is the already-queued E108 build, absorbed here unchanged.
 - **Origin:** owner direction 2026-08-20 — *"build up a phased plan on the social-tree-core of this
   and then have chat built on top of it right after and then build out the current chat client as
   well"* — closing the loop the client-architecture ADR left open (COHESION §23: adoption is
@@ -198,7 +198,21 @@ dev-harness chat client, not the product shells.
 - No SLA-grade sizing claims: the §11.11 measurements remain unearned; anything measured here is
   loopback-grade unless stated.
 
-## 6. Open questions for the owner (Pass 3 closes these)
+## 6. Open questions — CLOSED at Pass 3 (owner, 2026-08-20, one at a time in plain English)
+
+Answers first; the original questions kept below each for provenance.
+
+1. **CLOSED — yes to all three**: path `croft/core/social-tree-core`; the short croft-side ADR
+   (foundation-vs-feature-core layering); P2 owns the workspace + CI scaffolding.
+2. **CLOSED — ADR beat at phase 4**: the `KeyLayer` port is designed against the real core
+   surface when P4 arrives, recorded as a croft ADR before any P4 code.
+3. **CLOSED — yes**: the real-signatures residual moves from E112 into this plan as Phase 3;
+   E112 keeps its other residuals.
+4. **CLOSED — all four in the MVP**: persistent multi-group chat; invite/join incl. token
+   return; the truthful membership panel (`CONTESTED` + returner-side "admission voided");
+   mute.
+5. **CLOSED — both as recommended**: chat tenant lands as `croft/core/chat-core` at P5; the TUI
+   client stays discovery-side as the dev harness on pinned crates.
 
 1. **Landing details (home is decided — croft repo, owner 2026-08-20).** Confirm the specifics:
    path `croft/core/social-tree-core`, the substrate-beside-ponds layering note recorded in the
@@ -255,3 +269,17 @@ verified this pass, plan revised in place:
 
 **Status after Pass 2: revised, not started. Pass 3 (quality gates; §6 closed with the owner)
 is the remaining gate before execution.**
+
+### Pass 3 — the five questions closed with the owner (2026-08-20)
+
+Walked one at a time in plain English at the owner's request; answers recorded in §6 in full.
+Summary: **Q1** landing specifics confirmed (path, croft ADR, P2 owns plumbing); **Q2** the
+MLS/core joint gets its ADR beat at P4, not a premature pin; **Q3** real signatures come in as
+P3; **Q4** the P6 MVP is all four strawman features; **Q5** chat-core to croft at P5, TUI stays
+the discovery dev harness. One Pass-2 loose end closed: the local_storage_projection baseline
+count completed after the Pass-2 commit — **99 passed, 0 failed** — so the measured baseline is
+**214 green across the two suites** (115 croft-chat + 99 substrate), superseding the interim
+"green (exit 0)" wording in Pass-2 finding 3.
+
+**Status after Pass 3: READY FOR EXECUTION. Nothing started; Phase 1 (E108) begins on the
+owner's go.**
