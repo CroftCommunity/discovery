@@ -283,3 +283,14 @@ count completed after the Pass-2 commit — **99 passed, 0 failed** — so the m
 
 **Status after Pass 3: READY FOR EXECUTION. Nothing started; Phase 1 (E108) begins on the
 owner's go.**
+
+### Independent vet ordered (2026-08-20) — execution holds for it
+
+The owner ordered a fresh-eyes review before execution ("too close to the problem … you miss
+obvious flaws", paraphrase). Reviewer prompt:
+`alpha/seeds/generated-prompts/vet-social-tree-core-plan-prompt.md` — six lenses (Part-1
+philosophy, Part-2 fidelity, technical soundness, architecture against comparable platforms,
+direction, cheap-now/big-later), refute-first posture, findings as
+BLOCKER/REVISE/CONFIRM/OPPORTUNITY. Expected artifact:
+`alpha/plans/REVIEW-social-tree-core-plan-2026-08-20.md`. **Execution begins only after the
+review lands and the owner clears it** (BLOCKERs resolved, REVISEs folded or waived).
