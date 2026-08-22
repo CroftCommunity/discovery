@@ -5,6 +5,28 @@ Copy everything below the rule into a fresh session working under
 
 ---
 
+## The plain-English picture first (read this before the details)
+
+The system is **built and proven, but not yet armed**. Every piece of
+call-time admission exists and has been exercised on real phones: a caller
+redeems an invite (or proves their identity via their own atproto account),
+a bouncer service reads the callee's CURRENT published grants fresh, mints a
+short-lived pass stamped for that caller's device, the app dials with it —
+and when the callee revokes the grant, the very next attempt is refused in
+words ("this invite has been revoked") and does not dial. Both ways of
+qualifying — ticket possession and OAuth-proven identity — happened end to
+end on hardware on 2026-08-21.
+
+But the production relay still runs in observe mode and the bouncer is not
+deployed: **a stranger with your endpoint id can still dial you today.**
+What separates here from armed is deployment work plus ONE design decision,
+not invention. The decision (O1 below) in user terms: when the door starts
+checking passes, it checks EVERYONE — including the callee sitting on the
+relay waiting to receive calls. Nobody has decided how the callee gets
+their own pass to camp. That is the owner's call and it blocks the armed
+rehearsal. The other user-visible hole: the app has no hang-up — calls end
+by leaving the app.
+
 ## Where the calling ladder stands (all claims device-validated or committed)
 
 You are continuing Phase 11 **M4 (call-time admission)** across three repos.
