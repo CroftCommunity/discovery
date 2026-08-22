@@ -134,21 +134,21 @@ fn cast() -> Cast {
     // Pair 1: mutually-expelling concurrent removes (each antecedes only setup facts).
     let a_removes_b = sign(
         &id_a,
-        base(&id_a, group, AssertionType::MembershipRemove, 1, vec![envelope_hash(&add_b)], remove_payload(b)),
+        base(&id_a, group, AssertionType::MembershipRemove, 10, vec![envelope_hash(&add_b)], remove_payload(b)),
     );
     let b_removes_a = sign(
         &id_b,
-        base(&id_b, group, AssertionType::MembershipRemove, 1, vec![envelope_hash(&add_a)], remove_payload(a)),
+        base(&id_b, group, AssertionType::MembershipRemove, 10, vec![envelope_hash(&add_a)], remove_payload(a)),
     );
 
     // Pair 2: an add/remove race on D — both antecede add_d, neither sees the other.
     let c_removes_d = sign(
         &id_c,
-        base(&id_c, group, AssertionType::MembershipRemove, 1, vec![envelope_hash(&add_d)], remove_payload(d)),
+        base(&id_c, group, AssertionType::MembershipRemove, 12, vec![envelope_hash(&add_d)], remove_payload(d)),
     );
     let o_readds_d = sign(
         &id_o,
-        base(&id_o, group, AssertionType::MembershipAdd, 6, vec![envelope_hash(&add_d)], membership_add_payload(d, 2)),
+        base(&id_o, group, AssertionType::MembershipAdd, 12, vec![envelope_hash(&add_d)], membership_add_payload(d, 2)),
     );
 
     Cast {
@@ -348,11 +348,11 @@ fn quorum_resolution_closes_named_pair_only() {
     );
     let approve = sign(
         &k.id_c,
-        base(&k.id_c, k.group, AssertionType::Approval, 2, vec![], approval_payload(AssertionType::Resolution, subject)),
+        base(&k.id_c, k.group, AssertionType::Approval, 13, vec![], approval_payload(AssertionType::Resolution, subject)),
     );
     let resolve = sign(
         &k.id_o,
-        base(&k.id_o, k.group, AssertionType::Resolution, 7, vec![envelope_hash(&approve)], pair_bytes.clone()),
+        base(&k.id_o, k.group, AssertionType::Resolution, 13, vec![envelope_hash(&approve)], pair_bytes.clone()),
     );
 
     let run = |name: &str, first: &AssertionEnvelope, second: &AssertionEnvelope| {
@@ -399,4 +399,73 @@ fn quorum_resolution_closes_named_pair_only() {
         s2.to_bytes(),
         "post-resolution state must be byte-identical across arrival orders"
     );
+}
+
+/// **Pin 5 — closing a pair is not un-deciding it: resolved exclusions persist through
+/// every LATER replay.** (Added by the P1 mutation sweep: `resolved_excluded` had no
+/// killer — nothing replayed after a resolution, so a fold that forgot closed pairs
+/// would only diverge at the *next* contradiction or resolution.)
+///
+/// Both pairs are opened, then resolved in sequence. The second resolution triggers a
+/// full deterministic replay whose exclusion set must still carry pair 1's facts —
+/// derived from the log's admitted Resolution facts, not from any state memory. If
+/// that derivation breaks, pair 1's mutually-expelling removes re-apply and A or B
+/// loses membership silently.
+#[test]
+fn resolved_exclusions_persist_through_later_replays() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let k = cast();
+    let authors = [&k.id_o, &k.id_a, &k.id_b, &k.id_c];
+
+    let pair1 =
+        resolution_payload(&envelope_hash(&k.a_removes_b), &envelope_hash(&k.b_removes_a));
+    let subject1 = PrincipalId::new(
+        local_storage_projection::fold_derived::rule_change_approval_subject(&pair1),
+    );
+    let approve1 = sign(
+        &k.id_c,
+        base(&k.id_c, k.group, AssertionType::Approval, 13, vec![], approval_payload(AssertionType::Resolution, subject1)),
+    );
+    let resolve1 = sign(
+        &k.id_o,
+        base(&k.id_o, k.group, AssertionType::Resolution, 13, vec![envelope_hash(&approve1)], pair1),
+    );
+
+    let pair2 =
+        resolution_payload(&envelope_hash(&k.c_removes_d), &envelope_hash(&k.o_readds_d));
+    let subject2 = PrincipalId::new(
+        local_storage_projection::fold_derived::rule_change_approval_subject(&pair2),
+    );
+    let approve2 = sign(
+        &k.id_c,
+        base(&k.id_c, k.group, AssertionType::Approval, 14, vec![], approval_payload(AssertionType::Resolution, subject2)),
+    );
+    let resolve2 = sign(
+        &k.id_o,
+        base(&k.id_o, k.group, AssertionType::Resolution, 14, vec![envelope_hash(&approve2)], pair2),
+    );
+
+    let order: Vec<&AssertionEnvelope> = vec![
+        &k.genesis, &k.add_a, &k.add_b, &k.add_c, &k.add_d,
+        &k.a_removes_b, &k.b_removes_a, // pair 1 opens
+        &k.c_removes_d, &k.o_readds_d,  // pair 2 opens
+        &approve1, &resolve1,           // pair 1 closes
+        &approve2, &resolve2,           // pair 2 closes — replay must STILL exclude pair 1
+    ];
+    let f = fold_order(&dir.path().join("persist.redb"), &authors, &order);
+    let s = f.fold.read_group_state(&k.group).expect("read").expect("state");
+
+    assert!(
+        matches!(s.fork_status, ForkStatus::Clean),
+        "both pairs closed — the group is clean, got {:?}",
+        s.fork_status
+    );
+    for (who, name) in [(&k.a, "A"), (&k.b, "B"), (&k.c, "C"), (&k.d, "D")] {
+        assert!(
+            matches!(s.membership(who), MembershipView::Member(_)),
+            "{name} must be a member after both resolutions (resolved removes stay \
+             withheld; nothing re-applies), got {:?}",
+            s.membership(who)
+        );
+    }
 }
