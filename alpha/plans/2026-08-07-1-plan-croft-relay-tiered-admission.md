@@ -2856,3 +2856,41 @@ Consequence: the enforce rung is unblocked. The staging rehearsal can run
 entirely on the local-keypair backend (TLS listener + enforce +
 local-keypair camping mint + caller mint), with atproto camping proof
 arriving as the production configuration of the same seam.
+
+### O1 built the same day — /campToken and the first closed enforce loop — 2026-08-21
+
+E123 executed immediately after the decision (croft-stack `0490e71` +
+`a2d444f`), RED-first throughout:
+
+- **`/campToken` on croft-relay-admit** (`src/camp.rs`): the pluggable
+  proof seam as decided — the proof kind selects the backend; atproto
+  service-auth (lxm `ing.croft.relay.campToken`, the proven DID's
+  published endpoint records must list the camping endpoint) and the
+  local-keypair backend (config pairs ed25519 pubkeys with the endpoints
+  they stand behind; the proof is a self-issued EdDSA JWT under the same
+  aud/lxm/exp/replay-guarded-jti discipline — the single-round-trip
+  equivalent of a signed fresh challenge). The camping token is the
+  ordinary relay token from the same signing key — no relay-side changes
+  — with its own hours-scale TTL (`[camp] token_ttl_secs`, staged at
+  12 h). Members camp unlimited; strangers ride the introduction budget.
+  Eight worded refusal discriminants; a record-read outage is 503, an
+  unresolvable issuer stays deny-closed as `jwt_invalid` (the mint's
+  convention). `[camp]` requires `[mint]` and refuses to start without
+  it; without `[camp]`, `/campToken` does not exist.
+- **The first end-to-end enforce loop** — two real binaries, zero
+  atproto (`croft-relay-bin/tests/camp_enforce_loop.rs`): enforce relay
+  refuses the token-less camp at the handshake → the callee self-mints
+  with its local key → the same endpoint camps with the pass and carries
+  traffic → an endpoint outside the key's pairing is refused with words.
+  The journey was watched failing (under `admission = "open"` the
+  refusal row breaks), so it tests enforcement, not fixture wiring.
+- **Mutation audit on camp.rs**: first run 4 missed of 32 — all real
+  gaps (untested atproto replay arm; unpinned expiry-leeway and
+  future-iat boundaries), closed with three rows; re-run 26 caught,
+  6 unviable, 0 missed. Commit-before-mutate held.
+
+What remains for the staging ENFORCE rung is only the owner-gated infra
+(croft-stack `TODO.md`): certs + the second listener + provisioning,
+with `[camp]` local keys pairing the test phones' endpoint ids. The
+on-device atproto camping proof is the production configuration of the
+seam already proven against the fixture PDS.
