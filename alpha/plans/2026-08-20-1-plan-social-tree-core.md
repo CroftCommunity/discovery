@@ -30,8 +30,8 @@
 - **Related rows:** E108 (Phase 1), E19 (discharged by Phases 5–6), E112 (this plan takes the
   real-signatures residual as Phase 3; leaves HeadAck-over-real-transport, serve-signature
   analysis, door-A, lapse tests in E112), E116 (client-side renderings, partially landed by
-  Phase 6), **E118** (DID ↔ persona-key binding seam — Phase 7's predictable design question),
-  **E119** (charter presets & the three product postures — product layer, strengthens O6/O13).
+  Phase 6), **E120** (DID ↔ persona-key binding seam — Phase 7's predictable design question),
+  **E121** (charter presets & the three product postures — product layer, strengthens O6/O13).
 - **Reviews:** `REVIEW-social-tree-core-plan-2026-08-20.md` (independent vet; findings cited
   as R1–R7/C1–C6/O1–O10) and `REVIEW-social-tree-core-alignment-2026-08-20.md` (program-fit
   companion; O11–O15) — both integrated 2026-08-21; the file:line evidence lives there.
@@ -220,7 +220,7 @@ carry zero redb references.
   P1's CONTESTED permutations extended into it; **O4** cargo-fuzz targets on the `from_bytes`
   surfaces; **O5** API stability markers from day one (sealed traits, `#[doc(hidden)]`,
   `#![warn(missing_docs)]`); **O6 + O13 (P2 acceptance criterion, strengthened by the owner's
-  charter-presets direction, E119):** the profile dials as a typed charter/`Profile` struct
+  charter-presets direction, E121):** the profile dials as a typed charter/`Profile` struct
   with Croft's reference column as a named constructor, and **no [charter] dial value as a
   compile-time constant in the core — `GroupRules` is the socket** (a core that baked
   door-B/at-join in as assumptions would make the E111 sheet a fiction); **O8** purity
@@ -232,7 +232,7 @@ carry zero redb references.
   credential-pair boundary is spec §4.5's multi-client guarantee, structurally present today —
   it crosses the re-cut intact and the test migration includes whatever pins it; the core's
   principal type stays opaque-but-attributable — **no atproto types anywhere near the core**
-  (the DID ↔ persona-key binding seam is E118's, Phase-7 material).
+  (the DID ↔ persona-key binding seam is E120's, Phase-7 material).
 - **Adapter deliverables, named rather than implicit:** persistence-format versioning (the
   comparator stamp + `needs_rebuild` rebuild path is the existing embryo); the redb adapter
   **re-exports the core** so existing path-dep consumers (meer-queue's HeadAck dev-dep) keep
@@ -356,14 +356,14 @@ Answers first; the original questions kept below each for provenance.
    justifiable dial exposed) — plus **named, savable, shareable charter configurations**
    (the same person runs a rowdy chat and a guardians group as two named presets; presets can
    be shared and posted; deeper preset packs later; naming open — "peer mode" flagged as
-   loaded). Filed as **E119**; it upgrades O6/O13 from nice-to-have to load-bearing (the
+   loaded). Filed as **E121**; it upgrades O6/O13 from nice-to-have to load-bearing (the
    typed charter struct is what makes presets loadable and shareable).
 7. **License:** **AGPL-3.0** for everything Drystone/Croft — the core crate declares it;
    croft-chat's `MIT OR Apache-2.0` was an accident, corrected at the pin-bump. Consistent
    with the standing A14 decision; A1's MPL gate untouched. (Closes the vet's R3.)
 8. **Opportunities:** the vet's **O1–O10 all adopted as placed** (O9 → Phase 1; the rest →
    Phases 2–3 text and Done-whens); the companion's **O11–O15 folded** (O11/O13/O14 → Phase 2
-   and the ADR; **O12 → new row E118**; **O15 → the COHESION seam-line, opened now** — its
+   and the ADR; **O12 → new row E120**; **O15 → the COHESION seam-line, opened now** — its
    trigger, relay Phases 7–8 beginning, has already fired). No opportunity deferred without a
    named home.
 9. **Landing:** the review branch merged to `main`; this integration commits on top (owner
@@ -463,11 +463,11 @@ R5 (citation rule in P2), R6 (mutation re-baseline at P3's close + `[patch]` rec
 correction** rescoped P3 to relocation (real Ed25519 already on a fold path in
 `social-graph-core/src/crypto.rs`); the problem statement was scoped to the evidence
 artifacts accordingly. **All fifteen opportunities dispositioned** (§6.8): O1–O10 adopted as
-placed, O11/O13/O14 into P2 and the ADR, O12 filed as **E118**, O15 opened as the COHESION
+placed, O11/O13/O14 into P2 and the ADR, O12 filed as **E120**, O15 opened as the COHESION
 croft-stack ↔ meer seam-line (trigger met — relay Phases 7–8 in flight). The vet's L4/L5
 slivers landed where cheap: the projection-totality rule and O9 in P1; the A3-stays-core-side
 and custody-seam invariants in the P4 ADR; the threat-pass-before-non-loopback-demo and the
-lost-race-UX deferral in P6. New rows: **E118** (DID ↔ persona-key binding seam), **E119**
+lost-race-UX deferral in P6. New rows: **E120** (DID ↔ persona-key binding seam), **E121**
 (charter presets & the three product postures, per the owner's 2026-08-21 sketch).
 
 **Status: the execution hold is CLEARED.** Phase 1 starts on the owner's explicit go —
