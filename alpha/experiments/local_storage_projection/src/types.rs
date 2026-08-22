@@ -204,6 +204,14 @@ pub enum AssertionType {
     /// such approvals as antecedents; the act is authorized only when its distinct
     /// approver personae (by lineage) plus its author meet the threshold.
     Approval         = 0x000B,
+    /// Closes one open contradiction pair (§7.3.2: the hard-stop replay is not
+    /// resolution — resolution is its own fact type). Payload: the pair's two content
+    /// addresses, lexicographically ordered (32 ‖ 32). A governed act: charter-quorum
+    /// gated via `GroupRules::resolution_threshold` (owner decision 2026-08-21 — the
+    /// same k-of-n Approval machinery as every other governance threshold; product
+    /// default 2; never silently single-author). Approvals name
+    /// `(Resolution, H(payload))`, the RuleChange-style content-hash subject.
+    Resolution       = 0x000C,
 }
 
 impl AssertionType {
@@ -226,6 +234,7 @@ impl AssertionType {
             0x0009 => Some(AssertionType::Message),
             0x000A => Some(AssertionType::Vouch),
             0x000B => Some(AssertionType::Approval),
+            0x000C => Some(AssertionType::Resolution),
             _      => None,
         }
     }
@@ -397,6 +406,12 @@ pub struct GroupRules {
     pub remove_member_threshold: u32,
     pub role_change_threshold: u32,
     pub rule_change_threshold: u32,
+    /// Quorum for closing an open contradiction pair (§7.3.2 resolution fact).
+    /// Not carried in the genesis payload: minted at the product default (**2**) and
+    /// dialed thereafter by governed `RuleChange` like every other threshold — the
+    /// charter-dial species (E111/E121). Whether the spec hard-floors it at 2 rides
+    /// the §7.3.2 filing; the fold treats it as charter data.
+    pub resolution_threshold: u32,
 }
 
 /// Key discriminant for a mutable group rule.
@@ -406,6 +421,7 @@ pub enum RuleKey {
     RemoveMember,
     RoleChange,
     RuleChange,
+    Resolution,
 }
 
 /// The numeric value stored for a mutable group rule.
@@ -902,12 +918,12 @@ mod tests {
 
     #[test]
     fn assertion_type_from_u16_round_trip() {
-        for disc in 1u16..=11u16 {
-            let at = AssertionType::from_u16(disc).expect("should decode 0x0001..=0x000B");
+        for disc in 1u16..=12u16 {
+            let at = AssertionType::from_u16(disc).expect("should decode 0x0001..=0x000C");
             assert_eq!(at as u16, disc);
         }
         assert!(AssertionType::from_u16(0x0000).is_none());
-        assert!(AssertionType::from_u16(0x000C).is_none());
+        assert!(AssertionType::from_u16(0x000D).is_none());
     }
 
     // -----------------------------------------------------------------------

@@ -90,14 +90,15 @@ fn frontier_digest(state: &GroupState) -> Hash {
 /// deterministic ordering — the same fact set yields the byte-identical manifest on
 /// every honest member and under every arrival order.
 ///
-/// Only `ForkStatus::Contradiction` contributes a byte-head: it is the concurrent
-/// "too many valid claims" hard-stop that names the group by the order-independent
-/// `min(H(F), H(G))` (mutual expulsion; competing quorum-met RuleChange). A clean,
-/// forked-slot, or under-determined state contributes no contradiction byte-head.
+/// Only `ForkStatus::Contested` contributes byte-heads: one per open pair — the
+/// order-independent `min(H(F), H(G))`, which is exactly `pair.0` of the set-valued
+/// entry (§7.3.2/E108), so the manifest semantics are unchanged while multiple
+/// simultaneously open contradictions are now each named. A clean, forked-slot, or
+/// under-determined state contributes no contradiction byte-head.
 #[must_use]
 pub fn horizon_manifest(state: &GroupState) -> HorizonManifest {
     let mut open_contradictions: Vec<Hash> = match &state.fork_status {
-        ForkStatus::Contradiction(h) => vec![*h],
+        ForkStatus::Contested(entries) => entries.iter().map(|e| e.pair.0).collect(),
         ForkStatus::Clean | ForkStatus::ForkedFrom(_) | ForkStatus::UnderDetermined => vec![],
     };
     open_contradictions.sort_by(|a, b| a.as_bytes().cmp(b.as_bytes()));

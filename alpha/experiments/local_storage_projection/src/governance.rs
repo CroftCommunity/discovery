@@ -47,6 +47,7 @@ pub fn required_threshold_for_rule_change(rules: &GroupRules, key: &RuleKey) -> 
         RuleKey::RemoveMember => rules.remove_member_threshold,
         RuleKey::RoleChange   => rules.role_change_threshold,
         RuleKey::RuleChange   => rules.rule_change_threshold,
+        RuleKey::Resolution   => rules.resolution_threshold,
     }
 }
 
@@ -884,11 +885,13 @@ mod tests {
             remove_member_threshold: 3,
             role_change_threshold: 4,
             rule_change_threshold: 5,
+            resolution_threshold: 6,
         };
         assert_eq!(required_threshold_for_rule_change(&rules, &RuleKey::AddMember), 2);
         assert_eq!(required_threshold_for_rule_change(&rules, &RuleKey::RemoveMember), 3);
         assert_eq!(required_threshold_for_rule_change(&rules, &RuleKey::RoleChange), 4);
         assert_eq!(required_threshold_for_rule_change(&rules, &RuleKey::RuleChange), 5);
+        assert_eq!(required_threshold_for_rule_change(&rules, &RuleKey::Resolution), 6);
     }
 
     // -----------------------------------------------------------------------

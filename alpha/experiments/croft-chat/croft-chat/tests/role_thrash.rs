@@ -89,8 +89,8 @@ async fn role_thrash_hard_stops_order_independently() {
     );
 
     // Fixed behaviour: surfaced as a contradiction, X at its base role, order-independent.
-    assert!(s1.fork_status.starts_with("contradiction"), "order 1 hard-stops, got {}", s1.fork_status);
-    assert!(s2.fork_status.starts_with("contradiction"), "order 2 hard-stops, got {}", s2.fork_status);
+    assert!(s1.fork_status.starts_with("contested"), "order 1 hard-stops, got {}", s1.fork_status);
+    assert!(s2.fork_status.starts_with("contested"), "order 2 hard-stops, got {}", s2.fork_status);
     assert_eq!(role1, Some(Role::Member), "order 1 reverts X to base role (no verdict on the contested change)");
     assert_eq!(role2, Some(Role::Member), "order 2 reverts X to base role");
     assert_eq!(role1, role2, "X's role no longer depends on arrival order");
@@ -143,8 +143,8 @@ async fn role_thrash_grant_vs_grant_hard_stops() {
         s1.fork_status, s2.fork_status
     );
 
-    assert!(s1.fork_status.starts_with("contradiction"), "order 1 hard-stops, got {}", s1.fork_status);
-    assert!(s2.fork_status.starts_with("contradiction"), "order 2 hard-stops, got {}", s2.fork_status);
+    assert!(s1.fork_status.starts_with("contested"), "order 1 hard-stops, got {}", s1.fork_status);
+    assert!(s2.fork_status.starts_with("contested"), "order 2 hard-stops, got {}", s2.fork_status);
     assert_eq!(role1, Some(Role::Member), "order 1 reverts X to base role");
     assert_eq!(role2, Some(Role::Member), "order 2 reverts X to base role");
     assert_eq!(s1.fork_status, s2.fork_status, "same canonical contradiction status");

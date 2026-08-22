@@ -225,7 +225,16 @@ fn mutual_expulsion_projects_contested_both_orders() {
     }
 
     // Byte-identical convergence — the C4/G1 property survives the schema change.
-    assert_eq!(s1.to_bytes(), s2.to_bytes(), "orders must converge byte-identically");
+    // `computed_at_gov_head` records which fact a node folded LAST — a locator, never
+    // resolution content (§7.4.3's locator-not-authorization discipline) — so it is
+    // normalized; everything else (members, rules, fork entries, projection) must be
+    // byte-identical across arrival orders.
+    let normalized = |s: &local_storage_projection::fold_derived::GroupState| {
+        let mut c = s.clone();
+        c.computed_at_gov_head = local_storage_projection::Hash::new([0u8; 32]);
+        c.to_bytes()
+    };
+    assert_eq!(normalized(&s1), normalized(&s2), "orders must converge byte-identically");
 }
 
 /// **Pin 2 — two simultaneously open contradictions are representable, each with its pair.**

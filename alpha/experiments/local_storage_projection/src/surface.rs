@@ -282,7 +282,16 @@ where
             ForkStatus::Clean => "clean".to_string(),
             ForkStatus::ForkedFrom(h) => format!("forked_from:{}", h),
             ForkStatus::UnderDetermined => "under_determined".to_string(),
-            ForkStatus::Contradiction(h) => format!("contradiction:{}", h),
+            // §7.3.2 / E108: the set-valued form — every open pair, as data, in a
+            // deterministic order. Renderers present the contradiction factually;
+            // they never collapse it to a boolean.
+            ForkStatus::Contested(entries) => {
+                let pairs: Vec<String> = entries
+                    .iter()
+                    .map(|e| format!("{}+{}", e.pair.0, e.pair.1))
+                    .collect();
+                format!("contested:{}", pairs.join(","))
+            }
         };
 
         Ok(GroupSummaryView {

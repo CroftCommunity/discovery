@@ -147,6 +147,45 @@ impl From<redb::CommitError> for FoldError {
 // ForkStatus
 // ---------------------------------------------------------------------------
 
+/// One open concurrent-governance contradiction (§7.3.2, E108): the conflicting pair
+/// carried **as data**, plus what the deterministic replay needs to stay order-independent
+/// while the pair is open. Entries are held in a set (`ForkStatus::Contested`) — two
+/// simultaneously open contradictions are representable, which the retired single
+/// min-hash slot structurally was not.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct ContestedEntry {
+    /// The two conflicting facts' content addresses, lexicographically ordered.
+    pub pair: (TypesHash, TypesHash),
+    /// The membership-contested subjects, sorted: a mutual expulsion contests both
+    /// parties; an add/remove race contests the raced subject; role and rule
+    /// contradictions contest no membership (empty).
+    pub subjects: Vec<TypesPrincipalId>,
+    /// The facts the deterministic replay withholds while the pair is open. Withholding
+    /// is not a verdict: the projection reports the subjects `CONTESTED`, and closing
+    /// the pair is a governed `Resolution` fact, never the replay itself.
+    pub excluded: Vec<TypesHash>,
+}
+
+impl ContestedEntry {
+    /// Order a raw hash pair lexicographically — the canonical pair form.
+    pub fn order_pair(a: TypesHash, b: TypesHash) -> (TypesHash, TypesHash) {
+        if a.as_bytes() <= b.as_bytes() { (a, b) } else { (b, a) }
+    }
+}
+
+/// The total membership view (§7.3.2 rule (c), owner-ratified 2026-08-17): the subject
+/// of an open contradiction is **neither** member nor not-member. Deliberately no
+/// boolean convenience accessor exists — an untyped mid-resolution state is how a UI
+/// starts lying by omission (the Matrix lesson, E117 P1).
+#[derive(Debug, Clone, PartialEq)]
+pub enum MembershipView {
+    Member(Role),
+    NotMember,
+    /// Membership pending resolution; carries the conflicting pair(s) naming this
+    /// subject, as data, so a renderer can present the contradiction factually.
+    Contested(Vec<(TypesHash, TypesHash)>),
+}
+
 /// Whether the group's governance log is clean or has a detected fork.
 #[derive(Debug, Clone, PartialEq)]
 pub enum ForkStatus {
@@ -160,14 +199,12 @@ pub enum ForkStatus {
     /// a distinct hard-stop a contradiction-only watcher would miss. See
     /// `governance::is_under_determined`.
     UnderDetermined,
-    /// A concurrent-governance contradiction was detected — two causally concurrent
-    /// facts that conflict (mutual expulsion: A removes B while B removes A). Unlike
-    /// `ForkedFrom` (a same-slot collision), the facts occupy different slots; the
-    /// hash is the *other* conflicting fact. The "too many valid claims" shape for
-    /// concurrent governance, which slot-collision detection alone misses. Resolved
-    /// by hard-stop (both contested parties retained, no verdict). See
-    /// `governance::are_concurrent`.
-    Contradiction(TypesHash),
+    /// Open concurrent-governance contradictions — the "too many valid claims" shape
+    /// for concurrent governance, which slot-collision detection alone misses. Each
+    /// entry carries its conflicting pair as data; the set is sorted by pair. The
+    /// hard-stop persists per entry until a governed `Resolution` fact closes it
+    /// (§7.3.2: the replay is not resolution). See `governance::are_concurrent`.
+    Contested(Vec<ContestedEntry>),
 }
 
 // ---------------------------------------------------------------------------
@@ -176,18 +213,29 @@ pub enum ForkStatus {
 
 /// Projected governance state for a group.
 ///
-/// Wire layout (version = 1):
-///   version            : 1 byte (0x01)
+/// Wire layout (version = 2; v1 is refused with a rebuild demand — pre-1.0, no shim):
+///   version            : 1 byte (0x02)
 ///   computed_at_gov_head: 32 bytes (Hash raw)
 ///   computed_at_gov_seq : 8 bytes big-endian u64
-///   rules              : 4 × 4 bytes big-endian u32
+///   rules              : 5 × 4 bytes big-endian u32
 ///                        [add_member_threshold, remove_member_threshold,
-///                         role_change_threshold, rule_change_threshold]
+///                         role_change_threshold, rule_change_threshold,
+///                         resolution_threshold]
 ///   member_count       : 4 bytes big-endian u32
 ///   members            : member_count × (32 + 1 + 8) bytes
 ///                        PrincipalId(32) || Role(1) || since_lamport(8)
-///   fork_status        : 1 byte (0x00=Clean, 0x01=ForkedFrom, 0x02=UnderDetermined, 0x03=Contradiction)
+///   fork_status        : 1 byte (0x00=Clean, 0x01=ForkedFrom, 0x02=UnderDetermined,
+///                        0x03=Contested)
 ///   [fork_hash]        : 32 bytes (only if fork_status == 0x01)
+///   [contested]        : only if fork_status == 0x03 —
+///                        entry_count u32, then per entry:
+///                        pair.0(32) ‖ pair.1(32) ‖ subj_n(u8) ‖ subjects × 32 ‖
+///                        excl_n(u8) ‖ excluded × 32
+///
+/// The `members` list is the deterministic replay substrate; **the read path for
+/// membership questions is [`GroupState::membership`]**, which is total over
+/// Member / NotMember / Contested and never collapses the third state to a boolean.
+#[derive(Debug, Clone, PartialEq)]
 pub struct GroupState {
     pub version: u8,
     pub computed_at_gov_head: TypesHash,
@@ -197,24 +245,51 @@ pub struct GroupState {
     pub fork_status: ForkStatus,
 }
 
+/// The GroupState wire schema version this build reads and writes.
+pub const GROUP_STATE_WIRE_VERSION: u8 = 2;
+
 impl GroupState {
-    /// Serialize to bytes.
+    /// The total membership view for `p` (§7.3.2 rule (c)): the subject of an open
+    /// contradiction is `Contested` — neither member nor not-member — carrying the
+    /// pair(s) that name it. Everyone else resolves against the replay substrate.
+    pub fn membership(&self, p: &TypesPrincipalId) -> MembershipView {
+        if let ForkStatus::Contested(entries) = &self.fork_status {
+            let pairs: Vec<(TypesHash, TypesHash)> = entries
+                .iter()
+                .filter(|e| e.subjects.contains(p))
+                .map(|e| e.pair)
+                .collect();
+            if !pairs.is_empty() {
+                return MembershipView::Contested(pairs);
+            }
+        }
+        match self.members.iter().find(|(m, _, _)| m == p) {
+            Some((_, role, _)) => MembershipView::Member(role.clone()),
+            None => MembershipView::NotMember,
+        }
+    }
+
+    /// The open contested entries, if any (empty slice otherwise).
+    pub fn contested_entries(&self) -> &[ContestedEntry] {
+        match &self.fork_status {
+            ForkStatus::Contested(entries) => entries,
+            _ => &[],
+        }
+    }
+
+    /// Serialize to bytes (wire v2).
     pub fn to_bytes(&self) -> Vec<u8> {
         let member_count = self.members.len() as u32;
-        let fork_extra = match &self.fork_status {
-            ForkStatus::Clean | ForkStatus::UnderDetermined => 0,
-            ForkStatus::ForkedFrom(_) | ForkStatus::Contradiction(_) => 32,
-        };
-        let capacity = 1 + 32 + 8 + 16 + 4 + self.members.len() * 41 + 1 + fork_extra;
-        let mut buf = Vec::with_capacity(capacity);
+        let mut buf = Vec::with_capacity(1 + 32 + 8 + 20 + 4 + self.members.len() * 41 + 64);
 
-        buf.push(self.version);
+        buf.push(GROUP_STATE_WIRE_VERSION);
         buf.extend_from_slice(self.computed_at_gov_head.as_bytes());
         buf.extend_from_slice(&self.computed_at_gov_seq.to_be_bytes());
         buf.extend_from_slice(&self.rules.add_member_threshold.to_be_bytes());
         buf.extend_from_slice(&self.rules.remove_member_threshold.to_be_bytes());
         buf.extend_from_slice(&self.rules.role_change_threshold.to_be_bytes());
         buf.extend_from_slice(&self.rules.rule_change_threshold.to_be_bytes());
+        buf.extend_from_slice(&self.rules.resolution_threshold.to_be_bytes());
         buf.extend_from_slice(&member_count.to_be_bytes());
         for (pid, role, since) in &self.members {
             buf.extend_from_slice(pid.as_bytes());
@@ -228,18 +303,41 @@ impl GroupState {
                 buf.extend_from_slice(h.as_bytes());
             }
             ForkStatus::UnderDetermined => buf.push(0x02),
-            ForkStatus::Contradiction(h) => {
+            ForkStatus::Contested(entries) => {
                 buf.push(0x03);
-                buf.extend_from_slice(h.as_bytes());
+                buf.extend_from_slice(&(entries.len() as u32).to_be_bytes());
+                for e in entries {
+                    buf.extend_from_slice(e.pair.0.as_bytes());
+                    buf.extend_from_slice(e.pair.1.as_bytes());
+                    buf.push(e.subjects.len() as u8);
+                    for s in &e.subjects {
+                        buf.extend_from_slice(s.as_bytes());
+                    }
+                    buf.push(e.excluded.len() as u8);
+                    for x in &e.excluded {
+                        buf.extend_from_slice(x.as_bytes());
+                    }
+                }
             }
         }
         buf
     }
 
-    /// Deserialize from bytes.
+    /// Deserialize from bytes (wire v2 only — an unknown version is refused loudly;
+    /// a v1 store demands a rebuild rather than being silently misread).
     pub fn from_bytes(b: &[u8]) -> Result<Self, FoldError> {
-        // Minimum: 1 + 32 + 8 + 16 + 4 + 1 = 62
-        if b.len() < 62 {
+        if b.is_empty() {
+            return Err(FoldError::StorageError("GroupState: empty".to_string()));
+        }
+        if b[0] != GROUP_STATE_WIRE_VERSION {
+            return Err(FoldError::StorageError(format!(
+                "GroupState: unknown wire version 0x{:02x} (this build reads 0x{:02x}); \
+                 stale stores must be rebuilt, never reinterpreted",
+                b[0], GROUP_STATE_WIRE_VERSION
+            )));
+        }
+        // Minimum: 1 + 32 + 8 + 20 + 4 + 1 = 66
+        if b.len() < 66 {
             return Err(FoldError::StorageError(format!(
                 "GroupState: too short ({} bytes)",
                 b.len()
@@ -254,10 +352,11 @@ impl GroupState {
         let remove_member_threshold = u32::from_be_bytes(b[45..49].try_into().unwrap());
         let role_change_threshold = u32::from_be_bytes(b[49..53].try_into().unwrap());
         let rule_change_threshold = u32::from_be_bytes(b[53..57].try_into().unwrap());
-        let member_count = u32::from_be_bytes(b[57..61].try_into().unwrap()) as usize;
+        let resolution_threshold = u32::from_be_bytes(b[57..61].try_into().unwrap());
+        let member_count = u32::from_be_bytes(b[61..65].try_into().unwrap()) as usize;
 
         // Each member is 32 + 1 + 8 = 41 bytes.
-        let members_end = 61 + member_count * 41;
+        let members_end = 65 + member_count * 41;
         if b.len() < members_end + 1 {
             return Err(FoldError::StorageError(format!(
                 "GroupState: need {} bytes for {} members + fork byte, have {}",
@@ -268,7 +367,7 @@ impl GroupState {
         }
         let mut members = Vec::with_capacity(member_count);
         for i in 0..member_count {
-            let off = 61 + i * 41;
+            let off = 65 + i * 41;
             let mut pid_bytes = [0u8; 32];
             pid_bytes.copy_from_slice(&b[off..off + 32]);
             let role = u8_to_role(b[off + 32]).map_err(|_| {
@@ -281,22 +380,57 @@ impl GroupState {
             members.push((TypesPrincipalId::new(pid_bytes), role, since));
         }
         let fork_byte = b[members_end];
+        let mut off = members_end + 1;
+        let take32 = |b: &[u8], off: usize| -> Result<[u8; 32], FoldError> {
+            b.get(off..off + 32)
+                .ok_or_else(|| FoldError::StorageError("GroupState: truncated hash".to_string()))
+                .map(|s| {
+                    let mut h = [0u8; 32];
+                    h.copy_from_slice(s);
+                    h
+                })
+        };
         let fork_status = match fork_byte {
             0x00 => ForkStatus::Clean,
             0x02 => ForkStatus::UnderDetermined,
-            0x01 | 0x03 => {
-                if b.len() < members_end + 1 + 32 {
-                    return Err(FoldError::StorageError(
-                        "GroupState: truncated fork hash".to_string(),
-                    ));
+            0x01 => ForkStatus::ForkedFrom(TypesHash::new(take32(b, off)?)),
+            0x03 => {
+                let n = u32::from_be_bytes(
+                    b.get(off..off + 4)
+                        .ok_or_else(|| {
+                            FoldError::StorageError("GroupState: truncated entry count".to_string())
+                        })?
+                        .try_into()
+                        .unwrap(),
+                ) as usize;
+                off += 4;
+                let mut entries = Vec::with_capacity(n);
+                for _ in 0..n {
+                    let a = TypesHash::new(take32(b, off)?);
+                    off += 32;
+                    let z = TypesHash::new(take32(b, off)?);
+                    off += 32;
+                    let subj_n = *b.get(off).ok_or_else(|| {
+                        FoldError::StorageError("GroupState: truncated subject count".to_string())
+                    })? as usize;
+                    off += 1;
+                    let mut subjects = Vec::with_capacity(subj_n);
+                    for _ in 0..subj_n {
+                        subjects.push(TypesPrincipalId::new(take32(b, off)?));
+                        off += 32;
+                    }
+                    let excl_n = *b.get(off).ok_or_else(|| {
+                        FoldError::StorageError("GroupState: truncated excluded count".to_string())
+                    })? as usize;
+                    off += 1;
+                    let mut excluded = Vec::with_capacity(excl_n);
+                    for _ in 0..excl_n {
+                        excluded.push(TypesHash::new(take32(b, off)?));
+                        off += 32;
+                    }
+                    entries.push(ContestedEntry { pair: (a, z), subjects, excluded });
                 }
-                let mut fh = [0u8; 32];
-                fh.copy_from_slice(&b[members_end + 1..members_end + 33]);
-                if fork_byte == 0x01 {
-                    ForkStatus::ForkedFrom(TypesHash::new(fh))
-                } else {
-                    ForkStatus::Contradiction(TypesHash::new(fh))
-                }
+                ForkStatus::Contested(entries)
             }
             other => {
                 return Err(FoldError::StorageError(format!(
@@ -315,6 +449,7 @@ impl GroupState {
                 remove_member_threshold,
                 role_change_threshold,
                 rule_change_threshold,
+                resolution_threshold,
             },
             fork_status,
         })
@@ -354,6 +489,7 @@ fn decode_rule_key(v: u8) -> Result<RuleKey, ()> {
         1 => Ok(RuleKey::RemoveMember),
         2 => Ok(RuleKey::RoleChange),
         3 => Ok(RuleKey::RuleChange),
+        4 => Ok(RuleKey::Resolution),
         _ => Err(()),
     }
 }
@@ -455,6 +591,30 @@ fn check_authorization(
             ))),
         },
 
+        // Resolution (§7.3.2): a governed act closing one open contradiction pair.
+        // Payload is exactly the ordered pair; the quorum gate (resolution_threshold,
+        // default 2 — never silently single-author) is enforced at Step 5.6 like every
+        // other governance threshold.
+        AssertionType::Resolution => {
+            if env.payload.len() != 64 {
+                return Err(FoldError::MalformedEnvelope(format!(
+                    "Resolution payload must be exactly 64 bytes (the ordered pair), got {}",
+                    env.payload.len()
+                )));
+            }
+            if env.payload[..32] >= env.payload[32..64] {
+                return Err(FoldError::MalformedEnvelope(
+                    "Resolution pair must be strictly lexicographically ordered".to_string(),
+                ));
+            }
+            match author_role_in(&state.members, author) {
+                Some(r) if role_ge_admin(r) => Ok(()),
+                _ => Err(FoldError::AuthorizationFailed(format!(
+                    "Resolution requires Owner or Admin; author {author:?} is not"
+                ))),
+            }
+        }
+
         // I5 gate: Vouch must have non-empty context and valid strength.
         AssertionType::Vouch => {
             if env.payload.len() < 37 {
@@ -502,6 +662,7 @@ fn is_governance(t: &AssertionType) -> bool {
             | AssertionType::RoleGrant
             | AssertionType::RoleRevoke
             | AssertionType::RuleChange
+            | AssertionType::Resolution
     )
 }
 
@@ -513,6 +674,7 @@ fn threshold_for(t: &AssertionType, rules: &GroupRules) -> u32 {
         AssertionType::MembershipRemove => rules.remove_member_threshold,
         AssertionType::RoleGrant | AssertionType::RoleRevoke => rules.role_change_threshold,
         AssertionType::RuleChange => rules.rule_change_threshold,
+        AssertionType::Resolution => rules.resolution_threshold,
         _ => 1,
     }
 }
@@ -545,7 +707,7 @@ fn act_subject(env: &AssertionEnvelope) -> Option<TypesPrincipalId> {
             b.copy_from_slice(&env.payload[..32]);
             Some(TypesPrincipalId::new(b))
         }
-        AssertionType::RuleChange => {
+        AssertionType::RuleChange | AssertionType::Resolution => {
             Some(TypesPrincipalId::new(rule_change_approval_subject(&env.payload)))
         }
         _ => None,
@@ -609,7 +771,7 @@ fn genesis_initial_state(
     let role_change_threshold = u32::from_be_bytes(env.payload[10..14].try_into().unwrap());
     let rule_change_threshold = u32::from_be_bytes(env.payload[14..18].try_into().unwrap());
     Ok(GroupState {
-        version: 1,
+        version: GROUP_STATE_WIRE_VERSION,
         computed_at_gov_head: hash,
         computed_at_gov_seq: 0,
         members: vec![(env.author_principal, Role::Owner, env.lamport)],
@@ -618,6 +780,10 @@ fn genesis_initial_state(
             remove_member_threshold,
             role_change_threshold,
             rule_change_threshold,
+            // Not in the genesis payload: minted at the product default (owner decision
+            // 2026-08-21 — "two, so no one gets a one-signature verdict") and dialed
+            // thereafter by governed RuleChange like every other threshold.
+            resolution_threshold: 2,
         },
         fork_status: ForkStatus::Clean,
     })
@@ -737,6 +903,7 @@ fn apply_governance(
                 RuleKey::RemoveMember => next.rules.remove_member_threshold = new_value,
                 RuleKey::RoleChange => next.rules.role_change_threshold = new_value,
                 RuleKey::RuleChange => next.rules.rule_change_threshold = new_value,
+                RuleKey::Resolution => next.rules.resolution_threshold = new_value,
             }
         }
 
@@ -884,63 +1051,50 @@ where
         // removed by a *concurrent, mutually-expelling* remove is not merely
         // "unauthorized" — it is the second half of a mutual expulsion (A⊗B), which
         // must hard-stop rather than be silently dropped. Detect that before treating
-        // the authorization failure as a plain rejection.
-        // A detected concurrent contradiction: the removes to exclude from the replay,
-        // and the canonical pair label. Set by either §7.6.1 shape below.
-        let mut contradiction: Option<(Vec<TypesHash>, TypesHash)> = None;
-        match check_authorization(&current_state, envelope) {
-            Ok(()) => {
-                // Authorized concurrent conflicts (both actors survive, so both facts
-                // are authorized): removed-then-included (add/remove race on a subject)
-                // and role thrash (grant/revoke race on a subject).
-                if matches!(
-                    envelope.assertion_type,
-                    AssertionType::MembershipAdd
-                        | AssertionType::MembershipRemove
-                        | AssertionType::RoleGrant
-                        | AssertionType::RoleRevoke
-                        | AssertionType::RuleChange
-                ) {
-                    let log = group_governance_log(&self.db, &envelope.group)?;
+        // the authorization failure as a plain rejection. A detected contradiction is
+        // carried as a `ContestedEntry` — pair as data, contested subjects, and the
+        // facts the deterministic replay withholds (§7.3.2, E108).
+        let mut contested_new: Option<ContestedEntry> =
+            match check_authorization(&current_state, envelope) {
+                Ok(()) => {
+                    // Authorized concurrent conflicts (both actors survive, so both
+                    // facts are authorized): removed-then-included, role thrash, and
+                    // competing RuleChange.
                     if matches!(
                         envelope.assertion_type,
-                        AssertionType::MembershipAdd | AssertionType::MembershipRemove
+                        AssertionType::MembershipAdd
+                            | AssertionType::MembershipRemove
+                            | AssertionType::RoleGrant
+                            | AssertionType::RoleRevoke
+                            | AssertionType::RuleChange
                     ) {
-                        if let Some((remove_hash, label)) =
-                            detect_removed_then_included(&log, envelope, &hash)
-                        {
-                            contradiction = Some((vec![remove_hash], label));
-                        }
-                    } else if matches!(
-                        envelope.assertion_type,
-                        AssertionType::RoleGrant | AssertionType::RoleRevoke
-                    ) {
-                        if let Some((partner, label)) = detect_role_thrash(&log, envelope, &hash) {
-                            contradiction = Some((vec![partner], label));
-                        }
-                    } else if let Some((partner, label)) =
-                        detect_competing_rulechange(&log, envelope, &hash)
-                    {
-                        // §7.6.1 competing-RuleChange (F8): two concurrent admitted
-                        // RuleChanges on the same rule with differing values.
-                        contradiction = Some((vec![partner], label));
+                        let log = group_governance_log(&self.db, &envelope.group)?;
+                        detect_authorized_contested(&log, envelope, &hash)
+                    } else {
+                        None
                     }
                 }
-            }
-            Err(e) => {
-                // Unauthorized. Mutual expulsion: a MembershipRemove whose author was
-                // itself removed by a concurrent, mutually-expelling remove is the
-                // second half of A⊗B — a hard-stop, not a plain rejection.
-                if envelope.assertion_type == AssertionType::MembershipRemove {
-                    let log = group_governance_log(&self.db, &envelope.group)?;
-                    if let Some(partner) = detect_mutual_expulsion(&log, envelope, &hash) {
-                        contradiction = Some((vec![partner], min_hash(partner, hash)));
+                Err(e) => {
+                    // Unauthorized. Mutual expulsion: a MembershipRemove whose author
+                    // was itself removed by a concurrent, mutually-expelling remove is
+                    // the second half of A⊗B — a hard-stop, not a plain rejection.
+                    let entry = if envelope.assertion_type == AssertionType::MembershipRemove {
+                        let log = group_governance_log(&self.db, &envelope.group)?;
+                        detect_mutual_expulsion(&log, envelope, &hash).map(|partner| {
+                            mutual_expulsion_entry(envelope, &hash, partner)
+                        })
+                    } else {
+                        None
+                    };
+                    if entry.is_none() {
+                        return Err(e);
                     }
+                    entry
                 }
-                if contradiction.is_none() {
-                    return Err(e);
-                }
-            }
+            };
+        // A Resolution never opens a contradiction; it closes one (validated in Step 7).
+        if envelope.assertion_type == AssertionType::Resolution {
+            contested_new = None;
         }
 
         // Step 5: Lamport monotonicity check.
@@ -1108,39 +1262,27 @@ where
             (None, None)
         };
 
-        // Step 7: Compute next GroupState.
+        // Step 7: Compute next GroupState via the shared transition (the same function
+        // the rebuild replay calls, so live folding and rebuild cannot diverge).
         let next_state_opt: Option<GroupState> = if is_governance(&envelope.assertion_type) {
             let gov_seq = gov_seq_opt
                 .expect("invariant: gov_seq_opt is Some for governance assertions (set under the same is_governance predicate above)");
-            let mut ns = if let Some((exclude, label)) = &contradiction {
-                // Concurrent contradiction (mutual expulsion or removed-then-included):
-                // retain the contested parties (no verdict) and hard-stop. Replaying the
-                // log excluding the conflicting removes is order-independent, which is
-                // what fixes the divergence.
-                let log = group_governance_log(&self.db, &envelope.group)?;
-                resolve_contradiction(&log, exclude, *label, hash, gov_seq)?
-            } else if envelope.assertion_type == AssertionType::GroupGenesis {
-                genesis_initial_state(envelope, hash)?
-            } else {
-                apply_governance(&current_state, envelope, hash, gov_seq)?
-            };
-            // A slot-collision fork or under-determination never overrides a detected
-            // contradiction (all are hard-stops; the contradiction is the precise one).
-            if contradiction.is_none() {
-                if let Some(ref fs) = fork_opt {
-                    ns.fork_status = fs.clone();
-                }
-            }
-            // §7.6.1 under-determination: if this governance step left a group
-            // with no Owner (required role vacant, no admissible successor), the
-            // fold hard-stops rather than folding onward on a headless group. A
-            // fork already surfaced above takes precedence (both are hard-stops).
-            if matches!(ns.fork_status, ForkStatus::Clean)
-                && crate::governance::is_under_determined(&ns.members)
+            let log = if contested_new.is_some()
+                || envelope.assertion_type == AssertionType::Resolution
             {
-                ns.fork_status = ForkStatus::UnderDetermined;
-            }
-            Some(ns)
+                group_governance_log(&self.db, &envelope.group)?
+            } else {
+                Vec::new()
+            };
+            Some(compute_next_governance_state(
+                &log,
+                &current_state,
+                envelope,
+                hash,
+                gov_seq,
+                contested_new.clone(),
+                fork_opt.clone(),
+            )?)
         } else {
             None
         };
@@ -1546,6 +1688,10 @@ fn apply_derived_effects_free(
             // Approval (V5′) has no derived effect of its own — it is evidence gathered
             // by the act it approves (Step 5.6). Stored in auth_assertions; nothing else.
             AssertionType::Approval => {}
+
+            // Resolution (§7.3.2) acts entirely on the governance projection (closing an
+            // open contested pair in GroupState); it has no derived-graph effect.
+            AssertionType::Resolution => {}
         }
 
         // Suppress unused-variable warning for next_state.
@@ -1585,7 +1731,7 @@ where
                 genesis_initial_state(envelope, envelope_hash(envelope))
             } else {
                 Ok(GroupState {
-                    version: 1,
+                    version: GROUP_STATE_WIRE_VERSION,
                     computed_at_gov_head: TypesHash::new([0u8; 32]),
                     computed_at_gov_seq: 0,
                     members: Vec::new(),
@@ -1594,6 +1740,7 @@ where
                         remove_member_threshold: 1,
                         role_change_threshold: 1,
                         rule_change_threshold: 1,
+                        resolution_threshold: 2,
                     },
                     fork_status: ForkStatus::Clean,
                 })
@@ -1721,10 +1868,11 @@ fn min_hash(a: TypesHash, b: TypesHash) -> TypesHash {
 /// Detect a removed-then-included contradiction for an incoming `MembershipAdd` or
 /// `MembershipRemove` on subject S: an admitted, causally-concurrent fact of the
 /// *opposite* kind on the *same* S (an add/remove race with no causal order to decide
-/// "in or out"). Returns `(remove_hash, label)` — the hash of whichever of the pair is
-/// the remove (to exclude from the replay, retaining S), and the canonical pair label.
-/// Unlike mutual expulsion, neither author is removed, so both facts are authorized;
-/// this fires on the authorized path.
+/// "in or out"). Returns `(partner_hash, remove_hash)` — the admitted partner fact, and
+/// the hash of whichever of the pair is the remove (the replay-excluded side, retaining
+/// S in the substrate while the projection reports S `CONTESTED`). Unlike mutual
+/// expulsion, neither author is removed, so both facts are authorized; this fires on
+/// the authorized path.
 fn detect_removed_then_included(
     log: &[(TypesHash, AssertionEnvelope)],
     incoming: &AssertionEnvelope,
@@ -1758,7 +1906,7 @@ fn detect_removed_then_included(
         };
         if f_subject == subject && crate::governance::are_concurrent(f_hash, incoming_hash, &lookup) {
             let remove_hash = if incoming_is_remove { *incoming_hash } else { *f_hash };
-            return Some((remove_hash, min_hash(*incoming_hash, *f_hash)));
+            return Some((*f_hash, remove_hash));
         }
     }
     None
@@ -1897,21 +2045,118 @@ fn detect_competing_rulechange(
 /// contested parties are thereby retained — no verdict is rendered — and the result is
 /// byte-identical regardless of arrival order, which is what fixes the divergence. The
 /// state is flagged `Contradiction(label)` with the caller's canonical pair label.
-fn resolve_contradiction(
+/// Build the `ContestedEntry` for a detected mutual expulsion: the pair as data, both
+/// parties as contested subjects, both removes withheld from the replay (no verdict).
+fn mutual_expulsion_entry(
+    g: &AssertionEnvelope,
+    g_hash: &TypesHash,
+    partner: TypesHash,
+) -> ContestedEntry {
+    let mut subjects = vec![g.author_principal];
+    if let Some(s) = remove_subject(g) {
+        if !subjects.contains(&s) {
+            subjects.push(s);
+        }
+    }
+    subjects.sort();
+    let mut excluded = vec![partner, *g_hash];
+    excluded.sort();
+    ContestedEntry {
+        pair: ContestedEntry::order_pair(partner, *g_hash),
+        subjects,
+        excluded,
+    }
+}
+
+/// Detection sweep for the authorized-path contradiction shapes (both actors survive,
+/// so both facts are authorized): removed-then-included, role thrash, and competing
+/// RuleChange. Canonical entry regardless of which half of the pair arrived second.
+fn detect_authorized_contested(
     log: &[(TypesHash, AssertionEnvelope)],
-    exclude: &[TypesHash],
-    label: TypesHash,
+    env: &AssertionEnvelope,
+    hash: &TypesHash,
+) -> Option<ContestedEntry> {
+    match env.assertion_type {
+        AssertionType::MembershipAdd | AssertionType::MembershipRemove => {
+            detect_removed_then_included(log, env, hash).map(|(partner, remove_hash)| {
+                let subject = if env.assertion_type == AssertionType::MembershipRemove {
+                    remove_subject(env)
+                } else {
+                    add_subject(env)
+                }
+                .expect("detection required a well-formed subject");
+                ContestedEntry {
+                    pair: ContestedEntry::order_pair(partner, *hash),
+                    subjects: vec![subject],
+                    excluded: vec![remove_hash],
+                }
+            })
+        }
+        AssertionType::RoleGrant | AssertionType::RoleRevoke => {
+            detect_role_thrash(log, env, hash).map(|(partner, _)| {
+                let mut excluded = vec![partner, *hash];
+                excluded.sort();
+                ContestedEntry {
+                    pair: ContestedEntry::order_pair(partner, *hash),
+                    // A role contest does not contest membership (§7.3.2 scopes
+                    // CONTESTED to the membership projection).
+                    subjects: vec![],
+                    excluded,
+                }
+            })
+        }
+        AssertionType::RuleChange => {
+            detect_competing_rulechange(log, env, hash).map(|(partner, _)| {
+                let mut excluded = vec![partner, *hash];
+                excluded.sort();
+                ContestedEntry {
+                    pair: ContestedEntry::order_pair(partner, *hash),
+                    subjects: vec![],
+                    excluded,
+                }
+            })
+        }
+        _ => None,
+    }
+}
+
+/// The facts permanently withheld by pairs already CLOSED by admitted `Resolution`
+/// facts in `log`: closing a pair is not un-deciding it — the contested facts never
+/// re-apply; the group re-decides forward with new governance (§7.3.2). Derived from
+/// the log itself so every replay (live, contradiction, resolution, rebuild) computes
+/// the identical exclusion set with no extra state to carry.
+fn resolved_excluded(log: &[(TypesHash, AssertionEnvelope)]) -> Vec<TypesHash> {
+    let mut out = Vec::new();
+    for (_, e) in log {
+        if e.assertion_type == AssertionType::Resolution && e.payload.len() == 64 {
+            let mut a = [0u8; 32];
+            a.copy_from_slice(&e.payload[..32]);
+            let mut b = [0u8; 32];
+            b.copy_from_slice(&e.payload[32..64]);
+            out.push(TypesHash::new(a));
+            out.push(TypesHash::new(b));
+        }
+    }
+    out
+}
+
+/// Deterministic full replay of the governance log in canonical (`merge_cmp`) order,
+/// withholding `excluded` — the order-independent construction contradictions and
+/// resolutions both rest on. The caller sets `fork_status`.
+fn replay_excluding(
+    log: &[(TypesHash, AssertionEnvelope)],
+    excluded: &[TypesHash],
     head_hash: TypesHash,
     head_seq: u64,
 ) -> Result<GroupState, FoldError> {
     let mut envs: Vec<&(TypesHash, AssertionEnvelope)> =
-        log.iter().filter(|(h, _)| !exclude.contains(h)).collect();
+        log.iter().filter(|(h, _)| !excluded.contains(h)).collect();
     envs.sort_by(|a, b| crate::types::merge_cmp(&a.1, &b.1));
 
     let genesis = envs
         .iter()
         .find(|(_, e)| e.assertion_type == AssertionType::GroupGenesis)
-        .ok_or_else(|| FoldError::StorageError("resolve_contradiction: no genesis".to_string()))?;
+        .ok_or_else(|| FoldError::StorageError("replay_excluding: no genesis".to_string()))?;
     let mut ns = genesis_initial_state(&genesis.1, genesis.0)?;
     let mut seq = 1u64;
     for (h, env) in envs.iter().filter(|(_, e)| e.assertion_type != AssertionType::GroupGenesis) {
@@ -1920,7 +2165,99 @@ fn resolve_contradiction(
     }
     ns.computed_at_gov_head = head_hash;
     ns.computed_at_gov_seq = head_seq;
-    ns.fork_status = ForkStatus::Contradiction(label);
+    Ok(ns)
+}
+
+/// The one governance state transition, shared by the live ingest path and the rebuild
+/// replay so the two can never diverge (rebuild previously ran no detection at all — a
+/// contested store silently lost its hard-stop on rebuild). Storage-free: takes the
+/// admitted governance log as data. This is the surface Phase 2 extracts into the core.
+fn compute_next_governance_state(
+    log: &[(TypesHash, AssertionEnvelope)],
+    current_state: &GroupState,
+    envelope: &AssertionEnvelope,
+    hash: TypesHash,
+    gov_seq: u64,
+    contested_new: Option<ContestedEntry>,
+    fork_opt: Option<ForkStatus>,
+) -> Result<GroupState, FoldError> {
+    let mut ns = if envelope.assertion_type == AssertionType::Resolution {
+        // §7.3.2: a Resolution closes exactly one open pair. Naming a pair that is not
+        // open is refused loudly — a resolution of nothing is either a replay artifact
+        // or an attempt to pre-authorize a verdict, and both must surface.
+        let mut a = [0u8; 32];
+        a.copy_from_slice(&envelope.payload[..32]);
+        let mut b = [0u8; 32];
+        b.copy_from_slice(&envelope.payload[32..64]);
+        let pair = (TypesHash::new(a), TypesHash::new(b));
+        let entries = current_state.contested_entries();
+        let Some(idx) = entries.iter().position(|e| e.pair == pair) else {
+            return Err(FoldError::AuthorizationFailed(
+                "Resolution names no open contradiction pair".to_string(),
+            ));
+        };
+        let remaining: Vec<ContestedEntry> = entries
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| *i != idx)
+            .map(|(_, e)| e.clone())
+            .collect();
+        let mut excluded: Vec<TypesHash> = resolved_excluded(log);
+        excluded.push(pair.0);
+        excluded.push(pair.1);
+        for e in &remaining {
+            excluded.extend_from_slice(&e.excluded);
+        }
+        excluded.sort();
+        excluded.dedup();
+        let mut ns = replay_excluding(log, &excluded, hash, gov_seq)?;
+        ns.fork_status = if remaining.is_empty() {
+            ForkStatus::Clean
+        } else {
+            ForkStatus::Contested(remaining)
+        };
+        ns
+    } else if let Some(entry) = &contested_new {
+        // A new contradiction joins whatever is already open — set-valued, so two
+        // simultaneously open pairs are representable (the retired single slot's
+        // structural failure). Replay withholds every open entry's excluded facts
+        // plus everything already closed by resolutions.
+        let mut entries: Vec<ContestedEntry> = current_state.contested_entries().to_vec();
+        if !entries.contains(entry) {
+            entries.push(entry.clone());
+        }
+        entries.sort();
+        let mut excluded: Vec<TypesHash> = resolved_excluded(log);
+        for e in &entries {
+            excluded.extend_from_slice(&e.excluded);
+        }
+        excluded.sort();
+        excluded.dedup();
+        let mut ns = replay_excluding(log, &excluded, hash, gov_seq)?;
+        ns.fork_status = ForkStatus::Contested(entries);
+        ns
+    } else if envelope.assertion_type == AssertionType::GroupGenesis {
+        genesis_initial_state(envelope, hash)?
+    } else {
+        apply_governance(current_state, envelope, hash, gov_seq)?
+    };
+
+    // A slot-collision fork or under-determination never overrides a detected
+    // contradiction (all are hard-stops; the contradiction is the precise one).
+    if contested_new.is_none() {
+        if let Some(ref fs) = fork_opt {
+            ns.fork_status = fs.clone();
+        }
+    }
+    // §7.6.1 under-determination: if this governance step left a group with no Owner
+    // (required role vacant, no admissible successor), the fold hard-stops rather than
+    // folding onward on a headless group. A fork or contradiction already surfaced
+    // above takes precedence (all are hard-stops).
+    if matches!(ns.fork_status, ForkStatus::Clean)
+        && crate::governance::is_under_determined(&ns.members)
+    {
+        ns.fork_status = ForkStatus::UnderDetermined;
+    }
     Ok(ns)
 }
 
@@ -2118,16 +2455,34 @@ impl DerivedFoldReplay {
             None
         };
 
-        // Compute next state.
+        // Compute next state — through the SAME shared transition as live ingest,
+        // including the contradiction sweep, so a rebuild of a contested store
+        // reproduces the hard-stop instead of silently losing it (the pre-P1 replay
+        // ran no detection at all). Replay sees only facts live ingest admitted, so
+        // running the sweep unconditionally reproduces the live outcomes: the second
+        // half of a pair triggers detection exactly as it did on arrival.
         let next_state_opt: Option<GroupState> = if is_governance(&env.assertion_type) {
             let gov_seq = gov_seq_opt
                 .expect("invariant: gov_seq_opt is Some for governance assertions (set under the same is_governance predicate above)");
-            let ns = if env.assertion_type == AssertionType::GroupGenesis {
-                genesis_initial_state(env, hash)?
+            let log = group_governance_log(&self.db, &env.group)?;
+            let contested_new = if env.assertion_type == AssertionType::Resolution {
+                None
+            } else if env.assertion_type == AssertionType::MembershipRemove {
+                detect_mutual_expulsion(&log, env, &hash)
+                    .map(|partner| mutual_expulsion_entry(env, &hash, partner))
+                    .or_else(|| detect_authorized_contested(&log, env, &hash))
             } else {
-                apply_governance(&current_state, env, hash, gov_seq)?
+                detect_authorized_contested(&log, env, &hash)
             };
-            Some(ns)
+            Some(compute_next_governance_state(
+                &log,
+                &current_state,
+                env,
+                hash,
+                gov_seq,
+                contested_new,
+                None, // slot-fork detection is the live path's; rebuilt logs are collision-free
+            )?)
         } else {
             None
         };
@@ -2210,7 +2565,7 @@ impl DerivedFoldReplay {
                 genesis_initial_state(env, envelope_hash(env))
             } else {
                 Ok(GroupState {
-                    version: 1,
+                    version: GROUP_STATE_WIRE_VERSION,
                     computed_at_gov_head: TypesHash::new([0u8; 32]),
                     computed_at_gov_seq: 0,
                     members: Vec::new(),
@@ -2219,6 +2574,7 @@ impl DerivedFoldReplay {
                         remove_member_threshold: 1,
                         role_change_threshold: 1,
                         rule_change_threshold: 1,
+                        resolution_threshold: 2,
                     },
                     fork_status: ForkStatus::Clean,
                 })
@@ -2519,7 +2875,7 @@ mod tests {
     #[test]
     fn group_state_roundtrips_all_fork_statuses() {
         let make = |fs: ForkStatus| GroupState {
-            version: 1,
+            version: GROUP_STATE_WIRE_VERSION,
             computed_at_gov_head: TypesHash::new([7u8; 32]),
             computed_at_gov_seq: 3,
             members: vec![(TypesPrincipalId::new([9u8; 32]), Role::Owner, 1)],
@@ -2528,6 +2884,7 @@ mod tests {
                 remove_member_threshold: 2,
                 role_change_threshold: 3,
                 rule_change_threshold: 4,
+                resolution_threshold: 2,
             },
             fork_status: fs,
         };
@@ -2535,15 +2892,66 @@ mod tests {
             ForkStatus::Clean,
             ForkStatus::ForkedFrom(TypesHash::new([0xAB; 32])),
             ForkStatus::UnderDetermined,
-            ForkStatus::Contradiction(TypesHash::new([0xCD; 32])),
+            // §7.3.2/E108: the set-valued form — TWO simultaneously open entries,
+            // each carrying its pair, subjects, and withheld facts.
+            ForkStatus::Contested(vec![
+                ContestedEntry {
+                    pair: ContestedEntry::order_pair(
+                        TypesHash::new([0xCD; 32]),
+                        TypesHash::new([0x11; 32]),
+                    ),
+                    subjects: vec![
+                        TypesPrincipalId::new([0x21; 32]),
+                        TypesPrincipalId::new([0x22; 32]),
+                    ],
+                    excluded: vec![TypesHash::new([0x11; 32]), TypesHash::new([0xCD; 32])],
+                },
+                ContestedEntry {
+                    pair: ContestedEntry::order_pair(
+                        TypesHash::new([0xEE; 32]),
+                        TypesHash::new([0xEF; 32]),
+                    ),
+                    subjects: vec![TypesPrincipalId::new([0x23; 32])],
+                    excluded: vec![TypesHash::new([0xEE; 32])],
+                },
+            ]),
         ] {
             let state = make(fs.clone());
             let back = GroupState::from_bytes(&state.to_bytes()).expect("roundtrip");
             assert_eq!(back.fork_status, fs, "fork_status must survive to_bytes/from_bytes");
-            // The three variants must not collapse into one another on the wire.
+            // The variants must not collapse into one another on the wire.
             assert_eq!(back.members, state.members);
             assert_eq!(back.computed_at_gov_seq, state.computed_at_gov_seq);
+            assert_eq!(back.rules, state.rules, "all five thresholds survive the wire");
         }
+    }
+
+    #[test]
+    fn group_state_refuses_unknown_wire_version() {
+        // O2 discipline: `from_bytes` refuses unknown versions LOUDLY — a v1 store
+        // demands a rebuild rather than being silently reinterpreted as v2.
+        let state = GroupState {
+            version: GROUP_STATE_WIRE_VERSION,
+            computed_at_gov_head: TypesHash::new([7u8; 32]),
+            computed_at_gov_seq: 3,
+            members: vec![],
+            rules: GroupRules {
+                add_member_threshold: 1,
+                remove_member_threshold: 1,
+                role_change_threshold: 1,
+                rule_change_threshold: 1,
+                resolution_threshold: 2,
+            },
+            fork_status: ForkStatus::Clean,
+        };
+        let mut bytes = state.to_bytes();
+        bytes[0] = 0x01; // the retired v1 tag
+        let err = GroupState::from_bytes(&bytes).expect_err("v1 bytes must be refused");
+        let msg = format!("{err}");
+        assert!(
+            msg.contains("unknown wire version") && msg.contains("rebuilt"),
+            "the refusal must name the version and demand a rebuild, got: {msg}"
+        );
     }
 
     // -----------------------------------------------------------------------

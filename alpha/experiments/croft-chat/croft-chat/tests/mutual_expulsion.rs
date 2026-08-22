@@ -115,12 +115,12 @@ async fn mutual_expulsion_hard_stops_order_independently() {
     // Fixed behaviour (1): the contradiction is SURFACED as a hard-stop, not silently
     // auto-resolved. Both orders reach a Contradiction status.
     assert!(
-        s1.fork_status.starts_with("contradiction"),
+        s1.fork_status.starts_with("contested"),
         "order 1 must hard-stop as a contradiction, got {}",
         s1.fork_status
     );
     assert!(
-        s2.fork_status.starts_with("contradiction"),
+        s2.fork_status.starts_with("contested"),
         "order 2 must hard-stop as a contradiction, got {}",
         s2.fork_status
     );
