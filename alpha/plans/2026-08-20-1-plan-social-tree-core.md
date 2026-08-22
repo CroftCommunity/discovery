@@ -473,3 +473,29 @@ lost-race-UX deferral in P6. New rows: **E120** (DID ↔ persona-key binding sea
 **Status: the execution hold is CLEARED.** Phase 1 starts on the owner's explicit go —
 discovery-side, concurrent with M4; Phase 2 lands in croft at a coordinated moment per the
 sequencing note in P2.
+
+### Phase 1 — EXECUTED AND GREEN (owner's go 2026-08-21; closed 2026-08-22)
+
+TDD RED-first throughout: the four pins recorded structurally RED (the old schema cannot
+express them), then GREEN in three commits (CONTESTED + resolution; O9 envelope v2; pin 5),
+each committed green before any mutation. Delivered exactly the amended P1 scope: the
+set-valued pair-carrying `ContestedEntry` schema; the total `membership()` view (no boolean
+accessor); `Resolution` (0x000C) charter-quorum-gated at the owner's default 2 riding the V5′
+Approval machinery; `GroupState` wire v2 refusing unknown versions; all new logic
+storage-free — and the P2 down payment grew: **one shared transition now serves live ingest
+and the rebuild replay** (the replay previously ran no detection; a rebuilt contested store
+silently lost its hard-stop — pre-existing, closed). O9 landed as the drop (not the fence):
+envelope wire v2, standing layout pin, three decoders refusing v1, timeline windows and the
+compaction age gate now position-denominated. Two more pre-existing defects fixed en route:
+the order-dependent slot-fork label (now max-over-contenders, a pure function of the
+contender set) and a phantom 8-byte read in governance's decoder copy.
+
+Evidence: 5/5 pins; substrate **102/0**; croft-chat workspace **120/0**; bounded X3-pattern
+mutation sweep **30/35 killed**, 5 survivors triaged (2 equivalent with stated arguments, 4
+pre-existing NodeCard survivors from the X3 ledger) — the full re-baseline stays at P3's
+close per R6. Durable record: `experiments/local_storage_projection/C-SERIES-RESULTS.md`
+§P1/E108. Spec filings out of the build: **E130** (§7.3.2 amendment set — the R4 hard-floor
+question plus four edges the build surfaced). E108 retires through this phase.
+
+**Next: Phase 2 (the re-cut, landing in croft) — at a coordinated moment with the live M4
+session per the sequencing note; the crate, workspace, and CI scaffolding land together.**
