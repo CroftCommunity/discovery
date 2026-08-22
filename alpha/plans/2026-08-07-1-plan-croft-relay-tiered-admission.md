@@ -2762,3 +2762,41 @@ mutation-clean), the usage transport (two-process test), and the declared
 deploy. Open to close the phase's Done-when in production: activation
 (operator-gated) and the use/quota feeds (M4-adjacent). Next: croft client
 M4 — present cap → `/grantCall` → `RelayConfig.authToken`.
+
+### Phase 8 / croft M4 — the first device run of the whole admission loop — 2026-08-21
+
+Cross-repo validation night (croft `87cfd1c`, croft-stack `531958f`; full
+run record in croft `ops/RUNBOOK-two-device-call-test.md` §11). A LOCAL
+croft-admit (memory store, `[mint]` against production atproto, keypair
+from the new `--keygen`) minted for a REAL phone: the Pixel redeemed the
+live `m1ticket`, presented the real invite secret, and got a token from
+real plc+PDS reads in under a second — then dialed the Samsung with it
+(EndpointId stable across the token rebind, as M4c checks) and connected
+direct. Deleting the grant from the live repo made the next mint refuse
+`cap_revoked` — the fresh-read revocation claim, now proven against
+production atproto with a phone as the caller — and the app refused to
+dial, saying why. Restore → mint → connected again.
+
+**Findings for the relay side of this plan:**
+
+- **A plain-HTTP relay cannot host the on-device rung.** iroh-ffi
+  endpoints on phones never complete the attach against `croft-relay`
+  served over http, and once discovery records carry the http URL even
+  LAN-direct dials fail — while `iroh_relay::client` (rust) attaches to
+  the same binary fine (`croft-relay-bin/examples/attach_probe.rs`, new).
+  Consequence: the on-device ENFORCE rung requires TLS — either a staging
+  listener on the production box (real certs, second port) or croft-admit
+  activation itself. It shares that gate with O1 (the callee's camping
+  token under enforce), which the enforce loop would hit immediately: an
+  enforce relay refuses the callee's token-less camp, so O1 must be
+  decided before or with the enforce rung.
+- **The seen-grants memory earned its keep on hardware**: the refusal for
+  the deleted grant was `cap_revoked`, not `cap_not_found`, because this
+  admit process had minted from that grant before.
+- **`--keygen` landed** (the "no keygen tool" follow-up): PKCS#8 hex for
+  the mint env var + public hex for the relay `[token]`, printed once.
+
+Not yet observed on-device: journal attribution (`admitted
+sponsorship=…` needs a relay `[token]` sharing the mint's key — arrives
+with activation), the identity-proof mint (needs a fresh sign-in under
+the new scope), the three call-endings.
