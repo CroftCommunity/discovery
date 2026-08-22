@@ -2800,3 +2800,59 @@ Not yet observed on-device: journal attribution (`admitted
 sponsorship=…` needs a relay `[token]` sharing the mint's key — arrives
 with activation), the identity-proof mint (needs a fresh sign-in under
 the new scope), the three call-endings.
+
+### O1 settled in a design talk-through — the callee's camping token — 2026-08-21
+
+The device runs left O1 as the one design decision between "built and
+proven" and "armed": under enforce the relay checks every connection at
+attach, including the callee's camping connection, and `/grantCall`
+returns only the caller's token. The owner walked it point by point; the
+decisions bind the enforce rung and croft-admit's next build surface:
+
+1. **Camping is identity-checked (self-mint), and the identity proof
+   becomes pluggable.** The callee's app mints its own camping pass from
+   croft-admit by proving its identity — the same machinery as the caller
+   mint, pointed at itself. The proof step is a seam with interchangeable
+   backends chosen per context by config, not code: **atproto
+   service-auth** (the device-proven caller mechanism) in production, and
+   a **local-keypair backend** as the first alternative — the admit's
+   config carries a list of trusted public keys, the camper proves
+   possession by signing a fresh challenge. The local backend exists for
+   dev/testing and means the staging ENFORCE rung needs no atproto in the
+   loop. Rejected: the second-token-relayed-by-caller candidate (a
+   bootstrap contradiction — the callee must be reachable *before* any
+   caller exists); a proof-less EndpointId allowlist for dev (anyone who
+   learns an id could camp, and it tests less of the real flow).
+2. **The camping pass is the existing token, under the existing
+   attach-only rule.** Same format the relay already verifies — no new
+   relay machinery. `sub` is the callee's own EndpointId; sponsorship
+   keeps the D3 vocabulary (member ⇒ unlimited, else budget — idle
+   camping stays cheap by the §3.1 stance). The mint checks the proven
+   identity *stands behind* the endpoint: the DID's published record must
+   list the EndpointId asking to camp (local-keypair config pairs pubkey
+   → allowed EndpointIds, same idea). Refusals are worded, like every
+   other refusal in the ladder.
+3. **The token is the cache.** The owner's condition on realtime OAuth
+   inline at attach: at the very least a healthy cache. Client side, the
+   phone reuses the minted camping pass across reconnects until expiry —
+   the full proof round-trip happens once per token lifetime, not per
+   connectivity flap; re-mint only on expiry or refusal, failing loud if
+   the PDS is down at that moment. Camping TTL is therefore deliberately
+   longer than caller tokens (start ~12 h and tune) — caller freshness IS
+   revocation at dial, camping staleness only lets an already-idle camp
+   linger, since call grants are still read fresh at every caller mint.
+   Server side, the camping mint's atproto reads (DID document, published
+   record) ride the D1-style identity-keyed TTL cache.
+4. **Owner-raised, deferred: a reconciliation loop as the escape hatch.**
+   If revocation lag ever matters in practice, a server-side sweep can
+   walk current campers, attempt a re-mint on our side, and boot those it
+   cannot re-mint for — at our discretion, and **availability-aware**: it
+   never boots people because the OAuth/PDS side is operationally
+   degraded. Built only under capacity pressure, which the other controls
+   (flat QoS ceiling, sponsorship budgets, the denylist at two doors)
+   make unlikely. Named now, not designed.
+
+Consequence: the enforce rung is unblocked. The staging rehearsal can run
+entirely on the local-keypair backend (TLS listener + enforce +
+local-keypair camping mint + caller mint), with atproto camping proof
+arriving as the production configuration of the same seam.
