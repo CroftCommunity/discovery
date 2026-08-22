@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ring — tree &amp; ripple mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDF1F4;
+    --card:#FFFFFF;
+    --ink:#17242F;
+    --ink-soft:#5A6B78;
+    --line:#C9D3DB;
+    --wood:#7A6A55;
+    --sky:#1D7DD8;
+    --moss:#3E7D4F;
+    --violet:#7A4FD8;
+    --amber:#C07A1E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Spline Sans',system-ui,sans-serif;
+    background:var(--paper);color:var(--ink);font-size:15px;line-height:1.45;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:16px 12px 40px}
+
+  .app-name{
+    font-family:'Spline Sans Mono',monospace;font-size:12px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .app-name b{color:var(--ink);font-weight:600}
+
+  /* ---- view toggle + slider ---- */
+  .controls{
+    position:sticky;top:0;z-index:5;background:var(--paper);
+    padding:8px 0 10px;border-bottom:1px solid var(--line);
+  }
+  .ctl-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .seg{
+    display:inline-flex;border:1px solid var(--ink);border-radius:8px;overflow:hidden;
+  }
+  .seg button{
+    font-family:'Spline Sans Mono',monospace;font-size:12px;font-weight:600;
+    padding:6px 14px;border:none;background:var(--card);color:var(--ink);cursor:pointer;
+  }
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+  .seg button:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+  .ctl-label{font-family:'Spline Sans Mono',monospace;font-size:11.5px;color:var(--ink-soft)}
+  input[type=range]{flex:1;min-width:100px;accent-color:var(--ink)}
+  .k-readout{font-family:'Spline Sans Mono',monospace;font-size:12.5px;font-weight:600;min-width:84px;text-align:right}
+  .legend{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+  .pds-chip{
+    display:inline-flex;align-items:center;gap:5px;
+    font-family:'Spline Sans Mono',monospace;font-size:10.5px;
+    padding:1px 7px 2px;border-radius:99px;border:1px solid currentColor;
+  }
+  .pds-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+  .c-sky{color:var(--sky)} .c-moss{color:var(--moss)} .c-violet{color:var(--violet)} .c-amber{color:var(--amber)}
+
+  /* ---- canvas ---- */
+  .stage{margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  svg{display:block;width:100%;height:auto}
+  svg text{font-family:'Spline Sans Mono',monospace}
+  .branch{stroke:var(--wood);fill:none;stroke-linecap:round;cursor:pointer}
+  .branch:hover{stroke:var(--ink)}
+  .trunk{stroke:var(--wood);stroke-linecap:round}
+  .leaf{cursor:pointer;stroke:var(--card);stroke-width:1.2}
+  .leaf:hover{stroke:var(--ink)}
+  .node-dot{cursor:pointer;stroke:var(--card);stroke-width:1.5}
+  .node-dot:hover{stroke:var(--ink)}
+  .count-label{fill:var(--ink-soft);font-size:9.5px}
+  .count-label b{font-weight:600}
+  .name-label{fill:var(--ink);font-size:10px;font-weight:600;cursor:pointer}
+  .ring-guide{fill:none;stroke:var(--line);stroke-dasharray:2 4}
+  .arc-count{fill:none;stroke-linecap:butt;opacity:.30}
+  .selected{stroke:var(--ink) !important;stroke-width:2.5 !important}
+
+  /* ---- detail card ---- */
+  .detail{
+    margin-top:10px;background:var(--card);border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;min-height:74px;
+  }
+  .detail .empty{font-family:'Spline Sans Mono',monospace;font-size:12px;color:var(--ink-soft)}
+  .detail-top{display:flex;align-items:center;gap:10px}
+  .avatar{
+    width:36px;height:36px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Spline Sans Mono',monospace;font-weight:600;font-size:13px;color:#fff;
+  }
+  .detail .name{font-weight:600;font-size:14px}
+  .detail .handle{font-family:'Spline Sans Mono',monospace;font-size:12px;color:var(--ink-soft)}
+  .detail-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+  .badge{
+    font-family:'Spline Sans Mono',monospace;font-size:10.5px;
+    padding:1px 7px 2px;border-radius:5px;border:1px solid var(--line);
+    color:var(--ink-soft);background:var(--paper);
+  }
+  .badge.strong{color:var(--ink);border-color:var(--ink-soft);font-weight:600}
+  .detail .routes{
+    margin-top:8px;font-family:'Spline Sans Mono',monospace;font-size:11.5px;
+    color:var(--ink-soft);line-height:1.7;
+  }
+  .detail .routes b{color:var(--ink)}
+
+  .footnote{margin-top:14px;font-family:'Spline Sans Mono',monospace;font-size:11px;color:var(--ink-soft);line-height:1.7}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="app-name"><b>ring</b> · @maren.gardenpath.net · outward from you</div>
+
+  <div class="controls">
+    <div class="ctl-row">
+      <div class="seg" role="group" aria-label="View">
+        <button id="btn-tree" aria-pressed="true">tree</button>
+        <button id="btn-ripple" aria-pressed="false">ripple</button>
+      </div>
+      <span class="ctl-label">leaves ≥</span>
+      <input type="range" id="kslider" min="1" max="5" value="2" aria-label="Endorsement threshold">
+      <span class="k-readout" id="kreadout">×2 endorsed</span>
+    </div>
+    <div class="legend">
+      <span class="pds-chip c-sky">bsky.social</span>
+      <span class="pds-chip c-moss">self-hosted</span>
+      <span class="pds-chip c-violet">blacksky.app</span>
+      <span class="pds-chip c-amber">bridged (AP)</span>
+    </div>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="detail" id="detail"><div class="empty">tap a branch, leaf, or dot for who it is and how you reach them</div></div>
+
+  <p class="footnote" id="footnote"></p>
+</div>
+
+<script>
+const COLORS = {sky:'#1D7DD8', moss:'#3E7D4F', violet:'#7A4FD8', amber:'#C07A1E'};
+const HOSTS  = {sky:'bsky.social', moss:'self-hosted', violet:'blacksky.app', amber:'bridged'};
+
+const SUBJECT = {name:'Maren', handle:'maren.gardenpath.net', pds:'moss', host:'pds.gardenpath.net'};
+
+const DATA = [
+  { name:'Iona Whitfield', handle:'iona.dev', pds:'moss', host:'pds.iona.dev', mutual:true, ring2:6410,
+    children:[
+      {name:'Tep Sarai', handle:'tep.blacksky.app', pds:'violet', e:5, routes:['@dara.bsky.social','@felix-birds.bsky.social','@quiet.systems','@printmaker.ink']},
+      {name:'Quiet Systems', handle:'quiet.systems', pds:'moss', e:4, routes:['@dara.bsky.social','@printmaker.ink','@n8n.bsky.social']},
+      {name:'Dr. Ann Okafor', handle:'aokafor.bsky.social', pds:'sky', e:3, routes:['@dara.bsky.social','@felix-birds.bsky.social']},
+      {name:'ferrous', handle:'ferrous.dev.ap.brid.gy', pds:'amber', e:2, routes:['@n8n.bsky.social']},
+      {name:'Lupe Cardona', handle:'lupe.bsky.social', pds:'sky', e:2, routes:['@printmaker.ink']},
+      {name:'mossbeard', handle:'mossbeard.bsky.social', pds:'sky', e:1, routes:[]},
+    ]},
+  { name:'Dara', handle:'dara.bsky.social', pds:'sky', host:'bsky.social', mutual:true, ring2:11930,
+    children:[
+      {name:'The Slow Web', handle:'slowweb.bsky.social', pds:'sky', e:4, routes:['@iona.dev','@felix-birds.bsky.social','@printmaker.ink']},
+      {name:'Ren Ito', handle:'ren.tanagram.jp', pds:'moss', e:3, routes:['@n8n.bsky.social','@quiet.systems']},
+      {name:'birdsite refugee', handle:'brefugee.bsky.social', pds:'sky', e:2, routes:['@felix-birds.bsky.social']},
+      {name:'Cass', handle:'cass.blacksky.app', pds:'violet', e:1, routes:[]},
+    ]},
+  { name:'Felix (birds!)', handle:'felix-birds.bsky.social', pds:'sky', host:'bsky.social', mutual:true, ring2:2210,
+    children:[
+      {name:'Warbler Watch', handle:'warblerwatch.bsky.social', pds:'sky', e:3, routes:['@dara.bsky.social','@iona.dev']},
+      {name:'Pelagic Pat', handle:'pat.ap.brid.gy', pds:'amber', e:2, routes:['@n8n.bsky.social']},
+      {name:'gullwing', handle:'gullwing.bsky.social', pds:'sky', e:1, routes:[]},
+    ]},
+  { name:'printmaker', handle:'printmaker.ink', pds:'moss', host:'pds.printmaker.ink', mutual:false, ring2:840,
+    children:[
+      {name:'Risograph Riot', handle:'risoriot.bsky.social', pds:'sky', e:2, routes:['@iona.dev']},
+      {name:'inkfingers', handle:'inkfingers.bsky.social', pds:'sky', e:1, routes:[]},
+    ]},
+  { name:'n8n', handle:'n8n.bsky.social', pds:'sky', host:'bsky.social', mutual:true, ring2:19800, whale:true },
+  { name:'Halcyon Feed Lab', handle:'halcyon.blacksky.app', pds:'violet', host:'blacksky.app', mutual:false, ring2:3120,
+    children:[
+      {name:'feedsmith', handle:'feedsmith.bsky.social', pds:'sky', e:2, routes:['@dara.bsky.social']},
+      {name:'graphgirl', handle:'graphgirl.dev', pds:'moss', e:1, routes:[]},
+    ]},
+];
+
+let view = 'tree';
+let k = 2;
+let selected = null; // {type:'parent'|'child', parent, child?}
+
+const $stage = document.getElementById('stage');
+const $detail = document.getElementById('detail');
+const $foot = document.getElementById('footnote');
+const $k = document.getElementById('kslider');
+const $kread = document.getElementById('kreadout');
+const $bt = document.getElementById('btn-tree');
+const $br = document.getElementById('btn-ripple');
+
+const fmt = n => n.toLocaleString('en-US');
+const initials = s => s.replace(/[^a-zA-Z ]/g,'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?';
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+/* ---------------- TREE VIEW: subject at base, trunk up, branches, leaves ---------------- */
+function renderTree(){
+  const W=620, H=560, baseX=W/2, baseY=H-46, topY=52;
+  const trunkLen = baseY-topY;
+  // branch order: biggest ring2 lowest (old growth low on the trunk)
+  const branches = [...DATA].sort((a,b)=>b.ring2-a.ring2);
+  const maxR2 = Math.max(...DATA.map(d=>d.ring2));
+  let out = [];
+
+  // ground line + subject
+  out.push(`<line x1="${baseX-90}" y1="${baseY+18}" x2="${baseX+90}" y2="${baseY+18}" stroke="var(--line)" stroke-width="1.5"/>`);
+  out.push(`<line class="trunk" x1="${baseX}" y1="${baseY}" x2="${baseX}" y2="${topY}" stroke-width="7"/>`);
+  out.push(`<circle class="node-dot" data-sel="subject" cx="${baseX}" cy="${baseY+2}" r="13" fill="${COLORS[SUBJECT.pds]}"/>`);
+  out.push(`<text class="name-label" data-sel="subject" x="${baseX}" y="${baseY+38}" text-anchor="middle">you · @${SUBJECT.handle}</text>`);
+
+  branches.forEach((b,i)=>{
+    const side = i%2===0 ? -1 : 1;
+    const t = (i+1)/(branches.length+1);         // position up the trunk
+    const y0 = baseY - t*trunkLen*0.92 - 14;
+    const len = 90 + 140*Math.log10(1+9*b.ring2/maxR2); // log-ish length by reach
+    const lift = 46 + 30*t;                       // higher branches angle up more
+    const x1 = baseX + side*len, y1 = y0 - lift;
+    const cx = baseX + side*len*0.45, cy = y0 - lift*0.25;
+    const sw = b.whale ? 8 : 3.5 + 2.5*(b.ring2/maxR2);
+    const selCls = (selected && selected.type==='parent' && selected.parent===b) ? 'selected':'';
+    out.push(`<path class="branch ${selCls}" data-sel="p:${b.handle}" d="M ${baseX} ${y0} Q ${cx} ${cy} ${x1} ${y1}" stroke-width="${sw}"/>`);
+
+    // parent node at branch tip
+    out.push(`<circle class="node-dot ${selCls}" data-sel="p:${b.handle}" cx="${x1}" cy="${y1}" r="8" fill="${COLORS[b.pds]}"/>`);
+    const anchor = side<0 ? 'end':'start';
+    const lx = x1 + side*12;
+    out.push(`<text class="name-label" data-sel="p:${b.handle}" x="${lx}" y="${y1-8}" text-anchor="${anchor}">@${esc(b.handle)}${b.mutual?' ⇄':''}</text>`);
+
+    if(b.whale){
+      out.push(`<text class="count-label" x="${lx}" y="${y1+6}" text-anchor="${anchor}">whale · follows ${fmt(b.ring2)} · count only</text>`);
+      return;
+    }
+    // leaves: endorsed ring-2 along the outer half of the branch
+    const kids = (b.children||[]).filter(c=>c.e>=k);
+    kids.forEach((c,j)=>{
+      const u = 0.45 + 0.5*(j+1)/(kids.length+1);
+      // point on quadratic curve
+      const qx = (1-u)*(1-u)*baseX + 2*(1-u)*u*cx + u*u*x1;
+      const qy = (1-u)*(1-u)*y0   + 2*(1-u)*u*cy + u*u*y1;
+      const off = (j%2===0? -1:1) * (10 + 3*c.e);
+      const r = 4 + c.e*1.4;
+      const selC = (selected && selected.type==='child' && selected.child===c) ? 'selected':'';
+      out.push(`<line x1="${qx}" y1="${qy}" x2="${qx}" y2="${qy+off}" stroke="var(--wood)" stroke-width="1.2"/>`);
+      out.push(`<circle class="leaf ${selC}" data-sel="c:${b.handle}:${c.handle}" cx="${qx}" cy="${qy+off}" r="${r}" fill="${COLORS[c.pds]}"/>`);
+    });
+    // remainder count at branch tip
+    const hidden = b.ring2 - kids.length;
+    out.push(`<text class="count-label" x="${lx}" y="${y1+6}" text-anchor="${anchor}">+${fmt(hidden)} below ×${k}</text>`);
+  });
+
+  $stage.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Your social tree: you at the base, follows as branches, endorsed ring-2 accounts as leaves">${out.join('')}</svg>`;
+  $foot.textContent = `tree: branch length ≈ accounts reachable through that follow (log scale), thickness ≈ share of your ring 2. leaves are ring-2 accounts endorsed by ≥${k} of your follows; leaf size = endorsement count. big branches low, new growth high.`;
+}
+
+/* ---------------- RIPPLE VIEW: concentric, sectored by parent ---------------- */
+function renderRipple(){
+  const W=620, H=620, cx=W/2, cy=H/2, R1=118, R2=225, Rarc=258;
+  const totalR2 = DATA.reduce((s,d)=>s+d.ring2,0);
+  let out = [];
+  // ring guides
+  out.push(`<circle class="ring-guide" cx="${cx}" cy="${cy}" r="${R1}"/>`);
+  out.push(`<circle class="ring-guide" cx="${cx}" cy="${cy}" r="${R2}"/>`);
+  out.push(`<text class="count-label" x="${cx}" y="${cy-R1-6}" text-anchor="middle">ring 1 · 212 follows</text>`);
+  out.push(`<text class="count-label" x="${cx}" y="${cy-R2-6}" text-anchor="middle">ring 2 · ≈41,380</text>`);
+
+  // subject
+  out.push(`<circle class="node-dot" data-sel="subject" cx="${cx}" cy="${cy}" r="15" fill="${COLORS[SUBJECT.pds]}"/>`);
+  out.push(`<text class="name-label" data-sel="subject" x="${cx}" y="${cy+30}" text-anchor="middle">you</text>`);
+
+  // sectors sized by sqrt(ring2) so whales don't swallow the circle
+  const weights = DATA.map(d=>Math.sqrt(d.ring2));
+  const wsum = weights.reduce((a,b)=>a+b,0);
+  let ang = -Math.PI/2;
+  DATA.forEach((b,i)=>{
+    const span = 2*Math.PI * weights[i]/wsum;
+    const mid = ang + span/2;
+    const px = cx + R1*Math.cos(mid), py = cy + R1*Math.sin(mid);
+    const selCls = (selected && selected.type==='parent' && selected.parent===b) ? 'selected':'';
+
+    // spoke
+    out.push(`<line x1="${cx}" y1="${cy}" x2="${px}" y2="${py}" stroke="var(--line)" stroke-width="1"/>`);
+
+    // ring-2 count arc in this sector, thickness by share of total ring2
+    const thick = 4 + 26*(b.ring2/totalR2)*DATA.length/2;
+    const a0 = ang+0.02, a1 = ang+span-0.02;
+    const large = (a1-a0) > Math.PI ? 1 : 0;
+    out.push(`<path class="arc-count" data-sel="p:${b.handle}" style="cursor:pointer"
+      d="M ${cx+Rarc*Math.cos(a0)} ${cy+Rarc*Math.sin(a0)} A ${Rarc} ${Rarc} 0 ${large} 1 ${cx+Rarc*Math.cos(a1)} ${cy+Rarc*Math.sin(a1)}"
+      stroke="${COLORS[b.pds]}" stroke-width="${thick}"/>`);
+
+    // parent dot + label
+    out.push(`<circle class="node-dot ${selCls}" data-sel="p:${b.handle}" cx="${px}" cy="${py}" r="9" fill="${COLORS[b.pds]}"/>`);
+    const outward = R1+2 < Math.hypot(px-cx,py-cy)+20 ? 1 : 1;
+    const lx = cx + (R1+22)*Math.cos(mid), ly = cy + (R1+22)*Math.sin(mid);
+    const anchor = Math.cos(mid) > 0.25 ? 'start' : (Math.cos(mid) < -0.25 ? 'end':'middle');
+    out.push(`<text class="name-label" data-sel="p:${b.handle}" x="${lx}" y="${ly}" text-anchor="${anchor}">@${esc(b.handle.split('.')[0])}</text>`);
+
+    if(b.whale){
+      const wx = cx + R2*Math.cos(mid), wy = cy + R2*Math.sin(mid);
+      out.push(`<text class="count-label" x="${wx}" y="${wy}" text-anchor="middle">${fmt(b.ring2)} (whale)</text>`);
+    } else {
+      // endorsed ring-2 precipitate as dots within the sector at R2
+      const kids = (b.children||[]).filter(c=>c.e>=k);
+      kids.forEach((c,j)=>{
+        const ca = ang + span*(j+1)/(kids.length+1);
+        const dx = cx + R2*Math.cos(ca), dy = cy + R2*Math.sin(ca);
+        const r = 3.5 + c.e*1.3;
+        const selC = (selected && selected.type==='child' && selected.child===c) ? 'selected':'';
+        out.push(`<line x1="${px}" y1="${py}" x2="${dx}" y2="${dy}" stroke="var(--line)" stroke-width=".8"/>`);
+        out.push(`<circle class="leaf ${selC}" data-sel="c:${b.handle}:${c.handle}" cx="${dx}" cy="${dy}" r="${r}" fill="${COLORS[c.pds]}"/>`);
+      });
+      const hidden = b.ring2 - kids.length;
+      const hx = cx + (Rarc+16)*Math.cos(mid), hy = cy + (Rarc+16)*Math.sin(mid);
+      out.push(`<text class="count-label" x="${hx}" y="${hy}" text-anchor="middle">+${fmt(hidden)}</text>`);
+    }
+    ang += span;
+  });
+
+  $stage.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ripple view: you at center, follows on ring one, endorsed accounts on ring two, counts as arcs">${out.join('')}</svg>`;
+  $foot.textContent = `ripple: each follow owns an angular sector sized by √(their reach) so whales don't swallow the circle. the outer arc is the ring-2 count for that sector; dots are accounts endorsed by ≥${k} of yours, precipitated out of the arc. raise the slider and dots dissolve back into the count.`;
+}
+
+/* ---------------- detail card ---------------- */
+function showDetail(){
+  if(!selected){ $detail.innerHTML = `<div class="empty">tap a branch, leaf, or dot for who it is and how you reach them</div>`; return; }
+  if(selected.type==='subject'){
+    $detail.innerHTML = detailCard(SUBJECT.name,'@'+SUBJECT.handle,SUBJECT.pds,
+      [`<span class="badge strong">you</span>`,`<span class="badge">${HOSTS[SUBJECT.pds]}</span>`],
+      `pds <b>pds.gardenpath.net</b> · did:plc:<b>k2ov…7hqe</b> · follows <b>212</b> · followers <b>187</b>`);
+    return;
+  }
+  if(selected.type==='parent'){
+    const b = selected.parent;
+    $detail.innerHTML = detailCard(b.name,'@'+b.handle,b.pds,
+      [ b.mutual?`<span class="badge strong">⇄ mutual</span>`:'',
+        b.whale?`<span class="badge">whale · count only</span>`:'',
+        `<span class="badge">${HOSTS[b.pds]}</span>`,
+        `<span class="badge">ring 1 · you follow directly</span>`],
+      `opens <b>${fmt(b.ring2)}</b> ring-2 accounts${b.whale?'':` · <b>${(b.children||[]).filter(c=>c.e>=k).length}</b> endorsed ≥×${k} shown`}`);
+    return;
+  }
+  const {parent:b, child:c} = selected;
+  $detail.innerHTML = detailCard(c.name,'@'+c.handle,c.pds,
+    [`<span class="badge strong">×${c.e} endorsed</span>`,
+     `<span class="badge">${HOSTS[c.pds]}</span>`,
+     `<span class="badge">ring 2 · not yet followed</span>`],
+    `primary route <b>@${b.handle}</b> (largest contributor, earliest follow)` +
+    (c.routes.length?` · also via ${c.routes.map(r=>`<b>${esc(r)}</b>`).join(', ')}`:''));
+}
+function detailCard(name,handle,pds,badges,routesHtml){
+  return `<div class="detail-top">
+      <div class="avatar" style="background:${COLORS[pds]}">${initials(name)}</div>
+      <div><div class="name">${esc(name)}</div><div class="handle">${esc(handle)}</div></div>
+    </div>
+    <div class="detail-badges">${badges.filter(Boolean).join('')}</div>
+    <div class="routes">${routesHtml}</div>`;
+}
+
+/* ---------------- wiring ---------------- */
+function render(){
+  $kread.textContent = `×${k} endorsed`;
+  view==='tree' ? renderTree() : renderRipple();
+  showDetail();
+}
+$k.addEventListener('input',e=>{k=+e.target.value;render();});
+$bt.addEventListener('click',()=>{view='tree';$bt.setAttribute('aria-pressed','true');$br.setAttribute('aria-pressed','false');render();});
+$br.addEventListener('click',()=>{view='ripple';$br.setAttribute('aria-pressed','true');$bt.setAttribute('aria-pressed','false');render();});
+
+$stage.addEventListener('click',e=>{
+  const el = e.target.closest('[data-sel]');
+  if(!el) return;
+  const s = el.getAttribute('data-sel');
+  if(s==='subject'){ selected={type:'subject'}; }
+  else if(s.startsWith('p:')){
+    const b = DATA.find(d=>d.handle===s.slice(2));
+    selected={type:'parent',parent:b};
+  } else {
+    const [,ph,ch] = s.split(':');
+    const b = DATA.find(d=>d.handle===ph);
+    const c = (b.children||[]).find(x=>x.handle===ch);
+    selected={type:'child',parent:b,child:c};
+  }
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

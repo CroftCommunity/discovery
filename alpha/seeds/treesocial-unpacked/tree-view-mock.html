@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ring — tree view mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDF1F4;
+    --card:#FFFFFF;
+    --ink:#17242F;
+    --ink-soft:#5A6B78;
+    --line:#C9D3DB;
+    --route:#9FB0BC;
+    --sky:#1D7DD8;      /* bsky.social */
+    --moss:#3E7D4F;     /* self-hosted */
+    --violet:#7A4FD8;   /* blacksky */
+    --amber:#C07A1E;    /* bridged */
+    --focus:#17242F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Spline Sans',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.45;
+  }
+  .mono{font-family:'Spline Sans Mono',ui-monospace,monospace}
+
+  .wrap{max-width:640px;margin:0 auto;padding:20px 14px 80px}
+
+  /* ---------- header: subject card ---------- */
+  header{margin-bottom:18px}
+  .app-name{
+    font-family:'Spline Sans Mono',monospace;
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:14px;
+  }
+  .app-name b{color:var(--ink);font-weight:600}
+  .subject{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+  }
+  .subject-top{display:flex;align-items:center;gap:12px}
+  .avatar{
+    width:44px;height:44px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Spline Sans Mono',monospace;font-weight:600;font-size:15px;
+    color:#fff;flex-shrink:0;
+  }
+  .subject h1{font-size:17px;font-weight:600;line-height:1.2}
+  .subject .handle{font-family:'Spline Sans Mono',monospace;font-size:13px;color:var(--ink-soft)}
+  .subject-meta{
+    margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);
+    display:flex;flex-wrap:wrap;gap:6px 14px;
+    font-family:'Spline Sans Mono',monospace;font-size:11.5px;color:var(--ink-soft);
+  }
+  .subject-meta .kv b{color:var(--ink);font-weight:600}
+
+  .pds-chip{
+    display:inline-flex;align-items:center;gap:5px;
+    font-family:'Spline Sans Mono',monospace;font-size:10.5px;
+    padding:1px 7px 2px;border-radius:99px;
+    border:1px solid currentColor;
+    background:transparent;
+  }
+  .pds-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+  .pds-sky{color:var(--sky)}
+  .pds-moss{color:var(--moss)}
+  .pds-violet{color:var(--violet)}
+  .pds-amber{color:var(--amber)}
+
+  /* ---------- controls ---------- */
+  .controls{
+    position:sticky;top:0;z-index:5;
+    background:var(--paper);
+    padding:12px 0 10px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:4px;
+  }
+  .ctl-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .ctl-label{
+    font-family:'Spline Sans Mono',monospace;font-size:11.5px;
+    color:var(--ink-soft);letter-spacing:.04em;
+  }
+  .ctl-label b{color:var(--ink);font-weight:600}
+  input[type=range]{
+    flex:1;min-width:120px;accent-color:var(--ink);
+  }
+  .k-readout{
+    font-family:'Spline Sans Mono',monospace;font-size:13px;font-weight:600;
+    min-width:88px;text-align:right;
+  }
+  .legend{
+    display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;
+  }
+
+  /* ---------- tree ---------- */
+  .tree{margin-top:10px}
+  .node{position:relative}
+
+  .row{
+    display:flex;align-items:center;gap:9px;
+    padding:8px 8px 8px 4px;
+    border-radius:8px;
+    position:relative;
+    background:transparent;
+    transition:background .12s;
+  }
+  .row:hover{background:rgba(255,255,255,.75)}
+  .row.is-open{background:var(--card)}
+
+  .depth-1 > .row{margin-left:0}
+  .children{margin-left:17px;border-left:1.5px solid var(--route);padding-left:12px}
+  .children .row{padding-left:2px}
+
+  .caret{
+    width:22px;height:22px;flex-shrink:0;
+    border:none;background:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink-soft);border-radius:5px;
+  }
+  .caret:hover{background:var(--line)}
+  .caret:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+  .caret svg{transition:transform .15s;width:11px;height:11px}
+  .node.open > .row .caret svg{transform:rotate(90deg)}
+  .caret.leaf{visibility:hidden}
+
+  .row .avatar{width:32px;height:32px;font-size:12px}
+
+  .who{min-width:0;flex:1}
+  .who .name{font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .who .sub{
+    display:flex;align-items:center;gap:7px;
+    font-family:'Spline Sans Mono',monospace;font-size:11.5px;color:var(--ink-soft);
+    white-space:nowrap;overflow:hidden;
+  }
+
+  .badges{display:flex;align-items:center;gap:5px;flex-shrink:0}
+  .badge{
+    font-family:'Spline Sans Mono',monospace;font-size:10.5px;
+    padding:1px 6px 2px;border-radius:5px;
+    border:1px solid var(--line);color:var(--ink-soft);background:var(--card);
+    white-space:nowrap;
+  }
+  .badge.mutual{color:var(--ink);border-color:var(--ink-soft);font-weight:600}
+  .badge.endorse{color:var(--ink);font-weight:600}
+  .badge.routes{cursor:pointer;border-style:dashed}
+  .badge.routes:hover{color:var(--ink);border-color:var(--ink)}
+  .badge.routes:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+  .badge.whale{border-style:dotted}
+
+  .ring-count{
+    font-family:'Spline Sans Mono',monospace;font-size:11px;color:var(--ink-soft);
+    flex-shrink:0;
+  }
+
+  /* remainder + routes-detail rows */
+  .remainder{
+    font-family:'Spline Sans Mono',monospace;font-size:11.5px;color:var(--ink-soft);
+    padding:7px 8px 7px 30px;
+  }
+  .remainder b{color:var(--ink)}
+  .routes-detail{
+    font-family:'Spline Sans Mono',monospace;font-size:11.5px;
+    color:var(--ink-soft);
+    background:var(--card);border:1px dashed var(--route);border-radius:7px;
+    padding:7px 10px;margin:2px 8px 8px 34px;
+  }
+  .routes-detail b{color:var(--ink);font-weight:600}
+
+  .footnote{
+    margin-top:26px;font-family:'Spline Sans Mono',monospace;
+    font-size:11px;color:var(--ink-soft);line-height:1.7;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important}
+  }
+  @media (max-width:420px){
+    .who .sub .pds-chip{display:none} /* chip collapses to the colored ring on the avatar */
+    .row .avatar{box-shadow:0 0 0 2px var(--paper), 0 0 0 4px currentColor}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="app-name"><b>ring</b> · tree view · outward from you</div>
+    <div class="subject">
+      <div class="subject-top">
+        <div class="avatar" style="background:var(--moss)">MA</div>
+        <div>
+          <h1>Maren</h1>
+          <div class="handle">@maren.gardenpath.net</div>
+        </div>
+      </div>
+      <div class="subject-meta">
+        <span class="kv">did:plc:<b>k2ov…7hqe</b></span>
+        <span class="pds-chip pds-moss">pds.gardenpath.net</span>
+        <span class="kv">follows <b>212</b></span>
+        <span class="kv">followers <b>187</b></span>
+        <span class="kv">mutuals <b>124</b></span>
+        <span class="kv">ring 2 ≈ <b>41,380</b></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="ctl-row">
+      <span class="ctl-label">show ring 2 endorsed by</span>
+      <input type="range" id="kslider" min="1" max="5" value="2" aria-label="Endorsement threshold">
+      <span class="k-readout" id="kreadout">≥ 2 of yours</span>
+    </div>
+    <div class="legend">
+      <span class="pds-chip pds-sky">bsky.social</span>
+      <span class="pds-chip pds-moss">self-hosted</span>
+      <span class="pds-chip pds-violet">blacksky.app</span>
+      <span class="pds-chip pds-amber">bridged (AP)</span>
+    </div>
+  </div>
+
+  <div class="tree" id="tree" role="tree" aria-label="Social tree, ring 1 and ring 2"></div>
+
+  <p class="footnote">
+    mock data. rows at ring 1 are your follows; expanding one crawls its follow
+    list and hangs each new account under its primary parent. ×n = followed by n
+    of your follows. dashed +routes = reachable under other parents too.
+    accounts following &gt;5k render as count-only.
+  </p>
+</div>
+
+<script>
+const PDS = {
+  sky:   {cls:'pds-sky',    label:'bsky.social',      color:'var(--sky)'},
+  moss:  {cls:'pds-moss',   label:'self-hosted',      color:'var(--moss)'},
+  violet:{cls:'pds-violet', label:'blacksky.app',     color:'var(--violet)'},
+  amber: {cls:'pds-amber',  label:'bridged',          color:'var(--amber)'},
+};
+
+// ring-1 follows of the subject. children = ring-2 accounts whose PRIMARY parent is this node.
+// e = endorsement count (how many of the subject's follows follow them)
+// routes = other ring-1 parents this node is also reachable via
+const DATA = [
+  {
+    name:'Iona Whitfield', handle:'iona.dev', pds:'moss', host:'pds.iona.dev',
+    mutual:true, ring2:6410, followedAt:'2023-11',
+    children:[
+      {name:'Tep Sarai', handle:'tep.blacksky.app', pds:'violet', host:'blacksky.app', e:5, mutualOfParent:true, routes:['@dara.bsky.social','@felix-birds.bsky.social','@quiet.systems','@printmaker.ink']},
+      {name:'Quiet Systems', handle:'quiet.systems', pds:'moss', host:'pds.quiet.systems', e:4, routes:['@dara.bsky.social','@printmaker.ink','@n8n.bsky.social']},
+      {name:'Dr. Ann Okafor', handle:'aokafor.bsky.social', pds:'sky', host:'bsky.social', e:3, routes:['@dara.bsky.social','@felix-birds.bsky.social']},
+      {name:'ferrous', handle:'ferrous.dev.ap.brid.gy', pds:'amber', host:'brid.gy → hachyderm.io', e:2, routes:['@n8n.bsky.social']},
+      {name:'Lupe Cardona', handle:'lupe.bsky.social', pds:'sky', host:'bsky.social', e:2, routes:['@printmaker.ink']},
+      {name:'mossbeard', handle:'mossbeard.bsky.social', pds:'sky', host:'bsky.social', e:1, routes:[]},
+    ]
+  },
+  {
+    name:'Dara', handle:'dara.bsky.social', pds:'sky', host:'bsky.social',
+    mutual:true, ring2:11930, followedAt:'2023-08',
+    children:[
+      {name:'The Slow Web', handle:'slowweb.bsky.social', pds:'sky', host:'bsky.social', e:4, routes:['@iona.dev','@felix-birds.bsky.social','@printmaker.ink']},
+      {name:'Ren Ito', handle:'ren.tanagram.jp', pds:'moss', host:'pds.tanagram.jp', e:3, mutualOfParent:true, routes:['@n8n.bsky.social','@quiet.systems']},
+      {name:'birdsite refugee', handle:'brefugee.bsky.social', pds:'sky', host:'bsky.social', e:2, routes:['@felix-birds.bsky.social']},
+      {name:'Cass', handle:'cass.blacksky.app', pds:'violet', host:'blacksky.app', e:1, routes:[]},
+    ]
+  },
+  {
+    name:'Felix (birds!)', handle:'felix-birds.bsky.social', pds:'sky', host:'bsky.social',
+    mutual:true, ring2:2210, followedAt:'2024-02',
+    children:[
+      {name:'Warbler Watch', handle:'warblerwatch.bsky.social', pds:'sky', host:'bsky.social', e:3, routes:['@dara.bsky.social','@iona.dev']},
+      {name:'Pelagic Pat', handle:'pat.ap.brid.gy', pds:'amber', host:'brid.gy → mastodon.social', e:2, routes:['@n8n.bsky.social']},
+      {name:'gullwing', handle:'gullwing.bsky.social', pds:'sky', host:'bsky.social', e:1, routes:[]},
+    ]
+  },
+  {
+    name:'printmaker', handle:'printmaker.ink', pds:'moss', host:'pds.printmaker.ink',
+    mutual:false, ring2:840, followedAt:'2024-06',
+    children:[
+      {name:'Risograph Riot', handle:'risoriot.bsky.social', pds:'sky', host:'bsky.social', e:2, routes:['@iona.dev']},
+      {name:'inkfingers', handle:'inkfingers.bsky.social', pds:'sky', host:'bsky.social', e:1, routes:[]},
+    ]
+  },
+  {
+    name:'n8n', handle:'n8n.bsky.social', pds:'sky', host:'bsky.social',
+    mutual:true, ring2:19800, followedAt:'2023-08', whale:true,
+  },
+  {
+    name:'Halcyon Feed Lab', handle:'halcyon.blacksky.app', pds:'violet', host:'blacksky.app',
+    mutual:false, ring2:3120, followedAt:'2025-01',
+    children:[
+      {name:'feedsmith', handle:'feedsmith.bsky.social', pds:'sky', host:'bsky.social', e:2, routes:['@dara.bsky.social']},
+      {name:'graphgirl', handle:'graphgirl.dev', pds:'moss', host:'pds.graphgirl.dev', e:1, routes:[]},
+    ]
+  },
+];
+
+let k = 2;
+const openSet = new Set(['iona.dev']); // start with one branch open so the idea is legible
+const routesOpen = new Set();
+
+const $tree = document.getElementById('tree');
+const $k = document.getElementById('kslider');
+const $kread = document.getElementById('kreadout');
+
+function initials(name){
+  return name.replace(/[^a-zA-Z ]/g,'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('') || '?';
+}
+function fmt(n){ return n.toLocaleString('en-US'); }
+
+function chip(pdsKey, host){
+  const p = PDS[pdsKey];
+  return `<span class="pds-chip ${p.cls}">${host}</span>`;
+}
+
+function ring1Row(node){
+  const isOpen = openSet.has(node.handle);
+  const kids = (node.children||[]).filter(c=>c.e>=k);
+  const hiddenCount = node.ring2 - kids.length;
+  const caret = node.whale
+    ? `<button class="caret leaf" tabindex="-1" aria-hidden="true"></button>`
+    : `<button class="caret" aria-expanded="${isOpen}" aria-label="${isOpen?'Collapse':'Expand'} ${node.name}">
+         <svg viewBox="0 0 10 10" fill="currentColor"><path d="M2 1 L8 5 L2 9 Z"/></svg>
+       </button>`;
+  const badges = [
+    node.mutual ? `<span class="badge mutual" title="You follow each other">⇄</span>` : '',
+    node.whale ? `<span class="badge whale" title="Follows more than 5,000 accounts; shown as count only">whale</span>` : '',
+  ].join('');
+  const countLabel = node.whale
+    ? `follows ${fmt(node.ring2)} · count only`
+    : (isOpen ? '' : `· ${fmt(node.ring2)} beyond`);
+  return `
+  <div class="node depth-1 ${isOpen?'open':''}" data-handle="${node.handle}" role="treeitem" aria-expanded="${node.whale?'false':isOpen}">
+    <div class="row ${isOpen?'is-open':''}">
+      ${caret}
+      <div class="avatar" style="background:${PDS[node.pds].color}">${initials(node.name)}</div>
+      <div class="who">
+        <div class="name">${node.name}</div>
+        <div class="sub">@${node.handle} ${chip(node.pds,node.host)}</div>
+      </div>
+      <div class="badges">${badges}</div>
+      <span class="ring-count">${countLabel}</span>
+    </div>
+    ${isOpen && !node.whale ? `
+      <div class="children" role="group">
+        ${kids.map(c=>ring2Row(c,node)).join('')}
+        <div class="remainder"><b>${fmt(hiddenCount)}</b> more via @${node.handle} below ×${k} — raise or lower the slider</div>
+      </div>` : ''}
+  </div>`;
+}
+
+function ring2Row(c, parent){
+  const rid = parent.handle + '/' + c.handle;
+  const showRoutes = routesOpen.has(rid);
+  const badges = [
+    c.mutualOfParent ? `<span class="badge mutual" title="Mutual with ${parent.name}">⇄</span>` : '',
+    `<span class="badge endorse" title="Followed by ${c.e} of your follows">×${c.e}</span>`,
+    c.routes.length ? `<button class="badge routes" data-rid="${rid}" aria-expanded="${showRoutes}" title="Also reachable via other follows">+${c.routes.length} routes</button>` : '',
+  ].join('');
+  return `
+  <div class="node depth-2" role="treeitem">
+    <div class="row">
+      <button class="caret leaf" tabindex="-1" aria-hidden="true"></button>
+      <div class="avatar" style="background:${PDS[c.pds].color}">${initials(c.name)}</div>
+      <div class="who">
+        <div class="name">${c.name}</div>
+        <div class="sub">@${c.handle} ${chip(c.pds,c.host)}</div>
+      </div>
+      <div class="badges">${badges}</div>
+    </div>
+    ${showRoutes ? `<div class="routes-detail">primary route: <b>@${parent.handle}</b> (largest contributor, earliest follow) · also via ${c.routes.map(r=>`<b>${r}</b>`).join(', ')}</div>` : ''}
+  </div>`;
+}
+
+function render(){
+  $kread.textContent = `≥ ${k} of yours`;
+  $tree.innerHTML = DATA.map(ring1Row).join('');
+}
+
+$k.addEventListener('input', e=>{ k = +e.target.value; render(); });
+
+$tree.addEventListener('click', e=>{
+  const caret = e.target.closest('.caret:not(.leaf)');
+  if(caret){
+    const h = caret.closest('.node').dataset.handle;
+    openSet.has(h) ? openSet.delete(h) : openSet.add(h);
+    render(); return;
+  }
+  const rb = e.target.closest('.badge.routes');
+  if(rb){
+    const rid = rb.dataset.rid;
+    routesOpen.has(rid) ? routesOpen.delete(rid) : routesOpen.add(rid);
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>

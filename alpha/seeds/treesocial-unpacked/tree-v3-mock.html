@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ring — tree v3 mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDF1F4; --card:#FFFFFF; --ink:#17242F; --ink-soft:#5A6B78;
+    --line:#C9D3DB; --wood:#7A6A55; --soil:#E2DCD2;
+    --sky:#1D7DD8; --moss:#3E7D4F; --violet:#7A4FD8; --amber:#C07A1E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Spline Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.45}
+  .wrap{max-width:660px;margin:0 auto;padding:16px 12px 40px}
+  .mono{font-family:'Spline Sans Mono',monospace}
+  .app-name{font-family:'Spline Sans Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
+  .app-name b{color:var(--ink);font-weight:600}
+
+  .controls{position:sticky;top:0;z-index:5;background:var(--paper);padding:8px 0 10px;border-bottom:1px solid var(--line)}
+  .ctl-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:7px}
+  .ctl-row:last-child{margin-bottom:0}
+  .seg{display:inline-flex;border:1px solid var(--ink);border-radius:8px;overflow:hidden}
+  .seg button, .mode-btn{
+    font-family:'Spline Sans Mono',monospace;font-size:12px;font-weight:600;
+    padding:6px 12px;border:none;background:var(--card);color:var(--ink);cursor:pointer;
+  }
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+  .mode-btn{border:1px dashed var(--ink-soft);border-radius:8px}
+  .mode-btn[aria-pressed="true"]{background:var(--ink);color:var(--card);border-style:solid}
+  .seg button:focus-visible,.mode-btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .ctl-label{font-family:'Spline Sans Mono',monospace;font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
+  input[type=range]{flex:1;min-width:90px;accent-color:var(--ink)}
+  .k-readout{font-family:'Spline Sans Mono',monospace;font-size:12px;font-weight:600;min-width:70px;text-align:right}
+  .legend{display:flex;gap:7px;flex-wrap:wrap}
+  .pds-chip{
+    display:inline-flex;align-items:center;gap:5px;cursor:pointer;
+    font-family:'Spline Sans Mono',monospace;font-size:10.5px;
+    padding:1px 7px 2px;border-radius:99px;border:1px solid currentColor;background:var(--card);
+  }
+  .pds-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+  .pds-chip[aria-pressed="true"]{background:currentColor}
+  .pds-chip[aria-pressed="true"] span{color:#fff}
+  .c-sky{color:var(--sky)} .c-moss{color:var(--moss)} .c-violet{color:var(--violet)} .c-amber{color:var(--amber)}
+
+  .stage{margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  svg{display:block;width:100%;height:auto}
+  svg text{font-family:'Spline Sans Mono',monospace}
+  .branch,.root{stroke:var(--wood);fill:none;stroke-linecap:round;cursor:pointer;transition:opacity .2s}
+  .branch:hover,.root:hover{stroke:var(--ink)}
+  .leaf,.node-dot{cursor:pointer;stroke:var(--card);stroke-width:1.2;transition:opacity .2s}
+  .leaf:hover,.node-dot:hover{stroke:var(--ink)}
+  .count-label{fill:var(--ink-soft);font-size:9.5px}
+  .name-label{fill:var(--ink);font-size:10px;font-weight:600;cursor:pointer}
+  .selected{stroke:var(--ink) !important;stroke-width:2.5 !important}
+  .ghosted{opacity:.16 !important}
+  .dim{opacity:.14 !important}
+  .vine{fill:none;stroke:var(--ink);stroke-width:1.1;stroke-dasharray:4 4;opacity:.7}
+  .litter{opacity:.55}
+
+  .detail{margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-height:70px}
+  .detail .empty{font-family:'Spline Sans Mono',monospace;font-size:12px;color:var(--ink-soft)}
+  .detail-top{display:flex;align-items:center;gap:10px}
+  .avatar{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Spline Sans Mono',monospace;font-weight:600;font-size:13px;color:#fff}
+  .detail .name{font-weight:600;font-size:14px}
+  .detail .handle{font-family:'Spline Sans Mono',monospace;font-size:12px;color:var(--ink-soft)}
+  .detail-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+  .badge{font-family:'Spline Sans Mono',monospace;font-size:10.5px;padding:1px 7px 2px;border-radius:5px;border:1px solid var(--line);color:var(--ink-soft);background:var(--paper)}
+  .badge.strong{color:var(--ink);border-color:var(--ink-soft);font-weight:600}
+  .badge.warn{color:#8A3A2A;border-color:#8A3A2A;font-weight:600}
+  .detail .routes{margin-top:8px;font-family:'Spline Sans Mono',monospace;font-size:11.5px;color:var(--ink-soft);line-height:1.7}
+  .detail .routes b{color:var(--ink)}
+  .footnote{margin-top:14px;font-family:'Spline Sans Mono',monospace;font-size:11px;color:var(--ink-soft);line-height:1.7}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="app-name"><b>ring</b> · tree v3 · canopy + roots</div>
+
+  <div class="controls">
+    <div class="ctl-row">
+      <div class="seg" role="group" aria-label="Render mode">
+        <button id="btn-full" aria-pressed="true">full</button>
+        <button id="btn-sil" aria-pressed="false">silhouette</button>
+      </div>
+      <button class="mode-btn" id="btn-prune" aria-pressed="false">✂ prune preview</button>
+      <span class="ctl-label">leaves ≥</span>
+      <input type="range" id="kslider" min="1" max="5" value="2" aria-label="Endorsement threshold">
+      <span class="k-readout" id="kreadout">×2</span>
+    </div>
+    <div class="ctl-row">
+      <span class="ctl-label">growth</span>
+      <input type="range" id="tslider" min="0" max="12" value="12" aria-label="Timeline">
+      <span class="k-readout" id="treadout">2026 Q3</span>
+    </div>
+    <div class="ctl-row">
+      <div class="legend" id="legend">
+        <button class="pds-chip c-sky" data-pds="sky" aria-pressed="false"><span>bsky.social</span></button>
+        <button class="pds-chip c-moss" data-pds="moss" aria-pressed="false"><span>self-hosted</span></button>
+        <button class="pds-chip c-violet" data-pds="violet" aria-pressed="false"><span>blacksky.app</span></button>
+        <button class="pds-chip c-amber" data-pds="amber" aria-pressed="false"><span>bridged (AP)</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage" id="stage"></div>
+  <div class="detail" id="detail"><div class="empty">tap a branch, leaf, or root. in prune preview, tap a branch to see what you'd lose.</div></div>
+  <p class="footnote" id="footnote"></p>
+</div>
+
+<script>
+const COLORS={sky:'#1D7DD8',moss:'#3E7D4F',violet:'#7A4FD8',amber:'#C07A1E'};
+const HOSTS={sky:'bsky.social',moss:'self-hosted',violet:'blacksky.app',amber:'bridged'};
+const QUARTERS=['2023 Q3','2023 Q4','2024 Q1','2024 Q2','2024 Q3','2024 Q4','2025 Q1','2025 Q2','2025 Q3','2025 Q4','2026 Q1','2026 Q2','2026 Q3'];
+
+const SUBJECT={name:'Maren',handle:'maren.gardenpath.net',pds:'moss'};
+
+// q = quarter index the follow happened. routes on children = other ring-1 parents.
+const DATA=[
+ {name:'Dara',handle:'dara.bsky.social',pds:'sky',mutual:true,ring2:11930,q:0,
+  children:[
+   {name:'The Slow Web',handle:'slowweb.bsky.social',pds:'sky',e:4,routes:['iona.dev','felix-birds.bsky.social','printmaker.ink']},
+   {name:'Ren Ito',handle:'ren.tanagram.jp',pds:'moss',e:3,routes:['n8n.bsky.social']},
+   {name:'birdsite refugee',handle:'brefugee.bsky.social',pds:'sky',e:2,routes:['felix-birds.bsky.social']},
+   {name:'Cass',handle:'cass.blacksky.app',pds:'violet',e:1,routes:[]},
+  ]},
+ {name:'n8n',handle:'n8n.bsky.social',pds:'sky',mutual:true,ring2:19800,q:0,whale:true},
+ {name:'Iona Whitfield',handle:'iona.dev',pds:'moss',mutual:true,ring2:6410,q:1,
+  children:[
+   {name:'Tep Sarai',handle:'tep.blacksky.app',pds:'violet',e:5,routes:['dara.bsky.social','felix-birds.bsky.social','printmaker.ink']},
+   {name:'Quiet Systems',handle:'quiet.systems',pds:'moss',e:4,routes:['dara.bsky.social','printmaker.ink']},
+   {name:'Dr. Ann Okafor',handle:'aokafor.bsky.social',pds:'sky',e:3,routes:['dara.bsky.social']},
+   {name:'ferrous',handle:'ferrous.dev.ap.brid.gy',pds:'amber',e:2,routes:['n8n.bsky.social']},
+   {name:'Lupe Cardona',handle:'lupe.bsky.social',pds:'sky',e:2,routes:[]},
+   {name:'mossbeard',handle:'mossbeard.bsky.social',pds:'sky',e:1,routes:[]},
+  ]},
+ {name:'Felix (birds!)',handle:'felix-birds.bsky.social',pds:'sky',mutual:true,ring2:2210,q:2,
+  children:[
+   {name:'Warbler Watch',handle:'warblerwatch.bsky.social',pds:'sky',e:3,routes:['dara.bsky.social','iona.dev']},
+   {name:'Pelagic Pat',handle:'pat.ap.brid.gy',pds:'amber',e:2,routes:['n8n.bsky.social']},
+   {name:'gullwing',handle:'gullwing.bsky.social',pds:'sky',e:1,routes:[]},
+  ]},
+ {name:'printmaker',handle:'printmaker.ink',pds:'moss',mutual:false,ring2:840,q:4,
+  children:[
+   {name:'Risograph Riot',handle:'risoriot.bsky.social',pds:'sky',e:2,routes:['iona.dev']},
+   {name:'inkfingers',handle:'inkfingers.bsky.social',pds:'sky',e:1,routes:[]},
+  ]},
+ {name:'Halcyon Feed Lab',handle:'halcyon.blacksky.app',pds:'violet',mutual:false,ring2:3120,q:8,
+  children:[
+   {name:'feedsmith',handle:'feedsmith.bsky.social',pds:'sky',e:2,routes:['dara.bsky.social']},
+   {name:'graphgirl',handle:'graphgirl.dev',pds:'moss',e:1,routes:[]},
+  ]},
+];
+
+// follower-only roots (people who follow you but you don't follow back). mutuals mirror as paired roots.
+const ROOTS=[
+ {name:'Sable Zine',handle:'sablezine.bsky.social',pds:'sky',reach:900,q:1},
+ {name:'kelp.wiki',handle:'kelp.wiki',pds:'moss',reach:340,q:3},
+ {name:'Orbit Weekly',handle:'orbitweekly.bsky.social',pds:'sky',reach:4100,q:5},
+ {name:'tinuviel',handle:'tinuviel.ap.brid.gy',pds:'amber',reach:210,q:7},
+ {name:'Deep Cuts',handle:'deepcuts.blacksky.app',pds:'violet',reach:1500,q:10},
+];
+const DEACTIVATED = 9; // fallen-leaf count: in your follow records but filtered by the AppView
+
+let mode='full';       // full | silhouette
+let prune=false;
+let prunedHandle=null;
+let k=2, t=12;
+let spotlight=null;    // pds key or null
+let selected=null;
+
+const $stage=document.getElementById('stage'),$detail=document.getElementById('detail'),$foot=document.getElementById('footnote');
+const fmt=n=>n.toLocaleString('en-US');
+const initials=s=>s.replace(/[^a-zA-Z ]/g,'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?';
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const sil = ()=> mode==='silhouette';
+const fill = pds => sil() ? 'var(--ink)' : COLORS[pds];
+const dimCls = pds => (!sil() && spotlight && spotlight!==pds) ? 'dim' : '';
+
+function uniqueLossOf(b){ // leaves only reachable via b (no other routes)
+  return (b.children||[]).filter(c=>c.routes.length===0).length;
+}
+function branchGeom(visible){
+  // returns per-branch geometry so vines can find tips
+  const W=660,H=760,baseX=W/2,groundY=H-210,topY=54;
+  const trunkLen=groundY-topY;
+  const maxR2=Math.max(...DATA.map(d=>d.ring2));
+  const g={};
+  visible.forEach((b,i)=>{
+    const side=i%2===0?-1:1;
+    const tt=(i+1)/(visible.length+1);
+    const y0=groundY - tt*trunkLen*0.92 - 14;
+    const len=88+142*Math.log10(1+9*b.ring2/maxR2);
+    const lift=46+30*tt;
+    g[b.handle]={side,y0,x1:baseX+side*len,y1:y0-lift,cx:baseX+side*len*0.45,cy:y0-lift*0.25,baseX};
+  });
+  return {g,W,H,baseX,groundY,topY};
+}
+
+function render(){
+  document.getElementById('kreadout').textContent='×'+k;
+  document.getElementById('treadout').textContent=QUARTERS[t];
+  const visB=DATA.filter(b=>b.q<=t);
+  const visR=ROOTS.filter(r=>r.q<=t);
+  const {g,W,H,baseX,groundY}=branchGeom(visB);
+  const maxR2=Math.max(...DATA.map(d=>d.ring2));
+  let out=[];
+
+  // soil + ground line
+  out.push(`<rect x="0" y="${groundY+16}" width="${W}" height="${H-groundY-16}" fill="${sil()?'var(--paper)':'var(--soil)'}" opacity="${sil()?0:.5}"/>`);
+  out.push(`<line x1="40" y1="${groundY+16}" x2="${W-40}" y2="${groundY+16}" stroke="${sil()?'var(--ink)':'var(--line)'}" stroke-width="1.5"/>`);
+  if(!sil()){
+    out.push(`<text class="count-label" x="${W-44}" y="${groundY+10}" text-anchor="end">canopy · 212 follows</text>`);
+    out.push(`<text class="count-label" x="${W-44}" y="${groundY+32}" text-anchor="end">roots · 187 followers · 124 mutual ⇄</text>`);
+  }
+
+  // trunk + subject at the ground
+  out.push(`<line class="trunk" x1="${baseX}" y1="${groundY}" x2="${baseX}" y2="54" stroke="${sil()?'var(--ink)':'var(--wood)'}" stroke-width="7" stroke-linecap="round"/>`);
+
+  // ---- canopy ----
+  visB.forEach(b=>{
+    const G=g[b.handle];
+    const isPruned = prune && prunedHandle===b.handle;
+    const gcls = isPruned?'ghosted':dimCls(b.pds);
+    const sw = b.whale?8:3.5+2.5*(b.ring2/maxR2);
+    const selCls=(selected&&selected.type==='parent'&&selected.parent===b)?'selected':'';
+    out.push(`<path class="branch ${gcls} ${selCls}" data-sel="p:${b.handle}" d="M ${baseX} ${G.y0} Q ${G.cx} ${G.cy} ${G.x1} ${G.y1}" stroke-width="${sw}" ${sil()?'stroke="var(--ink)"':''}/>`);
+    if(!sil()){
+      out.push(`<circle class="node-dot ${gcls} ${selCls}" data-sel="p:${b.handle}" cx="${G.x1}" cy="${G.y1}" r="8" fill="${fill(b.pds)}"/>`);
+      const anchor=G.side<0?'end':'start', lx=G.x1+G.side*12;
+      out.push(`<text class="name-label ${gcls}" data-sel="p:${b.handle}" x="${lx}" y="${G.y1-8}" text-anchor="${anchor}">@${esc(b.handle)}${b.mutual?' ⇄':''}</text>`);
+      if(b.whale) out.push(`<text class="count-label ${gcls}" x="${lx}" y="${G.y1+6}" text-anchor="${anchor}">whale · ${fmt(b.ring2)} · count only</text>`);
+    } else if(b.whale){
+      out.push(`<circle class="node-dot" data-sel="p:${b.handle}" cx="${G.x1}" cy="${G.y1}" r="8" fill="var(--ink)"/>`);
+    }
+    if(b.whale) return;
+    const kids=(b.children||[]).filter(c=>c.e>=k);
+    kids.forEach((c,j)=>{
+      const u=0.45+0.5*(j+1)/(kids.length+1);
+      const qx=(1-u)**2*baseX+2*(1-u)*u*G.cx+u*u*G.x1;
+      const qy=(1-u)**2*G.y0+2*(1-u)*u*G.cy+u*u*G.y1;
+      const off=(j%2===0?-1:1)*(10+3*c.e), r=4+c.e*1.4;
+      const uniqueHere = c.routes.length===0;
+      const leafGhost = isPruned && uniqueHere ? 'ghosted':'';
+      const leafDim = isPruned && !uniqueHere ? '' : (isPruned?'':dimCls(c.pds));
+      const selC=(selected&&selected.type==='child'&&selected.child===c)?'selected':'';
+      out.push(`<line class="${leafGhost||leafDim}" x1="${qx}" y1="${qy}" x2="${qx}" y2="${qy+off}" stroke="${sil()?'var(--ink)':'var(--wood)'}" stroke-width="1.2"/>`);
+      out.push(`<circle class="leaf ${leafGhost||leafDim} ${selC}" data-sel="c:${b.handle}:${c.handle}" cx="${qx}" cy="${qy+off}" r="${r}" fill="${fill(c.pds)}"/>`);
+      // pruned unique leaves reappear as litter
+      if(isPruned && uniqueHere){
+        out.push(`<circle class="litter" cx="${qx+(Math.random()*30-15)|0}" cy="${groundY+8}" r="3.5" fill="${fill(c.pds)}"/>`);
+      }
+    });
+    if(!sil()){
+      const hidden=b.ring2-kids.length, anchor=G.side<0?'end':'start', lx=G.x1+G.side*12;
+      out.push(`<text class="count-label ${gcls}" x="${lx}" y="${G.y1+6}" text-anchor="${anchor}">+${fmt(hidden)} below ×${k}</text>`);
+    }
+  });
+
+  // vines for a selected multi-route leaf
+  if(!sil() && selected && selected.type==='child' && selected.child.routes.length){
+    const b=selected.parent, c=selected.child, G=g[b.handle];
+    if(G){
+      selected.child.routes.forEach(rh=>{
+        const T=g[rh]; if(!T)return;
+        out.push(`<path class="vine" d="M ${G.x1} ${G.y1} Q ${(G.x1+T.x1)/2} ${Math.min(G.y1,T.y1)-46} ${T.x1} ${T.y1}"/>`);
+      });
+    }
+  }
+
+  // ---- roots ----
+  // mutual follows get a mirrored root stub under their branch attachment
+  visB.filter(b=>b.mutual).forEach(b=>{
+    const G=g[b.handle];
+    const depth=24+((groundY-G.y0)/8);
+    out.push(`<path class="root ${prune&&prunedHandle===b.handle?'ghosted':dimCls(b.pds)}" data-sel="p:${b.handle}"
+      d="M ${baseX} ${groundY+16} Q ${baseX+G.side*36} ${groundY+20+depth*0.4} ${baseX+G.side*62} ${groundY+16+depth}"
+      stroke-width="2.4" ${sil()?'stroke="var(--ink)"':''}/>`);
+  });
+  // follower-only roots fan out deeper
+  const maxReach=Math.max(...ROOTS.map(r=>r.reach));
+  visR.forEach((r,i)=>{
+    const side=i%2===0?1:-1;
+    const spread=90+i*38, depth=52+70*Math.sqrt(r.reach/maxReach);
+    const x1=baseX+side*spread, y1=groundY+16+depth;
+    const selCls=(selected&&selected.type==='rootnode'&&selected.root===r)?'selected':'';
+    out.push(`<path class="root ${dimCls(r.pds)} ${selCls}" data-sel="r:${r.handle}"
+      d="M ${baseX} ${groundY+16} Q ${baseX+side*spread*0.5} ${groundY+30} ${x1} ${y1}" stroke-width="2" ${sil()?'stroke="var(--ink)"':''}/>`);
+    out.push(`<circle class="node-dot ${dimCls(r.pds)} ${selCls}" data-sel="r:${r.handle}" cx="${x1}" cy="${y1}" r="6.5" fill="${fill(r.pds)}"/>`);
+    if(!sil()){
+      const anchor=side<0?'end':'start';
+      out.push(`<text class="name-label ${dimCls(r.pds)}" data-sel="r:${r.handle}" x="${x1+side*10}" y="${y1+4}" text-anchor="${anchor}">@${esc(r.handle.split('.')[0])}</text>`);
+    }
+  });
+  if(!sil()){
+    out.push(`<text class="count-label" x="${baseX}" y="${H-18}" text-anchor="middle">+${fmt(182-visR.length)} more roots · litter: ${DEACTIVATED} deactivated accounts still in your follow records</text>`);
+    // litter for deactivated
+    for(let i=0;i<DEACTIVATED;i++){
+      out.push(`<circle class="litter" cx="${baseX-120+i*11}" cy="${groundY+9}" r="2.6" fill="var(--ink-soft)"/>`);
+    }
+  } else {
+    out.push(`<text class="count-label" x="${baseX}" y="${H-18}" text-anchor="middle" fill="var(--ink)">@${SUBJECT.handle} · 212 follows · 187 followers · ring 2 ≈ 41,380 · ${QUARTERS[t]}</text>`);
+  }
+
+  $stage.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Social tree with canopy of follows and roots of followers">${out.join('')}</svg>`;
+  $foot.textContent = sil()
+    ? 'silhouette: the same geometry flattened to one ink — this is the shareable shape of your graph. right-click / long-press the image to save.'
+    : (prune
+      ? 'prune preview: tap a branch to ghost it. leaves with no other route fall as litter; the detail card counts your unique loss. tap again to restore.'
+      : `full: canopy = follows (branch length ≈ reach, leaves = ring-2 endorsed ≥×${k}). roots = followers; mutuals ⇄ get a paired stub under their branch. drag growth to replay your graph quarter by quarter. tap a PDS chip to spotlight a host.`);
+}
+
+/* ---- detail card ---- */
+function showDetail(){
+  if(!selected){$detail.innerHTML=`<div class="empty">tap a branch, leaf, or root. in prune preview, tap a branch to see what you'd lose.</div>`;return;}
+  if(selected.type==='parent'){
+    const b=selected.parent;
+    if(prune && prunedHandle===b.handle){
+      const uniq=uniqueLossOf(b);
+      $detail.innerHTML=card(b.name,'@'+b.handle,b.pds,
+        [`<span class="badge warn">✂ pruned (preview)</span>`,b.mutual?`<span class="badge strong">⇄ mutual</span>`:''],
+        `unfollowing loses <b>unique</b> access to <b>${uniq}</b> endorsed accounts (no other route) and <b>${fmt(b.ring2)}</b> total ring-2 reach via this branch. accounts with other routes stay reachable.`);
+      return;
+    }
+    $detail.innerHTML=card(b.name,'@'+b.handle,b.pds,
+      [b.mutual?`<span class="badge strong">⇄ mutual</span>`:'',b.whale?`<span class="badge">whale</span>`:'',`<span class="badge">${HOSTS[b.pds]}</span>`,`<span class="badge">followed ${QUARTERS[b.q]}</span>`],
+      `opens <b>${fmt(b.ring2)}</b> ring-2 accounts · <b>${uniqueLossOf(b)}</b> reachable only through them`);
+    return;
+  }
+  if(selected.type==='child'){
+    const {parent:b,child:c}=selected;
+    $detail.innerHTML=card(c.name,'@'+c.handle,c.pds,
+      [`<span class="badge strong">×${c.e} endorsed</span>`,`<span class="badge">${HOSTS[c.pds]}</span>`,c.routes.length?`<span class="badge">${c.routes.length+1} routes</span>`:`<span class="badge warn">only route: @${b.handle}</span>`],
+      `primary route <b>@${b.handle}</b>`+(c.routes.length?` · vines show the others: ${c.routes.map(r=>`<b>@${esc(r)}</b>`).join(', ')}`:' · prune that branch and this leaf falls'));
+    return;
+  }
+  if(selected.type==='rootnode'){
+    const r=selected.root;
+    $detail.innerHTML=card(r.name,'@'+r.handle,r.pds,
+      [`<span class="badge strong">follows you</span>`,`<span class="badge">${HOSTS[r.pds]}</span>`,`<span class="badge">since ${QUARTERS[r.q]}</span>`],
+      `root depth ≈ their own reach (<b>${fmt(r.reach)}</b> follows) — deep roots carry your posts further`);
+  }
+}
+function card(name,handle,pds,badges,routesHtml){
+  return `<div class="detail-top"><div class="avatar" style="background:${COLORS[pds]}">${initials(name)}</div>
+    <div><div class="name">${esc(name)}</div><div class="handle">${esc(handle)}</div></div></div>
+    <div class="detail-badges">${badges.filter(Boolean).join('')}</div>
+    <div class="routes">${routesHtml}</div>`;
+}
+
+/* ---- wiring ---- */
+document.getElementById('kslider').addEventListener('input',e=>{k=+e.target.value;render();showDetail();});
+document.getElementById('tslider').addEventListener('input',e=>{t=+e.target.value;selected=null;prunedHandle=null;render();showDetail();});
+document.getElementById('btn-full').addEventListener('click',()=>{mode='full';press('btn-full','btn-sil');render();});
+document.getElementById('btn-sil').addEventListener('click',()=>{mode='silhouette';press('btn-sil','btn-full');render();});
+document.getElementById('btn-prune').addEventListener('click',e=>{
+  prune=!prune;prunedHandle=null;e.currentTarget.setAttribute('aria-pressed',String(prune));render();showDetail();
+});
+function press(on,off){document.getElementById(on).setAttribute('aria-pressed','true');document.getElementById(off).setAttribute('aria-pressed','false');}
+document.getElementById('legend').addEventListener('click',e=>{
+  const chip=e.target.closest('.pds-chip');if(!chip)return;
+  const p=chip.dataset.pds;
+  spotlight = spotlight===p ? null : p;
+  document.querySelectorAll('.pds-chip').forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.pds===spotlight)));
+  render();
+});
+$stage.addEventListener('click',e=>{
+  const el=e.target.closest('[data-sel]');if(!el)return;
+  const s=el.getAttribute('data-sel');
+  if(s.startsWith('p:')){
+    const b=DATA.find(d=>d.handle===s.slice(2));
+    if(prune){ prunedHandle = prunedHandle===b.handle?null:b.handle; }
+    selected={type:'parent',parent:b};
+  } else if(s.startsWith('c:')){
+    const [,ph,ch]=s.split(':');
+    const b=DATA.find(d=>d.handle===ph);
+    selected={type:'child',parent:b,child:(b.children||[]).find(x=>x.handle===ch)};
+  } else if(s.startsWith('r:')){
+    selected={type:'rootnode',root:ROOTS.find(r=>r.handle===s.slice(2))};
+  }
+  render();showDetail();
+});
+
+render();
+</script>
+</body>
+</html>

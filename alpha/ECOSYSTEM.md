@@ -387,6 +387,23 @@ whole corpus). Nobody in this space has both. See ROADMAP_TODO **E98** — Croft
 **BookHive's own layer**, not atproto's. A successor app inherits the reviews for free but must
 **re-resolve which book each one points at**. Any Croft-side canonical-entity id has the same trap.
 
+## 5l. Food-data sources for arecipe ingredient normalization (2026-08-12 dialogue — dialogue-sourced, pending verification)
+
+From the arecipe substitution-engine dialogue
+(`seeds/transcripts/raw/iroh-browser-extension-and-arecipe-substitution-engine-2026-08-12.md`,
+Body B; plan: `arecipe/plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md`,
+ROADMAP_TODO E119). **All rows dialogue-sourced with in-dialogue citations, `[UNVERIFIED]` this
+session — verify licenses before shipping any of this data.** The dialogue's standing rule for
+all of them: pulled in **at build time through the human-review gate as seed and test data** —
+never someone else's ontology shipped wholesale, never a runtime dependency.
+
+| Org/Author | Project | Purpose / relevance | State | Relationship |
+|---|---|---|---|---|
+| USDA | **FoodData Central** (SR Legacy) | Public-domain (CC0 1.0) food database, full CSV/JSON downloads; SR Legacy names carry aliases inline ("Acerola, (west indian cherry), raw") — but lab-style naming, so it validates/enriches the alias table, never replaces it | live `[UNVERIFIED]` | build-on (Phase-1 import adapter, reviewer accepts/rejects per group) |
+| FoodOn consortium | **FoodOn** | Farm-to-fork food ontology, CC-BY-4.0; 9,600+ generic food categories with facets (organism parts, processing, quality) — its processing/quality facet split independently validates the variety/prep/quality taxonomy; CC-BY ⇒ attribution entry if any of it ships | live `[UNVERIFIED]` | learn↔ (Phase-1 reviewer cross-check; import only what the census needs) |
+| academic (AllRecipes / Food.com corpora) | **Annotated ingredient-phrase datasets** (6,612 phrases) | Each phrase labeled with Name + State ("ground", "thawed") — the State field is the prep-descriptor class pre-labeled on real recipe language; flagged the highest-value pull | published `[UNVERIFIED]` | build-on (Phase-1 descriptor seeds + Phase-2 external test fixtures) |
+| RPI et al. | **FoodKG** (substitution set) | Substitution pairs scraped from The Cook's Thesaurus + parsed Food.com reviews — **murky redistribution rights**: a reference the human consults while writing Phase-4 rules, never shipped data | published `[UNVERIFIED]` | learn↔ (reference-only; do not redistribute) |
+
 ## 6. P2P / decentralized messengers (the field)
 
 Detailed competitive analysis lives in `research/messaging-solutions-landscape.md`. Relational summary:

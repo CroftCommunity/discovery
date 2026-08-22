@@ -1950,3 +1950,67 @@ union of `tier?: 1` and `tier: 2`; `wrapped-banner.ts` gates the honesty banner 
 the first Tier-3 game must widen both **test-first** or ship an unmarked non-verifiable game. See
 ROADMAP_TODO E99.
 
+
+## 72. 2026-08-21 — treesocial makes E63's "tree-as-relational-UI" concrete: the presentation layer of the one social tree whose runtime is social-tree-core
+
+**The material:** `seeds/transcripts/raw/treesocial-atproto-social-tree-radii-2026-08-21.md`
+(cleaned-paste, PARTIAL — early-mock exchanges omitted by owner choice) + four HTML mocks verbatim at
+`seeds/treesocial-unpacked/`. A design dialogue for **treesocial**: an atproto site rendering a user's
+social graph as a literal tree at tunable radii. Owner: likely its own project → ROADMAP_TODO **E118**.
+
+**Loose end ↔ work (OPEN, advanced):** E63 (2026-07-27) held the thesis that *"the
+tree-as-relational-UI is the small-world made legible"* — with the hyperbolic-tree failure literature
+and the information-scent conditional as its research spine — but had no artifact. treesocial is the
+**first concrete prototype** of that thread: the v3/v4 mocks are exactly a relational tree carrying
+information scent (counts, foliage mass, PDS color, prune-loss statements) on every branch. E62's
+degree-based radius model (r=0/1/2/∞) reappears independently as the owner's opening ask ("turn it up
+to mutuals follows plus their follows") — convergence, not duplication: E62 tunes *who you read*;
+treesocial *shows the shape*. Neither closes yet; E118 carries the build.
+
+**Precedent seam:** the product shape is the **pdsview pattern** — a standalone, purely client-side
+atproto site, paste-a-handle, no backend — applied to the follow graph instead of the repo contents.
+Worth reusing pdsview's handle→DID→PDS resolution plumbing when E118 builds.
+
+**NAMING PIN (owner-corrected 2026-08-21, same session):** first filed here as "two unrelated
+trees" — the owner corrected that: *"both trees are the same concept, the tree.croft.ing is
+basically just a social tree UI/represetnation/teaching/disocvery tool, the social-tree-core is the
+rust application core that actually builds out the logic for our ecosystem in the runtime"*
+(verbatim). So **one concept, two layers**: the social tree is the ecosystem's relational model;
+**`tree.croft.ing` (treesocial, E118)** is its UI / representation / teaching / discovery surface,
+and **`social-tree-core` (E117)** is the Rust runtime core that builds out its logic. A future
+session should read the two bodies as presentation-layer and runtime-layer of the same thing, not as
+a name collision — which also means E118's design vocabulary (radii, mutuality-as-symmetry, grafts)
+is candidate *presentation* language for what the core computes.
+
+**Carried forward:** the dialogue's own honest flags live in E118 (root-depth semantics undecided;
+foliage-area vs count honesty; Jetstream per-connection DID-filter limits `[UNVERIFIED]` — a
+feasibility gate for the "weather" feature, not yet a fact).
+
+## 73. 2026-08-12 (filed 08-21) — the browser stays relay-only for iroh, and arecipe re-derives the deterministic-first ML gate
+
+**The material:** `seeds/transcripts/raw/iroh-browser-extension-and-arecipe-substitution-engine-2026-08-12.md`
+(cleaned-paste, two bodies, PARTIAL — Body B's design dialogue omitted, gap bracketed) + the plan
+artifact **verbatim** at `arecipe/plans/2026-08-12-1-plan-ingredient-normalization-and-substitutions.md`.
+
+**Constraint pinned (Body A, OPEN as a watch-item only):** an iroh peer in a **browser extension
+cannot hole-punch** — extensions share the page's network sandbox (no raw UDP; `chrome.sockets.udp`
+died with the Chrome Apps platform), so iroh-in-browser is **relay-only** regardless of packaging;
+the only browser hole-punching machinery is WebRTC, which iroh lists as exploratory ("heavy"), and
+WebTransport is client-to-server, not peer-to-peer. Consequence for the calling surfaces: **any
+web/extension Croft calling client rides the relay** (which the gated-relay work already prices),
+and "direct paths from a browser" is a future-iroh capability to watch, not a design input.
+Consistent with the FACTCHECK SoT's crate-hygiene note (`iroh-webrtc-transport` likely
+nonexistent); cited, not re-verified.
+
+**Pattern, not coincidence (Body B ↔ E54):** the substitution plan independently lands on the same
+posture E54 ratified for recipe import — the model never authors, it selects within a closed set,
+behind a decision gate, with deterministic layers authoritative and every resolution labeled by
+method. Two features, one philosophy: **evidence-gated, closed-set, provenance-labeled ML as the
+fallback tier of a deterministic system**. That posture is now arguably an arecipe-wide (and
+Croft-wide) principle candidate rather than a per-feature choice — flagged for a future
+`crystallized/principles.md` pass rather than promoted unilaterally.
+
+**Loose ends carried (in E119):** the amended plan folding the external-DB adapters was offered
+but never produced (the filed plan is the original); PR #87 stays OPEN with its disposition
+deliberately deferred to the plan's Phase 0; dataset licensing claims `[UNVERIFIED]`
+(ECOSYSTEM §5l).
