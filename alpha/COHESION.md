@@ -1950,3 +1950,19 @@ union of `tier?: 1` and `tier: 2`; `wrapped-banner.ts` gates the honesty banner 
 the first Tier-3 game must widen both **test-first** or ship an unmarked non-verifiable game. See
 ROADMAP_TODO E99.
 
+
+## 72. 2026-08-21 — croft-stack's admission/usage journal and the spec's meer are two growth paths to one helper
+
+**Seam to watch (surface, don't resolve — opened per the alignment companion §7, trigger met: relay
+Phases 7–8 are in flight).** Two independently growing designs both point at "the helper that holds
+things for absent members": **croft-stack's** journaled admission/usage machinery (the tiered-admission
+plan's mint, usage transport, and per-identity records), and **the spec's meer** (the blind
+store-and-forward custodian, §5.4/§6.6.2 — whose at-need-with-deposit issuance dial,
+`implementation-profile.md` §2.1, depends on a meer's third-party-deposit capability). They serve
+different planes today (fabric traffic vs group durability) and must stay distinct on authority — the
+E117 ADR's two-admissions rule ("the relay admits *traffic*, never *members*") is the guard — but as
+capabilities they are converging shapes, and nobody has decided to have two implementations of
+"hold this for someone who is away." **The watch:** when croft-stack grows a deposit-shaped or
+retention-shaped feature, or when a meer implementation starts, bring both designs to one table
+before either hardens. Tracked from `plans/REVIEW-social-tree-core-alignment-2026-08-20.md` §7;
+related: E117 (P2 ADR), the E106 token's at-need dial, S12's custodial-write finding.

@@ -4,8 +4,13 @@
   against the actual crates, the repo-home question worked (owner's call: **the core lands in
   the croft repo — "this is no longer an experiment"**), phases revised — → **Pass 3 complete
   (2026-08-20): all five §6 questions closed with the owner, one at a time** (answers recorded
-  in §6 and the Review Log). **READY FOR EXECUTION; not started — execution begins on the
-  owner's go.** Phase 1 is the already-queued E108 build, absorbed here unchanged.
+  in §6 and the Review Log) — → **Vetted twice and integrated (2026-08-21):** the independent
+  vet (no BLOCKER; seven REVISEs, all folded) and the owner-directed alignment companion
+  (O11–O15, sequencing) are absorbed; all fifteen opportunities dispositioned; the R4
+  resolution-authorization direction and the AGPL-3.0 license are owner-decided and recorded
+  (§6, Review Log). **The execution hold is CLEARED. Phase 1 starts on the owner's explicit
+  go** — P1 runs concurrent with the M4 track (discovery-side, zero collision); P2 lands in
+  croft at a coordinated moment.
 - **Origin:** owner direction 2026-08-20 — *"build up a phased plan on the social-tree-core of this
   and then have chat built on top of it right after and then build out the current chat client as
   well"* — closing the loop the client-architecture ADR left open (COHESION §23: adoption is
@@ -25,7 +30,11 @@
 - **Related rows:** E108 (Phase 1), E19 (discharged by Phases 5–6), E112 (this plan takes the
   real-signatures residual as Phase 3; leaves HeadAck-over-real-transport, serve-signature
   analysis, door-A, lapse tests in E112), E116 (client-side renderings, partially landed by
-  Phase 6).
+  Phase 6), **E118** (DID ↔ persona-key binding seam — Phase 7's predictable design question),
+  **E119** (charter presets & the three product postures — product layer, strengthens O6/O13).
+- **Reviews:** `REVIEW-social-tree-core-plan-2026-08-20.md` (independent vet; findings cited
+  as R1–R7/C1–C6/O1–O10) and `REVIEW-social-tree-core-alignment-2026-08-20.md` (program-fit
+  companion; O11–O15) — both integrated 2026-08-21; the file:line evidence lives there.
 
 ---
 
@@ -41,7 +50,9 @@ Three true things do not yet compose:
    canonical fold through the step-5 merge and is the code the C-series gate ran on — but it is
    **cut wrong for the core contract**: redb lives inside the crate (`FoldError:
    From<redb::CommitError>`, `tables.rs`), so the crate is not WASM-clean even though the fold
-   logic in substance is, and the governance plane runs at Modeled rung (signature stand-ins).
+   logic in substance is, and the governance plane's **evidence artifacts** run at Modeled rung
+   (the substrate suite and C-series record use signature stand-ins; a real-Ed25519 fold path
+   already exists in `social-graph-core/src/crypto.rs` — the vet's C4 correction).
 3. The **chat stack above it is shaped right but points at the wrong layer**: `group-chat-core`
    already speaks the pond contract (Intent/Effect/update/project/view), but depends on the
    experiment-cut substrate, and the TUI client is a demo harness, not a client.
@@ -89,18 +100,38 @@ every phase that touches the fold.
 
 ## 4. The phases
 
-**Phase 1 — E108: `CONTESTED` in the substrate (the queued front, absorbed unchanged).**
-`fold_derived` gains the §7.3.2 member-view state: the contradiction artifact becomes
-**set-valued and pair-carrying** (each entry holds both conflicting facts as data plus the
-contested subject; the current `ForkStatus::Contradiction(TypesHash)` single slot cannot
+**Phase 1 — E108: `CONTESTED` in the substrate (the queued front, absorbed with the review
+amendments).** `fold_derived` gains the §7.3.2 member-view state: the contradiction artifact
+becomes **set-valued and pair-carrying** (each entry holds both conflicting facts as data plus
+the contested subject; the current `ForkStatus::Contradiction(TypesHash)` single slot cannot
 represent two open contradictions), a **resolution fact type** closes a specific pair by both
 byte-heads (hard-stop replay is not resolution), the membership projection returns `CONTESTED`
-for the subject, `GroupState` wire bumps to v2 (no compat shim, pre-1.0). All new types and
-projection code written **storage-free** (no redb types) — the down payment on Phase 2.
-*RED first:* the arrival-order pin (both orders byte-identical) and the two-open-contradictions
-test the current schema structurally fails. *Done when:* both pins green, corpus green, mutation
-pass on the changed module, rung stated Modeled. *Evidence home:* croft-chat TEST-LOG +
-C-SERIES-RESULTS addendum.
+for the subject, `GroupState` wire bumps to v2 (no compat shim, pre-1.0).
+
+- **Resolution authorization decided (owner, 2026-08-21 — closes the vet's R4):** resolving a
+  contested pair is a **governed act whose threshold lives in the charter** (`GroupRules`) —
+  the same species and machinery as the ban threshold. Product default **2**; never silently
+  single-author (a one-signature resolution would be a verdict on exactly the contradiction
+  the fold refused). P1's RED tests are written against charter-quorum resolution; the
+  hard-floor question (may a power-mode charter dial it to 1?) and the exact §7.3.2 amendment
+  (who signs, threshold source, pair reference) ride **the spec filing P1's close carries** —
+  decided by the spec process, never invented mid-GREEN.
+- **The projection stays total (the vet's Matrix lesson, L4):** no boolean convenience
+  accessor on the membership projection, ever — an untyped mid-resolution state is how the
+  lying-UI class returns through a helper method.
+- **O9, adopted here (endorsed by both reviews):** `AssertionEnvelope.timestamp` sits inside
+  the signed canonical bytes today — a Part 1 §2.0.1 assertion elevated to what a later
+  reader will mistake for provenance. P1 is already bumping the envelope schema, so the field
+  is **dropped from the core envelope or explicitly fenced** (display-only assertion, never an
+  ordering or policy input) now, with a **standing test that no comparator consults it**.
+
+All new types and projection code written **storage-free** (no redb types) — the down payment
+on Phase 2. *RED first:* the arrival-order pin (both orders byte-identical) and the
+two-open-contradictions test the current schema structurally fails. *Done when:* both pins
+green; the resolution-fact tests green against the charter-threshold rule; the timestamp
+decision landed with its standing test; corpus green; mutation pass on the changed module; the
+§7.3.2 spec filing (resolution authorization + floor) filed; rung stated Modeled. *Evidence
+home:* croft-chat TEST-LOG + C-SERIES-RESULTS addendum.
 
 **Phase 2 — the re-cut: `social-tree-core` extracted pure, landing in the croft repo.**
 New crate at **`croft/core/social-tree-core`** (owner's call, Pass 2 — the product repo, not the
@@ -133,22 +164,107 @@ Landing consequences, priced (Pass 2):
 - **Vendor-neutrality unchanged:** the §9 conformance vectors and the Proofs crates stay the
   neutral bar in discovery; croft's crate is the product realization measured against them.
 
+*Sizing (restated at integration — the vet's R1):* the Pass-2 redb counts (21/11/2/18) are
+exact but they are **localization evidence, not the work**. The real job is a
+**state-residency inversion**: today `DerivedFold` holds the database, five fold functions
+take `&redb::WriteTransaction`, and the detection passes re-read the governance log from
+tables mid-fold — the pure core must own an in-memory state model and take the log as input,
+with the adapter becoming the orchestrator that feeds it. The extraction stays bounded for
+the true reason: the heavy logic is already pure free functions (`check_authorization`,
+`apply_governance`, the `detect_*` family, `genesis_initial_state`), and
+`types.rs`/`traits.rs`/`head_ack.rs`/`head_currency.rs`/`horizon*.rs`/`completeness_ahead.rs`
+carry zero redb references.
+
+**Review amendments folded into this phase (2026-08-21; evidence in the two REVIEW files):**
+
+- **The purge list (R2), beyond redb:** tokio (broadcast types in `surface.rs`;
+  `rt-multi-thread` breaks the wasm gate outright), two `SystemTime::now()` sites, `proptest`
+  misfiled under `[dependencies]`, and the **error split** — the core gets a protocol-error
+  enum with no storage variants; the adapter gets its own. **`surface.rs`/`LocalStore`
+  splits:** command construction lands core-side; notification and persistence orchestration
+  land adapter-side.
+- **License (owner decision — closes R3):** `social-tree-core` declares **AGPL-3.0**,
+  consistent with the standing 2026-07-09 A14 decision (reference code → AGPL-3.0-or-later +
+  DCO); croft-chat's `MIT OR Apache-2.0` label was an accident, corrected at the pin-bump;
+  A1's MPL-2.0 `hpke-rs` gate is untouched.
+- **Citation hygiene (R5):** any test file cited by canonical spec text or a ledger (e.g.
+  §7.3.2 cites `croft-chat/tests/fold_ordering_keys.rs` as Measured evidence) either stays in
+  place as an adapter-side regression or the citation updates **in the same commit** that
+  moves it; the audit is a grep for migrated filenames across `beta/` and the ledgers.
+- **CI ratchets into croft's own gates, never a parallel workflow (R7):** the gate lands as
+  croft's **G6/G7** firing their recorded triggers (croft/CLAUDE.md "Commit gates" — G6
+  triggers on "the first core lands"; G7: watch CI fail before trusting it), one gate command
+  identical locally and in CI per CI-PATTERN rule 6.
+- **Sequencing against M4 (companion §7):** P1 is discovery-side and runs concurrent with M4
+  now; **P2 is the collision point** (root workspace + first required check in the repo where
+  the M4 session is mid-milestone) — land it after M4's current milestone closes, or with an
+  explicit heads-up so that session expects the new check rather than meeting it mid-push.
+- **The layering ADR's full contents (R7 + O11 + O7):** foundation-vs-feature-core; **where
+  `call-core` sits** (croft doctrine says "Calling is a capability, not a pond" while the
+  skeleton carries `core/call-core` — the ADR resolves that the day the first real crate
+  lands); **the two-admissions paragraph (O11):** *the relay admits traffic, never members;
+  no fabric-admission signal is an input to the A-series* — forecloses the S16 failure class
+  one layer down; and **the effect-composition rule (O7):** how a pond embeds the substrate's
+  effects (wrapper enum, mapping, who owns the substrate model) — the one joint in this
+  architecture with no prior art, fixed once here, never re-derived per pond. The core's docs
+  also carry a short **spec-key → mechanism mapping** (the fold realizes §7.3.1's layered
+  order as sequential lamport→hash replay + projections + hard-stops; G1's equivalence
+  argument, kept from becoming folklore).
+- **Adopted opportunities landing here (all ten adopted, owner 2026-08-21):** **O1**
+  conformance vectors wired as croft CI fixtures with the honest scope note (they cover the
+  §4/§5/§6 layer; the §7.3–§7.5 fold vectors land when the `[gates-release]` encodings pin —
+  the win is the harness existing that day, and P3 gets the signed-preimage vectors free);
+  **O2** version-byte discipline as a register (every serialized artifact opens with a
+  version byte, every `from_bytes` refuses unknown versions loudly, one in-crate register
+  file); **O3** the order-independence proptest migrates as a **named standing CI arm**, with
+  P1's CONTESTED permutations extended into it; **O4** cargo-fuzz targets on the `from_bytes`
+  surfaces; **O5** API stability markers from day one (sealed traits, `#[doc(hidden)]`,
+  `#![warn(missing_docs)]`); **O6 + O13 (P2 acceptance criterion, strengthened by the owner's
+  charter-presets direction, E119):** the profile dials as a typed charter/`Profile` struct
+  with Croft's reference column as a named constructor, and **no [charter] dial value as a
+  compile-time constant in the core — `GroupRules` is the socket** (a core that baked
+  door-B/at-join in as assumptions would make the E111 sheet a fiction); **O8** purity
+  enforced mechanically (clippy `disallowed-methods`/`disallowed-types` for
+  `SystemTime::now`/`Instant::now`/tokio types in the core, plus a `--no-default-features`
+  check arm beside the wasm arm); **O10** §11.11 measurement hooks behind a no-op `Metrics`
+  port (fold depth, facts-folded, snapshot size, contradiction counts).
+- **Boundaries that travel verbatim (O12-discipline + O14):** the `(DeviceId, PrincipalId)`
+  credential-pair boundary is spec §4.5's multi-client guarantee, structurally present today —
+  it crosses the re-cut intact and the test migration includes whatever pins it; the core's
+  principal type stays opaque-but-attributable — **no atproto types anywhere near the core**
+  (the DID ↔ persona-key binding seam is E118's, Phase-7 material).
+- **Adapter deliverables, named rather than implicit:** persistence-format versioning (the
+  comparator stamp + `needs_rebuild` rebuild path is the existing embryo); the redb adapter
+  **re-exports the core** so existing path-dep consumers (meer-queue's HeadAck dev-dep) keep
+  one hop; the first git pin resolves through the **`github-personal` SSH host** (workspace
+  git-identity rule) — one line that saves an afternoon.
+
 *Gate:* the **entire existing corpus green over the re-cut** — the migrated tests green in
 croft, the adapter + C-series arms green in discovery against the pinned crate — plus the
 **`cargo check --target wasm32-unknown-unknown` CI gate** on the core crate from this phase
 forward. *Done when:* corpus green on both sides, wasm-check green in croft CI, no `redb` in
-the core's dependency tree. *Sizing (Pass 2, measured):* the redb entanglement is localized —
-`fold_derived.rs` 21 references (mostly four `From<redb::*Error>` impls plus table reads),
-`governance.rs` 11, `surface.rs` 2, and `tables.rs` (18) staying adapter-side wholesale — a
-bounded extraction, not a spread.
+the core's dependency tree, the purge list executed, the O6/O13 acceptance criterion holds
+(no charter dial as a core constant), and the ADR (with its R7/O11/O7 contents) landed.
 
-**Phase 3 — real signatures on the governance plane (the E112 rung residual, taken here).**
-Ed25519 signing/verification on the fold path through the existing `Verifier` boundary, reusing
-the conformance crates' real vectors (never redefining schemas in tests). Scope: fact authorship
-and quorum counting; the HeadAck-over-real-transport upgrade **stays in E112** (transport rung,
-orthogonal to core purity). *Done when:* the fold's authorship checks run on real Ed25519 in the
-core test suite; the C-series arms re-run green with signatures live; rung claim for the
-governance plane restated accordingly (per-plane, no composite grade).
+**Phase 3 — real signatures on the governance plane (the E112 rung residual, taken here;
+rescoped by the vet's C4).**
+The problem is the **evidence artifacts, not a missing mechanism**: real Ed25519 already runs
+on a fold path in the corpus — `social-graph-core/src/crypto.rs` ships
+`Ed25519Signer`/`Ed25519Verifier` directly over `ed25519-dalek`, and the croft-chat behavior
+tests fold through it. What stays mock-signed is the substrate's own suite (`MockSigner`) and
+the C-series record (deterministic mock over a digest). P3 is therefore largely
+**relocation**: move `crypto.rs` into/beside the core, swap the mocks out of the
+substrate-side and meer-side suites, and reuse the conformance crates' signed-preimage
+vectors (never redefining schemas in tests). Scope: fact authorship and quorum counting; the
+HeadAck-over-real-transport upgrade **stays in E112** (transport rung, orthogonal to core
+purity). **The mutation re-baseline (R6) closes this phase:** "mutation-vetted" does not
+transfer across the re-cut — the 54-survivor justification ledger is bound to the old module
+map, and the X3 harness needs path deps a git pin breaks — so re-baseline the sweep on
+`social-tree-core` here (P3 touches the fold's authorship path anyway) and record the
+`[patch]`-override recipe for future corpus-side sweeps. *Done when:* the fold's authorship
+checks run on real Ed25519 in the core suite; the C-series arms re-run green with signatures
+live; the mutation re-baseline is clean (survivors triaged, not scored); rung claim for the
+governance plane restated per-plane, no composite grade.
 
 **Phase 4 — the join: the key layer behind a port.**
 The admission machinery (§11.7 token cross-check, merge rule, §7.3.8 stall, admission fact —
@@ -157,7 +273,13 @@ the S23–S26-measured shapes) exposed on the core's surface as intents/effects,
 native adapter, adapted not rebuilt. This is the phase with genuine design risk — the port's
 shape (sans-io module vs effect-port; where MLS state lives) gets a short design beat + ADR
 before code. openmls-on-wasm is reported upstream but unverified here — probe, `[confirm]`
-before the browser shell relies on it. *Done when:* one end-to-end admission (invite path and
+before the browser shell relies on it. **The P4 ADR additionally records two invariants
+(integration, 2026-08-21):** the **A3 invariant stays core-side** — the admission *decision*
+is computed in the core and the `KeyLayer` port carries artifacts only; a port shape that let
+the adapter answer "admit?" would recreate S16's failure one layer up (the vet's C3 nudge).
+And the **key-custody/recovery seam is named, not designed** — the port shape must not
+foreclose §7.3.9's pluggable backup targets (recovery is Design/pending; naming the seam
+costs a sentence). *Done when:* one end-to-end admission (invite path and
 token-return path) runs through the joined surface at loopback, with the per-plane rung split
 stated (governance per Phase 3; MLS Rung A; transport loopback = Modeled, never Verified).
 
@@ -176,8 +298,15 @@ The croft-chat client grows from demo harness to usable client on core + tenant:
 (redb store, iroh transport, identity), the `CONTESTED` / "membership pending resolution"
 rendering (E108's product half), the E116 renderings that apply to chat (factual fork statement;
 three registers reachable — mute is a client feature; "admission voided" legibility), and the
-feature list of §6 Q4. *Done when:* the Q4 MVP list demonstrably works over real iroh between
-two nodes (honest rung: LAN/loopback per run, stated).
+feature list of §6 Q4. Two integration additions: a **lightweight threat pass precedes the
+first non-loopback demo** — P6 wires real iroh and identity, and "loopback-grade, stated"
+must not quietly become "demoed to someone" (the deep serve-signature analysis stays E112's);
+and one rendering is **explicitly deferred with a home** rather than dropped: the
+**lost-race UX** (two concurrent admissions; the protocol side is S-measured, the losing
+side's rendering is not) — deferred to Phase 7's product-shell plan, recorded beside the E116
+debt. *Done when:* the Q4 MVP list demonstrably works over real iroh between
+two nodes (honest rung: LAN/loopback per run, stated), the threat pass done before any
+non-loopback demo.
 
 **Phase 7 — product-shell adoption (named, not committed).**
 With the core and pond born in croft (P2/P5), the remaining seam is the **product shells**
@@ -213,6 +342,32 @@ Answers first; the original questions kept below each for provenance.
    mute.
 5. **CLOSED — both as recommended**: chat tenant lands as `croft/core/chat-core` at P5; the TUI
    client stays discovery-side as the dev harness on pinned crates.
+
+### Integration decisions (owner, 2026-08-21 — the review round)
+
+6. **R4, resolution-fact authorization:** charter-quorum-gated — the threshold lives in
+   `GroupRules`, the same species and machinery as the ban threshold; product default **2**
+   ("so no one gets accidentally banned" applies equally to verdicts); never silently
+   single-author. The hard-floor question rides P1's §7.3.2 spec filing. Decided together
+   with the wider product direction the owner sketched: **three charter postures at group
+   creation** — a default close-circle mode (anyone invites, two to ban, thresholds only, no
+   designated roles), a **moderated** mode (threshold slider + a couple of roles with
+   pre-packaged selection rules — first-joined, elected), and a **power** mode (every
+   justifiable dial exposed) — plus **named, savable, shareable charter configurations**
+   (the same person runs a rowdy chat and a guardians group as two named presets; presets can
+   be shared and posted; deeper preset packs later; naming open — "peer mode" flagged as
+   loaded). Filed as **E119**; it upgrades O6/O13 from nice-to-have to load-bearing (the
+   typed charter struct is what makes presets loadable and shareable).
+7. **License:** **AGPL-3.0** for everything Drystone/Croft — the core crate declares it;
+   croft-chat's `MIT OR Apache-2.0` was an accident, corrected at the pin-bump. Consistent
+   with the standing A14 decision; A1's MPL gate untouched. (Closes the vet's R3.)
+8. **Opportunities:** the vet's **O1–O10 all adopted as placed** (O9 → Phase 1; the rest →
+   Phases 2–3 text and Done-whens); the companion's **O11–O15 folded** (O11/O13/O14 → Phase 2
+   and the ADR; **O12 → new row E118**; **O15 → the COHESION seam-line, opened now** — its
+   trigger, relay Phases 7–8 beginning, has already fired). No opportunity deferred without a
+   named home.
+9. **Landing:** the review branch merged to `main`; this integration commits on top (owner
+   go-ahead recorded with the branch decision).
 
 1. **Landing details (home is decided — croft repo, owner 2026-08-20).** Confirm the specifics:
    path `croft/core/social-tree-core`, the substrate-beside-ponds layering note recorded in the
@@ -294,3 +449,27 @@ direction, cheap-now/big-later), refute-first posture, findings as
 BLOCKER/REVISE/CONFIRM/OPPORTUNITY. Expected artifact:
 `alpha/plans/REVIEW-social-tree-core-plan-2026-08-20.md`. **Execution begins only after the
 review lands and the owner clears it** (BLOCKERs resolved, REVISEs folded or waived).
+
+### Integration — both reviews folded, hold cleared (2026-08-21)
+
+The independent vet (`REVIEW-social-tree-core-plan-2026-08-20.md`: right direction, safe to
+execute, **no BLOCKER**; R1–R7, C1–C6, O1–O10) and the owner-directed alignment companion
+(`REVIEW-social-tree-core-alignment-2026-08-20.md`: program-level fit, O11–O15, sequencing)
+are integrated. **Every REVISE is folded; none waived:** R1 (sizing restated as the
+state-residency inversion), R2 (purge list + `surface.rs` split assigned), R3 (closed by the
+owner's AGPL-3.0 decision, §6.7), R4 (closed by the owner's charter-quorum direction, §6.6),
+R5 (citation rule in P2), R6 (mutation re-baseline at P3's close + `[patch]` recipe), R7
+(G6/G7 ratchet, M4 coordination + sequencing, `call-core` placed by the ADR). The **C4
+correction** rescoped P3 to relocation (real Ed25519 already on a fold path in
+`social-graph-core/src/crypto.rs`); the problem statement was scoped to the evidence
+artifacts accordingly. **All fifteen opportunities dispositioned** (§6.8): O1–O10 adopted as
+placed, O11/O13/O14 into P2 and the ADR, O12 filed as **E118**, O15 opened as the COHESION
+croft-stack ↔ meer seam-line (trigger met — relay Phases 7–8 in flight). The vet's L4/L5
+slivers landed where cheap: the projection-totality rule and O9 in P1; the A3-stays-core-side
+and custody-seam invariants in the P4 ADR; the threat-pass-before-non-loopback-demo and the
+lost-race-UX deferral in P6. New rows: **E118** (DID ↔ persona-key binding seam), **E119**
+(charter presets & the three product postures, per the owner's 2026-08-21 sketch).
+
+**Status: the execution hold is CLEARED.** Phase 1 starts on the owner's explicit go —
+discovery-side, concurrent with M4; Phase 2 lands in croft at a coordinated moment per the
+sequencing note in P2.
