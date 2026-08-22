@@ -244,10 +244,18 @@ impl AssertionType {
 // Assertion envelope
 // ---------------------------------------------------------------------------
 
+/// The envelope wire schema version this build reads and writes. v2 (O9, E117 P1)
+/// removed the signed wall-clock `timestamp` field: Part 1 §2.0.1 makes a wall-clock
+/// value an uncorroborable assertion, and signing one into every governance fact's
+/// canonical bytes elevated it into what a later reader would mistake for provenance.
+/// No comparator or fold input ever consulted it (merge_cmp is lamport → hash); an
+/// application wanting a claimed time records it as ordinary payload content.
+pub const ENVELOPE_WIRE_VERSION: u8 = 0x02;
+
 /// The canonical container for every mutation in the system.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AssertionEnvelope {
-    /// Wire version; always `0x01` for this generation.
+    /// Wire version; [`ENVELOPE_WIRE_VERSION`] for this generation.
     pub version: u8,
     pub assertion_type: AssertionType,
     pub author_device: DeviceId,
@@ -257,8 +265,6 @@ pub struct AssertionEnvelope {
     pub antecedents: Vec<Hash>,
     /// Lamport clock value at the time of creation.
     pub lamport: u64,
-    /// Wall-clock timestamp (Unix seconds).
-    pub timestamp: u64,
     /// Type-specific payload bytes.
     pub payload: Vec<u8>,
     /// Detached signature over `canonical_bytes()`.
@@ -269,14 +275,14 @@ impl AssertionEnvelope {
     /// Deterministic serialization of all fields **except** `signature`.
     ///
     /// Layout (all multi-byte integers are big-endian):
-    /// - version          : 1 byte
+    /// - version          : 1 byte (0x02; v1 carried a signed wall-clock field here —
+    ///   dropped, see [`ENVELOPE_WIRE_VERSION`])
     /// - assertion_type   : 2 bytes
     /// - author_device    : 32 bytes
     /// - author_principal : 32 bytes
     /// - group            : 32 bytes
     /// - antecedents      : 4-byte count + count × 32 bytes
     /// - lamport          : 8 bytes
-    /// - timestamp        : 8 bytes
     /// - payload          : 4-byte length + bytes
     pub fn canonical_bytes(&self) -> Vec<u8> {
         let antecedent_count = self.antecedents.len() as u32;
@@ -288,7 +294,6 @@ impl AssertionEnvelope {
             + 32
             + 32
             + 4 + (self.antecedents.len() * 32)
-            + 8
             + 8
             + 4 + self.payload.len();
 
@@ -304,7 +309,6 @@ impl AssertionEnvelope {
             buf.extend_from_slice(h.as_bytes());
         }
         buf.extend_from_slice(&self.lamport.to_be_bytes());
-        buf.extend_from_slice(&self.timestamp.to_be_bytes());
         buf.extend_from_slice(&payload_len.to_be_bytes());
         buf.extend_from_slice(&self.payload);
 
@@ -637,14 +641,13 @@ mod tests {
 
     fn sample_envelope(lamport: u64, device_seed: u8) -> AssertionEnvelope {
         AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Message,
             author_device: make_device(device_seed),
             author_principal: make_principal(0xAA),
             group: make_group(0xBB),
             antecedents: vec![make_hash(0x01), make_hash(0x02)],
             lamport,
-            timestamp: 1_700_000_000,
             payload: b"hello world".to_vec(),
             signature: b"fakesig".to_vec(),
         }
@@ -659,8 +662,8 @@ mod tests {
         let env = sample_envelope(42, 0x11);
         let raw = env.canonical_bytes();
 
-        // version
-        assert_eq!(raw[0], 0x01);
+        // version — envelope wire v2 (no wall-clock slot)
+        assert_eq!(raw[0], ENVELOPE_WIRE_VERSION);
 
         // assertion_type = Message = 0x0009
         assert_eq!(raw[1], 0x00);
@@ -687,17 +690,12 @@ mod tests {
         // lamport = 42 (bytes 167..175)
         assert_eq!(u64::from_be_bytes(raw[167..175].try_into().unwrap()), 42);
 
-        // timestamp (bytes 175..183)
-        assert_eq!(
-            u64::from_be_bytes(raw[175..183].try_into().unwrap()),
-            1_700_000_000
-        );
+        // payload length = 11 (bytes 175..179) — immediately after lamport; the
+        // v1 timestamp slot is gone (O9)
+        assert_eq!(u32::from_be_bytes(raw[175..179].try_into().unwrap()), 11);
 
-        // payload length = 11 (bytes 183..187)
-        assert_eq!(u32::from_be_bytes(raw[183..187].try_into().unwrap()), 11);
-
-        // payload bytes (bytes 187..198)
-        assert_eq!(&raw[187..198], b"hello world");
+        // payload bytes (bytes 179..190)
+        assert_eq!(&raw[179..190], b"hello world");
 
         // with_sig appends 4-byte length + "fakesig"
         let raw_sig = env.canonical_bytes_with_sig();
@@ -788,14 +786,13 @@ mod tests {
             group_bytes[k] = pseudo_rand_byte(i, k + 300);
         }
         AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Message,
             author_device: DeviceId(device_bytes),
             author_principal: PrincipalId(principal_bytes),
             group: GroupId(group_bytes),
             antecedents: vec![],
             lamport: pseudo_rand_u64(i, 0),
-            timestamp: i as u64,
             payload: vec![i as u8],
             signature: vec![pseudo_rand_byte(i, 400), pseudo_rand_byte(i, 401)],
         }
@@ -935,5 +932,49 @@ mod tests {
         let v = wrap_v1(42u32);
         assert_eq!(v.version, 1);
         assert_eq!(v.value, 42u32);
+    }
+
+    /// **O9 standing pin (E117 P1):** envelope wire v2 carries NO wall-clock slot.
+    /// The canonical pre-image is exactly version(1) + type(2) + device(32) +
+    /// principal(32) + group(32) + antecedent count(4) + antecedents(n×32) +
+    /// lamport(8) + payload_len(4) + payload — byte-for-byte, nothing else signed.
+    /// A wall-clock value is an uncorroborable assertion (Part 1 §2.0.1); a claimed
+    /// time belongs in payload content, never in the signed envelope. If this pin
+    /// breaks because a time field returned, that is the laundering coming back.
+    #[test]
+    fn canonical_bytes_v2_has_no_wallclock_slot() {
+        let env = AssertionEnvelope {
+            version: ENVELOPE_WIRE_VERSION,
+            assertion_type: AssertionType::Message,
+            author_device: DeviceId::new([1u8; 32]),
+            author_principal: PrincipalId::new([2u8; 32]),
+            group: GroupId::new([3u8; 32]),
+            antecedents: vec![Hash::new([4u8; 32]), Hash::new([5u8; 32])],
+            lamport: 7,
+            payload: vec![0xAA; 10],
+            signature: vec![],
+        };
+        let bytes = env.canonical_bytes();
+        let expected_len = 1 + 2 + 32 + 32 + 32 + 4 + 2 * 32 + 8 + 4 + 10;
+        assert_eq!(
+            bytes.len(),
+            expected_len,
+            "canonical pre-image must be exactly the documented v2 fields — no extra slot"
+        );
+        assert_eq!(bytes[0], ENVELOPE_WIRE_VERSION, "version byte is 0x02");
+        // The 8 bytes after the antecedents are the lamport — and the 4 after that
+        // are the payload length, i.e. no second u64 (the retired timestamp) between.
+        let lamport_off = 1 + 2 + 32 + 32 + 32 + 4 + 2 * 32;
+        assert_eq!(
+            u64::from_be_bytes(bytes[lamport_off..lamport_off + 8].try_into().unwrap()),
+            7
+        );
+        assert_eq!(
+            u32::from_be_bytes(
+                bytes[lamport_off + 8..lamport_off + 12].try_into().unwrap()
+            ),
+            10,
+            "payload length follows lamport immediately"
+        );
     }
 }

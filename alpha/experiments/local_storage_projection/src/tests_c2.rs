@@ -98,14 +98,13 @@ mod c2 {
         payload: Vec<u8>,
     ) -> AssertionEnvelope {
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: atype,
             author_device: DeviceId::new(signer.device_id().0),
             author_principal: principal,
             group,
             antecedents,
             lamport,
-            timestamp: 1_700_000_000 + lamport,
             payload,
             signature: vec![],
         };

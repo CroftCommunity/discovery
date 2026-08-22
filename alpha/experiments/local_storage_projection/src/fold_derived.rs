@@ -1054,7 +1054,7 @@ where
         // the authorization failure as a plain rejection. A detected contradiction is
         // carried as a `ContestedEntry` — pair as data, contested subjects, and the
         // facts the deterministic replay withholds (§7.3.2, E108).
-        let mut contested_new: Option<ContestedEntry> =
+        let contested_new: Option<ContestedEntry> =
             match check_authorization(&current_state, envelope) {
                 Ok(()) => {
                     // Authorized concurrent conflicts (both actors survive, so both
@@ -1092,10 +1092,6 @@ where
                     entry
                 }
             };
-        // A Resolution never opens a contradiction; it closes one (validated in Step 7).
-        if envelope.assertion_type == AssertionType::Resolution {
-            contested_new = None;
-        }
 
         // Step 5: Lamport monotonicity check.
         {
@@ -1244,15 +1240,24 @@ where
                 });
 
             let fork_status_update = if let Some(existing_hash) = existing_at_seq {
-                // Deterministic tiebreak: keep the assertion with the
-                // lexicographically smaller hash. Mark the other as fork point.
-                if hash.as_bytes() < existing_hash.as_bytes() {
-                    // Our new assertion wins; existing becomes the fork.
-                    Some(ForkStatus::ForkedFrom(existing_hash))
+                // Deterministic fork label: the MAXIMUM over every contender observed
+                // for this slot — the incoming hash, the current occupant, and any
+                // prior ForkedFrom label carried in the state. A label derived from
+                // only the last pairwise comparison is order-dependent with three or
+                // more contenders (the old rule; its greenness was hash-luck the O9
+                // preimage change exposed), while max-over-all-seen is a pure function
+                // of the contender set, identical under every arrival order.
+                let mut worst = if hash.as_bytes() > existing_hash.as_bytes() {
+                    hash
                 } else {
-                    // Existing wins; we are the fork — but we still record it.
-                    Some(ForkStatus::ForkedFrom(hash))
+                    existing_hash
+                };
+                if let ForkStatus::ForkedFrom(prior) = &current_state.fork_status {
+                    if prior.as_bytes() > worst.as_bytes() {
+                        worst = *prior;
+                    }
                 }
+                Some(ForkStatus::ForkedFrom(worst))
             } else {
                 None
             };
@@ -1367,7 +1372,7 @@ where
                     &write_txn,
                     &author_typed_id,
                     envelope.author_principal,
-                    envelope.timestamp,
+                    envelope.lamport,
                     false, // already exists = no forced update; stub only
                     None,
                 )
@@ -1412,7 +1417,7 @@ fn apply_derived_effects_free(
                     true,
                     "".to_string(),
                     env.author_principal,
-                    env.timestamp,
+                    env.lamport,
                     None,
                 )
                 .map_err(|e| FoldError::StorageError(e.to_string()))?;
@@ -1435,7 +1440,7 @@ fn apply_derived_effects_free(
                     txn,
                     &invitee_typed,
                     invitee,
-                    env.timestamp,
+                    env.lamport,
                     false,
                     None,
                 )
@@ -1522,7 +1527,7 @@ fn apply_derived_effects_free(
                     true,
                     title,
                     env.author_principal,
-                    env.timestamp,
+                    env.lamport,
                     blob_hash,
                 )
                 .map_err(|e| FoldError::StorageError(e.to_string()))?;
@@ -1559,7 +1564,7 @@ fn apply_derived_effects_free(
                     txn,
                     &attach_typed,
                     env.author_principal,
-                    env.timestamp,
+                    env.lamport,
                     false,
                     None,
                 )
@@ -1578,7 +1583,7 @@ fn apply_derived_effects_free(
                     true,
                     String::new(),
                     env.author_principal,
-                    env.timestamp,
+                    env.lamport,
                     None,
                 )
                 .map_err(|e| FoldError::StorageError(e.to_string()))?;
@@ -1629,7 +1634,7 @@ fn apply_derived_effects_free(
                     txn,
                     &artifact_typed,
                     env.author_principal,
-                    env.timestamp,
+                    env.lamport,
                     false,
                     None,
                 )
@@ -2533,7 +2538,7 @@ impl DerivedFoldReplay {
         // Author node.
         let author_typed_id =
             TypedId::new(KindTag::Principal, TypesHash::new(*env.author_principal.as_bytes()));
-        upsert_node_stub(&write_txn, &author_typed_id, env.author_principal, env.timestamp, false, None)
+        upsert_node_stub(&write_txn, &author_typed_id, env.author_principal, env.lamport, false, None)
             .map_err(|e| FoldError::StorageError(e.to_string()))?;
 
         // Derived effects (call the free function directly).
@@ -2785,15 +2790,22 @@ fn decode_attachment_add_payload(
 // ---------------------------------------------------------------------------
 
 fn decode_envelope_from_canonical(raw: &[u8]) -> Result<AssertionEnvelope, String> {
-    // Layout (from canonical_bytes_with_sig):
+    // Layout (from canonical_bytes_with_sig), envelope wire v2 — no wall-clock field:
     // version(1) + assertion_type(2) + author_device(32) + author_principal(32)
     // + group(32) + antecedents_count(4) + antecedents*(32) + lamport(8)
-    // + timestamp(8) + payload_len(4) + payload + sig_len(4) + sig
-    if raw.len() < 1 + 2 + 32 + 32 + 32 + 4 + 8 + 8 + 4 {
+    // + payload_len(4) + payload + sig_len(4) + sig
+    if raw.len() < 1 + 2 + 32 + 32 + 32 + 4 + 8 + 4 {
         return Err(format!("envelope too short: {} bytes", raw.len()));
     }
     let mut off = 0;
     let version = raw[off];
+    if version != crate::types::ENVELOPE_WIRE_VERSION {
+        return Err(format!(
+            "unknown envelope wire version 0x{version:02x} (this build reads 0x{:02x}); \
+             stale stores must be rebuilt, never reinterpreted",
+            crate::types::ENVELOPE_WIRE_VERSION
+        ));
+    }
     off += 1;
     let at_u16 = u16::from_be_bytes(raw[off..off + 2].try_into().unwrap());
     off += 2;
@@ -2820,12 +2832,10 @@ fn decode_envelope_from_canonical(raw: &[u8]) -> Result<AssertionEnvelope, Strin
         off += 32;
         antecedents.push(TypesHash::new(h));
     }
-    if raw.len() < off + 8 + 8 + 4 {
+    if raw.len() < off + 8 + 4 {
         return Err("envelope truncated before lamport".to_string());
     }
     let lamport = u64::from_be_bytes(raw[off..off + 8].try_into().unwrap());
-    off += 8;
-    let timestamp = u64::from_be_bytes(raw[off..off + 8].try_into().unwrap());
     off += 8;
     let payload_len = u32::from_be_bytes(raw[off..off + 4].try_into().unwrap()) as usize;
     off += 4;
@@ -2849,7 +2859,6 @@ fn decode_envelope_from_canonical(raw: &[u8]) -> Result<AssertionEnvelope, Strin
         group: GroupId::new(grp),
         antecedents,
         lamport,
-        timestamp,
         payload,
         signature,
     })
@@ -2924,6 +2933,31 @@ mod tests {
             assert_eq!(back.computed_at_gov_seq, state.computed_at_gov_seq);
             assert_eq!(back.rules, state.rules, "all five thresholds survive the wire");
         }
+    }
+
+    #[test]
+    fn envelope_decoder_refuses_v1_bytes() {
+        // O9 companion pin: a v1 envelope (the generation that carried a signed
+        // wall-clock field) is refused LOUDLY by the decoder — stale stores demand
+        // a rebuild, never a silent reinterpretation under the v2 layout.
+        let env = AssertionEnvelope {
+            version: crate::types::ENVELOPE_WIRE_VERSION,
+            assertion_type: AssertionType::Message,
+            author_device: TypesDeviceId::new([1u8; 32]),
+            author_principal: TypesPrincipalId::new([2u8; 32]),
+            group: GroupId::new([3u8; 32]),
+            antecedents: vec![],
+            lamport: 1,
+            payload: vec![],
+            signature: vec![],
+        };
+        let mut raw = env.canonical_bytes_with_sig();
+        raw[0] = 0x01; // the retired v1 tag
+        let err = decode_envelope_from_canonical(&raw).expect_err("v1 must be refused");
+        assert!(
+            err.contains("unknown envelope wire version") && err.contains("rebuilt"),
+            "refusal must name the version and demand a rebuild, got: {err}"
+        );
     }
 
     #[test]
@@ -3044,14 +3078,13 @@ mod tests {
     ) -> AssertionEnvelope {
         let device = TypesDeviceId::new(signer.device_id().0);
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::GroupGenesis,
             author_device: device,
             author_principal,
             group: make_group(group_seed),
             antecedents: vec![],
             lamport,
-            timestamp: 1_700_000_000,
             payload: genesis_payload(signer.device_id().0[0]),
             signature: vec![],
         };
@@ -3092,14 +3125,13 @@ mod tests {
         // antecedent hash that is NOT in the store.
         let device = TypesDeviceId::new(owner_signer.device_id().0);
         let mut add_missing = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: owner_principal,
             group: make_group(0x10),
             antecedents: vec![TypesHash::new([0xEE; 32])], // absent
             lamport: 2,
-            timestamp: 1_700_000_001,
             payload: membership_add_payload(0xBB, Role::Member),
             signature: vec![],
         };
@@ -3147,14 +3179,13 @@ mod tests {
         let device = TypesDeviceId::new(owner_signer.device_id().0);
         let invitee_seed = 0xBB_u8;
         let mut add_env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: owner_principal,
             group: make_group(0x10),
             antecedents: vec![],
             lamport: 2,
-            timestamp: 1_700_000_001,
             payload: membership_add_payload(invitee_seed, Role::Member),
             signature: vec![],
         };
@@ -3206,14 +3237,13 @@ mod tests {
 
         // MembershipAdd: add member 0x02 as Member.
         let mut add1 = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: owner,
             group: make_group(group_seed),
             antecedents: vec![],
             lamport: 2,
-            timestamp: 1_700_000_001,
             payload: membership_add_payload(0x02, Role::Member),
             signature: vec![],
         };
@@ -3221,14 +3251,13 @@ mod tests {
 
         // MembershipAdd: add member 0x03 as Admin.
         let mut add2 = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: owner,
             group: make_group(group_seed),
             antecedents: vec![],
             lamport: 3,
-            timestamp: 1_700_000_002,
             payload: membership_add_payload(0x03, Role::Admin),
             signature: vec![],
         };
@@ -3236,14 +3265,13 @@ mod tests {
 
         // RoleGrant: promote 0x02 to Admin.
         let mut rg = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RoleGrant,
             author_device: device,
             author_principal: owner,
             group: make_group(group_seed),
             antecedents: vec![],
             lamport: 4,
-            timestamp: 1_700_000_003,
             payload: {
                 let mut p = vec![0x02u8; 32];
                 p.push(role_to_u8(&Role::Admin));
@@ -3255,14 +3283,13 @@ mod tests {
 
         // MembershipRemove: remove 0x03.
         let mut rem = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipRemove,
             author_device: device,
             author_principal: owner,
             group: make_group(group_seed),
             antecedents: vec![],
             lamport: 5,
-            timestamp: 1_700_000_004,
             payload: membership_remove_payload(0x03),
             signature: vec![],
         };
@@ -3270,14 +3297,13 @@ mod tests {
 
         // RuleChange: set add_member_threshold to 2.
         let mut rc = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RuleChange,
             author_device: device,
             author_principal: owner,
             group: make_group(group_seed),
             antecedents: vec![],
             lamport: 6,
-            timestamp: 1_700_000_005,
             payload: {
                 let mut p = vec![0u8]; // AddMember key
                 p.extend_from_slice(&2u32.to_be_bytes());
@@ -3382,14 +3408,13 @@ mod tests {
         // Add owner as member so messages are authorized.
         let device = TypesDeviceId::new(signer.device_id().0);
         let mut add_env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: owner,
             group: make_group(0xB0),
             antecedents: vec![],
             lamport: 2,
-            timestamp: 1_700_000_001,
             payload: membership_add_payload(0x33, Role::Owner),
             signature: vec![],
         };
@@ -3399,14 +3424,13 @@ mod tests {
         for i in 0..18_u64 {
             let body = format!("msg-{}", i);
             let mut msg = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::Message,
                 author_device: device,
                 author_principal: owner,
                 group: make_group(0xB0),
                 antecedents: vec![],
                 lamport: 3 + i,
-                timestamp: 1_700_000_002 + i,
                 payload: {
                     let mut p = Vec::new();
                     p.extend_from_slice(&(body.len() as u32).to_be_bytes());
@@ -3456,14 +3480,13 @@ mod tests {
 
         let device = TypesDeviceId::new(signer.device_id().0);
         let mut add_env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: owner,
             group: make_group(0xC0),
             antecedents: vec![],
             lamport: 2,
-            timestamp: 1_700_000_001,
             payload: membership_add_payload(0x44, Role::Owner),
             signature: vec![],
         };
@@ -3471,14 +3494,13 @@ mod tests {
         fold.ingest(&add_env).unwrap();
 
         let mut vouch_env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Vouch,
             author_device: device,
             author_principal: owner,
             group: make_group(0xC0),
             antecedents: vec![],
             lamport: 3,
-            timestamp: 1_700_000_002,
             payload: vouch_payload(0x55, "work", 2),
             signature: vec![],
         };
@@ -3524,14 +3546,13 @@ mod tests {
         // Add owner as member.
         let device = TypesDeviceId::new(signer.device_id().0);
         let mut add_env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: owner,
             group: make_group(0xD0),
             antecedents: vec![],
             lamport: 2,
-            timestamp: 1_700_000_001,
             payload: membership_add_payload(0x55, Role::Owner),
             signature: vec![],
         };
@@ -3541,14 +3562,13 @@ mod tests {
         // ArtifactRef referencing an unknown group.
         let unknown_group_hash = make_hash_t(0xEE);
         let mut ref_env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::ArtifactRef,
             author_device: device,
             author_principal: owner,
             group: make_group(0xD0),
             antecedents: vec![],
             lamport: 3,
-            timestamp: 1_700_000_002,
             payload: artifact_ref_payload(KindTag::Group, unknown_group_hash),
             signature: vec![],
         };
@@ -3582,14 +3602,13 @@ mod tests {
 
         let device = TypesDeviceId::new(signer.device_id().0);
         let mut add_env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: owner,
             group: make_group(0xE0),
             antecedents: vec![],
             lamport: 2,
-            timestamp: 1_700_000_001,
             payload: membership_add_payload(0x66, Role::Owner),
             signature: vec![],
         };
@@ -3600,14 +3619,13 @@ mod tests {
 
         // First: reference with kind=Group → stub created with kind=Group.
         let mut ref_group = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::ArtifactRef,
             author_device: device,
             author_principal: owner,
             group: make_group(0xE0),
             antecedents: vec![],
             lamport: 3,
-            timestamp: 1_700_000_002,
             payload: artifact_ref_payload(KindTag::Group, shared_hash),
             signature: vec![],
         };
@@ -3616,14 +3634,13 @@ mod tests {
 
         // Second: reference same hash but kind=ArtifactNote.
         let mut ref_note = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::ArtifactRef,
             author_device: device,
             author_principal: owner,
             group: make_group(0xE0),
             antecedents: vec![],
             lamport: 4,
-            timestamp: 1_700_000_003,
             payload: artifact_ref_payload(KindTag::ArtifactNote, shared_hash),
             signature: vec![],
         };
@@ -3831,14 +3848,13 @@ mod tests {
         let device_a = TypesDeviceId::new(signer_a.device_id().0);
         let device_b = TypesDeviceId::new(signer_b.device_id().0);
         let mut seat_o2 = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device_a,
             author_principal: principal_a,
             group: make_group(group_seed),
             antecedents: vec![],
             lamport: 2,
-            timestamp: 1_700_000_001,
             payload: membership_add_payload(0x42, Role::Owner),
             signature: vec![],
         };
@@ -3849,14 +3865,13 @@ mod tests {
                         subject_seed: u8|
          -> AssertionEnvelope {
             let mut env = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::MembershipAdd,
                 author_device: device,
                 author_principal: principal,
                 group: make_group(group_seed),
                 antecedents: vec![],
                 lamport: 3,
-                timestamp: 1_700_000_002,
                 payload: membership_add_payload(subject_seed, Role::Member),
                 signature: vec![],
             };

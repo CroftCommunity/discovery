@@ -240,9 +240,12 @@ pub struct CompactionConfig {
     /// Prune content assertions that are more than this many governance
     /// sequence slots older than the current governance head.
     pub trigger_depth: u64,
-    /// Prune content assertions that are older than this many seconds (wall
-    /// clock) relative to the current head's timestamp.
-    pub trigger_age_secs: u64,
+    /// Prune content assertions whose lamport is at least this far behind the
+    /// checkpoint envelope's lamport. Lamport-denominated by rule: a wall-clock
+    /// age is an uncorroborable assertion (Part 1 §2.0.1), and envelope wire v2
+    /// carries no timestamp at all (O9) — lapses are denominated in
+    /// positions/generations, never seconds.
+    pub trigger_age_lamports: u64,
 }
 
 impl Default for CompactionConfig {
@@ -250,7 +253,7 @@ impl Default for CompactionConfig {
         Self {
             enabled: false,
             trigger_depth: 1000,
-            trigger_age_secs: 86400 * 30, // 30 days
+            trigger_age_lamports: 1000,
         }
     }
 }
@@ -369,7 +372,7 @@ pub fn compact_content(
     // Step 3: Collect all content assertions (i.e., NOT governance assertions)
     // from auth_assertions along with their timestamps (from the envelope).
     // We need to decide which to prune: those older than the checkpoint by
-    // trigger_depth and trigger_age_secs.
+    // trigger_depth and trigger_age_lamports.
     //
     // For the current implementation we use a simple strategy:
     // - A content assertion is eligible for pruning if it is not referenced in
@@ -411,14 +414,13 @@ pub fn compact_content(
             Err(_) => false,
             Ok(env) => {
                 // Apply depth gate: the envelope's lamport is a proxy for its
-                // position in the log.  We prune if the checkpoint_seq exceeds
-                // trigger_depth and the envelope appears to be old enough.
-                // Use the envelope's timestamp relative to the checkpoint
-                // envelope's timestamp as the age gate.
+                // position in the log. We prune if the checkpoint_seq exceeds
+                // trigger_depth and the envelope's lamport sits at least
+                // trigger_age_lamports behind the checkpoint envelope's lamport —
+                // the position-denominated age gate (never wall-clock).
                 let age_ok = {
-                    // Look up the checkpoint envelope's timestamp.
-                    if let Some(ckpt_ts) = checkpoint_timestamp(db, checkpoint_gov_head) {
-                        env.timestamp + config.trigger_age_secs <= ckpt_ts
+                    if let Some(ckpt_lamport) = checkpoint_lamport(db, checkpoint_gov_head) {
+                        env.lamport + config.trigger_age_lamports <= ckpt_lamport
                     } else {
                         false
                     }
@@ -582,7 +584,7 @@ fn gov_seq_for_hash(
 
 /// Return the wall-clock timestamp of the assertion stored at `hash` in
 /// `auth_assertions`, or `None` if not found or decode fails.
-fn checkpoint_timestamp(db: &Arc<Db>, hash: &TypesHash) -> Option<u64> {
+fn checkpoint_lamport(db: &Arc<Db>, hash: &TypesHash) -> Option<u64> {
     let read_txn = db.inner().begin_read().ok()?;
     let table = read_txn.open_table(AUTH_ASSERTIONS).ok()?;
     let val = table.get(hash.as_bytes().as_slice()).ok()??;
@@ -591,7 +593,7 @@ fn checkpoint_timestamp(db: &Arc<Db>, hash: &TypesHash) -> Option<u64> {
         return None;
     }
     let env = decode_envelope_bytes(&raw[1..]).ok()?;
-    Some(env.timestamp)
+    Some(env.lamport)
 }
 
 /// Minimal envelope decoder (reused from fold_derived pattern).
@@ -599,11 +601,19 @@ fn decode_envelope_bytes(raw: &[u8]) -> Result<crate::types::AssertionEnvelope, 
     use crate::types::{AssertionEnvelope, DeviceId as TypesDeviceId, GroupId as TypesGroupId,
                        PrincipalId as TypesPrincipalId};
 
-    if raw.len() < 1 + 2 + 32 + 32 + 32 + 4 + 8 + 8 + 4 {
+    if raw.len() < 1 + 2 + 32 + 32 + 32 + 4 + 8 + 4 {
         return Err(format!("envelope too short: {} bytes", raw.len()));
     }
     let mut off = 0;
-    let version = raw[off]; off += 1;
+    let version = raw[off];
+    if version != crate::types::ENVELOPE_WIRE_VERSION {
+        return Err(format!(
+            "unknown envelope wire version 0x{version:02x} (this build reads 0x{:02x}); \
+             stale stores must be rebuilt, never reinterpreted",
+            crate::types::ENVELOPE_WIRE_VERSION
+        ));
+    }
+    off += 1;
     let at_u16 = u16::from_be_bytes(raw[off..off + 2].try_into().unwrap()); off += 2;
     let assertion_type = crate::types::AssertionType::from_u16(at_u16)
         .ok_or_else(|| format!("unknown assertion type 0x{:04x}", at_u16))?;
@@ -619,11 +629,10 @@ fn decode_envelope_bytes(raw: &[u8]) -> Result<crate::types::AssertionEnvelope, 
         let mut h = [0u8; 32]; h.copy_from_slice(&raw[off..off + 32]); off += 32;
         antecedents.push(TypesHash::new(h));
     }
-    if raw.len() < off + 8 + 8 + 4 {
+    if raw.len() < off + 8 + 4 {
         return Err("truncated before lamport".to_string());
     }
     let lamport = u64::from_be_bytes(raw[off..off + 8].try_into().unwrap()); off += 8;
-    let timestamp = u64::from_be_bytes(raw[off..off + 8].try_into().unwrap()); off += 8;
     let payload_len = u32::from_be_bytes(raw[off..off + 4].try_into().unwrap()) as usize; off += 4;
     if raw.len() < off + payload_len + 4 {
         return Err("payload/sig truncated".to_string());
@@ -643,7 +652,6 @@ fn decode_envelope_bytes(raw: &[u8]) -> Result<crate::types::AssertionEnvelope, 
         group: TypesGroupId::new(grp),
         antecedents,
         lamport,
-        timestamp,
         payload,
         signature,
     })
@@ -730,14 +738,13 @@ mod tests {
     ) -> AssertionEnvelope {
         let device = TypesDeviceId::new(signer.device_id().0);
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::GroupGenesis,
             author_device: device,
             author_principal,
             group: make_group(group_seed),
             antecedents: vec![],
             lamport,
-            timestamp: 1_700_000_000,
             payload: genesis_payload_thresh(threshold),
             signature: vec![],
         };
@@ -779,14 +786,13 @@ mod tests {
         let lam2 = *lamport_start;
         *lamport_start += 1;
         let mut add_env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: principal,
             group: make_group(group_seed),
             antecedents: vec![],
             lamport: lam2,
-            timestamp: 1_700_000_001,
             payload: membership_add_payload(principal.as_bytes()[0], Role::Owner),
             signature: vec![],
         };
@@ -918,14 +924,13 @@ mod tests {
         let device = TypesDeviceId::new(signer.device_id().0);
         let lam1 = lam; lam += 1;
         let mut rc1 = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RuleChange,
             author_device: device,
             author_principal: principal,
             group: make_group(0x10),
             antecedents: vec![],
             lamport: lam1,
-            timestamp: 1_700_000_010,
             // rule_key byte 3 = RuleChange, new_value = 2
             payload: rule_change_payload(3, 2),
             signature: vec![],
@@ -961,14 +966,13 @@ mod tests {
         // one persona is 1 of 2, so the fold refuses to apply it.
         let lam2 = lam;
         let mut rc2 = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RuleChange,
             author_device: device,
             author_principal: principal,
             group: make_group(0x10),
             antecedents: vec![],
             lamport: lam2,
-            timestamp: 1_700_000_020,
             payload: rule_change_payload(0, 5), // rule_key 0 = AddMember
             signature: vec![],
         };
@@ -1054,14 +1058,13 @@ mod tests {
         let device = TypesDeviceId::new(signer.device_id().0);
         let lam_rc = lam; lam += 1;
         let mut rc_a = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RuleChange,
             author_device: device,
             author_principal: principal,
             group: make_group(0x20),
             antecedents: vec![],
             lamport: lam_rc,
-            timestamp: 1_700_000_020,
             payload: rule_change_payload(0 /* AddMember */, 3),
             signature: vec![],
         };
@@ -1082,14 +1085,13 @@ mod tests {
         // verify the fork detection logic.
         let lam_rc_b = lam; lam += 1;
         let mut rc_b = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RuleChange,
             author_device: device,
             author_principal: principal,
             group: make_group(0x20),
             antecedents: vec![],
             lamport: lam_rc_b,
-            timestamp: 1_700_000_021,
             payload: rule_change_payload(0 /* AddMember */, 5),
             signature: vec![],
         };
@@ -1120,14 +1122,13 @@ mod tests {
         boot_group(&signer, principal, 0x20, &fold2, &mut lam2, 1);
         let lam_rc_b2 = lam2;
         let mut rc_b_fresh = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RuleChange,
             author_device: device,
             author_principal: principal,
             group: make_group(0x20),
             antecedents: vec![],
             lamport: lam_rc_b2,
-            timestamp: 1_700_000_021,
             payload: rule_change_payload(0, 5),
             signature: vec![],
         };
@@ -1146,14 +1147,13 @@ mod tests {
         let principal = make_principal(0xAA);
 
         let mut incoming = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RuleChange,
             author_device: device,
             author_principal: principal,
             group: make_group(0xFF),
             antecedents: vec![],
             lamport: 99,
-            timestamp: 1_700_000_099,
             payload: rule_change_payload(0, 42),
             signature: vec![],
         };
@@ -1193,17 +1193,8 @@ mod tests {
         let mut lam = 1u64;
         boot_group(&signer, principal, 0x30, &fold, &mut lam, 1);
 
-        // Count governance entries before compaction.
         const AUTH_GOV_LOG_T: redb::TableDefinition<'static, &'static [u8], &'static [u8]> =
             redb::TableDefinition::new("auth_gov_log_v1");
-        let gov_count_before = {
-            let read_txn = db.inner().begin_read().unwrap();
-            let table = read_txn.open_table(AUTH_GOV_LOG_T).unwrap();
-            let start = encode_gov_log_key(&make_group(0x30), 0);
-            let end   = encode_gov_log_key(&make_group(0x30), u64::MAX);
-            table.range(start.as_slice()..=end.as_slice()).unwrap().count()
-        };
-        assert!(gov_count_before >= 2, "should have at least genesis + membershipadd");
 
         // Add some content (Message) assertions.
         let device = TypesDeviceId::new(signer.device_id().0);
@@ -1211,7 +1202,7 @@ mod tests {
             let msg_lam = lam; lam += 1;
             let body = format!("msg-{}", i);
             let mut msg = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::Message,
                 author_device: device,
                 author_principal: principal,
@@ -1219,7 +1210,6 @@ mod tests {
                 antecedents: vec![],
                 lamport: msg_lam,
                 // Use very old timestamps to trigger age gate.
-                timestamp: 1_000_000,
                 payload: {
                     let mut p = Vec::new();
                     p.extend_from_slice(&(body.len() as u32).to_be_bytes());
@@ -1232,6 +1222,43 @@ mod tests {
             sign_envelope(&mut msg, &signer);
             fold.ingest(&msg).expect("message ingest");
         }
+
+        // Advance the governance head PAST the messages: the age gate is
+        // lamport-denominated (position, never wall-clock), so content is "old"
+        // only relative to a checkpoint that comes after it.
+        {
+            let add_lam = lam;
+            lam += 1;
+            let mut add = AssertionEnvelope {
+                version: crate::types::ENVELOPE_WIRE_VERSION,
+                assertion_type: AssertionType::MembershipAdd,
+                author_device: device,
+                author_principal: principal,
+                group: make_group(0x30),
+                antecedents: vec![],
+                lamport: add_lam,
+                payload: {
+                    let mut p = Vec::new();
+                    p.extend_from_slice(make_principal(0x31).as_bytes());
+                    p.push(2); // Member
+                    p
+                },
+                signature: vec![],
+            };
+            sign_envelope(&mut add, &signer);
+            fold.ingest(&add).expect("post-message governance fact");
+        }
+
+        // Count governance entries before compaction (all of them, including the
+        // post-message fact that advances the checkpoint).
+        let gov_count_before = {
+            let read_txn = db.inner().begin_read().unwrap();
+            let table = read_txn.open_table(AUTH_GOV_LOG_T).unwrap();
+            let start = encode_gov_log_key(&make_group(0x30), 0);
+            let end   = encode_gov_log_key(&make_group(0x30), u64::MAX);
+            table.range(start.as_slice()..=end.as_slice()).unwrap().count()
+        };
+        assert!(gov_count_before >= 3, "genesis + membershipadd + post-message fact");
 
         // Get the current gov head.
         let gov_head = {
@@ -1252,8 +1279,8 @@ mod tests {
         // Run compaction with aggressive thresholds.
         let config = CompactionConfig {
             enabled: true,
-            trigger_depth: 0,    // everything is eligible by depth
-            trigger_age_secs: 0, // everything is eligible by age
+            trigger_depth: 0,        // everything is eligible by depth
+            trigger_age_lamports: 0, // everything is eligible by age
         };
         let result = compact_content(&db, &make_group(0x30), &gov_head, &config)
             .expect("compaction must succeed");
@@ -1310,21 +1337,20 @@ mod tests {
         let mut lam = 1u64;
         boot_group(&signer, principal, 0x40, &fold, &mut lam, 1);
 
-        // Add a few content assertions with current timestamps (should NOT be pruned
-        // with a high trigger_age_secs).
+        // Add a few content assertions near the head (should NOT be pruned
+        // with a high trigger_age_lamports — the age gate is lamport-denominated).
         let device = TypesDeviceId::new(signer.device_id().0);
         for i in 0..3u64 {
             let msg_lam = lam; lam += 1;
             let body = format!("keep-{}", i);
             let mut msg = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::Message,
                 author_device: device,
                 author_principal: principal,
                 group: make_group(0x40),
                 antecedents: vec![],
                 lamport: msg_lam,
-                timestamp: 9_999_999_999, // far future — won't be age-pruned
                 payload: {
                     let mut p = Vec::new();
                     p.extend_from_slice(&(body.len() as u32).to_be_bytes());
@@ -1368,7 +1394,7 @@ mod tests {
         let config = CompactionConfig {
             enabled: false, // no pruning
             trigger_depth: 1000,
-            trigger_age_secs: 86400 * 30,
+            trigger_age_lamports: 86400 * 30,
         };
         compact_content(&db, &make_group(0x40), &gov_head, &config)
             .expect("compaction (disabled) must succeed");
@@ -1415,14 +1441,13 @@ mod tests {
                 let msg_lam = lam; lam += 1;
                 let body = format!("prune-{}", i);
                 let mut msg = AssertionEnvelope {
-                    version: 0x01,
+                    version: crate::types::ENVELOPE_WIRE_VERSION,
                     assertion_type: AssertionType::Message,
                     author_device: device,
                     author_principal: principal,
                     group: make_group(0x50),
                     antecedents: vec![],
                     lamport: msg_lam,
-                    timestamp: 1_000, // very old
                     payload: {
                         let mut p = Vec::new();
                         p.extend_from_slice(&(body.len() as u32).to_be_bytes());
@@ -1463,7 +1488,7 @@ mod tests {
         let config = CompactionConfig {
             enabled: true,
             trigger_depth: 0,
-            trigger_age_secs: 0,
+            trigger_age_lamports: 0,
         };
         let result1 = compact_content(&db1, &make_group(0x50), &gov_head1, &config).unwrap();
         let result2 = compact_content(&db2, &make_group(0x50), &gov_head2, &config).unwrap();
@@ -1520,14 +1545,13 @@ mod tests {
         let principal = make_principal(0x77);
 
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RuleChange,
             author_device: device,
             author_principal: principal,
             group: make_group(0x77),
             antecedents: vec![],
             lamport: 10,
-            timestamp: 1_700_000_000,
             payload: rule_change_payload(0, 1),
             signature: vec![],
         };

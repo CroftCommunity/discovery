@@ -75,14 +75,13 @@ pub fn base(
     payload: Vec<u8>,
 ) -> AssertionEnvelope {
     AssertionEnvelope {
-        version: 0x01,
+        version: local_storage_projection::types::ENVELOPE_WIRE_VERSION,
         assertion_type: ty,
         author_device: DeviceId::new(identity.device_id().0),
         author_principal: PrincipalId::new(identity.principal_id().0),
         group,
         antecedents,
         lamport,
-        timestamp: 1_700_000_000 + lamport,
         payload,
         signature: vec![],
     }

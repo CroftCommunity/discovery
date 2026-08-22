@@ -82,8 +82,10 @@ pub struct TimelineView {
 pub struct TimelineEntry {
     pub hash: Hash,
     pub author: PrincipalId,
+    /// The display/window ordinate: envelope wire v2 carries no wall-clock field
+    /// (O9, Part 1 §2.0.1 — a claimed time belongs in payload content, never in the
+    /// signed envelope), so timeline windows are lamport-denominated.
     pub lamport: u64,
-    pub timestamp: u64,
     pub kind: AssertionType,
     pub present: bool,
 }
@@ -623,7 +625,7 @@ where
                 .get(assertion_hash.as_bytes().as_ref())
                 .map_err(|e| SurfaceError::StorageError(e.to_string()))?;
 
-            let (author, lamport, timestamp, kind, present) = if let Some(raw) = env_raw {
+            let (author, lamport, kind, present) = if let Some(raw) = env_raw {
                 match decode_envelope_bytes(raw.value()) {
                     Ok(env) => {
                         let tgt_kind_byte = key_bytes[35];
@@ -642,7 +644,6 @@ where
                         (
                             env.author_principal,
                             env.lamport,
-                            env.timestamp,
                             env.assertion_type,
                             node_present,
                         )
@@ -657,7 +658,6 @@ where
                 hash: assertion_hash,
                 author,
                 lamport,
-                timestamp,
                 kind,
                 present,
             });
@@ -1111,14 +1111,13 @@ where
 
         let lamport = self.next_lamport();
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::GroupGenesis,
             author_device: types_dev,
             author_principal: self.my_principal,
             group: group_id,
             antecedents: vec![],
             lamport,
-            timestamp: now,
             payload,
             signature: vec![],
         };
@@ -1145,7 +1144,6 @@ where
 
         let traits_dev = signer.device_id();
         let types_dev = TypesDeviceId::new(traits_dev.0);
-        let now = unix_now();
 
         // MembershipAdd payload: PrincipalId(32) || Role(1).
         let mut payload = Vec::with_capacity(33);
@@ -1154,14 +1152,13 @@ where
 
         let lamport = self.next_lamport();
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: types_dev,
             author_principal: self.my_principal,
             group: *group_id,
             antecedents: vec![],
             lamport,
-            timestamp: now,
             payload,
             signature: vec![],
         };
@@ -1193,7 +1190,6 @@ where
 
         let traits_dev = signer.device_id();
         let types_dev = TypesDeviceId::new(traits_dev.0);
-        let now = unix_now();
 
         // MembershipRemove payload: PrincipalId(32).
         let mut payload = Vec::with_capacity(32);
@@ -1201,14 +1197,13 @@ where
 
         let lamport = self.next_lamport();
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipRemove,
             author_device: types_dev,
             author_principal: self.my_principal,
             group: *group_id,
             antecedents: approvals,
             lamport,
-            timestamp: now,
             payload,
             signature: vec![],
         };
@@ -1239,7 +1234,6 @@ where
         use crate::types::DeviceId as TypesDeviceId;
 
         let types_dev = TypesDeviceId::new(signer.device_id().0);
-        let now = unix_now();
 
         // RoleGrant payload: PrincipalId(32) || Role(1).
         let mut payload = Vec::with_capacity(33);
@@ -1248,14 +1242,13 @@ where
 
         let lamport = self.next_lamport();
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RoleGrant,
             author_device: types_dev,
             author_principal: self.my_principal,
             group: *group_id,
             antecedents: approvals,
             lamport,
-            timestamp: now,
             payload,
             signature: vec![],
         };
@@ -1286,7 +1279,6 @@ where
         use crate::types::DeviceId as TypesDeviceId;
 
         let types_dev = TypesDeviceId::new(signer.device_id().0);
-        let now = unix_now();
 
         // RoleRevoke payload: PrincipalId(32).
         let mut payload = Vec::with_capacity(32);
@@ -1294,14 +1286,13 @@ where
 
         let lamport = self.next_lamport();
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RoleRevoke,
             author_device: types_dev,
             author_principal: self.my_principal,
             group: *group_id,
             antecedents: approvals,
             lamport,
-            timestamp: now,
             payload,
             signature: vec![],
         };
@@ -1332,7 +1323,6 @@ where
         use crate::types::DeviceId as TypesDeviceId;
 
         let types_dev = TypesDeviceId::new(signer.device_id().0);
-        let now = unix_now();
 
         // RuleChange payload: rule_key(1) || new_value(4, BE).
         let mut payload = Vec::with_capacity(5);
@@ -1341,14 +1331,13 @@ where
 
         let lamport = self.next_lamport();
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::RuleChange,
             author_device: types_dev,
             author_principal: self.my_principal,
             group: *group_id,
             antecedents: approvals,
             lamport,
-            timestamp: now,
             payload,
             signature: vec![],
         };
@@ -1378,7 +1367,6 @@ where
         use crate::types::DeviceId as TypesDeviceId;
 
         let types_dev = TypesDeviceId::new(signer.device_id().0);
-        let now = unix_now();
 
         // Approval payload: act_type(2, BE) || subject(32).
         let mut payload = Vec::with_capacity(34);
@@ -1387,14 +1375,13 @@ where
 
         let lamport = self.next_lamport();
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Approval,
             author_device: types_dev,
             author_principal: self.my_principal,
             group: *group_id,
             antecedents: vec![],
             lamport,
-            timestamp: now,
             payload,
             signature: vec![],
         };
@@ -1419,21 +1406,19 @@ where
 
         let traits_dev = signer.device_id();
         let types_dev = TypesDeviceId::new(traits_dev.0);
-        let now = unix_now();
 
         // Shared wire codec (body || reply || channel marker).
         let payload = crate::types::encode_message_payload(&body, reply_to, channel);
 
         let lamport = self.next_lamport();
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Message,
             author_device: types_dev,
             author_principal: self.my_principal,
             group: *group_id,
             antecedents: vec![],
             lamport,
-            timestamp: now,
             payload,
             signature: vec![],
         };
@@ -1461,7 +1446,6 @@ where
 
         let traits_dev = signer.device_id();
         let types_dev = TypesDeviceId::new(traits_dev.0);
-        let now = unix_now();
 
         // AttachmentAdd payload: kind(1) || title_len(4) || title || has_blob(1) || [blob(32)].
         let title_bytes = title.as_bytes();
@@ -1479,14 +1463,13 @@ where
 
         let lamport = self.next_lamport();
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::AttachmentAdd,
             author_device: types_dev,
             author_principal: self.my_principal,
             group: *group_id,
             antecedents: vec![],
             lamport,
-            timestamp: now,
             payload,
             signature: vec![],
         };
@@ -1523,7 +1506,6 @@ where
 
         let traits_dev = signer.device_id();
         let types_dev = TypesDeviceId::new(traits_dev.0);
-        let now = unix_now();
 
         // VouchPayload: subject(32) || ctx_len(4) || ctx_bytes || strength(1).
         let ctx_bytes = context.0.as_bytes();
@@ -1539,14 +1521,13 @@ where
 
         let lamport = self.next_lamport();
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Vouch,
             author_device: types_dev,
             author_principal: self.my_principal,
             group: group_id,
             antecedents: vec![],
             lamport,
-            timestamp: now,
             payload,
             signature: vec![],
         };
@@ -1714,13 +1695,6 @@ where
 // Free functions
 // ---------------------------------------------------------------------------
 
-fn unix_now() -> u64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_secs()
-}
-
 fn role_to_u8(r: &Role) -> u8 {
     match r {
         Role::Owner => 0,
@@ -1780,13 +1754,13 @@ fn apply_timeline_window(
             let skip = raw_entries.len().saturating_sub(*n);
             raw_entries.into_iter().skip(skip).collect()
         }
-        TimelineWindow::Since(ts) => raw_entries
+        TimelineWindow::Since(since_lamport) => raw_entries
             .into_iter()
-            .filter(|e| e.timestamp >= *ts)
+            .filter(|e| e.lamport >= *since_lamport)
             .collect(),
         TimelineWindow::Range(lo, hi) => raw_entries
             .into_iter()
-            .filter(|e| e.timestamp >= *lo && e.timestamp <= *hi)
+            .filter(|e| e.lamport >= *lo && e.lamport <= *hi)
             .collect(),
         TimelineWindow::Around(h) => {
             let center_pos = raw_entries.iter().position(|e| &e.hash == h);
@@ -1859,12 +1833,10 @@ fn decode_envelope_from_canonical(raw: &[u8]) -> Result<AssertionEnvelope, Strin
         off += 32;
         antecedents.push(Hash::new(h));
     }
-    if raw.len() < off + 8 + 8 + 4 {
+    if raw.len() < off + 8 + 4 {
         return Err("envelope truncated before lamport".to_string());
     }
     let lamport = u64::from_be_bytes(raw[off..off + 8].try_into().unwrap());
-    off += 8;
-    let timestamp = u64::from_be_bytes(raw[off..off + 8].try_into().unwrap());
     off += 8;
     let payload_len = u32::from_be_bytes(raw[off..off + 4].try_into().unwrap()) as usize;
     off += 4;
@@ -1888,7 +1860,6 @@ fn decode_envelope_from_canonical(raw: &[u8]) -> Result<AssertionEnvelope, Strin
         group: GroupId::new(grp),
         antecedents,
         lamport,
-        timestamp,
         payload,
         signature,
     })
@@ -1996,14 +1967,13 @@ mod tests {
 
         // Genesis.
         let mut genesis = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::GroupGenesis,
             author_device: device,
             author_principal: principal,
             group: group_id,
             antecedents: vec![],
             lamport: *lamport_start,
-            timestamp: 1_700_000_000,
             payload: genesis_payload(signer.device_id().0[0]),
             signature: vec![],
         };
@@ -2013,14 +1983,13 @@ mod tests {
 
         // Add owner.
         let mut add = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: principal,
             group: group_id,
             antecedents: vec![],
             lamport: *lamport_start,
-            timestamp: 1_700_000_001,
             payload: membership_add_payload(&principal, &Role::Owner),
             signature: vec![],
         };
@@ -2104,14 +2073,13 @@ mod tests {
 
         // Genesis at lamport 1 (founder becomes Owner -> may post Messages).
         let mut genesis = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::GroupGenesis,
             author_device: device,
             author_principal: owner,
             group: group_id,
             antecedents: vec![],
             lamport: 1,
-            timestamp: 1_700_000_000,
             payload: genesis_payload(signer.device_id().0[0]),
             signature: vec![],
         };
@@ -2120,14 +2088,13 @@ mod tests {
 
         // A Message reusing lamport 1 (== prior) must be rejected.
         let mut equal = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Message,
             author_device: device,
             author_principal: owner,
             group: group_id,
             antecedents: vec![],
             lamport: 1,
-            timestamp: 1_700_000_000,
             payload: message_payload("dup-lamport"),
             signature: vec![],
         };
@@ -2144,14 +2111,13 @@ mod tests {
 
         // The same Message at lamport 2 (N+1) must apply.
         let mut next = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Message,
             author_device: device,
             author_principal: owner,
             group: group_id,
             antecedents: vec![],
             lamport: 2,
-            timestamp: 1_700_000_000,
             payload: message_payload("ok-lamport"),
             signature: vec![],
         };
@@ -2343,14 +2309,13 @@ mod tests {
             let fold = crate::fold_derived::DerivedFold::new(Arc::clone(&db), verifier, cred);
             let device_b = TypesDeviceId::new(signer_b.device_id().0);
             let mut genesis_b = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::GroupGenesis,
                 author_device: device_b,
                 author_principal: owner_b,
                 group: group_id,
                 antecedents: vec![],
                 lamport: 1,
-                timestamp: 1_700_000_005,
                 payload: genesis_payload(signer_b.device_id().0[0]),
                 signature: vec![],
             };
@@ -2510,14 +2475,13 @@ mod tests {
             let fold = crate::fold_derived::DerivedFold::new(Arc::clone(&db), verifier, cred);
             let device = TypesDeviceId::new(signer.device_id().0);
             let mut add = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::MembershipAdd,
                 author_device: device,
                 author_principal: owner,
                 group: group_id,
                 antecedents: vec![],
                 lamport: lam,
-                timestamp: 1_700_000_002,
                 payload: membership_add_payload(&member, &Role::Member),
                 signature: vec![],
             };
