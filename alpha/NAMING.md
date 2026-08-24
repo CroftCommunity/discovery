@@ -529,7 +529,13 @@ through corporate fiat and extraction"* (tagline/document slot only; Netflix's N
 owns the product-name space).
 
 **Carried forward:** the pad-design content under the Graze section (theme discipline, the `/f/`
-path decision — now ratified by the Forage decision, the commons framing) stands. **`graze.ing`
-disposition (E73) is still the user's open call** — retire / redirect-to-forage / hold; the Graze
-mock still lives there. The Amble coexistence-letter thread is moot. Raw session:
+path decision — now ratified by the Forage decision, the commons framing) stands. The Amble
+coexistence-letter thread is moot. Raw session:
 `seeds/transcripts/raw/forage-naming-social-forum-2026-08-21.md`; COHESION §75.
+
+**Executed 2026-08-23 (rename plan, `forage/plans/2026-08-21-1-plan-rename-graze-to-forage.md`):**
+the mock is renamed and serves at **https://forage.fyi** (TLS live; repo
+`CroftCommunity/graze` → **`forage`**, local `CroftC/forage`); **`graze.ing` is RETIRED DARK**
+(owner's E122(c)/OQ2 call — all DNS records removed, no redirect; registration kept, lapse
+decision deferred to renewal). E73 closed. Owner brand art (rook mascot — banner, wreath logo,
+wreath icon) archived at `seeds/forage-brand/`.
