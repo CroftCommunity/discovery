@@ -2030,3 +2030,141 @@ capabilities they are converging shapes, and nobody has decided to have two impl
 retention-shaped feature, or when a meer implementation starts, bring both designs to one table
 before either hardens. Tracked from `plans/REVIEW-social-tree-core-alignment-2026-08-20.md` §7;
 related: E117 (P2 ADR), the E106 token's at-need dial, S12's custodial-write finding.
+
+## 75. 2026-08-21 — the forum name lands on the third try, and the deciding filter was the user's ear, not the register
+
+**CLOSED (naming supersession, the third and final in the chain §61/§64 tracked).** Graze
+(premature, and confirmed occupied — the Graze bsky feed-builder company) → Amble (CONTESTED,
+never cleared; A20's coexistence letter now moot) → **Forage, decided and acted 2026-08-21**
+(forage.fyi purchased in-session after same-session clearance; `/f/` paths; members =
+"foragers"). Raw: `seeds/transcripts/raw/forage-naming-social-forum-2026-08-21.md`; memo:
+`research/forage-name-clearance-2026-08.md`; NAMING.md updated with the supersession banner on
+the Amble section.
+
+Two findings worth keeping beyond the decision itself. **(a) The filter that killed candidates
+was never the register — it was the sound-alike/name-lookalike ear** (wimple≈wimp, eddy≈Ed,
+leat≈leet, smiddy≈Smitty, brook≈Brooke): the session's five register pivots all produced
+viable-on-paper names that failed the same test, and Forage is distinctive partly because it
+passes it. That test should be applied *first*, not last, in any future naming lane (Noria,
+Bluebird, the pads). **(b) The graze/amble failure mode — a live same-category occupant found
+late — was checked hardest this time and re-occurred on the leading alternative:** Rookery fell
+to rookery.network ("social media for research papers") + Roost Social's in-app "rookery"
+vocabulary, found only by targeted search after three rounds of warming to the name. The
+clearance order that worked: sound-alike ear → domain sweep → **category-targeted collision
+search** → trademark knockout → price.
+
+Loose ends surfaced, not resolved (E122): the unpurchased defensive domains (graze.fyi,
+forage.rs, forage.exchange/.place); **the E73 `graze.ing` disposition is still open** and now
+reads retire / redirect-to-**forage** / hold; A20's remaining Amble work is retired except as
+history. The optional corvid brand-world (ravens/Huginn+Muninn as notification lore; "Nevermore"
+as the governance charter's name — the owner's anti-enshittification vow) is recorded in the
+memo for whenever the forum's about-page/charter gets written — it connects directly to the
+enclosure/commons narrative (`narrative/verticals/croft-the-name-and-the-commons.md`): the
+charter-as-refusal is the 1886 Crofters' Act shape, named honestly this time.
+
+## 76. 2026-08-23 — a Gemini lookup batch: the drift grep catches a refuted claim re-entering, and two seams land on existing threads
+
+**The material:** `seeds/transcripts/raw/webauthn-prf-atproto-clients-bskychat-waypoints-gemini-2026-08-23.md`
+(cleaned-paste, Gemini, dialogue date unknown). No new ROADMAP row — both seams attach to
+existing items.
+
+**DRIFT CAUGHT (the discipline working):** the paste reintroduces *"the atmessaging-proto working
+group defining a decentralized, open-standard MLS framework"* + "Bluesky is integrating MLS" —
+exactly the claim the FACTCHECK SoT records as **REFUTED** (no such WG; MLS/Matrix/Signal are
+possible-future-only; atproto E2EE is third-party, i.e. Germ). The §4 drift grep flagged it before
+filing; the raw carries inline CORPUS FLAGs at both occurrences. Recorded here because this is the
+first time a refuted claim tried to re-enter via a *different assistant* — the grep list is
+model-agnostic and earning its keep.
+
+**Seam 1 — Waypoints ↔ the tier-zero deep-link resolver (OPEN):** Waypoints
+(`@aturi.to/waypoints`, ECOSYSTEM §5m, `[UNVERIFIED]`) is prior art for the corpus's tier-zero
+deep-link resolver thread (the make-or-break acquisition-path item; E10/E11 satellites): an "Open
+in…" picker resolving `at://` URIs to the viewer's preferred client. Narrower than ours (atproto
+URIs only, no pad/pond routing), but the interaction pattern and the client-registry problem are
+the same — study it (verify it's real first) before building.
+
+**Seam 2 — WebAuthn-PRF-derived keys ↔ key custody / total-device-loss recovery (OPEN):** the
+PRF mechanism (passkey + app salt → deterministic 32-byte secret → HKDF → arbitrary keypairs;
+verified baseline in `research/2026-07-27-social-tree-factcheck.md`) is a candidate ingredient
+for the corpus's **top open protocol problem** — multi-device + total-device-loss recovery
+(backup-vs-delegation fork): a passkey synced by a platform authenticator is a
+user-already-owns-it root of entropy that could re-derive device or vault keys. Adjacent to E68's
+passkey/DPoP auth legs. Not promoted to its own row — it's a mechanism note, not a workstream;
+whoever picks up the recovery fork should read this seam.
+
+## 77. 2026-08-23 — the browser-calling constraint grows a candidate architecture (with named verification gates), and openprices lands in the enclosure argument
+
+**The material:** `seeds/transcripts/raw/wasm-pwa-openprices-chatto-iroh-webrtc-blacksky-gemini-2026-08-23.md`
+(cleaned-paste, Gemini, six bodies). Distilled → **E130** (openprices), **E131** (browser calling
+tier), ECOSYSTEM §5m rows.
+
+**§73 advanced, not closed (OPEN):** §73 pinned *browser = relay-only for iroh*. This session
+turns the constraint into a **candidate architecture** matching an explicit owner requirement
+(quoted in E131): thin guest tier = browser-native WebRTC direct-or-honest-failure; insider tier =
+gated tunnel; **one** iroh-relay process. The dialogue's own critical review supplies the honest
+boundaries (iroh-relay is not TURN → fallback is an explicit client transport switch; a signaling
+route is new work). **RISK RECORDED:** the dialogue's load-bearing crate `iroh-webrtc-transport`
+is FACTCHECK-flagged as likely nonexistent, and its `enable_stun` claim may be superseded by QAD in
+iroh 1.0 — E131's verification gates exist precisely so no plan inherits these as facts. Ground
+truth for the gating half is **croft-stack's shipped admission machinery** (croft-admit
+`/grantCall`, token-gated relay) — the corpus already built what Gemini's `access.http` webhook
+merely gestures at; any E131 design must join that seam, not invent a parallel one. Precedent
+worth studying: **Jitsi's** shipped P2P→SFU dynamic handoff (the inverse migration, same
+machinery); **LiveKit** documents the deliberate opposite (always-SFU) — useful as the road not
+taken and for its scoped-JWT admission parallel.
+
+**openprices ↔ the enclosure argument (OPEN, E130):** the GasBuddy exchange is a clean case study
+of the exact structural failure the corpus's anti-extraction thesis names — users donate data, a
+corporation owns the compiled ledger and sells the location trails. openprices is the razor
+applied to economic data: records in user PDSs, open firehose, anyone re-indexes; an aggregator
+that manipulates gets routed around. Same argument shape as E62's no-API-cutoff case; the
+web-of-trust ≤3-hop aggregation weighting echoes the social-tree radius model (E62/E63/E118) —
+the radius idea is becoming a recurring corpus primitive.
+
+**Contrast note (Chatto/LiveKit, `[UNVERIFIED]` product):** Chatto's fully-brokered SFU calls are
+the conventional answer croft's calling ladder deliberately did not take (direct QUIC with relay
+fallback); filed as contrast, not influence.
+
+## 78. 2026-08-23 — the forum dialogue is Forage's design lineage, "incentivization resistance" gets coined with an extraction order, and Threema is a shipped reference for the recovery fork
+
+**The material:** `seeds/transcripts/raw/forum-client-incentivization-resistance-threema-sync-gemini-2026-08-23.md`
+(cleaned-paste, Gemini; owner turns verbatim — they carry the load). Distilled → **E132**;
+ECOSYSTEM §5m rows.
+
+**Body A is Forage-lineage design material (OPEN, feeds E73/E122/A20):** the owner's forum-over-
+Bluesky thinking — feeds-as-subreddits, likes-as-upvotes with a presentation-local downvote
+lexicon, "rotate the box" (columns↔rows — the same inversion treesocial makes visually, E118),
+the 2–3-degree local social tree as the browsing frame, the real-person VC credential with a
+humans-only toggle — is recognizably the design ancestry/companion of the Forage forum project
+and the E62/E63 Social-Tree thread. Ordering vs the 2026-07-27 Claude Social-Tree dialogue is
+**unknown** (this Gemini session is undated) — recorded as a relation, not a sequence.
+
+**The coinage (→ E132, owner: "I want to note it for extraction later"):** *incentivization
+resistance* — the cause-side complement to Doctorow's effect-side enshittification. The owner's
+formulation and the mechanism set (local-first PWA + direct-to-PDS + portable identity + co-op
+membership economics + Rust/Blossom versioned LTS apps) are preserved verbatim in the raw, with
+Gemini's expanded 4-section manifesto sketch. Flagged as a `crystallized/principles.md` candidate
+**for an owner-approved pass, not unilaterally added** — it slots beside *compute provenance,
+never utility* and speaks directly to the existential sustainability-mechanism open item.
+
+**Threema ↔ the top open protocol problem (OPEN — informative reference, all `[UNVERIFIED]`,
+SoT `research/messaging-solutions-landscape.md`):** Threema's architecture is a *shipped*
+instance of one arm of the backup-vs-delegation fork: single master device holding the only
+private key + cryptographically subordinate linked devices + an **identity-only** encrypted
+backup (Threema Safe — keys/contacts/groups, never history) + blind-switchboard multi-device
+sync ("message reflection" through a Mediator Server holding a device-group key it cannot read).
+Notable for us: the Mediator's queue-encrypted-state-changes-for-offline-devices shape is
+architecturally kin to **meer's CISS custodian queues** (per-DID store-and-forward) — one more
+independent convergence on that shape. Their single-primary-phone rationale (OS background-kill
+makes two mobile masters drift; dumb servers = minimal metadata; master-key cloning doubles the
+attack surface) is a compact argument the recovery-fork design should answer or adopt.
+
+**Threema calls ↔ croft M4 client (OPEN, practical):** the VoIP-push → CallKit /
+ConnectionService handoff pattern (and the policy fences: PushKit-must-report-CallKit, Play's
+full-screen-intent audit, FCM priority quotas) is exactly the terrain croft's calling client
+enters next (incoming-call UX, the three call-endings E129, callee camping O1). Verify against
+platform docs when that work starts — the pattern summary lives in the raw, Body B.
+
+**Small flag:** ECOSYSTEM now contains two unrelated "Sifa"s — the professional-identity
+workspace (§5c-2 row) and `sifa.id/stats` PDS analytics (§5m). Named here so the collision is a
+lookup, not a confusion.

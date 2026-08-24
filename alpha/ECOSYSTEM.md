@@ -404,6 +404,30 @@ never someone else's ontology shipped wholesale, never a runtime dependency.
 | academic (AllRecipes / Food.com corpora) | **Annotated ingredient-phrase datasets** (6,612 phrases) | Each phrase labeled with Name + State ("ground", "thawed") — the State field is the prep-descriptor class pre-labeled on real recipe language; flagged the highest-value pull | published `[UNVERIFIED]` | build-on (Phase-1 descriptor seeds + Phase-2 external test fixtures) |
 | RPI et al. | **FoodKG** (substitution set) | Substitution pairs scraped from The Cook's Thesaurus + parsed Food.com reviews — **murky redistribution rights**: a reference the human consults while writing Phase-4 rules, never shipped data | published `[UNVERIFIED]` | learn↔ (reference-only; do not redistribute) |
 
+## 5m. The 2026-08-23 Gemini batch — link-routing, calling/media infra, price data, WASM building blocks, PLC analytics (dialogue-sourced, pending verification)
+
+From the 2026-08-23 Gemini filings (raws: `webauthn-prf-atproto-clients-bskychat-waypoints-`,
+`wasm-pwa-openprices-chatto-iroh-webrtc-blacksky-`, and
+`forum-client-incentivization-resistance-threema-sync-gemini-2026-08-23.md`). **All rows
+dialogue-sourced `[UNVERIFIED]`** — Gemini's API shapes, app lists, and figures may be partly
+invented; verify against each real project before building on it. Deliberately NOT registered
+from these sessions: the Bluesky-client listicle (plausibly partly invented;
+Graysky/Blacksky/deck.blue/Openvibe already have rows above) and Threema (messengers SoT is
+`research/messaging-solutions-landscape.md`). Book rows BiblioReads/Hardcover belong with §5k's
+ladder conceptually — kept here per the batch convention, cross-referenced.
+
+| Org/Author | Project | Purpose / relevance | State | Relationship |
+|---|---|---|---|---|
+| @aturi.to | **Atmosphere Waypoints** (`@aturi.to/waypoints`) | "Open in…" client-picker + `at://` URI → web-link resolution for the atproto ecosystem — lets any app hand a post/profile/feed to the viewer's preferred client | claimed live `[UNVERIFIED]` | learn↔ / build-on candidate — **prior art for the tier-zero deep-link resolver** (COHESION §76): same problem space (resolve a protocol address to the user's chosen surface), narrower scope (atproto only) |
+| Open Food Facts | **Open Prices** (prices.openfoodfacts.org) | Crowdsourced price database: receipt/shelf-tag photos + OCR + crowd validation → GTIN + OSM location + price + date, fully open data dumps — but centralized and grocery-scoped | live `[UNVERIFIED]` | learn↔ / build-on — the closest prior art for **openprices (E130)**: proves the contribution loop; the federation half is the part E130 adds |
+| LiveKit | **LiveKit** | Open-source WebRTC SFU: always server-routed (even 1:1, deliberately — recording/egress/AI-agents/telemetry), scoped-JWT room admission, client-side E2EE option | live `[UNVERIFIED]` | learn↔ — the road E131 deliberately does not take for the thin tier; its scoped-JWT admission is a useful parallel to croft-admit's minted tokens |
+| Jitsi (8x8) | **Jitsi Meet** | Hybrid call topology: 1:1 starts direct P2P (TURN fallback), third participant triggers a **seamless live handoff to the Videobridge SFU** without dropping the call | live `[UNVERIFIED]` | learn↔ — the one shipped precedent for **E131**'s opportunistic-direct-with-handoff pattern (inverse direction, same machinery); study before building |
+| — | **Chatto** (chatto.run) | Claimed: Go single-binary team chat on NATS JetStream event sourcing (no SQL DB), ConnectRPC, Svelte 5, Authling OIDC; calls fully brokered via LiveKit | **existence `[UNVERIFIED]`** | contextual — filed as the conventional-brokered contrast to croft's direct-first calling (COHESION §77) |
+| Nostr ecosystem | **Blossom** ("Blobs Stored Simply on Mediaservers") | Media blobs addressed by SHA-256 hash rather than server URL: local caching, cryptographic integrity, mirror fallback — no monetized CDN in the path | live `[UNVERIFIED]` | learn↔ / build-on candidate — **owner-named** in the E132 co-op stack ("PWAs written in Rust and Blossom"); evaluate against atproto blob/CID handling before adopting |
+| ElectricSQL / DuckDB / SQLite / HF / MLC / Microsoft / FFmpeg community | **Client-side WASM building blocks**: PGlite · DuckDB-Wasm · SQLite3-Wasm+OPFS · Transformers.js · WebLLM · ONNX Runtime Web · FFmpeg.wasm | The compute substrate for the local-first PWA line: in-browser relational/analytical/vector DBs, on-device ML (Transformers.js/ONNX already load-bearing in arecipe E119 M4), zero-upload media processing | live (individually) `[UNVERIFIED as characterized]` | build-on — one combined row per the §5g client-side-search precedent; promote a member to its own row when a plan actually adopts it |
+| community (various) | **PLC census tooling**: sifa.id/stats · `plc.directory/export` · mary-ext/atproto-scraping · web.plc.directory | PDS leaderboards/census from the public DID ledger: cursor-poll `/export`, group DIDs by PDS endpoint, probe liveness; source of the ~3,100–3,500-active-PDS figure (`[UNVERIFIED]`) | live `[UNVERIFIED]` | learn↔ — **name collision flagged**: this `sifa.id/stats` is unrelated to the "Sifa" professional-identity row in §5c-2 (COHESION §78) |
+| nikkelma (?) / Hardcover Inc. | **BiblioReads** · **Hardcover** | BiblioReads: open-source Goodreads *front-end* (Nitter pattern — scraped, proxied, tracker-free, self-hostable). Hardcover: indie Goodreads alternative with a public API | live `[UNVERIFIED]` (BiblioReads authorship unconfirmed) | learn↔ — additions to §5k's book-review ladder: the proxy-frontend pattern and a public-API incumbent alternative |
+
 ## 6. P2P / decentralized messengers (the field)
 
 Detailed competitive analysis lives in `research/messaging-solutions-landscape.md`. Relational summary:

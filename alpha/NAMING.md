@@ -420,6 +420,12 @@ large-tier backend vs the plan's read-first Bluesky lens; that fork is tracked i
 
 ## Forum-layer naming (2026-07-31): **Graze → Amble by Croft** — working name, PENDING CLEARANCE (contested, not decided)
 
+> **SUPERSEDED (user, 2026-08-21): the forum-layer name is now **Forage** — decided and acted
+> (forage.fyi purchased), see the next section.** Amble never cleared its CONTESTED gate (the
+> AMBLE NZ coexistence letter was never resolved) and the user reported it "taken as well, and
+> I'm not as [in] love with it." The Meander fallback recorded below is also retired by Forage.
+> This section is kept as the historical Amble-era record.
+
 **Decision (user 2026-07-31).** The forum pad's working name moves from **Graze** to **Amble by Croft**.
 "Graze / Graze by Croft" was premature; **Amble** is the new working register. Not finally settled — the
 field is dense and there is already an existing **"Amble"** in this exact space, so clearance is
@@ -482,3 +488,48 @@ carry "Amble (pending clearance)."
 (a Stellin-style name-clearance gate row + the `graze.ing` disposition on E73 + the E80/E62 fork);
 COHESION §64 (naming supersession) + §66 (the bare-link forum feature). Clearance report:
 `research/amble-name-clearance-2026-07.md`.
+
+## Forum-layer naming (2026-08-21): **Amble → Forage** — DECIDED AND ACTED (forage.fyi purchased)
+
+**Decision (user 2026-08-21, verbatim):** *"I bought forage.fyi -- graze is done, already taken,
+forage it is and we can do /f/ for forum and forage too for the reddit style forum."* Unlike Graze
+(premature) and Amble (contested, never cleared), this one is **settled by purchase after
+same-session clearance**: the forum product is **Forage**, at **forage.fyi**, with the
+**`/f/<community>`** path convention (f = forum *and* forage, e.g. `forage.fyi/f/gardening`) and
+members called **foragers**.
+
+**Why Forage earns it.** It is graze's sibling verb — the same working-landscape register the
+user loved first — and it passes every filter the naming session accumulated: a **nature behavior
+everyone instantly understands** (the tweet test: tweet:birdsong :: forage:going-out-and-finding-
+the-good-stuff), no sound-alike traps (the wimp/ed/leet/Brooke filter), no person-name adjacency,
+and `.fyi` supplies the news/gossip tilt in the TLD itself ("forage, for your information"). Bonus
+tie into the corvid brand material: ravens are the best-documented information-sharing foragers
+(Heinrich — the finder recruits the roost), so the raven story remains available as brand lore.
+
+**Clearance (run before purchase, same session):** no live FORAGE trademark in social/software
+classes (both Forage, Inc. software-adjacent marks DEAD; theforage.com edtech mark is
+careers-services, different class); **nothing named Forage in the atproto/bluesky ecosystem**
+(web sweeps + a grep of the atproto-ecosystem README: zero matches); no social-network incumbent.
+Full memo: `research/forage-name-clearance-2026-08.md`. **NOT LEGAL ADVICE** — knockout search;
+attorney-hour still recommended before our own filing.
+
+**Domain facts:** forage.fyi is **premium-tier** ($8.47 yr-1, ~$16.90/yr renewal in perpetuity;
+1-year initial term is a premium-checkout norm — extend from the panel; **auto-renew on**, lapsed
+premium dictionary words get drop-caught). Taken nearby: forage.social/.app/.club/.day and the
+perfect hack fora.ge (parked). Open-but-unpurchased defensive candidates (owner's call, tracked
+ROADMAP_TODO E122): **graze.fyi**, **forage.rs** ("foragers"), forage.exchange/.place/.news.
+
+**Rejected finalists (don't re-litigate):** **Rookery** (strongest place-name; contested —
+rookery.network is live "social media for research papers" + Roost Social uses "rookery" as
+in-app vocabulary); **Brook**/brook.ing (Brooke, by the user's own name-test); **Humm**
+(Huginn+Muninn → "the hum" — every prime domain already defended; Humm Group fintech). Kept as
+optional brand-world, not names: ravens/Huginn+Muninn as notification lore, and **"Nevermore" as
+the governance charter's name** — the user's reframe: *"nevermore be controled by enshittification
+through corporate fiat and extraction"* (tagline/document slot only; Netflix's Nevermore Academy
+owns the product-name space).
+
+**Carried forward:** the pad-design content under the Graze section (theme discipline, the `/f/`
+path decision — now ratified by the Forage decision, the commons framing) stands. **`graze.ing`
+disposition (E73) is still the user's open call** — retire / redirect-to-forage / hold; the Graze
+mock still lives there. The Amble coexistence-letter thread is moot. Raw session:
+`seeds/transcripts/raw/forage-naming-social-forum-2026-08-21.md`; COHESION §75.
