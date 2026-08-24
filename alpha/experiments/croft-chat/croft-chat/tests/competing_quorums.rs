@@ -64,6 +64,10 @@ fn fold_order(
 
 /// The lexicographically-smaller of two hashes — the canonical order-independent
 /// byte-head naming a conflicting pair (mirrors `fold_derived::min_hash`).
+fn ordered_pair(a: Hash, b: Hash) -> (Hash, Hash) {
+    if a.as_bytes() <= b.as_bytes() { (a, b) } else { (b, a) }
+}
+
 fn min_hash(a: Hash, b: Hash) -> Hash {
     if a.as_bytes() <= b.as_bytes() {
         a
@@ -142,8 +146,11 @@ async fn two_competing_rulechange_quorums() {
     // contradiction status and the IDENTICAL effective rules (order-independence restored).
     // Register: alpha/experiments/SPEC-DIVERGENCE-REGISTER.md (`competing-quorum-autoresolve`,
     // now Reconciled).
-    let expected_head = min_hash(envelope_hash(&change5), envelope_hash(&change9));
-    let expected_status = format!("contradiction:{expected_head}");
+    // §7.3.2/E108 set-valued form: the status carries the PAIR as data; its first
+    // element is exactly the old order-independent byte-head min(H(F), H(G)).
+    let (lo, hi) = ordered_pair(envelope_hash(&change5), envelope_hash(&change9));
+    assert_eq!(lo, min_hash(envelope_hash(&change5), envelope_hash(&change9)));
+    let expected_status = format!("contested:{lo}+{hi}");
 
     assert_eq!(
         s1.fork_status, expected_status,
@@ -296,8 +303,10 @@ async fn contradicted_group_byte_head_is_min_hash_order_independent() {
     let b_removes_a = sign(&id_b, base(&id_b, group, AssertionType::MembershipRemove, 1, vec![envelope_hash(&add_a)], remove_payload(a_principal)));
 
     // The specified byte-head: the lexicographically-smaller of the two remove hashes.
-    let expected_head = min_hash(envelope_hash(&a_removes_b), envelope_hash(&b_removes_a));
-    let expected_status = format!("contradiction:{expected_head}");
+    // §7.3.2/E108: the pair travels as data; pair.0 IS the old min-hash byte-head.
+    let (lo, hi) = ordered_pair(envelope_hash(&a_removes_b), envelope_hash(&b_removes_a));
+    assert_eq!(lo, min_hash(envelope_hash(&a_removes_b), envelope_hash(&b_removes_a)));
+    let expected_status = format!("contested:{lo}+{hi}");
 
     let authors = [&id_o, &id_a, &id_b];
     let setup: Vec<&AssertionEnvelope> = vec![&genesis, &add_a, &add_b];

@@ -1,9 +1,15 @@
 [package]
 name = "local_storage_projection"
 version = "0.1.0"
+license = "AGPL-3.0-or-later"  # R3 truth-up: everything Drystone/Croft (owner, 2026-08-21)
 edition = "2021"
 
 [dependencies]
+# The pure substrate — extracted to croft at E117 P2; this crate is its redb
+# ADAPTER. Pinned by commit per the dependency-sourcing rule. INTERIM URL: the
+# local croft repo (branch p2-social-tree-core); swaps to the github-personal
+# remote at the first push, same rev discipline.
+social-tree-core = { git = "file:///Users/cpettet/git/chasemp/CroftC/croft", rev = "ea2ce71" }
 redb = "2.4"
 blake3 = "1"
 serde = { version = "1", features = ["derive"] }
@@ -11,10 +17,11 @@ serde_cbor = "0.11"
 thiserror = "1"
 tracing = "0.1"
 tokio = { version = "1.18", features = ["sync", "rt", "macros", "rt-multi-thread"] }
+
+[dev-dependencies]
 proptest = "1"
 proptest-derive = "0.4"
 
-[dev-dependencies]
 tempfile = "3"
 
 [features]

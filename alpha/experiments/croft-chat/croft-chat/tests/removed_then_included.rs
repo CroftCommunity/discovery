@@ -92,8 +92,8 @@ async fn removed_then_included_hard_stops_order_independently() {
 
     // Fixed behaviour: the add/remove race is SURFACED as a contradiction and resolved
     // inclusively (X retained — no verdict), order-independently.
-    assert!(s1.fork_status.starts_with("contradiction"), "order 1 hard-stops, got {}", s1.fork_status);
-    assert!(s2.fork_status.starts_with("contradiction"), "order 2 hard-stops, got {}", s2.fork_status);
+    assert!(s1.fork_status.starts_with("contested"), "order 1 hard-stops, got {}", s1.fork_status);
+    assert!(s2.fork_status.starts_with("contested"), "order 2 hard-stops, got {}", s2.fork_status);
     assert!(x1 && x2, "both orders retain X (inclusive resolution, no verdict)");
     assert_eq!(x1, x2, "X's presence no longer depends on arrival order");
     assert_eq!(s1.fork_status, s2.fork_status, "both orders surface the same canonical contradiction status");

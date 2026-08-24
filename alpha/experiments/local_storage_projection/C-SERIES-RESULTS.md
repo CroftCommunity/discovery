@@ -131,3 +131,96 @@ one — safety is C2/C3's fail-closed freshness gate. It makes the per-op ack co
 posture affordable, which is the premise the strict-merge floor rests on (the plan's Reasoning:
 "the strict-merge stall is only livable if corroboration is cheap, and whether it is cheap is C5's
 number").
+
+---
+
+## P1 / E108 — CONTESTED as a first-class membership state (2026-08-22, E117 Phase 1)
+
+**Scope:** canonical §7.3.2 as merged, plus the two review amendments (R4 direction, O9) and
+the owner's 2026-08-21 resolution-authorization decision. **Rung: Modeled** (real fold over a
+real store; governance facts are the experiment envelope, not a wire-final Drystone encoding;
+signatures real Ed25519 on the croft-chat path, MockSigner in-crate).
+
+**Built:** `ForkStatus::Contested(Vec<ContestedEntry>)` — the pair as data (ordered), the
+membership-contested subjects, the replay-withheld facts; two simultaneously open
+contradictions representable (the retired `Contradiction(min-hash)` single slot structurally
+could not). `MembershipView { Member / NotMember / Contested(pairs) }` via total
+`GroupState::membership()` — no boolean accessor. `AssertionType::Resolution (0x000C)`:
+closes exactly one named open pair, charter-quorum-gated (`GroupRules.resolution_threshold`,
+minted at default **2**, dialable by governed `RuleChange`; rides the V5′ Approval machinery
+with the content-hash subject). Closing is not un-deciding: resolved pairs stay
+replay-excluded, derived from the log itself. `GroupState` wire **v2** (5 thresholds +
+contested entries; unknown versions refused loudly). **One shared transition**
+(`compute_next_governance_state`) now serves live ingest AND the rebuild replay — the replay
+previously ran no detection, so a rebuild of a contested store silently lost its hard-stop
+(pre-existing divergence, closed). **O9:** envelope wire **v2** drops the signed wall-clock
+field (Part 1 §2.0.1); standing layout pin + all three decoders refuse v1; timeline windows
+and the compaction age gate become lamport/position-denominated.
+
+**Pins (croft-chat/tests/contested_projection.rs, 5/5 green, RED-first — the four originals
+recorded structurally RED at 2b7afed):** (1) mutual expulsion projects both subjects
+CONTESTED in both arrival orders, byte-identically (head stamp normalized as a locator);
+(2) two open contradictions carried simultaneously, each with its pair; (3) single-author
+resolution refused at the default threshold; (4) quorum resolution closes exactly the named
+pair, the other stays open, post-resolution state byte-identical across orders; (5) resolved
+exclusions persist through later replays (added by survivor triage — the original fixture's
+lamport-1 removes replayed before the adds and no-opped; reworked to post-add lamports).
+
+**Suites:** substrate 102/0; croft-chat workspace 120/0 (both fresh on the rebased tree —
+see the branch log for the exact runs).
+
+**Mutation (bounded, X3-pattern cross-package — the croft-chat suite as killer; full
+re-baseline rides P3 per the vet's R6):** 35 mutants scoped to the new functions
+(`compute_next_governance_state`, `replay_excluding`, `resolved_excluded`,
+`mutual_expulsion_entry`, `detect_authorized_contested`, `membership`, wire codec).
+**30 killed** (29 by the sweep + recheck, 1 hand-run after a patch-apply failure —
+committed-green first, restored via `git checkout HEAD --`). **5 survivors, all triaged:**
+2 equivalent (`seq += → *=` in `replay_excluding` — the per-step seq feeds only intermediate
+bookkeeping overwritten by the head stamp; `&& → ||` in `resolved_excluded` — within the
+governance log only Resolution facts carry 64-byte payloads, so the OR-arm is unreachable);
+4 pre-existing NodeCard `created_at`/`created_by` field-deletion survivors in
+`upsert_node_*`, outside P1's functions, already documented in the X3 ledger. Results:
+scratchpad `p1_mutation_results.json` / `p1_recheck2_results.json`; summary here is the
+durable record.
+
+**Also fixed (exposed by the new preimage, both pre-existing):** the slot-fork `ForkedFrom`
+label was order-dependent with 3+ contenders (last-pairwise only; old green was hash-luck) —
+now the max over all observed contenders, a pure function of the contender set
+(`test_fork_convergence_at_scale` re-pins); `governance.rs`'s decoder copy silently
+mis-parsed v2 (phantom 8-byte read) — third copy of the same decoder, consolidation noted
+for P2's error-split work.
+
+**Spec filings out of this phase → ROADMAP E133** (the §7.3.2 amendment set).
+
+---
+
+## P3 / E117 — real signatures on the authorship plane + the mutation re-baseline (2026-08-23)
+
+**The C4 truth held:** P3 was relocation, not construction. `crypto.rs` moved from
+social-graph-core into the core as `ports::ed25519` (deterministic construction only —
+wasm-clean; SigningKey zeroizes on drop; behind a default feature so the lean arm proves the
+fold needs no crypto crate). **Authorship evidence now runs on real Ed25519 end to end:** the
+five core pins sign every cast fact and verify against the author device's key before
+`evaluate` sees it (core suite 35/0 incl. the O1 fixture); the C-series arms swap their
+stand-ins out — C2's delegating MultiVerifier dies for the stateless real verifier
+(registrations bind DERIVED device ids, never seeds), C3's HeadAck signs/verifies through the
+real port (adapter suite 82/0). **O1's portable slice landed:** the conformance crate's
+EMITTED signing vectors are croft CI fixtures, verified through the core port (good accepts,
+tampered rejects) — the harness now exists for the fold-vector categories at the
+`[gates-release]` pin.
+
+**Per-plane rung, restated:** authorship (signatures over canonical bytes; HeadAck
+sign-the-state) — **real Ed25519**, no stand-ins in the evidence artifacts; governance-fold
+projection — Modeled (real fold, experiment-grade encodings); transport — loopback where
+exercised, per the standing honesty line. Remaining MockSigner usage sits in
+storage-plumbing tests (stage7/surface/governance) where the mock is fixture convenience,
+not the claim.
+
+**Mutation re-baseline (R6) — the new baseline ledger, croft tip `ea2ce71`:** full-crate
+cargo-mutants on social-tree-core: 629 mutants, 21m — **168 caught in-crate, 63 unviable,
+398 in-crate survivors** (update 149 · model 109 · wire 84 · project 49 · ports 7). The
+in-crate-only scope is stated deliberately: the crate's strong killers live corpus-side
+(adapter + croft-chat), reachable via MUTATION.md's `[patch]` recipe; the update.rs
+P1-scope functions already carry cross-package verdicts (30/35 killed, survivors triaged,
+this file §P1). The 398 register is the standing burn-down for corpus-side sweeps at phase
+closes — a periodic audit, not a gate, per the house rule.

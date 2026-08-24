@@ -22,7 +22,8 @@ mod c2 {
     use crate::fold_derived::{DerivedFold, FoldError, IngestResult};
     use crate::head_currency::{admits_membership_origination, HeadCurrency, Stalled};
     use crate::tables::Db;
-    use crate::traits::mocks::{MockCredentialResolver, MockSigner};
+    use crate::traits::mocks::MockCredentialResolver;
+    use social_tree_core::ports::ed25519::{Ed25519Signer, Ed25519Verifier};
     use crate::traits::{
         DeviceId as TraitsDeviceId, PrincipalId as TraitsPrincipalId, Signer, VerifyError, Verifier,
     };
@@ -30,26 +31,6 @@ mod c2 {
         AssertionEnvelope, AssertionType, DeviceId, GroupId, Hash, PrincipalId, Role,
     };
     use std::sync::Arc;
-
-    /// A verifier that knows several devices, delegating to the matching per-device `MockSigner`.
-    struct MultiVerifier {
-        signers: Vec<MockSigner>,
-    }
-    impl Verifier for MultiVerifier {
-        fn verify(
-            &self,
-            device_id: &TraitsDeviceId,
-            message: &[u8],
-            signature: &[u8],
-        ) -> Result<(), VerifyError> {
-            for s in &self.signers {
-                if s.device_id().0 == device_id.0 {
-                    return Verifier::verify(s, device_id, message, signature);
-                }
-            }
-            Err(VerifyError::UnknownDevice(*device_id))
-        }
-    }
 
     fn role_byte(r: &Role) -> u8 {
         match r {
@@ -89,7 +70,7 @@ mod c2 {
 
     /// Build and sign an envelope for `signer`.
     fn signed(
-        signer: &MockSigner,
+        signer: &Ed25519Signer,
         principal: PrincipalId,
         group: GroupId,
         atype: AssertionType,
@@ -98,14 +79,13 @@ mod c2 {
         payload: Vec<u8>,
     ) -> AssertionEnvelope {
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: atype,
             author_device: DeviceId::new(signer.device_id().0),
             author_principal: principal,
             group,
             antecedents,
             lamport,
-            timestamp: 1_700_000_000 + lamport,
             payload,
             signature: vec![],
         };
@@ -114,9 +94,9 @@ mod c2 {
     }
 
     struct World {
-        fold: DerivedFold<MultiVerifier, MockCredentialResolver>,
-        owner: MockSigner,
-        peer: MockSigner,
+        fold: DerivedFold<Ed25519Verifier, MockCredentialResolver>,
+        owner: Ed25519Signer,
+        peer: Ed25519Signer,
         p_owner: PrincipalId,
         p_peer: PrincipalId,
         group: GroupId,
@@ -124,18 +104,18 @@ mod c2 {
 
     /// Boot a two-owner group (threshold 1, self-authorizing) folded at the owner's node.
     fn boot_two_owner_group() -> World {
-        let owner = MockSigner::new([1u8; 32]);
-        let peer = MockSigner::new([2u8; 32]);
+        let owner = Ed25519Signer::from_seed([1u8; 32]);
+        let peer = Ed25519Signer::from_seed([2u8; 32]);
         let p_owner = PrincipalId::new([0x11; 32]);
         let p_peer = PrincipalId::new([0x22; 32]);
         let group = GroupId::new([0x99; 32]);
 
-        let verifier = MultiVerifier {
-            signers: vec![MockSigner::new([1u8; 32]), MockSigner::new([2u8; 32])],
-        };
+        // Stateless real verification: the DeviceId IS the ed25519 key, so the
+        // registrations bind the DERIVED device ids, never the seeds.
+        let verifier = Ed25519Verifier;
         let mut cred = MockCredentialResolver::new();
-        cred.register(TraitsDeviceId([1u8; 32]), TraitsPrincipalId(*p_owner.as_bytes()));
-        cred.register(TraitsDeviceId([2u8; 32]), TraitsPrincipalId(*p_peer.as_bytes()));
+        cred.register(TraitsDeviceId(owner.device_id().0), TraitsPrincipalId(*p_owner.as_bytes()));
+        cred.register(TraitsDeviceId(peer.device_id().0), TraitsPrincipalId(*p_peer.as_bytes()));
         let fold = DerivedFold::new(Arc::new(Db::create_in_memory().unwrap()), verifier, cred);
 
         let owner_dev = DeviceId::new([1u8; 32]);

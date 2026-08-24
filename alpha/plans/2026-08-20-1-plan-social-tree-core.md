@@ -473,3 +473,88 @@ lost-race-UX deferral in P6. New rows: **E120** (DID ↔ persona-key binding sea
 **Status: the execution hold is CLEARED.** Phase 1 starts on the owner's explicit go —
 discovery-side, concurrent with M4; Phase 2 lands in croft at a coordinated moment per the
 sequencing note in P2.
+
+### Phase 1 — EXECUTED AND GREEN (owner's go 2026-08-21; closed 2026-08-22)
+
+TDD RED-first throughout: the four pins recorded structurally RED (the old schema cannot
+express them), then GREEN in three commits (CONTESTED + resolution; O9 envelope v2; pin 5),
+each committed green before any mutation. Delivered exactly the amended P1 scope: the
+set-valued pair-carrying `ContestedEntry` schema; the total `membership()` view (no boolean
+accessor); `Resolution` (0x000C) charter-quorum-gated at the owner's default 2 riding the V5′
+Approval machinery; `GroupState` wire v2 refusing unknown versions; all new logic
+storage-free — and the P2 down payment grew: **one shared transition now serves live ingest
+and the rebuild replay** (the replay previously ran no detection; a rebuilt contested store
+silently lost its hard-stop — pre-existing, closed). O9 landed as the drop (not the fence):
+envelope wire v2, standing layout pin, three decoders refusing v1, timeline windows and the
+compaction age gate now position-denominated. Two more pre-existing defects fixed en route:
+the order-dependent slot-fork label (now max-over-contenders, a pure function of the
+contender set) and a phantom 8-byte read in governance's decoder copy.
+
+Evidence: 5/5 pins; substrate **102/0**; croft-chat workspace **120/0**; bounded X3-pattern
+mutation sweep **30/35 killed**, 5 survivors triaged (2 equivalent with stated arguments, 4
+pre-existing NodeCard survivors from the X3 ledger) — the full re-baseline stays at P3's
+close per R6. Durable record: `experiments/local_storage_projection/C-SERIES-RESULTS.md`
+§P1/E108. Spec filings out of the build: **E133** (§7.3.2 amendment set — the R4 hard-floor
+question plus four edges the build surfaced). E108 retires through this phase.
+
+**Next: Phase 2 (the re-cut, landing in croft) — at a coordinated moment with the live M4
+session per the sequencing note; the crate, workspace, and CI scaffolding land together.**
+
+### Phase 2 — EXECUTED AND GREEN (owner's go 2026-08-23; landed the same day)
+
+The coordinated moment arrived on its own: M4d closed its arc and croft's tree was clean.
+Landed in croft (fast-forwarded to `1d00c05`): the root Cargo workspace;
+**`core/social-tree-core`** — model, wire (ONE public canonical decoder + the
+WIRE-REGISTER), update (the fold plus `evaluate()` over `FoldContext` — the
+state-residency inversion as API), project (horizon, head-ack, head-currency,
+completeness), ports (with the mocks deliberately ungated for the adapter's suites),
+charter (`croft_default()` = E121's close-circle posture; every dial data), metrics
+(no-op §11.11 hooks); AGPL-3.0; purity enforced mechanically (clippy
+disallowed-methods, wasm32 + no-default-features CI arms); the five E108 pins restated
+PURE plus the O3 standing order-independence proptest (27 green). `make gate` green end
+to end — **G6 armed and fired; G7's workflow is wired** (pull_request trigger, one gate
+command) with its watch-it-fail moment reserved for the first push. ADR-0002 records the
+foundation-vs-ponds layering, call-core's resolution (the capability doctrine is about
+authority, not layout), the two-admissions rule, and the effect-composition rule.
+
+Discovery side (`919ddd8`, −3,745 lines): `local_storage_projection` is now the redb
+adapter — seven modules are re-export shims, ingest and the rebuild replay assemble a
+`FoldContext` and call core `evaluate()`, the adapter error bridges variant-to-variant
+(zero downstream churn), and the pin is a git dep by commit (interim file:// URL; swaps
+to the github-personal remote at first push). **The consolidation caught a live defect:**
+the corpus's three decoder copies had two different byte contracts, and one still read
+the retired timestamp slot — every storage boundary now slices the store byte once and
+decodes through core's single decoder. Two toolchain traps surfaced and held: Homebrew's
+same-version rust shadowing rustup (croft's verify.sh already refuses it — the gate
+worked), and the worktree's missing `android/local.properties`.
+
+Evidence, fresh: core 27/0 · adapter 82/0 · croft-chat workspace 120/0 (the corpus-green
+gate, both sides of the pin) · wasm32 and no-default-features arms green · no `redb` in
+the core's tree.
+
+Honest deviations, named with homes: **O1** (conformance vectors as croft CI fixtures)
+rides P3, which needs the signed-preimage vectors anyway; **O4** (fuzz targets) waits for
+nightly in the toolchain manifest — an unrunnable fuzz dir is gate theatre by croft's own
+G2; the **surface command-construction split** (construction core-side) rides P5's tenant
+API; the adapter's **genesis-seed SystemTime** wart stays on the purge list; core doc
+coverage rides the missing_docs ratchet (warn now, deny when clean).
+
+**Next: Phase 3 — real signatures (largely relocating `social-graph-core/src/crypto.rs`)
++ the mutation re-baseline on the new crate (R6), which the re-cut has now made
+X3-simple again (path-dep patch against the pin).**
+
+### Phase 3 — EXECUTED AND GREEN (owner's go 2026-08-23; closed the same day)
+
+Relocation, as C4 promised: `ports::ed25519` (deterministic, wasm-clean, zeroizing,
+feature-gated so the lean arm proves the fold needs no crypto crate). Authorship evidence on
+real Ed25519 end to end — core pins sign-and-verify (35/0 incl. the O1 fixture harness:
+the conformance crate's emitted signing vectors verified through the core port), C2/C3
+stand-ins swapped out (adapter 82/0). Per-plane rung restated in C-SERIES-RESULTS §P3.
+**R6 closed:** full-crate re-baseline (629 mutants: 168 caught in-crate, 63 unviable, 398
+in-crate survivors registered per-module as the standing corpus-side burn-down — the strong
+killers live with the consumers, per MUTATION.md's [patch] recipe; the P1-scope functions
+already carry cross-package verdicts). HeadAck-over-real-transport stays E112, as scoped.
+
+**Next: Phase 4 — the key-layer join. Its ADR beat comes first (Pass-3 Q2): the KeyLayer
+port designed against the real core surface, with the A3-stays-core-side and custody-seam
+invariants recorded before any code.**

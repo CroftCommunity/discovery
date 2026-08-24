@@ -229,14 +229,13 @@ mod scale_tests {
         let device = TypesDeviceId::new(signer.device_id().0);
 
         let mut genesis = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::GroupGenesis,
             author_device: device,
             author_principal: principal,
             group,
             antecedents: vec![],
             lamport,
-            timestamp: 1_700_000_000 + lamport,
             payload: genesis_payload(&device),
             signature: vec![],
         };
@@ -244,14 +243,13 @@ mod scale_tests {
         fold.ingest(&genesis).expect("genesis");
 
         let mut add_owner = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: principal,
             group,
             antecedents: vec![],
             lamport: lamport + 1,
-            timestamp: 1_700_000_001 + lamport,
             payload: membership_add_payload(&principal, &Role::Owner),
             signature: vec![],
         };
@@ -319,14 +317,13 @@ mod scale_tests {
             for m in 0..members_each {
                 let member = make_principal_from_u16((m as u16 + 1) * 100);
                 let mut env = AssertionEnvelope {
-                    version: 0x01,
+                    version: crate::types::ENVELOPE_WIRE_VERSION,
                     assertion_type: AssertionType::MembershipAdd,
                     author_device: device,
                     author_principal: *owner_principal,
                     group: *group_id,
                     antecedents: vec![],
                     lamport: lam,
-                    timestamp: 1_700_000_000 + lam,
                     payload: membership_add_payload(&member, &Role::Member),
                     signature: vec![],
                 };
@@ -339,14 +336,13 @@ mod scale_tests {
             for i in 0..msgs_each {
                 let body = format!("group_msg_{}", i);
                 let mut env = AssertionEnvelope {
-                    version: 0x01,
+                    version: crate::types::ENVELOPE_WIRE_VERSION,
                     assertion_type: AssertionType::Message,
                     author_device: device,
                     author_principal: *owner_principal,
                     group: *group_id,
                     antecedents: vec![],
                     lamport: lam,
-                    timestamp: 1_700_000_000 + lam,
                     payload: message_payload(&body),
                     signature: vec![],
                 };
@@ -359,14 +355,13 @@ mod scale_tests {
             for a in 0..attaches_each {
                 let title = format!("attach_{}", a);
                 let mut env = AssertionEnvelope {
-                    version: 0x01,
+                    version: crate::types::ENVELOPE_WIRE_VERSION,
                     assertion_type: AssertionType::AttachmentAdd,
                     author_device: device,
                     author_principal: *owner_principal,
                     group: *group_id,
                     antecedents: vec![],
                     lamport: lam,
-                    timestamp: 1_700_000_000 + lam,
                     payload: attachment_add_payload(KindTag::ArtifactNote, &title, None),
                     signature: vec![],
                 };
@@ -378,14 +373,13 @@ mod scale_tests {
             // Governance: role grant on first member, then rule change.
             let first_member = make_principal_from_u16(100);
             let mut rg = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::RoleGrant,
                 author_device: device,
                 author_principal: *owner_principal,
                 group: *group_id,
                 antecedents: vec![],
                 lamport: lam,
-                timestamp: 1_700_000_000 + lam,
                 payload: role_grant_payload(&first_member, &Role::Admin),
                 signature: vec![],
             };
@@ -395,14 +389,13 @@ mod scale_tests {
 
             // Rule change: set add_member_threshold = 2.
             let mut rc = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::RuleChange,
                 author_device: device,
                 author_principal: *owner_principal,
                 group: *group_id,
                 antecedents: vec![],
                 lamport: lam,
-                timestamp: 1_700_000_000 + lam,
                 payload: rule_change_payload(0, 2), // key 0 = AddMember
                 signature: vec![],
             };
@@ -514,14 +507,13 @@ mod scale_tests {
         for i in 0..CHAIN_LEN {
             let antecedents = prev_hash.map(|h| vec![h]).unwrap_or_default();
             let mut env = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::Message,
                 author_device: device,
                 author_principal: owner,
                 group,
                 antecedents,
                 lamport: lam,
-                timestamp: 1_700_000_000 + lam,
                 payload: message_payload(&format!("chain_{}", i)),
                 signature: vec![],
             };
@@ -645,14 +637,13 @@ mod scale_tests {
             for mi in 0..MSGS_PER_DEVICE {
                 let lam = base_lam + mi as u64 + 1;
                 let mut env = AssertionEnvelope {
-                    version: 0x01,
+                    version: crate::types::ENVELOPE_WIRE_VERSION,
                     assertion_type: AssertionType::Message,
                     author_device: dev,
                     author_principal: principal,
                     group,
                     antecedents: vec![],
                     lamport: lam,
-                    timestamp: 1_700_000_000 + lam,
                     payload: message_payload(&format!("dev{}msg{}", di, mi)),
                     signature: vec![],
                 };
@@ -731,14 +722,13 @@ mod scale_tests {
         for (s, p) in signers.iter().zip(principals.iter()) {
             let dev = TypesDeviceId::new(s.device_id().0);
             let mut genesis = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::GroupGenesis,
                 author_device: dev,
                 author_principal: *p,
                 group,
                 antecedents: vec![],
                 lamport: 1,
-                timestamp: 1_700_000_000,
                 payload: genesis_payload(&dev),
                 signature: vec![],
             };
@@ -844,14 +834,13 @@ mod scale_tests {
 
         // Genesis is always first.
         let mut genesis = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::GroupGenesis,
             author_device: device,
             author_principal: principal,
             group,
             antecedents: vec![],
             lamport: 1,
-            timestamp: 1_700_000_001,
             payload: genesis_payload(&device),
             signature: vec![],
         };
@@ -861,14 +850,13 @@ mod scale_tests {
         // Add owner so subsequent ops are authorized.
         if count >= 2 {
             let mut add = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::MembershipAdd,
                 author_device: device,
                 author_principal: principal,
                 group,
                 antecedents: vec![],
                 lamport: 2,
-                timestamp: 1_700_000_002,
                 payload: membership_add_payload(&principal, &Role::Owner),
                 signature: vec![],
             };
@@ -881,14 +869,13 @@ mod scale_tests {
             let lam = i as u64 + 1;
             let body = format!("msg_{}", i);
             let mut msg = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: AssertionType::Message,
                 author_device: device,
                 author_principal: principal,
                 group,
                 antecedents: vec![],
                 lamport: lam,
-                timestamp: 1_700_000_000 + lam,
                 payload: message_payload(&body),
                 signature: vec![],
             };
@@ -1095,14 +1082,13 @@ mod scale_tests {
 
         // First message at lamport = lam.
         let mut msg1 = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Message,
             author_device: device,
             author_principal: principal,
             group,
             antecedents: vec![],
             lamport: lam,
-            timestamp: 1_700_000_100,
             payload: message_payload("first"),
             signature: vec![],
         };
@@ -1111,14 +1097,13 @@ mod scale_tests {
 
         // Second message with the SAME lamport=lam (collision).
         let mut msg2 = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Message,
             author_device: device,
             author_principal: principal,
             group,
             antecedents: vec![],
             lamport: lam, // same lamport — collision!
-            timestamp: 1_700_000_101,
             payload: message_payload("second at same lamport"),
             signature: vec![],
         };
@@ -1159,14 +1144,13 @@ mod scale_tests {
         let phantom = TypesHash::new([0xFFu8; 32]);
 
         let mut env = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Message,
             author_device: device,
             author_principal: principal,
             group,
             antecedents: vec![phantom], // dangling reference
             lamport: lam,
-            timestamp: 1_700_000_200,
             payload: message_payload("message with phantom antecedent"),
             signature: vec![],
         };
@@ -1210,14 +1194,13 @@ mod scale_tests {
 
         // First ArtifactRef: claim kind=Group for shared_hash.
         let mut ref_group = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::ArtifactRef,
             author_device: device,
             author_principal: principal,
             group,
             antecedents: vec![],
             lamport: lam,
-            timestamp: 1_700_000_300,
             payload: {
                 let mut p = Vec::with_capacity(33);
                 p.push(KindTag::Group as u8);
@@ -1233,14 +1216,13 @@ mod scale_tests {
         // Second ArtifactRef: same hash but claim kind=ArtifactNote.
         // If the genesis for the actual entity said Group, this is a mismatch.
         let mut ref_note = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::ArtifactRef,
             author_device: device,
             author_principal: principal,
             group,
             antecedents: vec![],
             lamport: lam,
-            timestamp: 1_700_000_301,
             payload: {
                 let mut p = Vec::with_capacity(33);
                 p.push(KindTag::ArtifactNote as u8);
@@ -1294,14 +1276,13 @@ mod scale_tests {
 
         // A MembershipAdd payload that is too short (needs 33 bytes; we give 1).
         let mut malformed = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::MembershipAdd,
             author_device: device,
             author_principal: principal,
             group,
             antecedents: vec![],
             lamport: lam,
-            timestamp: 1_700_000_400,
             payload: vec![0xDE], // only 1 byte — malformed!
             signature: vec![],
         };
@@ -1331,7 +1312,7 @@ mod scale_tests {
         // A GroupGenesis payload that is shorter than 50 bytes (fields are decoded
         // with byte-level slicing; engine must reject rather than panic).
         let mut short_genesis = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::GroupGenesis,
             // Use a fresh group so no existing state interferes.
             group: make_group(0xFE),
@@ -1339,7 +1320,6 @@ mod scale_tests {
             author_principal: principal,
             antecedents: vec![],
             lamport: lam + 1, // avoid lamport collision with above
-            timestamp: 1_700_000_401,
             payload: vec![0x00, 0x01], // only 2 bytes — far too short
             signature: vec![],
         };
@@ -1445,14 +1425,13 @@ mod scale_tests {
 
         let mk = |aty, s: &MockSigner, p, lam: u64, payload: Vec<u8>| -> AssertionEnvelope {
             let mut e = AssertionEnvelope {
-                version: 0x01,
+                version: crate::types::ENVELOPE_WIRE_VERSION,
                 assertion_type: aty,
                 author_device: TypesDeviceId::new(s.device_id().0),
                 author_principal: p,
                 group,
                 antecedents: vec![],
                 lamport: lam,
-                timestamp: 1_700_000_000 + lam,
                 payload,
                 signature: vec![],
             };
@@ -1624,14 +1603,13 @@ mod scale_tests {
         boot_group(&fold, &owner, owner_p, group, 1); // genesis + add owner
 
         let mut early = AssertionEnvelope {
-            version: 0x01,
+            version: crate::types::ENVELOPE_WIRE_VERSION,
             assertion_type: AssertionType::Message,
             author_device: TypesDeviceId::new(m1.device_id().0),
             author_principal: m1_p,
             group,
             antecedents: vec![],
             lamport: 1,
-            timestamp: 1,
             payload: message_payload("early"),
             signature: vec![],
         };

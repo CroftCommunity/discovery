@@ -227,7 +227,7 @@ async fn concurrent_remove_and_add_should_resolve_restrictively_regardless_of_ar
         "the CONTRADICTION must be named identically in both arrival orders"
     );
     assert!(
-        status_a.starts_with("contradiction:"),
+        status_a.starts_with("contested:"),
         "expected a hard-stop, got {status_a:?}"
     );
     assert_eq!(
@@ -570,7 +570,7 @@ async fn approving_a_rejoin_concurrently_with_enacting_a_ban_must_resolve_restri
 
     // What the spec REQUIRES: the contradiction is detected and named identically everywhere.
     assert_eq!(st_a, st_b, "the contradiction byte-head must be order-independent");
-    assert!(st_a.starts_with("contradiction:"), "expected a hard-stop, got {st_a:?}");
+    assert!(st_a.starts_with("contested:"), "expected a hard-stop, got {st_a:?}");
 
     println!(
         "G1 CONFIRMED (modeled): both peers detected the SAME contradiction and hard-stopped, with a \
