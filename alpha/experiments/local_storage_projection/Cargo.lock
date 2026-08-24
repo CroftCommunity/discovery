@@ -587,7 +587,7 @@ dependencies = [
 [[package]]
 name = "social-tree-core"
 version = "0.1.0"
-source = "git+file:///Users/cpettet/git/chasemp/CroftC/croft?rev=0faba30#0faba30ef12d13c366f59e0e5a0a3447466524e4"
+source = "git+file:///Users/cpettet/git/chasemp/CroftC/croft?rev=ea2ce71#ea2ce71e503983d74764b3a38f09f13346b0eda5"
 dependencies = [
  "blake3",
  "ed25519-dalek",

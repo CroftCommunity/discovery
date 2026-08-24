@@ -542,3 +542,19 @@ coverage rides the missing_docs ratchet (warn now, deny when clean).
 **Next: Phase 3 — real signatures (largely relocating `social-graph-core/src/crypto.rs`)
 + the mutation re-baseline on the new crate (R6), which the re-cut has now made
 X3-simple again (path-dep patch against the pin).**
+
+### Phase 3 — EXECUTED AND GREEN (owner's go 2026-08-23; closed the same day)
+
+Relocation, as C4 promised: `ports::ed25519` (deterministic, wasm-clean, zeroizing,
+feature-gated so the lean arm proves the fold needs no crypto crate). Authorship evidence on
+real Ed25519 end to end — core pins sign-and-verify (35/0 incl. the O1 fixture harness:
+the conformance crate's emitted signing vectors verified through the core port), C2/C3
+stand-ins swapped out (adapter 82/0). Per-plane rung restated in C-SERIES-RESULTS §P3.
+**R6 closed:** full-crate re-baseline (629 mutants: 168 caught in-crate, 63 unviable, 398
+in-crate survivors registered per-module as the standing corpus-side burn-down — the strong
+killers live with the consumers, per MUTATION.md's [patch] recipe; the P1-scope functions
+already carry cross-package verdicts). HeadAck-over-real-transport stays E112, as scoped.
+
+**Next: Phase 4 — the key-layer join. Its ADR beat comes first (Pass-3 Q2): the KeyLayer
+port designed against the real core surface, with the A3-stays-core-side and custody-seam
+invariants recorded before any code.**

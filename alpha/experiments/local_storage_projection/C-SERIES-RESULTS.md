@@ -191,3 +191,36 @@ mis-parsed v2 (phantom 8-byte read) — third copy of the same decoder, consolid
 for P2's error-split work.
 
 **Spec filings out of this phase → ROADMAP E130** (the §7.3.2 amendment set).
+
+---
+
+## P3 / E117 — real signatures on the authorship plane + the mutation re-baseline (2026-08-23)
+
+**The C4 truth held:** P3 was relocation, not construction. `crypto.rs` moved from
+social-graph-core into the core as `ports::ed25519` (deterministic construction only —
+wasm-clean; SigningKey zeroizes on drop; behind a default feature so the lean arm proves the
+fold needs no crypto crate). **Authorship evidence now runs on real Ed25519 end to end:** the
+five core pins sign every cast fact and verify against the author device's key before
+`evaluate` sees it (core suite 35/0 incl. the O1 fixture); the C-series arms swap their
+stand-ins out — C2's delegating MultiVerifier dies for the stateless real verifier
+(registrations bind DERIVED device ids, never seeds), C3's HeadAck signs/verifies through the
+real port (adapter suite 82/0). **O1's portable slice landed:** the conformance crate's
+EMITTED signing vectors are croft CI fixtures, verified through the core port (good accepts,
+tampered rejects) — the harness now exists for the fold-vector categories at the
+`[gates-release]` pin.
+
+**Per-plane rung, restated:** authorship (signatures over canonical bytes; HeadAck
+sign-the-state) — **real Ed25519**, no stand-ins in the evidence artifacts; governance-fold
+projection — Modeled (real fold, experiment-grade encodings); transport — loopback where
+exercised, per the standing honesty line. Remaining MockSigner usage sits in
+storage-plumbing tests (stage7/surface/governance) where the mock is fixture convenience,
+not the claim.
+
+**Mutation re-baseline (R6) — the new baseline ledger, croft tip `ea2ce71`:** full-crate
+cargo-mutants on social-tree-core: 629 mutants, 21m — **168 caught in-crate, 63 unviable,
+398 in-crate survivors** (update 149 · model 109 · wire 84 · project 49 · ports 7). The
+in-crate-only scope is stated deliberately: the crate's strong killers live corpus-side
+(adapter + croft-chat), reachable via MUTATION.md's `[patch]` recipe; the update.rs
+P1-scope functions already carry cross-package verdicts (30/35 killed, survivors triaged,
+this file §P1). The 398 register is the standing burn-down for corpus-side sweeps at phase
+closes — a periodic audit, not a gate, per the house rule.
