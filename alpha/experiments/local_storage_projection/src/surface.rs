@@ -205,6 +205,12 @@ pub enum SurfaceError {
     InvalidInput(String),
 }
 
+impl From<social_tree_core::update::FoldError> for SurfaceError {
+    fn from(e: social_tree_core::update::FoldError) -> Self {
+        SurfaceError::from(FoldError::from(e))
+    }
+}
+
 impl From<FoldError> for SurfaceError {
     fn from(e: FoldError) -> Self {
         SurfaceError::FoldError(e)
@@ -626,7 +632,7 @@ where
                 .map_err(|e| SurfaceError::StorageError(e.to_string()))?;
 
             let (author, lamport, kind, present) = if let Some(raw) = env_raw {
-                match decode_envelope_bytes(raw.value()) {
+                match social_tree_core::wire::decode_envelope_from_canonical(&raw.value()[1..]) {
                     Ok(env) => {
                         let tgt_kind_byte = key_bytes[35];
                         let tgt_kind_tag =
@@ -679,7 +685,7 @@ where
         let auth_assertions = read_txn.open_table(AUTH_ASSERTIONS).ok()?;
         let raw = auth_assertions.get(hash.as_bytes().as_ref()).ok()??;
 
-        let env = match decode_envelope_bytes(raw.value()) {
+        let env = match social_tree_core::wire::decode_envelope_from_canonical(&raw.value()[1..]) {
             Ok(env) => env,
             Err(_) => {
                 // A stored assertion that won't decode is an invariant violation.
@@ -775,7 +781,7 @@ where
         {
             let (k, v) = item.map_err(|e| SurfaceError::StorageError(e.to_string()))?;
             let bytes = v.value().to_vec();
-            let env = match decode_envelope_bytes(&bytes) {
+            let env = match social_tree_core::wire::decode_envelope_from_canonical(&bytes[1..]) {
                 Ok(env) => env,
                 Err(_) => continue,
             };
@@ -806,7 +812,10 @@ where
         &self,
         versioned_bytes: &[u8],
     ) -> Result<CommandResult<Hash>, SurfaceError> {
-        let env = decode_envelope_bytes(versioned_bytes)
+        if versioned_bytes.len() < 2 {
+            return Err(SurfaceError::StorageError("foreign envelope too short".to_string()));
+        }
+        let env = social_tree_core::wire::decode_envelope_from_canonical(&versioned_bytes[1..])
             .map_err(|e| SurfaceError::StorageError(format!("foreign envelope decode: {e}")))?;
         let group = env.group;
         let kind = env.assertion_type;
@@ -905,7 +914,7 @@ where
                 .map_err(|e| SurfaceError::StorageError(e.to_string()))?;
 
             if let Some(raw) = env_raw {
-                if let Ok(env) = decode_envelope_bytes(raw.value()) {
+                if let Ok(env) = social_tree_core::wire::decode_envelope_from_canonical(&raw.value()[1..]) {
                     if let Ok((ctx, strength)) = decode_vouch_payload(&env.payload) {
                         // Filter by context if requested.
                         if let Some(ctx_filter) = context {
@@ -1784,86 +1793,15 @@ fn apply_timeline_window(
 /// without giving out the full envelope. `None` if the bytes do not decode.
 #[must_use]
 pub fn assertion_order_key(versioned_bytes: &[u8]) -> Option<([u8; 32], u64)> {
-    decode_envelope_bytes(versioned_bytes)
+    if versioned_bytes.len() < 2 {
+        return None;
+    }
+    social_tree_core::wire::decode_envelope_from_canonical(&versioned_bytes[1..])
         .ok()
         .map(|env| (*env.author_device.as_bytes(), env.lamport))
 }
 
-/// Minimal envelope decoder from versioned bytes stored in auth_assertions.
-fn decode_envelope_bytes(versioned: &[u8]) -> Result<AssertionEnvelope, String> {
-    if versioned.is_empty() {
-        return Err("empty bytes".to_string());
-    }
-    // Skip the version byte prepended by the fold engine.
-    let raw = &versioned[1..];
-    decode_envelope_from_canonical(raw)
-}
 
-fn decode_envelope_from_canonical(raw: &[u8]) -> Result<AssertionEnvelope, String> {
-    use crate::types::{DeviceId as TypesDeviceId};
-
-    if raw.len() < 1 + 2 + 32 + 32 + 32 + 4 + 8 + 8 + 4 {
-        return Err(format!("envelope too short: {} bytes", raw.len()));
-    }
-    let mut off = 0;
-    let version = raw[off];
-    off += 1;
-    let at_u16 = u16::from_be_bytes(raw[off..off + 2].try_into().unwrap());
-    off += 2;
-    let assertion_type = crate::types::AssertionType::from_u16(at_u16)
-        .ok_or_else(|| format!("unknown assertion type 0x{:04x}", at_u16))?;
-    let mut dev = [0u8; 32];
-    dev.copy_from_slice(&raw[off..off + 32]);
-    off += 32;
-    let mut prin = [0u8; 32];
-    prin.copy_from_slice(&raw[off..off + 32]);
-    off += 32;
-    let mut grp = [0u8; 32];
-    grp.copy_from_slice(&raw[off..off + 32]);
-    off += 32;
-    let ant_count = u32::from_be_bytes(raw[off..off + 4].try_into().unwrap()) as usize;
-    off += 4;
-    let mut antecedents = Vec::with_capacity(ant_count);
-    for _ in 0..ant_count {
-        if raw.len() < off + 32 {
-            return Err("antecedents truncated".to_string());
-        }
-        let mut h = [0u8; 32];
-        h.copy_from_slice(&raw[off..off + 32]);
-        off += 32;
-        antecedents.push(Hash::new(h));
-    }
-    if raw.len() < off + 8 + 4 {
-        return Err("envelope truncated before lamport".to_string());
-    }
-    let lamport = u64::from_be_bytes(raw[off..off + 8].try_into().unwrap());
-    off += 8;
-    let payload_len = u32::from_be_bytes(raw[off..off + 4].try_into().unwrap()) as usize;
-    off += 4;
-    if raw.len() < off + payload_len + 4 {
-        return Err("payload/sig truncated".to_string());
-    }
-    let payload = raw[off..off + payload_len].to_vec();
-    off += payload_len;
-    let sig_len = u32::from_be_bytes(raw[off..off + 4].try_into().unwrap()) as usize;
-    off += 4;
-    if raw.len() < off + sig_len {
-        return Err("signature truncated".to_string());
-    }
-    let signature = raw[off..off + sig_len].to_vec();
-
-    Ok(AssertionEnvelope {
-        version,
-        assertion_type,
-        author_device: TypesDeviceId::new(dev),
-        author_principal: PrincipalId::new(prin),
-        group: GroupId::new(grp),
-        antecedents,
-        lamport,
-        payload,
-        signature,
-    })
-}
 
 // ---------------------------------------------------------------------------
 // Tests

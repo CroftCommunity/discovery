@@ -409,7 +409,7 @@ pub fn compact_content(
             retained_hashes.push(hash);
             continue;
         }
-        let env_result = decode_envelope_bytes(&versioned_bytes[1..]);
+        let env_result = social_tree_core::wire::decode_envelope_from_canonical(&versioned_bytes[1..]);
         let eligible = match env_result {
             Err(_) => false,
             Ok(env) => {
@@ -592,70 +592,12 @@ fn checkpoint_lamport(db: &Arc<Db>, hash: &TypesHash) -> Option<u64> {
     if raw.is_empty() {
         return None;
     }
-    let env = decode_envelope_bytes(&raw[1..]).ok()?;
+    let env = social_tree_core::wire::decode_envelope_from_canonical(&raw[1..]).ok()?;
     Some(env.lamport)
 }
 
 /// Minimal envelope decoder (reused from fold_derived pattern).
-fn decode_envelope_bytes(raw: &[u8]) -> Result<crate::types::AssertionEnvelope, String> {
-    use crate::types::{AssertionEnvelope, DeviceId as TypesDeviceId, GroupId as TypesGroupId,
-                       PrincipalId as TypesPrincipalId};
 
-    if raw.len() < 1 + 2 + 32 + 32 + 32 + 4 + 8 + 4 {
-        return Err(format!("envelope too short: {} bytes", raw.len()));
-    }
-    let mut off = 0;
-    let version = raw[off];
-    if version != crate::types::ENVELOPE_WIRE_VERSION {
-        return Err(format!(
-            "unknown envelope wire version 0x{version:02x} (this build reads 0x{:02x}); \
-             stale stores must be rebuilt, never reinterpreted",
-            crate::types::ENVELOPE_WIRE_VERSION
-        ));
-    }
-    off += 1;
-    let at_u16 = u16::from_be_bytes(raw[off..off + 2].try_into().unwrap()); off += 2;
-    let assertion_type = crate::types::AssertionType::from_u16(at_u16)
-        .ok_or_else(|| format!("unknown assertion type 0x{:04x}", at_u16))?;
-    let mut dev = [0u8; 32]; dev.copy_from_slice(&raw[off..off + 32]); off += 32;
-    let mut prin = [0u8; 32]; prin.copy_from_slice(&raw[off..off + 32]); off += 32;
-    let mut grp = [0u8; 32]; grp.copy_from_slice(&raw[off..off + 32]); off += 32;
-    let ant_count = u32::from_be_bytes(raw[off..off + 4].try_into().unwrap()) as usize; off += 4;
-    let mut antecedents = Vec::with_capacity(ant_count);
-    for _ in 0..ant_count {
-        if raw.len() < off + 32 {
-            return Err("antecedents truncated".to_string());
-        }
-        let mut h = [0u8; 32]; h.copy_from_slice(&raw[off..off + 32]); off += 32;
-        antecedents.push(TypesHash::new(h));
-    }
-    if raw.len() < off + 8 + 4 {
-        return Err("truncated before lamport".to_string());
-    }
-    let lamport = u64::from_be_bytes(raw[off..off + 8].try_into().unwrap()); off += 8;
-    let payload_len = u32::from_be_bytes(raw[off..off + 4].try_into().unwrap()) as usize; off += 4;
-    if raw.len() < off + payload_len + 4 {
-        return Err("payload/sig truncated".to_string());
-    }
-    let payload = raw[off..off + payload_len].to_vec(); off += payload_len;
-    let sig_len = u32::from_be_bytes(raw[off..off + 4].try_into().unwrap()) as usize; off += 4;
-    if raw.len() < off + sig_len {
-        return Err("signature truncated".to_string());
-    }
-    let signature = raw[off..off + sig_len].to_vec();
-
-    Ok(AssertionEnvelope {
-        version,
-        assertion_type,
-        author_device: TypesDeviceId::new(dev),
-        author_principal: TypesPrincipalId::new(prin),
-        group: TypesGroupId::new(grp),
-        antecedents,
-        lamport,
-        payload,
-        signature,
-    })
-}
 
 // ---------------------------------------------------------------------------
 // Tests

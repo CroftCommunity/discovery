@@ -165,6 +165,7 @@ dependencies = [
  "redb",
  "serde",
  "serde_cbor",
+ "social-tree-core",
  "tempfile",
  "thiserror",
  "tokio",
@@ -390,6 +391,15 @@ name = "shlex"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
+
+[[package]]
+name = "social-tree-core"
+version = "0.1.0"
+source = "git+file:///Users/cpettet/git/chasemp/CroftC/croft?rev=1d00c05#1d00c050c24f35e8563592dc1e9c78e6e36c449c"
+dependencies = [
+ "blake3",
+ "thiserror",
+]
 
 [[package]]
 name = "syn"
