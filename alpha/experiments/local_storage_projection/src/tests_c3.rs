@@ -23,19 +23,20 @@ mod c3 {
     use crate::completeness_ahead::quorum_k;
     use crate::head_ack::{AckOutcome, FreshnessTracker, HeadAck, HeadAckError};
     use crate::head_currency::{admits_membership_origination, HeadCurrency, Stalled};
-    use crate::traits::mocks::{MockCredentialResolver, MockSigner};
+    use crate::traits::mocks::MockCredentialResolver;
+    use social_tree_core::ports::ed25519::{Ed25519Signer, Ed25519Verifier};
     use crate::traits::{DeviceId as TDeviceId, PrincipalId as TPrincipalId, Signer};
     use crate::types::{DeviceId, GroupId, Hash, PrincipalId};
 
     /// A peer: one device (its own MockSigner) attesting on behalf of one lineage (principal).
     struct Peer {
-        signer: MockSigner,
+        signer: Ed25519Signer,
         lineage: PrincipalId,
     }
     impl Peer {
         fn new(device_seed: u8, lineage_seed: u8) -> Self {
             Self {
-                signer: MockSigner::new([device_seed; 32]),
+                signer: Ed25519Signer::from_seed([device_seed; 32]),
                 lineage: PrincipalId::new([lineage_seed; 32]),
             }
         }
@@ -56,16 +57,16 @@ mod c3 {
         cred
     }
 
-    /// Verify one ack the way a receiver would: reconstruct the signer's per-device verifier,
-    /// cross the wire, then verify. Returns the typed error on failure.
+    /// Verify one ack the way a receiver would: cross the wire, then verify with
+    /// the stateless ed25519 verifier — the ack's embedded device IS the key, so
+    /// no per-device reconstruction exists to get wrong. Typed error on failure.
     fn receive(
         ack: &HeadAck,
         cred: &MockCredentialResolver,
     ) -> Result<crate::head_ack::VerifiedHeadAck, HeadAckError> {
         let wire = ack.to_bytes();
         let parsed = HeadAck::from_bytes(&wire)?;
-        let verifier = MockSigner::new(parsed.signer_device.as_bytes().to_owned());
-        parsed.verify(&verifier, cred)
+        parsed.verify(&Ed25519Verifier, cred)
     }
 
     const GROUP: [u8; 32] = [0x99; 32];
@@ -171,8 +172,8 @@ mod c3 {
         assert_eq!(t.freshness(), 2, "two lineages, two vouchers, one object");
 
         // TWO DEVICES OF ONE LINEAGE attesting the same head → still ONE voucher (§5.7).
-        let dev1 = Peer { signer: MockSigner::new([0x31; 32]), lineage: PrincipalId::new([0xC3; 32]) };
-        let dev2 = Peer { signer: MockSigner::new([0x32; 32]), lineage: PrincipalId::new([0xC3; 32]) };
+        let dev1 = Peer { signer: Ed25519Signer::from_seed([0x31; 32]), lineage: PrincipalId::new([0xC3; 32]) };
+        let dev2 = Peer { signer: Ed25519Signer::from_seed([0x32; 32]), lineage: PrincipalId::new([0xC3; 32]) };
         let cred_c = cred_for(&[&dev1, &dev2]);
         let mut t2 = FreshnessTracker::new(group, head, GEN);
         t2.record(&receive(&dev1.ack(group, head, GEN), &cred_c).unwrap());

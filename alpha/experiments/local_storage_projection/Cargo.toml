@@ -9,7 +9,7 @@ edition = "2021"
 # ADAPTER. Pinned by commit per the dependency-sourcing rule. INTERIM URL: the
 # local croft repo (branch p2-social-tree-core); swaps to the github-personal
 # remote at the first push, same rev discipline.
-social-tree-core = { git = "file:///Users/cpettet/git/chasemp/CroftC/croft", rev = "1d00c05" }
+social-tree-core = { git = "file:///Users/cpettet/git/chasemp/CroftC/croft", rev = "0faba30" }
 redb = "2.4"
 blake3 = "1"
 serde = { version = "1", features = ["derive"] }
