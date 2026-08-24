@@ -499,3 +499,46 @@ question plus four edges the build surfaced). E108 retires through this phase.
 
 **Next: Phase 2 (the re-cut, landing in croft) — at a coordinated moment with the live M4
 session per the sequencing note; the crate, workspace, and CI scaffolding land together.**
+
+### Phase 2 — EXECUTED AND GREEN (owner's go 2026-08-23; landed the same day)
+
+The coordinated moment arrived on its own: M4d closed its arc and croft's tree was clean.
+Landed in croft (fast-forwarded to `1d00c05`): the root Cargo workspace;
+**`core/social-tree-core`** — model, wire (ONE public canonical decoder + the
+WIRE-REGISTER), update (the fold plus `evaluate()` over `FoldContext` — the
+state-residency inversion as API), project (horizon, head-ack, head-currency,
+completeness), ports (with the mocks deliberately ungated for the adapter's suites),
+charter (`croft_default()` = E121's close-circle posture; every dial data), metrics
+(no-op §11.11 hooks); AGPL-3.0; purity enforced mechanically (clippy
+disallowed-methods, wasm32 + no-default-features CI arms); the five E108 pins restated
+PURE plus the O3 standing order-independence proptest (27 green). `make gate` green end
+to end — **G6 armed and fired; G7's workflow is wired** (pull_request trigger, one gate
+command) with its watch-it-fail moment reserved for the first push. ADR-0002 records the
+foundation-vs-ponds layering, call-core's resolution (the capability doctrine is about
+authority, not layout), the two-admissions rule, and the effect-composition rule.
+
+Discovery side (`919ddd8`, −3,745 lines): `local_storage_projection` is now the redb
+adapter — seven modules are re-export shims, ingest and the rebuild replay assemble a
+`FoldContext` and call core `evaluate()`, the adapter error bridges variant-to-variant
+(zero downstream churn), and the pin is a git dep by commit (interim file:// URL; swaps
+to the github-personal remote at first push). **The consolidation caught a live defect:**
+the corpus's three decoder copies had two different byte contracts, and one still read
+the retired timestamp slot — every storage boundary now slices the store byte once and
+decodes through core's single decoder. Two toolchain traps surfaced and held: Homebrew's
+same-version rust shadowing rustup (croft's verify.sh already refuses it — the gate
+worked), and the worktree's missing `android/local.properties`.
+
+Evidence, fresh: core 27/0 · adapter 82/0 · croft-chat workspace 120/0 (the corpus-green
+gate, both sides of the pin) · wasm32 and no-default-features arms green · no `redb` in
+the core's tree.
+
+Honest deviations, named with homes: **O1** (conformance vectors as croft CI fixtures)
+rides P3, which needs the signed-preimage vectors anyway; **O4** (fuzz targets) waits for
+nightly in the toolchain manifest — an unrunnable fuzz dir is gate theatre by croft's own
+G2; the **surface command-construction split** (construction core-side) rides P5's tenant
+API; the adapter's **genesis-seed SystemTime** wart stays on the purge list; core doc
+coverage rides the missing_docs ratchet (warn now, deny when clean).
+
+**Next: Phase 3 — real signatures (largely relocating `social-graph-core/src/crypto.rs`)
++ the mutation re-baseline on the new crate (R6), which the re-cut has now made
+X3-simple again (path-dep patch against the pin).**
