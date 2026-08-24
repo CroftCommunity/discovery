@@ -2894,3 +2894,47 @@ What remains for the staging ENFORCE rung is only the owner-gated infra
 with `[camp]` local keys pairing the test phones' endpoint ids. The
 on-device atproto camping proof is the production configuration of the
 seam already proven against the fixture PDS.
+
+### E124 executed — the TLS staging enforce listener is live, loop closed over real TLS — 2026-08-23
+
+Owner authorized ("go"). The rung went from design to host-validated in
+one session (croft-stack `ef48100`…`6e7173a`), and it earned its keep on
+the very first probe:
+
+- **The listener**: `croft-relay-staging` on the production box — same
+  netns (8444 DNAT'd next to 8443), same certsync tmpfs certs, its own
+  unit with half production's cgroup envelope, `admission = "enforce"`
+  verifying the STAGING mint keypair (private half in `CroftC/.env` for
+  the rig's local admit; the box only ever verifies). Guarded by
+  `relay_staging_enabled`, rollback is disable-the-unit (ROLLBACK.md §
+  staging). Production 8443 stayed open-mode and was never restarted.
+- **The rung's first find, minutes in**: a camping token minted by
+  today's admit was refused `SignatureOrMalformed` by the deployed
+  binary even though the signature verified locally against the
+  configured pubkey — the v0.1.1 artifact predates the D3 claims rework
+  and its `tier`-era deserializer rejects `sponsorship`+`scope` claims.
+  The artifact, not the token, was stale. **croft-relay v0.2.0 released
+  as the candidate** (version bumped for the breaking token format) and
+  the staging unit repointed at `/opt/iroh-relay/staging` — the two
+  units stop sharing a binary the moment their formats diverge, which is
+  now the standing pattern: staging rehearses the NEXT artifact.
+- **CI side-find**: both the gate and the release runs died ENOSPC (the
+  suite's two-binaries tests build large nested binaries; rustc printed
+  "No space left on device" in its own error). Both workflows now drop
+  ~25 GB of preinstalled runner toolchains before building. The
+  release asset's sha256 went into ansible from the published checksum
+  file, never typed.
+- **The loop, closed over real TLS on the real box**: token-less
+  `attach_probe` → `denied reason="no_token"`, worded refusal; the
+  camping pass from the rig's local admit (`/campToken`, local-keypair
+  proof, staging key) → `ATTACHED` + `PONG`; and the journal carried
+  `admitted endpoint_id=62a611b472 sponsorship=Unlimited` — **the first
+  `admitted sponsorship=…` attribution ever observed**, previously on
+  M4d's not-yet-seen list. Production 8443 re-probed token-less
+  immediately after: still admitted; shipped v0.4.0 clients unaffected.
+
+Remaining on the rung, for a device session: the app does not yet mint
+at camp (`/campToken` has no client caller — croft M4 scope), and the
+on-device rehearsal wants phones at `-PcroftRelayUrl=https://relay.croft.ing:8444`
+with a LAN admit holding the staging key, `[camp]` local keys pairing
+the phones' endpoint ids.
