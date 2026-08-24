@@ -2168,3 +2168,40 @@ platform docs when that work starts — the pattern summary lives in the raw, Bo
 **Small flag:** ECOSYSTEM now contains two unrelated "Sifa"s — the professional-identity
 workspace (§5c-2 row) and `sifa.id/stats` PDS analytics (§5m). Named here so the collision is a
 lookup, not a confusion.
+
+## 79. 2026-08-23 — the blueprints get their owners named, and the Graze→Forage rename gets its documented trigger
+
+**The material:** `seeds/transcripts/raw/appviewlite-r2-linkedin-reddit-blueprints-feeds-graze-gemini-2026-08-23.md`
+(cleaned-paste, Gemini, multiple undated sessions; the owner's paste-time annotations are the
+load-bearing lines). No new ROADMAP rows — everything lands on existing threads.
+
+**Rename provenance CLOSED (naming lore):** the owner marks the Graze Social thread *"(led to
+graze rename)"* — the discovery that **Graze Social**, an established feed-builder PBC operating
+under the "Graze" name in exactly the adjacent space (custom Bluesky feeds, "own your
+algorithm", sponsored-feed monetization), is what forced the forum project off the Graze name
+(E73's graze.ing acquisition notwithstanding) and onto **Forage** (2026-08-21;
+`research/forage-name-clearance-2026-08.md`). **Neither NAMING.md nor the clearance doc records
+Graze Social as the trigger — this raw is the only provenance.** Worth a line in NAMING.md on
+its next touch (owner's call). The owner also notes the pastoral tagline family (*find your
+pasture / find your herd / a pasture for every passion*) survives the rename — a ready-made
+starting set for Forage's voice.
+
+**Blueprints bound to their projects (OPEN, design inputs):** the owner annotates the
+LinkedIn-shape UI blueprint **→ stellin** and the Reddit-shape blueprint **→ Forage**
+(E73/E122/A20). Both are structural abstractions worth importing into the respective repos'
+design docs when those builds resume — the Reddit one's transparent-sorting note (score +
+time-decay vs opaque "For You") and the forum dialogue's incentivization-resistance stance
+(§78/E132) are the same value stated twice; the LinkedIn one's "relational database masked as a
+social feed" + standardized-data-entry rule is stellin's core shape. Surfaced, not imported —
+repo content belongs in its repo and those imports are their sessions' work.
+
+**Small seams:** the **Treksky black-box observation** (a feed whose trigger rules aren't
+published is unusable as a community door) is a concrete argument for Forage/E62's
+transparent-algorithm stance — publish the rules or it isn't a community. **R2 price points**
+(1–50 TB, `[UNVERIFIED]`, zero-egress + CDN-cache-hit economics) feed the co-op membership math
+(E132 §4; kin to the CISS cost-ceilings/prepaid-meter thread). **The origin-story retelling**
+adds nothing verified — E52's posture stands; the keepable part is the owner's own framing of
+the substrate thesis ("serious applications at real 40M user accessible scale without
+reinventing the wheel"). **Inventaire** joins the book ladder (§5m row, cross-ref §5k);
+**AppViewLite**'s read-only multi-protocol detail stays dialogue-sourced beside its verified
+§5f row.
