@@ -1192,6 +1192,7 @@ where
         &self,
         group_id: &GroupId,
         principal: PrincipalId,
+        kind: social_tree_core::update::RemovalKind,
         approvals: Vec<Hash>,
         signer: &impl Signer,
     ) -> Result<CommandResult<Hash>, SurfaceError> {
@@ -1200,9 +1201,12 @@ where
         let traits_dev = signer.device_id();
         let types_dev = TypesDeviceId::new(traits_dev.0);
 
-        // MembershipRemove payload: PrincipalId(32).
-        let mut payload = Vec::with_capacity(32);
+        // MembershipRemove payload: PrincipalId(32) ‖ §7.6.4 kind(1) — the
+        // caller SAYS whether this is a departure or a ban; the artifacts
+        // are distinct and the distinction is evidentiary.
+        let mut payload = Vec::with_capacity(33);
         payload.extend_from_slice(principal.as_bytes());
+        payload.push(kind.to_wire_byte());
 
         let lamport = self.next_lamport();
         let mut env = AssertionEnvelope {
@@ -2619,7 +2623,13 @@ mod tests {
 
         // Remove via surface (threshold 1, so no approvals needed).
         let remove_result = store
-            .remove_member(&group_id, member_principal, vec![], &signer)
+            .remove_member(
+                &group_id,
+                member_principal,
+                social_tree_core::update::RemovalKind::Ban,
+                vec![],
+                &signer,
+            )
             .await
             .expect("remove_member call succeeded");
 

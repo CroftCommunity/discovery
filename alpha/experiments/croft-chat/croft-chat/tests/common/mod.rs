@@ -24,7 +24,7 @@ use local_storage_projection::fold_derived::{rule_change_approval_subject, Deriv
 use local_storage_projection::tables::Db;
 use local_storage_projection::traits::Signer as _;
 use local_storage_projection::{AssertionEnvelope, AssertionType, DeviceId, GroupId, Hash, PrincipalId};
-use social_graph_core::{Ed25519Signer, Ed25519Verifier, Identity, RegistryCredentialResolver, Session};
+use social_graph_core::{Ed25519Verifier, Identity, RegistryCredentialResolver, Session};
 
 /// A transport whose inbox the test preloads directly, so it controls exactly
 /// which frames each node sees. Nodes here only receive; `publish` is unused.
@@ -61,7 +61,7 @@ pub fn frame(env: &AssertionEnvelope) -> Frame {
 #[must_use]
 pub fn sign(identity: &Identity, mut env: AssertionEnvelope) -> AssertionEnvelope {
     let canonical = env.canonical_bytes();
-    env.signature = Ed25519Signer::new(identity).sign(&canonical);
+    env.signature = identity.signer().sign(&canonical);
     env
 }
 

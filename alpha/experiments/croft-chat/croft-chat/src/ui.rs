@@ -4,7 +4,7 @@
 //! identically under a real terminal and a `TestBackend`. P10 fills the left
 //! pane; P11 adds the right pane timeline + input.
 
-use group_chat_core::ChatView;
+use chat_core::ChatView;
 use ratatui::layout::{Constraint, Layout};
 use ratatui::style::{Modifier, Style};
 use ratatui::widgets::{Block, List, ListItem, Paragraph};
@@ -43,7 +43,7 @@ pub fn draw(frame: &mut Frame, view: &ChatView, focus: Focus) {
 }
 
 fn draw_tree(frame: &mut Frame, area: ratatui::layout::Rect, view: &ChatView, focus: Focus) {
-    use group_chat_core::TreeRow;
+    use chat_core::TreeRow;
     let items: Vec<ListItem> = view
         .tree
         .rows
@@ -100,7 +100,7 @@ pub fn buffer_to_string(buffer: &ratatui::buffer::Buffer) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use group_chat_core::{ChannelNode, GraphTreeView, GroupNode, TimelineView, TreeRow};
+    use chat_core::{ChannelNode, GraphTreeView, GroupNode, TimelineView, TreeRow};
     use ratatui::backend::TestBackend;
     use ratatui::Terminal;
     use social_graph_core::{GroupId, Hash, KindTag, TypedId};

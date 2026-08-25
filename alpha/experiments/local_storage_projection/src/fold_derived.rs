@@ -665,6 +665,52 @@ fn apply_derived_effects_free(
                 // State is updated in GroupState; no additional derived edge needed.
             }
 
+            AssertionType::TokenIssuance | AssertionType::TokenRevocation => {
+                // Chain data only (P4): derived views read these from the
+                // governance log (admission::issuance_view); no graph edge.
+            }
+
+            AssertionType::Admission => {
+                // The span-opening enactment record (P4): mirror the fold —
+                // the MEMBER_OF edge follows the seated roster, so the
+                // standing ceiling is respected exactly (a banned lineage's
+                // admission fact folds without seating, and writes no edge).
+                if env.payload.len() < 104 {
+                    return Err(FoldError::MalformedEnvelope(
+                        "Admission payload too short".to_string(),
+                    ));
+                }
+                let mut pid_bytes = [0u8; 32];
+                pid_bytes.copy_from_slice(&env.payload[32..64]);
+                let merged = TypesPrincipalId::new(pid_bytes);
+                let seated = next_state.as_ref().is_some_and(|st| {
+                    matches!(
+                        st.membership(&merged),
+                        social_tree_core::model::MembershipView::Member(_)
+                    )
+                });
+                if seated {
+                    let merged_typed =
+                        TypedId::new(KindTag::Principal, TypesHash::new(pid_bytes));
+                    upsert_node_stub(txn, &merged_typed, merged, env.lamport, false, None)
+                        .map_err(|e| FoldError::StorageError(e.to_string()))?;
+                    let edge_meta = EdgeMeta {
+                        version: 1,
+                        since_lamport: env.lamport,
+                        since_assertion: hash,
+                        present: true,
+                    };
+                    write_edge_atomic(
+                        txn,
+                        &merged_typed,
+                        EdgeType::MemberOf,
+                        &group_typed_id,
+                        &edge_meta,
+                    )
+                    .map_err(|e| FoldError::StorageError(e.to_string()))?;
+                }
+            }
+
             AssertionType::RuleChange => {
                 // State updated in GroupState; no additional derived edge.
             }
@@ -1486,6 +1532,7 @@ mod tests {
             version: GROUP_STATE_WIRE_VERSION,
             computed_at_gov_head: TypesHash::new([7u8; 32]),
             computed_at_gov_seq: 3,
+            banned: Vec::new(),
             members: vec![(TypesPrincipalId::new([9u8; 32]), Role::Owner, 1)],
             rules: GroupRules {
                 add_member_threshold: 1,
@@ -1567,6 +1614,7 @@ mod tests {
             version: GROUP_STATE_WIRE_VERSION,
             computed_at_gov_head: TypesHash::new([7u8; 32]),
             computed_at_gov_seq: 3,
+            banned: Vec::new(),
             members: vec![],
             rules: GroupRules {
                 add_member_threshold: 1,
@@ -1628,6 +1676,7 @@ mod tests {
     fn membership_remove_payload(principal_seed: u8) -> Vec<u8> {
         let mut p = vec![0u8; 32];
         p.iter_mut().for_each(|b| *b = principal_seed);
+        p.push(0x01); // §7.6.4 kind: ban (these scenarios are governance removals)
         p
     }
 

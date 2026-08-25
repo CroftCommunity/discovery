@@ -120,7 +120,7 @@ impl Session {
             lamport.clone(),
             my_principal,
         );
-        let signer = Ed25519Signer::new(identity);
+        let signer = identity.signer();
         Ok(Self {
             store,
             signer,
@@ -256,10 +256,12 @@ impl Session {
         require_applied(result)
     }
 
-    /// Propose (enact) a `MembershipRemove` of `principal`. `approvals` are the hashes of
-    /// `Approval` facts backing it — required when the remove-member threshold in effect
-    /// is > 1, empty otherwise. Returns the removal's hash. Mirrors the rule-change shape:
-    /// the enacting act references the approvals as its co-signed-op antecedents.
+    /// Propose (enact) a `MembershipRemove` of `principal`, saying its §7.6.4
+    /// `kind` (a departure keeps standing intact; a ban stamps the ceiling).
+    /// `approvals` are the hashes of `Approval` facts backing it — required when
+    /// the remove-member threshold in effect is > 1, empty otherwise. Returns the
+    /// removal's hash. Mirrors the rule-change shape: the enacting act references
+    /// the approvals as its co-signed-op antecedents.
     ///
     /// # Errors
     /// [`SessionError`] if rejected (e.g. below quorum, or the author lacks Owner/Admin)
@@ -268,11 +270,12 @@ impl Session {
         &self,
         group: &GroupId,
         principal: PrincipalId,
+        kind: social_tree_core::update::RemovalKind,
         approvals: Vec<Hash>,
     ) -> Result<Hash, SessionError> {
         let result = self
             .store
-            .remove_member(group, principal, approvals, &self.signer)
+            .remove_member(group, principal, kind, approvals, &self.signer)
             .await
             .map_err(surface_err)?;
         require_applied(result)

@@ -33,7 +33,10 @@ use local_storage_projection::{
 use social_graph_core::{Ed25519Verifier, Identity, RegistryCredentialResolver};
 
 fn remove_payload(subject: PrincipalId) -> Vec<u8> {
-    subject.as_bytes().to_vec()
+    // §7.6.4 kind byte: ban (these scenarios are governance removals).
+    let mut p = subject.as_bytes().to_vec();
+    p.push(0x01);
+    p
 }
 
 /// Fold `order` into a fresh store through the real `DerivedFold`, then read back the

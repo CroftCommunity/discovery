@@ -1,10 +1,12 @@
 //! `App` — the shell's mutable state: the session, the tenant model, and focus.
 //!
 //! The app owns the ports (here, the `Session`); it syncs the pure
-//! `group-chat-core` model from session queries (`refresh`) and performs the
-//! model's effects against the session (P11 wires sends).
+//! `chat-core` model (the croft pond, E117 P5) from session queries
+//! (`refresh`) and performs the model's effects against the session. The
+//! session's ChannelRef converts to the pond's at this boundary — the pond
+//! depends on the substrate only, never on the facade.
 
-use group_chat_core::{
+use chat_core::{
     project, update, ChatView, Effect, GroupRef, Intent, MessageLine, Model, Snapshot, TreeRow,
 };
 use social_graph_core::{GroupId, PrincipalId, Session, TimelineWindow, TypedId};
@@ -186,7 +188,13 @@ impl App {
         let selected_channel = self.model.selected_channel;
 
         let channels = match selected_group {
-            Some(g) => self.session.list_channels(&g).unwrap_or_default(),
+            Some(g) => self
+                .session
+                .list_channels(&g)
+                .unwrap_or_default()
+                .into_iter()
+                .map(|c| chat_core::ChannelRef { id: c.id, name: c.name })
+                .collect(),
             None => Vec::new(),
         };
 
