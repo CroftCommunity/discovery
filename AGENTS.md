@@ -134,6 +134,11 @@ preserve raw verbatim → distill → update connective tissue). The standing in
   convention that the board is a *curated* working surface drawn from `ROADMAP_TODO.md` — not a second
   backlog. Graduate items onto the board; do not re-list them.
 
+- **Workspace tracking scheme** — `CroftC/.claude/TRACKING.md` routes the whole workspace:
+  this file's backlog remains the backlog of record; per-repo `TODO.md` files are ops-only
+  behind a scope header; plan files follow the dated naming + Status + reasoning convention;
+  plan-scoped IDs (M/O/plan-local D) are qualified with their plan when cited outside it.
+
 - **`ECOSYSTEM.md`** — the relational register of related projects/tools (homage / build-on /
   partner / rebroadcast / learn↔). Add or update a row whenever new material names an
   org/project/tool. (§5b atmospheric-web apps; §5c app-layer tooling/clients.)

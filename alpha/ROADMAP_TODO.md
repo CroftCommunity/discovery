@@ -274,6 +274,13 @@ seam. When a new open edge is surfaced (in a transcript, proof, or review), add 
 origin `file:line` so this stays the single place to scan "what's up for consideration." Re-anchor
 line numbers opportunistically — section headers are the durable key.
 
+**ID scopes (2026-08-24).** The lettered rows here (A/B/C/D/E + number) are the only global
+IDs — allocated by appending in the right section; cite them bare. Milestone/open-question IDs
+coined inside a plan (M4, O1, plan-local D-numbers) are plan-scoped: outside their own plan,
+always cite them qualified — "M4 (croft phase11 plan)", "O1 (tiered-admission plan)" —
+because bare collisions already exist across plans. History is not renumbered. Full scheme:
+`CroftC/.claude/TRACKING.md`.
+
 **Beta-staging view (2026-06-25).** The subset of these items that is *beta-bound but not yet settled*
 is staged at the beta gate in `../beta/OPEN-THREADS.md` (with a promotion target + gates per thread), so
 it is tracked toward beta without polluting the resolved themes: T1 = Drystone governance/peer model
