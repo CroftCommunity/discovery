@@ -47,6 +47,13 @@ impl Identity {
         }
     }
 
+    /// A per-call signer over this identity's key (the core's realization —
+    /// the secret leaves only as the substrate's `Signer`).
+    #[must_use]
+    pub fn signer(&self) -> crate::crypto::Ed25519Signer {
+        crate::crypto::Ed25519Signer::from_signing_key(self.signing_key.clone())
+    }
+
     /// The device id: the ed25519 verifying-key bytes.
     #[must_use]
     pub fn device_id(&self) -> DeviceId {
@@ -69,10 +76,6 @@ impl Identity {
         PrincipalId(out)
     }
 
-    /// Borrow the signing key to construct a signer adapter.
-    pub(crate) fn signing_key(&self) -> &SigningKey {
-        &self.signing_key
-    }
 }
 
 #[cfg(test)]

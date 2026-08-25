@@ -26,6 +26,7 @@ mod common;
 
 use common::{has_member, replicate};
 use local_storage_projection::types::{PrincipalId, Role};
+use social_graph_core::RemovalKind;
 use social_graph_core::{Identity, Session};
 
 fn role_of(sess: &Session, group: &local_storage_projection::types::GroupId, who: &PrincipalId) -> Option<Role> {
@@ -73,7 +74,7 @@ async fn membership_remove_quorum_via_session_api() {
     // A2 approves removing M; O enacts referencing the approval — a quorum of two.
     let approval = sess_a2.approve_remove_member(&group, m).await.expect("A2 approves remove M");
     replicate(&sess_a2, &sess_o, &group);
-    sess_o.propose_remove_member(&group, m, vec![approval]).await.expect("remove M at quorum");
+    sess_o.propose_remove_member(&group, m, RemovalKind::Ban, vec![approval]).await.expect("remove M at quorum");
 
     assert!(!has_member(&sess_o, &group, &m), "M removed at O+A2 quorum");
     assert!(has_member(&sess_o, &group, &a2), "A2 retained");
@@ -138,7 +139,7 @@ async fn role_grant_quorum_via_session_api() {
     // M learns the grant; as an Admin it can now remove a member (an act a Member is
     // not authorized for) — remove_member_threshold is still 1, so M acts alone.
     replicate(&sess_o, &sess_m, &group);
-    sess_m.propose_remove_member(&group, n, vec![]).await.expect("M-as-Admin removes N");
+    sess_m.propose_remove_member(&group, n, RemovalKind::Ban, vec![]).await.expect("M-as-Admin removes N");
     assert!(!has_member(&sess_m, &group, &n), "the granted role authorized M to remove N");
 
     // Converges on O: M is Admin, N is gone.
@@ -193,7 +194,7 @@ async fn role_revoke_quorum_via_session_api() {
 
     // P learns the revoke; as a Member it can no longer remove N (Admin-only act).
     replicate(&sess_o, &sess_p, &group);
-    let denied = sess_p.propose_remove_member(&group, n, vec![]).await;
+    let denied = sess_p.propose_remove_member(&group, n, RemovalKind::Ban, vec![]).await;
     assert!(denied.is_err(), "the revoked role withdrew authorization: {denied:?}");
     assert!(has_member(&sess_o, &group, &n), "N was never removed");
 

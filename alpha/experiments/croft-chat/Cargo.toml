@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["social-graph-core", "group-chat-core", "croft-chat"]
+members = ["social-graph-core", "croft-chat"]
 
 [workspace.package]
 edition = "2021"

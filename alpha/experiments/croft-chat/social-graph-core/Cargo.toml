@@ -8,6 +8,9 @@ description = "Tenant-agnostic Drystone social-graph substrate facade over the r
 
 [dependencies]
 local_storage_projection.workspace = true
+# The one ed25519 realization lives in the core since E117 P3; this crate
+# re-exports it (crypto.rs is a shim). Same URL+rev as the substrate pin.
+social-tree-core = { git = "file:///Users/cpettet/git/chasemp/CroftC/croft", rev = "95bc0be" }
 tracing.workspace = true
 thiserror.workspace = true
 # Crypto: implemented directly over ed25519-dalek (Pass-3 decision — no

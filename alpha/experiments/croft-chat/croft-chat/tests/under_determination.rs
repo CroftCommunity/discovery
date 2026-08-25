@@ -37,7 +37,10 @@ use social_graph_core::Identity;
 
 /// MembershipRemove payload: subject principal(32).
 fn remove_payload(subject: PrincipalId) -> Vec<u8> {
-    subject.as_bytes().to_vec()
+    // §7.6.4 kind byte: ban (these scenarios are governance removals).
+    let mut p = subject.as_bytes().to_vec();
+    p.push(0x01);
+    p
 }
 
 #[tokio::test]

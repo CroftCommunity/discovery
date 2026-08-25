@@ -18,6 +18,9 @@ pub use crypto::{
     Ed25519Signer, Ed25519Verifier, MonotonicLamport, RegistryCredentialResolver,
 };
 pub use identity::Identity;
+// The §7.6.4 removal kind rides the session's remove API; re-exported so
+// callers name it without a direct core dependency.
+pub use social_tree_core::update::RemovalKind;
 pub use session::{ApplyOutcome, ChannelRef, Session, SessionError};
 
 // Re-export the substrate view types tenants render, so they depend on

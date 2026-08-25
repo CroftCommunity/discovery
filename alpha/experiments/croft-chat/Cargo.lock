@@ -310,6 +310,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "chat-core"
+version = "0.1.0"
+source = "git+file:///Users/cpettet/git/chasemp/CroftC/croft?rev=95bc0be#95bc0bebbffabc8c88dc95d3757027e3a9d1dd20"
+dependencies = [
+ "social-tree-core",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -474,7 +482,7 @@ name = "croft-chat"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "group-chat-core",
+ "chat-core",
  "iroh",
  "iroh-gossip",
  "local_storage_projection",
@@ -1307,15 +1315,6 @@ dependencies = [
  "ff",
  "rand_core 0.6.4",
  "subtle",
-]
-
-[[package]]
-name = "group-chat-core"
-version = "0.1.0"
-dependencies = [
- "social-graph-core",
- "tempfile",
- "tracing",
 ]
 
 [[package]]
@@ -4176,6 +4175,7 @@ dependencies = [
  "getrandom 0.2.17",
  "local_storage_projection",
  "sha2 0.10.9",
+ "social-tree-core",
  "tempfile",
  "thiserror 1.0.69",
  "tokio",
@@ -4185,7 +4185,7 @@ dependencies = [
 [[package]]
 name = "social-tree-core"
 version = "0.1.0"
-source = "git+file:///Users/cpettet/git/chasemp/CroftC/croft?rev=ea2ce71#ea2ce71e503983d74764b3a38f09f13346b0eda5"
+source = "git+file:///Users/cpettet/git/chasemp/CroftC/croft?rev=95bc0be#95bc0bebbffabc8c88dc95d3757027e3a9d1dd20"
 dependencies = [
  "blake3",
  "ed25519-dalek 2.2.0",
