@@ -2938,3 +2938,29 @@ at camp (`/campToken` has no client caller — croft M4 scope), and the
 on-device rehearsal wants phones at `-PcroftRelayUrl=https://relay.croft.ing:8444`
 with a LAN admit holding the staging key, `[camp]` local keys pairing
 the phones' endpoint ids.
+
+### The on-device ENFORCE run — §12 green end to end — 2026-08-24
+
+The rehearsal the staging listener existed for (croft runbook §12
+results; croft `5240dde`): the Samsung's signed-out camp REFUSED
+(`denied … no_token` — the first phone this enforcement ever turned
+away), sign-in → the self-minted camping pass → `admitted … sponsorship=
+BudgetBytes(262144)` with attribution; the Pixel denied token-less, then
+`minted cap=m1ticket` → admitted → **the first call carried with both
+sides holding passes on an enforcing relay**; E129's endings verbatim on
+both screens; sign-out → refused again. Phones restored to production.
+
+The run's find: a refresh-token race (foreground refresh vs the camp
+mint's, single-use rotation, live `invalid_grant`) — reproduced RED in
+the croft harness and fixed the same session. Two honest gaps remain
+client-side: the app cannot see its own relay-attach refusal (optimistic
+"camped" — E130), and the caller-side camp posture under enforce (an
+account that publishes no endpoint record for the device earns
+`endpoint_unbound` by design — masked this run by the race).
+
+**Consequence: every rung of the tiered-admission design short of the
+production flip is now device-validated.** What remains is operational
+and owner-gated: croft-admit activation prerequisites, then
+`admission = "enforce"` on production — plus O1's atproto camping proof
+is production-configured the moment the admit goes live (the seam needs
+no further code).
