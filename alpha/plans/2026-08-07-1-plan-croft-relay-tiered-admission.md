@@ -2964,3 +2964,36 @@ and owner-gated: croft-admit activation prerequisites, then
 `admission = "enforce"` on production — plus O1's atproto camping proof
 is production-configured the moment the admit goes live (the seam needs
 no further code).
+
+### Activation + the production bake — steps 2–4 of the flip walk executed — 2026-08-24
+
+Three sessions divided the work (croftc-b4: admit release discipline +
+CISS 0.8.0 re-pin + RUNBOOK sheet; croftc-6d elsewhere; this session:
+identity onboarding, box provisioning, the promotion). As of ~02:51Z:
+
+- **croft-admit + ciss-admit are ACTIVE on the box** (loopback): fixed
+  identities 646/647 (the identity role's fresh-onboarding bug — the
+  remap-stop failing on not-yet-existing users — found by the first
+  converge and fixed, pinned by two independent tests), ciss-admit on
+  CISS v0.8.0 (the kind-semantics release the admit store is built
+  against — b4 caught the 0.4.0 mis-pin), croft-admit on the v0.2.0
+  artifact with store=ciss, index=keyed, mint+camp enabled. Secrets
+  provisioned on-box; the mint keypair was GENERATED there and its
+  private half never left.
+- **Production relay PROMOTED to the v0.2.0 candidate, open mode, real
+  key**: journal start line `mode=Open issuer=https://admit.croft.ing
+  pubkey_fingerprint=d5d338085b006f09`; post-restart token-less
+  attach_probe ATTACHED+PONG (shipped clients unaffected). The deploy
+  assertion flipped from forbidding [token] to pinning the production
+  pubkey. **The bake is live**: every pass presented is now verified and
+  attributed in the production journal.
+- **E126 closed** (connect `6cb3632`): the resolver fails closed on an
+  unparseable expiry, boundary pinned both sides (`now <= at`, verbatim
+  caps.rs), mutation survivors killed. **E130(a) landed under tests**
+  (croft `5f922de`): the camped claim is polled truth
+  (`addr().relayUrl()`), "NOT camped — calls cannot reach this device"
+  when the attach hasn't succeeded; device semantics verified in §13.
+- **Remaining before the flip**: `admit.croft.ing` DNS (owner console —
+  currently parked at Porkbun; A 15.204.81.133 / AAAA
+  2604:2dc0:222::431), v0.5.0-rc.1 promotion + install (phones), the
+  §13 bake validation, then the one-word enforce flip.
