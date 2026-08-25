@@ -20,7 +20,7 @@ use croft_chat::fingerprint::{fingerprint, fingerprint_lines};
 use croft_chat::iroh_bus::{IrohGossipBus, RelayChoice};
 use croft_chat::sync::Replicator;
 use croft_chat::transport::Topic;
-use social_graph_core::{GroupId, Identity, PrincipalId, Role, Session, TimelineWindow};
+use social_graph_core::{GroupId, Identity, PrincipalId, Role, Session, TimelineWindow, TokenId};
 
 /// A node's replication trio.
 type Node<'a> = (&'a Session, &'a mut IrohGossipBus, &'a mut Replicator);
@@ -152,4 +152,57 @@ async fn two_nodes_converge_over_iroh_gossip() {
     };
     assert_eq!(count(&session_a), 4, "A has all four messages");
     assert_eq!(count(&session_b), 4, "B has all four messages");
+
+    // Phase 3 (P6): the admission arc rides the same gossip. A mints B's
+    // re-entry token as a chain fact; B departs under the exit floor
+    // (self-authored, no quorum, standing intact); the departure converges.
+    let token = TokenId::new([0x77; 32]);
+    session_a
+        .issue_token(&group, token, b_principal)
+        .await
+        .expect("at-join issuance");
+    session_b.depart(&group).await.expect("the exit floor");
+    assert!(
+        converge_over_iroh(
+            &topic,
+            &group,
+            (&session_a, &mut bus_a, &mut repl_a),
+            (&session_b, &mut bus_b, &mut repl_b),
+        )
+        .await,
+        "phase 3 (departure) must converge over iroh"
+    );
+    let is_member = |s: &Session| {
+        s.get_group_summary(&group)
+            .map(|v| v.members.iter().any(|m| m.principal == b_principal))
+            .unwrap_or(false)
+    };
+    assert!(!is_member(&session_a), "A folded B's departure");
+
+    // Phase 4: the token return. A (the acceptor) decides via the CORE over
+    // its own chain and deposits the Admission fact; the re-opened span
+    // converges to BOTH stores — B learns its own readmission from gossip.
+    session_a
+        .admit_return(&group, b"return request over gossip", token, b_principal, 1)
+        .await
+        .expect("the cross-check admits B");
+    assert!(
+        converge_over_iroh(
+            &topic,
+            &group,
+            (&session_a, &mut bus_a, &mut repl_a),
+            (&session_b, &mut bus_b, &mut repl_b),
+        )
+        .await,
+        "phase 4 (readmission) must converge over iroh"
+    );
+    assert!(is_member(&session_a), "the span re-opened at A");
+    assert!(is_member(&session_b), "and B's own fold agrees, learned over gossip");
+
+    println!(
+        "P6 done-when MEASURED (loopback-grade, stated): membership, four interleaved \
+         messages, a §7.6.4 departure, and the token-return admission arc all converged \
+         over real iroh-gossip between two endpoints. Transport rung: LocalDirect \
+         loopback = Modeled, never Verified; the relay/NAT path stays X1."
+    );
 }

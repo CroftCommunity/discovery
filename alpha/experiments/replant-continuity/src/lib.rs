@@ -218,7 +218,6 @@ impl Chain {
             group: group(),
             antecedents: vec![] as Vec<Hash>,
             lamport,
-            timestamp: 1_700_000_000 + lamport,
             payload,
             signature: vec![],
         };

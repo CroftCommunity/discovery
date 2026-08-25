@@ -19,7 +19,7 @@ social-graph-core = { path = "../social-graph-core" }
 # The chat pond moved to croft at E117 P5; consumed as a git dep pinned by
 # commit (dependency-sourcing rule). Same URL+rev as the substrate pin so
 # cargo unifies the one social-tree-core underneath both.
-chat-core = { git = "file:///Users/cpettet/git/chasemp/CroftC/croft", rev = "95bc0be" }
+chat-core = { git = "file:///Users/cpettet/git/chasemp/CroftC/croft", rev = "86c47cf" }
 local_storage_projection.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true

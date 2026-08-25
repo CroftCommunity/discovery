@@ -36,10 +36,57 @@ pub fn draw(frame: &mut Frame, view: &ChatView, focus: Focus) {
         area
     };
 
-    let columns =
-        Layout::horizontal([Constraint::Percentage(30), Constraint::Percentage(70)]).split(body);
-    draw_tree(frame, columns[0], view, focus);
-    draw_chat(frame, columns[1], view, focus);
+    // Three columns when the selected group has a membership panel: the
+    // truthful roster (standing spelled out, mute markers) earns its space.
+    if view.members.rows.is_empty() {
+        let columns =
+            Layout::horizontal([Constraint::Percentage(30), Constraint::Percentage(70)])
+                .split(body);
+        draw_tree(frame, columns[0], view, focus);
+        draw_chat(frame, columns[1], view, focus);
+    } else {
+        let columns = Layout::horizontal([
+            Constraint::Percentage(25),
+            Constraint::Percentage(50),
+            Constraint::Percentage(25),
+        ])
+        .split(body);
+        draw_tree(frame, columns[0], view, focus);
+        draw_chat(frame, columns[1], view, focus);
+        draw_members(frame, columns[2], view);
+    }
+}
+
+/// The truthful membership panel: seated members with roles, contested
+/// subjects as "membership pending resolution" (E108), the ceiling as
+/// "admission voided" (E116) — and the personal mute marker (E134). The
+/// fold's truth, never a cleaner list.
+fn draw_members(frame: &mut Frame, area: ratatui::layout::Rect, view: &ChatView) {
+    let items: Vec<ListItem> = view
+        .members
+        .rows
+        .iter()
+        .map(|row| {
+            let hex: String = row.principal.as_bytes()[..4]
+                .iter()
+                .map(|b| format!("{b:02x}"))
+                .collect();
+            let mute = if row.muted { " [muted]" } else { "" };
+            let line = if row.standing_label.is_empty() {
+                format!("{hex} {}{mute}", row.role)
+            } else {
+                format!("{hex} — {}{mute}", row.standing_label)
+            };
+            let item = ListItem::new(line);
+            if row.standing_label.is_empty() {
+                item
+            } else {
+                item.style(Style::default().add_modifier(Modifier::DIM))
+            }
+        })
+        .collect();
+    let list = List::new(items).block(Block::bordered().title("members"));
+    frame.render_widget(list, area);
 }
 
 fn draw_tree(frame: &mut Frame, area: ratatui::layout::Rect, view: &ChatView, focus: Focus) {
@@ -77,7 +124,14 @@ fn draw_chat(frame: &mut Frame, area: ratatui::layout::Rect, view: &ChatView, fo
         .iter()
         .map(|l| {
             let pending = if l.pending { " (sending…)" } else { "" };
-            ListItem::new(format!("{}: {}{pending}", l.author, l.body))
+            if l.muted {
+                // Marked, never dropped: hiding the fact of a message would
+                // be lying by omission (E134 mute is a personal filter).
+                ListItem::new(format!("{}: [muted]", l.author))
+                    .style(Style::default().add_modifier(Modifier::DIM))
+            } else {
+                ListItem::new(format!("{}: {}{pending}", l.author, l.body))
+            }
         })
         .collect();
     let timeline = List::new(lines).block(Block::bordered().title("Timeline"));
@@ -128,6 +182,7 @@ mod tests {
             timeline: TimelineView::default(),
             draft: String::new(),
             fork: None,
+            members: Default::default(),
         };
         let text = render(&view, Focus::Tree);
         assert!(text.contains("abcdef01"), "group label shown: {text}");
@@ -156,6 +211,7 @@ mod tests {
             timeline: TimelineView::default(),
             draft: String::new(),
             fork: None,
+            members: Default::default(),
         };
         let text = render(&view, Focus::Tree);
         assert!(text.contains("#photos"), "channel row shown: {text}");
@@ -168,6 +224,7 @@ mod tests {
             timeline: TimelineView::default(),
             draft: String::new(),
             fork: Some("forked_from:abcd".to_string()),
+            members: Default::default(),
         };
         let text = render(&view, Focus::Tree);
         assert!(text.contains("FORK DETECTED"), "banner shown: {text}");
