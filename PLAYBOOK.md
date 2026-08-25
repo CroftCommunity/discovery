@@ -20,11 +20,12 @@ This codifies what has been done by hand so far; keep it current as the process 
 ## 0. The repo set (where things live)
 
 ```
-CroftC/                       (not a repo; holds the repos + .claude orientation)
+CroftC/                       (meta-repo: tracks only README + .claude/ + .gitignore)
 ├── discovery/    thinking & synthesis: seeds, research, thinking, crystallized,
 │                   narrative, ROADMAP, COHESION, ECOSYSTEM, this playbook
-├── Proofs/       durable proofs — verify an invariant → becomes a design principle
-└── experiments/  code-forward spikes — "does this work / what's actually true?"
+├── alpha/Proofs/       durable proofs — verify an invariant → becomes a design principle
+└── alpha/experiments/  code-forward spikes — "does this work / what's actually true?"
+    (both live INSIDE discovery; the standalone Proofs/experiments repos are frozen)
 ```
 
 Git identity on all three: chasemp account — `git@github-personal:CroftCommunity/<repo>.git`,
@@ -43,11 +44,11 @@ Decide what it is — this determines where it lands:
   see `research/README.md`.
 
 - **Proof** (durable, hypothesis-driven, validates an invariant that becomes a principle) →
-  `Proofs/`. Watch for **mixed-in experiments** inside a proof (e.g. a pending live spike) —
+  `alpha/Proofs/`. Watch for **mixed-in experiments** inside a proof (e.g. a pending live spike) —
   flag them, don't relabel the whole thing.
 
 - **Experiment / spike** (code-forward, exploratory, "is this reachable / what's true") →
-  `experiments/`.
+  `alpha/experiments/`.
 
 When unsure between proof and experiment: a **spike** answers "does it work?"; a **proof**
 answers "does this invariant hold such that we can build a principle on it?" If it is
@@ -182,11 +183,12 @@ This repo set is reviewed before commit, so commit only on request. When asked:
 - Use the chasemp identity already set on each repo (`Chase Pettet <chase@owasp.org>`).
 
 - Commit in `discovery` (the single active repo; the folded `Proofs`/`experiments` corpora live under
-  `alpha/` and their standalone repos are frozen and archived). Stage everything new + modified.
+  `alpha/` and their standalone repos are frozen and archived). Stage the session's own files explicitly (`git add <paths>` — never `-A`;
+  `CroftC/.claude/COORDINATION.md` Rule 1a).
   Confirm no secrets/large build artifacts are staged before committing.
 
 - End commit messages with the required co-author trailer:
-  `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`.
+  the acting session's standard Claude co-author trailer.
 
 - **Don't push or open PRs** unless separately asked — committing locally is enough to persist
   across a context clear.

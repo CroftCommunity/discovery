@@ -11,7 +11,8 @@ This is the canonical agent-orientation doc. It lives in `discovery/` so it is
 version-controlled; the top-level `CroftC/.claude/CLAUDE.md` imports it so Claude Code
 auto-loads it when working anywhere under `CroftC/`.
 
-`CroftC/` is not itself a git repo; it holds the work behind **Croft** — an open, sovereign,
+`CroftC/` is a lightweight meta-repo tracking only the orientation layer (`.claude/`,
+`README.md`, `.gitignore`) — every nested repo is git-ignored with its own history. It holds the work behind **Croft** — an open, sovereign,
 peer-to-peer, local-first social/messaging platform meant to be run as a cooperative (non-extractive
 infrastructure). The three original strands (thinking, proofs, experiments) now live in **one repo,
 `discovery/`**: the standalone `Proofs/` and `experiments/` repos were folded into `discovery/alpha/`
@@ -90,8 +91,8 @@ CroftCommunity/connect   CONTRACT OWNER + directory/status web + stopgap android
                          docs/contract.md = the canonical calling contract (lexicon,
                          croftcall:// deep link, cap model). web/ = the exchange page
                          (handle → DID → PDS → endpoint, callability, cap redeem;
-                         Pages at connect.croft.ing). android/ = a stopgap receiver
-                         (shipped v0.1.0 APK) — keep minimal. Has its own CLAUDE.md.
+                         Pages at connect.croft.ing). android/ = retired stopgap
+                         (final v0.2.0; converged into croft/android 2026-08-16). Has its own CLAUDE.md.
 
 croft                    THE CLIENT (new). Shared Rust core + web/android/apple
                          shells. A declared CONSUMER of connect's contract — its
@@ -178,8 +179,9 @@ preserve raw verbatim → distill → update connective tissue). The standing in
   `experiments` repos are frozen and archived. Reading croftc PRs uses the `cpettet_croftc` gh account
   (`gh auth switch`).
 
-- **Don't commit / push / open PRs** on these repos unless explicitly asked — material is
-  reviewed first. When asked to commit, see PLAYBOOK §3b.
+- **Don't commit / push / open PRs** content substance on these repos unless explicitly
+  asked — material is reviewed first. (Orientation/doc-layer commits are routine and
+  pushes always ask-first, per the commit matrix in `CroftC/.claude/COORDINATION.md`.) When asked to commit, see PLAYBOOK §3b.
 
 - **Concurrent sessions:** multi-turn work happens in a worktree (`worktrees/discovery/<slug>`,
   branch `claude/<slug>`), never in the shared checkout; contested surfaces (`ROADMAP_TODO.md`,
