@@ -163,6 +163,11 @@ preserve raw verbatim → distill → update connective tissue). The standing in
 - **Don't commit / push / open PRs** on these repos unless explicitly asked — material is
   reviewed first. When asked to commit, see PLAYBOOK §3b.
 
+- **Concurrent sessions:** multi-turn work happens in a worktree (`worktrees/discovery/<slug>`,
+  branch `claude/<slug>`), never in the shared checkout; contested surfaces (`ROADMAP_TODO.md`,
+  the ledgers, this file) are claimed first. Protocol + reasons:
+  `CroftC/.claude/COORDINATION.md`.
+
 - **Provenance is non-negotiable:** keep raw artifacts verbatim; redact only secrets; mark
   volatile facts `[UNVERIFIED]`; distinguish modeled-vs-real for proofs; don't over-claim.
 
