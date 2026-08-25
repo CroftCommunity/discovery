@@ -12,6 +12,7 @@ use chat_core::{
 use social_graph_core::{GroupId, PrincipalId, Session, TimelineWindow, TypedId};
 
 use crate::input::Action;
+use std::path::PathBuf;
 
 /// Which pane has keyboard focus.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -26,6 +27,10 @@ pub enum Focus {
 pub struct App {
     session: Session,
     my_principal: PrincipalId,
+    /// Where the personal mute set persists (hex lines) — local truth,
+    /// never folded, never on the wire (E134). `None` in tests without a
+    /// store directory.
+    muted_path: Option<PathBuf>,
     model: Model,
     focus: Focus,
     tree_cursor: usize,
@@ -36,12 +41,107 @@ impl App {
     #[must_use]
     pub fn new(session: Session) -> Self {
         let my_principal = session.my_principal();
+        Self::build(session, my_principal)
+    }
+
+    fn build(session: Session, my_principal: PrincipalId) -> Self {
         Self {
             session,
             my_principal,
+            muted_path: None,
             model: Model::default(),
             focus: Focus::Tree,
             tree_cursor: 0,
+        }
+    }
+
+    /// Attach the mute-set file: seeds the model from what was persisted
+    /// and persists future toggles there.
+    #[must_use]
+    pub fn with_muted_file(mut self, path: PathBuf) -> Self {
+        let seeded: Vec<PrincipalId> = std::fs::read_to_string(&path)
+            .ok()
+            .map(|text| {
+                text.lines()
+                    .filter_map(|line| {
+                        let mut bytes = [0u8; 32];
+                        let line = line.trim();
+                        if line.len() != 64 {
+                            return None;
+                        }
+                        for (i, chunk) in line.as_bytes().chunks(2).enumerate() {
+                            let hi = (chunk[0] as char).to_digit(16)?;
+                            let lo = (chunk[1] as char).to_digit(16)?;
+                            bytes[i] = ((hi << 4) | lo) as u8;
+                        }
+                        Some(PrincipalId::new(bytes))
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        self.muted_path = Some(path);
+        if !seeded.is_empty() {
+            let _ = self.apply(Intent::SetMuted(seeded));
+        }
+        self
+    }
+
+    /// Perform the pond's non-Send effects (mute persistence). Send effects
+    /// are handled in the async action path.
+    fn perform_local(&mut self, effects: &[Effect]) {
+        for effect in effects {
+            if let Effect::PersistMuted(set) = effect {
+                if let Some(path) = &self.muted_path {
+                    let text: String = set
+                        .iter()
+                        .map(|p| {
+                            p.as_bytes()
+                                .iter()
+                                .map(|b| format!("{b:02x}"))
+                                .collect::<String>()
+                                + "\n"
+                        })
+                        .collect();
+                    if let Err(e) = std::fs::write(path, text) {
+                        tracing::error!("persisting mute set failed: {e}");
+                    }
+                }
+            }
+        }
+    }
+
+    /// Toggle the personal mute for `principal` (E134: an annotation on the
+    /// edge, cross-group, local truth).
+    pub fn toggle_mute(&mut self, principal: PrincipalId) {
+        let effects = self.apply(Intent::ToggleMute(principal));
+        self.perform_local(&effects);
+    }
+
+    /// Resolve a hex prefix against the visible principals (member rows,
+    /// then timeline authors). `None` when nothing or more than one matches.
+    fn resolve_principal_prefix(&self, prefix: &str) -> Option<PrincipalId> {
+        let prefix = prefix.trim().to_lowercase();
+        if prefix.is_empty() {
+            return None;
+        }
+        let hex = |p: &PrincipalId| -> String {
+            p.as_bytes().iter().map(|b| format!("{b:02x}")).collect()
+        };
+        let mut candidates: Vec<PrincipalId> = Vec::new();
+        for p in self
+            .model
+            .members
+            .iter()
+            .map(|m| m.principal)
+            .chain(self.model.timeline.iter().filter_map(|l| l.author_principal))
+        {
+            if hex(&p).starts_with(&prefix) && !candidates.contains(&p) {
+                candidates.push(p);
+            }
+        }
+        match candidates.as_slice() {
+            [one] => Some(*one),
+            _ => None,
         }
     }
 
@@ -88,6 +188,24 @@ impl App {
                 }
             }
             Focus::Input => {
+                // The mute register, reachable from the input line (E116's
+                // lightest register): "/mute <hex-prefix>" toggles the
+                // personal mute instead of sending. Parsed here because
+                // commands are shell vocabulary, not pond vocabulary.
+                let draft = self.model.draft.trim().to_string();
+                if let Some(prefix) = draft.strip_prefix("/mute ") {
+                    if let Some(principal) = self.resolve_principal_prefix(prefix) {
+                        self.toggle_mute(principal);
+                    } else {
+                        tracing::warn!("/mute: no unique principal matches '{prefix}'");
+                    }
+                    // Clear the draft through the pond's own vocabulary.
+                    for _ in 0..self.model.draft.chars().count() {
+                        let _ = self.apply(Intent::Backspace);
+                    }
+                    self.refresh();
+                    return;
+                }
                 let effects = self.apply(Intent::SendMessage);
                 for effect in effects {
                     if let Effect::Send { group, channel, body } = effect {
@@ -203,15 +321,36 @@ impl App {
             None => Vec::new(),
         };
 
-        // Fork status of the selected group: "clean" → None, else the banner.
-        let fork = match selected_group {
-            Some(g) => self
-                .session
-                .get_group_summary(&g)
-                .ok()
-                .map(|s| s.fork_status)
-                .filter(|status| status != "clean"),
-            None => None,
+        // The selected group's summary feeds both the fork banner and the
+        // truthful membership panel: seated members, then the subjects of
+        // open contradictions ("membership pending resolution"), then the
+        // standing ceiling ("admission voided") — the fold's truth, never a
+        // cleaner list.
+        let (fork, members) = match selected_group.and_then(|g| self.session.get_group_summary(&g).ok()) {
+            Some(summary) => {
+                let fork = Some(summary.fork_status.clone()).filter(|status| status != "clean");
+                let mut rows: Vec<chat_core::MemberRow> = summary
+                    .members
+                    .iter()
+                    .map(|m| chat_core::MemberRow {
+                        principal: m.principal,
+                        role: format!("{:?}", m.role).to_lowercase(),
+                        standing: chat_core::Standing::Seated,
+                    })
+                    .collect();
+                rows.extend(summary.contested.iter().map(|p| chat_core::MemberRow {
+                    principal: *p,
+                    role: String::new(),
+                    standing: chat_core::Standing::PendingResolution,
+                }));
+                rows.extend(summary.banned.iter().map(|p| chat_core::MemberRow {
+                    principal: *p,
+                    role: String::new(),
+                    standing: chat_core::Standing::Voided,
+                }));
+                (fork, rows)
+            }
+            None => (None, Vec::new()),
         };
 
         let _ = self.apply(Intent::Refresh(Snapshot {
@@ -221,6 +360,7 @@ impl App {
             channel: selected_channel,
             timeline,
             fork,
+            members,
         }));
     }
 
@@ -244,6 +384,7 @@ impl App {
                 self.session.get_message(&entry.hash).map(|m| MessageLine {
                     lamport: m.lamport,
                     author: self.author_label(&m.author),
+                    author_principal: Some(m.author),
                     body: m.body,
                 })
             })
@@ -284,6 +425,7 @@ fn hex_prefix(bytes: &[u8; 32], n: usize) -> String {
 mod tests {
     use super::{short_id, App};
     use crate::input::Action;
+use std::path::PathBuf;
     use crate::ui;
     use ratatui::backend::TestBackend;
     use ratatui::Terminal;

@@ -44,6 +44,11 @@ pub struct GroupSummaryView {
     pub rules: RulesView,
     pub fork_status: String,
     pub my_role: Option<Role>,
+    /// Subjects of open contradictions (E108): the panel renders them
+    /// "membership pending resolution", never a cleaner list.
+    pub contested: Vec<PrincipalId>,
+    /// The §7.6.4 standing ceiling: lineages whose admission is voided.
+    pub banned: Vec<PrincipalId>,
 }
 
 pub struct MemberView {
@@ -289,6 +294,13 @@ where
             .find(|(pid, _, _)| pid == &self.my_principal)
             .map(|(_, r, _)| r.clone());
 
+        let contested: Vec<PrincipalId> = state
+            .contested_entries()
+            .iter()
+            .flat_map(|e| e.subjects.iter().copied())
+            .collect();
+        let banned = state.banned.clone();
+
         let fork_status = match &state.fork_status {
             ForkStatus::Clean => "clean".to_string(),
             ForkStatus::ForkedFrom(h) => format!("forked_from:{}", h),
@@ -316,6 +328,8 @@ where
             },
             fork_status,
             my_role,
+            contested,
+            banned,
         })
     }
 
