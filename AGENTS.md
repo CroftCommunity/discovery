@@ -139,6 +139,12 @@ preserve raw verbatim → distill → update connective tissue). The standing in
   behind a scope header; plan files follow the dated naming + Status + reasoning convention;
   plan-scoped IDs (M/O/plan-local D) are qualified with their plan when cited outside it.
 
+- **Workspace decision registry** — `CroftC/.claude/DECISIONS.md`: tagged, greppable index of
+  design decisions and prior art across all repos (grep it before choosing a library or building
+  a capability). Anti-rollup: rows point into the reasoning homes — this repo's registers
+  (`beta/DECISIONS.md`, `alpha/ROADMAP_TODO.md` §A, `crystallized/principles.md`) stay
+  authoritative; the workspace file only routes.
+
 - **`ECOSYSTEM.md`** — the relational register of related projects/tools (homage / build-on /
   partner / rebroadcast / learn↔). Add or update a row whenever new material names an
   org/project/tool. (§5b atmospheric-web apps; §5c app-layer tooling/clients.)
