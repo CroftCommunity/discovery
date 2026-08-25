@@ -623,7 +623,38 @@ enactment joins the slip discipline with the eviction machinery — ADR-0003 con
 issuance authorization is Admin+/threshold-1 with no dial (spec filing → **E136** with the
 other P4-surfaced questions); HeadAck transport and serve-time signatures stay E112.
 
-**Next: Phase 5 — chat tenant v2 (`group-chat-core` onto the core, landing as
-`croft/core/chat-core` per Pass-3 Q5): dependency surgery, each surface gap a RED test on
-the core first.**
+### Phase 5 — EXECUTED AND GREEN (owner's "keep going", 2026-08-24; same arc as P4)
+
+**The croft half:** `core/chat-core` is real — the tenant's five modules moved
+extraction-and-merge style (16 behavior pins riding along, green on arrival), a pond
+beside call-core/feed-core per ADR-0002's symmetry. Imports re-point to
+`social-tree-core::model`; `ChannelRef` became the pond's own vocabulary (the facade keeps
+its read-surface twin; the shell converts — the dependency points one way, pond → substrate,
+never pond → facade). The vestigial tracing dep did not make the move (zero uses);
+`default-features = false` on the substrate dep and a new CI wasm arm prove the pond pulls
+no crypto and compiles for wasm32. `RemovalKind` went public with its wire byte so
+write-path adapters SAY the artifact they deposit. Croft main through `95bc0be`,
+workspace 79/0 → (with the pond) all arms green.
+
+**The discovery half — the dependency surgery the phase is named for:** the corpus pin
+bumps ea2ce71 → `95bc0be`, crossing GroupState v3 and the P4 fact set, and the fallout was
+absorbed rather than papered over: `remove_member` (surface + session) now takes the
+`RemovalKind`; every test removal fixture declares ban-kind (those scenarios were always
+governance removals — pinned CONTESTED behavior unchanged); the adapter's edge projection
+gained arms for the P4 facts, with an Admission writing the MEMBER_OF edge **only when the
+fold actually seated the lineage** — the standing ceiling reaches the derived graph
+exactly. `group-chat-core` is deleted; the client consumes the croft pond as a git dep at
+the same rev (cargo unifies the one social-tree-core underneath — the two-rev trap named
+and avoided). `social-graph-core::crypto` became the re-export shim it should have been
+since P3, with `Identity::signer()` as the bridge. **Done-when met:** adapter 82/0,
+croft-chat workspace 97/0, both on the new core; the facade holds Session (adapter role)
+and re-exports — nothing reaches around.
+
+Deviations: none of substance. The pin URL stays the interim `file://` form until the
+owner-authorized push-and-swap; the facade's full fold-or-retire judgment is deferred to
+P6 (Session is adapter machinery the TUI still wants).
+
+**Next: Phase 6 — the client build-out (the Q4 MVP list: persistent multi-group chat,
+invite/join incl. token return, the truthful membership panel with CONTESTED and
+"admission voided", mute), ports wired, the threat pass before any non-loopback demo.**
 
