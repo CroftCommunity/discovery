@@ -555,6 +555,75 @@ in-crate survivors registered per-module as the standing corpus-side burn-down �
 killers live with the consumers, per MUTATION.md's [patch] recipe; the P1-scope functions
 already carry cross-package verdicts). HeadAck-over-real-transport stays E112, as scoped.
 
-**Next: Phase 4 — the key-layer join. Its ADR beat comes first (Pass-3 Q2): the KeyLayer
-port designed against the real core surface, with the A3-stays-core-side and custody-seam
-invariants recorded before any code.**
+### Phase 4 — EXECUTED AND GREEN (owner's go 2026-08-24; ADR beat + build in one arc)
+
+**The ADR beat first, as Pass-3 Q2 ordered** (croft `docs/ADR-0003-keylayer-port.md`,
+proposed 2026-08-23 → accepted 2026-08-24): the KeyLayer port carries artifacts and parsed
+claims, never answers "admit?" — the admission decision is a pure core function whose
+`MergeApproval` (private fields, fact riding inside) is the only key that turns the port's
+merge, so A3 and the §11.7 merge-rule clause are type errors, not conventions. MLS state
+adapter-side entirely; custody seam named (`KeyCustody`, future port), not designed —
+KeyLayer owes no export surface. The same session produced the **tree-frame model pin**
+(person-rooted; groups one aspect — ADR-0002 amendment, COHESION §72, row E134).
+
+**Then the build, five RED→GREEN increments in croft (branch `p4-keylayer`,
+`7c2a22f..8c35820`), workspace 62/0 with clippy/fmt/wasm arms green throughout:**
+
+1. **`admission::evaluate_admission`** — S24's refusal set (no-issuance-fact, revoked,
+   lineage-mismatch) + standing at position (Excluded refuses; **Contested stalls without a
+   verdict** — E108's rule reaching admission) + the §7.3.8 stall consuming C3's
+   `admits_membership_origination`, fail closed below k, lifting exactly at k.
+2. **`ports::keylayer`** — stage returns claims as data; merge demands the slip; seam pins
+   prove deposit-what-was-minted and that a refusal has no code path to the key layer.
+3. **The §7.6.4 removal-kind distinction** (`MembershipRemove` = subject ‖ kind; kindless
+   refused): the fold had conflated ban with departure, and the admission machinery cannot
+   exist on the conflation (every returner has a removal in their history; only a BAN blocks
+   re-entry). Two finds en route: **the old fold violated the exit floor** (Part 1 §2.5 —
+   every removal demanded Admin role AND the remove quorum, so a member of a two-to-ban
+   group could not leave alone; a self-departure now passes both gates, a self-authored ban
+   refuses), and **contesting every non-commutative race WAS the old convergence strategy**
+   — so the kind-narrowing owed a replacement: the benign departure-vs-readd race now
+   reconciles by canonical full-log replay (§7.4.1), pinned convergent in both arrival
+   orders (`RaceDisposition::{None, Contested, BenignReconcile}` through the shared
+   transition).
+4. **The admission machinery as chain data** — `TokenIssuance` 0x000D, `TokenRevocation`
+   0x000E (names-an-issuance or refuses), `Admission` 0x000F; `issuance_view` derives the
+   decision's context straight from the log; **GroupState v3** carries the standing-ceiling
+   set (fed by ban-kind removals, cleared ONLY by a readmission DECISION) so replay applies
+   an admission at position without reaching outside the fold. C4's two-sided boundary
+   pinned in the core: fact-vs-ban folds silently-but-visibly to excluded in both orders,
+   never CONTESTED; quorum-vs-ban still hard-stops. The adapter corpus meets v3 at the next
+   pin bump as a rebuild (WIRE-REGISTER posture).
+5. **The invite path under the same discipline** — `authorize_invite_enactment` mints the
+   `InviteApproval` only when the fold has already seated the invitee (MLS seating follows
+   the fold, never precedes it); the build generalized the ADR: **every membership-mutating
+   port operation demands a core-minted slip.**
+
+**The done-when: `ports/keylayer-openmls`** — meer-queue's measured code adapted, not
+rebuilt (identity bridge: the leaf credential's bytes ARE the core `PrincipalId`; exact
+version pins). The loopback e2e runs the invite path (fold decision → slip → real
+Add-commit + Welcome → seated → AEAD round-trip), dormancy, and the token-return path (REAL
+external commit + PSK proposal → staged claims → chain-derived cross-check → merge →
+admission fact folded → the returner reads and is read again); the S16 arm holds on real
+crypto (a stranger's flawless commit with leaked token bytes stages and dies at the
+decision, never seated). **openmls-on-wasm `[confirm]` moves: COMPILES** for
+wasm32-unknown-unknown with the js features (getrandom + openmls); browser runtime stays
+unverified — compile-proof only. Per-plane rungs: governance real-Ed25519; MLS Rung A;
+transport loopback = Modeled, never Verified.
+
+**Audit:** bounded mutation pass on the phase's decision logic (admission.rs): 17 mutants —
+12 caught, 5 unviable, **0 missed** after the two issuance_view payload-guard survivors
+were killed with the truncated-entry test they were guarding for. A latent find fixed en
+route: **the CI core-purity clippy arm could never pass** (crate-attribute `warn(missing_docs)`
+overrides the CLI `-A`; `-D warnings` would elevate the 95-item docs burn-down) — CI has
+never run, the exact G7 class; fixed with `--force-warn missing_docs`.
+
+**Deviations, named:** `enact_departure` stays inherent and un-slip-gated (the removal
+enactment joins the slip discipline with the eviction machinery — ADR-0003 consequences);
+issuance authorization is Admin+/threshold-1 with no dial (spec filing → **E136** with the
+other P4-surfaced questions); HeadAck transport and serve-time signatures stay E112.
+
+**Next: Phase 5 — chat tenant v2 (`group-chat-core` onto the core, landing as
+`croft/core/chat-core` per Pass-3 Q5): dependency surgery, each surface gap a RED test on
+the core first.**
+
