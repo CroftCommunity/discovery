@@ -1,5 +1,12 @@
 # Croft — workspace orientation for agents (canonical, version-controlled)
 
+## Identity (workspace architecture)
+
+**Scope:** Thinking, synthesis, proofs, the Drystone spec, the backlog of record (`alpha/ROADMAP_TODO.md`), decision derivations.
+**Not this repo:** product code (croft); contract text (connect); infrastructure (croft-stack).
+**Provides:** spec, ADR origins, plans, registers. **Consumes:** experiment findings, transcripts.
+Card + altitudes: `CroftC/.claude/ARCHITECTURE.md`.
+
 This is the canonical agent-orientation doc. It lives in `discovery/` so it is
 version-controlled; the top-level `CroftC/.claude/CLAUDE.md` imports it so Claude Code
 auto-loads it when working anywhere under `CroftC/`.
