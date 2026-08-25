@@ -1986,6 +1986,23 @@ is candidate *presentation* language for what the core computes.
 foliage-area vs count honesty; Jetstream per-connection DID-filter limits `[UNVERIFIED]` — a
 feasibility gate for the "weather" feature, not yet a fact).
 
+**MODEL PIN (owner, 2026-08-24 — the person is the root; groups are one aspect):** the P4 design
+session sharpened what "the one social tree" *is*. Owner (dictated): *"the person is the proverbial
+root and literal trunk of the tree"*; a group is *"a place where several tree branches interweave
+and agree to shared rules"* (owner-endorsed phrasing, same session); on radius — *"followers of
+mutuals or mutuals of mutuals... That's what we build. That's the tree."* So the tree is drawn
+**outward from a person** — connections are the primitive, groups a derived enclosure — and there
+is no global tree, which is the data-model echo of P-Local-Truth/peer-equality (the epistemology
+was already ego-centered; the data model wasn't). `social-tree-core` today holds the **group
+aspect only** (E117 P1–P3); the **connections aspect** (follows/mutuals at radius, E120's
+vouches/bindings, capability grants as edge facts, personal annotations like mute/block — owner:
+*"you could mute someone for thirty days and it applies to all family groups"*) is
+foundation-layer and currently homeless → new row **E134**. Retrospective (owner): the earlier
+croft-chat build missed exactly this — *"we built groups but we forgot that... the person outward
+is the root here."* Durable architecture record: croft `docs/ADR-0002` amendment (same date),
+which also names the two drifts refused (connections modeled as groups; annotations bolted into
+governance). Layering restated: chat is the first manifestation of the layers on top.
+
 ## 73. 2026-08-12 (filed 08-21) — the browser stays relay-only for iroh, and arecipe re-derives the deterministic-first ML gate
 
 **The material:** `seeds/transcripts/raw/iroh-browser-extension-and-arecipe-substitution-engine-2026-08-12.md`
