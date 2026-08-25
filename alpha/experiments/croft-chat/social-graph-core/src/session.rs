@@ -52,6 +52,10 @@ pub enum SessionError {
         /// Signatures required.
         need: u32,
     },
+    /// The core's admission decision refused — typed, so the product renders
+    /// the reason (a refusal is a first-class outcome, never a storage error).
+    #[error("admission refused: {0}")]
+    AdmissionRefused(social_tree_core::admission::AdmissionRefusal),
 }
 
 /// A named channel within a group (an `ArtifactChat` attachment).
@@ -253,6 +257,69 @@ impl Session {
             .approve(group, AssertionType::RuleChange, subject, &self.signer)
             .await
             .map_err(surface_err)?;
+        require_applied(result)
+    }
+
+    /// Mint `token` to `lineage` as a chain fact (§11.7 at-join issuance).
+    ///
+    /// # Errors
+    /// [`SessionError`] if rejected or the store errors.
+    pub async fn issue_token(
+        &self,
+        group: &GroupId,
+        token: social_tree_core::admission::TokenId,
+        lineage: PrincipalId,
+    ) -> Result<Hash, SessionError> {
+        let result = self
+            .store
+            .issue_token(group, token, lineage, &self.signer)
+            .await
+            .map_err(surface_err)?;
+        require_applied(result)
+    }
+
+    /// Leave the group — the §7.6.4 departure: self-authored, no quorum, no
+    /// role gate (the exit floor, Part 1 §2.5); standing intact.
+    ///
+    /// # Errors
+    /// [`SessionError`] if rejected or the store errors.
+    pub async fn depart(&self, group: &GroupId) -> Result<Hash, SessionError> {
+        let result = self
+            .store
+            .depart(group, &self.signer)
+            .await
+            .map_err(surface_err)?;
+        require_applied(result)
+    }
+
+    /// Admit a returner by token: the CORE decides (`evaluate_admission`
+    /// over this chain's issuance view and folded standing) and the
+    /// `Admission` fact deposits only on its approval. `request_frame` is
+    /// the returner's opaque request (its content address is the event
+    /// identity); `freshness` is the §7.4 corroborated-fresh count — a
+    /// documented caller input until E112's HeadAck rung wires transport.
+    ///
+    /// # Errors
+    /// [`SessionError::AdmissionRefused`] with the typed reason; otherwise
+    /// storage/rejection errors as usual.
+    pub async fn admit_return(
+        &self,
+        group: &GroupId,
+        request_frame: &[u8],
+        token: social_tree_core::admission::TokenId,
+        lineage: PrincipalId,
+        freshness: u64,
+    ) -> Result<Hash, SessionError> {
+        let result = self
+            .store
+            .admit_return(group, request_frame, token, lineage, freshness, &self.signer)
+            .await
+            .map_err(|e| match e {
+                local_storage_projection::surface::SurfaceError::AdmissionRefused(r) => {
+                    SessionError::AdmissionRefused(r)
+                }
+                other => surface_err(other),
+            })?;
         require_applied(result)
     }
 

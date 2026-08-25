@@ -203,6 +203,9 @@ pub enum SurfaceError {
     FoldError(FoldError),
     StorageError(String),
     InvalidInput(String),
+    /// The core's admission decision refused (typed — the product renders
+    /// the reason; a refusal is not a storage error).
+    AdmissionRefused(social_tree_core::admission::AdmissionRefusal),
 }
 
 impl From<social_tree_core::update::FoldError> for SurfaceError {
@@ -1178,6 +1181,167 @@ where
             IngestResult::Applied { .. } => {
                 let _ = self.notifications.send(ChangeNotification::MembershipChanged(*group_id));
                 Ok(CommandResult::Applied(()))
+            }
+            IngestResult::Duplicate => Ok(CommandResult::Duplicate),
+        }
+    }
+
+    /// Emit a `TokenIssuance` chain fact: `token` is issued to `lineage`
+    /// (§11.7 at-join issuance — the fact is what admits; the PSK bytes are
+    /// key material and live elsewhere).
+    pub async fn issue_token(
+        &self,
+        group_id: &GroupId,
+        token: social_tree_core::admission::TokenId,
+        lineage: PrincipalId,
+        signer: &impl Signer,
+    ) -> Result<CommandResult<Hash>, SurfaceError> {
+        use crate::types::DeviceId as TypesDeviceId;
+        let types_dev = TypesDeviceId::new(signer.device_id().0);
+        let mut payload = Vec::with_capacity(64);
+        payload.extend_from_slice(token.as_bytes());
+        payload.extend_from_slice(lineage.as_bytes());
+        let lamport = self.next_lamport();
+        let mut env = AssertionEnvelope {
+            version: crate::types::ENVELOPE_WIRE_VERSION,
+            assertion_type: AssertionType::TokenIssuance,
+            author_device: types_dev,
+            author_principal: self.my_principal,
+            group: *group_id,
+            antecedents: vec![],
+            lamport,
+            payload,
+            signature: vec![],
+        };
+        env.signature = signer.sign(&env.canonical_bytes());
+        let hash = crate::types::envelope_hash(&env);
+        match self.fold.ingest(&env)? {
+            IngestResult::Applied { .. } => Ok(CommandResult::Applied(hash)),
+            IngestResult::Duplicate => Ok(CommandResult::Duplicate),
+        }
+    }
+
+    /// Emit a self-authored departure (§7.6.4 kind 0x00): the exit floor —
+    /// no role gate, no quorum, standing intact.
+    pub async fn depart(
+        &self,
+        group_id: &GroupId,
+        signer: &impl Signer,
+    ) -> Result<CommandResult<Hash>, SurfaceError> {
+        use crate::types::DeviceId as TypesDeviceId;
+        let types_dev = TypesDeviceId::new(signer.device_id().0);
+        let mut payload = Vec::with_capacity(33);
+        payload.extend_from_slice(self.my_principal.as_bytes());
+        payload.push(social_tree_core::update::RemovalKind::Departure.to_wire_byte());
+        let lamport = self.next_lamport();
+        let mut env = AssertionEnvelope {
+            version: crate::types::ENVELOPE_WIRE_VERSION,
+            assertion_type: AssertionType::MembershipRemove,
+            author_device: types_dev,
+            author_principal: self.my_principal,
+            group: *group_id,
+            antecedents: vec![],
+            lamport,
+            payload,
+            signature: vec![],
+        };
+        env.signature = signer.sign(&env.canonical_bytes());
+        let hash = crate::types::envelope_hash(&env);
+        match self.fold.ingest(&env)? {
+            IngestResult::Applied { .. } => {
+                let _ = self.notifications.send(ChangeNotification::MembershipChanged(*group_id));
+                Ok(CommandResult::Applied(hash))
+            }
+            IngestResult::Duplicate => Ok(CommandResult::Duplicate),
+        }
+    }
+
+    /// The acceptor's half of the token return: assemble claims and context
+    /// from THIS chain (issuance view derived from the governance log,
+    /// standing from the folded state), let the CORE decide
+    /// (`evaluate_admission` — the only thing that answers "admit?"), and on
+    /// approval deposit the `Admission` fact. `request_frame` is the
+    /// returner's opaque request; its content address identifies the
+    /// admission event (no MLS at this grade — the governance-plane arc).
+    /// `freshness` is the §7.4 corroborated-fresh count, a documented caller
+    /// input until the HeadAck transport rung (E112) wires it.
+    pub async fn admit_return(
+        &self,
+        group_id: &GroupId,
+        request_frame: &[u8],
+        token: social_tree_core::admission::TokenId,
+        lineage: PrincipalId,
+        freshness: u64,
+        signer: &impl Signer,
+    ) -> Result<CommandResult<Hash>, SurfaceError> {
+        use crate::types::DeviceId as TypesDeviceId;
+        use social_tree_core::admission::{
+            evaluate_admission, issuance_view, AdmissionClaims, AdmissionContext,
+            SubjectStanding,
+        };
+        use social_tree_core::model::MembershipView;
+        use social_tree_core::project::head_currency::HeadCurrency;
+
+        let state = self
+            .load_group_state(group_id)?
+            .ok_or(SurfaceError::GroupNotFound(*group_id))?;
+        let log = self.fold.governance_log(group_id)?;
+        let issuance = issuance_view(&log);
+
+        let subject_standing = if state.banned.contains(&lineage) {
+            SubjectStanding::Excluded
+        } else if matches!(state.membership(&lineage), MembershipView::Contested(_)) {
+            SubjectStanding::Contested
+        } else {
+            SubjectStanding::Good
+        };
+
+        let claims = AdmissionClaims {
+            joiner_lineage: lineage,
+            presented_token: token,
+            commit_content_address: social_tree_core::model::Hash::new(
+                *blake3::hash(request_frame).as_bytes(),
+            ),
+            commit_position: state.computed_at_gov_seq,
+        };
+        let ctx = AdmissionContext {
+            issuance: &issuance,
+            subject_standing,
+            currency: HeadCurrency::new(),
+            freshness,
+            member_count: state.members.len() as u64,
+            acceptor_frontier: state.computed_at_gov_seq,
+        };
+        let approval =
+            evaluate_admission(&claims, &ctx).map_err(SurfaceError::AdmissionRefused)?;
+        let fact = *approval.fact();
+
+        // Deposit the fact the approval carries — the merge-rule clause at
+        // this surface: no approval, no deposit; no deposit, no seat.
+        let types_dev = TypesDeviceId::new(signer.device_id().0);
+        let mut payload = Vec::with_capacity(104);
+        payload.extend_from_slice(fact.event.as_bytes());
+        payload.extend_from_slice(fact.merged_lineage.as_bytes());
+        payload.extend_from_slice(fact.redeemed_token.as_bytes());
+        payload.extend_from_slice(&fact.acceptor_frontier.to_be_bytes());
+        let lamport = self.next_lamport();
+        let mut env = AssertionEnvelope {
+            version: crate::types::ENVELOPE_WIRE_VERSION,
+            assertion_type: AssertionType::Admission,
+            author_device: types_dev,
+            author_principal: self.my_principal,
+            group: *group_id,
+            antecedents: vec![],
+            lamport,
+            payload,
+            signature: vec![],
+        };
+        env.signature = signer.sign(&env.canonical_bytes());
+        let hash = crate::types::envelope_hash(&env);
+        match self.fold.ingest(&env)? {
+            IngestResult::Applied { .. } => {
+                let _ = self.notifications.send(ChangeNotification::MembershipChanged(*group_id));
+                Ok(CommandResult::Applied(hash))
             }
             IngestResult::Duplicate => Ok(CommandResult::Duplicate),
         }

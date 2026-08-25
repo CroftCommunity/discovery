@@ -311,6 +311,16 @@ where
     }
 
     /// Ingest an assertion, writing auth + derived state in one atomic transaction.
+    /// The admitted governance log for `group` in slot order — the chain the
+    /// derived views (e.g. `admission::issuance_view`) read from. Public so
+    /// the surface can assemble admission context without a parallel store.
+    pub fn governance_log(
+        &self,
+        group: &GroupId,
+    ) -> Result<Vec<(TypesHash, AssertionEnvelope)>, FoldError> {
+        group_governance_log(&self.db, group)
+    }
+
     pub fn ingest(&self, envelope: &AssertionEnvelope) -> Result<IngestResult, FoldError> {
         // Step 1: Hash + duplicate check.
         let hash = envelope_hash(envelope);
