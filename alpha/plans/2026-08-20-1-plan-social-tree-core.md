@@ -654,7 +654,60 @@ Deviations: none of substance. The pin URL stays the interim `file://` form unti
 owner-authorized push-and-swap; the facade's full fold-or-retire judgment is deferred to
 P6 (Session is adapter machinery the TUI still wants).
 
-**Next: Phase 6 — the client build-out (the Q4 MVP list: persistent multi-group chat,
-invite/join incl. token return, the truthful membership panel with CONTESTED and
-"admission voided", mute), ports wired, the threat pass before any non-loopback demo.**
+### Phase 6 — EXECUTED AND GREEN (standing "keep going", 2026-08-24/25; three increments)
+
+**Increment A — the admission arc reaches the Session API:** `issue_token` (the at-join
+issuance chain fact), `depart` (the §7.6.4 self-departure — exit floor, no quorum), and
+`admit_return` — the acceptor assembles claims/context from ITS OWN chain
+(`issuance_view` over the now-public governance log; standing from the folded ceiling and
+contested set) and the CORE's `evaluate_admission` alone answers; the Admission fact
+deposits only on approval; refusals typed end to end. The returner's opaque request
+frame's content address is the event identity — the governance-plane arc, honestly
+labeled (the keylayer joins at the product shells); freshness stays a documented caller
+input until E112's HeadAck rung. Three session-level pins (arc / bytes-are-not-facts /
+the ceiling).
+
+**Increment B — the truthful panel and the mute register:** the pond (croft `86c47cf`)
+gained MemberRow/Standing as data, ToggleMute/SetMuted/PersistMuted, the marked-never-
+dropped muted line, and the members pane speaking the committed words ("membership
+pending resolution", "admission voided") — five pond pins. Client side: the summary
+carries contested + banned; the App builds panel rows fold-truthfully (never a shorter
+list); `/mute <hex-prefix>` is the reachable register; the mute set persists as hex
+lines beside the store (E134's local truth — never folded, never on the wire) and
+survives restart — one end-to-end App pin over a real session.
+
+**Increment C — the arc over real iroh:** iroh_convergence gains phases 3–4: issuance,
+departure, and the token-return admission all converge between two real iroh-gossip
+endpoints, B learning its own readmission from gossip. Loopback grade in the test's own
+words (LocalDirect; relay/NAT stays X1). **No non-loopback demo ran, so the threat-pass
+precondition never triggered — it gates any future non-loopback demo.**
+
+**The Q4 MVP list, checked:** persistent multi-group chat (pre-existing, restart-proof —
+re-exercised by the panel pin's reopen); invite/join incl. token return ✓; the truthful
+membership panel with CONTESTED + "admission voided" ✓; mute ✓. E116-applicable
+renderings: the factual fork banner (pre-existing), the lightest register reachable
+(mute), returner-side legibility (the voided row). Suites: default workspace 101/0,
+iroh-it 97/0, adapter 82/0.
+
+Deviations, named: the CONTESTED client-side mapping is pond-pinned + mechanically
+mapped (no dedicated client pin); mute persistence is a hex-lines file beside the store,
+not a redb table (local truth needs no fold machinery); the lost-race UX stays deferred
+to P7's product-shell plan with its home, per the integration decision. Finds: the
+iroh-it feature path had been broken since P1 (replant-continuity still built
+pre-O9 envelopes — nothing compiled it through P2–P5; fixed) — a gate that is not run
+is a gate that is not there, the G7 lesson at the feature-flag scale.
+
+## Plan close-out (2026-08-25)
+
+**Phases 1–6 are executed and green; Phase 7 (product-shell adoption) is named, not
+committed — its own plan, as §4 always said.** The arc this plan promised exists end to
+end: the portable social-tree core with the admission machinery in croft
+(`core/social-tree-core`, `core/chat-core`, `ports/keylayer-openmls`), the discovery
+corpus re-cut as its redb adapter and evidence harness, and a chat client whose group
+membership, standing, return arc, and personal mute all run on it over real iroh at
+loopback. Standing registers at close: the corpus-side mutation burn-down (MUTATION.md);
+E136's spec filings; the `file://` pin swap at the owner-authorized push; E120 (binding
+seam) and the lost-race UX waiting at P7's successor plan; openmls-on-wasm at
+compile-proof. E19's two lineages are merged in fact: the pond IS croft-group's shape on
+croft-chat's protocol, in croft.
 
