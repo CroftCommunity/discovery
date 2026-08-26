@@ -2997,3 +2997,19 @@ identity onboarding, box provisioning, the promotion). As of ~02:51Z:
   currently parked at Porkbun; A 15.204.81.133 / AAAA
   2604:2dc0:222::431), v0.5.0-rc.1 promotion + install (phones), the
   §13 bake validation, then the one-word enforce flip.
+
+**2026-08-26 (croftc-b4) — the remaining-before-the-flip list from the previous
+entry closed almost entirely, same night:** the owner created the
+`admit.croft.ing` A record (LE cert issued within the minute; AAAA is now a
+reconciliation item — croft-stack TODO measured relay/canary AAAA records
+pointing at an address the box does not hold); rc.1 went onto BOTH phones and
+**§13 steps 2+4 ran against production** (croft runbook §13 results): the first
+production camp mint (silent success — found that the `admitted sponsorship=`
+line is debug-level and filtered by the production log filter, so attributed
+`usage` lines are the bake's instrument; filter decision tracked in croft-stack
+TODO), the `endpoint_unbound` caller posture with its words in both places, and
+the first attributed production call, ended with E129's words. The **enforcement
+scenario matrix** landed and gated in both repos (croft-stack `444aec4` server
+rows — plus `tier_era_claims_deny`, pinning that a v0.1.1-shape token stays
+refused; croft `7e359ec` client-posture rows). Remaining: bake days, the
+v0.5.0 promote (owner), §13 step 3, E135(b), then the one-word flip.
