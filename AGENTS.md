@@ -176,8 +176,8 @@ preserve raw verbatim → distill → update connective tissue). The standing in
 
 - **Git identity:** chasemp account — `git@github-personal:CroftCommunity/<repo>.git`, committer
   `Chase Pettet <chase@owasp.org>`. `discovery` is the active repo; the folded `Proofs` and
-  `experiments` repos are frozen and archived. Reading croftc PRs uses the `cpettet_croftc` gh account
-  (`gh auth switch`).
+  `experiments` repos are frozen and archived. gh operations use the `chasemp` account (`gh auth switch --user chasemp`;
+  a previously-cited `cpettet_croftc` account does not exist — corrected 2026-08-25).
 
 - **Don't commit / push / open PRs** content substance on these repos unless explicitly
   asked — material is reviewed first. (Orientation/doc-layer commits are routine and
