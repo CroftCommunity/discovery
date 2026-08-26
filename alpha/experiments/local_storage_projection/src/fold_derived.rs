@@ -1550,6 +1550,7 @@ mod tests {
                 role_change_threshold: 3,
                 rule_change_threshold: 4,
                 resolution_threshold: 2,
+                readmission_threshold: 1,
             },
             fork_status: fs,
         };
@@ -1632,6 +1633,7 @@ mod tests {
                 role_change_threshold: 1,
                 rule_change_threshold: 1,
                 resolution_threshold: 2,
+                readmission_threshold: 1,
             },
             fork_status: ForkStatus::Clean,
         };

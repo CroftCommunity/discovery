@@ -312,7 +312,7 @@ dependencies = [
 [[package]]
 name = "chat-core"
 version = "0.1.0"
-source = "git+file:///Users/cpettet/git/chasemp/CroftC/croft?rev=86c47cf#86c47cf2d7d8338bbeae835e9a6371bcf6491702"
+source = "git+file:///Users/cpettet/git/chasemp/CroftC/croft?rev=9f7d0c6#9f7d0c6b9aab4e4dde8891a91d46e00b2014240b"
 dependencies = [
  "social-tree-core",
 ]
@@ -4185,7 +4185,7 @@ dependencies = [
 [[package]]
 name = "social-tree-core"
 version = "0.1.0"
-source = "git+file:///Users/cpettet/git/chasemp/CroftC/croft?rev=86c47cf#86c47cf2d7d8338bbeae835e9a6371bcf6491702"
+source = "git+file:///Users/cpettet/git/chasemp/CroftC/croft?rev=9f7d0c6#9f7d0c6b9aab4e4dde8891a91d46e00b2014240b"
 dependencies = [
  "blake3",
  "ed25519-dalek 2.2.0",
