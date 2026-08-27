@@ -143,9 +143,13 @@ preserve raw verbatim → distill → update connective tissue). The standing in
   backlog. Graduate items onto the board; do not re-list them.
 
 - **Workspace tracking scheme** — `CroftC/.claude/TRACKING.md` routes the whole workspace:
-  this file's backlog remains the backlog of record; per-repo `TODO.md` files are ops-only
-  behind a scope header; plan files follow the dated naming + Status + reasoning convention;
-  plan-scoped IDs (M/O/plan-local D) are qualified with their plan when cited outside it.
+  this file's backlog remains the backlog of record; items sort into **two piles by
+  readiness, not scope** (owner, 2026-08-26 — this replaced the ops-only scope rule) — the
+  backlog is **to-be-planned and is never proposable as work**, while per-repo `TODO.md`
+  files and `plans/` hold **known** work and are the only answer to "what's left?"; a
+  `[doable]` tag does not cross that line, an owner design pass does. Plan files follow the
+  dated naming + Status + reasoning convention; plan-scoped IDs (M/O/plan-local D) are
+  qualified with their plan when cited outside it.
 
 - **Workspace decision registry** — `CroftC/.claude/DECISIONS.md`: tagged, greppable index of
   design decisions and prior art across all repos (grep it before choosing a library or building
