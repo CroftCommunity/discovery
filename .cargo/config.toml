@@ -1,0 +1,15 @@
+# Fetch git dependencies with the real `git` binary rather than cargo's bundled
+# libgit2.
+#
+# The corpus crates that consume croft's `social-tree-core` and `chat-core` pin
+# them by commit over the `github-personal` SSH host alias — how every repo
+# under `chasemp/` authenticates (CLAUDE.md § Git Identity by Path). That alias
+# is defined in ~/.ssh/config, and **libgit2 does not read ~/.ssh/config**: it
+# tries to resolve "github-personal" as a DNS name and fails with
+# `nodename nor servname provided, or not known`. The git CLI does read it.
+#
+# At the discovery root rather than per-crate: cargo walks parent directories
+# for .cargo/config.toml, so one file covers every corpus crate, and four copies
+# would be four chances to fix three of them.
+[net]
+git-fetch-with-cli = true
