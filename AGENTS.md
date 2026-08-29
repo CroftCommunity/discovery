@@ -183,9 +183,15 @@ preserve raw verbatim → distill → update connective tissue). The standing in
   `experiments` repos are frozen and archived. gh operations use the `chasemp` account (`gh auth switch --user chasemp`;
   a previously-cited `cpettet_croftc` account does not exist — corrected 2026-08-25).
 
-- **Don't commit / push / open PRs** content substance on these repos unless explicitly
-  asked — material is reviewed first. (Orientation/doc-layer commits are routine and
-  pushes always ask-first, per the commit matrix in `CroftC/.claude/COORDINATION.md`.) When asked to commit, see PLAYBOOK §3b.
+- **Landing is a pull request, and merging asks** (owner, 2026-08-29; the commit matrix in
+  `CroftC/.claude/COORDINATION.md` is canonical). Content substance and orientation alike:
+  commit on the feature's `claude/<feature>` branch in its worktree, rebase onto
+  `origin/main`, **push and open the PR without asking**, and **ask before merging** unless
+  the task already said to land it. Local main is `pull --ff-only` only. A pushed branch
+  behind an open PR is *published for review*, not landed — which is what "material is
+  reviewed first" always wanted. When asked to commit, see PLAYBOOK §3b.
+  ~~Previously: don't commit / push / open PRs content substance unless explicitly asked.~~
+  Retired 2026-08-29 with the local-merge landing it paired with (COORDINATION Rule 2).
 
 - **Concurrent sessions:** multi-turn work happens in a worktree (`worktrees/discovery/<slug>`,
   branch `claude/<slug>`), never in the shared checkout; contested surfaces (`ROADMAP_TODO.md`,
