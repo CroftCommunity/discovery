@@ -1,7 +1,7 @@
 # Plan — rolling out the supply-chain dimension
 
 **Status:** Pass 1 + 2 + 3 complete, all open questions resolved by the owner 2026-08-29.
-**READY FOR EXECUTION.** Not started.
+**Phases 0, 1 and 2 EXECUTED and landed 2026-08-29.** Phases 3–6 remain.
 **Standard:** `CroftC/.claude/SUPPLY-CHAIN.md` (landed 2026-08-29, `c6ff383`; rule 5
 extended `fa53ddc`).
 **Scope:** 18 checked-out repos, 24 in the org.
@@ -489,3 +489,60 @@ real work of the phases that depend on them: the org Actions policy (Phase 5, no
 owner-approved `admin:org` refresh), the secret backlog in 10 unscanned repos (Phase 1,
 and the one thing that could invalidate this plan's premise), and private-repo Actions
 minutes.
+
+---
+
+## Review Log — entry 7: executing Phase 2 (2026-08-29)
+
+**Two deviations from the plan as written, both because a measurement replaced a guess.**
+
+- **Enforcement is ON everywhere from the first commit**, not "advisory everywhere,
+  blocking on enforcing surfaces". The staging existed to protect against a backlog, and
+  the plan said so honestly. Before writing any CI, the gate was run across all 18 repos:
+  **zero blocking findings in every one**. There is no backlog to stage around, and an
+  advisory gate nobody has to fix is how a gate becomes decoration. The staged version
+  would have been insurance against a risk that had already been measured away.
+- **A new caller input, `advisory-paths`.** Phase 2's design assumed rung 2 could be read
+  off each ecosystem's lockfile. For npm it can (`dependency_groups`), for Gradle it can
+  with work (the lockfile's own configuration list — osv-scanner reports null there), and
+  for Cargo and PyPI it cannot at all. But `discovery` is 52 of the workspace's 53
+  lockfiles and almost all of them are frozen research that ships nothing: **215 blocking
+  findings without the input, 0 with it.** "This subtree publishes nothing" is a claim
+  about the repo, so it belongs with the caller rather than in the shared config.
+
+**What Phase 2's validation table got right.** All four named cases behaved exactly as
+specified, run in scratch repos so no shared checkout was touched. The two that mattered
+were the third and fourth — removing `RUSTSEC-2026-0212` from `croft`'s `osv-scanner.toml`
+and putting it back — because they are the only ones that distinguish "the exceptions file
+is load-bearing" from "this repo happens to be clean". Writing them into the plan at Pass 3
+is the reason they were run.
+
+**What the plan did not anticipate, in rising order of how much it should have.**
+
+1. *osv-scanner's directory scan finds nothing here.* `scan source -r .` on 2.3.5 walks
+   `/`, visits one inode and reports "No package sources found". The gate enumerates
+   lockfiles from `git ls-files` and passes them with `-L`, which also makes the
+   empty-set case impossible to mistake for a clean one.
+2. *Config discovery does not walk up.* `croft/osv-scanner.toml` never applied to
+   `croft/android/app/gradle.lockfile`; its 43 advisories had been arriving unfiltered.
+3. *Five CI-only defects.* A checksum that could not find its own file; a transient
+   `curl (35)` with no retry; and the one worth carrying forward — **omitting `ref:` on a
+   cross-repo checkout does not fall back to the reusable workflow's ref.** It defaults to
+   `github.ref` of the *current* repo, so it works in the host and silently checks out an
+   unrelated branch in all seventeen callers. Measured from a caller on runner 2.336.0:
+   `github.job_workflow_sha` is **empty**, despite GitHub documenting it as the reusable
+   workflow's SHA.
+4. *The gate had a hole of its own.* `requirements.txt` was not in the enumerated
+   filenames, so `site/requirements.txt` — one pinned line — went unscanned and carried
+   GHSA-5wmx-573v-2qwq at CVSS 7.5. **This is the finding worth the most.** It was not
+   caught by any test, review or validation case; it surfaced only from reconciling a
+   lockfile count between a terminal (53) and a CI log (52). Every check in this plan
+   asks whether a finding is real. None asked whether the *scope* was complete, and a
+   gate's scope is exactly as checkable as its verdicts. The fix is a tested tuple; the
+   lesson is that "what does this not look at?" belongs in a validation table beside
+   "what does it decide?".
+
+**Documentation impact:** the Phase 1 and 2 rows are closed —
+`SUPPLY-CHAIN.md` § Current state, `croft-pwa/docs/CI.md` (a new rule 9, which Phase 1 had
+listed and not written), both CHANGELOGs, and the audit's checks 31/32. Two rows Phase 1
+left open were closed here rather than left to rot.

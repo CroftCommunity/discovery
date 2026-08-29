@@ -1,12 +1,13 @@
-# The workspace secret-scanning gate. Defined once in croft-pwa; this file only
-# calls it, so the pinned scanner version lives in one place (CI-PATTERN rule 7).
+# The workspace security gates — secrets AND dependencies. Defined once in croft-pwa
+# (docs/CI.md rule 9); this file only calls it, so the pinned scanner versions live in
+# one place (CI-PATTERN rule 7).
 #
-# Rule and why: CroftC/.claude/SUPPLY-CHAIN.md rule 1. GitHub's own free secret
+# Rule and why: CroftC/.claude/SUPPLY-CHAIN.md rules 1 and 3. GitHub's own free secret
 # scanning covers PUBLIC repos only and alerts rather than blocks; this gate blocks,
 # and it reaches the private repos too.
 #
-# Extra allowlists for this repo go in `.gitleaks-extra.toml` at the root — appended to
-# the workspace baseline, never replacing it.
+# Extra secret allowlists for this repo go in `.gitleaks-extra.toml` at the root —
+# appended to the workspace baseline, never replacing it.
 
 name: security
 
@@ -26,5 +27,20 @@ permissions:
   contents: read
 
 jobs:
-  secrets:
+  security:
     uses: CroftCommunity/croft-pwa/.github/workflows/security-reusable.yml@main
+    with:
+      # Nothing under these three is published. `alpha/Proofs/` and
+      # `alpha/experiments/` are frozen research; `spike/` is throwaway. Under
+      # SUPPLY-CHAIN rule 5 rung 2 they are not-production by construction, so their
+      # findings are reported on every run and none of them block.
+      #
+      # This is a claim about what the repo SHIPS, which is why it lives with the
+      # caller and not in the shared config. It is doing real work, not decorating:
+      # measured 2026-08-29, discovery reports 0 blocking findings with these three
+      # set and 215 without them. If anything under these paths ever ships, this
+      # input is the line that has to be revisited first.
+      advisory-paths: |
+        alpha/Proofs/
+        alpha/experiments/
+        spike/
