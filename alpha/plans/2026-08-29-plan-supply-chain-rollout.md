@@ -1,6 +1,7 @@
 # Plan — rolling out the supply-chain dimension
 
-**Status:** Pass 1 + 2 + 3 complete. NOT ready for execution — four open questions await owner confirmation of severity (see Open Questions + Review Log § Pass 3). Not started.
+**Status:** Pass 1 + 2 + 3 complete, all open questions resolved by the owner 2026-08-29.
+**READY FOR EXECUTION.** Not started.
 **Standard:** `CroftC/.claude/SUPPLY-CHAIN.md` (landed 2026-08-29, `c6ff383`; rule 5
 extended `fa53ddc`).
 **Scope:** 18 checked-out repos, 24 in the org.
@@ -347,14 +348,26 @@ Record today's findings as the starting line, each reasoned and expiring.
    public host works: GitHub's access policy applies only to private/internal hosts, and
    `croft-stack` allows all actions. Recommended home `croft-pwa`, which owns the CI
    standard.
-2. **Whether `openmls` 0.9 adoption is scheduled here or in `croft`'s roadmap.** It
-   retires most of croft's exceptions file but is an MLS stack upgrade with a device
-   re-validation obligation. **Severity: low** — not on this plan's critical path.
-3. **The five repos with no CI** — reusable-workflow caller, or one scheduled
-   workspace-wide scan reporting centrally. **Severity: medium** — decides Phase 1's shape
-   for 5 of 18 repos.
-4. **Org-level vs per-repo `sha_pinning_required`.** Needs `admin:org`. **Severity:
-   medium** — decides whether Phase 5 is one API call or twelve.
+2. ~~Whether `openmls` 0.9 adoption is scheduled here or in `croft`'s roadmap~~
+   **RESOLVED — owner, 2026-08-29** (severity low, confirmed). It stays in **croft's own
+   roadmap**, already filed in `croft/TODO.md`. *Why:* it is an MLS stack upgrade carrying
+   a device re-validation obligation, and coupling the rollout to a client release would
+   make every phase here wait on §12/§13 device runs. The exceptions file lives until
+   then, which is what a dated exception is for.
+3. ~~The five repos with no CI~~ **RESOLVED — owner, 2026-08-29** (severity medium,
+   confirmed). Each of `stellin`, `crofting_site`, `arecipe_treatise`, `homebrew-tap` gets
+   a **reusable-workflow caller**; `experiments` is frozen and exempt. *Why:* the
+   alternative — one scheduled workspace-wide scan — does not gate their PRs, so a secret
+   could land on `main` and only surface on the next scheduled run. Consistency with the
+   other 13 also means one shape to maintain, not two.
+4. ~~Org-level vs per-repo `sha_pinning_required`~~ **RESOLVED — owner, 2026-08-29**
+   (severity medium, confirmed). **Check org-level first, fall back to per-repo.** Phase 5
+   opens with `gh auth refresh -h github.com -s admin:org`, then
+   `gh api orgs/CroftCommunity/actions/permissions`. *Why the org attempt is worth an auth
+   scope:* it also covers org repos not checked out here — `levelforge`, `k1-appa`,
+   `k1-appb`, `kernel-k1` — which a twelve-repo loop silently misses.
+
+**All open questions are resolved. None remain for the executor.**
 
 ---
 
@@ -465,6 +478,14 @@ against the plan's own logic.
   stale. No end-of-plan docs phase. Re-checked after this pass: the invariants and rollback
   added here do not create new doc obligations.
 
-**Confirmed ready:** **no** — four open questions remain and the user has not confirmed
-their severities. Q3 and Q4 are medium and shape Phase 1 and Phase 5 respectively; the plan
-should not start execution before they are walked through.
+**Confirmed ready:** **yes**, as of the owner walk-through on 2026-08-29. All four open
+questions are resolved — Q1 in Pass 2 by measurement, Q2/Q3/Q4 by owner decision with
+their severities confirmed rather than agent-assigned. Nothing is left for the executor
+to decide.
+
+**Execution starts at Phase 0**, whose remaining scope is `CISS`, `croft-stack` and the JS
+repos — `croft` is already done. The three unverifiable assumptions stand as the first
+real work of the phases that depend on them: the org Actions policy (Phase 5, now with an
+owner-approved `admin:org` refresh), the secret backlog in 10 unscanned repos (Phase 1,
+and the one thing that could invalidate this plan's premise), and private-repo Actions
+minutes.
