@@ -1,0 +1,44 @@
+# Per-repo extension to the workspace secret-scanning baseline.
+# The base lives in croft-pwa/.github/workflows/security-reusable.yml and is APPENDED
+# to, never replaced — a repo cannot switch the base rules off.
+#
+# Why discovery needs one: it is the thinking and synthesis repo, so it is mostly prose,
+# and gitleaks' entropy-based `generic-api-key` rule fires on ordinary sentences
+# containing the word "key" next to a token-ish string. Measured 2026-08-29: after the
+# workspace baseline, 16 of 18 repos scan clean and discovery had the only 12 remaining
+# findings, every one of them prose. Samples:
+#
+#   alpha/seeds/drystone-persona-migration/peer-inventory-worksheet.txt:2
+#     "tag key: R=keep-relation  T=keep-transport  P=->persona ..."   <- a legend
+#   beta/impl/drystone-design/governance-finality.md:285
+#     "Making it possible faithfully is Drystone. Making it representable ..."
+#
+# These are scoped to the BULK-PROSE trees — imported corpora, seeds, and specs — rather
+# than to `*.md` repo-wide. That distinction is the point: a private key pasted into a
+# session transcript or a runbook must still be caught, and it will be, because the
+# specific high-value rules (private-key, AWS, GitHub PAT, ...) are untouched here and
+# the rest of the repo is not exempted.
+
+[[allowlists]]
+description = "Imported corpora and seed material — bulk prose, not authored config."
+targets = ["path"]
+paths = [
+  '''(^|/)alpha/seeds/''',
+  '''(^|/)alpha/experiments/iroh/''',
+]
+
+[[allowlists]]
+description = "Drystone specification and design prose."
+targets = ["path"]
+paths = [
+  '''(^|/)beta/drystone-spec/''',
+  '''(^|/)beta/impl/drystone-design/''',
+]
+
+[[allowlists]]
+description = "Two individually-reviewed prose files. Listed by name rather than by tree so a third one is a prompt to look, not a silent pass."
+targets = ["path"]
+paths = [
+  '''(^|/)alpha/COHESION\.md$''',
+  '''(^|/)crystallized/TEST-CORPUS\.md$''',
+]
