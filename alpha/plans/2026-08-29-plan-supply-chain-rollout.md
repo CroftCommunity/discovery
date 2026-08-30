@@ -1,7 +1,7 @@
 # Plan — rolling out the supply-chain dimension
 
 **Status:** Pass 1 + 2 + 3 complete, all open questions resolved by the owner 2026-08-29.
-**Phases 0, 1 and 2 EXECUTED and landed 2026-08-29.** Phases 3–6 remain.
+**Phases 0, 1, 2 and 3 EXECUTED and landed 2026-08-29.** Phases 4–6 remain.
 **Standard:** `CroftC/.claude/SUPPLY-CHAIN.md` (landed 2026-08-29, `c6ff383`; rule 5
 extended `fa53ddc`).
 **Scope:** 18 checked-out repos, 24 in the org.
@@ -546,3 +546,83 @@ is the reason they were run.
 `SUPPLY-CHAIN.md` § Current state, `croft-pwa/docs/CI.md` (a new rule 9, which Phase 1 had
 listed and not written), both CHANGELOGs, and the audit's checks 31/32. Two rows Phase 1
 left open were closed here rather than left to rot.
+
+## Review Log — entry 8: executing Phase 3 (2026-08-29)
+
+**Outcome: licences land as part of the dependency gate, not beside it — and the phase's
+single biggest finding is about the *check*, not the dependencies.**
+
+**Deviation 1 — the licence gate is not a separate mechanism.** The plan implied a licence
+check alongside the SCA one. Measurement said they are one question: a CVE matters if the
+vulnerable code ships, and a licence term attaches if the licensed code is **distributed**.
+So rung 2 decides both, out of a single `osv-scanner --licenses --all-packages` run
+(verified not to change which vulnerabilities are reported).
+
+This is load-bearing rather than tidy. **All 38 Maven licence violations in `croft/android`
+are unshipped**, the LGPL-2.1 `jna` included — and the `jna` that actually ships is 5.14.0,
+reporting a compatible licence. A licence gate without rung 2 blocks a client release on
+the emulator-control plugin's licence: rule 4's failure wearing a hat. Across the
+workspace, **40 licence violations, all unshipped, zero per-package exceptions needed**.
+
+**Deviation 2 — the allowlist is a script constant, not a workflow input.** One outbound
+licence means one inbound list. A per-caller override would let the repo with the loosest
+list become the one others copy from — the failure that made croft-pwa's MIT relicensing
+necessary in the first place.
+
+**Deviation 3 — the plan's suggested RED fixture was wrong.** It proposed `readline-sync`
+as "GPL-3.0"; it is MIT. Two further guesses also missed. The fixture used is
+`ffmpeg-static`, which osv-scanner *reports* as GPL-3.0-or-later — chosen by asking the
+scanner rather than by recalling a licence.
+
+### Findings the plan did not anticipate
+
+1. **Check 35 could not see the violation it exists to catch.** It graded the repos
+   checked out under `CroftC/` — 18 of the org's 24 — while `k1-appa`, `k1-appb` and
+   `kernel-k1` had been public with no LICENSE since July. They were found by an org-wide
+   `gh api` sweep during the rollout, not by the check that owns the rule. **This is the
+   finding worth the most in this phase, and it rhymes with entry 7's:** that one was a
+   gate whose *scope* was incomplete; this is a check whose *population* was a convenient
+   subset. Both report green by construction, and neither is caught by asking "is this
+   finding real?". The fix is a generated roster (`bin/org-register.sh` → `ORG-REGISTER.md`)
+   covering all 24, proven RED on this morning's state and GREEN on today's.
+
+2. **The GREEN half of a validation found a defect the RED half could not.** Removing the
+   offending dependency left a valid lockfile with zero packages, and the gate reported
+   "could not run". osv-scanner exits **128** for "no package sources found" and **127**
+   for a rejected argument — both with **empty stdout**, so only the code separates them.
+   Collapsing them into "not 0 or 1, so broken" fails any repo that legitimately has no
+   dependencies. Had the validation stopped at "it refuses the bad thing", this would have
+   shipped. *Watch it fail* and *watch it pass* are two requirements, not one.
+
+3. **One tool disagrees with itself about what SPDX is.** deps.dev **reports** `MPL-2.0+`;
+   osv-scanner's `--licenses` **validator refuses** it as non-SPDX — and on that refusal
+   writes to stderr, emits no JSON and **exits 0**. A gate that trusted the exit code
+   would have reported green having scanned nothing. Handled in the gate, and the
+   empty-set guard now names this as the cause to look for.
+
+4. **A finding stated something false.** Check 35 called `experiments` "a public repo"
+   while it is private *and* archived. Worse than a missing finding: an untrue one that a
+   reader must disprove. Private and archived repos are now a recorded exemption.
+
+5. **Mutation testing earned its place again.** 12 of 13 mutants killed; the survivor that
+   mattered relaxed the first-party check from the path segment `/CroftCommunity/` to a
+   bare substring, which would launder a fork *named* `CroftCommunity` into first-party and
+   wave its `UNKNOWN` licence through. Review did not catch it; the mutant did. The one
+   remaining survivor (dropping `^…$` anchors from the Cargo.lock source regex) is triaged
+   **equivalent** — TOML keys sit at column 0, so both forms select the same text on any
+   lockfile Cargo can emit, and killing it would mean inventing input Cargo never produces.
+
+### Deferred to the owner
+
+**Whether the AGPL-compatible copyleft family belongs in the allowlist.** `GPL-3.0-or-later`
+and `LGPL-3.0-*` are compatible with an AGPL-3.0 outbound licence (GPLv3 §13), so blocking
+them is arguably a false positive — and rule 7 warns that a list which trips on a false
+positive gets widened wholesale. They are omitted today because **no package in the
+workspace carries them**, and the strictly-measured list is the one that can be defended.
+The consequence is that a future copyleft dependency stops for a human decision, which is
+a defensible thing for a gate to do. Widening is a one-line named PR either way.
+
+**Documentation impact:** Phase 3's row is closed — `SUPPLY-CHAIN.md` rule 7 and § Current
+state, the checks table (35 is now FLAG and grades the org), `.claude/CLAUDE.md`'s
+dimension row, `croft-pwa/docs/CI.md` rule 9 and CHANGELOG. `ORG-REGISTER.md` is a new
+generated register and is listed as such.
