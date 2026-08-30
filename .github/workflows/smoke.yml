@@ -39,17 +39,17 @@ jobs:
           # croft-relay moved to croft-stack/relay/source/ (2026-08-10, tiered-admission
           # plan Phase 1); its gate lives there now (.github/workflows/gate.yml).
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
 
       # Pinned to the toolchain the in-session gate uses, so CI and local agree.
-      - uses: dtolnay/rust-toolchain@master
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772  # master
         with:
           toolchain: "1.94.1"
           components: clippy
 
       # Cache the per-crate target/ + registry so warm runs land near the ~2-minute
       # target; the first run (cold, compiling iroh for croft-chat) is longer.
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6  # v2
         with:
           workspaces: ${{ matrix.crate }}
 
