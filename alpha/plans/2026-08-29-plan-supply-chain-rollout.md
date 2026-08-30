@@ -682,6 +682,25 @@ reads true": the security workflow was dispatched across the workspace afterward
    because croft-pwa calls its own workflow at `@main` and a PR against the host exercises
    the old copy.
 
+5. **`sha_pinning_required` is enforced TRANSITIVELY, and the flip broke five Pages
+   deploys.** `actions/upload-pages-artifact@v3` is a **composite** action whose own
+   `action.yml` uses `actions/upload-artifact@v4` — a floating tag. Pinning *our*
+   reference to it is not enough; GitHub walks inside and refuses the job at setup. Five
+   repos (`connect`, `discovery`, `fun`, `pdsview`, `view`) lost their Pages deploy the
+   moment the setting went on. Fixed by bumping to `v5.0.0`, which pins its own
+   dependency, and verified end to end — pdsview's and discovery's real Pages deploys on
+   `main` both succeeded afterwards.
+
+   **Two pieces of tooling failed to see it, and the enforcement is what caught it.** The
+   pinning script reads a repo's own workflow files and cannot see inside a third-party
+   composite action. The post-flip smoke test dispatched `security.yml` across all 18
+   repos and reported *18 of 18 green* — a true statement about the wrong workflows,
+   since none of them use this action. **"18 of 18 green" was evidence of the wrong
+   thing**, which is the same failure as entry 7's incomplete scope and entry 9's
+   convenient population, arriving this time as too narrow a *validation set* rather than
+   too narrow a *grading set*. A sweep of all 22 pinned actions for unpinned internal
+   references now exists and finds exactly this one.
+
 ### zizmor triage — 81 findings, 1.29.0, `--persona regular`
 
 Recorded rather than silenced (the plan's Observability line for this phase):
