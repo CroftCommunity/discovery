@@ -1,7 +1,7 @@
 # Plan — rolling out the supply-chain dimension
 
 **Status:** Pass 1 + 2 + 3 complete, all open questions resolved by the owner 2026-08-29.
-**Phases 0, 1, 2 and 3 EXECUTED and landed 2026-08-29.** Phases 4–6 remain.
+**ALL SIX PHASES EXECUTED and landed 2026-08-29.**
 **Standard:** `CroftC/.claude/SUPPLY-CHAIN.md` (landed 2026-08-29, `c6ff383`; rule 5
 extended `fa53ddc`).
 **Scope:** 18 checked-out repos, 24 in the org.
@@ -626,3 +626,134 @@ a defensible thing for a gate to do. Widening is a one-line named PR either way.
 state, the checks table (35 is now FLAG and grades the org), `.claude/CLAUDE.md`'s
 dimension row, `croft-pwa/docs/CI.md` rule 9 and CHANGELOG. `ORG-REGISTER.md` is a new
 generated register and is listed as such.
+
+## Review Log — entry 9: executing Phase 5 (2026-08-29)
+
+**Outcome: 109 Action references pinned across 12 repos, `sha_pinning_required` on for all
+22 non-archived repos, 18 of 18 green under enforcement — and the phase's central unknown
+was settled by measurement before anything was changed.**
+
+**The probe that decided the phase's shape.** The plan did not say whether GitHub's
+`sha_pinning_required` would also refuse the reusable-workflow call every repo makes at
+`@main`. If it did, the shared gate built in Phases 1–3 would have had to be pinned and its
+eighteen callers bumped on every change — the exact cost one shared workflow exists to
+avoid. Rather than reason about it, the setting was switched on for `stellin` (one workflow,
+one `uses:`) and a throwaway PR added a floating tag. GitHub answered in its own words:
+
+> `The action actions/checkout@v4 is not allowed in CroftCommunity/stellin because all
+> actions must be pinned to a full-length commit SHA.`
+
+— while the `@main` reusable call in the same repo ran **green**. The policy governs
+**actions**, not reusable workflows. The exemption is now encoded in check 33 with that
+measurement as its reason, rather than as a preference.
+
+**The order the plan insisted on was the right one.** Tags first, setting second. Prior
+values were recorded for every repo before any write (`false` everywhere), and the read-back
+confirmed the diff was exactly `sha_pinning_required: false → true` with `enabled` and
+`allowed_actions` untouched — the plan's inverted G6 check. Validation was not "the setting
+reads true": the security workflow was dispatched across the workspace afterwards and
+**18 of 18 completed green under enforcement**.
+
+### Findings the plan did not anticipate
+
+1. **The population was larger than the set being graded — for the third time.**
+   `levelforge`, a public repo nobody has cloned here, carried six floating tags and had to
+   be pinned before the flip could include it. Entry 8 found the same shape in check 35 and
+   entry 7 in the gate's own scope. Three instances of one failure mode is a pattern, not a
+   coincidence: **every check in this dimension was written against the 18 repos on this
+   laptop, and the org has 24.** The org register now closes it for checks 33, 34 and 35.
+
+2. **And it was still open in Phases 1 and 2.** `levelforge`, `k1-appa`, `k1-appb` and
+   `kernel-k1` had **no secret or dependency gate at all** — a rollout that reported itself
+   complete had covered 18 of 24. Fixed the same session (four callers, all green), but the
+   lesson is that "complete" was measured against the wrong denominator twice before anyone
+   noticed.
+
+3. **Check 33 was reporting where the forge can refuse.** Reading `uses:` lines proves the
+   tree is pinned *today*; it cannot stop the next PR, and the audit runs when someone
+   remembers to run it. That is the same distinction rule 1 draws between GitHub's secret
+   *alerts* and a blocking scan — and this dimension had been on the wrong side of it for
+   its own rule 10. Check 33 now verifies the forge control as well as the file contents.
+
+4. **`zizmor` found a template injection in the workflow eighteen repos run.** Both scanner
+   versions were expanded with `${{ inputs.* }}` *inside* a `run:` block — the runner
+   pasting caller-supplied text into the program before bash sees it. Moved to `env:`; 2
+   findings before, 0 after, and the fix was verified in CI on a pinned throwaway branch
+   because croft-pwa calls its own workflow at `@main` and a PR against the host exercises
+   the old copy.
+
+5. **`sha_pinning_required` is enforced TRANSITIVELY, and the flip broke five Pages
+   deploys.** `actions/upload-pages-artifact@v3` is a **composite** action whose own
+   `action.yml` uses `actions/upload-artifact@v4` — a floating tag. Pinning *our*
+   reference to it is not enough; GitHub walks inside and refuses the job at setup. Five
+   repos (`connect`, `discovery`, `fun`, `pdsview`, `view`) lost their Pages deploy the
+   moment the setting went on. Fixed by bumping to `v5.0.0`, which pins its own
+   dependency, and verified end to end — pdsview's and discovery's real Pages deploys on
+   `main` both succeeded afterwards.
+
+   **Two pieces of tooling failed to see it, and the enforcement is what caught it.** The
+   pinning script reads a repo's own workflow files and cannot see inside a third-party
+   composite action. The post-flip smoke test dispatched `security.yml` across all 18
+   repos and reported *18 of 18 green* — a true statement about the wrong workflows,
+   since none of them use this action. **"18 of 18 green" was evidence of the wrong
+   thing**, which is the same failure as entry 7's incomplete scope and entry 9's
+   convenient population, arriving this time as too narrow a *validation set* rather than
+   too narrow a *grading set*. A sweep of all 22 pinned actions for unpinned internal
+   references now exists and finds exactly this one.
+
+### zizmor triage — 81 findings, 1.29.0, `--persona regular`
+
+Recorded rather than silenced (the plan's Observability line for this phase):
+
+| rule | count | verdict |
+|---|---|---|
+| `artipacked` | 43 | **Open, accepted for now.** `actions/checkout` leaves the token in `.git/config` unless `persist-credentials: false`. Real hardening, mechanical, and touches every workflow in the org — a change of that width deserves its own pass rather than riding along with the pinning one. |
+| `unpinned-uses` | 17 | **Won't fix, measured.** These are the org reusable-workflow calls at `@main`. GitHub itself permits them (see the probe above), and pinning them would undo the shared gate. |
+| `template-injection` | 8 error + info | **One fixed** (the shared gate, above). The rest interpolate `steps.*.outputs.pr` and `.sha` — a PR number and a commit SHA, both machine-generated — or run in maintainer-triggered release workflows. Open, low. |
+| `excessive-permissions` | 8 | **Open, low.** Job-level `permissions:` narrower than the workflow default; worth a pass, not urgent. |
+| `cache-poisoning` | 5 | **Open, worth a look.** Release workflows that restore a cache before building a published artifact. The only class here that touches what ships. |
+
+## Review Log — entry 10: Phase 6, the authored-code pass (2026-08-29)
+
+**This phase has no check and no green light, by construction** (`SUPPLY-CHAIN.md` rule 0):
+an LLM reviewer cannot be proven RED on a fixture, so a check over it would report green
+without meaning it. What follows is the reading, and what it changed.
+
+**Rule 11 says the pass reads plans, not only diffs**, and the plan under review is this
+one — a rollout that added three enforcing surfaces (a blocking dependency gate, a blocking
+secret gate, and a forge-level Actions policy). The questions asked were about *trust
+boundaries*, which is what a plan can be reviewed for before any code exists.
+
+**1. What can a caller of the shared gate do to it?** Nothing, as it turns out, and that is
+worth stating: no caller passes `secrets:`, the reusable workflow declares
+`permissions: contents: read`, and it runs with the caller's own `GITHUB_TOKEN`. A
+compromised caller cannot reach another repo through the gate.
+
+**2. What stops a caller declaring everything unshipped?** `advisory-paths` is
+caller-declared and unbounded — the widest trust boundary the gate has. The pass found that
+a limit exists and **was accidental**: the match is a *directory* prefix, so a lockfile at
+the repo root cannot be covered by any declaration. The root manifest, which describes what
+the repo actually ships, is unsilenceable. Now pinned by test (croft-pwa
+`AdvisoryPathsCannotSilenceTheWholeGate`), because an invariant nobody has stated is one a
+refactor removes without noticing. **Residual risk accepted and recorded:** a caller can
+silence a *nested* lockfile it should not; that is the input's purpose, it lives in the
+caller's tracked file, and it is reviewed like any change.
+
+**3. Where does the drift register's PAT live, and who can reach it?** `DRIFT_TOKEN` is a
+`repo`-scoped PAT — the most powerful secret this rollout introduces. Containment checked:
+`dep-drift.yml` triggers on `schedule` and `workflow_dispatch` only, **never
+`pull_request`**, so a fork or a branch cannot run it; the token is bound to the two steps
+that need it, so the step running repo test code cannot read it; and reaching the token
+requires landing on `main` through a PR. Accepted. The one thing worth saying plainly: a
+malicious change to `.claude/bin/dep_drift.py` that lands on `main` would run with an
+org-wide read token, so that file's reviews are not routine.
+
+**4. Does anything here fail open?** The three refusals were each exercised rather than
+assumed: the licence/vulnerability gate exits 2 when the scanner returns no packages, the
+drift generators refuse to publish a roster smaller than the committed one (proven — a
+21-of-24 token was caught in a real CI run), and the audit refuses to run against a root
+with no sibling repos. The pattern this rollout kept rediscovering is that **failing open is
+never loud**, so each of those was made to fail closed and then watched failing.
+
+**No finding rose to blocking, which is what rule 0 predicts and not evidence of anything.**
+The pass is a habit, not a gate.
