@@ -1,10 +1,16 @@
 # croft-relay: cap-gated calling with a metered introduction budget
 
-- **Status:** Rewrite (2026-08-08), Pass 2 complete against the rewrite (2026-08-08), cap distribution
-  settled out-of-band (2026-08-09), **Pass 3 (quality gates) complete and all nine open questions closed
-  with the owner (2026-08-09)**. Supersedes the 2026-08-07 draft and its gap analysis — both preserved
-  in the Review Log, not above it. **12 phases** in five milestones. **No open questions. Ready for
-  execution, starting with Phase 1's relocation to `croft-stack/relay/source/`.**
+- **Status: EXECUTED THROUGH THE ENFORCE FLIP (2026-08-30).** Production
+  `relay.croft.ing:8443` runs `admission = "enforce"` — flipped owner-authorized after
+  same-night evidence on both admission paths and verified live (croft-stack
+  `sessions/2026-08-30-enforce-flip.md`; the E153 detour — production silently on v0.1.1,
+  every pass refused, found via E148's log-filter fix — is recorded in
+  `sessions/2026-08-28-e153-tokens-never-verified.md` and `docs/ANSIBLE-HYGIENE.md`).
+  Phases 5–8 complete on production; open mode is the written rollback posture. History of
+  the plan's review: Rewrite (2026-08-08), Pass 2 (2026-08-08), cap distribution settled
+  out-of-band (2026-08-09), **Pass 3 complete, all nine open questions closed with the
+  owner (2026-08-09)**. Supersedes the 2026-08-07 draft and its gap analysis — both
+  preserved in the Review Log, not above it. **12 phases** in five milestones.
 - **Supersedes in part:** ADR-0001's fork-vs-embed framing; **ADR-0004's entire enforcement
   mechanism** (rate-limiting is replaced by a byte budget with a clean disconnect).
 - **Source dialogue:** `../seeds/transcripts/raw/croft-relay-tiered-admission-fork-vs-embed-2026-08-07.md`
