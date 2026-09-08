@@ -121,6 +121,13 @@ not try to merge them into one document; cross-reference instead.
   recovery/key-custody predicate (opt-in quorum-of-contacts + 48h delay/owner-veto + BIP39 paper key).
   Informs I9 / A2 / A12 — surfaced, not resolved.
 
+- `ring-walk-sans-relay-2026-09.md` — measured (2026-09-08, live probes) what a browser can
+  reach of the follow graph with no relay and no AppView: rings 0–2 by follows are walkable
+  direct from PDSs (`getLatestCommit` rev-gating + `getRepo?since=` diffs of 8–300 KB), ring 3
+  is not (~290 M edges), followers need an index (Constellation, degraded around). A 14.6 MB
+  repo decodes in JS in 50 ms, so the recommendation is one shared TypeScript rev-gated walker
+  with per-ring refresh cadence, not a Rust→wasm core. Retires E146's measurement.
+
 ## Anticipated (different audiences, same underlying research)
 
 The same comparative material will likely be re-cut for different needs — e.g. a
