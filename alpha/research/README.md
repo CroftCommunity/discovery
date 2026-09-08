@@ -124,7 +124,7 @@ not try to merge them into one document; cross-reference instead.
 - `ring-walk-sans-relay-2026-09.md` — measured (2026-09-08, live probes) what a browser can
   reach of the follow graph with no relay and no AppView: rings 0–2 by follows are walkable
   direct from PDSs (`getLatestCommit` rev-gating + `getRepo?since=` diffs of 8–300 KB), ring 3
-  is not (~290 M edges), followers need an index (Constellation, degraded around). A 14.6 MB
+  is not (~290 M edges); mutuals fall out of the ring-2 walk, so the default rings need no follower index. A 14.6 MB
   repo decodes in JS in 50 ms, so the recommendation is one shared TypeScript rev-gated walker
   with per-ring refresh cadence, not a Rust→wasm core. Retires E146's measurement.
 

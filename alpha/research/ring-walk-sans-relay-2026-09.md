@@ -42,18 +42,17 @@ The live-update tier follows the same shape: **Jetstream accepts up to 10,000 DI
 socket** [source], so ring 1 fits one browser WebSocket and ring 2 does not. Ring 2 is a
 walk, refreshed on a cadence, never a stream.
 
-Options the owner should pick between (details in § 6):
+**Decisions taken by the owner, 2026-09-08** (the reasoning behind each is in § 6–7):
 
-- **Placement (A):** a new small shared package consumed by forage, pdsview, and the
-  social-tree site — *recommended*; vs **(B)** grow it inside forage's `lens.js` and copy
-  it later — the pattern that produced eight atproto OAuth implementations
-  (`.claude/DECISIONS.md` § "Do NOT write a ninth").
-- **Diff apply (v1 vs v2):** v1 re-lists a repo's follows with `listRecords` when its rev
-  moved (no CBOR in the bundle — the choice RUN-BUNDLE-PRECACHE already made); v2 applies
-  `getRepo?since=` diff CARs against a persisted block store. Recommend v1 first, with the
-  v2 trigger stated below.
-- **Followers source:** Constellation (third party, one machine) with an honest
-  "followers unknown" state when it is unreachable; vs followers-only-from-AppView.
+1. **Placement:** the walker lives **inside `croft-pwa` as a package**, consumed by forage,
+   pdsview and the social-tree site as a git dependency pinned to a commit (the
+   dependency-sourcing rule). It is the first shared JS package consumed rather than
+   copied, so it also sets that pattern.
+2. **Default rings are mutuals · follows · global** (no followers ring). Mutuals come
+   from the ring-2 walk itself; no follower index is required for the defaults.
+3. **On rev change, re-list the follow collection** (v1). Diff CARs are a later step,
+   triggered when posts join the walker.
+4. **The outer ring draws as it fills, with an "as of" stamp**, never as an empty set.
 
 ---
 
@@ -241,22 +240,32 @@ promise ("a transient 502 must never be remembered as an empty ring").
 5. **Per-host concurrency and honest failure.** Cap in-flight requests per PDS host (the
    rate limit is per host), read the exposed `RateLimit-Remaining`, and represent a host's
    failure as "unknown since <time>", never as an empty set.
-6. **Followers via Constellation, degraded around,** exactly as ADR-004 does for counts;
-   mutuals-among-follows from the ring-2 walk so the core scopes need no index at all.
+6. **No follower index for the defaults.** Mutuals-among-follows come from the ring-2
+   walk, so mutuals · follows · global need nothing beyond PDSs and (for global) the
+   AppView. Constellation is relevant only if a follower ring is ever drawn; if so, it is a
+   third-party single-machine service to degrade around, as ADR-004 already does for counts.
 7. **Jetstream for ring 1 only**, when signed in and under 10 k follows; it replaces the
    ring-1 poll, not ring 2's walk.
 
 What this does *not* recommend: a Rust core for I/O, a relay dependency, a per-session
 ring-2 recompute, or trusting any PDS-side answer about *followers*.
 
-## 7. Open questions for the owner
+## 7. Decisions (owner, 2026-09-08) and why
 
-- Placement of the shared package (§ 6.1).
-- Whether Constellation is acceptable as a *degraded-around* dependency for followers in
-  the social-tree site (it already is for forage counts), or whether followers stay
-  AppView-only.
-- Whether ring 2's "as of" honesty is enough UX for the visualization, or the site should
-  refuse to draw ring 2 until the first walk completes.
+- **Placement → a package inside `croft-pwa`.** croft-pwa is today a site
+  (`private: true`, no exports; sites copied its chassis). Making it a consumable package,
+  pinned by commit per the dependency-sourcing rule, is the workspace's answer to the
+  eight-OAuth-copies problem. Its ARCHITECTURE card should say so when the package lands.
+- **Default rings → mutuals · follows · global.** No followers ring, so no follower
+  index. Mutuals are learned during the ring-2 walk (each followee's follow list says
+  whether they follow me). Global is the AppView and is shown as unavailable when it is.
+  Matches forage's shipped `DEFAULT_STOPS = ['mut', 'fol', 'world']`.
+- **Refresh → re-list on rev change (v1).** Follows are a small share of a repo's churn
+  (likes and posts dominate the diffs measured above), so re-listing is nearly as cheap
+  as a diff and needs no decoder or block store. Revisit when posts join the walker.
+- **Outer ring → draw as it fills with an "as of" stamp.** The first walk takes about a
+  minute; the ring is not a default stop; honesty over completeness, as forage's
+  "a transient 502 must never be remembered as an empty ring" rule already requires.
 
 ## 8. Sources
 
