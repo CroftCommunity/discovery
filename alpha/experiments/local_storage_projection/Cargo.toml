@@ -7,9 +7,9 @@ edition = "2021"
 [dependencies]
 # The pure substrate — extracted to croft at E117 P2; this crate is its redb
 # ADAPTER. Pinned by commit per the dependency-sourcing rule. INTERIM URL: the
-# local croft repo (branch p2-social-tree-core); swaps to the github-personal
+# local croft repo (branch p2-social-tree-core); swaps to the public https://github.com
 # remote at the first push, same rev discipline.
-social-tree-core = { git = "ssh://git@github-personal/CroftCommunity/croft.git", rev = "9f7d0c6" }
+social-tree-core = { git = "https://github.com/CroftCommunity/croft.git", rev = "9f7d0c6" }
 redb = "2.4"
 blake3 = "1"
 serde = { version = "1", features = ["derive"] }
