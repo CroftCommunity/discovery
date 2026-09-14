@@ -4,6 +4,11 @@
 companions with every cross-reference as a followable link. Built by `site/build.py`; the same build is a
 broken-reference gate on every push and PR (see `site/README.md`).
 
+**The gate, named** (CI-PATTERN rule 6): `smoke.yml` runs `cargo test` and `cargo clippy --all-targets`
+in each Rust experiment crate it lists (`alpha/experiments/local_storage_projection`, `croft-chat`,
+`bip39-recovery-roundtrip`), and the site build (`npm ci` + `site/build.py`) as the reference gate. Run
+the same commands in the crate you touched before pushing.
+
 [![pages](https://github.com/CroftCommunity/discovery/actions/workflows/pages.yml/badge.svg)](https://github.com/CroftCommunity/discovery/actions/workflows/pages.yml)
 
 This repo is organized as a **maturity lifecycle**: `alpha → beta → rc → publish`. Each stage is a
