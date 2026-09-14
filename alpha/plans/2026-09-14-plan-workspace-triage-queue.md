@@ -1,6 +1,6 @@
 # Workspace triage queue — the 2026-09-14 canvass
 
-**Status: EXECUTE PASS DONE 2026-09-14 — seven PRs open (fun #94, CISS #42, croft #16, discovery #55, croft-stack #22, forage #69, CroftC #47); #3 (R1) is the one EXECUTE not started; DECIDE items await the owner; WAIT items belong to peer sessions.**
+**Status: EXECUTE PASS DONE 2026-09-14 — seven PRs open (fun #94, CISS #42, croft #16, discovery #55, croft-stack #22, forage #69, CroftC #47); CISS/croft/croft-stack also carry the rustls RUSTSEC-2026-0285 fix that surfaced mid-pass; #3 (R1) is the one EXECUTE not started; DECIDE items await the owner; WAIT items belong to peer sessions.**
 
 ## Problem Statement
 
@@ -82,6 +82,10 @@ Working surface only — every item's home is its repo TODO / plan / roadmap row
 41. PLAN    regift §2 large-mux measurement + §2a Photos credit — device-queue rows
 42. PLAN    SHARED-CODE debt: croft-pwa flips 8 "ported from skylite" files canonical; fun (6 files) + arecipe (providers.ts) consume the package
 43. DISMISS forage DPoP handshake untested (W17 uses app password) — record as accepted gap, or PLAN if OAuth breaks again
+
+## Tier 0 — surfaced by the pass itself
+44. DONE    RUSTSEC-2026-0285 (rustls 0.23.43, published 2026-09-14 12:00Z) blocked the dependency gate on CISS, croft, and croft-stack — croft-stack's scheduled main scan was red the same morning. Production for every shipped binary, so upgraded (0.23.45, lockfile-only) on the three triage branches, each repo's gate green
+45. DISMISS discovery's 17 experiment/spike lockfiles also hold affected rustls (0.23.40–0.23.43) — frozen spikes under `advisory-paths`; their scan passed and nothing ships from them
 
 ## Findings from the execute pass (2026-09-14)
 
