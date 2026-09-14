@@ -85,6 +85,9 @@ Working surface only — every item's home is its repo TODO / plan / roadmap row
 
 ## Tier 0 — surfaced by the pass itself
 44. DONE    RUSTSEC-2026-0285 (rustls 0.23.43, published 2026-09-14 12:00Z) blocked the dependency gate on CISS, croft, and croft-stack — croft-stack's scheduled main scan was red the same morning. Production for every shipped binary, so upgraded (0.23.45, lockfile-only) on the three triage branches, each repo's gate green
+46. WAIT    the same three deps scans now block rustls 0.23.45 on licence UNKNOWN — deps.dev has no record yet of a crate published this morning (404 at 21:00Z; 0.23.43 resolves to Apache-2.0 OR ISC OR MIT). Not a widening case: re-run the `security` job on CISS #42, croft-stack #22, croft #16 once deps.dev indexes it (`gh run rerun <id> --failed`)
+47. PLAN    the gate's blind spot #46 exposed: a crate too new for deps.dev blocks as UNKNOWN even when the lockfile's own registry manifest states an allowlisted licence — a rung the gate could resolve from `cargo metadata` rather than a network lag it cannot see (croft-pwa `dep_gate.py`; SUPPLY-CHAIN rule 7 wording)
+48. DECIDE  forage main CI is RED on `mixes.workflow.mjs` ("Top: 10 likes × 2 = 20 beats harvest's 13 (got undefined)") since a2af930 on 2026-09-09, through #66, #67, #68 — every landing since has merged on a red main (fun's auto-merge lesson, forage edition); the forage owner session should take it
 45. DISMISS discovery's 17 experiment/spike lockfiles also hold affected rustls (0.23.40–0.23.43) — frozen spikes under `advisory-paths`; their scan passed and nothing ships from them
 
 ## Findings from the execute pass (2026-09-14)
