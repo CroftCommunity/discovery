@@ -42,7 +42,7 @@ Working surface only — every item's home is its repo TODO / plan / roadmap row
  9. PLAN    openmls 0.9.0 adoption (carries §12/§13 device re-validation) — defer behind R1–R4
 
 ## Tier 2 — backbone pins and releases
-10. DONE (croft-stack #22; converge = owner) ciss-admit pin 0.8.0 → 0.10.0 with the git rev, together (h2 fix reaches the box); converge
+10. DONE (croft-stack #22; **converged 2026-09-15 03:49Z**, owner-authorized — `ok=101 changed=12`, then `changed=0`; croft-stack `sessions/2026-09-14-vps-ops.md`) ciss-admit pin 0.8.0 → 0.10.0 with the git rev, together (h2 fix reaches the box); converge
 11. DECIDE  croft-stack [Unreleased] pile — relay 0.2.1, or an infra section not tied to a relay tag
 12. DONE (CISS #42) CISS TODO item 1 (h2 bump) is stale — delete
 13. DONE — already shipped 2026-08-29, closed on the record (CISS #42) CISS: rsa RUSTSEC-2023-0071 dated exception + wire SCA gate (audit check 31)
@@ -53,7 +53,7 @@ Working surface only — every item's home is its repo TODO / plan / roadmap row
 18. DISMISS staging on-device enforce rehearsal — production supplied both states; keep the wrong-key row in the device queue only
 19. INSPECTED → DECIDE stray pre-rule branches: croft-stack 4, CISS 4, bluebird 7 — inspect, PR or delete each
 20. DISMISS optional did:web:admit.croft.ing did.json
-21. DECIDE  IPv6 reboot survival unproven — a maintenance-window reboot, or accept
+21. DONE (**rebooted 2026-09-15 04:15Z**, owner-listed: ssh back in 12 s on kernel 6.12.107; static v6 address + route, relayns + 6 DNAT rules, all units, both listeners' admission verdicts verified after boot — croft-stack `sessions/2026-09-14-vps-ops.md`) IPv6 reboot survival unproven — a maintenance-window reboot, or accept
 
 ## Tier 3 — contract and ecosystem
 22. DECIDE  publish ing.croft.* lexicons: croft.ing bsky account + 2 Porkbun TXT (same task blocks fyi.forage.*)
@@ -113,5 +113,5 @@ Working surface only — every item's home is its repo TODO / plan / roadmap row
 - **Re-dispositioned:** #6, #26 EXECUTE → PLAN (roadmap rows are to-be-planned, never
   work — TRACKING § Two piles); #25 EXECUTE → DECIDE (the assetlinks file exists with a
   placeholder; the release cert fingerprint is the owner's).
-- **After croft-stack #22 converges:** regenerate `CroftC/.claude/DEPLOYED.md`
+- **After croft-stack #22 converges:** regenerate `CroftC/.claude/DEPLOYED.md` — *converged 2026-09-15; nothing to regenerate: the register reads the declaration (it already said 0.10.0), the box was what lagged it*
   (ciss-admit 0.8.0 → 0.10.0).
