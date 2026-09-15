@@ -1,6 +1,6 @@
 # Dimension streamline — the convention layer, concise where it can be, one home per why
 
-**Status: ACCEPTED 2026-09-14 — owner: all three phases; the Current-focus history is archived (Q2a). Q3-Q5 taken as recommended. Pass 2 done 2026-09-14 (Review Log; one new question, Q6). Pass 3 next, then Phase 1.**
+**Status: ACCEPTED 2026-09-14 — owner: all three phases; the Current-focus history is archived (Q2a). Q3-Q5 taken as recommended. Pass 2 done 2026-09-14 (Review Log; one new question, Q6). Pass 3 done 2026-09-14: check 49 proven RED→GREEN, baseline 67 recorded; Phase 1 is drafted (uncommitted) with two gaps to close before it commits (Review Log § Pass 3 — the `discovery/alpha/README.md` Layout line, and the unreserved check number). Q6 still needs the owner's call before Phase 2.**
 
 ## Problem Statement
 
@@ -232,6 +232,24 @@ CroftC status --porcelain` empty always; `ls .coordination/claims/` unchanged by
       `next-id.sh check`; run the whole harness and confirm the RESULT total moved
       (PATTERN step 5) — and its rule sentence goes in `PATTERN.md` § Anti-collapse beside
       "roughly a screen", since a check with no written rule is drift (COORDINATION L715).
+      *(Pass 3: proven — see Review Log § Pass 3 for the RED and GREEN lines. The check
+      reads `CLAUDE_MD_FILE` when set, so it is the ONE part of the wiring test that can
+      grade the branch's file before landing; the rest of the harness still reads main.
+      Two obligations remain: (a) the RESULT total does not move — a NOTE is not counted
+      in `FINDINGS`, so the proof is the NOTE line's presence/absence, not the total; say
+      so when recording it. (b) The allocator cannot see an uncommitted check: a peer's
+      `next-id.sh check` returned 49 during this pass. Hold a reservation
+      (`next-id.sh check` → `49.res`) from the moment the draft exists until the branch
+      is pushed, or commit and push the draft promptly. Advisory: add a boundary run —
+      `CLAUDE_MD_FILE=<(yes | head -151)` fires, `head -150` does not — so a mutated
+      threshold cannot survive the two real-file runs alone.)*
+- [ ] **Commit and PR shape (Pass 3, debugging readiness):** one commit per surface is
+      not required, but the subject names the plan and the body names the archive path
+      and the whys ledger, so `git log -- .claude/CLAUDE.md` alone answers "where did the
+      history go" (`scope: sentence` + `Claude-Session` trailer per CHANGELOGS; the
+      meta-repo keeps no changelog — it ships nothing). The `discovery` PR carries the
+      archive and this plan's Review Log; land it before or with the `CroftC` PR so the
+      pointer in `CLAUDE.md` never resolves to a file on an unlanded branch.
 **Call chain:** every session's system prompt → `CroftC/.claude/CLAUDE.md` → the table's
 pointer → the canonical doc. The chain is the whole point: the top must say less, and the
 pointer must resolve.
@@ -240,7 +258,9 @@ recorded baseline (or each delta named), **run twice: pre-landing (proves nothin
 moved) and post-landing (the run that grades the docs — see Verified Assumptions on
 `ROOT`)**; every ledger row greppable at its destination; every `→` pointer in the table
 names a file that exists; the five § Current focus citations still resolve
-(`grep -rn 'Current focus' .claude README.md`).
+(`grep -rn 'Current focus' .claude README.md`). *(Pass 3: baseline = **67 findings**,
+`ROOT=/Users/cpettet/git/chasemp/CroftC`, main at `c0d1f2c`; the pointer and citation
+checks were run against the draft and pass — see Review Log.)*
 **Depends on:** Q1, Q2, Q4, Q5 answered; PR #62 landed or rebased over (shared
 `workspace-audit.sh`).
 **Read-set / Write-set:** as in Documentation Impact, Phase 1 line, plus `README.md:135-136`,
@@ -251,7 +271,10 @@ names a file that exists; the five § Current focus citations still resolve
 (PATTERN step 6). Cutting a "most-missed" clause that is the only thing a peer cited.
 **Done when:** (1) `CLAUDE.md` ≤ ~100 lines with every dimension still one row and every
 pointer resolving; a reader of the table can find any rule in two hops. (2) Wiring test
-above, output in the Review Log.
+above, output in the Review Log. *(Pass 3: the draft is 120 lines against this "~100"
+and check 49's budget of 150 — three numbers for one rule. Owner's call, ADVISORY:
+accept 120 and read "~100" as the target, or cut the focus block further. Not a
+blocker; the check is the rule with a fixture, the ~100 is the aspiration.)*
 **Validation:** moderate — audit green with named deltas, plus one peer session asked to
 find three specific rules from the new table and report the hop count.
 
@@ -477,3 +500,130 @@ section cut or moved; open `CroftC` branches were diffed against main.
   roll-up breaks no funnel surface.
 - The alternatives-rejected reasoning holds; the three-phase split still leaves the
   layer coherent after each phase, and more so now that Phase 1 has no croft-stack edit.
+
+### Pass 3: Quality Gates — 2026-09-14
+
+Fresh context. Read the plan end to end, then graded it against what Phase 1 has
+**actually drafted** (uncommitted, `worktrees/dimension-streamline/CroftC` at `c0d1f2c`
++7 files, and the archive in the `discovery` member). Docs translation of the gates: TDD =
+check 49 RED before GREEN, recorded; observability = a reader of the landed result can tell
+what moved where; calibration = each wiring test is the right strength and honours the
+`ROOT` fact (the harness grades main's docs, not the branch's).
+
+**TDD ordering:**
+- Check 49 is proven, by two full read-only harness runs this pass (both `ROOT=
+  /Users/cpettet/git/chasemp/CroftC`, main at `c0d1f2c`, the draft's script):
+  RED — `CLAUDE_MD_FILE=<CLAUDE.md@c0d1f2c>` → `NOTE  CLAUDE.md is 263 lines (budget 150)
+  — … (.claude/PATTERN.md § Anti-collapse, check 49)`, `RESULT: 67 finding(s)`.
+  GREEN — `CLAUDE_MD_FILE=<draft>` (120 lines) → no NOTE, `RESULT: 67 finding(s)`. The
+  diff of FLAG/NOTE lines between the two runs is exactly that one NOTE; check 36 raised
+  nothing (49 sits above the summary). The drafting session's own earlier RED run exists
+  in its scratchpad (`audit-check49-red.txt`, 21:57, same NOTE) but was recorded nowhere
+  — now it is here. **Note the total does not move**: `note()` does not increment
+  `FINDINGS`, so the plan's "confirm the RESULT total moved" was the wrong instrument
+  for an advisory check; the Phase 1 step now says the NOTE line is the proof.
+- Mutation resistance: RED at 263 and GREEN at 120 leave the threshold untested at its
+  edge (`-gt 150` → `-gt 250` survives both). Added an advisory boundary run to the step
+  (`yes | head -151` fires, `head -150` does not).
+- `bin/test-check-duplicate-ids.sh` 13/13 on the draft. `bin/test-next-id.sh` has ONE
+  pre-existing failing fixture ("expected 46 past the unlanded branch's check 45", gets
+  49 on main and 50 on the draft) — not this plan's regression, but the draft moves the
+  number it reports; NOTE for `next-id.sh`'s owner, not a Phase 1 obligation.
+
+**Observability / debugging readiness:**
+- The archive header says what it is, when it was struck, that it is verbatim and not
+  maintained, and points back to this plan — good. Its body is byte-identical to
+  `CLAUDE.md@c0d1f2c` L53-213 (`cmp` exit 0, 161 lines under a 12-line header). It does
+  not name `croft-stack/sessions/*` and croft runbook §§11-16 as the evidence homes the
+  way the Phase 1 step words it ("the session file or runbook it cites" instead) —
+  acceptable, ADVISORY.
+- The two descriptions of § Current focus are rewritten (`TRACKING.md:30-31`,
+  `README.md:104-106`) and all seven `Current focus` citations resolve on the kept
+  heading. Every table pointer resolves to a file on disk (28 checked, including the
+  `forage/docs/adr/0003…` ellipsis); every focus-block pointer resolves (5).
+- Added a Phase 1 step on commit/PR shape so `git log -- .claude/CLAUDE.md` alone
+  explains where the history went, and so the `discovery` PR (archive) lands before or
+  with the `CroftC` PR (pointer).
+
+**Validation calibration:**
+- Phase 1's wiring test now carries the baseline (67) and `ROOT`, and distinguishes the
+  one check that CAN grade the branch pre-landing (49, via `CLAUDE_MD_FILE`) from the
+  rest of the harness, which cannot. Phases 2 and 3 already say pre- and post-landing;
+  Phase 2's `test-lexicon-register.sh` and rule counts are the right strength for a
+  restructure; Phase 3's pair-grep is right for a tighten. No changes to 2/3.
+- **Ledger, checked at destination (draft):** rows 1-2 are in `TESTBED.md` § Devices as
+  one paragraph (re-sign-in step 0; `adb install -r` + the Pixel's debug identity) —
+  present. Rows 3-4: struck. Row 3 has no pointer in the new block (the plan said "with
+  the two pointers"); row 4 survives as one live sentence ("§13 step 3 is retired as
+  written — a staging run is scoped to the wrong-key refusal only") with no home cited.
+  The archive carries both verbatim and the whys are already home in croft (Pass 2), so
+  ADVISORY: add `(croft-stack TODO.md, croft runbook §15.4)` to the row-4 sentence, or
+  accept the archive as the pointer. Rows 5-9 are Phase 2/3 — not graded here.
+- **Everything the table cut, grepped for a home** (the survey's "verified line-by-line"
+  claim, spot-checked on 30 distinctive phrases): every dropped elaboration has a
+  canonical home — ordinal retirement (`TRACKING.md:122,135`), lockfile over-reports
+  four ways + `[affected.functions]` + rung 2/`dep_gate.py` + the seven-advisory ladder
+  (`SUPPLY-CHAIN.md:54-126`), `Merge <slug>:`/check 28 and type-first retired
+  (`CHANGELOGS.md:171,206-207`), the 4-of-9 `:live` false positives
+  (`VERIFICATION.md:62-63`), feed-row/five revisions/one skin/full path (`MOCKS.md`),
+  no iOS registered (`TESTBED.md:122`), `.env` in the main checkout only (`TESTBED.md:23`),
+  unpublished-is-a-stage (`LEXICONS.md:117`), stale-layer-feels-current and the unpushed
+  local main (`COORDINATION.md:92,211-229`), arecipe #104 (`COORDINATION.md:289`), the
+  lockfile pin (`WEB-TESTING.md:12-14`), `overflow-x: clip` (`croft-pwa/docs/MOBILE-FIRST.md`),
+  the different-DOM axe why (`croft-pwa/docs/ACCESSIBILITY.md`), the `<dialog>` exception
+  (`DESIGN.md:23`). The E147 IPv6 host facts, which the ledger never listed, are home at
+  croft-stack `TODO.md:138` + `sessions/2026-08-28-static-ipv6.md`. Only "atproto OAuth
+  already exists ~8× here" (DECISIONS row) has no canonical — it is a count, not a why;
+  dropped without loss. **So the Phase 1 step "each row's elaboration moves into its
+  canonical doc's own Most-missed block" was over-specified: the draft adds no such
+  blocks and needs none.** Read that step as "only where the canonical lacks it (none did)".
+- The new focus block asserts fresh state (R1–R3 landed 2026-09-14/15, R4/D3 next) —
+  verified against `croft/plans/2026-09-08-plan-call-core-and-apple-shell.md` Status and
+  the triage-queue plan's item 3. It mirrors a 2026-09-15 landing date from those Status
+  lines, one day ahead of this plan's date; theirs to reconcile, NOTE.
+- The attribution command in the compressed § Concurrent sessions matches
+  `COORDINATION.md:472` (`%(trailers:key=Claude-Session,valueonly)`) and its citation
+  "§ Claims" resolves (L415 heads the section holding L465-482). The wrong grep is gone.
+
+**Concurrency honesty:**
+- Map confirmed; sequential plan. Write-sets re-opened: Phase 1's draft touches exactly
+  the seven files the Documentation Impact line names plus `PATTERN.md` (Q5 sentence) and
+  `TRACKING.md` (description) — both already in the write-set — and the `discovery`
+  archive. Invariants held during this pass: both main checkouts' `status --porcelain`
+  clean, `.coordination/claims/` unchanged (README.md only). One side effect of this pass,
+  corrected: my `next-id.sh check` reserved 49 (`49.res`), which I released — and that
+  is itself the finding: **the allocator returned 49 to a peer because the draft's check
+  is uncommitted and invisible to it.** Reserve or push (Phase 1 step, above).
+- PR #62 and PR #34 are both still OPEN; `origin/main` is still `c0d1f2c`. Phase 1's
+  "Depends on: PR #62 landed or rebased over" is therefore unmet at PR-open time —
+  PHASE-GATED on opening the PR, not on committing the draft.
+
+**Coherence:**
+- The plan is reconstructible from its Reasoning: compress the top, relocate the middle,
+  strike the rest, never delete a why; the ledger is the spine. Still solves the stated
+  problem; no scope creep (the draft is narrower than the plan, not wider). Every open
+  question is tagged; Q1-Q5 confirmed by the owner; **Q6 is agent-set and unreviewed**
+  (PHASE-GATED, Phase 2) — the owner must see it before Phase 2, not before Phase 1.
+
+**Documentation impact:**
+- Every file in the Phase 1 line has a draft edit, **except one: `discovery/alpha/README.md`
+  gains no Layout line** — `git diff` empty, no `ROUND` or `ROLLUP` text in § Layout
+  (L59). The plan (Phase 1 archive step, Q2's concrete answer) requires it under the
+  findability rule. **Must be fixed before Phase 1 commits.** The archive is at the
+  ROUND name (the `STATE-ARCHIVE` draft is gone), so only the line is missing.
+- Nothing in the draft's `CLAUDE.md` cut is outside the ledger + the "already home"
+  set above; the browser-automation section at the end is untouched.
+
+**Findings for the draft, by severity:**
+- BLOCKING (before commit): (1) add the `discovery/alpha/README.md` § Layout line for
+  `ROUND-2026-09-14-enforcement-flip-and-first-call.md`; (2) reserve 49 or push — the
+  number is claimable by anyone until the branch is visible.
+- PHASE-GATED (before the PR opens): rebase over PR #62 once it lands (or land after
+  it); re-run `test-check-duplicate-ids.sh` and confirm check 49 is still above the
+  summary; record the post-landing harness run here.
+- ADVISORY: the row-4 pointer; 120 vs "~100" vs 150; the archive header's evidence
+  wording; the boundary fixture for 149/150/151.
+
+**Confirmed ready:** yes for Phase 1 execution once the two BLOCKING items are closed
+(both are minutes of work); Phase 2 is gated on Q6's review and on PR #62/#34
+sequencing as the Concurrency Map records.
