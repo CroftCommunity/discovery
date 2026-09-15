@@ -757,3 +757,169 @@ never loud**, so each of those was made to fail closed and then watched failing.
 
 **No finding rose to blocking, which is what rule 0 predicts and not evidence of anything.**
 The pass is a habit, not a gate.
+
+## Review Log — entry 11: the rollout log, moved here from SUPPLY-CHAIN.md (2026-09-14)
+
+Moved verbatim from `CroftC/.claude/SUPPLY-CHAIN.md` § "Current state (2026-08-29)" by the
+dimension streamline (`2026-09-14-plan-dimension-streamline.md`, Phase 2): the dimension doc
+keeps rules and their whys, and this plan is the reasoning home for how the rollout went.
+The six lessons that changed a rule were promoted into rules 4, 6 and 10 and § The gate of
+the dimension doc in the same landing; the "Still to do" list became its § State of play.
+Text below unchanged.
+
+---
+
+### Current state (2026-08-29) — as written in SUPPLY-CHAIN.md
+
+**Phases 0–5 are COMPLETE and landed.** The rollout plan with its full reasoning is
+`discovery/alpha/plans/2026-08-29-plan-supply-chain-rollout.md` (three passes, owner-confirmed).
+
+**Phase 0 — baseline and exceptions. Done, 13 repos with lockfiles.** Every one scans
+clean, verified from origin content. It was mostly *fixes*, not suppressions: `h2`,
+`lru`, `nanoid`, `postcss`, `dompurify`, `mermaid`, `brace-expansion` and `qs` were
+bumped; four repos needed no exception file at all. Excepted only what has no upstream
+fix (unmaintained crates, `rsa`'s Marvin with no patch) or is unreachable — and the one
+that mattered, `jsonwebtoken`'s authorization bypass in the relay's own token verifier,
+is walled by two tests proven RED under mutation rather than by a comment.
+
+**Phase 1 — secrets, blocking, everywhere. Done, 18 of 18 green.** One reusable workflow
+in `croft-pwa` (public, so the two private repos can call it); an 18-line caller per
+repo; `pull_request` + `push:main` + weekly `schedule` + `workflow_dispatch`.
+
+*The gate was watched failing before it was trusted*, from a **caller** repo rather than
+the host — `stellin`, which has no other CI, so the reusable call had nothing to
+piggyback on. A token was planted in one commit and reverted in the next, leaving HEAD
+clean: clean PR → success, planted-then-reverted → **failure** (`leaks found: 1` on the
+commit range), reverted → success. A head-only scan passes that middle case, which is
+why rule 2 exists.
+
+*The baseline allowlist is measured, not guessed.* Unconfigured, the workspace reported
+**7,084 findings with zero true positives** — 6,995 in `arecipe` alone — all from
+`generic-api-key` firing on what this workspace is made of: atproto rkeys,
+`publicKeyMultibase` values, lockfile checksums, conformance vectors, and the word "key"
+in prose. The specific high-value rules stay on; `private-key` correctly found CISS's
+two deliberate SSH fixtures, which are allowlisted **by path** so it keeps firing
+elsewhere.
+
+**Exempt, recorded rather than silent:** `experiments` is archived and frozen — it
+accepts no pushes and runs no Actions, so it carries no caller. It is the only repo
+without one.
+
+**Phase 2 — dependencies, blocking, everywhere. Done.** The reusable workflow gained a
+`deps` job beside `secrets`, so all seventeen callers got dependency scanning without
+editing a line — the payoff of the Phase 1 shape.
+
+*The gate decides rung 2; it does not read a severity.* `croft`'s Android scan reports
+**43 advisories, 19 rated High, and zero that reach the APK** — every one sits in an AGP
+`_internal-unified-test-platform-*` configuration or a unit-test classpath. A
+severity-only gate blocks a client release on netty CVEs in the emulator-control plugin.
+osv-scanner reports `dependency_groups` for npm but **null for Maven** (measured), so the
+Gradle half reads the lockfile's own configuration list, anchored on
+`^(debug|release)RuntimeClasspath$` — unanchored, it also matches
+`debugAndroidTestRuntimeClasspath`. Cargo and PyPI files record no split at all, so those
+block until a human settles them in `osv-scanner.toml`.
+
+*Enforcement is on by default, and that default is measured.* The gate was run across all
+18 repos before it was written into CI: **zero blocking findings in every one**. The
+plan's staged "advisory first" was insurance against a backlog that turned out not to
+exist, and an advisory gate nobody has to fix is how a gate becomes decoration. The one
+input that carries weight is `advisory-paths`, and it carries a lot: `discovery` reports
+**0 blocking with its three prefixes set and 215 without them**, all in frozen research
+that ships nothing.
+
+*What CI found that the laptop could not.* Five real defects, each invisible locally:
+`sha256sum -c` reads the filename out of the checksum line, so downloading to a
+different name makes the check fail to find its own file; a transient
+`curl: (35) Recv failure` with no `--retry` (and `--retry-all-errors` is the load-bearing
+flag, since plain `--retry` does not retry a connection reset); and — the one worth
+remembering — **omitting `ref:` on a cross-repo checkout does not fall back to the
+reusable workflow's ref**. It defaults to `github.ref` of the *current* repo, which
+silently works when the caller happens to be the host and silently checks out an
+unrelated default branch in all seventeen others. Printed from a caller on runner
+2.336.0: `github.job_workflow_sha` is **empty** despite GitHub documenting it as the
+reusable workflow's SHA, and `github.workflow_ref`/`workflow_sha` are the *caller's*. No
+context carries it; the checkout pins `main`.
+
+*And one hole the gate had itself.* `requirements.txt` was missing from the enumerated
+lockfile names, so `discovery/site/requirements.txt` — one pinned line, `markdown==3.7`
+— was never scanned. It carried GHSA-5wmx-573v-2qwq at CVSS 7.5. It surfaced only from
+reconciling a lockfile count between a terminal and CI. The scope of a gate is a thing
+to test, not to assume.
+
+**Phase 3 — licences, one allowlist. Done.** The `deps` job now decides inbound licences
+too, out of the *same* osv-scanner run and by the *same* rung-2 verdict — see rule 7 for
+what that measured and why the two are not separate gates.
+
+*Three public repos were unlicensed and no check could see them.* `k1-appa`, `k1-appb`
+and `kernel-k1` had sat public with no LICENSE since July; check 35 graded the 18
+checked-out repos and they are not among them. They now carry AGPL-3.0, and check 35 now
+grades the org roster (`ORG-REGISTER.md`, generated) instead of whatever happens to be on
+this laptop. Every public repo in the org declares a licence; the only `NONE` rows left
+are `CroftC` and `experiments`, both private.
+
+*Watched failing in both directions, on a real registry package.* A `ffmpeg-static`
+(GPL-3.0-or-later) production dependency is **refused** — exit 1, naming the package, its
+licence and the allowlist it violated — and removing it goes green. The boundary case
+that matters more than the happy path holds: `MPL-2.0` stays **allowed**, and croft's 12
+MPL-2.0 packages produce zero findings.
+
+*The GREEN half found a defect the RED half could not.* Removing the offending dependency
+left a valid lockfile with no packages, and the gate reported "could not run". osv-scanner
+exits **128** for "no package sources found" and **127** for a rejected argument, both
+with empty stdout; collapsing them into "not 0 or 1, so broken" fails any repo that
+legitimately has no dependencies. Running only the refusal half would have shipped it.
+
+**Phase 4 — the freshness register, unattended. Done.** `bin/dep_drift.py` replaces the
+`npm outdated` wrapper: it reads the forge, so it needs no checkout and covers all 24 org
+repos rather than the 18 cloned here. Rust and Gradle are now **measured** rather than
+declared unmeasured — and measuring them roughly doubled what check 34 has to say.
+
+*What appeared the moment it stopped reading one laptop.* `levelforge`, a public repo
+nobody has cloned here, is **six majors behind**. `discovery` carries 6 majors behind
+across 85 direct crates. `croft-stack` 4, `CISS` 3, `croft` 3 — an entire ecosystem the
+register had previously listed under "not measured here". Check 34 goes from 4 FLAGs to
+11, which is the phase working: the plan predicted it would FLAG **more**, not less.
+
+*Two registry facts that were quietly producing wrong numbers.* Maven Central's
+`latestVersion` includes prereleases and scored croft's stable okhttp3 4.12.0 as a major
+behind `5.0.0-alpha.16`; and AndroidX is not on Maven Central at all, which is why croft
+and connect first reported 5 of 11 and 5 of 9 Maven dependencies as unmeasurable. Both
+fixed; the remaining single `unknown` in each Android repo is `computer.iroh:iroh`, which
+is published to neither.
+
+*The scheduled job also gave the `bin/test-*.sh` suites their first runner.* Nine of them
+existed and nothing invoked them — a check nobody runs is the shape `VERIFICATION.md`
+opens with, sitting inside the audit's own toolbox.
+
+**Phase 5 — the CI supply chain itself. Done.** 109 third-party Action references across
+12 repos now resolve through a full-length commit SHA, each keeping the tag it came from as
+a trailing comment. `dtolnay/rust-toolchain` had been tracking a **branch**.
+
+*The phase's central unknown was measured before anything was changed.* Switching
+`sha_pinning_required` on for `stellin` and opening a probe PR produced GitHub's own
+refusal — *"The action actions/checkout@v4 is not allowed in CroftCommunity/stellin because
+all actions must be pinned to a full-length commit SHA"* — while the reusable-workflow call
+at `@main` in the same repo ran green. Had that gone the other way, the shared gate of
+Phases 1–3 would have had to be pinned and its eighteen callers bumped on every change.
+
+*Then the flip, in the order the plan required.* Tags first, setting second, `false → true`
+on all 22 non-archived repos with the prior value recorded for rollback and `enabled` and
+`allowed_actions` verified unchanged. Validated by dispatching the security workflow
+everywhere afterwards: **18 of 18 green under enforcement.**
+
+*What the org-wide view found that a workspace view could not.* `levelforge` — public,
+never cloned here — carried six floating tags and had to be pinned before the flip could
+include it. It is the third time in this rollout that the population turned out to be
+larger than the set being graded.
+
+**Still to do:** Phase 6 (the advisory authored-code pass). Four public repos —
+`levelforge`, `k1-appa`, `k1-appb`, `kernel-k1` — still have **no secret or dependency
+gate**, because Phases 1 and 2 gave a caller to the 18 repos checked out here and those four
+are not among them; the same blind spot again, now visible in `ORG-REGISTER.md`.
+`connect/android` still needs the Gradle locking `croft/android` received, and `openmls` 0.9
+sits in croft's own roadmap by owner decision.
+
+*The org-level Actions policy remains unread:* `gh api orgs/CroftCommunity/actions/permissions`
+returns 403 without `admin:org`, so per-repo settings are what this rollout could reach.
+
+
