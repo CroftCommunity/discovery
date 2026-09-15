@@ -1,6 +1,6 @@
 # Dimension streamline — the convention layer, concise where it can be, one home per why
 
-**Status: PROPOSED 2026-09-14 — awaiting the owner's answers to the Open Questions; no dimension doc is edited until then.**
+**Status: ACCEPTED 2026-09-14 — owner: all three phases; the Current-focus history is archived (Q2a). Q3-Q5 taken as recommended. Pass 2/3 review next, then Phase 1.**
 
 ## Problem Statement
 
@@ -184,6 +184,8 @@ audit green; Review Log carries the before/after line totals.
 
 ## Open Questions
 
+Answered 2026-09-14 by the owner: **Q1 all three phases; Q2 (a) archive.** Q3 (move), Q4 (one clause), Q5 (budget check) taken as recommended — the owner accepted the plan without overriding them.
+
 - [RECOMMENDED: BLOCKING] **Q1 — scope.** Phase 1 only, Phases 1-2, or all three?
   *Recommend all three, one PR per phase, stopping after any; Phase 1 alone removes the
   per-turn tax, which is where the owner's ask bites hardest.*
@@ -210,3 +212,4 @@ audit green; Review Log carries the before/after line totals.
 - 2026-09-14 — Pass 1 written from the full-read survey (subagent, all 22 files, every
   claim cited by file:line). Not yet reviewed (Pass 2/3 pending the owner's answers to
   Q1-Q5, since Q1 and Q2 change the phase list).
+- 2026-09-14 — Owner accepted: all three phases, archive the history (Q2a). Q3-Q5 as recommended.
