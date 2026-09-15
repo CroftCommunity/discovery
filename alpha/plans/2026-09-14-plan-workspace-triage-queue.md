@@ -1,6 +1,6 @@
 # Workspace triage queue — the 2026-09-14 canvass
 
-**Status: EXECUTE PASS DONE 2026-09-14 — seven PRs open (fun #94, CISS #42, croft #16, discovery #55, croft-stack #22, forage #69, CroftC #47); CISS/croft/croft-stack also carry the rustls RUSTSEC-2026-0285 fix that surfaced mid-pass; #3 (R1) is the one EXECUTE not started; DECIDE items await the owner; WAIT items belong to peer sessions.**
+**Status: EXECUTE PASS DONE 2026-09-14 — seven PRs open (fun #94, CISS #42, croft #16, discovery #55, croft-stack #22, forage #69, CroftC #47); CISS/croft/croft-stack also carry the rustls RUSTSEC-2026-0285 fix that surfaced mid-pass; #3 (R1) is built and open as croft #18; DECIDE items await the owner; WAIT items belong to peer sessions.**
 
 ## Problem Statement
 
@@ -33,7 +33,7 @@ Working surface only — every item's home is its repo TODO / plan / roadmap row
 ## Tier 1 — the calling arc (unblocks the roadmap)
  1. WAIT    croft `claude/dial-device-run` §16 landing — croftc-b4 owns it and both phones
  2. EXECUTE croft v0.5.1 cut after #1 lands (3 fixes under [Unreleased]; ops/RELEASING.md)
- 3. EXECUTE (NOT STARTED — its own feature worktree, not this one) start R1 call-core decision rules (child plan accepted 2026-09-10; expiry clause on R3)
+ 3. LANDED R1 (croft #18, 2026-09-14) · PR OPEN R2 (croft #19 — the calling transport port; the §15 defect is a `:live` cargo test) · PR OPEN R3 (croft #20, 2026-09-15 — `croft-arc`, the headless arc RUN against production with no phone; discharges the expiry clause) · next: R4 / D3: start R1 call-core decision rules (child plan accepted 2026-09-10; expiry clause on R3)
  4. PLAN    §16 unclaimed rungs: REBIND_FAILED guard, NAT/cellular/lifecycle — device-queue rows
  5. DECIDE  E135(b) dead OAuth refresh reads "Signed in" — wording; then EXECUTE
  6. PLAN    E113 scheduled OAuth refresh — elevated by §16's "OAuth dies at ~6 days idle"; a roadmap row is to-be-planned (TRACKING § Two piles), so it needs a croft TODO/plan entry before it is work
