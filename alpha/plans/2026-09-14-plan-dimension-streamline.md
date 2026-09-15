@@ -1,6 +1,6 @@
 # Dimension streamline — the convention layer, concise where it can be, one home per why
 
-**Status: ACCEPTED 2026-09-14 — owner: all three phases; the Current-focus history is archived (Q2a). Q3-Q5 taken as recommended. Pass 2 done 2026-09-14 (Review Log; one new question, Q6). Pass 3 done 2026-09-14: check 49 proven RED→GREEN, baseline 67 recorded; Phase 1 is drafted (uncommitted) with two gaps to close before it commits (Review Log § Pass 3 — the `discovery/alpha/README.md` Layout line, and the unreserved check number). Q6 still needs the owner's call before Phase 2.**
+**Status: EXECUTED 2026-09-14 — all three phases on stacked PRs awaiting the owner's merge: CroftC #63 (Phase 1, on #62) → #64 (Phase 2) → #66 (Phase 3); discovery #60 (this plan, the archive, rollout entry 11); croft-stack #24 (DNS). Q6 taken as recommended (runbook stays in LEXICONS, compressed).**
 
 ## Problem Statement
 
@@ -627,3 +627,33 @@ what moved where; calibration = each wiring test is the right strength and honou
 **Confirmed ready:** yes for Phase 1 execution once the two BLOCKING items are closed
 (both are minutes of work); Phase 2 is gated on Q6's review and on PR #62/#34
 sequencing as the Concurrency Map records.
+
+### Execution — 2026-09-14
+
+All three phases executed in one session, each as a stacked PR so no phase waited on a
+merge. Totals: `.claude/*.md` 4780 → 4391 lines; `CLAUDE.md` 263 → 121; SUPPLY-CHAIN
+481 → 371; COORDINATION 727 → 623; LEXICONS 360 → 306; SKINS 108 → 89; VERIFICATION
+3b 90 → 45 (while VERIFICATION as a whole grew 229 → 296, absorbing shape 4 and the two
+2026-09-14 workspace incidents).
+
+- **Phase 1** (CroftC #63, stacked on #62 for the audit-script overlap): every cut clause
+  grepped at its canonical home, so no per-doc "Most-missed" block was needed; the two
+  orphan whys are in TESTBED § Devices; rows 3-4 of the ledger were already recorded
+  elsewhere (Pass 2). Check 49 RED on `c0d1f2c` (263 → NOTE, above RESULT) and GREEN on
+  the branch (121 → silent); the audit run from the branch still NOTEs 263, because it
+  reads the main checkout — the NOTE clears when #63 lands. Archive:
+  `alpha/ROUND-2026-09-14-enforcement-flip-and-first-call.md`, body byte-identical.
+- **Phase 2** (CroftC #64, discovery #60's branch for rollout entry 11, croft-stack #24
+  for DNS): the LEXICONS runbook stayed, compressed (Q6 as recommended). Audit 67
+  findings, identical to Phase 1. `test-lexicon-register` 8/8 — the markers survived.
+- **Phase 3** (CroftC #66): TESTBED's cell notes were already in the Notes column, so
+  that step was a no-op (Pass 2 had corrected the wording; the content needed nothing).
+  Audit 67, identical to Phase 1 except one real NOTE the run surfaced: croft-stack
+  `claude/vps-ops` also edits `docs/DNS.md` (a different section; commented on #24).
+- **Pre-existing, not touched:** `test-changelog-shape`, `test-next-id`,
+  `test-shared-code`, `test-signin-copy` each fail identically on main (live-repo
+  fixtures); outside this plan's scope and named here so the next reader does not
+  attribute them to it.
+- **Landing order:** #62 → #63 → #64 → #66 (GitHub retargets each base as the one
+  below lands); discovery #60 and croft-stack #24 are independent of that chain.
+
