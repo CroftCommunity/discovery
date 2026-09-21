@@ -105,6 +105,8 @@ discovery/
 │   └── conclusions.md             what's settled vs. the open risks (drafting)
 │
 ├── COHESION.md                    loose-ends ↔ the proof/experiment that addresses them
+├── ROUND-<date>-<slug>.md         dated rounds — archived state narratives struck from the
+│                                    workspace focus block (e.g. 2026-09-14, the enforce flip)
 │
 └── narrative/                     the story, for humans (drafting)
     ├── verticals/                 standalone topic narratives
