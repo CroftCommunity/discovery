@@ -1,6 +1,6 @@
 # Dimension streamline — the convention layer, concise where it can be, one home per why
 
-**Status: EXECUTED 2026-09-14 — all three phases on stacked PRs awaiting the owner's merge: CroftC #63 (Phase 1, on #62) → #64 (Phase 2) → #66 (Phase 3); discovery #60 (this plan, the archive, rollout entry 11); croft-stack #24 (DNS). Q6 taken as recommended (runbook stays in LEXICONS, compressed).**
+**Status: LANDED 2026-09-21 — CroftC #62, #64 (carrying Phase 1's commit after #63 was auto-closed by its base branch's deletion) and #67 (Phase 3, reopened from #66 for the same reason); discovery #60; croft-stack #24; coding-agents #1. Post-landing audit: see Review Log.**
 
 ## Problem Statement
 
@@ -656,4 +656,13 @@ merge. Totals: `.claude/*.md` 4780 → 4391 lines; `CLAUDE.md` 263 → 121; SUPP
   attribute them to it.
 - **Landing order:** #62 → #63 → #64 → #66 (GitHub retargets each base as the one
   below lands); discovery #60 and croft-stack #24 are independent of that chain.
+
+### Landed — 2026-09-21
+
+All seven PRs merged in the planned order by the owner's instruction. One mechanics lesson
+worth the line: merging with `--delete-branch` on a stacked chain **auto-closes** the next
+PR when its base branch disappears — #63 and #66 were closed unmerged; #63's commit had
+already reached main through #64's merge (the stack carried it), and #66 was reopened as
+#67 against main. Next time, retarget each stacked PR's base to `main` *before* deleting
+the branch below it. Worktrees and branches removed; every main fast-forwarded.
 
