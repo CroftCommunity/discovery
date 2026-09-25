@@ -32,12 +32,12 @@ Working surface only — every item's home is its repo TODO / plan / roadmap row
 
 ## Tier 1 — the calling arc (unblocks the roadmap)
  1. WAIT    croft `claude/dial-device-run` §16 landing — croftc-b4 owns it and both phones
- 2. EXECUTE croft v0.5.1 cut after #1 lands (3 fixes under [Unreleased]; ops/RELEASING.md)
- 3. LANDED — R1 (croft #18), R2 (croft #19, the calling transport port; the §15 defect is a `:live` cargo test), R3 (croft #20, `croft-arc`, the headless arc RUN against production with no phone), all 2026-09-14/15; the expiry clause is discharged. Next in the plan: R4 (macOS shell) and D3 (Android onto the core, timing): start R1 call-core decision rules (child plan accepted 2026-09-10; expiry clause on R3)
+ 2. DECIDE  croft v0.6.0 cut — retargeted 2026-09-25: the pile under [Unreleased] is D3 (the Android app onto the shared core, croft #22–#24) plus R4's macOS shell and the three §16 fixes, a minor not a patch; the candidate would be signed with a laptop debug keystore where v0.5.0 was CI-signed, so existing installs take a fresh install (key wiped → `self` re-published) — that is the owner's call and the release-keystore question ops/RELEASING.md names; then EXECUTE per RELEASING.md (rc → two-device test on the PUBLISHED APK → promote)
+ 3. LANDED — R1 (croft #18), R2 (croft #19, the calling transport port; the §15 defect is a `:live` cargo test), R3 (croft #20, `croft-arc`, the headless arc RUN against production with no phone), all 2026-09-14/15; R4 (croft #21, the macOS shell, a production call from the window) and D3.1–D3.4 (croft #22, the Android app onto the core; #23 phone-to-phone over our port; #24 the relayed call with the Pixel on LTE) 2026-09-21/23 — the child plan is COMPLETE; the parent's R5–R8 are unstarted and unqueued (child plan accepted 2026-09-10)
  4. PLAN    §16 unclaimed rungs: REBIND_FAILED guard, NAT/cellular/lifecycle — device-queue rows
  5. DECIDE  E135(b) dead OAuth refresh reads "Signed in" — wording; then EXECUTE
- 6. PLAN    E113 scheduled OAuth refresh — elevated by §16's "OAuth dies at ~6 days idle"; a roadmap row is to-be-planned (TRACKING § Two piles), so it needs a croft TODO/plan entry before it is work
- 7. EXECUTE ENFORCEMENT-SCENARIOS: put DEVICE-VERIFIED on the camp + dial rows (after #1)
+ 6. FILED   E113 scheduled OAuth refresh — the croft TODO row exists as of 2026-09-25 ("Schedule the OAuth refresh so an idle phone keeps its session", `[device: android]`), carrying the three contradictory idle measurements (dead at ~10 and 6 days, alive at 7) and the rule to measure the lifetime before choosing a period; now proposable as work
+ 7. DONE (2026-09-25) ENFORCEMENT-SCENARIOS: the camp row carried DEVICE-VERIFIED since §15; the rebind row since §16; the v1 tokenless dial row now carries it from §16/§17 (every phone dial in the arc was a no-grant card, both phones, both directions, LAN and LTE). The token-bearing dial rows stay unmarked on purpose — no grant-bearing dial has been placed from a phone
  8. DONE (croft #16) croft plan Status lines: phase11 + m4 read ACTIVE, m3 has none — mark shipped
  9. PLAN    openmls 0.9.0 adoption (carries §12/§13 device re-validation) — defer behind R1–R4
 
