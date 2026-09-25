@@ -43,7 +43,7 @@ Working surface only — every item's home is its repo TODO / plan / roadmap row
 
 ## Tier 2 — backbone pins and releases
 10. DONE (croft-stack #22; **converged 2026-09-15 03:49Z**, owner-authorized — `ok=101 changed=12`, then `changed=0`; croft-stack `sessions/2026-09-14-vps-ops.md`) ciss-admit pin 0.8.0 → 0.10.0 with the git rev, together (h2 fix reaches the box); converge
-11. DECIDE  croft-stack [Unreleased] pile — relay 0.2.1, or an infra section not tied to a relay tag
+11. DONE (croft-stack #34, 2026-09-24) the pile became the two tag sections `[croft-admit 0.2.1]` + `[croft-relay 0.2.1]` in the v0.2.1 release commit; the ansible / drill / services / broker rows rode under the relay tag, which is the tag that closed their window (CHANGELOG.md header). Both binaries converged 2026-09-24 (croft-stack #35).
 12. DONE (CISS #42) CISS TODO item 1 (h2 bump) is stale — delete
 13. DONE — already shipped 2026-08-29, closed on the record (CISS #42) CISS: rsa RUSTSEC-2023-0071 dated exception + wire SCA gate (audit check 31)
 14. DISMISS CISS object-lifecycle plan — park until a consumer needs it
