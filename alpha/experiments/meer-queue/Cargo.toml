@@ -16,7 +16,10 @@ publish = false
 [dependencies]
 # The real CISS server, driven in-process over loopback HTTP.
 # SPEC-DELTA[meer-spike-ciss-inproc | test-hermeticization] — see ../SPEC-DIVERGENCE-REGISTER.md
-ciss = { path = "../../../../CISS" }
+# Pinned by commit, never by path (CroftC/.claude/SHARED-CODE.md rule 1): a path across the
+# repo boundary only resolves under one on-disk layout. The rev is the one the old
+# `../../../../CISS` path resolved to on 2026-09-29; bumping it is a decision.
+ciss = { git = "https://github.com/CroftCommunity/CISS.git", rev = "b3797b7c220f271b5efc529e3e20ba4bae7b0530" }
 
 # Serving the real CISS router on an ephemeral loopback port (mirrors
 # CISS/tests/common/mod.rs, which is how CISS drives itself).
