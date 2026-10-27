@@ -1,6 +1,8 @@
 # Experiment plan: tree re-plant and atomic group swap
 
-`Status: experiment plan, pre-execution`
+`Status: experiment plan, EXECUTED`
+
+`Result: all 7 experiments (E12.1–E12.7) CONFIRMED against mls-rs 0.55.2 — Rung A for the MLS mechanics, Rung B (intentional, documented) for Drystone's own governance-chain and dataplane hash structures. Full per-experiment source, raw output, and verdicts live in the separate round-3 results document (07-Drystone-Delivery-Experiment-Results-R3.md). Residual: the swap was performed as fresh-create throughout; mls-rs ReInit and a real resumption PSK were not exercised, so E12.2's PSK link stands as a model-form SHA-256 epoch binding. That leaves the first of the two library questions below open — see T36.`
 
 `Purpose: demonstrate that Drystone can atomically swap the MLS key-distribution tree at a scheduled boundary without disturbing conversation, membership, or governance continuity, and that a freshly planted tree resets the blank-node cost that an evolved tree accumulates.`
 

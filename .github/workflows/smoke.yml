@@ -39,6 +39,10 @@ jobs:
           # Gates the CISS rev pin in its Cargo.toml: a bump is a decision, and this is
           # where it is proven (2026-10-26).
           - alpha/experiments/meer-queue
+          # The harness behind the delivery-layer R1–R3 results (beta/impl/delivery-layer
+          # 05–07); recovered from a stray branch 2026-10-27, gated so the numbers stay
+          # reproducible.
+          - alpha/experiments/drystone-convergence
           # croft-relay moved to croft-stack/relay/source/ (2026-08-10, tiered-admission
           # plan Phase 1); its gate lives there now (.github/workflows/gate.yml).
     steps:
