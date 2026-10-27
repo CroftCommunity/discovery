@@ -180,7 +180,9 @@ preserve raw verbatim → distill → update connective tissue). The standing in
 
 - **Git identity:** chasemp account — `git@github-personal:CroftCommunity/<repo>.git`, committer
   `Chase Pettet <chase@owasp.org>`. `discovery` is the active repo; the folded `Proofs` and
-  `experiments` repos are frozen and archived. gh operations use the `chasemp` account (`gh auth switch --user chasemp`;
+  `experiments` repos are frozen and archived. gh operations use the `chasemp` account, picked per command and never by `gh auth switch` (the active
+  account is one machine-wide setting; switching it fought a peer session on another account,
+  2026-10-27). A `~/.zshrc` `gh()` wrapper sets it by path; else `GH_TOKEN=$(gh auth token --user chasemp) gh …`;
   a previously-cited `cpettet_croftc` account does not exist — corrected 2026-08-25).
 
 - **Landing is a pull request, and merging asks** (owner, 2026-08-29; the commit matrix in
