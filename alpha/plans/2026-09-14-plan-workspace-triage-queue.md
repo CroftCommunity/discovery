@@ -1,6 +1,6 @@
 # Workspace triage queue — the 2026-09-14 canvass
 
-**Status: EXECUTE PASS DONE 2026-09-14 — seven PRs open (fun #94, CISS #42, croft #16, discovery #55, croft-stack #22, forage #69, CroftC #47); CISS/croft/croft-stack also carry the rustls RUSTSEC-2026-0285 fix that surfaced mid-pass; #3 (R1) is built and open as croft #18; DECIDE items await the owner; WAIT items belong to peer sessions.**
+**Status: EXECUTE PASS DONE 2026-09-14 — its seven PRs all landed the same day (fun #94, CISS #42, croft #16, discovery #55, croft-stack #22, forage #69, CroftC #47); CISS/croft/croft-stack also carry the rustls RUSTSEC-2026-0285 fix that surfaced mid-pass; #3 (R1) landed as croft #18; DECIDE items await the owner; WAIT items belong to peer sessions.**
 
 ## Problem Statement
 
@@ -31,11 +31,11 @@ Dispositions: EXECUTE | PLAN | DECIDE (owner) | WAIT (peer session) | DISMISS
 Working surface only — every item's home is its repo TODO / plan / roadmap row.
 
 ## Tier 1 — the calling arc (unblocks the roadmap)
- 1. WAIT    croft `claude/dial-device-run` §16 landing — croftc-b4 owns it and both phones
+ 1. DONE    §16 device-verified 2026-09-14 (croft `TODO.md`, the dial-drops-camp row). Was: WAIT croft `claude/dial-device-run` §16 landing — croftc-b4 owns it and both phones
  2. DECIDED 2026-09-28: from CI with the key that signed v0.5.0 (that key stays the release key until the owner says otherwise), and AFTER row 5's session-state work lands so the release carries it; then EXECUTE per RELEASING.md. History — retargeted 2026-09-25: the pile under [Unreleased] is D3 (the Android app onto the shared core, croft #22–#24) plus R4's macOS shell and the three §16 fixes, a minor not a patch; the candidate would be signed with a laptop debug keystore where v0.5.0 was CI-signed, so existing installs take a fresh install (key wiped → `self` re-published) — that is the owner's call and the release-keystore question ops/RELEASING.md names; then EXECUTE per RELEASING.md (rc → two-device test on the PUBLISHED APK → promote)
  3. LANDED — R1 (croft #18), R2 (croft #19, the calling transport port; the §15 defect is a `:live` cargo test), R3 (croft #20, `croft-arc`, the headless arc RUN against production with no phone), all 2026-09-14/15; R4 (croft #21, the macOS shell, a production call from the window) and D3.1–D3.4 (croft #22, the Android app onto the core; #23 phone-to-phone over our port; #24 the relayed call with the Pixel on LTE) 2026-09-21/23 — the child plan is COMPLETE; the parent's R5–R8 are unstarted and unqueued (child plan accepted 2026-09-10)
  4. PLAN    §16 unclaimed rungs: REBIND_FAILED guard, NAT/cellular/lifecycle — device-queue rows
- 5. PLAN    E135(b) — reframed by the owner 2026-09-28: not wording but absent client handling. Android has one bit ("credentials stored") and renders it "Signed in" forever; a refresh failure is logged and dropped. The work: session states (proven / stored-unproven / dead) as core rules with tests, the FFI exposing them, Android rendering them; a dead session is signed-out everywhere (camp stops, sign-in field returns, pass dropped); a failure is retried and classified before it is called dead; E113's scheduled refresh is a transition on the same state. Goes BEFORE the v0.6.0 cut (row 2). Plan file owed in croft `plans/`
+ 5. PLAN    E135(b) — reframed by the owner 2026-09-28: not wording but absent client handling. Android has one bit ("credentials stored") and renders it "Signed in" forever; a refresh failure is logged and dropped. The work: session states (proven / stored-unproven / dead) as core rules with tests, the FFI exposing them, Android rendering them; a dead session is signed-out everywhere (camp stops, sign-in field returns, pass dropped); a failure is retried and classified before it is called dead; E113's scheduled refresh is a transition on the same state. Goes BEFORE the v0.6.0 cut (row 2). PLAN ACCEPTED 2026-10-26 (croft `plans/2026-09-28-plan-session-state.md`, croft #29); build not started, claimed by `worktrees/session-state/croft`
  6. FILED   E113 scheduled OAuth refresh — the croft TODO row exists as of 2026-09-25 ("Schedule the OAuth refresh so an idle phone keeps its session", `[device: android]`), carrying the three contradictory idle measurements (dead at ~10 and 6 days, alive at 7) and the rule to measure the lifetime before choosing a period; now proposable as work
  7. DONE (2026-09-25) ENFORCEMENT-SCENARIOS: the camp row carried DEVICE-VERIFIED since §15; the rebind row since §16; the v1 tokenless dial row now carries it from §16/§17 (every phone dial in the arc was a no-grant card, both phones, both directions, LAN and LTE). The token-bearing dial rows stay unmarked on purpose — no grant-bearing dial has been placed from a phone
  8. DONE (croft #16) croft plan Status lines: phase11 + m4 read ACTIVE, m3 has none — mark shipped
@@ -60,7 +60,7 @@ Working surface only — every item's home is its repo TODO / plan / roadmap row
 23. PLAN    contract v3 group-derived grants (E120/E137, P7 S3) — authored in croft, lands in connect
 24. DECIDE  connect/android tree still on disk though retired — delete (kills the Gradle-lock TODO) or lock
 25. DECIDE  E114 assetlinks.json on connect.croft.ing — the file exists with a placeholder; the release signing cert's SHA-256 is the owner's to supply
-26. PLAN    E128 native iroh logging silent on Android — roadmap row, needs a croft TODO/plan entry first (same rule as #6)
+26. FILED   E128 native iroh logging silent on Android — now in croft `TODO.md` with a dated need: naming the Pixel relay flap (run 2026-09-28/29) needs iroh's WARN line on the phone. Was: roadmap row, needs a croft TODO/plan entry first (same rule as #6)
 27. DISMISS E131 browser calling thin tier — behind the web shell, which is a .gitkeep
 
 ## Tier 4 — workspace hygiene (audit FLAGs and NOTEs)

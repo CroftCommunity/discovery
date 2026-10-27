@@ -76,7 +76,8 @@ discovery/alpha/Proofs/        lineage-groups (real openmls) · lineage-group-mo
 discovery/alpha/experiments/   appview-validation · public-roundtrip · android-p2p-app ·
                   encrypted-blob-share · croft-app-phase0 · croft-group · iroh ·
                   automerge-partial-reconstruction · local_storage_projection · mls-replant ·
-                  replant-continuity · croft-chat  (+ MASTER-INDEX · EXPERIMENT-BACKLOG ·
+                  replant-continuity · croft-chat · meer-queue · drystone-convergence
+                  (+ MASTER-INDEX · EXPERIMENT-BACKLOG ·
                   SPEC-DIVERGENCE-REGISTER · SPEC-ALIGNMENT-AND-ACTION-PLAN · SPEC2-OVERLAY)
 ```
 
@@ -182,7 +183,7 @@ preserve raw verbatim → distill → update connective tissue). The standing in
   `Chase Pettet <chase@owasp.org>`. `discovery` is the active repo; the folded `Proofs` and
   `experiments` repos are frozen and archived. gh operations use the `chasemp` account, picked per command and never by `gh auth switch` (the active
   account is one machine-wide setting; switching it fought a peer session on another account,
-  2026-10-27). A `~/.zshrc` `gh()` wrapper sets it by path; else `GH_TOKEN=$(gh auth token --user chasemp) gh …`;
+  2026-10-27). A `~/.zshenv` `gh()` wrapper sets it by path (every shell, interactive or not); else `GH_TOKEN=$(gh auth token --user chasemp) gh …`;
   a previously-cited `cpettet_croftc` account does not exist — corrected 2026-08-25).
 
 - **Landing is a pull request, and merging asks** (owner, 2026-08-29; the commit matrix in
@@ -195,8 +196,8 @@ preserve raw verbatim → distill → update connective tissue). The standing in
   ~~Previously: don't commit / push / open PRs content substance unless explicitly asked.~~
   Retired 2026-08-29 with the local-merge landing it paired with (COORDINATION Rule 2).
 
-- **Concurrent sessions:** multi-turn work happens in a worktree (`worktrees/discovery/<slug>`,
-  branch `claude/<slug>`), never in the shared checkout; contested surfaces (`ROADMAP_TODO.md`,
+- **Concurrent sessions:** multi-turn work happens in a worktree (`worktrees/<feature>/discovery`,
+  branch `claude/<feature>`), never in the shared checkout; contested surfaces (`ROADMAP_TODO.md`,
   the ledgers, this file) are claimed first. Protocol + reasons:
   `CroftC/.claude/COORDINATION.md`.
 

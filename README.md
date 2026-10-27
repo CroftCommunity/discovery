@@ -5,8 +5,8 @@ companions with every cross-reference as a followable link. Built by `site/build
 broken-reference gate on every push and PR (see `site/README.md`).
 
 **The gate, named** (CI-PATTERN rule 6): `smoke.yml` runs `cargo test` and `cargo clippy --all-targets`
-in each Rust experiment crate it lists (`alpha/experiments/local_storage_projection`, `croft-chat`,
-`bip39-recovery-roundtrip`), and the site build (`npm ci` + `site/build.py`) as the reference gate. Run
+in each Rust experiment crate in its matrix (`alpha/experiments/local_storage_projection`, `croft-chat`,
+`bip39-recovery-roundtrip`, `meer-queue`, `drystone-convergence`), and the site build (`npm ci` + `site/build.py`) as the reference gate. Run
 the same commands in the crate you touched before pushing.
 
 [![pages](https://github.com/CroftCommunity/discovery/actions/workflows/pages.yml/badge.svg)](https://github.com/CroftCommunity/discovery/actions/workflows/pages.yml)
@@ -35,4 +35,5 @@ stages):
 The **experiments** and **Proofs** corpora were folded into discovery (2026-07-13 and 2026-07-15) and
 now live under `alpha/experiments/` and `alpha/Proofs/`, so discovery is the single authoritative
 home; the standalone `experiments/` and `Proofs/` repos are frozen and archived (read-only). Git
-identity: chasemp (`chase@owasp.org`, `github-personal`). Don't commit/push unless asked.
+identity: chasemp (`chase@owasp.org`, `github-personal`). Landing is a PR: push and open it without
+asking; ask before merging (`CroftC/.claude/COORDINATION.md`).

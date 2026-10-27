@@ -219,9 +219,11 @@ This repo set is reviewed before commit, so commit only on request. When asked:
 
 ## 5. Don't, by default
 
-- Don't commit to git unless asked (this repo set is reviewed before commit).
+- Don't commit to a shared `main`: commit on a `claude/*` branch in a worktree; push and open the PR
+  without asking; ask before merging (`CroftC/.claude/COORDINATION.md` Rule 2 — the earlier
+  "don't commit / push unless asked" was retired 2026-08-29).
 
-- Don't run workflows / push / open PRs on the CroftC repos without explicit ask.
+- Don't dispatch workflows (`gh workflow run`) or deploy without an explicit ask.
 
 - Don't relabel a whole proof as an experiment (or vice-versa) because one part differs —
   flag the mixed part instead.
