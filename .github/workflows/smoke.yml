@@ -1,10 +1,10 @@
-# Smoke gate — proves the three self-contained Rust crates build, test, and clippy-clean
+# Smoke gate — proves the self-contained Rust crates in the matrix below build, test, and clippy-clean
 # on a FRESH clone of the repo. This is the clean-checkout reproducibility check the
 # in-session gate cannot give (it caught nothing this run only because Proofs was folded
 # in; the failure mode it guards is "green in-session, broken on a fresh clone").
 #
-# Deliberately scoped to the crates that need NO external tree: local_storage_projection,
-# croft-chat, and bip39-recovery-roundtrip. The heavy MLS/conformance path
+# Deliberately scoped to the crates that need NO external tree (each matrix entry says why
+# it is here). The heavy MLS/conformance path
 # (alpha/Proofs/*, mls-welcome-over-iroh, the TS-authoritative conformance cats) is NOT
 # gated here — it needs the Proofs tree + openmls + iroh + a TS toolchain and stays on
 # the in-session gate.
