@@ -58,3 +58,9 @@ and the standing indexes. Status notes whether the prompt has been run.
   any Part-1/2-affecting delta since the last spec-touching run) then a full consistency/clarity/
   correctness pass, RUN-05 FIX-vs-FINDING discipline. CORE-ONLY scope; lane graduation (ROADMAP
   A19) and primary-source re-verification are out of scope. Copy into a fresh session after a clear.
+- [`drystone-implementation-trueup-prompt.md`](drystone-implementation-trueup-prompt.md) — true Drystone
+  Part 1/2 up against two months of building (the spec was last edited 2026-08-25): a gap matrix and a
+  proposals document of refinements, omissions, and clarity fixes, with Drystone stated as requirements
+  and MLS/iroh/redb as the realizations that fulfil them. The evidence base is the **whole workspace**
+  (croft, croft-stack, CISS, connect and a per-repo sweep), not discovery alone. Proposals only; Part 1/2
+  are edited after owner approval. **Not yet run** (filed 2026-10-28).
