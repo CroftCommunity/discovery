@@ -63,4 +63,6 @@ and the standing indexes. Status notes whether the prompt has been run.
   proposals document of refinements, omissions, and clarity fixes, with Drystone stated as requirements
   and MLS/iroh/redb as the realizations that fulfil them. The evidence base is the **whole workspace**
   (croft, croft-stack, CISS, connect and a per-repo sweep), not discovery alone. Proposals only; Part 1/2
-  are edited after owner approval. **Not yet run** (filed 2026-10-28).
+  are edited after owner approval. **Run** 2026-10-28 → `beta/drystone-spec/proposed-changes-2026-10-implementation-trueup.md`
+  (46 proposals; owner walked all 46 on 2026-10-29 and 2026-11-06, decisions in its § Owner decisions;
+  the application pass that edits Part 1/2 and the owning repos' TODOs follows).
